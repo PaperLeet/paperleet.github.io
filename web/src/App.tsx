@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Highlight } from "./SyntaxHighlight";
 import { Community, UserProfile, Account, Submissions, Visuals, ArtifactCharts, Prose, PythonEditor } from "./deferredPages";
 import {
@@ -52,6 +52,10 @@ import type { ExperimentView } from "./experimentResults";
 import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
 import TestComparison from "./TestComparison";
+import { BrowserResultActions } from './BrowserResultActions';
+import { matchesBrowserSubmission } from './browserVerification';
+import { useDraftHandoff } from './useDraftHandoff';
+import { DraftHandoffNotice } from './DraftHandoffNotice';
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -247,6 +251,8 @@ function Workspace() {
   const { user, health, healthError, refreshHealth, capabilities } =
     useAccount();
   const practice = usePracticeWorkspace();
+  const handoff = useDraftHandoff(practice.owner);
+  const runToken = useRef<object | undefined>(undefined);
   const { saved, update } = practice;
   const online = !!health?.judge.ready && !healthError;
   const hosted = health?.mode === "hosted";
@@ -301,19 +307,22 @@ function Workspace() {
   const nextProblem = problem && progressReady
     ? nextPractice(problem, selectedPaper?.module_ids || [], problems, saved)
     : undefined;
+  const browser = useBrowserJudge(practice.owner);
   const judge = useQueuedJudge(practice.owner, progressReady && problems.length > 0, (report, runOwner) => {
     const entry = problems.find((p) => p.id === report.problem);
     if (!entry || !practice.owns(runOwner)) return;
     practice.applyReport(entry, report, runOwner);
+    browser.clear(entry.id);
     void refreshProblemStats();
     if ([entry.id, String(entry.number)].includes(getId())) setTab("tests");
     setToast(t("判题已完成", "Run complete"));
   });
-  useEffect(() => setPreparingRun(false), [practice.owner]);
-  const browser = useBrowserJudge(practice.owner);
+  useEffect(() => { runToken.current = undefined; setPreparingRun(false); }, [practice.owner]);
   const [judgeMode, setJudgeMode] = useState<JudgeMode>("auto");
   const report = problem ? browser.reports[problem.id] || current.report : undefined;
   const reportSource = useReportSource(report, current.code ?? problem?.starter ?? "");
+  const handoffProblem = problems.find(entry => entry.id === handoff.pending?.problem);
+  const handoffSaved = handoffProblem ? saved[handoffProblem.id] || {} : {};
   const browserAvailable = !!problem?.browser_judge && judgeMode !== "server";
   const browserHere = browser.problem === problem?.id;
   const running = preparingRun || judge.active || browser.active;
@@ -403,25 +412,33 @@ function Workspace() {
     const timer = setTimeout(() => setToast(""), 6000);
     return () => clearTimeout(timer);
   }, [toast]);
-  async function run(requestedMode: JudgeMode = judgeMode) {
-    if (!problem || running || !practice.ready) return;
+  async function run(requestedMode: JudgeMode = judgeMode, verification?: Report) {
+    if (!problem || running || runToken.current || !practice.ready) return;
     const runOwner = practice.owner;
+    const token = {};
+    runToken.current = token;
+    const ownsRun = () => practice.owns(runOwner) && runToken.current === token;
     const submittedCode = current.code ?? problem.starter;
     setPreparingRun(true);
     try {
+      if (verification) {
+        const matches = await matchesBrowserSubmission(problem,verification,submittedCode);
+        if (!ownsRun()) return;
+        if (!matches) { setToast(t('代码版本已变化，请重新运行后确认。', 'The source version changed. Run tests again before verifying.')); return; }
+      }
       if (problem.browser_judge && requestedMode !== "server") {
         const outcome = await browser.run(problem, submittedCode);
-        if (!practice.owns(runOwner)) return;
+        if (!ownsRun()) return;
         if (outcome.type === "result") {
           // Hosted completions and shared statistics remain server-authoritative.
           if (!hosted) practice.applyReport(problem, outcome.report, runOwner);
-          setTab("tests");
+          if ([problem.id,String(problem.number)].includes(getId())) setTab("tests");
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
         }
         if (requestedMode === "browser") return;
       }
-      if (!practice.owns(runOwner)) return;
+      if (!ownsRun()) return;
       if (hosted && (!user || !online || practice.conflicts[problem.id])) {
         setToast(!user ? t("需要登录后使用服务端判题。", "Sign in to use server judging.")
           : practice.conflicts[problem.id] ? t("请先解决草稿版本冲突。", "Resolve the draft conflict first.")
@@ -429,19 +446,36 @@ function Workspace() {
         return;
       }
       if (hosted) await practice.flush();
-      if (!practice.owns(runOwner)) return;
-      browser.clear(problem.id);
+      if (!ownsRun()) return;
       await judge.submit(problem.id, submittedCode);
     } catch (e) {
-      if (!practice.owns(runOwner)) return;
+      if (!ownsRun()) return;
       if (e instanceof DOMException && e.name === "AbortError") {
         setToast(t("浏览器运行已停止", "Browser run stopped"));
         return;
       }
       setToast(e instanceof Error ? e.message : t("暂时无法运行，请稍后重试。", "Unable to run. Please try again shortly."));
     } finally {
-      if (practice.owns(runOwner)) setPreparingRun(false);
+      if (ownsRun()) { runToken.current = undefined; setPreparingRun(false); }
     }
+  }
+  function signInWithDraft() {
+    if (practice.error) {
+      setToast(t('草稿尚未保存，请先下载代码备份再登录。', 'Your draft could not be saved. Download a code backup before signing in.'));
+      return;
+    }
+    if (!problem || !progressReady || !handoff.prepare(problem.id,current.code ?? problem.starter)) return;
+    location.hash = signInHref(id).slice(1);
+  }
+  function importHeldDraft(backup: boolean) {
+    const held = handoff.pending;
+    if (!held?.owner || !handoffProblem || !progressReady || !practice.owns(held.owner) || problem?.id !== held.problem || practice.conflicts[held.problem]) return false;
+    if (backup) download(`paperleet-${held.problem.replaceAll('/','-')}-before-import.py`,handoffSaved.code || '');
+    const applied = update(held.problem,{code:held.code},{owner:held.owner,code:handoffSaved.code,updated:handoffSaved.updated});
+    if (!applied) return false;
+    handoff.discard(held.id);
+    setToast(t('草稿已导入；重新运行后可确认账号成绩。', 'Draft imported. Run tests again to verify account results.'));
+    return true;
   }
   async function copy(text: string) {
     try {
@@ -466,7 +500,7 @@ function Workspace() {
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|Write and run|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
-    `## 6. ${t("编写与运行", "Write and run")}\n\n${hosted ? (testAuth ? t("使用内测账号登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Sign in with your test account, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.") : t("受邀用户登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Invited members can sign in, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.")) : t("在右侧编辑器中完成实现，点击「运行全部测试」。测试结果会在「测试」标签页显示；全部通过后解锁坑点。草稿会自动保存在当前浏览器。", "Complete the implementation in the editor and select Run all tests. Results appear in the Tests tab; passing all tests unlocks Notes. Drafts are saved automatically in this browser.")}\n`,
+    `## 6. ${t("编写与运行", "Write and run")}\n\n${hosted && problem?.browser_judge ? t("本题可直接在浏览器 CPU/WASM 运行完整测试，无需 GPU。未登录时草稿保存在当前浏览器；登录后可确认导入本题代码，再由服务端判题计入账号成绩并解锁坑点。", "Run this complete suite directly on your browser CPU/WASM; no GPU is needed. Signed-out drafts stay in this browser. After signing in, choose whether to import this module’s code, then use server judging to record account results and unlock Notes.") : hosted ? (testAuth ? t("使用内测账号登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Sign in with your test account, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.") : t("受邀用户登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Invited members can sign in, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.")) : t("在右侧编辑器中完成实现，点击「运行全部测试」。测试结果会在「测试」标签页显示；全部通过后解锁坑点。草稿会自动保存在当前浏览器。", "Complete the implementation in the editor and select Run all tests. Results appear in the Tests tab; passing all tests unlocks Notes. Drafts are saved automatically in this browser.")}\n`,
   );
   return (
     <div className={`app ${problem ? "workspace-view" : ""}`}>
@@ -565,6 +599,7 @@ function Workspace() {
           </div>
         </div>
       </header>
+      {handoff.pending && handoffProblem && user && <DraftHandoffNotice key={`${practice.owner}:${handoff.pending.id}`} pending={handoff.pending} problem={handoffProblem} current={handoffSaved} username={user.username} open={problem?.id === handoff.pending.problem} ready={progressReady} conflict={!!practice.conflicts[handoff.pending.problem]} onImport={importHeldDraft} onDiscard={() => handoff.discard(handoff.pending!.id)} />}
       {communityPage ? (
         <Community
           route={id}
@@ -721,6 +756,7 @@ function Workspace() {
               <div className="description-scroll" key={problem.id}>
                 {tab === "tests" ? (
                   <ReportView report={report} problem={problem} sourceState={reportSource}>
+                    {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} error={handoff.error} onSignIn={signInWithDraft} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
                     {!running && reportSource === "current" && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
                       <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
                     )}
@@ -1084,18 +1120,17 @@ function Workspace() {
                         <option value="server">{t("服务端", "Server")}</option>
                       </select>
                     </label>
-                    <small>{t("原型：本机 CPU / WASM 运行完整测试，无需 GPU。", "Prototype: the complete suite runs on your CPU / WASM; no GPU needed.")}</small>
+                    <small>{judgeMode === 'server' ? t('将提交当前代码，由服务端 CPU 执行完整测试。', 'Submit the current source for the complete suite on the server CPU.') : t("原型：本机 CPU / WASM 运行完整测试，无需 GPU。", "Prototype: the complete suite runs on your CPU / WASM; no GPU needed.")}</small>
                     {hosted && <small>{t("浏览器结果仅供本机反馈；服务端确认后计入账号进度与统计。", "Browser results are local feedback; server verification records account progress and statistics.")}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")}。{judgeMode === "auto" ? t("自动模式回退到服务端，请查看下方状态。", "Auto mode falls back to the server; see the status below.") : t("可切换至服务端运行。", "Select Server to run this suite.")}</p>}
                     {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}
                     {browser.diagnostics[problem.id] && <details><summary>{t("运行时详情", "Runtime details")}</summary><code>{browser.diagnostics[problem.id]}</code></details>}
-                    {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}
-                      {hosted && <button className="text-button" disabled={running || !user || !online} onClick={() => void run("server")}>{t("服务端确认", "Verify on server")}</button>}
-                    </p>}
+                    {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}</p>}
                     {browser.active && (browserHere
                       ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
                       : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                   </div>}
+                  {!problem.browser_judge && <div className="server-judge-panel"><strong>{t('服务端 CPU 判题', 'Server CPU judging')}</strong><small>{t('在网页完成实现后提交，服务端执行完整测试并返回结果。', 'Implement on the web, then submit for the complete suite and feedback from the server.')}</small>{hosted && !user && <small>{t('登录后可提交；现在可以先阅读题面、编辑和保存本机草稿。', 'Sign in to submit. You can read, edit and save a browser draft first.')}</small>}</div>}
                   {judge.active && <div className="practice-notice judge-queue-notice" role="status">
                     <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
                       {t("可以继续编辑；本次判题使用提交时的代码。刷新后可继续查看任务。", "You can keep editing. This run uses the submitted code; refresh to reconnect.")}</span>
@@ -1107,7 +1142,7 @@ function Workspace() {
                   {(practice.error ||
                     practice.conflicts[problem.id] ||
                     (!health && healthError) ||
-                    (hosted && (!user || !online))) && (
+                    (hosted && !browserAvailable && (!user || !online))) && (
                     <div className="practice-notice" role="status">
                       {practice.conflicts[problem.id] ? (
                         <>

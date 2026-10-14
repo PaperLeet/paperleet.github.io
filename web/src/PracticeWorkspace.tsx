@@ -25,6 +25,10 @@ const emptyBundle = (owner: string): Bundle => ({
   conflicts: {},
   hydrated: false,
 });
+export type DraftExpectation = { owner: string; code?: string; updated?: string };
+export function draftSnapshotMatches(saved: Saved | undefined, expected: DraftExpectation) {
+  return saved?.code === expected.code && (saved?.updated || '') === (expected.updated || '');
+}
 function readLocal(): Record<string, Saved> {
   try {
     return parseSaved(JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"));
@@ -152,6 +156,7 @@ export function usePracticeWorkspace() {
     const previous = currentBundle.current;
     if (previous.owner !== expectedOwner) return;
     const next = change(previous);
+    if (next === previous) return;
     currentBundle.current = next;
     persist(next);
     setBundle(next);
@@ -311,10 +316,11 @@ export function usePracticeWorkspace() {
     }, 700);
     return () => clearTimeout(timer);
   }, [bundle, owner, hosted, flushVersion]);
-  function update(id: string, change: Partial<Saved>) {
-    failed.current = false;
-    setError("");
+  function update(id: string, change: Partial<Saved>, expected?: DraftExpectation) {
+    let applied = false;
     mutate((previous) => {
+      if (expected && (previous.conflicts[id] || !draftSnapshotMatches(previous.records[id],expected))) return previous;
+      applied = true;
       const timestamp = new Date().toISOString();
       const records = {
         ...previous.records,
@@ -335,7 +341,9 @@ export function usePracticeWorkspace() {
         };
       }
       return { ...previous, records, pending };
-    });
+    },expected?.owner || owner);
+    if (applied) { failed.current = false; setError(''); }
+    return applied && !storageError.current;
   }
   function applyReport(
     problem: Problem,

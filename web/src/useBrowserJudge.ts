@@ -49,9 +49,12 @@ export function useBrowserJudge(owner: string) {
   }
   function clear(problem: string) {
     setView((previous) => {
+      if (previous.owner !== owner) return previous;
       const reports = { ...previous.reports };
       delete reports[problem];
-      return { ...previous, reports };
+      const reasons = { ...previous.reasons }, diagnostics = { ...previous.diagnostics }, calibrations = { ...previous.calibrations };
+      delete reasons[problem]; delete diagnostics[problem]; delete calibrations[problem];
+      return { ...previous, reports, reasons, diagnostics, calibrations };
     });
   }
   return { ...visible, active: !!visible.problem, run, clear, stop: () => controller.current?.abort() };

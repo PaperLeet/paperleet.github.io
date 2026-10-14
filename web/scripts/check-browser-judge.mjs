@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createServer } from 'vite';
-import { calibrationDiagnostic } from '../public/browser-judge/diagnostics.mjs';
+import { calibrationDiagnostic, runtimeDiagnostic } from '../public/browser-judge/diagnostics.mjs';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const originals = Object.fromEntries(['Worker', 'window', 'document', 'location', 'fetch'].map((key) => [key, globalThis[key]]));
 try {
+  const runtimeError = runtimeDiagnostic('Traceback header\n' + 'framework frame\n'.repeat(500) + 'ImportError: precise root cause');
+  assert(runtimeError.startsWith('Traceback header') && runtimeError.endsWith('ImportError: precise root cause') && runtimeError.length <= 4000);
+  assert.equal(runtimeDiagnostic(new Error('short')), 'Error: short');
   const diagnostic = calibrationDiagnostic({reason:'reference_failed',reference:{tests:[
     {id:'wrong_number',passed:false,message:'expected 1; got 2'},
     {id:'passed',passed:true,message:'must not appear'},

@@ -1,3 +1,9 @@
+export function runtimeDiagnostic(error) {
+  const message = String(error);
+  // Python's root exception is at the end of its traceback. Keep both ends.
+  return message.length <= 4000 ? message : `${message.slice(0, 500)}\n…\n${message.slice(-3490)}`;
+}
+
 // Calibration runs only public reference/mutant code, never the learner source.
 export function calibrationDiagnostic(calibration) {
   const lines = [String(calibration?.reason || 'unknown_calibration_failure')];

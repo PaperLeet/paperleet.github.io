@@ -12,6 +12,7 @@ import CollectionArtwork from "./CollectionArtwork";
 import { getProblemStats, ProblemStatsSummary } from "./ProblemStats";
 import type { ProblemStatsMap } from "./ProblemStats";
 import { PracticeStart } from "./PracticeJourney";
+import { ModuleJudgeBadge, PaperJudgeBadge } from "./JudgeCapability";
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export function paperModules(paper: Paper, problems: Problem[]) {
@@ -181,7 +182,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const progress = paperProgress(paper, practice);
           return <a className="problem-row paper-table-grid" key={paper.id} href={`#/papers/${paper.id}`}>
             <StateIcon state={progress.state} />
-            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}{paperModules(paper, problems).some((p) => p.browser_judge) && <span className="browser-capability-badge" title={t("包含可在本机 CPU 运行测试的模块，无需 GPU", "Includes modules that run tests on your CPU; no GPU needed")}>{t("浏览器", "Browser")}</span>}</strong><small title={paper.title}>{paper.title}</small></div>
+            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}<PaperJudgeBadge modules={paperModules(paper, problems)} /></strong><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
@@ -217,7 +218,7 @@ export function PaperDetail({ paper, problems, saved, stats }: Practice & { pape
             return <a href={`#/${problem.number}`} className="paper-module-card" key={problem.id}>
               <div className="module-card-top"><StateIcon state={state} /><h3><span>{problem.number}.</span> {title}</h3><ChevronRight size={17} /></div>
               <p>{t(problem.module.goal, problem.module.goal_en)}</p>
-              <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span>{problem.browser_judge && <span className="browser-capability-badge">{t("浏览器判题 · 无需 GPU", "Browser tests · No GPU")}</span>}<span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
+              <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span><ModuleJudgeBadge problem={problem} /><span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
               <div className="module-functions"><span>{t("需要实现", "Implement")}</span>{problem.module.required_functions.map((name) => <code key={name}>{name}</code>)}</div>
               {!!problem.module.provided_functions.length && <div className="module-functions provided-functions"><span>{t("已提供", "Provided")}</span>{problem.module.provided_functions.map((name) => <code key={name}>{name}</code>)}</div>}
               <ProblemStatsSummary stats={getProblemStats(stats, problem.id)} />

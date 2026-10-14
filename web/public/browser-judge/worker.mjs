@@ -1,5 +1,5 @@
 // Runs only inside the disposable, opaque-origin browser judge sandbox.
-import { calibrationDiagnostic } from './diagnostics.mjs';
+import { calibrationDiagnostic, runtimeDiagnostic } from './diagnostics.mjs';
 const send = globalThis.postMessage.bind(globalThis);
 let started = false;
 self.onmessage = async ({ data }) => {
@@ -31,6 +31,6 @@ self.onmessage = async ({ data }) => {
     if (report.tests.some((test) => /BrowserUnsupported|ModuleNotFoundError|ImportError/.test(test.message))) return unsupported('python_api_unsupported');
     send({ type: 'result', report, calibration });
   } catch (error) {
-    unsupported('runtime_failed', String(error).slice(0, 500));
+    unsupported('runtime_failed', runtimeDiagnostic(error));
   }
 };
