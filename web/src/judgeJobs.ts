@@ -1,5 +1,6 @@
 import { parseReport } from "./reports";
 import type { Report } from "./types";
+import { apiUrl, apiCredentials } from "./apiClient";
 
 export type JudgeJob = {
   id: string;
@@ -48,7 +49,8 @@ export function parseJob(value: unknown): JudgeJob {
 }
 
 export async function requestJob(path: string, client: string, signal: AbortSignal, body?: object, fetcher: typeof fetch = fetch): Promise<JudgeJob> {
-  const response = await fetcher(`/api/judge/jobs${path}`, {
+  const response = await fetcher(apiUrl(`/api/judge/jobs${path}`), {
+    credentials: apiCredentials,
     method: body ? "POST" : "GET",
     headers: { "Content-Type": "application/json", "X-PaperLeet-Client-ID": client },
     ...(body ? { body: JSON.stringify(body) } : {}),

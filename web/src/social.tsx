@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
 import { signInHref } from "./accountNavigation";
 import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
+import { apiFetch } from "./apiClient";
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type PublicUser = {
@@ -54,8 +55,7 @@ export class SocialError extends Error {
   }
 }
 export async function socialApi<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch(`/api/${path}`, {
-    credentials: "same-origin",
+  const response = await apiFetch(`/api/${path}`, {
     cache: "no-store",
     ...(body === undefined
       ? {}
@@ -157,7 +157,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const response = await fetch("/api/health", {
+      const response = await apiFetch("/api/health", {
         cache: "no-store",
         signal: AbortSignal.timeout(5000),
       });

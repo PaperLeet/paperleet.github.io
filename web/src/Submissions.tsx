@@ -1,3 +1,4 @@
+import { apiFetch } from "./apiClient";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -105,7 +106,7 @@ const EMPTY_CHECKS = {
 const busyStatus = (s?: string) => s === "generating" || s === "validating";
 const safeUrl = (s: string) => (/^https?:\/\//i.test(s) ? s : undefined);
 async function api<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch(
+  const response = await apiFetch(
     `/api/submissions${path}`,
     body === undefined
       ? { cache: "no-store" }

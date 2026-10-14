@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
 import { publicSite } from "./deployment";
+import { apiFetch } from "./apiClient";
 
 export type ProblemStatistics = {
   attempted_users: number;
@@ -55,7 +56,7 @@ export function useProblemStats(refreshKey?: string) {
     setError(null);
     const timeout = window.setTimeout(() => controller.abort(), 12_000);
     try {
-      const response = await fetch("/api/practice/stats", { signal: controller.signal, credentials: "omit", cache: "no-store" });
+      const response = await apiFetch("/api/practice/stats", { signal: controller.signal, credentials: "omit", cache: "no-store" });
       if (!response.ok) throw new Error("Practice statistics are unavailable");
       const data = await response.json();
       if (request.current !== controller) return;
