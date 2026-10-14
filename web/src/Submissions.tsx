@@ -17,7 +17,8 @@ import {
 import { useI18n } from "./i18n";
 import { useAccount } from "./social";
 import { signInHref } from "./accountNavigation";
-import { Highlight, Prose } from "./App";
+import { Highlight } from "./SyntaxHighlight";
+import { Prose } from "./RichText";
 import { ArtifactCharts } from "./Visuals";
 
 type Candidate = {

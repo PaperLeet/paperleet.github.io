@@ -18,8 +18,10 @@ export default defineConfig({
   base: "./",
   server: { proxy: { "/api": "http://127.0.0.1:8765" } },
   build: {
+    manifest: true,
     rollupOptions: {
       output: {
+        onlyExplicitManualChunks: true,
         manualChunks(id) {
           if (id.includes("codemirror") || id.includes("@lezer"))
             return "editor";
