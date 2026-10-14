@@ -86,7 +86,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
   const { t } = useI18n();
   const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
   const failures: Record<string, string> = {
-    identity: t("未能确认学校／企业组织身份。请使用 Google Workspace 或 Microsoft 工作／学校账号；若仍失败，请联系管理员。", "We could not confirm your organization identity. Use a Google Workspace or Microsoft work/school account. Contact an administrator if this continues."),
+    identity: t("未能确认账号资格。请使用学校／企业组织账号，或已由管理员加入白名单的 Google 邮箱；若仍失败，请联系管理员。", "We could not confirm account eligibility. Use a school/work account or a Google mailbox explicitly invited by an administrator. Contact an administrator if this continues."),
     expired: t("此次登录已过期，请重新开始。", "This sign-in expired. Please start again."),
     cancelled: t("你已取消登录，可以重新选择账号。", "Sign-in was cancelled. You can choose an account again."),
     unavailable: t("登录服务暂时不可用，请稍后重试。", "The sign-in service is temporarily unavailable. Please try again shortly."),
@@ -119,11 +119,11 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
           </button>;
         })}
       </div>
-      <p className="social-description">{t("请在登录页面选择组织账号。普通 Gmail、Outlook、Hotmail 个人账号不符合当前注册规则。", "Choose your organization account. Personal Gmail, Outlook and Hotmail accounts are not eligible under the current registration policy.")}</p>
+      <p className="social-description">{t("请在登录页面选择组织账号。个人 Gmail 仅限管理员按完整邮箱加入白名单的受邀用户；其他个人账号不开放注册。", "Choose your organization account. Personal Gmail accounts require an explicit invitation for the exact address; other personal accounts cannot register.")}</p>
     </section>
     <aside className="social-panel login-card">
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
-      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、公司账号。部分机构可能要求管理员批准应用。", "School and company accounts managed by Google Workspace or Microsoft 365/Entra. Some organizations require administrator approval.")}</p>
+      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、公司账号，以及白名单内的个人 Gmail。部分机构可能要求管理员批准应用。", "School and company accounts managed by Google Workspace or Microsoft 365/Entra, plus explicitly invited personal Gmail accounts. Some organizations require administrator approval.")}</p>
       <p className="social-description">{t("其他邮件系统暂不支持这两个登录入口。邮箱地址不会显示在公开主页，组织账号也不代表学校或雇主对个人身份的背书。", "Other email systems are not covered by these two sign-in options. Your email stays private. An organization account is not an endorsement by a school or employer.")}</p>
     </aside>
   </div>;

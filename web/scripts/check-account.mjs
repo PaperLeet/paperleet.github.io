@@ -66,7 +66,7 @@ try {
   assert(organization.includes("使用 Google 登录") && organization.includes("使用 Microsoft 登录"));
   assert(organization.includes("尚未启用") && organization.includes("disabled="));
   assert(!organization.includes('type="email"') && !organization.includes('type="password"'));
-  assert(organization.includes("此次登录已过期") && organization.includes("个人账号不符合当前注册规则"));
+  assert(organization.includes("此次登录已过期") && organization.includes("白名单的受邀用户"));
   assert.equal(accountReturnHref("account/error/expired/22"), "#/22");
   assert.equal(accountReturnHref("account/error/identity/https://evil.test"), undefined);
   assert(openRegistration.includes("学校／公司邮箱"));
