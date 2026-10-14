@@ -4,11 +4,14 @@ cd "$(dirname "$0")/.."
 case "${PAPERLEET_DEPLOYMENT:-direct}" in
     direct) ;;
     tunnel) ;;
-    *) echo 'PAPERLEET_DEPLOYMENT must be direct or tunnel.' >&2; exit 1 ;;
+    oracle) ;;
+    *) echo 'PAPERLEET_DEPLOYMENT must be direct, tunnel or oracle.' >&2; exit 1 ;;
 esac
 compose() {
     if [ "${PAPERLEET_DEPLOYMENT:-direct}" = tunnel ]; then
         docker compose --env-file deploy/.env -f deploy/compose.yaml -f deploy/compose.tunnel.yaml "$@"
+    elif [ "${PAPERLEET_DEPLOYMENT:-direct}" = oracle ]; then
+        docker compose --env-file deploy/.env -f deploy/compose.yaml -f deploy/compose.oracle.yaml "$@"
     else
         docker compose --env-file deploy/.env -f deploy/compose.yaml "$@"
     fi

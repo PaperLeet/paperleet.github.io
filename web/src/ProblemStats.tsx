@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
+import { publicSite } from "./deployment";
 
 export type ProblemStatistics = {
   attempted_users: number;
@@ -46,6 +47,7 @@ export function useProblemStats(refreshKey?: string) {
   const [error, setError] = useState<string | null>(null);
   const request = useRef<AbortController | null>(null);
   const refresh = useCallback(async () => {
+    if (publicSite) { setLoading(false); setAvailable(false); setError(null); return; }
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;

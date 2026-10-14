@@ -49,6 +49,7 @@ import { browserReason, type JudgeMode } from "./browserJudge";
 import { browserBudget } from './browserBudgets';
 import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
+import { publicSite, hostedAppHref } from "./deployment";
 import { reportTestLabel, type ExperimentView } from "./experimentResults";
 import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
@@ -310,7 +311,7 @@ function Workspace() {
     ? nextPractice(problem, selectedPaper?.module_ids || [], problems, saved)
     : undefined;
   const browser = useBrowserJudge(practice.owner);
-  const judge = useQueuedJudge(practice.owner, progressReady && problems.length > 0, (report, runOwner) => {
+  const judge = useQueuedJudge(practice.owner, !publicSite && progressReady && problems.length > 0, (report, runOwner) => {
     const entry = problems.find((p) => p.id === report.problem);
     if (!entry || !practice.owns(runOwner)) return;
     practice.applyReport(entry, report, runOwner);
@@ -448,6 +449,11 @@ function Workspace() {
         if (requestedMode === "browser") return;
       }
       if (!ownsRun()) return;
+      if (publicSite) {
+        download(`paperleet-${problem.id.replaceAll("/", "-")}.py`, submittedCode);
+        location.assign(hostedAppHref(signInHref(id)));
+        return;
+      }
       if (hosted && (!user || !online || practice.conflicts[problem.id])) {
         setToast(!user ? t("需要登录后使用服务端判题。", "Sign in to use server judging.")
           : practice.conflicts[problem.id] ? t("请先解决草稿版本冲突。", "Resolve the draft conflict first.")
@@ -469,6 +475,11 @@ function Workspace() {
     }
   }
   function signInWithDraft() {
+    if (publicSite && problem) {
+      download(`paperleet-${problem.id.replaceAll("/", "-")}.py`, current.code ?? problem.starter);
+      location.assign(hostedAppHref(signInHref(id)));
+      return;
+    }
     if (practice.error) {
       setToast(t('草稿尚未保存，请先下载代码备份再登录。', 'Your draft could not be saved. Download a code backup before signing in.'));
       return;
@@ -540,12 +551,12 @@ function Workspace() {
             >
               {problem ? t("工作区", "Workspace") : progressReady && problems.length > 0 && !resumeProblem ? t("核心模块已完成", "Core modules complete") : resumeProblem && status(resumeProblem, saved[resumeProblem.id]) === "started" ? t("继续练习", "Continue") : t("开始练习", "Start practice")}
             </button>
-            <a className={submissionPage ? "active" : ""} href="#/submit">
+            <a className={submissionPage ? "active" : ""} href={hostedAppHref("#/submit")}>
               {t("提交论文", "Submit paper")}
             </a>
             <a
               className={communityPage || profileUsername ? "active" : ""}
-              href="#/community"
+              href={hostedAppHref("#/community")}
             >
               {t("社区", "Community")}
             </a>
@@ -562,7 +573,7 @@ function Workspace() {
               )}
             >
               <i />
-              {online
+              {publicSite ? t("浏览器练习", "Browser practice") : online
                 ? t("判题服务已连接", "Judge connected")
                 : t("判题服务未连接", "Judge offline")}
             </span>
@@ -1232,6 +1243,7 @@ function Workspace() {
                       )}
                     </div>
                   )}
+                  {publicSite && <div className="practice-notice" role="status"><span>{t("草稿和练习进度保存在当前浏览器。登录、社区及服务端判题请进入账号应用；切换判题时会先下载当前代码，登录后可粘贴继续。", "Drafts and practice progress stay in this browser. Open the account app for sign-in, community and server judging. Switching to server judging downloads your code first; paste it after signing in.")}</span><a href={hostedAppHref(signInHref(id))}>{t("进入账号应用", "Open account app")}</a></div>}
                   <div className="console">
                     <ReportSourceNotice state={reportSource} />
                     <div className="console-header">

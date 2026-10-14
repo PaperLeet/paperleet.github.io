@@ -1,0 +1,7 @@
+# Existing Nginx owns public HTTPS; only it can reach this loopback proxy.
+services:
+  web:
+    ports: !override
+      - "127.0.0.1:18880:80"
+    volumes:
+      - ./Caddyfile.oracle:/etc/caddy/Caddyfile:ro

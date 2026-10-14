@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
 import { signInHref } from "./accountNavigation";
+import { publicSite, hostedAppHref } from "./deployment";
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type PublicUser = {
@@ -123,6 +124,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     }
   }
   async function refresh() {
+    if (publicSite) { setCurrentUser(null); setLoading(false); setError(""); return; }
     const epoch = ++accountEpoch.current;
     setLoading(true);
     try {
@@ -143,6 +145,11 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     }
   }
   async function refreshHealth() {
+    if (publicSite) {
+      setHealth({ mode: "local", auth_required: false, judge: { ready: false } });
+      setHealthError("");
+      return;
+    }
     try {
       const response = await fetch("/api/health", {
         cache: "no-store",
@@ -173,6 +180,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void refresh();
     void refreshHealth();
+    if (publicSite) return;
     const timer = setInterval(() => void refreshHealth(), 15000);
     const changed = (event: StorageEvent) => {
       if (event.key === "paperleet.auth.changed") {
@@ -305,7 +313,7 @@ export function AccountNav({ returnTo = "" }: { returnTo?: string }) {
       <Avatar user={user} size={29} />
     </a>
   ) : (
-    <a className="account-nav sign-in-nav" href={signInHref(returnTo)}>
+    <a className="account-nav sign-in-nav" href={hostedAppHref(signInHref(returnTo))}>
       {loading ? "…" : t("登录", "Sign in")}
     </a>
   );

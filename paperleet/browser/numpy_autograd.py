@@ -20,6 +20,8 @@ class BrowserUnsupported(NotImplementedError):
 
 
 _grad_enabled = True
+_jvp_active = False
+_jvp_level = 0
 _storages = {}
 
 
@@ -78,6 +80,8 @@ def reduction_axes(dim, ndim):
 
 
 def result(data, *edges, saved=()):
+    if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
+        raise BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
     value = Tensor(data)
     if value.dtype.kind == 'c' and _grad_enabled and any(node.requires_grad for node, _ in edges):
         raise BrowserUnsupported('Complex autograd requires the server')
@@ -198,6 +202,7 @@ class Tensor:
         return result(data, (self, lambda g: g.astype(self.dtype))) if data.dtype.kind in 'fc' else Tensor(data)
 
     def requires_grad_(self, requires_grad=True):
+        if _jvp_active: raise BrowserUnsupported('Changing gradient flags inside JVP requires the server')
         if requires_grad and self.dtype.kind == 'c': raise BrowserUnsupported('Complex autograd requires the server')
         if requires_grad and self.dtype.kind != 'f': raise RuntimeError('Only floating tensors can require grad')
         self.requires_grad = requires_grad
@@ -227,6 +232,7 @@ class Tensor:
         return result(self._data[index], (self, vjp), saved=saved)
 
     def __setitem__(self, index, value):
+        if _jvp_active: raise BrowserUnsupported('Tensor mutation during JVP requires the server')
         if _grad_enabled and (self.requires_grad or isinstance(value, Tensor) and value.requires_grad):
             raise BrowserUnsupported('In-place edits of differentiable tensors require the server')
         if self.requires_grad and self._parents:
@@ -798,12 +804,168 @@ class Tensor:
     def __or__(self, other): return Tensor(self._data | wrap(other)._data)
 
 
+class ForwardTensor(Tensor):
+    """One forward tangent; both channels retain ordinary reverse-mode graphs."""
+    def __init__(self, primal, tangent):
+        if primal.dtype not in (np.dtype('float32'), np.dtype('float64')) or tangent.shape != primal.shape:
+            raise BrowserUnsupported('Forward mode requires matching real floating tensors')
+        self.__dict__ = primal.__dict__.copy()
+        self._primal_value = primal
+        self._tangent_value = tangent.to(dtype=primal.dtype) if tangent.dtype != primal.dtype else tangent
+        self._forward_level = _jvp_level
+
+    @property
+    def _primal(self):
+        if not _jvp_active or self._forward_level != _jvp_level:
+            raise BrowserUnsupported('An escaped forward tensor requires the server')
+        return self._primal_value
+
+    @property
+    def _tangent(self):
+        if not _jvp_active or self._forward_level != _jvp_level:
+            raise BrowserUnsupported('An escaped forward tensor requires the server')
+        return self._tangent_value
+
+    def __add__(self, other):
+        p, t = forward_parts(other)
+        return ForwardTensor(self._primal + p, self._tangent + t)
+    def __radd__(self, other): return self + other
+    def __neg__(self): return ForwardTensor(-self._primal, -self._tangent)
+    def __sub__(self, other): return self + -other
+    def __rsub__(self, other): return -self + other
+    def __mul__(self, other):
+        p, t = forward_parts(other)
+        return ForwardTensor(self._primal * p, self._tangent * p + self._primal * t)
+    def __rmul__(self, other): return self * other
+    def __truediv__(self, other):
+        p, t = forward_parts(other)
+        return ForwardTensor(self._primal / p, (self._tangent - (self._primal / p) * t) / p)
+    def __rtruediv__(self, other):
+        p, t = forward_parts(other)
+        return ForwardTensor(p / self._primal, (t - (p / self._primal) * self._tangent) / self._primal)
+    def __pow__(self, exponent):
+        p = self._primal ** exponent
+        t = self._tangent * (exponent * self._primal ** (exponent - 1)) if exponent else self._tangent * 0
+        return ForwardTensor(p, t)
+    def __matmul__(self, other):
+        p, t = forward_parts(other)
+        return ForwardTensor(self._primal @ p, self._tangent @ p + self._primal @ t)
+    def __rmatmul__(self, other):
+        p, t = forward_parts(other)
+        return ForwardTensor(p @ self._primal, t @ self._primal + p @ self._tangent)
+    def __getitem__(self, index): return ForwardTensor(self._primal[index], self._tangent[index])
+    def detach(self): return self._primal.detach()
+    def numpy(self): raise BrowserUnsupported('NumPy escape during JVP requires the server')
+    def __array__(self, *args, **kwargs): return self.numpy()
+    def requires_grad_(self, *args): raise BrowserUnsupported('Changing gradient flags inside JVP requires the server')
+    def backward(self, *args, **kwargs): raise BrowserUnsupported('Backward inside JVP requires the server')
+    def mapped(self, name, *args, **kwargs):
+        return ForwardTensor(getattr(self._primal, name)(*args, **kwargs), getattr(self._tangent, name)(*args, **kwargs))
+    def to(self, *args, **kwargs):
+        primal = self._primal.to(*args, **kwargs)
+        if primal.dtype.kind != 'f': raise BrowserUnsupported('Nonfloating casts inside JVP require the server')
+        return ForwardTensor(primal, self._tangent.to(*args, **kwargs))
+    def exp(self):
+        p = self._primal.exp()
+        return ForwardTensor(p, self._tangent * p)
+    def log(self): return ForwardTensor(self._primal.log(), self._tangent / self._primal)
+    def sin(self): return ForwardTensor(self._primal.sin(), self._tangent * self._primal.cos())
+    def cos(self): return ForwardTensor(self._primal.cos(), -self._tangent * self._primal.sin())
+    def tanh(self):
+        p = self._primal.tanh()
+        return ForwardTensor(p, self._tangent * (1 - p.square()))
+    def sigmoid(self):
+        p = self._primal.sigmoid()
+        return ForwardTensor(p, self._tangent * p * (1 - p))
+    def relu(self): return ForwardTensor(self._primal.relu(), where(self._primal <= 0, 0., self._tangent))
+    def softmax(self, dim, dtype=None):
+        p = self._primal.softmax(dim, dtype)
+        t = self._tangent.to(dtype=p.dtype)
+        return ForwardTensor(p, p * (t - (t * p).sum(dim, True)))
+    def log_softmax(self, dim, dtype=None):
+        p = self._primal.log_softmax(dim, dtype)
+        t = self._tangent.to(dtype=p.dtype)
+        return ForwardTensor(p, t - (t * self._primal.softmax(dim, dtype)).sum(dim, True))
+
+
+for _forward_name in ('clone', 'reshape', 'flatten', 'unsqueeze', 'squeeze', 'permute', 'transpose',
+                      'expand', 'repeat', 'flip', 'roll', 'diag', 'diagonal', 'sum', 'mean'):
+    def _forward_map(self, *args, _name=_forward_name, **kwargs): return self.mapped(_name, *args, **kwargs)
+    setattr(ForwardTensor, _forward_name, _forward_map)
+ForwardTensor.view = ForwardTensor.reshape
+
+
+def forward_parts(value):
+    if isinstance(value, ForwardTensor): return value._primal, value._tangent
+    value = wrap(value)
+    return value, Tensor(np.zeros_like(value._data))
+
+
+def jvp(func, primals, tangents, *, strict=False, has_aux=False):
+    """Exact, single-call forward AD for the validated teaching subset."""
+    global _jvp_active, _jvp_level
+    if _jvp_active or has_aux: raise BrowserUnsupported('Nested JVP and auxiliary output mode require the server')
+    if not isinstance(primals, tuple) or not isinstance(tangents, tuple) or not primals or len(primals) != len(tangents):
+        raise RuntimeError('JVP requires matching nonempty input/tangent tuples')
+    for p, t in zip(primals, tangents):
+        if not isinstance(p, Tensor) or not isinstance(t, Tensor): raise BrowserUnsupported('Nested/non-tensor JVP inputs require the server')
+        if isinstance(p, ForwardTensor) or isinstance(t, ForwardTensor): raise BrowserUnsupported('Escaped/nested JVP inputs require the server')
+        if p.shape != t.shape or p.dtype != t.dtype or p.dtype not in (np.dtype('float32'), np.dtype('float64')):
+            raise BrowserUnsupported('JVP inputs and tangents must have matching real shapes and dtypes')
+    def unpack(output):
+        if isinstance(output, ForwardTensor): return output._primal, output._tangent
+        if isinstance(output, Tensor):
+            if strict: raise RuntimeError('JVP output is independent of its inputs')
+            return output, Tensor(np.zeros_like(output._data))
+        if isinstance(output, (tuple, list)) and output:
+            pairs = [unpack(v) for v in output]
+            return type(output)(v[0] for v in pairs), type(output)(v[1] for v in pairs)
+        if isinstance(output, dict) and output:
+            pairs = {key: unpack(v) for key, v in output.items()}
+            return {key: v[0] for key, v in pairs.items()}, {key: v[1] for key, v in pairs.items()}
+        raise BrowserUnsupported('This JVP output structure requires the server')
+    _jvp_active = True
+    _jvp_level += 1
+    try:
+        return unpack(func(*(ForwardTensor(p, t) for p, t in zip(primals, tangents))))
+    finally:
+        _jvp_active = False
+
+
+def forward_guard(function, name):
+    # Some library helpers deliberately produce ordinary tensors directly.
+    # Guard public calls as well as result() so an unsupported differentiable
+    # helper cannot accidentally look like a constant with zero tangent.
+    allowed = {
+        'torch.tensor', 'torch.as_tensor', 'torch.zeros_like', 'torch.ones_like', 'torch.empty_like', 'torch.randn_like',
+        'torch.where', 'torch.cat', 'torch.stack', 'torch.matmul',
+        'torch.exp', 'torch.log', 'torch.sin', 'torch.cos', 'torch.tanh', 'torch.sigmoid', 'torch.relu',
+        'torch.sqrt', 'torch.square', 'torch.sum', 'torch.mean', 'torch.reshape', 'torch.flatten',
+        'torch.softmax', 'torch.log_softmax', 'torch.isfinite', 'torch.isnan', 'torch.isinf',
+        'torch.nn.functional.linear', 'torch.nn.functional.relu', 'torch.nn.functional.silu',
+        'torch.nn.functional.softmax', 'torch.nn.functional.log_softmax',
+    }
+    def contains(value):
+        if isinstance(value, ForwardTensor): return True
+        if isinstance(value, (tuple, list)): return any(contains(v) for v in value)
+        if isinstance(value, dict): return any(contains(v) for v in value.values())
+        return False
+    def call(*args, **kwargs):
+        if _jvp_active and name not in allowed and contains((args, kwargs)):
+            raise BrowserUnsupported(f'{name} has no validated forward-mode rule; use the server')
+        return function(*args, **kwargs)
+    return call
+
+
 def count_nonzero(input, dim=None):
     axes = None if dim is None else reduction_axes(dim, input.ndim)
     return Tensor(np.count_nonzero(input._data, axis=axes), dtype=np.int64)
 
 
 def where(condition, x, y):
+    if isinstance(x, ForwardTensor) or isinstance(y, ForwardTensor):
+        px, tx = forward_parts(x); py, ty = forward_parts(y)
+        return ForwardTensor(where(condition, px, py), where(condition, tx, ty))
     condition, a, b = wrap(condition), wrap(x), wrap(y)
     mask = condition._data
     return result(np.where(mask, a._data, b._data),
@@ -1157,6 +1319,10 @@ class Module:
 
 
 def linear(input, weight, bias=None):
+    if any(isinstance(v, ForwardTensor) for v in (input, weight, bias)):
+        x, dx = forward_parts(input); w, dw = forward_parts(weight)
+        b, db = forward_parts(bias) if bias is not None else (None, 0)
+        return ForwardTensor(linear(x, w, b), linear(dx, w) + linear(x, dw) + db)
     if input.ndim < 1 or weight.ndim != 2 or input.shape[-1] != weight.shape[1] or input.dtype != weight.dtype:
         raise RuntimeError('linear expects matching feature dimensions and dtypes')
     if input.dtype not in (np.dtype('float32'), np.dtype('float64')):
@@ -1176,6 +1342,7 @@ def linear(input, weight, bias=None):
 def silu(input, inplace=False):
     input._real_only()
     if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
+    if isinstance(input, ForwardTensor): return input * input.sigmoid()
     x = input._data
     exp = np.exp(-np.abs(x))
     probability = np.where(x >= 0, 1 / (1 + exp), exp / (1 + exp))
@@ -1469,6 +1636,9 @@ class AdamW:
 
 def concatenate(tensors, dim=0, *, stack=False):
     tensors = [wrap(value) for value in tensors]
+    if any(isinstance(v, ForwardTensor) for v in tensors):
+        parts = [forward_parts(v) for v in tensors]
+        return ForwardTensor(concatenate([v[0] for v in parts], dim, stack=stack), concatenate([v[1] for v in parts], dim, stack=stack))
     if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
     rank = tensors[0].ndim + int(stack)
     if not -rank <= dim < rank: raise IndexError('Tensor dimension out of range')
@@ -1958,7 +2128,7 @@ def install():
     torch.nan_to_num = lambda x,**kw: Tensor(np.nan_to_num(x._data, **kw))
     modules = {}
     torch.logit = lambda input,eps=None: input.logit(eps)
-    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg', 'testing', 'random'):
+    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func'):
         module = types.ModuleType('torch.' + name)
         def missing(key, _name=name):
             if key.startswith('_'): raise AttributeError(key)
@@ -1974,6 +2144,8 @@ def install():
     torch.testing.assert_close = assert_close
     torch.random = modules['random']
     torch.random.fork_rng = fork_rng
+    torch.func = modules['func']
+    torch.func.jvp = jvp
     torch.nn.functional.linear = linear
     torch.nn.functional.embedding = embedding
     torch.nn.functional.interpolate = interpolate
@@ -2003,5 +2175,9 @@ def install():
     torch.linalg.svd, torch.linalg.eigh, torch.linalg.qr = svd, eigh, qr
     torch.linalg.eigvalsh, torch.linalg.det = eigvalsh, det
     torch.linalg.svdvals = lambda input,*,driver=None,out=None: svd(input,False,driver=driver,out=out).S
+    for prefix, module in [('torch', torch), *((f'torch.{name}', module) for name, module in modules.items())]:
+        for name, function in list(vars(module).items()):
+            if not name.startswith('_') and isinstance(function, types.FunctionType):
+                setattr(module, name, forward_guard(function, f'{prefix}.{name}'))
     torch.__getattr__ = unsupported
     return torch
