@@ -1,6 +1,6 @@
 # CPU/WASM browser judge prototype
 
-Eighteen validated modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Other modules keep the server queue. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
+Twenty-two validated modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Other modules keep the server queue. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
 
 | Module | Backend | Maintained suite | Calibration |
 | --- | --- | --- | --- |
@@ -22,6 +22,10 @@ Eighteen validated modules use the browser's CPU through Pyodide + NumPy. **No W
 | GSPO | NumPy/WASM + autodiff | 7/7, including geometric sequence ratios, equal token gradients, padding isolation and the cancellation experiment | All 4 mutants caught |
 | CLIP | NumPy/WASM + normalization/autodiff/Adam + independent cross-entropy oracle | 7/7, including both encoder gradients, learned temperature, zero features and 80-step bidirectional retrieval training | All 4 mutants caught |
 | SiTU-GLU | NumPy/WASM + differentiable meshgrid | 9/9, including independent branch gradients, smooth cap limits, empty/strided tensors and full scalar-curve recreation | All 4 mutants caught |
+| QLoRA | NumPy/WASM + uint8 indices/autodiff/Adam | 6/6, including asymmetric NF4 bins, zero/tail blocks, frozen base/scales/bias, adapter/input gradients and all 220 training steps | All 4 mutants caught |
+| Block Attention Residuals | NumPy/WASM + independent RMSNorm oracle/VJP | 7/7, including source assembly order, query/scale/source gradients, zero/strided inputs and the depth-selection experiment | All 4 mutants caught |
+| Differential attention | NumPy/WASM + causal masks/autodiff | 7/7, including scalar attention oracles, all six input gradients, lambda parameters and common-mode cancellation | All 4 mutants caught |
+| VICReg | NumPy/WASM + independent covariance diagnostics + numerical gradient checks | 9/9, including unbiased normalization, exact-collapse stationarity, both-view gradients and all 100 optimization updates | All 4 mutants caught |
 
 These are bounded torch-like teaching adapters, **not the native PyTorch wheel or a general replacement for PyTorch**. Existing `import torch`, function signatures, maintained pytest files, reference implementations, mutants and experiment loops are retained. Test counts and precision tolerances are unchanged. Every browser run calibrates its runtime against the reference and every maintained mutant before executing the captured learner source. Unsupported APIs do not count as successful mutation detection. Ordinary assertion failures, syntax errors and unfinished TODOs are learner feedback and do not trigger an automatic server run.
 
@@ -45,6 +49,12 @@ The contrastive-learning operators include Euclidean/Frobenius norms with zero-s
 
 GLM-5 off-policy remains server-only. Its exact strict-boundary test exposed a NumPy/PyTorch exponential/logarithm rounding difference. The maintained boundary assertion is not relaxed and the module is not advertised as browser-compatible.
 
+QLoRA adds dtype-inheriting, copying/detaching `new_tensor`, uint8 codes and int64 first-index argmin/argmax (including flattened `keepdim`). Flip, roll and triangular transforms have their own VJPs and copy their output storage. The Block Attention Residuals library oracle uses raw NumPy [RMSNorm](https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.rms_norm.html) and separate analytical VJPs rather than calling the learner's RMS expression. Unweighted [covariance](https://docs.pytorch.org/docs/2.14/generated/torch.cov.html) has an independent NumPy value/gradient path; weighted or insufficient-observation cases fall back to the server.
+
+The bounded `autograd.gradcheck` computes every first-order Jacobian entry analytically and by central finite differences, preserving caller input values and accumulated gradients. It supports real float64 tensor inputs/outputs, multiple inputs/outputs, default backward-check options, and at most 256 differentiable input entries and 256 output entries. It rejects overlapping storage and unsupported options. Bad analytical VJPs and detached value dependence fail the check; it never returns a placeholder success. This is numerical validation of the analytical training gradients, not a numerical-gradient training backend. Advanced/complex/large gradcheck workloads require the server.
+
+Augmented assignments to gradient-bearing tensors now explicitly require the server, including inside `no_grad`. They must not silently rebind a parameter to a detached value and break later training steps. Constant-only augmented assignments retain ordinary in-place values and aliases. REPA/I-JEPA's original parameter-update loops therefore remain server-only until their required differentiable-storage semantics are implemented and validated.
+
 ## Isolation and account progress
 
 Learner Python executes in a disposable classic Worker inside an opaque-origin `sandbox="allow-scripts"` iframe. It has no DOM or site storage access. The iframe CSP permits only self-hosted public runtime assets, excluding `/api` and third-party destinations. Messages are checked against the frame and a fresh nonce. Stopping, changing accounts, unmounting or exceeding the deadline removes the frame and worker. Phase limits are 90 seconds for initialization/calibration, 30 seconds for execution, and 120 seconds total; bundle downloads are bounded to 30 seconds. The UI remains responsive while Python or training runs.
@@ -63,10 +73,10 @@ Upstream projects and license information: [Pyodide](https://github.com/pyodide/
 
 ## Reproducible checks
 
-- `.venv/bin/python -m pytest tests/test_browser_judge.py tests/test_browser_autograd.py -q`: unchanged source bundles, complete reference/mutant calibration, false-positive prevention, syntax/unsupported API behavior and independent native PyTorch parity. Adapter installation for full suites is isolated in subprocesses so it cannot replace the server's native torch.
-- `cd web && npm run check`: transport isolation, restricted network, message validation, report parsing, assertion failures, stop/timeout cleanup and all eighteen CPU/WASM routes.
+- `.venv/bin/python -m pytest tests/test_browser_judge.py tests/test_browser_autograd.py tests/test_browser_compat_ops.py -q`: unchanged source bundles, complete reference/mutant calibration, false-positive prevention, syntax/unsupported API behavior and independent native PyTorch parity. Adapter installation for full suites is isolated in subprocesses so it cannot replace the server's native torch.
+- `cd web && npm run check`: transport isolation, restricted network, message validation, report parsing, assertion failures, stop/timeout cleanup and all twenty-two CPU/WASM routes.
 - `cd web && npm run build`: TypeScript and production assets.
-- Browser: select **Browser only** and run each reference; all 139 tests must pass and all 74 maintained mutants must be caught, including LoRA/FFN/CLIP training, AdamW optimization and the complete RL experiments. The non-frozen-base LoRA mutant must fail the gradient test (5/6), while unsupported APIs in Auto mode retain native server judging. Run the generated reports' actual experiment charts through the Lab UI.
+- Browser: select **Browser only** and run each reference; all 168 tests must pass and all 90 maintained mutants must be caught, including LoRA/QLoRA/FFN/CLIP/VICReg training, AdamW optimization and the complete RL experiments. The non-frozen-base LoRA mutant must fail the gradient test (5/6), while unsupported APIs in Auto mode retain native server judging. Run the generated reports' actual experiment charts through the Lab UI.
 
 The paper library exposes **Runs in browser** and **Server judging** filters. Runtime capability intersects search/difficulty at the module level and also scopes random selection. Paper and module cards display browser capability, while anonymous onboarding explains when immediate browser runs are available.
 

@@ -124,6 +124,9 @@ class Tensor:
     def bool(self): return self.to(dtype=np.bool_)
     def new_zeros(self, *shape, **kw): return create('zeros', *shape, **({'dtype': self.dtype} | kw))
     def new_ones(self, *shape, **kw): return create('ones', *shape, **({'dtype': self.dtype} | kw))
+    def new_tensor(self, data, *, dtype=None, device=None, requires_grad=False):
+        check_device(device)
+        return Tensor(np.array(data._data if isinstance(data, Tensor) else data, dtype=dtype or self.dtype, copy=True), requires_grad=requires_grad)
     def zero_(self): self[...] = 0; return self
     def type_as(self, other): return self.to(other)
 
@@ -191,6 +194,18 @@ class Tensor:
     def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*a/(b*b))
     def __rtruediv__(self, other): return self._binary(other, lambda a,b: b/a, lambda g,a,b: -g*b/(a*a), lambda g,a,b: g/a)
     def __neg__(self): return result(-self._data, (self, lambda g: -g))
+    def _inplace(self, other, operation):
+        if self.requires_grad or wrap(other).requires_grad:
+            raise BrowserUnsupported('In-place updates of differentiable tensors require the server')
+        value = operation(self, other)
+        if value.shape != self.shape or not np.can_cast(value.dtype, self.dtype, casting='same_kind'):
+            raise RuntimeError('In-place operation cannot change the output shape or dtype kind')
+        self[...] = value
+        return self
+    def __iadd__(self, other): return self._inplace(other, lambda a,b: a+b)
+    def __isub__(self, other): return self._inplace(other, lambda a,b: a-b)
+    def __imul__(self, other): return self._inplace(other, lambda a,b: a*b)
+    def __itruediv__(self, other): return self._inplace(other, lambda a,b: a/b)
     def __pow__(self, exponent):
         if not np.isscalar(exponent): raise BrowserUnsupported('Tensor exponents require the server')
         return result(self._data ** exponent, (self, lambda g: g * exponent * self._data ** (exponent - 1)))
@@ -356,7 +371,26 @@ class Tensor:
     def min(self, dim=None, keepdim=False): return self._extreme(dim, keepdim, False)
     def argmax(self, dim=None, keepdim=False):
         value = np.argmax(self._data, axis=dim)
-        return Tensor(np.expand_dims(value, dim) if keepdim and dim is not None else value)
+        if keepdim and self.ndim: value = np.reshape(value, (1,) * self.ndim) if dim is None else np.expand_dims(value, dim)
+        return Tensor(value, dtype=np.int64)
+    def argmin(self, dim=None, keepdim=False):
+        value = np.argmin(self._data, axis=dim)
+        if keepdim and self.ndim: value = np.reshape(value, (1,) * self.ndim) if dim is None else np.expand_dims(value, dim)
+        return Tensor(value, dtype=np.int64)
+    def flip(self, dims):
+        if dims is None: raise TypeError('flip requires dimensions')
+        axes = () if isinstance(dims, (tuple, list)) and not dims else reduction_axes(dims, self.ndim)
+        return result(np.flip(self._data, axis=axes).copy(), (self, lambda g: np.flip(g, axis=axes)))
+    def roll(self, shifts, dims=None):
+        if dims is None and np.ndim(shifts) and len(shifts) != 1: raise RuntimeError('roll shifts and dimensions must align')
+        inverse = -np.asarray(shifts)
+        return result(np.roll(self._data, shifts, axis=dims), (self, lambda g: np.roll(g, inverse, axis=dims)))
+    def triu(self, diagonal=0):
+        if self.ndim < 2: raise RuntimeError('triu requires at least two dimensions')
+        return result(np.triu(self._data, k=diagonal), (self, lambda g: np.triu(g, k=diagonal)))
+    def tril(self, diagonal=0):
+        if self.ndim < 2: raise RuntimeError('tril requires at least two dimensions')
+        return result(np.tril(self._data, k=diagonal), (self, lambda g: np.tril(g, k=diagonal)))
     def cumsum(self, dim):
         return result(self._data.cumsum(axis=dim), (self, lambda g: np.flip(np.flip(g, axis=dim).cumsum(axis=dim), axis=dim)))
     def cumprod(self, dim, *, dtype=None):
@@ -599,6 +633,66 @@ def autograd_grad(output, inputs, grad_outputs=None, *, retain_graph=False, crea
     return tuple(values)
 
 
+def gradcheck(func, inputs, *, eps=1e-6, atol=1e-5, rtol=1e-3, raise_exception=True, **options):
+    """Bounded full first-order Jacobian check; never substitutes training VJPs."""
+    if options: raise BrowserUnsupported('Advanced gradcheck options require the server')
+    inputs = tuple(inputs) if isinstance(inputs, (list, tuple)) else (inputs,)
+    if any(not isinstance(x, Tensor) or x.dtype != np.dtype('float64') for x in inputs):
+        raise BrowserUnsupported('gradcheck requires real float64 tensor inputs')
+    active = [i for i,x in enumerate(inputs) if x.requires_grad]
+    if not active: raise ValueError('gradcheck requires a differentiable input')
+    if sum(inputs[i].numel() for i in active) > 256:
+        raise BrowserUnsupported('Large gradcheck inputs require the server')
+    for i in active:
+        x = inputs[i]
+        offsets = {sum(index * stride for index,stride in zip(position, x._data.strides)) for position in np.ndindex(x.shape)}
+        if len(offsets) != x.numel(): raise BrowserUnsupported('Overlapping gradcheck storage requires the server')
+    if not np.isfinite([eps, atol, rtol]).all() or eps <= 0 or min(atol, rtol) < 0:
+        raise ValueError('Invalid gradcheck tolerances')
+    def evaluate(values):
+        output = func(*values)
+        output = tuple(output) if isinstance(output, (list, tuple)) else (output,)
+        if not output or any(not isinstance(x, Tensor) or x.dtype != np.dtype('float64') for x in output):
+            raise BrowserUnsupported('gradcheck requires real float64 tensor outputs')
+        if sum(x.numel() for x in output) > 256: raise BrowserUnsupported('Large gradcheck outputs require the server')
+        return output
+    # Cloned independent leaves prevent perturbations or .grad accumulation in
+    # the caller. Reject shared input storage rather than mis-check aliases.
+    if any(np.shares_memory(a._data, b._data) for i,a in enumerate(inputs) for b in inputs[i+1:]):
+        raise BrowserUnsupported('Overlapping gradcheck inputs require the server')
+    leaves = [Tensor(x._data.copy(), requires_grad=x.requires_grad) for x in inputs]
+    outputs = evaluate(leaves)
+    size = sum(x.numel() for x in outputs)
+    analytical = [np.zeros((size, leaves[i].numel())) for i in active]
+    row = 0
+    for output in outputs:
+        for index in range(output.numel()):
+            if output.requires_grad:
+                seed = np.zeros(output.shape); seed.flat[index] = 1
+                derivatives = autograd_grad(output, [leaves[i] for i in active], Tensor(seed), allow_unused=True)
+                for matrix, derivative in zip(analytical, derivatives):
+                    if derivative is not None: matrix[row] = derivative._data.reshape(-1)
+            row += 1
+    def numerical_output(values):
+        with no_grad(): evaluated = evaluate(values)
+        if len(evaluated) != len(outputs) or any(a.shape != b.shape for a,b in zip(evaluated, outputs)):
+            raise RuntimeError('gradcheck output shape changed during perturbation')
+        return np.concatenate([x._data.reshape(-1) for x in evaluated])
+    baseline = np.concatenate([x._data.reshape(-1) for x in outputs])
+    success = np.allclose(numerical_output(leaves), baseline, atol=atol, rtol=rtol)
+    for matrix, index in zip(analytical, active):
+        numerical = np.empty_like(matrix)
+        for column in range(leaves[index].numel()):
+            plus = [Tensor(x._data.copy(), requires_grad=x.requires_grad) for x in leaves]
+            minus = [Tensor(x._data.copy(), requires_grad=x.requires_grad) for x in leaves]
+            plus[index]._data.flat[column] += eps
+            minus[index]._data.flat[column] -= eps
+            numerical[:,column] = (numerical_output(plus) - numerical_output(minus)) / (2 * eps)
+        success = bool(success and np.allclose(matrix, numerical, atol=atol, rtol=rtol))
+    if not success and raise_exception: raise RuntimeError('gradcheck Jacobian mismatch between analytical and numerical derivatives')
+    return bool(success)
+
+
 class no_grad(contextlib.ContextDecorator):
     def __enter__(self):
         global _grad_enabled
@@ -762,6 +856,42 @@ def layer_norm_oracle(x, normalized_shape, weight=None, bias=None, eps=1e-5):
     return result(value, *edges)
 
 
+def rms_norm_oracle(x, normalized_shape, weight=None, eps=None):
+    """Independent raw NumPy RMS normalization with analytical input/scale VJPs."""
+    shape = tuple(normalized_shape)
+    if not shape or x.shape[-len(shape):] != shape: raise RuntimeError('Invalid RMSNorm shape')
+    if x.dtype.kind != 'f': raise BrowserUnsupported('RMSNorm requires floating tensors')
+    if weight is not None and (weight.shape != shape or weight.dtype != x.dtype):
+        raise BrowserUnsupported('Mixed-dtype RMSNorm weights require the server')
+    axes = tuple(range(x.ndim-len(shape), x.ndim))
+    inverse = 1 / np.sqrt(np.mean(x._data ** 2, axis=axes, keepdims=True) + (np.finfo(x.dtype).eps if eps is None else eps))
+    normalized = x._data * inverse
+    scale = 1 if weight is None else weight._data
+    def dx(g):
+        scaled = g * scale
+        return inverse * (scaled - normalized * (scaled * normalized).mean(axis=axes, keepdims=True))
+    edges = [(x, dx)]
+    if weight is not None: edges.append((weight, lambda g: unbroadcast(g * normalized, weight.shape)))
+    return result(normalized * scale, *edges)
+
+
+def cov(x, *, correction=1, fweights=None, aweights=None):
+    if fweights is not None or aweights is not None:
+        raise BrowserUnsupported('Weighted covariance requires the server')
+    if x.ndim > 2 or x.dtype.kind != 'f': raise BrowserUnsupported('Covariance requires a floating scalar/vector/matrix')
+    if not isinstance(correction, int) or correction < 0: raise ValueError('Invalid covariance correction')
+    rows = x._data.reshape(1, -1) if x.ndim < 2 else x._data
+    count = rows.shape[-1] - correction
+    if count <= 0: raise BrowserUnsupported('Insufficient covariance observations require the server')
+    centered = rows - rows.mean(axis=1, keepdims=True)
+    value = centered @ centered.T / count
+    def vjp(g):
+        matrix = np.asarray(g).reshape(value.shape)
+        grad = (matrix + matrix.T) @ centered / count
+        return (grad - grad.mean(axis=1, keepdims=True)).reshape(x.shape)
+    return result(value.squeeze(), (x, vjp))
+
+
 def randint(low, high, size, *, generator=None, dtype=np.int64, device=None):
     check_device(device)
     rng = generator.rng if generator else np.random
@@ -871,6 +1001,7 @@ def install():
     torch.float64, torch.float32 = np.dtype('float64'), np.dtype('float32')
     torch.float, torch.double = torch.float32, torch.float64
     torch.long, torch.int64, torch.bool = np.dtype('int64'), np.dtype('int64'), np.dtype('bool')
+    torch.uint8 = np.dtype('uint8')
     torch.inf, torch.pi = np.inf, np.pi
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
@@ -897,8 +1028,12 @@ def install():
     torch.unravel_index = lambda index, shape: tuple(Tensor(i) for i in np.unravel_index(int(index), shape))
     torch.broadcast_to = lambda x, shape: x.expand(shape)
     torch.matmul = lambda a,b: wrap(a) @ b
+    def dot(a,b):
+        if a.ndim != 1 or b.ndim != 1 or a.dtype != b.dtype: raise RuntimeError('dot expects vectors with matching dtypes')
+        return a @ b
+    torch.dot, torch.cov = dot, cov
     torch.pdist = pdist
-    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag'):
+    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan', 'count_nonzero'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -920,12 +1055,14 @@ def install():
     torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()
     torch.nn.functional.normalize, torch.nn.functional.cross_entropy = normalize, cross_entropy
     torch.nn.functional.layer_norm = layer_norm_oracle
+    torch.nn.functional.rms_norm = rms_norm_oracle
     torch.nn.functional.scaled_dot_product_attention = scaled_dot_product_attention_oracle
     def relu(x, inplace=False):
         if inplace: raise BrowserUnsupported('In-place ReLU requires the server')
         return x.relu()
     torch.nn.functional.relu = relu
     torch.optim.Adam, torch.autograd.grad = Adam, autograd_grad
+    torch.autograd.gradcheck = gradcheck
     torch.optim.AdamW = AdamW
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
     torch.linalg.solve = solve

@@ -82,6 +82,8 @@ print(json.dumps(calibration))
     ('architecture/multihead_attention',7,4),('architecture/positionwise_ffn',7,4),('optimization/adamw',7,4),
     ('rl/gae',11,4),('rl/ppo_clip',11,5),('rl/grpo',9,5),('rl/dr_grpo',6,3),
     ('rl/dapo',7,4),('rl/gspo',7,4),('representation/clip',7,4),('architecture/situ_glu',9,4),
+    ('finetuning/qlora',6,4),('architecture/block_attention_residual',7,4),
+    ('architecture/differential_attention',7,4),('representation/vicreg',9,4),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')

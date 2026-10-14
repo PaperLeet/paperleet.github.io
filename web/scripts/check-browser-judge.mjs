@@ -95,15 +95,15 @@ try {
     globalThis.clearTimeout = nativeClearTimeout;
   }
 
-  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo', 'architecture/multihead_attention', 'architecture/positionwise_ffn', 'optimization/adamw', 'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo', 'rl/dapo', 'rl/gspo', 'representation/clip', 'architecture/situ_glu']) {
+  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo', 'architecture/multihead_attention', 'architecture/positionwise_ffn', 'optimization/adamw', 'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo', 'rl/dapo', 'rl/gspo', 'representation/clip', 'architecture/situ_glu', 'finetuning/qlora', 'architecture/block_attention_residual', 'architecture/differential_attention', 'representation/vicreg']) {
     const wasm = runBrowserJudge({ ...problem, id, browser_judge: { ...problem.browser_judge, backend: 'numpy-autograd-wasm' } }, 'private source', new AbortController().signal, () => {});
     // The mock response intentionally has the wrong identity, so it must never
     // be executed; All autodiff modules use the same isolated CPU/WASM path.
     assert.equal((await wasm).reason, 'runtime_failed');
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
-  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 18);
-  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all eighteen CPU/WASM routes');
+  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 22);
+  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all twenty-two CPU/WASM routes');
 } finally {
   Object.assign(globalThis, originals);
   await server.close();

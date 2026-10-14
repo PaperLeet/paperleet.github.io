@@ -110,7 +110,7 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 18);
+  assert.equal(browserModules.length, 22);
   const runtimeMatching = (query, runtime, difficulty = "all") => matchingPaperModules(transformer, catalog.problems, query, difficulty, runtime).map((p) => p.id);
   assert.deepEqual(runtimeMatching("Transformer", "browser"), transformer.module_ids);
   assert.deepEqual(runtimeMatching("Transformer", "server"), []);
