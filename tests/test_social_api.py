@@ -79,6 +79,26 @@ def login(api, name):
     return data["user"], social_api.COOKIE + "=" + value.value
 
 
+def test_community_mutations_reject_a_changed_account_before_writing(api):
+    alice, alice_cookie = login(api, "original-author")
+    bob, bob_cookie = login(api, "other-author")
+    payload = {"title": "Original draft", "body": "Written under Alice's identity", "expected_user_id": alice["id"]}
+    status, error, _ = api("community/posts", payload, bob_cookie)
+    assert status == 409 and error["code"] == "account_changed"
+    assert api.community.list_posts()["total"] == 0
+    status, post, _ = api("community/posts", payload, alice_cookie)
+    assert status == 201 and post["author"]["id"] == alice["id"]
+    for action, body in (("replies", {"body": "Private draft reply"}), ("like", {"active": True}),
+                         ("repost", {"active": True}), ("delete", {})):
+        status, error, _ = api(f"community/posts/{post['id']}/{action}", {**body, "expected_user_id": alice["id"]}, bob_cookie)
+        assert status == 409 and error["code"] == "account_changed"
+    detail = api.community.get_post(post["id"])
+    assert detail["counts"] == {"likes": 0, "reposts": 0, "replies": 0}
+    # Existing clients which omit the optional concurrency field stay compatible.
+    assert api("community/posts", {"title": "Legacy post", "body": "No owner assertion"}, bob_cookie)[0] == 201
+    assert api("community/posts", {**payload, "expected_user_id": bob["id"]}, bob_cookie)[0] == 201
+
+
 def test_module_threads_http_session_filtering_and_persistence(api):
     _, cookie = login(api, "module-author")
     payload = {"title": "Attention mask question", "body": "How should fully masked rows behave?",

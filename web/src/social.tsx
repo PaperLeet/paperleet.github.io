@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
+import { signInHref } from "./accountNavigation";
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type PublicUser = {
@@ -292,7 +293,7 @@ export function DateLabel({ value }: { value: string }) {
     </time>
   );
 }
-export function AccountNav() {
+export function AccountNav({ returnTo = "" }: { returnTo?: string }) {
   const { user, loading } = useAccount();
   const { t } = useI18n();
   return user ? (
@@ -304,7 +305,7 @@ export function AccountNav() {
       <Avatar user={user} size={29} />
     </a>
   ) : (
-    <a className="account-nav sign-in-nav" href="#/account">
+    <a className="account-nav sign-in-nav" href={signInHref(returnTo)}>
       {loading ? "…" : t("登录", "Sign in")}
     </a>
   );

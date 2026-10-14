@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -29,6 +29,8 @@ import {
 import { useI18n } from "./i18n";
 import ProfileProgress from "./ProfileProgress";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
+import { signInHref } from "./accountNavigation";
+import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
 import {
   Avatar,
   DateLabel,
@@ -206,7 +208,7 @@ function Pagination({
     </div>
   ) : null;
 }
-function JoinPrompt() {
+function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
   const { t } = useI18n();
   const { capabilities } = useAccount();
   const testAuth = capabilities?.auth_mode === "test";
@@ -223,7 +225,7 @@ function JoinPrompt() {
               "Join the conversation with a verified institutional email.",
             )}
       </p>
-      <a className="button" href="#/account">
+      <a className="button" href={signInHref(returnTo)}>
         {testAuth
           ? t("内测账号登录", "Test account sign-in")
           : t("登录 / 注册", "Sign in / Join")}
@@ -287,30 +289,67 @@ function PostCard({ post, activity }: { post: Post; activity?: ReactNode }) {
 function Composer({
   category,
   topic,
+  owner,
+  scope,
+  onDraftChange,
   onClose,
 }: {
   category: string;
   topic?: ProblemTopic;
+  owner: string;
+  scope: string;
+  onDraftChange: (available: boolean) => void;
   onClose: () => void;
 }) {
-  const { t } = useI18n();
-  const [title, setTitle] = useState(""),
-    [body, setBody] = useState(""),
-    [board, setBoard] = useState(category || (topic ? "questions" : "papers")),
-    [preview, setPreview] = useState(false);
+  const { t, locale } = useI18n();
+  const initialCategory = category || (topic ? "questions" : "papers");
+  const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
+  const currentDraft = useRef(draft);
+  const { title, body, category: board } = draft;
+  const [preview, setPreview] = useState(false),
+    [discardRequested, setDiscardRequested] = useState(false),
+    [saved, setSaved] = useState<boolean | null>(() => hasDraft(draft) ? true : null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  function edit(change: Partial<PostDraft>) {
+    const next = { ...currentDraft.current, ...change };
+    currentDraft.current = next;
+    setDraft(next);
+    setSaved(writePostDraft(tabDraftStorage(), owner, scope, next));
+    onDraftChange(hasDraft(next));
+  }
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const draftExists = hasDraft(draft);
+  const draftMessage = saved === false
+    ? t("当前标签页无法保存草稿，离开前请复制内容。", "This tab cannot save your draft. Copy the text before leaving.")
+    : draftExists
+      ? t("未发布草稿已保存在本标签页，仅当前账号可恢复。", "Unpublished draft saved in this tab, separately for your account.")
+      : t("草稿仅保存在本标签页，发布后才会公开。", "Drafts stay in this tab and become public only when published.");
+  function discardDraft() {
+    edit({ title: "", body: "", category: initialCategory });
+    setDiscardRequested(false);
+    setPreview(false);
+  }
   async function publish() {
+    if (busy) return;
+    const submitted = { ...currentDraft.current };
+    const submittedRoute = location.hash;
     setBusy(true);
     setError("");
     try {
       const post = await socialApi<Post>("community/posts", {
-        title: title.trim(),
-        body: body.trim(),
-        category: board,
+        title: submitted.title.trim(),
+        body: submitted.body.trim(),
+        category: submitted.category,
+        expected_user_id: owner,
         ...(topic ? { problem_id: topic.id } : {}),
       });
-      location.hash = `/community/${encodeURIComponent(post.id)}`;
+      clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
+      if (mounted.current && location.hash === submittedRoute) location.hash = `/community/${encodeURIComponent(post.id)}`;
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -331,7 +370,26 @@ function Composer({
         </button>
       </div>
       {error && <SocialNotice error={error} />}
-      {topic && <TopicContext topic={topic} />}
+      {topic && (
+        <a className="post-problem-link composer-problem" href={practiceHref(topic.id)}>
+          <Code2 size={13} />{topicTitle(topic, locale === "en")}
+        </a>
+      )}
+      <div className="community-draft-status" role="status">
+        <span>{draftMessage}</span>
+        {draftExists && (
+          <button className="text-button" type="button" disabled={busy} onClick={() => setDiscardRequested(true)}>
+            {t("丢弃草稿", "Discard draft")}
+          </button>
+        )}
+      </div>
+      {discardRequested && (
+        <div className="draft-discard-confirm" role="alert">
+          <span>{t("丢弃后无法恢复，确定清空标题和正文？", "Discard this draft? Its title and body cannot be recovered.")}</span>
+          <button type="button" disabled={busy} onClick={discardDraft}>{t("确认丢弃", "Discard")}</button>
+          <button type="button" onClick={() => setDiscardRequested(false)}>{t("保留草稿", "Keep draft")}</button>
+        </div>
+      )}
       <form
         className="social-form"
         onSubmit={(e) => {
@@ -341,7 +399,7 @@ function Composer({
       >
         <label>
           {t("版块", "Category")}
-          <select value={board} onChange={(e) => setBoard(e.target.value)}>
+          <select value={board} disabled={busy} onChange={(e) => edit({ category: e.target.value })}>
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
                 {t(c.zh, c.en)}
@@ -356,8 +414,9 @@ function Composer({
             maxLength={160}
             minLength={3}
             value={title}
+            disabled={busy}
             placeholder={t("你想讨论什么？", "What would you like to discuss?")}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => edit({ title: e.target.value })}
           />
         </label>
         <div className="editor-toggle">
@@ -394,11 +453,12 @@ function Composer({
               rows={10}
               maxLength={20000}
               value={body}
+              disabled={busy}
               placeholder={t(
                 "分享背景、思考或代码片段…",
                 "Share context, ideas, or a code snippet…",
               )}
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => edit({ body: e.target.value })}
             />
           </label>
         )}
@@ -438,6 +498,9 @@ export default function Community({ postId, ...scope }: CommunityProps) {
 function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCatalog }: Omit<CommunityProps, "postId">) {
   const { t } = useI18n();
   const { user } = useAccount();
+  const draftScope = topicId || "general";
+  const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
+  const returnTo = topicId ? topicHref(topicId) : "community";
   const [category, setCategory] = useState(""),
     [following, setFollowing] = useState(false),
     [query, setQuery] = useState(""),
@@ -491,10 +554,10 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
         {user && (!topicId || topic) ? (
           <button className="button" onClick={() => setCompose(true)}>
             <Plus size={16} />
-            {t("发布帖子", "New post")}
+            {draftAvailable ? t("继续草稿", "Resume draft") : t("发布帖子", "New post")}
           </button>
         ) : !user ? (
-          <a className="button" href="#/account">
+          <a className="button" href={signInHref(returnTo)}>
             <Plus size={16} />
             {t("登录发帖", "Sign in to post")}
           </a>
@@ -541,7 +604,7 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
         </aside>
         <section className="community-feed">
           {compose && user && (
-            <Composer category={category} topic={topic} onClose={() => setCompose(false)} />
+            <Composer category={category} topic={topic} owner={user.id} scope={draftScope} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
           )}
           <div className="community-feed-toolbar">
             <div className="social-tabs compact">
@@ -612,7 +675,7 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
                 )}
                 icon={<Users size={31} />}
               >
-                <JoinPrompt />
+                <JoinPrompt returnTo={returnTo} />
               </Empty>
             ) : !data.items.length ? (
               <Empty
@@ -691,7 +754,7 @@ function Discussion({ id }: { id: string }) {
   }, [id, user?.id]);
   async function react(kind: "like" | "repost") {
     if (!user) {
-      location.hash = "/account";
+      location.hash = signInHref(postHref(id));
       return;
     }
     if (!post) return;
@@ -700,6 +763,7 @@ function Discussion({ id }: { id: string }) {
     try {
       const data = await socialApi<Post>(`${postPath(id)}/${kind}`, {
         active: kind === "like" ? !post.viewer.liked : !post.viewer.reposted,
+        expected_user_id: user.id,
       });
       setPost((prev) => (prev ? { ...data, replies: prev.replies } : prev));
     } catch (e) {
@@ -714,6 +778,7 @@ function Discussion({ id }: { id: string }) {
     try {
       await socialApi(`${postPath(id)}/replies`, {
         body: body.trim(),
+        expected_user_id: user?.id,
         ...(target ? { parent_id: target.id } : {}),
       });
       setBody("");
@@ -734,7 +799,7 @@ function Discussion({ id }: { id: string }) {
         deleteTarget === "post"
           ? `${postPath(id)}/delete`
           : `community/replies/${encodeURIComponent(deleteTarget)}/delete`,
-        {},
+        { expected_user_id: user?.id },
       );
       if (deleteTarget === "post") location.hash = "/community";
       else await refresh();
@@ -936,7 +1001,7 @@ function Discussion({ id }: { id: string }) {
             </section>
           ) : (
             <section className="social-panel">
-              <JoinPrompt />
+              <JoinPrompt returnTo={postHref(id)} />
             </section>
           )}
           {deleteTarget && (
@@ -1055,7 +1120,7 @@ function UserProfileContents({ username }: { username: string }) {
   }, [username, tab, offset, user?.id, revision]);
   async function follow(target: string, active: boolean) {
     if (!user) {
-      location.hash = "/account";
+      location.hash = signInHref(`u/${username}`);
       return;
     }
     setBusy(true);
@@ -1063,7 +1128,7 @@ function UserProfileContents({ username }: { username: string }) {
     try {
       const updated = await socialApi<Profile>(
         `community/follow/${encodeURIComponent(target)}`,
-        { active },
+        { active, expected_user_id: user.id },
       );
       if (target === username) setProfile(updated);
       setRevision((v) => v + 1);

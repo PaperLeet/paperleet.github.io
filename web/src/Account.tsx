@@ -33,20 +33,24 @@ const COLORS = [
   "#747789",
   "#9b6853",
 ];
-export default function Account() {
+export default function Account({ returnTo }: { returnTo?: string }) {
   const { user, loading, capabilities, error, refresh } = useAccount();
   const { t } = useI18n();
+  useEffect(() => {
+    if (user && !loading && returnTo) location.hash = returnTo;
+  }, [user?.id, loading, returnTo]);
   return (
     <main className="social-page account-page">
       <a
         className="social-back"
-        href={user ? profileHref(user) : "#/community"}
+        href={returnTo || (user ? profileHref(user) : "#/community")}
       >
         <ArrowLeft size={14} />
-        {user
+        {returnTo ? t("返回刚才的页面", "Back to where you left off") : user
           ? t("返回个人主页", "Back to profile")
           : t("返回社区", "Back to community")}
       </a>
+      {returnTo && !user && <p className="social-description">{t("登录成功后将返回刚才的页面。", "After signing in, you will return to where you left off.")}</p>}
       {loading ? (
         <div className="social-loading">
           <span className="spinner" />

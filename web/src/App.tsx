@@ -54,6 +54,7 @@ import { jobErrorText } from "./judgeJobs";
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason, type JudgeMode } from "./browserJudge";
 import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
+import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -382,7 +383,7 @@ function Workspace() {
   const communityPage = id === "community" || id.startsWith("community/");
   const communityTopicId = topicIdFromRoute(id);
   const communityProblem = communityTopicId ? problems.find((p) => p.id === communityTopicId) : undefined;
-  const accountPage = id === "account";
+  const accountPage = isAccountRoute(id);
   const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
   const current = problem ? saved[problem.id] || {} : {};
   const selectedPaper = papers.find((paper) =>
@@ -661,7 +662,7 @@ function Workspace() {
                 <span className="theme-label">{t("深色", "Dark")}</span>
               </button>
             </div>
-            <AccountNav />
+            <AccountNav returnTo={id} />
           </div>
         </div>
       </header>
@@ -677,7 +678,7 @@ function Workspace() {
           }
         />
       ) : accountPage ? (
-        <Account />
+        <Account returnTo={accountReturnHref(id)} />
       ) : profileUsername ? (
         <UserProfile key={profileUsername} username={profileUsername} />
       ) : submissionPage ? (
@@ -1269,7 +1270,7 @@ function Workspace() {
                                   "Online judging is available to invited members with a verified institutional email.",
                                 )}
                           </span>
-                          <a href="#/account">
+                          <a href={signInHref(id)}>
                             {t("登录以运行", "Sign in to run")}
                           </a>
                         </>
@@ -1325,7 +1326,7 @@ function Workspace() {
                           {judge.job?.status === "queued" ? t("正在排队…", "Queued…") : t("正在判题…", "Running tests…")}
                         </>
                       ) : hosted && !user && !browserAvailable ? (
-                        <a href="#/account">
+                        <a href={signInHref(id)}>
                           {t("登录后运行", "Sign in to run")}
                         </a>
                       ) : online || browserAvailable ? (

@@ -118,6 +118,8 @@ def dispatch(handler, method, data=None):
             return handler.respond(201, accounts.request_institution(payload))
         if method == "POST" and not user:
             return handler.respond(401, {"error": "Sign in with your test account to continue." if auth_mode() == "test" else "Sign in with a verified institutional email to continue."})
+        if method == "POST" and path.startswith("/api/community/") and "expected_user_id" in payload and payload["expected_user_id"] != viewer:
+            return handler.respond(409, {"error": "Your account changed. Reload before publishing; your draft is preserved.", "code": "account_changed"})
         if method == "POST" and path == "/api/account/profile":
             return handler.respond(200, {"user": accounts.update_profile(viewer, payload)})
 

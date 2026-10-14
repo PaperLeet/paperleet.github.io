@@ -706,6 +706,33 @@
 .community-composer {
   margin-bottom: 22px;
 }
+.community-draft-status,
+.draft-discard-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.composer-problem {
+  margin: 0 0 14px;
+}
+.draft-discard-confirm {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface2);
+}
+.draft-discard-confirm button {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+}
 .community-composer .social-form > label:first-child {
   max-width: 225px;
 }

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "./i18n";
 import { useAccount } from "./social";
+import { signInHref } from "./accountNavigation";
 import { Highlight, Prose } from "./App";
 import { ArtifactCharts } from "./Visuals";
 
@@ -470,7 +471,7 @@ export default function Submissions({
                   {loading ? (
                     t("正在检查提交权限…", "Checking submission access…")
                   ) : (
-                    <a className="button subtle" href="#/account">
+                    <a className="button subtle" href={signInHref("submit")}>
                       {accountCapabilities?.auth_mode === "test"
                         ? t(
                             "内测账号登录后可提交提案",

@@ -12,6 +12,12 @@ Module scope intersects board, keyword, following, and pagination filters. The m
 
 The collection API accepts `GET /api/community/posts?problem_id=architecture%2Fattention`. Creating a post accepts an optional canonical `problem_id` in the existing POST payload. The server validates it against the maintained catalog and derives public module metadata itself. Submitted titles, numbers, and author objects cannot spoof this context. Omit the parameter for the general feed.
 
+Sign-in links from modules, module discussions, posts, profiles, and paper submission return to that page after authentication. Continuations use validated local hash routes, carry no draft text or credentials, and cannot redirect to external sites or recursively reopen sign-in. The ordinary Account link still opens profile settings.
+
+Unpublished **post drafts** are saved in the current tab's `sessionStorage`, separately for each signed-in account and module (with a separate general-community draft). **Resume draft** restores the title, body, and selected board after closing the composer, navigating away, or refreshing. These drafts are not uploaded or synced across devices. Successful publication clears the submitted draft; a delayed response preserves newer edits. Discarding requires confirmation. If browser storage fails, the form keeps the current text and asks the user to copy it before leaving.
+
+Community writes from the website include `expected_user_id`. The API returns `409 account_changed` before mutation if the session has changed to another account, preserving the original account's draft. This is a concurrency check in addition to session authentication; author identity always comes from the authenticated session. Older clients may omit the field.
+
 ## Public profiles and privacy
 
 | Field or activity | Visibility |
