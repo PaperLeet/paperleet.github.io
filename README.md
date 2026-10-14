@@ -55,6 +55,8 @@ If the code editor cannot load, plain-text mode still supports editing, saving a
 
 Failed shared numerical assertions show the zero-based mismatch coordinate, expected/actual values, absolute error and test tolerances, or both tensor shapes when they differ. Full error details remain expandable. These optional diagnostics work with browser and server reports, survive refresh, and do not affect grading. NaN/Infinity experiment data remain readable failure evidence rather than breaking browser result transport; older reports retain their original error text.
 
+**Go to code line** moves the cursor to a current syntax error or an explicit learner-code traceback frame. It opens the code panel from the lab and works in plain-text mode too. Modified or unverifiable source has no navigation action; test/reference-only failures keep their diagnostics without inventing a code location.
+
 Use **Light / Dark** in the top bar to choose an appearance. The first visit follows your system preference; an explicit choice is remembered in this browser. The paper library puts categories, search, filters, and module progress together; paper details contain the technical summary and expandable practice scope.
 
 Drag the workspace dividers to resize the description/code columns and the code/results rows. Sizes are remembered in this browser. Double-click a divider or press Enter while it is focused to restore its default; arrow keys fine-tune the split. Run controls stay visible, and narrow screens stack the description above the editor.

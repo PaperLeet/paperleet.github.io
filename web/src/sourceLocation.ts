@@ -1,0 +1,38 @@
+import type { ReportSourceState } from './reportSource';
+
+export type SourceLocation = { line: number; column?: number };
+export type EditorFocusRequest = { source: string; location: SourceLocation };
+
+export const editorSource = (source: string) => source.replace(/\r\n|\r/g, '\n');
+
+/** Python columns count Unicode characters; editor offsets count UTF-16 units. */
+export function sourceOffset(source: string, { line, column = 1 }: SourceLocation): number | undefined {
+  if (!Number.isSafeInteger(line) || line < 1 || !Number.isSafeInteger(column) || column < 1) return;
+  const lines = source.split('\n');
+  // CPython can locate an incomplete statement immediately after the last line.
+  if (line === lines.length + 1 && column === 1) return source.length;
+  if (line > lines.length) return;
+  const before = lines.slice(0, line - 1).reduce((length, text) => length + text.length + 1, 0);
+  return before + Array.from(lines[line - 1]).slice(0, column - 1).join('').length;
+}
+
+/** Advisory navigation only. Never infer a learner location from test/reference frames. */
+export function learnerTraceLocation(message: string | undefined, impl: string | undefined, source: string, state: ReportSourceState): SourceLocation | undefined {
+  if (state !== 'current' || !message || !impl || impl.length > 2048) return;
+  const normalize = (path: string) => path.replace(/\\/g, '/').replace(/^\.\//, '');
+  const implementation = normalize(impl);
+  if (!implementation.includes('/') && implementation !== 'submission.py') return;
+  const lineCount = editorSource(source).split('\n').length;
+  let location: SourceLocation | undefined;
+  for (const text of message.split(/\r\n|\r|\n/)) {
+    const frame = /^\s*(.+):([1-9]\d*): in \S.*$/.exec(text);
+    if (!frame) continue;
+    const file = normalize(frame[1]);
+    const matches = implementation.endsWith('/submission.py') || implementation === 'submission.py'
+      ? file === 'submission.py' || file.endsWith('/submission.py')
+      : file === implementation || (!file.startsWith('/') && !/^[A-Za-z]:/.test(file) && file.includes('/') && implementation.endsWith('/' + file));
+    const line = Number(frame[2]);
+    if (matches && Number.isSafeInteger(line) && line <= lineCount) location = { line };
+  }
+  return location;
+}

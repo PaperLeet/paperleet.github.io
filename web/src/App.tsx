@@ -63,6 +63,8 @@ import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { ResetCodeButton } from './ResetCodeButton';
+import { learnerTraceLocation, type EditorFocusRequest, type SourceLocation } from './sourceLocation';
+import { SourceLocationButton } from './SourceLocationButton';
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -110,11 +112,15 @@ function ReportView({
   report,
   problem,
   sourceState,
+  source,
+  onLocate,
   children,
 }: {
   report?: Report;
   problem: Problem;
   sourceState: ReportSourceState;
+  source: string;
+  onLocate?: (location: SourceLocation) => void;
   children?: React.ReactNode;
 }) {
   const { t, locale } = useI18n();
@@ -166,6 +172,7 @@ function ReportView({
       </div>
       <ReportSourceNotice state={sourceState} />
       {report.error && <pre className="failure-message">{report.error}</pre>}
+      {report.error && <SourceLocationButton location={learnerTraceLocation(report.error,report.impl,source,sourceState)} onLocate={onLocate} />}
       {children}
       <div className="report-meta">
         <span>{t("最近一次运行", "Latest run")}</span>
@@ -215,6 +222,7 @@ function ReportView({
                 t("见本题测试说明。", "See the problem's test specification.")}
             </p>
             {test.comparison && <TestComparison comparison={test.comparison} />}
+            {!test.passed && <SourceLocationButton location={learnerTraceLocation(test.message,report.impl,source,sourceState)} onLocate={onLocate} />}
             {test.message && (test.comparison ? <details className="failure-trace"><summary>{t("完整错误信息", "Full error details")}</summary><pre className="failure-message">{test.message}</pre></details> : (
               <pre className="failure-message">{test.message}</pre>
             ))}
@@ -337,6 +345,19 @@ function Workspace() {
   const syntaxFailure = problem ? browser.syntaxErrors?.[problem.id] : undefined;
   const hasCurrentSyntaxError = !!syntaxFailure && syntaxFailure.source === (current.code ?? problem?.starter);
   const reportSource = useReportSource(report, current.code ?? problem?.starter ?? "");
+  const currentSource = current.code ?? problem?.starter ?? '';
+  const [editorFocus, setEditorFocus] = useState<(EditorFocusRequest & { owner: string; problem: string })>();
+  useEffect(() => {
+    setEditorFocus(previous => previous && previous.owner === practice.owner && previous.problem === problem?.id && previous.source === currentSource ? previous : undefined);
+  }, [practice.owner, problem?.id, currentSource]);
+  function locateSource(location: SourceLocation) {
+    if (!problem || !practice.ready || !practice.owns(practice.owner) || ![problem.id,String(problem.number)].includes(getId())) return;
+    setRightTab('code');
+    setEditorFocus({ owner: practice.owner, problem: problem.id, source: currentSource, location });
+  }
+  function editorFocused(request: EditorFocusRequest) {
+    setEditorFocus(previous => previous === request ? undefined : previous);
+  }
   const handoffProblem = problems.find(entry => entry.id === handoff.pending?.problem);
   const handoffSaved = handoffProblem ? saved[handoffProblem.id] || {} : {};
   const browserAvailable = !!problem?.browser_judge && judgeMode !== "server";
@@ -808,8 +829,8 @@ function Workspace() {
                 {learningNotice}
                 {tab === "tests" ? (
                   <>
-                  {syntaxFailure && <BrowserSyntaxNotice failure={syntaxFailure} source={current.code ?? problem.starter} />}
-                  {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource}>
+                  {syntaxFailure && <BrowserSyntaxNotice failure={syntaxFailure} source={currentSource} onLocate={practice.ready ? locateSource : undefined} />}
+                  {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource} source={currentSource} onLocate={practice.ready ? locateSource : undefined}>
                     {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} error={handoff.error} onSignIn={signInWithDraft} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
                     {!running && reportSource === "current" && progressReady && isPassed(problem, report) && (
                       <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
@@ -1103,6 +1124,8 @@ function Workspace() {
                       key={`${practice.owner}:${problem.id}`}
                       readOnly={!practice.ready}
                       value={current.code ?? problem.starter}
+                      focusRequest={editorFocus?.owner === practice.owner && editorFocus.problem === problem.id && editorFocus.source === currentSource ? editorFocus : undefined}
+                      onFocusHandled={editorFocused}
                       theme={theme === "dark" ? "dark" : "light"}
                       onChange={(value) => update(problem.id, { code: value })}
                       recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {

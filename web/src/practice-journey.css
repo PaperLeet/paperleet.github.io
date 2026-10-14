@@ -71,6 +71,7 @@
 .browser-syntax-notice { padding: 16px; margin-bottom: 16px; border: 1px solid var(--line); border-left: 3px solid var(--danger, #b44c42); border-radius: 8px; background: var(--surface); font-size: 13px; line-height: 1.7; }
 .browser-syntax-notice p { margin: 7px 0; color: var(--muted); }
 .browser-syntax-notice pre { padding: 10px; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.source-location-button { margin: 6px 0; max-width: 100%; white-space: normal; }
 .browser-result-actions p { margin: 7px 0 12px; color: var(--muted); }
 .browser-result-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .browser-result-buttons .button { min-height: 38px; font-size: 13px; }
