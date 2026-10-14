@@ -14,12 +14,16 @@ http://{$PAPERLEET_DOMAIN}:80 {
         Referrer-Policy same-origin
         X-Frame-Options DENY
     }
-    request_body { max_size 256KB }
+    request_body {
+        max_size 256KB
+    }
     handle /api/* {
         reverse_proxy api:8765 {
             # Nginx must overwrite X-Real-IP; this port binds only to loopback.
             header_up X-PaperLeet-Client-IP {http.request.header.X-Real-IP}
-            transport http { response_header_timeout 180s }
+            transport http {
+                response_header_timeout 180s
+            }
         }
     }
     handle {
@@ -28,4 +32,6 @@ http://{$PAPERLEET_DOMAIN}:80 {
         file_server
     }
 }
-:80 { respond "Unknown hostname" 421 }
+:80 {
+    respond "Unknown hostname" 421
+}
