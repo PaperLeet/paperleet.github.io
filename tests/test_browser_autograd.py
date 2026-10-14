@@ -494,7 +494,6 @@ def test_multinomial_and_permutation_match_native_mixed_rng_stream(dtype, seed):
             np.testing.assert_array_equal(wasm.randperm(count, generator=generator).numpy(), torch.randperm(count, generator=native).numpy())
     np.testing.assert_array_equal(wasm.create('rand', 100, generator=generator, dtype=dtype).numpy(),
                                   torch.rand(100, generator=native, dtype=torch.float64 if dtype == np.float64 else torch.float32).numpy())
-    with pytest.raises(wasm.BrowserUnsupported): wasm.multinomial(wasm.Tensor(probabilities), 1, replacement=True)
     with pytest.raises(wasm.BrowserUnsupported): wasm.multinomial(wasm.Tensor(probabilities), 2, replacement=False)
 
 

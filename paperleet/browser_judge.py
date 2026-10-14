@@ -19,6 +19,7 @@ PILOTS = {
     "representation/repa", "representation/ijepa", "finetuning/distillm2",
     "finetuning/opsd_alignment", "finetuning/opsd_clipping", "rl/sdpo_feedback", "rl/sdpo_topk",
     "optimization/muon_split", "finetuning/svdquant", "architecture/flash_attention", "architecture/kimi_kda",
+    "rl/glm5_offpolicy", "rl/opd", "diffusion/consistency", "diffusion/progressive_distillation",
 }
 
 SHARED_FILES = (
@@ -46,6 +47,9 @@ def export_browser_bundle(entry, output):
     experiment = directory / "experiment.py"
     if experiment.exists():
         files[f"{relative}/experiment.py"] = experiment.read_text()
+    toy = directory / 'toy.py'
+    if toy.exists():
+        files[f"{relative}/toy.py"] = toy.read_text()
     package = Path(__file__).resolve().parent
     files["paperleet/common/asserts.py"] = (package / "common/asserts.py").read_text()
     files["paperleet/common/comparisons.py"] = (package / "common/comparisons.py").read_text()

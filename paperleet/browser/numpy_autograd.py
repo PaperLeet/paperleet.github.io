@@ -5,6 +5,7 @@ approximations. This is a teaching-subset adapter, not a native PyTorch runtime.
 Unsupported APIs raise BrowserUnsupported and retain server judging.
 """
 import contextlib
+import copy
 import types
 import sys
 import weakref
@@ -226,6 +227,20 @@ class Tensor:
         self._data[index] = value._data if isinstance(value, Tensor) else value
         self._storage.version += 1
 
+    def fill_(self, value):
+        if isinstance(value, Tensor) and value.ndim:
+            raise RuntimeError('fill_ requires a scalar value')
+        self[...] = value
+        return self
+
+    def __deepcopy__(self, memo):
+        if self._parents:
+            raise BrowserUnsupported('Copying non-leaf autograd tensors requires the server')
+        value = type(self)(self._data.copy(), requires_grad=self.requires_grad)
+        memo[id(self)] = value
+        value.grad = copy.deepcopy(self.grad, memo)
+        return value
+
     def _binary(self, other, op, left, right):
         if not isinstance(other, (Tensor, np.ndarray)) and self.dtype.kind == 'f':
             other = Tensor(other, dtype=self.dtype)
@@ -260,6 +275,10 @@ class Tensor:
     def __isub__(self, other): return self._inplace(other, lambda a,b: a-b)
     def __imul__(self, other): return self._inplace(other, lambda a,b: a*b)
     def __itruediv__(self, other): return self._inplace(other, lambda a,b: a/b)
+    def add_(self, other, *, alpha=1): return self._inplace(other, lambda a,b: a + b * alpha)
+    def sub_(self, other, *, alpha=1): return self._inplace(other, lambda a,b: a - b * alpha)
+    def mul_(self, other): return self.__imul__(other)
+    def div_(self, other): return self.__itruediv__(other)
     def __pow__(self, exponent):
         if not np.isscalar(exponent): raise BrowserUnsupported('Tensor exponents require the server')
         return result(self._data ** exponent, (self, lambda g: g * exponent * self._data ** (exponent - 1)))
@@ -634,7 +653,17 @@ class Tensor:
             return g * derivative
         return result(value if keepdim else value.squeeze(axis=dims), (self, vjp))
 
-    def _compare(self, other, op): return Tensor(op(self._data, wrap(other)._data))
+    def _compare(self, other, op):
+        # Python scalars use the floating tensor's precision, just like arithmetic.
+        # Wrapping first would irreversibly round a float64 boundary to float32.
+        if not isinstance(other, (Tensor, np.ndarray)) and self.dtype.kind == 'f':
+            other = Tensor(other, dtype=self.dtype)
+        other = wrap(other)
+        a, b = self._data, other._data
+        if a.dtype.kind == 'f' and b.dtype.kind == 'f':
+            dtype = a.dtype if a.ndim and not b.ndim else b.dtype if b.ndim and not a.ndim else np.result_type(a.dtype, b.dtype)
+            a, b = a.astype(dtype, copy=False), b.astype(dtype, copy=False)
+        return Tensor(op(a, b))
     def __eq__(self, other): return self._compare(other, np.equal)
     def __ne__(self, other): return self._compare(other, np.not_equal)
     def __lt__(self, other): return self._compare(other, np.less)
@@ -679,14 +708,23 @@ class Generator:
 
 def multinomial(probabilities, num_samples, replacement=False, *, generator=None):
     weights = wrap(probabilities)._data
-    if not replacement or num_samples == 1:
-        raise BrowserUnsupported('Single-draw and without-replacement multinomial require the server')
+    if not replacement and num_samples != 1:
+        raise BrowserUnsupported('Multiple draws without replacement require the server')
     if weights.dtype not in (np.dtype('float32'), np.dtype('float64')):
         raise BrowserUnsupported('Multinomial supports float32/float64 probabilities')
     if weights.ndim not in (1, 2) or not weights.shape[-1] or type(num_samples) is not int or num_samples < 1:
         raise RuntimeError('Invalid multinomial shape or sample count')
     if not np.isfinite(weights).all() or np.any(weights < 0): raise RuntimeError('Invalid multinomial probabilities')
     rng = generator.rng if generator else np.random
+    if num_samples == 1:
+        if np.any(weights.sum(axis=-1) <= 0): raise RuntimeError('Multinomial probabilities must sum to a positive value')
+        # Independent exponential races implement the single-draw categorical law.
+        # This is distribution-faithful; its seeded stream is not native PyTorch's.
+        uniforms = uniform_samples(rng, weights.shape, weights.dtype)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            races = -np.log1p(-uniforms) / weights
+        races = np.where(weights > 0, races, np.inf)
+        return Tensor(np.argmin(races, axis=-1)[..., None], dtype=np.int64)
     draws = []
     for row in weights.reshape(-1, weights.shape[-1]):
         cumulative = np.cumsum(row, dtype=weights.dtype)
@@ -824,6 +862,79 @@ class Module:
                 elif recurse and isinstance(value, Module): children.append(value)
             pending.extend(reversed(children))
 
+    def requires_grad_(self, requires_grad=True):
+        for parameter in self.parameters(): parameter.requires_grad_(requires_grad)
+        return self
+
+
+class Linear(Module):
+    def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
+        super().__init__()
+        check_device(device)
+        dtype = np.dtype(np.float32 if dtype is None else dtype)
+        if dtype not in (np.dtype('float32'), np.dtype('float64')):
+            raise BrowserUnsupported('Linear requires float32/float64')
+        if type(in_features) is not int or type(out_features) is not int or min(in_features, out_features) < 0:
+            raise ValueError('Linear dimensions must be nonnegative integers')
+        self.in_features, self.out_features = in_features, out_features
+        bound = in_features ** -.5 if in_features else 0
+        def parameter(shape):
+            return Parameter((uniform_samples(np.random, shape, dtype) * (2 * bound) - bound).astype(dtype))
+        self.weight = parameter((out_features, in_features))
+        self.bias = parameter((out_features,)) if bias else None
+
+    def forward(self, input):
+        value = input @ self.weight.T
+        return value if self.bias is None else value + self.bias
+
+
+class Sequential(Module):
+    def __init__(self, *modules):
+        super().__init__()
+        if any(not isinstance(module, Module) for module in modules):
+            raise BrowserUnsupported('Sequential supports positional Module instances')
+        self._sequence_names = tuple(str(i) for i in range(len(modules)))
+        for name, module in zip(self._sequence_names, modules): setattr(self, name, module)
+
+    def __iter__(self): return (getattr(self, name) for name in self._sequence_names)
+    def __len__(self): return len(self._sequence_names)
+    def __getitem__(self, index):
+        values = tuple(self)
+        return Sequential(*values[index]) if isinstance(index, slice) else values[index]
+    def forward(self, input):
+        for module in self: input = module(input)
+        return input
+
+
+class SiLU(Module):
+    def __init__(self, inplace=False):
+        super().__init__()
+        if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
+    def forward(self, input): return input * input.sigmoid()
+
+
+def bincount(input, weights=None, minlength=0):
+    if weights is not None: raise BrowserUnsupported('Weighted bincount requires the server')
+    if input.ndim != 1 or input.dtype.kind not in 'iu' or np.any(input._data < 0) or type(minlength) is not int or minlength < 0:
+        raise RuntimeError('bincount expects a nonnegative integer vector and minlength')
+    return Tensor(np.bincount(input._data.astype(np.int64), minlength=minlength), dtype=np.int64)
+
+
+def assert_close(actual, expected, *, rtol=None, atol=None, equal_nan=False, check_device=True, check_dtype=True, **options):
+    if options: raise BrowserUnsupported('Advanced torch.testing options require the server')
+    actual, expected = wrap(actual), wrap(expected)
+    if actual.shape != expected.shape: raise AssertionError(f'Shapes differ: {actual.shape} != {expected.shape}')
+    if check_dtype and actual.dtype != expected.dtype: raise AssertionError(f'Dtypes differ: {actual.dtype} != {expected.dtype}')
+    if (rtol is None) != (atol is None): raise ValueError('Specify both rtol and atol')
+    if rtol is None:
+        defaults = {np.dtype('float32'): (1.3e-6, 1e-5), np.dtype('float64'): (1e-7, 1e-7)}
+        pairs = [defaults.get(value.dtype, (0., 0.)) for value in (actual, expected)]
+        rtol, atol = (max(pair[i] for pair in pairs) for i in (0, 1))
+    if rtol == 0 and atol == 0 and actual.dtype.kind in 'biu' and expected.dtype.kind in 'biu':
+        np.testing.assert_array_equal(actual._data, expected._data)
+    else:
+        np.testing.assert_allclose(actual._data, expected._data, rtol=rtol, atol=atol, equal_nan=equal_nan)
+
 
 def create(kind, *shape, dtype=np.float32, device=None, requires_grad=False, generator=None):
     check_device(device)
@@ -928,6 +1039,37 @@ class no_grad(contextlib.ContextDecorator):
     def __exit__(self, *args):
         global _grad_enabled
         _grad_enabled = self.before
+
+
+class SGD:
+    def __init__(self, params, lr=.001, momentum=0, dampening=0, weight_decay=0, nesterov=False, *, maximize=False, **options):
+        if options: raise BrowserUnsupported('Advanced SGD options require the server')
+        if lr < 0 or momentum < 0 or weight_decay < 0: raise ValueError('Invalid SGD hyperparameter')
+        if nesterov and (momentum <= 0 or dampening != 0): raise ValueError('Nesterov requires momentum and zero dampening')
+        self.params, self.lr, self.momentum = list(params), lr, momentum
+        if any(not isinstance(p, Tensor) for p in self.params): raise BrowserUnsupported('SGD parameter groups require the server')
+        self.dampening, self.weight_decay, self.nesterov, self.maximize = dampening, weight_decay, nesterov, maximize
+        self.buffers = [None] * len(self.params)
+
+    def zero_grad(self, set_to_none=True):
+        for p in self.params:
+            if p.grad is not None: p.grad = None if set_to_none else Tensor(np.zeros_like(p._data))
+
+    def step(self, closure=None):
+        if closure is not None: raise BrowserUnsupported('SGD closures require the server')
+        for i, p in enumerate(self.params):
+            if p.grad is None: continue
+            g = p.grad._data.copy()
+            if self.maximize: g = -g
+            if self.weight_decay: g += self.weight_decay * p._data
+            if self.momentum:
+                buffer = self.buffers[i]
+                if buffer is None: buffer = g.copy()
+                else: buffer = self.momentum * buffer + (1 - self.dampening) * g
+                self.buffers[i] = buffer
+                g = g + self.momentum * buffer if self.nesterov else buffer
+            p._data[...] -= self.lr * g
+            p._storage.version += 1
 
 
 class Adam:
@@ -1309,7 +1451,7 @@ def install():
     torch.argsort = lambda x,dim=-1,descending=False,*,stable=False: x.argsort(dim,descending,stable=stable)
     torch.topk = lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out)
     torch.scatter = lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce)
-    torch.count_nonzero = count_nonzero
+    torch.count_nonzero, torch.bincount = count_nonzero, bincount
     torch.manual_seed = np.random.seed
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         setattr(torch, name, lambda *shape, _kind=name, **kw: create(_kind, *shape, **kw))
@@ -1338,14 +1480,20 @@ def install():
     torch.allclose = lambda a,b,**kw: bool(torch.isclose(a,b,**kw).all())
     torch.nan_to_num = lambda x,**kw: Tensor(np.nan_to_num(x._data, **kw))
     modules = {}
-    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg'):
+    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg', 'testing'):
         module = types.ModuleType('torch.' + name)
-        module.__getattr__ = lambda key, _name=name: unsupported('torch.' + _name + '.' + key)
+        def missing(key, _name=name):
+            if key.startswith('_'): raise AttributeError(key)
+            return unsupported('torch.' + _name + '.' + key)
+        module.__getattr__ = missing
         modules[name] = module
         sys.modules['torch.' + name] = module
     torch.nn, torch.optim, torch.autograd, torch.linalg = (modules[k] for k in ('nn', 'optim', 'autograd', 'linalg'))
     torch.nn.functional = modules['nn.functional']
     torch.nn.Module, torch.nn.Parameter = Module, Parameter
+    torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU = Linear, Sequential, SiLU
+    torch.testing = modules['testing']
+    torch.testing.assert_close = assert_close
     torch.nn.functional.linear = lambda x,w,bias=None: x @ w.T if bias is None else x @ w.T + bias
     torch.nn.functional.softmax = lambda x,dim,dtype=None: x.softmax(dim, dtype)
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
@@ -1354,6 +1502,10 @@ def install():
     torch.nn.functional.smooth_l1_loss = smooth_l1_loss
     torch.nn.functional.mse_loss = mse_loss
     torch.nn.functional.softplus = softplus
+    def silu(input, inplace=False):
+        if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
+        return input * input.sigmoid()
+    torch.nn.functional.silu = silu
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.rms_norm = rms_norm_oracle
     torch.nn.functional.scaled_dot_product_attention = scaled_dot_product_attention_oracle
@@ -1361,7 +1513,7 @@ def install():
         if inplace: raise BrowserUnsupported('In-place ReLU requires the server')
         return x.relu()
     torch.nn.functional.relu = relu
-    torch.optim.Adam, torch.autograd.grad = Adam, autograd_grad
+    torch.optim.Adam, torch.optim.SGD, torch.autograd.grad = Adam, SGD, autograd_grad
     torch.autograd.gradcheck = gradcheck
     torch.optim.AdamW = AdamW
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)

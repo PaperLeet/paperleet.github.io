@@ -10,7 +10,7 @@ try {
   const attention=problems.find(p=>p.id==='architecture/attention');
   const { paperJudgeCapability,PaperJudgeBadge,ModuleJudgeBadge }=await server.ssrLoadModule('/src/JudgeCapability.tsx');
   const { paperModules,PaperDetail }=await server.ssrLoadModule('/src/PaperViews.tsx');
-  const mixed=papers.find(p=>p.id==='glm-5');
+  const mixed=papers.find(p=>p.id==='ddpm');
   const modules=paperModules(mixed,problems);
   assert.deepEqual(paperJudgeCapability(modules),{browser:1,server:1,total:2});
   assert(renderToString(React.createElement(PaperJudgeBadge,{modules})).includes('部分浏览器 1/2'));

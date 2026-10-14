@@ -43,6 +43,10 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
         assert bundle['files']['paperleet/common/asserts.py'] == (root()/'paperleet/common/asserts.py').read_text()
         assert bundle['problem'] == identifier
         assert bundle['tests'] == entry['tests']
+        for helper in ('experiment.py', 'toy.py'):
+            path = entry['directory'] / helper
+            if path.exists():
+                assert bundle['files'][path.relative_to(root()).as_posix()] == path.read_text()
         assert bundle['files']['paperleet/common/comparisons.py'] == (root()/'paperleet/common/comparisons.py').read_text()
         for test in (entry['directory'] / 'tests').glob('test_*.py'):
             name = test.relative_to(root()).as_posix()
@@ -130,6 +134,7 @@ print(json.dumps(calibration))
     ('representation/repa',7,4),('representation/ijepa',9,4),('finetuning/distillm2',9,4),
     ('finetuning/opsd_alignment',7,4),('finetuning/opsd_clipping',7,4),('rl/sdpo_feedback',7,4),('rl/sdpo_topk',7,4),
     ('optimization/muon_split',7,4),('finetuning/svdquant',9,4),('architecture/flash_attention',7,4),('architecture/kimi_kda',7,4),
+    ('rl/glm5_offpolicy',7,4),('rl/opd',6,4),('diffusion/consistency',7,4),('diffusion/progressive_distillation',6,4),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
@@ -139,7 +144,7 @@ import json,sys
 from paperleet.browser.harness import prepare, calibrate, run_suite
 b=json.load(open(sys.argv[1]));prepare(b,b['adapter'],sys.argv[2])
 updates=[]
-c=calibrate(b,sys.argv[2],progress=lambda *row:updates.append(row));assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
+c=calibrate(b,sys.argv[2],progress=lambda *row:updates.append(row));assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'error':c.get('reference',{}).get('error'), 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
 assert c['reference_passed']==int(sys.argv[3]);assert len(c['mutants_caught'])==int(sys.argv[4])
 count,mutants=int(sys.argv[3]),int(sys.argv[4])
 assert updates==[('reference',i,count) for i in range(count+1)]+[('mutants',i,mutants) for i in range(mutants+1)],updates
