@@ -32,7 +32,9 @@ export type AccountUser = PublicUser & {
 };
 export type AccountCapabilities = {
   auth_available: boolean;
-  auth_mode?: "institutional" | "test";
+  auth_mode?: "institutional" | "test" | "oauth";
+  oauth_providers?: { id: "google" | "microsoft"; available: boolean }[];
+  organization_account_required?: boolean;
   test_login_available?: boolean;
   invite_only?: boolean;
   registration_policy?: "invite_only" | "work_email";

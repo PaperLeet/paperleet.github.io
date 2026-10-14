@@ -1,6 +1,8 @@
 import { communityContinuation } from './communityNavigation';
 
 const continuationPrefix = "account/continue/";
+const errorPrefix = "account/error/";
+const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", "rate_limited"]);
 
 /** Allow only known shapes of local hash routes; never an external destination. */
 function returnRoute(route: string): string | undefined {
@@ -31,11 +33,23 @@ export function signInHref(destination: string): string {
 
 // App's existing hash decoder has already decoded this route exactly once.
 export function accountReturnHref(route: string): string | undefined {
+  if (route.startsWith(errorPrefix)) {
+    const remainder = route.slice(errorPrefix.length), separator = remainder.indexOf('/');
+    if (separator < 0 || !loginErrors.has(remainder.slice(0, separator))) return undefined;
+    const valid = returnRoute(remainder.slice(separator + 1));
+    return valid === undefined ? undefined : `#/${valid}`;
+  }
   if (!route.startsWith(continuationPrefix)) return undefined;
   const valid = returnRoute(route.slice(continuationPrefix.length));
   return valid === undefined ? undefined : `#/${valid}`;
 }
 
 export function isAccountRoute(route: string): boolean {
-  return route === "account" || route.startsWith(continuationPrefix);
+  return route === "account" || route.startsWith(continuationPrefix) || route.startsWith(errorPrefix);
+}
+
+export function organizationLoginError(route: string): string | undefined {
+  if (!route.startsWith(errorPrefix)) return undefined;
+  const code = route.slice(errorPrefix.length).split('/')[0];
+  return loginErrors.has(code) ? code : undefined;
 }

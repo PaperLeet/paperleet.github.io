@@ -1537,3 +1537,9 @@
 .publication-recovery p { margin: 0 0 10px; }
 .publication-recovery details { margin: 10px 0; }
 .publication-recovery pre { max-height: 200px; max-width: 100%; overflow: auto; padding: 10px; white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--line); border-radius: 6px; }
+.organization-login-buttons { display: grid; gap: 12px; margin: 24px 0; }
+.organization-login-button { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; min-height: 44px; padding: 10px 16px; border: 1px solid #747775; border-radius: 4px; color: #1f1f1f; background: #fff; font: inherit; cursor: pointer; text-align: left; }
+.organization-login-button svg { flex-shrink: 0; }
+.organization-login-button small { margin-left: auto; }
+.organization-login-button:disabled { opacity: .55; cursor: default; }
+.organization-login-button:focus-visible { outline: 3px solid var(--accent, #4f7c73); outline-offset: 3px; }

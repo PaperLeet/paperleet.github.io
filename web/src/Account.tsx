@@ -22,6 +22,9 @@ import {
   useAccount,
 } from "./social";
 import type { AccountUser } from "./social";
+import type { AccountCapabilities } from "./social";
+import { organizationLoginError } from "./accountNavigation";
+import { decodeProblemHash } from "./reports";
 
 const COLORS = [
   "#4f7c73",
@@ -67,11 +70,63 @@ export default function Account({ returnTo }: { returnTo?: string }) {
         <ProfileSettings key={user.id} user={user} />
       ) : capabilities?.auth_mode === "test" ? (
         <TestSignIn enabled={capabilities.auth_available === true} />
+      ) : capabilities?.auth_mode === "oauth" ? (
+        <OrganizationSignIn providers={capabilities.oauth_providers || []} returnTo={returnTo}
+          loginError={typeof location === "undefined" ? undefined : organizationLoginError(decodeProblemHash(location.hash))} />
       ) : (
         <SignIn enabled={capabilities?.auth_available === true} workEmailRegistration={capabilities?.work_email_registration === true} />
       )}
     </main>
   );
+}
+
+export function OrganizationSignIn({ providers, returnTo, loginError }: {
+  providers: NonNullable<AccountCapabilities["oauth_providers"]>; returnTo?: string; loginError?: string;
+}) {
+  const { t } = useI18n();
+  const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
+  const failures: Record<string, string> = {
+    identity: t("未能确认学校／企业组织身份。请使用 Google Workspace 或 Microsoft 工作／学校账号；若仍失败，请联系管理员。", "We could not confirm your organization identity. Use a Google Workspace or Microsoft work/school account. Contact an administrator if this continues."),
+    expired: t("此次登录已过期，请重新开始。", "This sign-in expired. Please start again."),
+    cancelled: t("你已取消登录，可以重新选择账号。", "Sign-in was cancelled. You can choose an account again."),
+    unavailable: t("登录服务暂时不可用，请稍后重试。", "The sign-in service is temporarily unavailable. Please try again shortly."),
+    rate_limited: t("登录尝试过于频繁，请稍后重试。", "Too many sign-in attempts. Please try again shortly."),
+  };
+  async function signIn(provider: "google" | "microsoft") {
+    if (busy) return;
+    setBusy(provider); setError("");
+    try {
+      const result = await socialApi<{ url: string }>(`account/oauth/${provider}/start`, { return_to: returnTo || "#/" });
+      const target = new URL(result.url);
+      const expected = provider === "google" ? "https://accounts.google.com" : "https://login.microsoftonline.com";
+      if (target.origin !== expected) throw new Error("The sign-in service returned an invalid destination.");
+      location.assign(target.href);
+    } catch (e) { setError(errorMessage(e)); setBusy(undefined); }
+  }
+  return <div className="account-grid">
+    <section className="social-panel login-card">
+      <span className="social-eyebrow">PAPERLEET</span>
+      <h1>{t("学校／企业账号登录", "School or company sign-in")}</h1>
+      <p className="social-description">{t("使用学校或公司的组织账号登录，首次登录将创建 PaperLeet 账号，无需接收本站验证码。", "Sign in with your school or company organization account. Your first sign-in creates a PaperLeet account without an emailed code from us.")}</p>
+      {(error || (loginError && failures[loginError])) && <SocialNotice error={error || failures[loginError!]} />}
+      <div className="organization-login-buttons" aria-busy={Boolean(busy)}>
+        {(["google", "microsoft"] as const).map(provider => {
+          const available = providers.some(item => item.id === provider && item.available);
+          return <button key={provider} type="button" className="organization-login-button" disabled={!available || Boolean(busy)} onClick={() => void signIn(provider)}>
+            {provider === "google" ? <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.89-1.74 2.98-4.3 2.98-7.36Z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.41l-3.24-2.51c-.9.6-2.05.96-3.38.96-2.6 0-4.81-1.76-5.6-4.12H3.05v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.4 13.92a6 6 0 0 1 0-3.84V7.49H3.05a10 10 0 0 0 0 9.02l3.35-2.59Z"/><path fill="#EA4335" d="M12 5.96c1.47 0 2.79.51 3.83 1.51l2.87-2.87A9.62 9.62 0 0 0 12 2a10 10 0 0 0-8.95 5.49l3.35 2.59A5.99 5.99 0 0 1 12 5.96Z"/></svg> : <svg viewBox="0 0 21 21" width="20" height="20" aria-hidden="true"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M11 0h10v10H11z"/><path fill="#00a4ef" d="M0 11h10v10H0z"/><path fill="#ffb900" d="M11 11h10v10H11z"/></svg>}
+            <span>{busy === provider ? t("正在前往登录…", "Opening sign-in…") : provider === "google" ? t("使用 Google 登录", "Sign in with Google") : t("使用 Microsoft 登录", "Sign in with Microsoft")}</span>
+            {!available && <small>{t("尚未启用", "Not enabled yet")}</small>}
+          </button>;
+        })}
+      </div>
+      <p className="social-description">{t("请在登录页面选择组织账号。普通 Gmail、Outlook、Hotmail 个人账号不符合当前注册规则。", "Choose your organization account. Personal Gmail, Outlook and Hotmail accounts are not eligible under the current registration policy.")}</p>
+    </section>
+    <aside className="social-panel login-card">
+      <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
+      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、公司账号。部分机构可能要求管理员批准应用。", "School and company accounts managed by Google Workspace or Microsoft 365/Entra. Some organizations require administrator approval.")}</p>
+      <p className="social-description">{t("其他邮件系统暂不支持这两个登录入口。邮箱地址不会显示在公开主页，组织账号也不代表学校或雇主对个人身份的背书。", "Other email systems are not covered by these two sign-in options. Your email stays private. An organization account is not an endorsement by a school or employer.")}</p>
+    </aside>
+  </div>;
 }
 export function TestSignIn({ enabled }: { enabled: boolean }) {
   const { t } = useI18n();
