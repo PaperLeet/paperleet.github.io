@@ -9,6 +9,7 @@ PILOTS = {
     "diffusion/schedules", "architecture/attention", "finetuning/lora",
     "diffusion/param_conversion", "architecture/layer_norm",
     "architecture/positional_encoding", "rl/dpo",
+    "architecture/multihead_attention", "architecture/positionwise_ffn", "optimization/adamw",
 }
 
 

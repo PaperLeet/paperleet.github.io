@@ -1,4 +1,4 @@
-"""Bounded NumPy reverse-mode autodiff backend for Attention and LoRA.
+"""Bounded NumPy reverse-mode autodiff backend for validated teaching modules.
 
 CPU/WASM only. Gradients are analytical vector-Jacobian products, not numerical
 approximations. This is a teaching-subset adapter, not a native PyTorch runtime.
@@ -106,6 +106,7 @@ class Tensor:
     def clone(self): return result(self._data.copy(), (self, lambda g: g))
     def cpu(self): return self
     def contiguous(self): return self.clone()
+    def is_contiguous(self): return bool(self._data.flags.c_contiguous)
     def double(self): return self.to(dtype=np.float64)
     def float(self): return self.to(dtype=np.float32)
     def type_as(self, other): return self.to(other)
@@ -180,6 +181,8 @@ class Tensor:
     def square(self): return self * self
     def sqrt(self): return self ** .5
     def abs(self): return result(np.abs(self._data), (self, lambda g: g * np.sign(self._data)))
+    def relu(self):
+        return result(np.maximum(self._data, 0), (self, lambda g: np.where(self._data <= 0, 0, g)))
     def exp(self):
         data = np.exp(self._data)
         return result(data, (self, lambda g: g * data))
@@ -286,6 +289,8 @@ class Tensor:
         if min is not None: mask &= self._data >= min
         if max is not None: mask &= self._data <= max
         return result(np.clip(self._data, min, max), (self, lambda g: g * mask))
+    def clamp_min(self, min): return self.clamp(min=min)
+    def clamp_max(self, max): return self.clamp(max=max)
     def sin(self): return result(np.sin(self._data), (self, lambda g: g * np.cos(self._data)))
     def cos(self): return result(np.cos(self._data), (self, lambda g: -g * np.sin(self._data)))
     def acos(self): return result(np.arccos(self._data), (self, lambda g: -g / np.sqrt(1 - self._data ** 2)))
@@ -419,6 +424,10 @@ class no_grad(contextlib.ContextDecorator):
 
 
 class Adam:
+    def __getattr__(self, name):
+        if name.startswith('_'): raise AttributeError(name)
+        return unsupported(f'Adam.{name}')
+
     def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=0):
         if weight_decay: raise BrowserUnsupported('Adam weight decay requires the server')
         self.params, self.lr, self.betas, self.eps = list(params), lr, betas, eps
@@ -436,6 +445,114 @@ class Adam:
             self.m[i] *= b1; self.m[i] += (1 - b1) * g
             self.v[i] *= b2; self.v[i] += (1 - b2) * g * g
             p._data[...] -= self.lr * (self.m[i] / (1 - b1 ** self.steps)) / (np.sqrt(self.v[i] / (1 - b2 ** self.steps)) + self.eps)
+
+
+class AdamW:
+    """Independent, stateful NumPy oracle for the functional AdamW exercise."""
+    def __getattr__(self, name):
+        if name.startswith('_'): raise AttributeError(name)
+        return unsupported(f'AdamW.{name}')
+
+    def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=.01, **options):
+        if options: raise BrowserUnsupported('Advanced AdamW options require the server')
+        params = list(params)
+        if not params: raise ValueError('AdamW needs parameters')
+        if any(not isinstance(p, Tensor) for p in params):
+            raise BrowserUnsupported('AdamW parameter groups require the server')
+        if lr < 0 or eps < 0 or weight_decay < 0 or len(betas) != 2 or any(not 0 <= b < 1 for b in betas):
+            raise ValueError('Invalid AdamW options')
+        self.param_groups = [dict(params=params, lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)]
+        self.state = {}
+
+    def zero_grad(self, set_to_none=True):
+        for group in self.param_groups:
+            for p in group['params']:
+                if p.grad is not None:
+                    p.grad = None if set_to_none else Tensor(np.zeros_like(p._data))
+
+    def step(self, closure=None):
+        if closure is not None: raise BrowserUnsupported('AdamW closures require the server')
+        for group in self.param_groups:
+            b1, b2 = group['betas']
+            for p in group['params']:
+                if p.grad is None: continue
+                if p.grad.shape != p.shape or p.grad.dtype != p.dtype:
+                    raise RuntimeError('AdamW gradient shape/dtype must match the parameter')
+                if p not in self.state:
+                    self.state[p] = dict(step=Tensor(np.array(0., dtype=np.float32)),
+                                         exp_avg=Tensor(np.zeros_like(p._data)), exp_avg_sq=Tensor(np.zeros_like(p._data)))
+                state = self.state[p]
+                state['step']._data[...] += 1
+                count = state['step'].item()
+                m, v, g = state['exp_avg']._data, state['exp_avg_sq']._data, p.grad._data
+                # Update moments directly, independently of learner Tensor ops.
+                m += (1 - b1) * (g - m)
+                v *= b2
+                v += (1 - b2) * g * g
+                p._data[...] *= 1 - group['lr'] * group['weight_decay']
+                denominator = np.sqrt(v) / np.sqrt(1 - b2 ** count) + group['eps']
+                p._data[...] -= (group['lr'] / (1 - b1 ** count)) * m / denominator
+
+
+def concatenate(tensors, dim=0, *, stack=False):
+    tensors = [wrap(value) for value in tensors]
+    if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
+    rank = tensors[0].ndim + int(stack)
+    if not -rank <= dim < rank: raise IndexError('Tensor dimension out of range')
+    dim %= rank
+    floating = [value.dtype for value in tensors if value.dtype.kind == 'f']
+    dtype = np.result_type(*(floating or [value.dtype for value in tensors]))
+    values = [value._data.astype(dtype, copy=False) for value in tensors]
+    data = np.stack(values, axis=dim) if stack else np.concatenate(values, axis=dim)
+    edges, offset = [], 0
+    for value in tensors:
+        start, end = offset, offset + (1 if stack else value.shape[dim])
+        def vjp(g, start=start, end=end):
+            index = [slice(None)] * rank
+            index[dim] = start if stack else slice(start, end)
+            return g[tuple(index)]
+        edges.append((value, vjp))
+        offset = end
+    return result(data, *edges)
+
+
+def scaled_dot_product_attention_oracle(query, key, value, attn_mask=None, dropout_p=0.,
+                                        is_causal=False, *, scale=None, enable_gqa=False):
+    """Raw NumPy SDPA with its own analytical VJP, independent of learner ops."""
+    if dropout_p or enable_gqa or (is_causal and attn_mask is not None):
+        raise BrowserUnsupported('Dropout, grouped-query or combined causal/masked SDPA requires the server')
+    q, k, v = query._data, key._data, value._data
+    if q.ndim < 2 or k.ndim < 2 or v.ndim < 2 or q.shape[-1] != k.shape[-1] or k.shape[-2] != v.shape[-2]:
+        raise RuntimeError('Invalid SDPA shapes')
+    if q.dtype != k.dtype or q.dtype != v.dtype or q.dtype.kind != 'f':
+        raise RuntimeError('SDPA expects floating tensors with matching dtypes')
+    factor = 1 / np.sqrt(q.shape[-1]) if scale is None else float(scale)
+    scores = (q @ np.swapaxes(k, -1, -2)) * factor
+    if is_causal:
+        scores = np.where(np.arange(k.shape[-2])[None, :] <= np.arange(q.shape[-2])[:, None], scores, -np.inf)
+    if attn_mask is not None:
+        mask = wrap(attn_mask)._data
+        if mask.dtype.kind == 'b': scores = np.where(mask, scores, -np.inf)
+        elif mask.dtype == q.dtype: scores = scores + mask
+        else: raise RuntimeError('SDPA mask must be boolean or match the query dtype')
+    if scores.shape[-1]:
+        maximum = scores.max(axis=-1, keepdims=True)
+        exponentials = np.exp(scores - np.where(maximum == -np.inf, 0, maximum))
+        denominator = exponentials.sum(axis=-1, keepdims=True)
+        probabilities = np.divide(exponentials, denominator, out=np.zeros_like(exponentials), where=denominator != 0)
+    else:
+        probabilities = np.zeros_like(scores)
+
+    def logits_vjp(g):
+        incoming = g @ np.swapaxes(v, -1, -2)
+        return probabilities * (incoming - (incoming * probabilities).sum(axis=-1, keepdims=True))
+
+    edges = [(query, lambda g: unbroadcast((logits_vjp(g) @ k) * factor, q.shape)),
+             (key, lambda g: unbroadcast((np.swapaxes(logits_vjp(g), -1, -2) @ q) * factor, k.shape)),
+             (value, lambda g: unbroadcast(np.swapaxes(probabilities, -1, -2) @ g, v.shape))]
+    if isinstance(attn_mask, Tensor) and attn_mask.dtype.kind == 'f':
+        edges.append((attn_mask, lambda g: unbroadcast(logits_vjp(g), attn_mask.shape)))
+    return result(probabilities @ v, *edges)
 
 
 def layer_norm_oracle(x, normalized_shape, weight=None, bias=None, eps=1e-5):
@@ -517,6 +634,10 @@ def install():
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
     torch.full, torch.randint, torch.device, torch.finfo = full, randint, Device, np.finfo
+    torch.eye = lambda n,m=None,*,dtype=np.float32,device=None,requires_grad=False: (check_device(device), Tensor(np.eye(n, m, dtype=dtype), requires_grad=requires_grad))[1]
+    torch.equal = lambda a,b: bool(np.array_equal(wrap(a)._data, wrap(b)._data))
+    torch.cat = concatenate
+    torch.stack = lambda tensors,dim=0: concatenate(tensors,dim,stack=True)
     torch.linspace = lambda start,end,steps,dtype=np.float32,device=None: (check_device(device), Tensor(np.linspace(start,end,steps,dtype=dtype)))[1]
     torch.argsort = lambda x,dim=-1,descending=False: Tensor(np.argsort(x._data,axis=dim) if not descending else np.flip(np.argsort(x._data,axis=dim),axis=dim),dtype=np.int64)
     torch.manual_seed = np.random.seed
@@ -531,7 +652,7 @@ def install():
     torch.broadcast_to = lambda x, shape: x.expand(shape)
     torch.matmul = lambda a,b: wrap(a) @ b
     torch.pdist = pdist
-    for name in ('sum', 'mean', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'transpose', 'reshape', 'flatten', 'max', 'min', 'clamp', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std'):
+    for name in ('sum', 'mean', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'max', 'min', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan', 'count_nonzero'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -551,7 +672,13 @@ def install():
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
     torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()
     torch.nn.functional.layer_norm = layer_norm_oracle
+    torch.nn.functional.scaled_dot_product_attention = scaled_dot_product_attention_oracle
+    def relu(x, inplace=False):
+        if inplace: raise BrowserUnsupported('In-place ReLU requires the server')
+        return x.relu()
+    torch.nn.functional.relu = relu
     torch.optim.Adam, torch.autograd.grad = Adam, autograd_grad
+    torch.optim.AdamW = AdamW
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
     torch.__getattr__ = unsupported
     return torch

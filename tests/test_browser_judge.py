@@ -73,6 +73,7 @@ print(json.dumps(calibration))
     ('architecture/attention',7,3),('finetuning/lora',6,4),
     ('diffusion/param_conversion',7,4),('architecture/layer_norm',7,4),
     ('architecture/positional_encoding',7,4),('rl/dpo',9,5),
+    ('architecture/multihead_attention',7,4),('architecture/positionwise_ffn',7,4),('optimization/adamw',7,4),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
