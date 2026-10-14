@@ -2,7 +2,8 @@ import { decodeProblemHash } from "./reports";
 
 /** The public site has no account API; protected routes stay on the hosted app. */
 export const publicSite = import.meta.env.VITE_PUBLIC_SITE === "1";
-export const hostedAppAvailable = !publicSite || import.meta.env.VITE_HOSTED_APP_AVAILABLE !== "0";
+export const hostedEdition = import.meta.env.VITE_APP_EDITION === "hosted";
+export const hostedAppAvailable = hostedEdition || (publicSite && import.meta.env.VITE_HOSTED_APP_AVAILABLE === "1");
 export function validateHostedAppUrl(value: string): string {
   const url = new URL(value);
   if (url.protocol !== "https:" || url.username || url.password || url.pathname !== "/" || url.search || url.hash)
@@ -22,7 +23,15 @@ export function isHostedRoute(hash: string): boolean {
   return /^(account(?:\/|\?|$)|community(?:\/|\?|$)|u\/|submit(?:$|\?))/.test(decodeProblemHash(hash));
 }
 export function startPublicNavigation(): boolean {
-  if (!publicSite) return true;
+  if (hostedEdition) return true;
+  if (!publicSite) {
+    const library = () => {
+      if (isHostedRoute(location.hash) && !/^submit(?:$|\?)/.test(decodeProblemHash(location.hash))) location.hash = "#/";
+    };
+    library();
+    window.addEventListener("hashchange", library);
+    return true;
+  }
   if (!hostedAppAvailable) {
     const library = () => { if (isHostedRoute(location.hash)) location.hash = "#/"; };
     library();

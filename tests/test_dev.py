@@ -133,7 +133,7 @@ def test_startup_status_is_flushed_before_application_import(dev, monkeypatch):
 
     monkeypatch.setattr(builtins, "__import__", check_import)
     assert dev.module.main() == 0
-    assert any(args == ("Authentication mode: test",) for args, _ in prints)
+    assert any(args == ("Edition: local (no sign-in required)",) for args, _ in prints)
 
 
 @pytest.mark.parametrize("service_index,code", [(0, 0), (0, 2), (1, -9)])

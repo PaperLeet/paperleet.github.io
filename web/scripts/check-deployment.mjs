@@ -3,7 +3,7 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { createServer } from "vite";
 
-for (const [publicMode, appAvailable] of [[false, true], [true, true], [true, false]]) {
+for (const [publicMode, appAvailable, hostedEdition] of [[false, false, false], [false, true, true], [true, true, false], [true, false, false]]) {
   const server = await createServer({
     server: { middlewareMode: true }, appType: "custom",
     optimizeDeps: { noDiscovery: true, entries: [] },
@@ -11,6 +11,7 @@ for (const [publicMode, appAvailable] of [[false, true], [true, true], [true, fa
       "import.meta.env.VITE_PUBLIC_SITE": JSON.stringify(publicMode ? "1" : "0"),
       "import.meta.env.VITE_HOSTED_APP_AVAILABLE": JSON.stringify(appAvailable ? "1" : "0"),
       "import.meta.env.VITE_HOSTED_APP_URL": JSON.stringify("https://app.paperleet.com"),
+      "import.meta.env.VITE_APP_EDITION": JSON.stringify(hostedEdition ? "hosted" : "local"),
     },
   });
   try {
@@ -29,7 +30,7 @@ for (const [publicMode, appAvailable] of [[false, true], [true, true], [true, fa
       assert(!deployment.isHostedRoute(hash));
     for (const url of ["http://app.paperleet.com", "https://user:secret@app.paperleet.com", "https://app.paperleet.com/path", "https://app.paperleet.com/?next=evil", "https://app.paperleet.com/#login"])
       assert.throws(() => deployment.validateHostedAppUrl(url));
-    if (publicMode) {
+    if (publicMode || !hostedEdition) {
       const redirects = [], listeners = {};
       globalThis.location = { hash: login, replace: url => redirects.push(url), assign: url => redirects.push(url) };
       globalThis.document = { addEventListener: (type, listener) => { listeners[type] = listener; } };
@@ -49,6 +50,11 @@ for (const [publicMode, appAvailable] of [[false, true], [true, true], [true, fa
         listeners.hashchange();
         assert.equal(globalThis.location.hash, "#/");
         assert.deepEqual(redirects, [], "Closed features must not navigate to the unpublished backend");
+        if (!publicMode) {
+          globalThis.location.hash = "#/submit";
+          listeners.hashchange();
+          assert.equal(globalThis.location.hash, "#/submit", "The offline paper workflow must remain available locally");
+        }
       }
       delete globalThis.location; delete globalThis.document; delete globalThis.window;
     }

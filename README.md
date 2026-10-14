@@ -28,13 +28,15 @@ make dev
 
 Open the URL shown in the terminal (default: **http://127.0.0.1:5173**). On subsequent runs, use **`make dev`** from the repository root to start both the website and the judge service. Press Ctrl-C to stop both processes.
 
-## Host an invitation-only beta
+## Repository scope
 
-A deployment package is available for a small online beta. Members can open the website from their own computers and solve the **60 curated modules**. The default institutional mode requires an invitation and verified institutional email. For an initial test group, use administrator-created accounts with `PAPERLEET_AUTH_MODE=test`: each tester receives a login username and access code, with no email registration, Supabase, or SMTP setup. See the [test account guide](docs/test-accounts.md). Hosted judging uses an isolated, resource-limited sandbox; drafts, results, and submission history are stored privately per account. Browser draft caches are separated by account, and conflicting edits from another device require an explicit choice before overwriting a draft.
+This public repository contains the frontend, paper catalog, browser runtime, native local judge, and offline maintainer tools. `make dev` works without an account, email provider, or private repository. Local drafts and progress stay in your browser.
 
-Follow the [hosting guide](docs/hosting.md) to configure the server, sandbox, persistent storage, and your chosen account mode. Only institutional mode needs an email provider and invitation list. This repository supplies deployment files; it does not deploy a public instance automatically. The local `make dev` workflow below continues to run code on your own machine.
+The account/community screens and API contracts are public frontend code. Their server implementations, online storage, hosted judge orchestration, and production deployment tools live in the separate private `PaperLeet/backend` repository. That repository pins this public core as a Git submodule; no private service is installed or fetched by the open edition.
 
-Without a rented server, use [Cloudflare Tunnel with local Docker](docs/cloudflare-tunnel.md) to connect your domain to the same hosted beta on your computer. The computer must stay awake and online; accounts and practice data remain in its private Docker volume.
+Git history is intentionally retained. Earlier commits contain the former combined backend; deleting it from the current tree does not make that earlier code confidential. New online backend changes belong only in the private repository.
+
+GitHub Pages publishes browser practice at https://paperleet.github.io/. The local bridge binds only `127.0.0.1`; hosted services use a separate entrypoint.
 
 ## Solve your first problem
 
@@ -43,7 +45,7 @@ Without a rented server, use [Cloudflare Tunnel with local Docker](docs/cloudfla
 3. Click **Run all tests** and wait for the test results to appear automatically.
 4. Use each test layer's failure explanations, expected values, and actual values to revise your code, then run it again.
 
-Passing the full test suite automatically marks the problem as complete and unlocks its notes on common pitfalls. Running only a subset of tests does not qualify as passing the full suite. In local mode, drafts and progress are saved in your current browser. In hosted mode, signed-in members sync drafts and judging results to their account. Use the Chinese / English toggle in the upper-right corner to switch the interface, problem statements, and explanations. The paper library uses numeric IDs 1–46. Module IDs 1–60 and internal directory names stay stable for existing drafts and CLI commands. A later failed run does not erase a previously accepted result. Existing drafts are preserved; use the editor reset action after saving your code if you want the new starter with supplied helpers.
+Passing the full test suite automatically marks the problem as complete and unlocks its notes on common pitfalls. Running only a subset of tests does not qualify as passing the full suite. In local mode, drafts and progress are saved in your current browser. Use the Chinese / English toggle in the upper-right corner to switch the interface, problem statements, and explanations. The paper library uses numeric IDs 1–46. Module IDs 1–60 and internal directory names stay stable for existing drafts and CLI commands. A later failed run does not erase a previously accepted result. Existing drafts are preserved; use the editor reset action after saving your code if you want the new starter with supplied helpers.
 
 Failed shared numerical assertions show the zero-based mismatch coordinate, expected/actual values, absolute error and test tolerances, or both tensor shapes when they differ. Full error details remain expandable. These optional diagnostics work with browser and server reports, survive refresh, and do not affect grading. NaN/Infinity experiment data remain readable failure evidence rather than breaking browser result transport; older reports retain their original error text.
 
@@ -55,33 +57,13 @@ The **Featured collections** carousel groups papers into LLM Basics, RL, Diffusi
 
 **Random problem** opens an unattempted module within the current collection and filters. It excludes any saved run, accepted result, or edited draft; an unchanged starter is still eligible. The button waits for practice progress to load and is disabled when no eligible problems remain.
 
-Hosted problem pages show public aggregate statistics: unique participants and solvers, total submissions, accepted and failed submissions, and acceptance rate (accepted / total submissions). Each account counts once per problem for participant and solver totals; repeated full submissions count separately. Partial test runs and judge-service failures are excluded. Statistics include existing server-judged history and persist with the database; local development runs do not contribute. No submissions yet means an unset acceptance rate, not a failed submission.
+The website runs code through the judge service and displays results automatically, with no report files to manage manually. The local service listens on `127.0.0.1:8765`, and Vite proxies `/api` requests to it. Code is saved to `workspace/` and executed by Python/PyTorch on your machine. This local setup is intended for personal use. The bridge is for personal local execution; online services use the separate private application.
 
-The website runs code through the judge service and displays results automatically, with no report files to manage manually. The local service listens on `127.0.0.1:8765`, and Vite proxies `/api` requests to it. Code is saved to `workspace/` and executed by Python/PyTorch on your machine. This local setup is intended for personal use. Use the separate hosted configuration for isolated multi-user judging; do not expose the development service directly.
+## Online services
 
-## Community and accounts
-
-Open **Community** to browse discussions, post and reply, like or repost, and follow other researchers. Public profiles show posts, replies, likes, reposts, followers, and following. In institutional mode, writing requires a verified email from an institution approved in `institutions.yaml`; the hosted beta additionally requires an administrator invitation. In test mode, members sign in with an administrator-issued username and access code. Their profiles are labeled **Test account** and do not claim institutional email verification.
-
-Use **Discuss** in a practice workspace to browse or start discussions about that module, then **Back to practice** to resume your saved draft. Topic links also appear on associated posts and profile activity. Only text entered in the post composer is published; code drafts and judging reports are not attached automatically.
-
-Sign-in returns you to the module or discussion you came from. Unpublished post drafts survive closing the composer, navigation, and refresh in the same tab, separately for each account and module. Use **Resume draft** to continue; these drafts stay in the tab and are not synced to other devices.
-
-Community board, search, Following and page selections are stored in the page URL. Refreshing, sharing a link or returning from a post restores that list; **Back to discussions** also preserves whether you entered from the full community or a module. Sign-in keeps these filters. A result range appears above the list, unavailable pages recover to the last valid page, and empty searches offer **Clear filters**. These links contain only browsing filters; code and unpublished drafts are not included.
-
-Reply drafts also survive navigation and refresh, separately for each account and post, including the selected reply target. Use **Write / Preview** to review Markdown before posting. Publishing disables editing, keeps failed submissions recoverable, and clears only the successfully submitted draft. A deleted target requires an explicit choice before posting; a delayed response cannot clear a newer draft. Draft storage failures are shown in the composer. Replies become public only after **Post reply** is selected.
-
-Posts, replies, previews and profile reply activity render inline `$...$` and display `$$` formulas alongside highlighted fenced code blocks. Each code block offers **Copy code** with success/failure feedback; inline code stays literal. Both composers include expandable formatting examples. Long display formulas and code scroll within their own regions on narrow screens. Invalid formulas retain readable source, and public Markdown continues to block raw HTML and remote image loading. See [formatting validation](docs/validation/community-math-code.md).
-
-Profiles include unique solved and attempted problem totals, difficulty breakdowns, a yearly activity calendar, active days and streaks, and recent accepted problems. The calendar uses the viewer's browser time zone and separates submission counts, distinct problems attempted or passed that day, and first-ever passes. Only server-judged full submissions count; partial tests and service failures do not. Repeated passes never increase the cumulative solved count. Community statistics include posts, replies, likes and reposts received, and follow relationships.
-
-Display names and generated avatars are always public. Verified institution and country visibility are separate switches, both off by default; test accounts have no institution field, and full email addresses stay private. Country is optional and entered by the user, with no IP lookup. Turn off **Allow learning progress to be public** in account settings to restrict personal learning statistics to yourself. Code, drafts, and detailed reports always stay private. Local practice stays in the browser and is not uploaded to profiles. Per-problem statistics remain anonymous aggregate counts.
-
-Institutional email sign-in uses Supabase Auth and requires server configuration. Test account sign-in uses separately provisioned accounts and does not use the email provider. Copy `.env.example` to `.env`, configure it, and explicitly export it in your shell before starting the service. See the [community setup guide](docs/community.md) for OTP templates, SMTP, institution review, and privacy rules. For an online beta, follow the [hosting guide](docs/hosting.md), which uses a separate isolated judge and invitation controls.
+Online accounts, synchronized drafts, profiles and community discussions require the separately operated application. The standalone local edition hides these routes and makes no account API requests. Browser and native local practice remain available without sign-in.
 
 ## Submit paper
-
-In the **hosted beta**, signed-in members can submit paper proposals and read their own submissions; administrators can read all proposals. Generation, validation, and publication are performed by maintainers through the offline workflow. Hosted judging is limited to the 60 curated modules included in the deployment image.
 
 In **local maintainer mode**, click **Submit paper / 提交论文** in the top navigation and provide a paper URL, an optional official code URL, and what you want to practice. The model reads these sources and generates Chinese and English problem statements, starter code, a reference implementation, layered tests, and buggy variants. Candidates proceed to human review after passing isolated validation. Only the current version approved by a human reviewer receives a numeric problem ID and enters the paper library as a module. Export groups modules that cite the same arXiv paper or source URL under one paper. The generator currently creates one candidate module per submission. It looks for author toys and paper figures, labels teaching adaptations explicitly, and generates T3 tests that record measured curves and metrics through a bounded `artifact` fixture. Human reviewers can inspect those results before approval.
 
@@ -183,20 +165,19 @@ npm run build
 
 The homepage defers the Python editor, Markdown/math renderer, community, account pages, paper submissions, and labs until they are needed. The initial JavaScript graph is approximately 370 KB uncompressed / 118 KB gzip, down from 1.42 MB / 450 KB; these figures exclude CSS, catalog data, and the separately loaded Python runtime. `npm run build` checks the actual manifest graph against a 400 KiB raw / 130 KiB gzip budget and prevents these optional features from becoming initial imports. A failed feature offers retry and page reload controls. If the rich editor fails, plain-text mode preserves the current code and supports editing, saving, and judging; the private-workspace read-only gate still applies. A browser may cache a failed module import, in which case use page reload to retry it.
 
-You can deploy `web/dist/` as a static preview for reading papers and viewing visualizations. Account workspaces, editing, synchronization, and judging require the configured `/api` service. Use the [hosting package](docs/hosting.md) for an interactive beta; no public service has been deployed by this repository automatically.
+GitHub Pages builds the browser-practice edition using `VITE_PUBLIC_SITE=1` and `VITE_APP_EDITION=local`. It supports editing and browser judging without an API. Ordinary local builds also support the loopback native judge. Online account synchronization is provided by the separate private application.
 
 ## Repository layout and contributing
 
 ```text
 paperleet/         CLI, pytest runner, local service, shared mathematical utilities
 papers.yaml        Curated papers, contributions, scope, and module ordering
-institutions.yaml  Reviewed institutional email domains
 problems/          Self-contained core module packages (RL, fine-tuning, generative models, architecture, optimization, representation)
 web/               Vite + React + TypeScript
 tests/             Judge framework integration tests
 workspace/         Personal code, ignored by Git
 reports/           Judge and CI reports, ignored by Git
-.paperleet/        Local community database and paper submissions, ignored by Git
+.paperleet/        Local judge queue and paper submissions, ignored by Git
 ```
 
 See the [contributing guide (in Chinese)](CONTRIBUTING.md) for the problem authoring workflow and the [10-problem pilot specification (in Chinese)](PaperLeet_第一步_10题试点规格.md) for detailed acceptance criteria. GitHub Actions runs framework tests, three rounds of quality checks, data generation, and the frontend build, then uploads reports and static site build artifacts.

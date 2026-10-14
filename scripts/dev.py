@@ -39,8 +39,9 @@ def main():
         preflight(repository)
 
         # Application imports belong inside the interrupt-controlled startup.
-        from paperleet.config import auth_mode
-        print(f"Authentication mode: {auth_mode()}", flush=True)
+        from paperleet.config import validate_local_settings
+        validate_local_settings()
+        print("Edition: local (no sign-in required)", flush=True)
         print("Preparing the problem catalog...", flush=True)
         from paperleet.export import export_catalog
         export_catalog()

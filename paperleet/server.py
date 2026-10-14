@@ -1,4 +1,4 @@
-"""Local developer bridge and explicitly configured hosted beta API."""
+"""Standalone loopback-only developer bridge; no accounts or online services."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import threading
@@ -9,8 +9,7 @@ from paperleet.catalog import problem, root, workspace_path
 from paperleet.judge.runner import normalize_layers, run_problem
 from paperleet.submissions import Conflict, store
 from paperleet.submissions.model import ModelUnavailable
-from paperleet.social_api import is_social_path, dispatch as dispatch_social
-from paperleet.config import hosted, origin, public_origin, validate_hosted_settings
+from paperleet.config import validate_local_settings
 from paperleet.judge.jobs_api import is_job_path, dispatch as dispatch_jobs
 
 
@@ -38,18 +37,6 @@ class JudgeHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def valid_origin(self):
-        if hosted():
-            try:
-                expected = public_origin()
-                host = origin("https://" + self.headers.get("Host", ""))
-                supplied = self.headers.get("Origin")
-                if host != expected:
-                    return False
-                if self.command == "POST" and not supplied:
-                    return False
-                return not supplied or origin(supplied) == expected
-            except ValueError:
-                return False
         host = urlparse("http://" + self.headers.get("Host", "")).hostname
         supplied_origin = self.headers.get("Origin")
         return host in ("127.0.0.1", "localhost", "::1") and (not supplied_origin or urlparse(supplied_origin).hostname in ("127.0.0.1", "localhost", "::1"))
@@ -57,22 +44,14 @@ class JudgeHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self.valid_origin():
             return self.respond(403, {"error": "This request origin is not allowed"})
-        if not hosted() and urlsplit(self.path).path == "/api/practice/stats":
+        if urlsplit(self.path).path == "/api/practice/stats":
             return self.respond(200, {"available": False, "stats": {}})
         if self.path == "/api/health":
-            result = {"ok": True, "mode": "hosted" if hosted() else "local", "version": "0.1.0",
-                      "auth_required": hosted(), "judge": {"ready": True}}
-            if hosted():
-                from paperleet.hosting.judge_client import judge_capabilities
-                result["judge"] = judge_capabilities()
+            result = {"ok": True, "mode": "local", "version": "0.1.0",
+                      "auth_required": False, "judge": {"ready": True}}
             return self.respond(200, result)
-        if is_social_path(self.path):
-            return dispatch_social(self, "GET")
         if is_job_path(self.path):
             return dispatch_jobs(self, "GET")
-        if hosted():
-            from paperleet.hosting.api import dispatch
-            return dispatch(self, "GET")
         try:
             if self.path == "/api/submissions/capabilities":
                 return self.respond(200, store().capabilities())
@@ -91,7 +70,7 @@ class JudgeHandler(BaseHTTPRequestHandler):
         if not self.valid_origin():
             return self.respond(403, {"error": "This request origin is not allowed"})
         submission_action = re.fullmatch(r"/api/submissions/([0-9a-f]{32})/(generate|validate|review)", self.path)
-        if self.path not in ("/api/test", "/api/submissions", "/api/practice/draft") and not submission_action and not is_social_path(self.path) and not is_job_path(self.path):
+        if self.path not in ("/api/test", "/api/submissions", "/api/practice/draft") and not submission_action and not is_job_path(self.path):
             return self.respond(404, {"error": "Unknown endpoint"})
         if self.headers.get_content_type() != "application/json":
             return self.respond(415, {"error": "Expected application/json"})
@@ -104,15 +83,10 @@ class JudgeHandler(BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(size))
             if not isinstance(data, dict):
                 raise ValueError("Expected a JSON object")
-            if is_social_path(self.path):
-                return dispatch_social(self, "POST", data)
             if is_job_path(self.path):
                 return dispatch_jobs(self, "POST", data)
-            if hosted():
-                from paperleet.hosting.api import dispatch
-                return dispatch(self, "POST", data)
             if self.path == "/api/practice/draft":
-                return self.respond(404, {"error": "Cloud practice is only available in hosted mode"})
+                return self.respond(404, {"error": "Cloud practice belongs to the separate online application"})
             if self.path == "/api/submissions":
                 return self.respond(201, store().create(data))
             if submission_action:
@@ -147,7 +121,7 @@ class JudgeHandler(BaseHTTPRequestHandler):
 
 
 class BoundedHTTPServer(ThreadingHTTPServer):
-    """Limit concurrent connections; the public reverse proxy handles TLS."""
+    """Limit concurrent connections; the bridge only binds loopback."""
     daemon_threads = True
 
     def __init__(self, *args, **kwargs):
@@ -177,12 +151,12 @@ class BoundedHTTPServer(ThreadingHTTPServer):
 
 
 def serve(port=8765):
-    validate_hosted_settings()
-    address = "0.0.0.0" if hosted() else "127.0.0.1"
+    validate_local_settings()
+    address = "127.0.0.1"
     server = BoundedHTTPServer((address, port), JudgeHandler)
     from paperleet.judge.jobs_api import start_queue
     start_queue(server)
-    print(f"PaperLeet {'hosted API' if hosted() else 'local judge'}: http://{address}:{port}", flush=True)
+    print(f"PaperLeet local judge: http://{address}:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

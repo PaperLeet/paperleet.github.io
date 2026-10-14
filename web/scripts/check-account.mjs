@@ -26,7 +26,7 @@ try {
   assert.equal(accountReturnHref("account/continue/account/continue/community"), undefined);
   assert.equal(accountReturnHref("account/continue/%2F%2Fevil.test"), undefined);
   const nav = renderToString(React.createElement(AccountNav, { returnTo: "architecture/attention" }));
-  assert(nav.includes(signInHref("architecture/attention")), "Global sign-in must preserve the practice route");
+  assert.equal(nav, "", "Standalone local practice must not require an account service");
   const login = renderToString(
     React.createElement(TestSignIn, { enabled: true }),
   );

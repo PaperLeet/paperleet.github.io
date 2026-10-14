@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
 import { signInHref } from "./accountNavigation";
-import { publicSite, hostedAppHref, hostedAppAvailable } from "./deployment";
+import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type PublicUser = {
@@ -128,7 +128,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     }
   }
   async function refresh() {
-    if (publicSite) { setCurrentUser(null); setLoading(false); setError(""); return; }
+    if (!hostedEdition) { setCurrentUser(null); setLoading(false); setError(""); return; }
     const epoch = ++accountEpoch.current;
     setLoading(true);
     try {

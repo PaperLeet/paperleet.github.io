@@ -556,7 +556,7 @@ function Workspace() {
             >
               {problem ? t("工作区", "Workspace") : progressReady && problems.length > 0 && !resumeProblem ? t("核心模块已完成", "Core modules complete") : resumeProblem && status(resumeProblem, saved[resumeProblem.id]) === "started" ? t("继续练习", "Continue") : t("开始练习", "Start practice")}
             </button>
-            {hostedAppAvailable && <a className={submissionPage ? "active" : ""} href={hostedAppHref("#/submit")}>
+            {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} href={hostedAppHref("#/submit")}>
               {t("提交论文", "Submit paper")}
             </a>}
             {hostedAppAvailable && <a
@@ -1149,13 +1149,13 @@ function Workspace() {
                       <select aria-label={t("判题位置", "Run tests in")} value={judgeMode} disabled={running} onChange={(event) => setJudgeMode(event.target.value as JudgeMode)}>
                         <option value="auto">{t("自动（优先浏览器）", "Auto (browser first)")}</option>
                         <option value="browser">{t("仅浏览器", "Browser only")}</option>
-                        <option value="server" disabled={!hostedAppAvailable}>{t("服务端", "Server")}</option>
+                        <option value="server" disabled={publicSite && !hostedAppAvailable}>{t("服务端", "Server")}</option>
                       </select>
                     </label>
                     <small>{judgeMode === 'server' ? t('将提交当前代码，由服务端 CPU 执行完整测试。', 'Submit the current source for the complete suite on the server CPU.') : t("原型：本机 CPU / WASM 运行完整测试，无需 GPU。", "Prototype: the complete suite runs on your CPU / WASM; no GPU needed.")}</small>
                     {judgeMode !== 'server' && browserBudget(problem).total > 120_000 && <small>{t(`完整实验包含模型训练与错误实现校准，最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止运行。`, `The full experiment includes model training and mutant calibration, capped at ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
                     {hosted && <small>{t("浏览器结果仅供本机反馈；服务端确认后计入账号进度与统计。", "Browser results are local feedback; server verification records account progress and statistics.")}</small>}
-                    {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")}。{!hostedAppAvailable ? t("代码仍保存在当前浏览器，可以修改或下载代码。", "Your code stays in this browser; edit it or download a copy.") : judgeMode === "auto" ? t("自动模式回退到服务端，请查看下方状态。", "Auto mode falls back to the server; see the status below.") : t("可切换至服务端运行。", "Select Server to run this suite.")}</p>}
+                    {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")}。{publicSite && !hostedAppAvailable ? t("代码仍保存在当前浏览器，可以修改或下载代码。", "Your code stays in this browser; edit it or download a copy.") : judgeMode === "auto" ? t("自动模式回退到服务端，请查看下方状态。", "Auto mode falls back to the server; see the status below.") : t("可切换至服务端运行。", "Select Server to run this suite.")}</p>}
                     {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}
                     {browser.diagnostics[problem.id] && <details><summary>{t("运行时详情", "Runtime details")}</summary><code>{browser.diagnostics[problem.id]}</code></details>}
                     {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}</p>}
