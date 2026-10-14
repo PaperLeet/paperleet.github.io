@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import CommunityMarkdown, { CommunityFormatHelp } from "./CommunityMarkdown";
 import {
   ArrowLeft,
   ArrowRight,
@@ -118,29 +117,6 @@ function TopicContext({ topic, discussion = false }: {
           </a>
         )}
       </div>
-    </div>
-  );
-}
-function CommunityMarkdown({ body }: { body: string }) {
-  return (
-    <div className="prose community-prose">
-      <Markdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer nofollow">
-              {children}
-            </a>
-          ),
-          img: ({ alt }) => (
-            <span className="community-image-alt">
-              {alt ? `[${alt}]` : "[image]"}
-            </span>
-          ),
-        }}
-      >
-        {body}
-      </Markdown>
     </div>
   );
 }
@@ -420,9 +396,11 @@ function Composer({
             onChange={(e) => edit({ title: e.target.value })}
           />
         </label>
-        <div className="editor-toggle">
+        <div className="editor-toggle" role="group" aria-label={t("帖子编辑模式", "Post editor mode")}>
           <button
             className={!preview ? "selected" : ""}
+            aria-pressed={!preview}
+            disabled={busy}
             type="button"
             onClick={() => setPreview(false)}
           >
@@ -430,13 +408,16 @@ function Composer({
           </button>
           <button
             className={preview ? "selected" : ""}
+            aria-pressed={preview}
+            disabled={busy}
             type="button"
             onClick={() => setPreview(true)}
           >
             {t("预览", "Preview")}
           </button>
-          <small>Markdown</small>
+          <small>{t("Markdown · 公式与代码", "Markdown · math & code")}</small>
         </div>
+        <CommunityFormatHelp />
         {preview ? (
           <div className="compose-preview">
             <CommunityMarkdown
@@ -1056,8 +1037,9 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                 <div className="editor-toggle" role="group" aria-label={t("回复编辑模式", "Reply editor mode")}>
                   <button type="button" className={!replyPreview ? "selected" : ""} aria-pressed={!replyPreview} disabled={busy} onClick={() => setReplyPreview(false)}>{t("编写", "Write")}</button>
                   <button type="button" className={replyPreview ? "selected" : ""} aria-pressed={replyPreview} disabled={busy} onClick={() => setReplyPreview(true)}>{t("预览", "Preview")}</button>
-                  <small>Markdown</small>
+                  <small>{t("Markdown · 公式与代码", "Markdown · math & code")}</small>
                 </div>
+                <CommunityFormatHelp />
                 {replyPreview ? <div className="compose-preview"><CommunityMarkdown body={body || t("写下内容后在这里预览。", "Your preview will appear here.")} /></div> : <label>
                   <span className="sr-only">{t("回复内容", "Your reply")}</span>
                   <textarea

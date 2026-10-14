@@ -818,6 +818,20 @@
   font: 14px/1.65 var(--font-mono);
   white-space: pre;
 }
+.community-prose .katex-display { max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.community-code-block { margin: 16px 0; min-width: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.community-code-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; background: var(--surface2); font: 12px/1.5 var(--font-mono); }
+.community-code-header > span { min-width: 0; overflow-wrap: anywhere; }
+.community-code-header button { display: inline-flex; align-items: center; gap: 5px; flex: none; border: 0; background: transparent; color: var(--muted); cursor: pointer; font: inherit; }
+.community-code-header button:hover { color: var(--accent); }
+.community-code-header button:disabled { cursor: wait; }
+.community-code-block .highlight { margin: 0; }
+.community-prose .community-code-block pre { margin: 0; border: 0; border-radius: 0; }
+.community-prose .community-copy-error { margin: 0; padding: 8px 12px; font-size: 12px; color: var(--text-secondary); }
+.community-format-help { margin: 8px 0 12px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+.community-format-help summary { width: fit-content; cursor: pointer; color: var(--accent); }
+.community-format-help p { margin: 8px 0; }
+.community-format-help pre { margin: 8px 0; padding: 10px; max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; font: 12px/1.6 var(--font-mono); white-space: pre; }
 .community-image-alt {
   color: var(--text-secondary);
   font-style: italic;

@@ -7,16 +7,17 @@ export function Highlight({
   code: string;
   lang?: string;
 }) {
-  const [html, setHtml] = useState("");
+  const [rendered, setRendered] = useState<{ code: string; lang: string; html: string }>();
+  const html = rendered?.code === code && rendered.lang === lang ? rendered.html : '';
   useEffect(() => {
     let active = true;
     import("./highlight")
       .then(({ highlight }) => highlight(code, lang))
       .then((h) => {
-        if (active) setHtml(h);
+        if (active) setRendered({ code, lang, html: h });
       })
       .catch(() => {
-        if (active) setHtml("");
+        if (active) setRendered(undefined);
       });
     return () => {
       active = false;
