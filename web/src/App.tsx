@@ -977,7 +977,7 @@ function Workspace() {
               </div>
               {rightTab === "lab" ? (
                 <div className="editor-lab">
-                  <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />
+                  <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />
                 </div>
               ) : (
                 <>

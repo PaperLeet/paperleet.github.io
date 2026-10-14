@@ -21,6 +21,7 @@ PILOTS = {
     "optimization/muon_split", "finetuning/svdquant", "architecture/flash_attention", "architecture/kimi_kda",
     "rl/glm5_offpolicy", "rl/opd", "diffusion/consistency", "diffusion/progressive_distillation",
     "diffusion/ddpm_sampling", "diffusion/ddim", "diffusion/flow_matching",
+    "diffusion/daps", "representation/sigreg", "representation/visreg",
 }
 
 SHARED_FILES = (

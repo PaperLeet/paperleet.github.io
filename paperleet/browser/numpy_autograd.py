@@ -11,6 +11,7 @@ import types
 import sys
 import weakref
 from collections import namedtuple
+from statistics import NormalDist
 import numpy as np
 
 
@@ -78,6 +79,8 @@ def reduction_axes(dim, ndim):
 
 def result(data, *edges, saved=()):
     value = Tensor(data)
+    if value.dtype.kind == 'c' and _grad_enabled and any(node.requires_grad for node, _ in edges):
+        raise BrowserUnsupported('Complex autograd requires the server')
     value._parents = tuple((node, vjp) for node, vjp in edges if node.requires_grad and _grad_enabled)
     value.requires_grad = bool(value._parents)
     if value.requires_grad:
@@ -125,6 +128,7 @@ class Tensor:
         self._storage = storage_version(self._data)
         self._saved_versions = ()
         self.requires_grad = bool(requires_grad)
+        if requires_grad and self.dtype.kind == 'c': raise BrowserUnsupported('Complex autograd requires the server')
         if requires_grad and self.dtype.kind != 'f':
             raise RuntimeError('Only floating point tensors can require gradients')
         self._parents = ()
@@ -140,6 +144,8 @@ class Tensor:
     def __getattr__(self, name):
         if name.startswith('_'): raise AttributeError(name)
         return unsupported(f'Tensor.{name}')
+    def _real_only(self):
+        if self.dtype.kind == 'c': raise BrowserUnsupported('This complex operation requires the server')
     def __array__(self, dtype=None, copy=None): return np.array(self._data, dtype=dtype, copy=copy) if copy is not None else np.asarray(self._data, dtype=dtype)
     def __len__(self): return len(self._data)
     def __float__(self): return float(self._data)
@@ -184,10 +190,14 @@ class Tensor:
         elif other is not None: dtype = other
         if device not in (None, 'cpu', 'cpu:0'):
             raise BrowserUnsupported('Only CPU/WASM tensors are supported')
-        data = self._data.astype(dtype or self.dtype, copy=False)
-        return result(data, (self, lambda g: g.astype(self.dtype))) if data.dtype.kind == 'f' else Tensor(data)
+        target = np.dtype(dtype or self.dtype)
+        if self.dtype.kind == 'c' and target.kind != 'c':
+            raise BrowserUnsupported('Casting complex tensors to real values requires the server')
+        data = self._data.astype(target, copy=False)
+        return result(data, (self, lambda g: g.astype(self.dtype))) if data.dtype.kind in 'fc' else Tensor(data)
 
     def requires_grad_(self, requires_grad=True):
+        if requires_grad and self.dtype.kind == 'c': raise BrowserUnsupported('Complex autograd requires the server')
         if requires_grad and self.dtype.kind != 'f': raise RuntimeError('Only floating tensors can require grad')
         self.requires_grad = requires_grad
         return self
@@ -243,15 +253,20 @@ class Tensor:
         return value
 
     def _binary(self, other, op, left, right):
-        if not isinstance(other, (Tensor, np.ndarray)) and self.dtype.kind == 'f':
-            other = Tensor(other, dtype=self.dtype)
+        if not isinstance(other, (Tensor, np.ndarray)):
+            if isinstance(other, (complex, np.complexfloating)):
+                other = Tensor(other, dtype=np.complex128 if self.dtype in (np.dtype('float64'),np.dtype('complex128')) else np.complex64)
+            elif self.dtype.kind in 'fc': other = Tensor(other, dtype=self.dtype)
         other = wrap(other)
         a, b = self._data, other._data
-        floating = [value.dtype for value in (a,b) if value.dtype.kind == 'f']
+        floating = [value.dtype for value in (a,b) if value.dtype.kind in 'fc']
         if floating:
             dtype = np.result_type(*floating)
-            if a.ndim and not b.ndim and a.dtype.kind == 'f': dtype = a.dtype
-            if b.ndim and not a.ndim and b.dtype.kind == 'f': dtype = b.dtype
+            for array, scalar in ((a,b),(b,a)):
+                if array.ndim and not scalar.ndim and array.dtype.kind in 'fc':
+                    dtype = array.dtype
+                    if array.dtype.kind == 'f' and scalar.dtype.kind == 'c':
+                        dtype = np.dtype('complex128' if array.dtype.itemsize == 8 else 'complex64')
             a, b = a.astype(dtype,copy=False), b.astype(dtype,copy=False)
         return result(op(a, b), (self, lambda g: unbroadcast(left(g, a, b), a.shape)),
                       (other, lambda g: unbroadcast(right(g, a, b), b.shape)))
@@ -288,6 +303,7 @@ class Tensor:
     def sqrt(self): return self ** .5
     def abs(self): return result(np.abs(self._data), (self, lambda g: g * np.sign(self._data)))
     def relu(self):
+        self._real_only()
         return result(np.maximum(self._data, 0), (self, lambda g: np.where(self._data <= 0, 0, g)))
     def exp(self):
         data = np.exp(self._data)
@@ -310,6 +326,7 @@ class Tensor:
             return gradient
         return result(value, (self, vjp))
     def logaddexp(self, other):
+        self._real_only(); wrap(other)._real_only()
         return self._binary(other, np.logaddexp,
                             lambda g,a,b: g * np.exp(-np.logaddexp(0, b-a)),
                             lambda g,a,b: g * np.exp(-np.logaddexp(0, a-b)))
@@ -432,6 +449,7 @@ class Tensor:
             return g*derivative
         return result(value if keepdim else value.squeeze(axis=axes),(self,vjp))
     def amax(self, dim=None, keepdim=False, *, out=None):
+        self._real_only()
         if out is not None: raise BrowserUnsupported('amax output buffers require the server')
         axes=reduction_axes(dim,self.ndim)
         value=np.max(self._data,axis=axes,keepdims=True)
@@ -490,6 +508,7 @@ class Tensor:
     def any(self, dim=None, keepdim=False): return Tensor(self._data.any(axis=dim, keepdims=keepdim))
     def all(self, dim=None, keepdim=False): return Tensor(self._data.all(axis=dim, keepdims=keepdim))
     def _extreme(self, dim, keepdim, maximum):
+        self._real_only()
         op, argop = (np.max, np.argmax) if maximum else (np.min, np.argmin)
         data = op(self._data, axis=dim, keepdims=keepdim)
         if dim is None:
@@ -505,10 +524,12 @@ class Tensor:
     def max(self, dim=None, keepdim=False): return self._extreme(dim, keepdim, True)
     def min(self, dim=None, keepdim=False): return self._extreme(dim, keepdim, False)
     def argmax(self, dim=None, keepdim=False):
+        self._real_only()
         value = np.argmax(self._data, axis=dim)
         if keepdim and self.ndim: value = np.reshape(value, (1,) * self.ndim) if dim is None else np.expand_dims(value, dim)
         return Tensor(value, dtype=np.int64)
     def argmin(self, dim=None, keepdim=False):
+        self._real_only()
         value = np.argmin(self._data, axis=dim)
         if keepdim and self.ndim: value = np.reshape(value, (1,) * self.ndim) if dim is None else np.expand_dims(value, dim)
         return Tensor(value, dtype=np.int64)
@@ -526,6 +547,11 @@ class Tensor:
         else:
             indices = np.argsort(self._data, axis=dim, kind=kind)
         return Tensor(indices, dtype=np.int64)
+    def sort(self, dim=-1, descending=False, *, stable=False, out=None):
+        if out is not None: raise BrowserUnsupported('Sort output buffers require the server')
+        indices = self.argsort(dim, descending, stable=stable)
+        pair = namedtuple('Sort', ['values', 'indices'])
+        return pair(self.gather(dim, indices) if self.ndim else self.clone(), indices)
     def topk(self, k, dim=None, largest=True, sorted=True, *, out=None):
         if out is not None: raise BrowserUnsupported('topk output buffers require the server')
         if not isinstance(k, (int, np.integer)) or isinstance(k, (bool, np.bool_)): raise TypeError('topk k must be an integer')
@@ -600,6 +626,7 @@ class Tensor:
             return np.moveaxis(grad, -1, dim)
         return result(value, (self, vjp))
     def softmax(self, dim, dtype=None):
+        self._real_only()
         x = self.to(dtype=dtype) if dtype is not None else self
         shifted = x._data - x._data.max(axis=dim, keepdims=True)
         exps = np.exp(shifted)
@@ -611,6 +638,7 @@ class Tensor:
     def tril(self, diagonal=0): return self * Tensor(np.tril(np.ones(self.shape[-2:], dtype=self.dtype), diagonal))
     def triu(self, diagonal=0): return self * Tensor(np.triu(np.ones(self.shape[-2:], dtype=self.dtype), diagonal))
     def clamp(self, min=None, max=None):
+        self._real_only()
         if min is None and max is None: raise ValueError('clamp needs at least one bound')
         if isinstance(min, Tensor) or isinstance(max, Tensor): raise BrowserUnsupported('Tensor clamp bounds require the server')
         mask = np.ones(self.shape, dtype=bool)
@@ -622,18 +650,37 @@ class Tensor:
     def sin(self): return result(np.sin(self._data), (self, lambda g: g * np.cos(self._data)))
     def cos(self): return result(np.cos(self._data), (self, lambda g: -g * np.sin(self._data)))
     def acos(self): return result(np.arccos(self._data), (self, lambda g: -g / np.sqrt(1 - self._data ** 2)))
+    def erfinv(self, *, out=None):
+        if out is not None or self.dtype not in (np.dtype('float32'), np.dtype('float64')):
+            raise BrowserUnsupported('erfinv requires real float32/float64 without output buffers')
+        normal = NormalDist()
+        def inverse(x):
+            if math.isnan(x) or abs(x) > 1: return math.nan
+            if abs(x) == 1: return math.copysign(math.inf, x)
+            if x == 0: return x
+            # Lower-tail evaluation avoids rounding (1+x)/2 to one near x=1.
+            value = math.copysign(-normal.inv_cdf((1-abs(x))/2) / math.sqrt(2), x)
+            # Near zero the quantile's probability can round to 0.5. A central
+            # erf correction retains tiny inputs without cancellation at tails.
+            if abs(x) < .5: value -= (math.erf(value)-x) * (math.sqrt(math.pi)/2) * math.exp(value*value)
+            return value
+        value = np.fromiter((inverse(float(x)) for x in self._data.flat), dtype=self.dtype, count=self.numel()).reshape(self.shape)
+        return result(value, (self, lambda g: g * (math.sqrt(math.pi)/2) * np.exp(value**2)))
     def tanh(self):
         value = np.tanh(self._data)
         return result(value, (self, lambda g: g * (1 - value ** 2)))
     def rsqrt(self): return self ** -.5
     def sigmoid(self):
+        self._real_only()
         exp = np.exp(-np.abs(self._data))
         value = np.where(self._data >= 0, 1 / (1 + exp), exp / (1 + exp))
         return result(value, (self, lambda g: g * value * (1 - value)))
     def logsigmoid(self):
+        self._real_only()
         zero = np.zeros((), dtype=self.dtype)
         return result(-np.logaddexp(zero, -self._data), (self, lambda g: g * np.exp(-np.logaddexp(zero, self._data))))
     def log_softmax(self, dim, dtype=None):
+        self._real_only()
         x = self.to(dtype=dtype) if dtype is not None else self
         shifted = x._data - x._data.max(axis=dim, keepdims=True)
         value = shifted - np.log(np.exp(shifted).sum(axis=dim, keepdims=True))
@@ -652,12 +699,14 @@ class Tensor:
             return grad
         return result(np.take_along_axis(self._data[slices], index, axis=dim), (self, vjp), saved=(saved_index,))
     def var(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
+        self._real_only()
         dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
         count = int(np.prod([self.shape[d] for d in dims]))
         correction = int(unbiased) if correction is None else correction
         centered = self - self.mean(dim, keepdim=True)
         return centered.square().sum(dim, keepdim) / (count - correction)
     def std(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
+        self._real_only()
         dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
         correction = int(unbiased) if correction is None else correction
         count = int(np.prod([self.shape[d] for d in dims]))
@@ -671,11 +720,13 @@ class Tensor:
         return result(value if keepdim else value.squeeze(axis=dims), (self, vjp))
 
     def _compare(self, other, op):
+        if isinstance(other,(complex,np.complexfloating)): raise BrowserUnsupported('Complex comparisons require the server')
         # Python scalars use the floating tensor's precision, just like arithmetic.
         # Wrapping first would irreversibly round a float64 boundary to float32.
         if not isinstance(other, (Tensor, np.ndarray)) and self.dtype.kind == 'f':
             other = Tensor(other, dtype=self.dtype)
         other = wrap(other)
+        self._real_only(); other._real_only()
         a, b = self._data, other._data
         if a.dtype.kind == 'f' and b.dtype.kind == 'f':
             dtype = a.dtype if a.ndim and not b.ndim else b.dtype if b.ndim and not a.ndim else np.result_type(a.dtype, b.dtype)
@@ -710,7 +761,7 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
     if isinstance(data, Tensor): data = data._data.copy()
     array = np.asarray(data)
     if dtype is None and not isinstance(data, (np.ndarray, np.generic)):
-        dtype = np.float32 if array.dtype.kind == 'f' else np.int64 if array.dtype.kind in 'iu' else None
+        dtype = np.float32 if array.dtype.kind == 'f' else np.complex64 if array.dtype.kind == 'c' else np.int64 if array.dtype.kind in 'iu' else None
     return Tensor(array, dtype=dtype, requires_grad=requires_grad)
 
 
@@ -823,6 +874,7 @@ def randperm(n, *, generator=None, dtype=np.int64, device=None):
 
 def elementwise_extreme(a, b, maximum=False):
     a = wrap(a)
+    a._real_only(); wrap(b)._real_only()
     def share(left, right):
         blocked = left < right if maximum else left > right
         return np.where(left == right, .5, np.where(blocked, 0., 1.))
@@ -840,6 +892,42 @@ def solve(a, b):
         incoming = db(g)
         return -(incoming[:, None] @ value[None, :] if b.ndim == 1 else incoming @ value.T)
     return result(value, (a, da), (b, db))
+
+
+def inv(input, *, out=None):
+    if out is not None: raise BrowserUnsupported('Inverse output buffers require the server')
+    real_matrix(input)
+    if input.shape[-1] != input.shape[-2]: raise RuntimeError('Inverse expects square matrices')
+    try: value = np.linalg.inv(input._data)
+    except np.linalg.LinAlgError as error: raise RuntimeError('The matrix is singular') from error
+    transpose = np.swapaxes(value, -1, -2)
+    return result(value, (input, lambda g: -transpose @ g @ transpose))
+
+
+def trapezoid(y, x=None, *, dx=None, dim=-1):
+    y = wrap(y)
+    if not y.ndim or not isinstance(dim, (int,np.integer)) or not -y.ndim <= dim < y.ndim:
+        raise IndexError('trapezoid dimension out of range')
+    if y.dtype.kind not in 'fc': raise BrowserUnsupported('Integer trapezoid inputs require the server')
+    dim %= y.ndim
+    if x is not None and dx is not None: raise TypeError('Specify x or dx, not both')
+    if y.shape[dim] == 0:
+        return Tensor(np.zeros(y.shape[:dim] + y.shape[dim+1:],dtype=y.dtype))
+    left, right = [slice(None)]*y.ndim, [slice(None)]*y.ndim
+    left[dim], right[dim] = slice(None,-1), slice(1,None)
+    average = (y[tuple(left)] + y[tuple(right)]) / 2
+    if x is None:
+        if dx is not None and (not np.isscalar(dx) or isinstance(dx,complex)):
+            raise BrowserUnsupported('trapezoid dx must be a real scalar')
+        return (average * (1 if dx is None else dx)).sum(dim)
+    x = wrap(x)
+    if not x.ndim or x.ndim > y.ndim or x.dtype.kind not in 'fc':
+        raise BrowserUnsupported('trapezoid coordinates require floating tensors of supported rank')
+    if x.ndim == 1:
+        if x.numel() != y.shape[dim]: raise RuntimeError('trapezoid coordinate length does not match samples')
+        shape = [1]*y.ndim; shape[dim] = x.numel(); x = x.reshape(shape)
+    else: x = x.reshape((1,)*(y.ndim-x.ndim) + x.shape)
+    return (average * (x[tuple(right)] - x[tuple(left)])).sum(dim)
 
 
 def real_matrix(input):
@@ -964,6 +1052,7 @@ def linear(input, weight, bias=None):
 
 
 def silu(input, inplace=False):
+    input._real_only()
     if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
     x = input._data
     exp = np.exp(-np.abs(x))
@@ -1552,6 +1641,7 @@ def install():
     torch.__path__ = []
     torch.Tensor, torch.Generator, torch.no_grad = Tensor, Generator, no_grad
     torch.float64, torch.float32 = np.dtype('float64'), np.dtype('float32')
+    torch.complex64, torch.complex128 = np.dtype('complex64'), np.dtype('complex128')
     torch.float, torch.double = torch.float32, torch.float64
     torch.long, torch.int64, torch.bool = np.dtype('int64'), np.dtype('int64'), np.dtype('bool')
     torch.int, torch.int32 = np.dtype('int32'), np.dtype('int32')
@@ -1570,8 +1660,10 @@ def install():
     torch.equal = lambda a,b: bool(np.array_equal(wrap(a)._data, wrap(b)._data))
     torch.cat = concatenate
     torch.stack = lambda tensors,dim=0: concatenate(tensors,dim,stack=True)
-    torch.linspace = lambda start,end,steps,dtype=np.float32,device=None: (check_device(device), Tensor(np.linspace(start,end,steps,dtype=dtype)))[1]
+    torch.linspace = lambda start,end,steps,dtype=np.float32,device=None,requires_grad=False: (check_device(device), Tensor(np.linspace(start,end,steps,dtype=dtype),requires_grad=requires_grad))[1]
     torch.argsort = lambda x,dim=-1,descending=False,*,stable=False: x.argsort(dim,descending,stable=stable)
+    torch.sort = lambda input,dim=-1,descending=False,*,stable=False,out=None: input.sort(dim,descending,stable=stable,out=out)
+    torch.trapezoid = trapezoid
     torch.topk = lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out)
     torch.scatter = lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce)
     torch.count_nonzero, torch.bincount = count_nonzero, bincount
@@ -1596,7 +1688,7 @@ def install():
         return a @ b
     torch.dot, torch.cov = dot, cov
     torch.pdist, torch.cdist = pdist, cdist
-    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril', 'amax', 'prod', 'round', 'chunk'):
+    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'erfinv', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril', 'amax', 'prod', 'round', 'chunk'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -1642,6 +1734,7 @@ def install():
     torch.optim.AdamW = AdamW
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
     torch.linalg.solve = solve
+    torch.linalg.inv = inv
     torch.linalg.svd, torch.linalg.eigh, torch.linalg.qr = svd, eigh, qr
     torch.linalg.svdvals = lambda input,*,driver=None,out=None: svd(input,False,driver=driver,out=out).S
     torch.__getattr__ = unsupported
