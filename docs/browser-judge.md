@@ -45,6 +45,8 @@ Hosted browser results are local feedback, held in memory and discarded on accou
 
 ## Runtime assets and deployment
 
+Reports retain the submitted source's SHA-256 through parsing and draft/history storage. The test panel and submitted-run experiments compare it with the editor's exact UTF-8 contents. Editing marks the previous results as belonging to an earlier submission; restoring the exact source restores the match. Asynchronous checks discard superseded work. Legacy reports and environments without Web Crypto show an unconfirmed version and invite a rerun. Historical completion remains intact, while next-step recommendations require results matching the current code.
+
 `npm run dev` and `npm run build` run `scripts/prepare-browser-runtime.mjs` first. It copies Pyodide **0.29.4** from the exact npm dependency and downloads NumPy **2.2.5**, pytest **8.3.5** and dependencies using the official Pyodide lockfile SHA-256 digests. Cached wheels are verified and reused; initial preparation requires network access. Build failures are explicit. No GPU runtime is downloaded or required.
 
 The runtime is self-hosted in `web/public/browser-runtime/` (ignored by Git), loaded only when a browser run is requested. The homepage does not preload Python/NumPy. Versioned runtime assets are immutable; worker scripts revalidate. `paperleet export` emits content-addressed compatibility bundles from the maintained Python files. Re-export after changing adapters, the harness, tests or reference solutions. Vite dev/preview and Caddy provide CORS only on the public runtime/worker asset paths so the opaque sandbox can load them.

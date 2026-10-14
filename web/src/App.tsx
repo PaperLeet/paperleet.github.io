@@ -56,6 +56,8 @@ import { browserReason, type JudgeMode } from "./browserJudge";
 import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
 import type { ExperimentView } from "./experimentResults";
+import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
+import type { ReportSourceState } from "./reportSource";
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -208,10 +210,12 @@ export function Prose({
 function ReportView({
   report,
   problem,
+  sourceState,
   children,
 }: {
   report?: Report;
   problem: Problem;
+  sourceState: ReportSourceState;
   children?: React.ReactNode;
 }) {
   const { t, locale } = useI18n();
@@ -251,7 +255,7 @@ function ReportView({
             {report.error
               ? t("判题未完成", "Run incomplete")
               : isPassed(problem, report)
-                ? report.runtime === "browser-numpy-wasm" ? t("浏览器通过", "Browser tests passed") : "Accepted"
+                ? sourceState !== "current" ? t("上次测试通过", "Previous tests passed") : report.runtime === "browser-numpy-wasm" ? t("浏览器通过", "Browser tests passed") : "Accepted"
                 : allPassed
                   ? t("所选测试通过", "Selected tests passed")
                   : t("需要再检查一下", "Tests need attention")}
@@ -261,6 +265,7 @@ function ReportView({
           {passed} / {total} {t("项通过", "tests passed")}
         </span>
       </div>
+      <ReportSourceNotice state={sourceState} />
       {report.error && <pre className="failure-message">{report.error}</pre>}
       {children}
       <div className="report-meta">
@@ -418,6 +423,7 @@ function Workspace() {
   const browser = useBrowserJudge(practice.owner);
   const [judgeMode, setJudgeMode] = useState<JudgeMode>("auto");
   const report = problem ? browser.reports[problem.id] || current.report : undefined;
+  const reportSource = useReportSource(report, current.code ?? problem?.starter ?? "");
   const browserAvailable = !!problem?.browser_judge && judgeMode !== "server";
   const browserHere = browser.problem === problem?.id;
   const running = preparingRun || judge.active || browser.active;
@@ -826,13 +832,13 @@ function Workspace() {
               </div>
               <div className="description-scroll" key={problem.id}>
                 {tab === "tests" ? (
-                  <ReportView report={report} problem={problem}>
-                    {!running && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
+                  <ReportView report={report} problem={problem} sourceState={reportSource}>
+                    {!running && reportSource === "current" && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
                       <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
                     )}
                   </ReportView>
                 ) : tab === "lab" ? (
-                  <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} initialView={labView} />
+                  <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} sourceState={reportSource} initialView={labView} />
                 ) : tab === "notes" ? (
                   status(problem, current) !== "done" ? (
                     <div className="empty-state">
@@ -979,7 +985,7 @@ function Workspace() {
                       </section>
                     )}
                     {tab === "explanation" && (
-                      <Visuals key={problem.id} problem={problem} report={report} initialView="concept" />
+                      <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />
                     )}
                     {locale === "en" && !problem.translations?.en && (
                       <div className="notice">
@@ -1034,7 +1040,7 @@ function Workspace() {
               </div>
               {rightTab === "lab" ? (
                 <div className="editor-lab">
-                  <Visuals key={problem.id} problem={problem} report={report} initialView="concept" />
+                  <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />
                 </div>
               ) : (
                 <>
@@ -1296,6 +1302,7 @@ function Workspace() {
                     </div>
                   )}
                   <div className="console">
+                    <ReportSourceNotice state={reportSource} />
                     <div className="console-header">
                       <span>
                         <Terminal size={14} />
@@ -1315,7 +1322,7 @@ function Workspace() {
                       {running
                         ? browserHere ? browserStatus : queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
                         : report
-                          ? `${report.tests.filter((test) => test.passed).length} / ${report.tests.length} ${t("项测试通过。修改代码后可再次运行。", "tests passed. Edit your code and run again.")}`
+                          ? `${t("上次结果：", "Last result: ")}${report.tests.filter((test) => test.passed).length} / ${report.tests.length} ${t("项测试通过。", "tests passed.")}`
                           : t(
                               "完成实现后，点击下方按钮运行测试。",
                               "Complete the implementation, then run the tests below.",

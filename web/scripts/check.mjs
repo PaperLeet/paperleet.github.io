@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { createServer } from "vite";
@@ -15,6 +16,8 @@ try {
   const { isPassed, status } = await server.ssrLoadModule("/src/types.ts");
   const { parseReport, parseSaved, decodeProblemHash } =
     await server.ssrLoadModule("/src/reports.ts");
+  const { fingerprintSource, reportSourceState } = await server.ssrLoadModule("/src/reportSource.ts");
+  const { ReportSourceNotice } = await server.ssrLoadModule("/src/ReportSourceNotice.tsx");
   const { decodeViz } = await server.ssrLoadModule("/src/vizData.ts");
   const { highlight } = await server.ssrLoadModule("/src/highlight.ts");
   const { dpoObjective, tokenGradient, difficultyAdvantage, scheduleData } =
@@ -251,6 +254,24 @@ try {
     ],
   };
   const problem = { id: "example", tests: { T0: 1, T1: 1, T2: 1, T3: 0 } };
+  const source = '# 中文 🧪\nprint("hello")\n';
+  const fingerprint = await fingerprintSource(source);
+  assert.equal(fingerprint.sha256, createHash('sha256').update(source, 'utf8').digest('hex'), 'Browser and Python must hash identical UTF-8 bytes');
+  const versioned = parseReport({...report,source_sha256:fingerprint.sha256});
+  assert.equal(versioned.source_sha256, fingerprint.sha256, 'Keep code provenance through response parsing');
+  assert.equal(parseSaved({example:{code:source,report:versioned}}).example.report.source_sha256, fingerprint.sha256, 'Retain provenance across refresh');
+  assert.equal(reportSourceState(undefined,source,fingerprint),'none');
+  assert.equal(reportSourceState(report,source,fingerprint),'unknown', 'Legacy reports must not claim to match current code');
+  assert.equal(reportSourceState(versioned,source),'checking');
+  assert.equal(reportSourceState(versioned,source,fingerprint),'current');
+  const edited = source + '# new edit\n';
+  assert.equal(reportSourceState(versioned,edited,fingerprint),'checking', 'An old asynchronous digest must never match newer editor contents');
+  assert.equal(reportSourceState(versioned,edited,await fingerprintSource(edited)),'changed');
+  assert.equal(reportSourceState(versioned,source,{source}),'unknown', 'Unavailable hashing must not block judging or invent a match');
+  assert.notEqual((await fingerprintSource(source.replaceAll('\n','\r\n'))).sha256,fingerprint.sha256, 'Line endings are part of the submitted source');
+  assert.equal(status(problem,{code:edited,report:versioned,acceptedReport:versioned}),'done', 'Editing after acceptance must preserve historical completion');
+  const staleNotice = renderToString(React.createElement(ReportSourceNotice,{state:'changed'}));
+  assert(staleNotice.includes('代码已修改') && staleNotice.includes('role="status"'));
   assert(isPassed(problem, report));
   assert(!isPassed(problem, { ...report, error: "collection failed" }));
   assert(!isPassed(problem, { ...report, summary: { T0: [1, 1] } }));
@@ -322,6 +343,9 @@ try {
     { impl: {} },
     { created_at: [] },
     { error: {} },
+    { source_sha256: 'short' },
+    { source_sha256: 'z'.repeat(64) },
+    { source_sha256: {} },
     { summary: { ...report.summary, T0: [0.5, 1] } },
     { summary: { ...report.summary, T0: [2, 1] } },
     { summary: { ...report.summary, T0: [Infinity, Infinity] } },
@@ -409,6 +433,10 @@ try {
   const runHtml = renderToString(React.createElement(Lab, {problem:ppoModule,report:ownReport}));
   assert(runHtml.includes('browser_run_marker') && runHtml.includes('CPU / WASM'), 'Completed experiments must open actual submitted-run data by default');
   assert(!runHtml.includes('must_stay_hidden') && !runHtml.includes('同一个 batch，多轮更新后会发生什么'));
+  for (const module of [ppoModule,catalog.problems.find((entry)=>entry.id==='finetuning/lora')]) {
+    const staleExperiment = renderToString(React.createElement(Lab,{problem:module,report:{...ownReport,problem:module.id},sourceState:'changed',initialView:'run'}));
+    assert(staleExperiment.includes('代码已修改') && staleExperiment.includes('browser_run_marker'), 'Both interactive and generic labs must label stale submitted-run charts without hiding their evidence');
+  }
   const explicitConcept = renderToString(React.createElement(Lab, {problem:ppoModule,report:ownReport,initialView:'concept'}));
   assert(!explicitConcept.includes('browser_run_marker') && explicitConcept.includes('同一个 batch，多轮更新后会发生什么'), 'Formula entry points must still open the interactive reference view after a completed run');
   const foreignHtml = renderToString(React.createElement(Lab, {problem:ppoModule,report:{...ownReport,problem:'rl/gae'}}));

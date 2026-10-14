@@ -1505,6 +1505,24 @@ h3 {
   font:
     12px var(--font-sans);
 }
+.report-source-notice {
+  margin: 10px 0 16px;
+  padding: 9px 12px;
+  border-left: 3px solid var(--text-secondary);
+  background: var(--surface2);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.report-source-notice.changed,
+.report-source-notice.unknown {
+  border-left-color: var(--accent);
+  color: var(--text);
+}
+.report-source-notice.current {
+  border-left-color: var(--green);
+}
 .report-meta {
   display: flex;
   justify-content: space-between;

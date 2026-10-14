@@ -94,8 +94,12 @@ export function parseReport(value: unknown): Report {
       }),
     );
   }
+  const sourceHash = optionalString(value.source_sha256, "source_sha256");
+  if (sourceHash !== undefined && !/^[a-f0-9]{64}$/.test(sourceHash))
+    return invalid("source_sha256 必须是 SHA-256 十六进制字符串");
   return {
     problem: value.problem,
+    source_sha256: sourceHash,
     runtime: optionalString(value.runtime, "runtime"),
     tests,
     summary,

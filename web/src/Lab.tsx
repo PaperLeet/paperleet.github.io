@@ -6,6 +6,8 @@ import { useI18n } from "./i18n";
 import { decodeViz } from "./vizData";
 import { scheduleData } from "./concepts";
 import { experimentTests, type ExperimentView } from "./experimentResults";
+import { ReportSourceNotice } from "./ReportSourceNotice";
+import type { ReportSourceState } from "./reportSource";
 import {
   ArtifactCharts,
   Bars,
@@ -1048,11 +1050,12 @@ function FlowLab({ data }: { data: Data }) {
     </>
   );
 }
-function RunArtifacts({ problem, report }: { problem: Problem; report?: Report }) {
+function RunArtifacts({ problem, report, sourceState }: { problem: Problem; report?: Report; sourceState: ReportSourceState }) {
   const { t } = useI18n();
   const results = experimentTests(problem.id, report);
   return <section className="toy-experiment">
     <h3>{t("我的运行结果", "My run results")}</h3>
+    <ReportSourceNotice state={sourceState} />
     <p>{report?.runtime === "browser-numpy-wasm" && report.problem === problem.id
       ? t("以下数据来自你的最近一次浏览器 CPU / WASM 实验。", "These results come from your latest browser CPU / WASM experiment.")
       : t("以下曲线和指标来自你的最近一次 T3 运行。", "These curves and metrics come from your latest T3 run.")}</p>
@@ -1063,7 +1066,7 @@ function RunArtifacts({ problem, report }: { problem: Problem; report?: Report }
   </section>;
 }
 
-function ToyExperiment({ problem, report, data, initialView = "auto" }: { problem: Problem; report?: Report; data: Data; initialView?: ExperimentView }) {
+function ToyExperiment({ problem, report, data, sourceState, initialView = "auto" }: { problem: Problem; report?: Report; data: Data; sourceState: ReportSourceState; initialView?: ExperimentView }) {
   const { t } = useI18n();
   const hasReference = data.kind === "toy_experiment";
   const [view, setView] = useState(() => !hasReference || initialView === "run" || initialView === "auto" && experimentTests(problem.id, report).length ? "yours" : "reference");
@@ -1076,11 +1079,11 @@ function ToyExperiment({ problem, report, data, initialView = "auto" }: { proble
       {hasReference && <button aria-pressed={view === "reference"} onClick={() => setView("reference")}>{t("参考实验", "Reference experiment")}</button>}
       <button aria-pressed={view === "yours"} onClick={() => setView("yours")}>{t("我的运行结果", "My run results")}</button>
     </div>
-    {view === "reference" ? <ArtifactCharts data={artifacts} referenceRun /> : <RunArtifacts problem={problem} report={report} />}
+    {view === "reference" ? <ArtifactCharts data={artifacts} referenceRun /> : <RunArtifacts problem={problem} report={report} sourceState={sourceState} />}
   </section>;
 }
 
-export default function Lab({ problem, report, initialView = "auto" }: { problem: Problem; report?: Report; initialView?: ExperimentView }) {
+export default function Lab({ problem, report, sourceState = "unknown", initialView = "auto" }: { problem: Problem; report?: Report; sourceState?: ReportSourceState; initialView?: ExperimentView }) {
   const tx = useLabText();
   const { t } = useI18n();
   const [view, setView] = useState(() => initialView === "auto" ? experimentTests(problem.id, report).length ? "run" : "concept" : initialView);
@@ -1088,14 +1091,14 @@ export default function Lab({ problem, report, initialView = "auto" }: { problem
     () => decodeViz(problem.vizData || {}) as Data,
     [problem.vizData],
   );
-  if (data.kind === "toy_experiment" || (!problem.vizData && experimentTests(problem.id, report).length)) return <ToyExperiment problem={problem} report={report} data={data} initialView={initialView} />;
+  if (data.kind === "toy_experiment" || (!problem.vizData && experimentTests(problem.id, report).length)) return <ToyExperiment problem={problem} report={report} data={data} sourceState={sourceState} initialView={initialView} />;
   return (
     <>
       <div className="toy-view-tabs" role="group" aria-label={t("实验视图", "Experiment view")}>
         <button aria-pressed={view === "concept"} onClick={() => setView("concept")}>{t("公式与参考实验", "Concepts & reference experiments")}</button>
         <button aria-pressed={view === "run"} onClick={() => setView("run")}>{t("我的运行结果", "My run results")}</button>
       </div>
-      {view === "run" ? <RunArtifacts problem={problem} report={report} /> : <>
+      {view === "run" ? <RunArtifacts problem={problem} report={report} sourceState={sourceState} /> : <>
       <div className="lab-heading">
         <span className="live-dot" />
         {tx("公式实验台")}
