@@ -1,0 +1,68 @@
+id: architecture/rope
+number: 63
+title: RoPE 旋转位置编码
+title_en: Rotary Position Embedding
+paper:
+  title: 'RoFormer: Enhanced Transformer with Rotary Position Embedding'
+  authors: Jianlin Su, Yu Lu, Shengfeng Pan, Ahmed Murtadha, Bo Wen, and Yunfeng Liu
+  venue: arXiv 2021
+  arxiv: '2104.09864'
+  official_code: https://github.com/ZhuiyiTechnology/roformer
+  anchors:
+  - 'Section 3.2: adjacent-pair rotations and relative inner products, Equations (13)–(16)'
+  - 'Section 3.4.2: sparse rotation implementation, Equation (34)'
+paper_id: roformer
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: apply_rope
+  signature: 'apply_rope(x: Tensor, positions: Tensor, base: float = 10000.) -> Tensor'
+module:
+  goal: 实现相邻特征对的旋转位置编码，理解相对位置内积和缓存偏移。
+  goal_en: Rotate adjacent feature pairs and understand relative-position logits and cached-decoding offsets.
+  scope: 只实现 apply_rope；提供相对位置与分块 KV 缓存实验，不训练 RoFormer 或扩展上下文。
+  scope_en: Implement apply_rope; supplied experiments cover relative positions and chunked KV caching without RoFormer training or context-extension methods.
+  required_functions: [apply_rope]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve x float32/float64; compute phases in x dtype; numerical gradient tests use float64.
+  device: CPU; no downloads, weights or GPU required
+  layout: 'x [B,H,L,D], positions [L]; D positive and even; B or L may be zero; positions broadcast across B/H'
+  pairing: 'Adjacent coordinates (0,1), (2,3), ...; positive angles rotate counterclockwise'
+  frequency: 'Pair i has frequency base**(-2*i/D); finite real base > 1, excluding bool'
+  positions: 'Finite signed integer or real positions, not necessarily consecutive; convert to x dtype/device without detaching'
+  gradients: 'Preserve derivatives into x and floating positions; continuous positions are an explicit teaching extension'
+  scope: 'Full-width rotation only, no partial RoPE, half-split convention, attention masking, value rotation, scaling/extrapolation or pretrained-model quality claim'
+tests: {T0: 1, T1: 1, T2: 7, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 25
+tags: [RoPE, RoFormer, Positional Encoding, KV Cache, Gradients]
+viz: [toy_experiment]
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://arxiv.org/abs/2104.09864
+  - https://arxiv.org/html/2104.09864v5
+  - https://github.com/ZhuiyiTechnology/roformer
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2104.09864
+  anchor: Sections 3.2 and 3.4.2, Equations (13)–(16) and (34)
+  adaptation: Synthetic six-feature logits, a joint position shift and nine cached keys. Contrast correct absolute chunk offsets with resetting new-key positions. Not a paper benchmark, training task, speed measurement or proof of long-context generalization.
+mutants:
+- id: m1_reverse_rotation
+  bug: 旋转角度取反
+- id: m2_wrong_frequency
+  bug: 指数除以特征对数量，频率变化过快
+- id: m3_half_split
+  bug: 把前后两半配对，不符合相邻维度约定
+- id: m4_ignore_positions
+  bug: 忽略传入位置，每次从零开始
+- id: m5_detached_features
+  bug: 旋转前 detach 输入，切断特征梯度
+- id: m6_float32_phase
+  bug: 强制 float32 相位，破坏 float64 精度

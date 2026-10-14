@@ -336,6 +336,18 @@ class Tensor:
     def __pow__(self, exponent):
         if not np.isscalar(exponent): raise BrowserUnsupported('Tensor exponents require the server')
         return result(self._data ** exponent, (self, lambda g: g * exponent * self._data ** (exponent - 1)))
+    def __rpow__(self, base):
+        if type(base) not in (int, float) or not math.isfinite(base) or base <= 0 or self.dtype not in (np.dtype('float32'), np.dtype('float64')):
+            raise BrowserUnsupported('Scalar-base power requires a positive finite real base and float32/float64 exponents')
+        with np.errstate(over='ignore', under='ignore'):
+            converted = np.asarray(base, dtype=self.dtype)
+        if not np.isfinite(converted) or converted <= 0:
+            raise BrowserUnsupported('Power base is outside the exponent dtype range')
+        with np.errstate(over='ignore', invalid='ignore'):
+            value = np.power(converted, self._data)
+        # Native scalar power retains the original scalar in log(base), even
+        # when float32 rounds the forward base to exactly one.
+        return result(value, (self, lambda g: g * value * math.log(base)))
     def pow(self, exponent): return self ** exponent
     def square(self): return self * self
     def sqrt(self): return self ** .5
@@ -847,6 +859,9 @@ class ForwardTensor(Tensor):
         p = self._primal ** exponent
         t = self._tangent * (exponent * self._primal ** (exponent - 1)) if exponent else self._tangent * 0
         return ForwardTensor(p, t)
+    def __rpow__(self, base):
+        p = self._primal.__rpow__(base)
+        return ForwardTensor(p, self._tangent * p * math.log(base))
     def __matmul__(self, other):
         p, t = forward_parts(other)
         return ForwardTensor(self._primal @ p, self._tangent @ p + self._primal @ t)
@@ -940,7 +955,7 @@ def forward_guard(function, name):
         'torch.tensor', 'torch.as_tensor', 'torch.zeros_like', 'torch.ones_like', 'torch.empty_like', 'torch.randn_like',
         'torch.where', 'torch.cat', 'torch.stack', 'torch.matmul',
         'torch.exp', 'torch.log', 'torch.sin', 'torch.cos', 'torch.tanh', 'torch.sigmoid', 'torch.relu',
-        'torch.sqrt', 'torch.square', 'torch.sum', 'torch.mean', 'torch.reshape', 'torch.flatten',
+        'torch.sqrt', 'torch.square', 'torch.pow', 'torch.sum', 'torch.mean', 'torch.reshape', 'torch.flatten',
         'torch.softmax', 'torch.log_softmax', 'torch.isfinite', 'torch.isnan', 'torch.isinf',
         'torch.nn.functional.linear', 'torch.nn.functional.relu', 'torch.nn.functional.silu',
         'torch.nn.functional.softmax', 'torch.nn.functional.log_softmax',
@@ -955,6 +970,13 @@ def forward_guard(function, name):
             raise BrowserUnsupported(f'{name} has no validated forward-mode rule; use the server')
         return function(*args, **kwargs)
     return call
+
+
+def power(input, exponent, *, out=None):
+    if out is not None: raise BrowserUnsupported('Power output buffers require the server')
+    if isinstance(input, Tensor): return input ** exponent
+    if isinstance(exponent, Tensor): return exponent.__rpow__(input)
+    raise TypeError('Power requires a tensor operand')
 
 
 def count_nonzero(input, dim=None):
@@ -2073,6 +2095,7 @@ def install():
     torch.uint8 = np.dtype('uint8')
     torch.inf, torch.pi = np.inf, np.pi
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
+    torch.pow = power
     torch.unique = unique
     torch.remainder = lambda input,other,*,out=None: input.remainder(other,out=out)
     torch.floor_divide = lambda input,other: wrap(input).floor_divide(other)

@@ -5,9 +5,12 @@ import type { Problem, Saved } from "./types";
 const foundations = [
   "architecture/attention",
   "architecture/layer_norm",
+  "architecture/rms_norm",
   "architecture/positional_encoding",
+  "architecture/rope",
   "architecture/positionwise_ffn",
   "architecture/multihead_attention",
+  "architecture/gqa",
   "finetuning/lora",
 ];
 

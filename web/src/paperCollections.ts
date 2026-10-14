@@ -17,7 +17,7 @@ export const paperCollections: PaperCollection[] = [
     name_en: "LLM Basics",
     description: "Attention · Transformer · LoRA",
     description_en: "Attention · Transformer · LoRA",
-    paperIds: ["transformer", "adamw", "flash-attention", "lora"],
+    paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora"],
   },
   {
     id: "rl",

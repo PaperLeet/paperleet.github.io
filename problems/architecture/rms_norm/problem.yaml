@@ -1,0 +1,63 @@
+id: architecture/rms_norm
+number: 61
+title: RMSNorm 与部分特征归一化
+title_en: RMSNorm and Partial Feature Statistics
+paper:
+  title: Root Mean Square Layer Normalization
+  authors: Biao Zhang and Rico Sennrich
+  venue: NeurIPS 2019
+  arxiv: '1910.07467'
+  anchors:
+  - 'Equation (4): feature-wise RMS normalization without mean centering'
+  - 'Section 5: pRMSNorm uses the first subset of features for RMS estimation'
+  official_code: https://github.com/bzhangGo/rmsnorm
+paper_id: rmsnorm
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: rms_norm
+  signature: 'rms_norm(x: Tensor, weight: Tensor, eps: float = 1e-5) -> Tensor'
+- name: partial_rms_norm
+  signature: 'partial_rms_norm(x: Tensor, weight: Tensor, k: int, eps: float = 1e-5) -> Tensor'
+module:
+  goal: 实现不去均值的 RMSNorm，以及用前 k 个特征估计尺度的 pRMSNorm。
+  goal_en: Implement RMSNorm without mean centering and pRMSNorm with a first-k-feature scale estimate.
+  scope: 补全两个归一化函数；显式给出 k，epsilon 放在平方根内；提供统计偏差与平移实验。
+  scope_en: Complete two normalization functions with explicit k and epsilon inside the square root; prefix-bias and offset experiments are supplied.
+  required_functions: [rms_norm, partial_rms_norm]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve float32/float64; gradient and scalar-oracle checks use float64.
+  device: CPU; no pretrained weights or downloads
+  layout: 'x [..., D], weight [D]; reduce only over the last feature dimension'
+  epsilon: 'sqrt(mean_square + eps), eps > 0; no mean centering or additive bias'
+  prefix: 'k is an explicit integer in [1, D]; use the first k features but return all D features'
+tests: {T0: 1, T1: 1, T2: 6, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 20
+tags: [RMSNorm, pRMSNorm, Normalization, Gradients]
+viz: [toy_experiment]
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://arxiv.org/abs/1910.07467
+  - https://papers.neurips.cc/paper_files/paper/2019/file/1e8a19426224ca89e83cef47f1e7f53b-Paper.pdf
+  - https://github.com/bzhangGo/rmsnorm/blob/master/rmsnorm_torch.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1910.07467
+  anchor: Equation (4), Section 5
+  adaptation: Two synthetic eight-feature rows compare balanced and low-energy prefixes; an offset sweep exposes the lack of mean centering. No paper benchmark or speedup reproduction.
+mutants:
+- id: m1_centered_input
+  bug: 错把 RMSNorm 改成去均值归一化
+- id: m2_epsilon_outside_sqrt
+  bug: epsilon 放在平方根外，不符合本题明确约定
+- id: m3_partial_uses_all_features
+  bug: 部分归一化仍使用全部特征估计 RMS
+- id: m4_detached_prefix_statistic
+  bug: 将前缀统计量 detach，截断跨特征梯度

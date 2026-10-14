@@ -11,12 +11,22 @@ try {
   const { problems, papers } = JSON.parse(fs.readFileSync("public/data/catalog.json", "utf8"));
   const attention = problems.find((p) => p.id === "architecture/attention");
   const gae = problems.find((p) => p.id === "rl/gae");
+  const rmsnorm = problems.find(p => p.id === 'architecture/rms_norm');
+  const position = problems.find(p => p.id === 'architecture/positional_encoding');
+  assert.equal(recommendPractice([position,rmsnorm], {})?.id,rmsnorm.id,'The foundations path introduces RMSNorm after LayerNorm');
   const transformer = papers.find((p) => p.id === "transformer");
   const accepted = (p) => ({
     problem: p.id,
     summary: Object.fromEntries(Object.entries(p.tests).map(([layer, count]) => [layer, [count, count]])),
     tests: Object.entries(p.tests).flatMap(([layer, count]) => Array.from({ length: count }, (_, i) => ({ id: `${layer}-${i}`, layer, passed: true }))),
   });
+  const rope = problems.find(p => p.id === 'architecture/rope');
+  assert.equal(recommendPractice([rope,position], {})?.id,position.id,'Introduce sinusoidal positions before rotary positions');
+  assert.equal(recommendPractice([rope,position], {[position.id]:{report:accepted(position)}})?.id,rope.id,'Offer RoPE after position foundations');
+  const gqa = problems.find(p => p.id === 'architecture/gqa');
+  const multihead = problems.find(p => p.id === 'architecture/multihead_attention');
+  assert.equal(recommendPractice([gqa,multihead], {})?.id,multihead.id,'Introduce ordinary multi-head attention before KV sharing');
+  assert.equal(recommendPractice([gqa,multihead], {[multihead.id]:{report:accepted(multihead)}})?.id,gqa.id,'Offer GQA after the multi-head prerequisite');
   const failed = (p) => ({ problem: p.id, summary: { T0: [0, 1] }, tests: [{ id: "test", layer: "T0", passed: false }] });
   const pristine = { [gae.id]: { code: gae.starter, updated: "2099-01-01" } };
   assert.equal(recommendPractice([...problems].reverse(), pristine)?.id, attention.id,

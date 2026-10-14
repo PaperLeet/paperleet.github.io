@@ -153,6 +153,9 @@ print(json.dumps(calibration))
     ('diffusion/jit',6,3),('diffusion/drifting',7,4),('diffusion/dmd',7,4),('diffusion/dmd2',6,4),
     ('diffusion/fd_loss',9,4),
     ('diffusion/meanflow',6,3),
+    ('architecture/rms_norm',9,4),
+    ('architecture/gqa',10,5),
+    ('architecture/rope',10,6),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')

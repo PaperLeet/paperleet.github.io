@@ -521,3 +521,36 @@ papers:
     scope: 保留初始身份锚点的对象遮挡与历史、未来预测损失。
     scope_en: Object masking with initial identity anchors and history/future prediction losses.
     module_ids: [world_models/causal_jepa]
+  - id: rmsnorm
+    number: 47
+    category: architecture
+    short_title: RMSNorm
+    year: 2019
+    tags: [Normalization, RMSNorm, pRMSNorm]
+    summary: 用均方根代替去均值的归一化，并研究部分特征统计。
+    summary_en: Normalize by root mean square without centering and explore partial feature statistics.
+    scope: 实现 RMSNorm 和前 k 特征的 pRMSNorm，检查尺度关系与跨特征梯度。
+    scope_en: Implement RMSNorm and first-k pRMSNorm; check scale identities and cross-feature gradients.
+    module_ids: [architecture/rms_norm]
+  - id: gqa
+    number: 48
+    category: architecture
+    short_title: GQA
+    year: 2023
+    tags: [Attention, GQA, MQA, KV Cache]
+    summary: 让连续的一组 query 头共享 KV 头，并用组内投影均值转换已有多头结构。
+    summary_en: Share KV heads across contiguous query groups and convert multi-head projections by group-wise averaging.
+    scope: 实现 KV 投影均值池化与分组注意力，验证共享梯度和缓存容量关系。
+    scope_en: Implement KV projection mean pooling and grouped attention; verify shared gradients and cache capacity.
+    module_ids: [architecture/gqa]
+  - id: roformer
+    number: 49
+    category: architecture
+    short_title: RoFormer / RoPE
+    year: 2021
+    tags: [RoPE, Positional Encoding, Attention, KV Cache]
+    summary: 旋转投影后的相邻特征对，让注意力内积具有明确的相对位置关系。
+    summary_en: Rotate adjacent projected feature pairs to express relative positions in attention logits.
+    scope: 实现完整维度的 RoPE，验证方向、频率、梯度和分块缓存的绝对位置。
+    scope_en: Implement full-width RoPE; verify direction, frequencies, gradients and absolute offsets in chunked caches.
+    module_ids: [architecture/rope]

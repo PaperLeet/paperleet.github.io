@@ -1,0 +1,67 @@
+id: architecture/gqa
+number: 62
+title: GQA 分组注意力与 KV 头转换
+title_en: GQA and KV Head Conversion
+paper:
+  title: 'GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints'
+  authors: Joshua Ainslie, James Lee-Thorp, Michiel de Jong, Yury Zemlyanskiy, Federico Lebrón, and Sumit Sanghai
+  venue: EMNLP 2023
+  arxiv: '2305.13245'
+  anchors:
+  - 'Section 2.1 and Figure 1: mean-pool key and value projection heads'
+  - 'Section 2.2 and Figure 2: shared KV heads for groups of query heads'
+paper_id: gqa
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: mean_pool_kv_heads
+  signature: 'mean_pool_kv_heads(weight: Tensor, num_kv_heads: int) -> Tensor'
+- name: grouped_query_attention
+  signature: 'grouped_query_attention(q: Tensor, k: Tensor, v: Tensor, mask: Tensor | None = None) -> tuple[Tensor, Tensor]'
+module:
+  goal: 实现组内 KV 投影均值池化与共享 KV 头的注意力，验证组映射和共享梯度。
+  goal_en: Implement group-wise KV projection mean pooling and attention with shared KV heads; verify routing and accumulated gradients.
+  scope: 补全两个核心函数；提供 MHA、GQA、MQA 的缓存容量与合成转换误差实验，不下载权重或复现上训练。
+  scope_en: Complete two core functions; supplied experiments compare MHA/GQA/MQA cache capacity and synthetic conversion error without checkpoint downloads or uptraining.
+  required_functions: [mean_pool_kv_heads, grouped_query_attention]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve float32/float64; independent gradient checks use float64.
+  device: CPU; no pretrained weights, downloads or GPU required
+  layout: 'q [B,H,Q,D], k [B,G,K,D], v [B,G,K,Dv]; H and G positive, H divisible by G, K >= 1'
+  grouping: 'Query head h uses KV head h // (H // G); groups are contiguous, not cyclic'
+  projection: 'weight [H,D_model,D_head] -> [G,D_model,D_head], averaging consecutive groups of H/G original heads'
+  masking: 'Optional boolean mask broadcasts to [B,H,Q,K]; True allows a key; fully masked rows have zero outputs, weights and gradients'
+  scope: 'Finite inputs, no dropout, projected heads supplied; causal mask must be passed explicitly; Q and K may differ'
+tests: {T0: 1, T1: 1, T2: 7, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 30
+tags: [GQA, MQA, KV Cache, Checkpoint Conversion, Gradients]
+viz: [toy_experiment]
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://aclanthology.org/2023.emnlp-main.298/
+  - https://aclanthology.org/2023.emnlp-main.298.pdf
+  - https://arxiv.org/abs/2305.13245
+  - https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html
+toy:
+  kind: teaching_adaptation
+  source: https://aclanthology.org/2023.emnlp-main.298/
+  anchor: Sections 2.1–2.2, Figures 1–2
+  adaptation: Eight synthetic projection heads are pooled to 1/2/4/8 KV groups. Count persistent KV elements and measure output deviation before any uptraining. No paper benchmark, model-quality or hardware-speed claim.
+mutants:
+- id: m1_cyclic_head_repetition
+  bug: 用循环平铺代替连续共享，导致 query 头读错 KV 组
+- id: m2_sum_projection_heads
+  bug: 转换时求和而非均值，改变投影幅度
+- id: m3_detached_shared_kv
+  bug: 展开前 detach KV，丢失共享头的累积梯度
+- id: m4_ignored_visibility
+  bug: 忽略可见性掩码，发生未来信息泄漏
+- id: m5_scale_by_query_heads
+  bug: 用 query 头数而非每头特征维度缩放 logits

@@ -27,6 +27,9 @@ PILOTS = {
     "diffusion/jit", "diffusion/drifting", "diffusion/dmd", "diffusion/dmd2",
     "diffusion/fd_loss",
     "diffusion/meanflow",
+    "architecture/rms_norm",
+    "architecture/gqa",
+    "architecture/rope",
 }
 
 SHARED_FILES = (
