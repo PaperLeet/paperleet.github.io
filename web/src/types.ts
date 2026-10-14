@@ -22,6 +22,8 @@ export type Paper = {
 };
 
 export type Problem = {
+  detail_url?: string;
+  browser_judge?: { bundle_url: string; backend: "numpy-wasm" | "numpy-autograd-wasm" };
   id: string;
   number: number;
   paper_id: string;
@@ -69,6 +71,7 @@ export type TestResult = {
   artifacts?: Record<string, unknown>;
 };
 export type Report = {
+  runtime?: string;
   error?: string;
   problem: string;
   impl?: string;

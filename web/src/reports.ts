@@ -96,6 +96,7 @@ export function parseReport(value: unknown): Report {
   }
   return {
     problem: value.problem,
+    runtime: optionalString(value.runtime, "runtime"),
     tests,
     summary,
     mutation,

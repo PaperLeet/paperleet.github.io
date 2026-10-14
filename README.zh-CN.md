@@ -157,7 +157,7 @@ paperleet ci
 
 ## 可视化与静态构建
 
-仓库提供预生成数据，可直接启动。修改题目或实验后重新导出：
+仓库提供预生成数据，可直接启动。首页只读取轻量 `data/index.json`；打开某个模块时，再加载包含题面、参考解和可视化数据的 `data/modules/` 详情。详情文件名包含内容哈希，可跨访问缓存。完整 `data/catalog.json` 继续供 CLI 工具和旧客户端使用。修改题目或实验后重新导出：
 
 ```bash
 paperleet vizdata all
@@ -194,3 +194,5 @@ reports/           判题和 CI 报告，忽略于 Git
 本轮 Oral/Spotlight 扩展新增 12 篇论文、14 个模块。论文来源、toy 归属与验证见[候选证据](docs/research/paper-candidates-2026-10-13.md)和[验证记录](docs/validation/oral-spotlight-expansion.md)。
 
 VAR 与 FD-Loss 新增四个核心模块及 CPU 小实验，详见[来源与验证记录](docs/validation/var-and-fd-loss.md)。
+
+浏览器端判题原型现覆盖 Schedules、Attention、LoRA：三题均在本机 CPU/WASM 执行完整测试，Attention/LoRA 支持双精度、解析自动微分和 Adam 训练；不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号进度仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。

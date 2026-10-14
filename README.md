@@ -157,7 +157,7 @@ Each module declares `module.required_functions` and `module.provided_functions`
 
 ## Visualizations and static builds
 
-The repository includes pre-generated data, so you can start it directly. Re-export after changing problems or experiments:
+The repository includes pre-generated data, so you can start it directly. The homepage reads the small `data/index.json`; opening a module loads its content-addressed `data/modules/` detail file with statements, references and visualization data. Detail files can be cached across visits. The full `data/catalog.json` remains available for CLI consumers and older clients. Re-export after changing problems or experiments:
 
 ```bash
 paperleet vizdata all
@@ -194,3 +194,5 @@ See the [expanded curriculum validation record](docs/validation/core-curriculum.
 The Oral/Spotlight expansion adds 12 papers and 14 modules. See the [candidate evidence](docs/research/paper-candidates-2026-10-13.md) and [validation record](docs/validation/oral-spotlight-expansion.md) for sources, toy provenance, and checks.
 
 VAR and FD-Loss add four focused modules with CPU experiments. See the [source and validation record](docs/validation/var-and-fd-loss.md).
+
+Browser judging pilots cover Schedules, Attention and LoRA. All three run their complete suites in local NumPy/WASM, with analytical autodiff and Adam training for Attention/LoRA. Unsupported APIs and runtime failures fall back to server judging. The editor offers Auto, Browser only and Server modes. Runtime assets load on demand; hosted account progress remains server-verified. See [implementation and compatibility notes](docs/browser-judge.md).

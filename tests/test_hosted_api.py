@@ -3,7 +3,10 @@ import hashlib
 from http.client import HTTPConnection
 from http.cookies import SimpleCookie
 import json
+import sqlite3
 import threading
+import time
+import uuid
 
 import pytest
 
@@ -132,6 +135,94 @@ def sign_in(api, name):
     assert cookie["secure"] and cookie["httponly"] and cookie["samesite"] == "Lax"
     assert cookie["path"] == "/api"
     return payload["user"], social_api.COOKIE + "=" + cookie.value
+
+
+def test_queued_judging_is_private_cancellable_and_saves_once(hosted_api_server, monkeypatch):
+    api = hosted_api_server
+    alice, alice_cookie = sign_in(api, "alice")
+    bob, bob_cookie = sign_in(api, "bob")
+    entered, release = threading.Event(), threading.Event()
+    original = judge_client.run_hosted_problem
+
+    def waiting_judge(entry, code, layers=None):
+        entered.set()
+        assert release.wait(5)
+        return original(entry, code, layers)
+
+    monkeypatch.setattr(judge_client, "run_hosted_problem", waiting_judge)
+    alice_id, bob_id = uuid.uuid4().hex, uuid.uuid4().hex
+    alice_body = {"id": alice_id, "problem": "rl/gae", "code": "correct", "expected_user_id": alice["id"]}
+    try:
+        assert api("judge/jobs", alice_body)[0] == 401
+        assert api("judge/jobs", alice_body, alice_cookie, origin=None)[0] == 403
+        assert api("judge/jobs", {**alice_body, "expected_user_id": bob["id"]}, alice_cookie)[0] == 409
+        assert api("judge/jobs", alice_body, alice_cookie)[0] == 202
+        assert entered.wait(2)
+        status, first, _ = api(f"judge/jobs/{alice_id}", cookie=alice_cookie)
+        assert status == 200 and first["status"] == "running"
+        assert not {"code", "owner", "payload"} & first.keys()
+        assert api(f"judge/jobs/{alice_id}", cookie=bob_cookie)[0] == 404
+        assert api(f"judge/jobs/{alice_id}/cancel", {"expected_user_id": bob["id"]}, bob_cookie)[0] == 404
+        status, second, _ = api("judge/jobs", {"id": bob_id, "problem": "rl/dpo", "code": "broken", "expected_user_id": bob["id"]}, bob_cookie)
+        assert status == 202 and second["status"] == "queued" and second["ahead"] == 1
+        assert api(f"judge/jobs/{bob_id}/cancel", {"expected_user_id": bob["id"]}, bob_cookie)[1]["status"] == "cancelled"
+        release.set()
+        deadline = time.monotonic() + 4
+        while time.monotonic() < deadline:
+            result = api(f"judge/jobs/{alice_id}", cookie=alice_cookie)[1]
+            if result["status"] == "succeeded":
+                break
+            time.sleep(.01)
+        assert result["status"] == "succeeded" and result["report"]["run_id"]
+        assert api("judge/jobs", alice_body, alice_cookie)[1]["id"] == alice_id
+        for _ in range(2):
+            assert api(f"judge/jobs/{alice_id}", cookie=alice_cookie)[1]["report"]["passed"]
+        assert len(api("practice/runs", cookie=alice_cookie)[1]["runs"]) == 1
+        assert api("practice/runs", cookie=bob_cookie)[1]["runs"] == []
+        assert api.hosted_calls == ["rl/gae"]
+    finally:
+        release.set()
+
+
+def test_queued_job_rechecks_revoked_invitation_before_execution(hosted_api_server, monkeypatch):
+    api = hosted_api_server
+    alice, alice_cookie = sign_in(api, "alice")
+    bob, bob_cookie = sign_in(api, "bob")
+    entered, release = threading.Event(), threading.Event()
+    original = judge_client.run_hosted_problem
+
+    def waiting_judge(entry, code, layers=None):
+        entered.set()
+        assert release.wait(5)
+        return original(entry, code, layers)
+
+    monkeypatch.setattr(judge_client, "run_hosted_problem", waiting_judge)
+    alice_id, bob_id = uuid.uuid4().hex, uuid.uuid4().hex
+    try:
+        assert api("judge/jobs", {"id": alice_id, "problem": "rl/gae", "code": "correct", "expected_user_id": alice["id"]}, alice_cookie)[0] == 202
+        assert entered.wait(2)
+        assert api("judge/jobs", {"id": bob_id, "problem": "rl/dpo", "code": "correct", "expected_user_id": bob["id"]}, bob_cookie)[0] == 202
+        monkeypatch.setenv("PAPERLEET_INVITE_EMAILS", "alice@mit.edu")
+        release.set()
+        deadline = time.monotonic() + 4
+        status = None
+        while time.monotonic() < deadline:
+            if api(f"judge/jobs/{alice_id}", cookie=alice_cookie)[1]["status"] == "succeeded":
+                # Polling Bob is forbidden after revocation, so inspect storage
+                # through the authenticated API only after restoring the invite.
+                with sqlite3.connect(api.settings["PAPERLEET_DATA_DIR"] + "/community.sqlite3") as db:
+                    status = db.execute("SELECT state FROM judge_jobs WHERE id=?", (bob_id,)).fetchone()[0]
+                if status == "failed":
+                    break
+            time.sleep(.01)
+        assert status == "failed"
+        assert api(f"judge/jobs/{bob_id}", cookie=bob_cookie)[0] == 401
+        monkeypatch.setenv("PAPERLEET_INVITE_EMAILS", "alice@mit.edu,bob@mit.edu")
+        assert api(f"judge/jobs/{bob_id}", cookie=bob_cookie)[1]["status"] == "failed"
+        assert api("practice/runs", cookie=bob_cookie)[1]["runs"] == []
+        assert api.hosted_calls == ["rl/gae"]
+    finally:
+        release.set()
 
 
 @pytest.mark.parametrize("missing", ["PAPERLEET_PUBLIC_URL", "PAPERLEET_DATA_DIR", "PAPERLEET_INVITE_EMAILS", "SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "PAPERLEET_JUDGE_URL", "PAPERLEET_JUDGE_TOKEN"])

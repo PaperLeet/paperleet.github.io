@@ -11,6 +11,7 @@ from paperleet.submissions import Conflict, store
 from paperleet.submissions.model import ModelUnavailable
 from paperleet.social_api import is_social_path, dispatch as dispatch_social
 from paperleet.config import hosted, origin, public_origin, validate_hosted_settings
+from paperleet.judge.jobs_api import is_job_path, dispatch as dispatch_jobs
 
 
 _judge_lock = threading.Lock()
@@ -67,6 +68,8 @@ class JudgeHandler(BaseHTTPRequestHandler):
             return self.respond(200, result)
         if is_social_path(self.path):
             return dispatch_social(self, "GET")
+        if is_job_path(self.path):
+            return dispatch_jobs(self, "GET")
         if hosted():
             from paperleet.hosting.api import dispatch
             return dispatch(self, "GET")
@@ -88,7 +91,7 @@ class JudgeHandler(BaseHTTPRequestHandler):
         if not self.valid_origin():
             return self.respond(403, {"error": "This request origin is not allowed"})
         submission_action = re.fullmatch(r"/api/submissions/([0-9a-f]{32})/(generate|validate|review)", self.path)
-        if self.path not in ("/api/test", "/api/submissions", "/api/practice/draft") and not submission_action and not is_social_path(self.path):
+        if self.path not in ("/api/test", "/api/submissions", "/api/practice/draft") and not submission_action and not is_social_path(self.path) and not is_job_path(self.path):
             return self.respond(404, {"error": "Unknown endpoint"})
         if self.headers.get_content_type() != "application/json":
             return self.respond(415, {"error": "Expected application/json"})
@@ -103,6 +106,8 @@ class JudgeHandler(BaseHTTPRequestHandler):
                 raise ValueError("Expected a JSON object")
             if is_social_path(self.path):
                 return dispatch_social(self, "POST", data)
+            if is_job_path(self.path):
+                return dispatch_jobs(self, "POST", data)
             if hosted():
                 from paperleet.hosting.api import dispatch
                 return dispatch(self, "POST", data)
@@ -165,11 +170,18 @@ class BoundedHTTPServer(ThreadingHTTPServer):
         finally:
             self.slots.release()
 
+    def server_close(self):
+        if hasattr(self, "judge_queue"):
+            self.judge_queue.close()
+        super().server_close()
+
 
 def serve(port=8765):
     validate_hosted_settings()
     address = "0.0.0.0" if hosted() else "127.0.0.1"
     server = BoundedHTTPServer((address, port), JudgeHandler)
+    from paperleet.judge.jobs_api import start_queue
+    start_queue(server)
     print(f"PaperLeet {'hosted API' if hosted() else 'local judge'}: http://{address}:{port}", flush=True)
     try:
         server.serve_forever()

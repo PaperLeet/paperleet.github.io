@@ -11,6 +11,7 @@ import { eligibleUnattemptedProblems, pickRandomUnattemptedProblem } from "./ran
 import CollectionArtwork from "./CollectionArtwork";
 import { getProblemStats, ProblemStatsSummary } from "./ProblemStats";
 import type { ProblemStatsMap } from "./ProblemStats";
+import { PracticeStart } from "./PracticeJourney";
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export function paperModules(paper: Paper, problems: Problem[]) {
@@ -62,7 +63,7 @@ const categoryLabels: Record<string, [string, string]> = {
   "world-models": ["世界模型", "World Models"],
 };
 
-export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true }: Practice & { papers: Paper[]; categories: Category[]; onGuide: () => void; collectionId?: string; progressReady?: boolean }) {
+export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, onGuide }: Practice & { papers: Paper[]; categories: Category[]; onGuide: () => void; collectionId?: string; progressReady?: boolean }) {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [diff, setDiff] = useState("all");
@@ -113,6 +114,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   function clear() { setQuery(""); setDiff("all"); setState("all"); setTag("all"); setCategory("all"); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
   return <main className="home paper-library">
+    <PracticeStart problems={listedModules} saved={saved} ready={progressReady} onGuide={onGuide} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
       <div className="collections-heading">
         <h2>{t("精选合集", "Featured collections")}</h2>

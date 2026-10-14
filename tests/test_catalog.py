@@ -102,6 +102,34 @@ def test_nonstandard_statement_is_preserved():
     assert web_readme(statement) == statement
 
 
+def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, monkeypatch):
+    import hashlib
+    monkeypatch.setenv("PAPERLEET_ROOT", str(tmp_path))
+    folder = package(tmp_path, "rl/demo", 1, title_en="Example")
+    (folder / "README.md").write_text("Full statement " * 2000)
+    (folder / "starter.py").write_text("def solve(): pass\n")
+    (folder / "solution.py").write_text("reference source")
+    (folder / "notes.md").write_text("notes")
+    full_path = export_catalog()
+    index_path = full_path.parent / "index.json"
+    index = json.loads(index_path.read_text())
+    assert index["schema_version"] == 2
+    summary = index["problems"][0]
+    assert summary["starter"] == "def solve(): pass\n"
+    assert not summary["readme"] and not summary["notes"]
+    assert "solution" not in summary and "vizData" not in summary
+    detail_path = full_path.parent / summary["detail_url"]
+    detail = json.loads(detail_path.read_text())
+    assert detail == json.loads(full_path.read_text())["problems"][0]
+    assert hashlib.sha256(detail_path.read_bytes()).hexdigest()[:20] in detail_path.name
+    assert index_path.stat().st_size < full_path.stat().st_size / 5
+    (folder / "solution.py").write_text("updated reference source")
+    export_catalog()
+    updated = json.loads(index_path.read_text())["problems"][0]
+    assert updated["detail_url"] != summary["detail_url"]
+    assert detail_path.exists(), "Previously served manifests must not lose their immutable detail assets"
+
+
 def test_generated_packages_never_fall_back_to_host_execution(tmp_path, monkeypatch):
     monkeypatch.setenv("PAPERLEET_ROOT", str(tmp_path))
     folder = package(tmp_path, "community/candidate", 11)

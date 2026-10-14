@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import Markdown from "react-markdown";
@@ -35,7 +35,7 @@ import { isPassed, layers, status } from "./types";
 import type { Category, Paper, Problem, Report } from "./types";
 import { PaperDetail, PaperLibrary, paperModules } from "./PaperViews";
 import { collectionIdFromRoute } from "./paperCollections";
-import { decodeProblemHash, parseReport } from "./reports";
+import { decodeProblemHash } from "./reports";
 import { LocaleProvider, useI18n } from "./i18n";
 import Submissions from "./Submissions";
 import Community, { UserProfile } from "./Community";
@@ -45,6 +45,13 @@ import { usePracticeWorkspace } from "./PracticeWorkspace";
 import Brand from "./Brand";
 import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
 import ResizableSplit from "./ResizableSplit";
+import { recommendPractice, nextPractice } from "./practice-recommendation";
+import { PracticeNextStep } from "./PracticeJourney";
+import { loadProblemDetail } from "./catalogData";
+import { useQueuedJudge } from "./useQueuedJudge";
+import { jobErrorText } from "./judgeJobs";
+import { useBrowserJudge } from "./useBrowserJudge";
+import { browserReason, type JudgeMode } from "./browserJudge";
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -197,9 +204,11 @@ export function Prose({
 function ReportView({
   report,
   problem,
+  children,
 }: {
   report?: Report;
   problem: Problem;
+  children?: React.ReactNode;
 }) {
   const { t, locale } = useI18n();
   const labels = t(
@@ -238,7 +247,7 @@ function ReportView({
             {report.error
               ? t("判题未完成", "Run incomplete")
               : isPassed(problem, report)
-                ? "Accepted"
+                ? report.runtime === "browser-numpy-wasm" ? t("浏览器通过", "Browser tests passed") : "Accepted"
                 : allPassed
                   ? t("所选测试通过", "Selected tests passed")
                   : t("需要再检查一下", "Tests need attention")}
@@ -249,6 +258,7 @@ function ReportView({
         </span>
       </div>
       {report.error && <pre className="failure-message">{report.error}</pre>}
+      {children}
       <div className="report-meta">
         <span>{t("最近一次运行", "Latest run")}</span>
         <span>
@@ -343,7 +353,6 @@ function Workspace() {
   const online = !!health?.judge.ready && !healthError;
   const hosted = health?.mode === "hosted";
   const testAuth = capabilities?.auth_mode === "test";
-  const runController = useRef<AbortController | undefined>(undefined);
   const [problems, setProblems] = useState<Problem[]>([]),
     [categories, setCategories] = useState<Category[]>([]),
     [papers, setPapers] = useState<Paper[]>([]),
@@ -351,25 +360,29 @@ function Workspace() {
     [id, setId] = useState(getId),
     [tab, setTab] = useState("description"),
     [rightTab, setRightTab] = useState("code"),
-    [running, setRunning] = useState(false),
+    [preparingRun, setPreparingRun] = useState(false),
     [toast, setToast] = useState(""),
     [guide, setGuide] = useState(false),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
+  const [details, setDetails] = useState<Record<string, Problem>>({});
+  const [detailError, setDetailError] = useState("");
+  const [detailRetry, setDetailRetry] = useState(0);
   const { stats: problemStats, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(id);
   const sourceProblem = problems.find(
     (p) => p.id === id || String(p.number) === id,
   );
   const localize = (p: Problem): Problem =>
     locale === "en" && p.translations?.en ? { ...p, ...p.translations.en } : p;
-  const problem = sourceProblem ? localize(sourceProblem) : undefined;
+  const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
+  const problem = loadedProblem ? localize(loadedProblem) : undefined;
   const submissionPage = id === "submit";
   const communityPage = id === "community" || id.startsWith("community/");
   const accountPage = id === "account";
   const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
   const current = problem ? saved[problem.id] || {} : {};
   const selectedPaper = papers.find((paper) =>
-    problem ? paper.id === problem.paper_id : id === `papers/${paper.id}`,
+    sourceProblem ? paper.id === sourceProblem.paper_id : id === `papers/${paper.id}`,
   );
   const siblingModules = selectedPaper
     ? paperModules(selectedPaper, problems)
@@ -377,10 +390,39 @@ function Workspace() {
       ? [sourceProblem]
       : [];
   const moduleIndex = siblingModules.findIndex((p) => p.id === problem?.id);
+  const progressReady = practice.ready && !practice.loading;
+  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(siblingModules, saved) : undefined) || recommendPractice(problems, saved) : undefined;
+  const nextProblem = problem && progressReady
+    ? nextPractice(problem, selectedPaper?.module_ids || [], problems, saved)
+    : undefined;
+  const judge = useQueuedJudge(practice.owner, progressReady && problems.length > 0, (report, runOwner) => {
+    const entry = problems.find((p) => p.id === report.problem);
+    if (!entry || !practice.owns(runOwner)) return;
+    practice.applyReport(entry, report, runOwner);
+    void refreshProblemStats();
+    if ([entry.id, String(entry.number)].includes(getId())) setTab("tests");
+    setToast(t("判题已完成", "Run complete"));
+  });
+  useEffect(() => setPreparingRun(false), [practice.owner]);
+  const browser = useBrowserJudge(practice.owner);
+  const [judgeMode, setJudgeMode] = useState<JudgeMode>("auto");
+  const report = problem ? browser.reports[problem.id] || current.report : undefined;
+  const browserAvailable = !!problem?.browser_judge && judgeMode !== "server";
+  const browserHere = browser.problem === problem?.id;
+  const running = preparingRun || judge.active || browser.active;
+  const browserStatus = browser.stage === "calibrating" ? t("校验参考实现与错误实现…", "Validating reference and mutation cases…")
+    : browser.stage === "running" ? t("浏览器正在执行完整测试…", "Running the complete suite in your browser…")
+
+    : t("加载浏览器 Python 运行时（首次运行需下载）…", "Loading browser Python (download required on first run)…");
+  const queuedHere = judge.pending?.problem === problem?.id;
+  const runStatus = judge.reconnecting ? t("连接中断，正在恢复任务状态…", "Reconnecting to your existing job…")
+    : judge.job?.status === "queued" ? t(`正在排队，前方 ${judge.job.ahead} 个任务`, `Queued · ${judge.job.ahead} jobs ahead`)
+    : judge.job?.status === "running" ? t("正在执行测试…", "Running tests…")
+    : t("正在提交判题任务…", "Submitting your job…");
   function loadCatalog() {
     return fetch(
-      `${import.meta.env.BASE_URL}data/catalog.json?v=${Date.now()}`,
-      { cache: "no-store" },
+      `${import.meta.env.BASE_URL}data/index.json`,
+      { cache: "no-cache" },
     )
       .then(async (r) => {
         if (!r.ok)
@@ -418,8 +460,21 @@ function Workspace() {
     return () => window.removeEventListener("hashchange", h);
   }, []);
   useEffect(() => {
-    runController.current?.abort();
-    setRunning(false);
+    setDetailError("");
+    if (!sourceProblem?.detail_url || details[sourceProblem.detail_url]) return;
+    const controller = new AbortController();
+    const key = sourceProblem.detail_url;
+    void loadProblemDetail(sourceProblem, import.meta.env.BASE_URL, fetch, controller.signal)
+      .then((detail) => {
+        if (!controller.signal.aborted) setDetails((previous) => ({ ...previous, [key]: detail }));
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setDetailError(key);
+      });
+    return () => controller.abort();
+  }, [sourceProblem?.detail_url, detailRetry]);
+  useEffect(() => {
+    setPreparingRun(false);
     setToast("");
     setTab("description");
   }, [practice.owner]);
@@ -444,64 +499,44 @@ function Workspace() {
     const timer = setTimeout(() => setToast(""), 6000);
     return () => clearTimeout(timer);
   }, [toast]);
-  async function run() {
-    if (
-      !problem ||
-      !practice.ready ||
-      (hosted && (!user || !online || practice.conflicts[problem.id]))
-    )
-      return;
+  async function run(requestedMode: JudgeMode = judgeMode) {
+    if (!problem || running || !practice.ready) return;
     const runOwner = practice.owner;
     const submittedCode = current.code ?? problem.starter;
-    setRunning(true);
+    setPreparingRun(true);
     try {
+      if (problem.browser_judge && requestedMode !== "server") {
+        const outcome = await browser.run(problem, submittedCode);
+        if (!practice.owns(runOwner)) return;
+        if (outcome.type === "result") {
+          // Hosted completions and shared statistics remain server-authoritative.
+          if (!hosted) practice.applyReport(problem, outcome.report, runOwner);
+          setTab("tests");
+          setToast(t("浏览器测试已完成", "Browser run complete"));
+          return;
+        }
+        if (requestedMode === "browser") return;
+      }
+      if (!practice.owns(runOwner)) return;
+      if (hosted && (!user || !online || practice.conflicts[problem.id])) {
+        setToast(!user ? t("需要登录后使用服务端判题。", "Sign in to use server judging.")
+          : practice.conflicts[problem.id] ? t("请先解决草稿版本冲突。", "Resolve the draft conflict first.")
+          : t("服务端判题暂时不可用，请稍后重试。", "Server judging is unavailable. Try again shortly."));
+        return;
+      }
       if (hosted) await practice.flush();
       if (!practice.owns(runOwner)) return;
-      const controller = new AbortController();
-      runController.current = controller;
-      const response = await fetch("/api/test", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          problem: problem.id,
-          code: submittedCode,
-          ...(hosted ? { expected_user_id: user?.id } : {}),
-        }),
-        signal: AbortSignal.any([
-          controller.signal,
-          AbortSignal.timeout(180000),
-        ]),
-      });
-      const data = await response.json();
-      if (
-        !response.ok ||
-        (data.error && !Array.isArray(data.tests) && !data.report)
-      )
-        throw Error(
-          data.error || t("判题服务返回错误", "The judge returned an error"),
-        );
-      const report = parseReport(data.report || data);
-      if (report.problem !== problem.id)
-        throw Error(
-          t("判题服务返回了无效结果", "The judge returned an invalid result"),
-        );
-      void refreshProblemStats();
-      if (!practice.owns(runOwner)) return;
-      practice.applyReport(problem, report, runOwner);
-      setTab("tests");
-      setToast(t("判题已完成", "Run complete"));
+      browser.clear(problem.id);
+      await judge.submit(problem.id, submittedCode);
     } catch (e) {
       if (!practice.owns(runOwner)) return;
-      setToast(
-        e instanceof Error && e.name !== "SyntaxError" && e.name !== "TypeError"
-          ? e.message
-          : t(
-              "暂时无法连接判题服务，请稍后重试。你的代码已保存在浏览器。",
-              "The judge is unavailable. Please try again shortly. Your code is saved in this browser.",
-            ),
-      );
+      if (e instanceof DOMException && e.name === "AbortError") {
+        setToast(t("浏览器运行已停止", "Browser run stopped"));
+        return;
+      }
+      setToast(e instanceof Error ? e.message : t("暂时无法运行，请稍后重试。", "Unable to run. Please try again shortly."));
     } finally {
-      if (practice.owns(runOwner)) setRunning(false);
+      if (practice.owns(runOwner)) setPreparingRun(false);
     }
   }
   async function copy(text: string) {
@@ -551,18 +586,12 @@ function Workspace() {
             </a>
             <button
               className={`continue-link ${problem ? "active" : ""}`}
+              disabled={!problem && !resumeProblem}
               onClick={() => {
-                if (!problem) {
-                  const next = selectedPaper
-                    ? siblingModules.find((p) => !p.module.optional && status(p, saved[p.id]) !== "done") || siblingModules[0]
-                    : problems.filter((p) => status(p, saved[p.id]) === "started")
-                        .sort((a, b) => (saved[b.id]?.updated || "").localeCompare(saved[a.id]?.updated || ""))[0]
-                      || problems[0];
-                  if (next) location.hash = `/${next.number}`;
-                }
+                if (!problem && resumeProblem) location.hash = `/${resumeProblem.number}`;
               }}
             >
-              {problem ? t("工作区", "Workspace") : t("继续练习", "Continue")}
+              {problem ? t("工作区", "Workspace") : progressReady && problems.length > 0 && !resumeProblem ? t("核心模块已完成", "Core modules complete") : resumeProblem && status(resumeProblem, saved[resumeProblem.id]) === "started" ? t("继续练习", "Continue") : t("开始练习", "Start practice")}
             </button>
             <a className={submissionPage ? "active" : ""} href="#/submit">
               {t("提交论文", "Submit paper")}
@@ -661,6 +690,15 @@ function Workspace() {
           <span className="spinner" />
           {t("正在加载论文题库…", "Loading papers…")}
         </main>
+      ) : sourceProblem && !problem ? (
+        <main className={detailError === sourceProblem.detail_url ? "load-error" : "loading"}>
+          {detailError === sourceProblem.detail_url ? <>
+            <h2>{t("题目暂时无法加载", "Module unavailable")}</h2>
+            <p>{t("你的草稿仍然保留，请重试加载题目。", "Your draft is preserved. Try loading this module again.")}</p>
+            <button className="button" onClick={() => setDetailRetry((value) => value + 1)}>{t("重试加载", "Retry loading")}</button>
+            <a className="text-button" href="#">{t("返回题库", "Back to papers")}</a>
+          </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
+        </main>
       ) : !problem ? (
         selectedPaper ? (
           <PaperDetail
@@ -755,10 +793,10 @@ function Workspace() {
                       <LockKeyhole size={12} />
                     ) : null}
                     {label}
-                    {key === "tests" && current.report && (
+                    {key === "tests" && report && (
                       <i
                         className={
-                          isPassed(problem, current.report)
+                          isPassed(problem, report)
                             ? "green-dot"
                             : "yellow-dot"
                         }
@@ -769,9 +807,13 @@ function Workspace() {
               </div>
               <div className="description-scroll" key={problem.id}>
                 {tab === "tests" ? (
-                  <ReportView report={current.report} problem={problem} />
+                  <ReportView report={report} problem={problem}>
+                    {!running && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
+                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => setTab("lab")} />
+                    )}
+                  </ReportView>
                 ) : tab === "lab" ? (
-                  <Visuals key={problem.id} problem={problem} report={current.report} />
+                  <Visuals key={problem.id} problem={problem} report={report} />
                 ) : tab === "notes" ? (
                   status(problem, current) !== "done" ? (
                     <div className="empty-state">
@@ -918,7 +960,7 @@ function Workspace() {
                       </section>
                     )}
                     {tab === "explanation" && (
-                      <Visuals key={problem.id} problem={problem} report={current.report} />
+                      <Visuals key={problem.id} problem={problem} report={report} />
                     )}
                     {locale === "en" && !problem.translations?.en && (
                       <div className="notice">
@@ -973,7 +1015,7 @@ function Workspace() {
               </div>
               {rightTab === "lab" ? (
                 <div className="editor-lab">
-                  <Visuals key={problem.id} problem={problem} report={current.report} />
+                  <Visuals key={problem.id} problem={problem} report={report} />
                 </div>
               ) : (
                 <>
@@ -1129,6 +1171,34 @@ function Workspace() {
                   </div>
                   </div>
                   <div className="editor-results-panel" id="problem-results-panel">
+                  {problem.browser_judge && <div className="browser-judge-panel">
+                    <label>{t("判题位置", "Run tests in")}{" "}
+                      <select aria-label={t("判题位置", "Run tests in")} value={judgeMode} disabled={running} onChange={(event) => setJudgeMode(event.target.value as JudgeMode)}>
+                        <option value="auto">{t("自动（优先浏览器）", "Auto (browser first)")}</option>
+                        <option value="browser">{t("仅浏览器", "Browser only")}</option>
+                        <option value="server">{t("服务端", "Server")}</option>
+                      </select>
+                    </label>
+                    <small>{problem.browser_judge.backend === "numpy-wasm"
+                      ? t("原型：NumPy / WASM，保留原有完整测试。", "Prototype: NumPy / WASM, using the complete maintained suite.")
+                      : t("原型：CPU / WASM 自动微分，包含梯度与实验测试，无需 GPU。", "Prototype: CPU / WASM autodiff, including gradient and experiment tests; no GPU needed.")}</small>
+                    {hosted && <small>{t("浏览器结果仅供本机反馈；服务端确认后计入账号进度与统计。", "Browser results are local feedback; server verification records account progress and statistics.")}</small>}
+                    {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")}。{judgeMode === "auto" ? t("自动模式回退到服务端，请查看下方状态。", "Auto mode falls back to the server; see the status below.") : t("可切换至服务端运行。", "Select Server to run this suite.")}</p>}
+                    {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}
+                    {browser.diagnostics[problem.id] && <details><summary>{t("运行时详情", "Runtime details")}</summary><code>{browser.diagnostics[problem.id]}</code></details>}
+                    {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}
+                      {hosted && <button className="text-button" disabled={running || !user || !online} onClick={() => void run("server")}>{t("服务端确认", "Verify on server")}</button>}
+                    </p>}
+                    {browser.active && <div role="status">{browserHere ? browserStatus : t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>}
+                  </div>}
+                  {judge.active && <div className="practice-notice judge-queue-notice" role="status">
+                    <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
+                      {t("可以继续编辑；本次判题使用提交时的代码。刷新后可继续查看任务。", "You can keep editing. This run uses the submitted code; refresh to reconnect.")}</span>
+                    {!queuedHere && <a href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</a>}
+                    {judge.job?.status === "queued" && <button onClick={() => void judge.cancel()}>{t("取消排队", "Leave queue")}</button>}
+                  </div>}
+                  {judge.error && <div className="practice-notice" role="alert">{jobErrorText(judge.error, locale)}</div>}
+                  {!judge.active && judge.job?.status === "cancelled" && <div className="practice-notice" role="status">{t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
                   {(practice.error ||
                     practice.conflicts[problem.id] ||
                     (!health && healthError) ||
@@ -1214,7 +1284,7 @@ function Workspace() {
                         <Terminal size={14} />
                         {t("测试结果", "Test results")}
                       </span>
-                      {current.report && (
+                      {report && (
                         <button
                           className="text-button"
                           onClick={() => setTab("tests")}
@@ -1226,12 +1296,9 @@ function Workspace() {
                     </div>
                     <p>
                       {running
-                        ? t(
-                            "正在执行测试，结果将自动显示。",
-                            "Running tests. Results will appear automatically.",
-                          )
-                        : current.report
-                          ? `${current.report.tests.filter((test) => test.passed).length} / ${current.report.tests.length} ${t("项测试通过。修改代码后可再次运行。", "tests passed. Edit your code and run again.")}`
+                        ? browserHere ? browserStatus : queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
+                        : report
+                          ? `${report.tests.filter((test) => test.passed).length} / ${report.tests.length} ${t("项测试通过。修改代码后可再次运行。", "tests passed. Edit your code and run again.")}`
                           : t(
                               "完成实现后，点击下方按钮运行测试。",
                               "Complete the implementation, then run the tests below.",
@@ -1245,13 +1312,13 @@ function Workspace() {
                       {running ? (
                         <>
                           <span className="spinner" />
-                          {t("正在判题…", "Running tests…")}
+                          {judge.job?.status === "queued" ? t("正在排队…", "Queued…") : t("正在判题…", "Running tests…")}
                         </>
-                      ) : hosted && !user ? (
+                      ) : hosted && !user && !browserAvailable ? (
                         <a href="#/account">
                           {t("登录后运行", "Sign in to run")}
                         </a>
-                      ) : online ? (
+                      ) : online || browserAvailable ? (
                         <>
                           <i className="green-dot" />
                           {t("可以运行", "Ready")}
@@ -1268,16 +1335,16 @@ function Workspace() {
                       disabled={
                         running ||
                         !practice.ready ||
-                        (hosted &&
+                        (!browserAvailable && hosted &&
                           (!user ||
                             !online ||
                             !!practice.conflicts[problem.id]))
                       }
-                      onClick={run}
+                      onClick={() => void run()}
                     >
                       <Play size={15} fill="currentColor" />
                       {running
-                        ? t("运行中", "Running")
+                        ? judge.job?.status === "queued" ? t("排队中", "Queued") : t("运行中", "Running")
                         : t("运行全部测试", "Run all tests")}
                     </button>
                   </div>
