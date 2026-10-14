@@ -61,6 +61,13 @@ try {
     institutional.includes("发送验证码"),
     "Institutional sign-in must keep email verification",
   );
+  const openRegistration = renderToString(React.createElement(SignIn, { enabled: true, workEmailRegistration: true }));
+  assert(openRegistration.includes("学校／公司邮箱"));
+  assert(openRegistration.includes("无需邀请码"));
+  assert(openRegistration.includes("Gmail、QQ、Outlook"));
+  assert(!openRegistration.includes("只有通过审核的机构邮箱可以注册"));
+  assert(!openRegistration.includes("管理员审核域名后即可使用邮箱验证"));
+  assert(openRegistration.includes("不会出现在公开主页"));
   const testUser = {
     id: "qa-test",
     username: "public_handle",
@@ -109,6 +116,12 @@ try {
     !publicLink.includes("issued_login"),
     "The private login name must not appear in public identity links",
   );
+  const companyUser = { ...testUser, is_test_user: false, email_verified: true, email: "developer@company.example", login_username: undefined };
+  const companySettings = renderToString(React.createElement(ProfileSettings, { user: companyUser }));
+  assert(companySettings.includes("邮箱已验证"));
+  assert(companySettings.includes("学校或公司名称尚未审核"));
+  assert(!companySettings.includes("显示已验证机构"));
+  assert(!renderToString(React.createElement(PersonLink, { user: companyUser })).includes(companyUser.email));
   console.log(
     "PASS test-account login, masked access codes, separate public identity and no institutional verification claims",
   );

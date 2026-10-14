@@ -1225,8 +1225,8 @@ function Workspace() {
                                   "Sign in with your administrator-issued test account and access code to run tests.",
                                 )
                               : t(
-                                  "在线内测仅向受邀且已验证机构邮箱的用户开放判题。",
-                                  "Online judging is available to invited members with a verified institutional email.",
+                                  "验证学校或公司邮箱并登录后，即可使用在线判题。",
+                                  "Verify your school or company email and sign in to use online judging.",
                                 )}
                           </span>
                           <a href={signInHref(id)}>

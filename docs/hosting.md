@@ -1,4 +1,4 @@
-# Host an invitation-only beta
+# Host accounts and online judging
 
 [English](hosting.md) | [简体中文](hosting.zh-CN.md)
 
@@ -20,7 +20,7 @@ Browser → Caddy (HTTPS + static frontend) → API → private judge manager
 
 Only Caddy publishes ports. The API holds accounts and application data; it has no Docker socket. The internal judge manager holds the Docker socket and starts disposable containers with no host directory mounts, network, or application credentials. The manager's socket access effectively grants control of the Docker host: use a dedicated server for this beta and keep its port and token private. Containers share the host kernel; this setup is intended for invited users rather than a hostile public execution service.
 
-## Configure access and email
+## Configure registration and email
 
 Choose `test` authentication for administrator-created beta accounts, or `institutional` (the default) for verified email sign-in. The [test-account guide](test-accounts.md) replaces the email setup below; server, domain, storage and judging configuration remain the same. In test mode, leave Supabase and invited/admin email settings empty; create accounts and assign administrator roles through the maintenance command instead.
 
@@ -40,13 +40,19 @@ Edit `deploy/.env`. Put the generated token in `PAPERLEET_JUDGE_TOKEN`; do not l
 | --- | --- |
 | `PAPERLEET_DOMAIN` | Your DNS name, such as `paperleet.yourdomain.com`; no scheme or path |
 | `PAPERLEET_AUTH_MODE` | `institutional` by default; `test` enables administrator-created accounts without email |
+| `PAPERLEET_REGISTRATION_POLICY` | `work_email` opens school/company registration; omitted means `invite_only`, preserving existing deployments |
+| `PAPERLEET_BLOCKED_EMAIL_DOMAINS` | Optional additional blocked domains, comma-separated; built-in exclusions always apply |
 | `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_PUBLISHABLE_KEY` | The project's publishable key, or its legacy anon key; never a service-role key |
-| `PAPERLEET_INVITE_EMAILS` | Comma-separated **exact institutional email addresses** admitted to the beta |
-| `PAPERLEET_ADMIN_EMAILS` | Optional invited institutional addresses that receive administrator privileges |
+| `PAPERLEET_INVITE_EMAILS` | Required only for invitation mode: comma-separated **exact institutional email addresses** |
+| `PAPERLEET_ADMIN_EMAILS` | Optional exact addresses receiving administrator privileges after verification and eligibility checks |
 | `PAPERLEET_JUDGE_TOKEN` | The random token shared only by the API and judge manager |
 
-Every invited email must also match an approved **exact domain** in [`institutions.yaml`](../institutions.yaml). Invitations and institution approval are separate checks. Adding an address does not approve its school; adding a school does not invite everyone at that school. Initially `mit.edu` and `berkeley.edu` are approved. Review official institution evidence before adding more domains, including specific student subdomains. An institution-request form only creates a request for review.
+For open registration, set `PAPERLEET_AUTH_MODE=institutional` and `PAPERLEET_REGISTRATION_POLICY=work_email`. No invitation or reviewed domain entry is required. School domains (including `.edu`, `.edu.cn` and other school domains) and company-owned domains use email OTP verification. Common personal email services such as Gmail, QQ, Outlook, 163, iCloud and Proton, plus some disposable-email services and their subdomains, are rejected before sending or verifying codes. Company-owned domains using Google Workspace or Microsoft 365 are eligible. Maintain the blocklist and extend it with `PAPERLEET_BLOCKED_EMAIL_DOMAINS`: an unblocked domain is not proof of corporate ownership.
+
+Local accounts and sessions are created only after verification. Unlisted domains can use private drafts, the community and judging without receiving an institution badge. Full email addresses remain private. Badges still require exact reviewed domains in [`institutions.yaml`](../institutions.yaml); neither an `.edu` suffix nor a user-entered organization name grants a badge. Institution requests remain pending review. Sessions and queued jobs recheck eligibility when policy or blocked domains change.
+
+For invitation mode, set `PAPERLEET_REGISTRATION_POLICY=invite_only`. Every invited email must also match an approved exact domain in `institutions.yaml`. Invitations and institution approval are separate checks. Initially `mit.edu` and `berkeley.edu` are approved. Review official evidence before adding school/company domains or specific subdomains.
 
 In Supabase, enable Email authentication and signup. Add `{{ .Token }}` to the **Magic Link** email template so users receive a code they can enter into PaperLeet. Configure custom SMTP for delivery to invited users; the default Supabase sender restricts recipients to project-team addresses. See [email OTP](https://supabase.com/docs/guides/auth/auth-email-passwordless), [email templates](https://supabase.com/docs/guides/auth/auth-email-templates), and [SMTP setup](https://supabase.com/docs/guides/auth/auth-smtp).
 
@@ -71,7 +77,7 @@ curl --fail https://paperleet.yourdomain.com/api/health
 ./deploy/manage.sh logs
 ```
 
-The health response should contain `"mode":"hosted"`, `"auth_required":true`, and `"judge":{"ready":true,...}`. Confirm the certificate, then test a real invited mailbox end to end: receive a code, sign in, run a module, and reopen its draft from another browser after signing into the same account. Test an uninvited address and a wrong-domain address too; neither should gain access. Do not use mocked accounts as evidence that SMTP works.
+The health response should contain `"mode":"hosted"`, `"auth_required":true`, and `"judge":{"ready":true,...}`. Confirm the certificate, then test a real school/company mailbox end to end: receive a code, sign in, run a module, and reopen its draft from another browser. In open mode, verify that personal services are rejected while an unlisted company domain can verify. In invitation mode, verify that uninvited and unapproved-domain addresses are rejected. Mocked accounts do not prove SMTP delivery.
 
 The website submits asynchronous jobs to a SQLite FIFO queue and polls short status requests. The API executes one queued job at a time, with at most eight active/queued jobs in total and one per account. The UI shows the number of jobs ahead and allows cancelling an unstarted job. Refreshing the same browser tab reconnects to its job; editing during a run does not change the submitted source. Temporary polling failures reconnect without re-executing code. A full queue still returns a clear capacity error; drafts are preserved. Queued jobs have a 20-minute wait limit, and finished job status is retained for 24 hours before cleanup. Keep one API instance for this queue.
 

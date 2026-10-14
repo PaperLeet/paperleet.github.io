@@ -68,7 +68,7 @@ export default function Account({ returnTo }: { returnTo?: string }) {
       ) : capabilities?.auth_mode === "test" ? (
         <TestSignIn enabled={capabilities.auth_available === true} />
       ) : (
-        <SignIn enabled={capabilities?.auth_available === true} />
+        <SignIn enabled={capabilities?.auth_available === true} workEmailRegistration={capabilities?.work_email_registration === true} />
       )}
     </main>
   );
@@ -194,7 +194,7 @@ export function TestSignIn({ enabled }: { enabled: boolean }) {
     </div>
   );
 }
-export function SignIn({ enabled }: { enabled: boolean }) {
+export function SignIn({ enabled, workEmailRegistration = false }: { enabled: boolean; workEmailRegistration?: boolean }) {
   const { t, locale } = useI18n();
   const { setUser, capabilities } = useAccount();
   const [email, setEmail] = useState(""),
@@ -216,8 +216,8 @@ export function SignIn({ enabled }: { enabled: boolean }) {
       setSent(true);
       setMessage(
         t(
-          "验证码已发送，请检查机构邮箱。",
-          "A verification code has been sent to your institutional email.",
+          "验证码已发送，请检查学校或公司邮箱。",
+          "A verification code has been sent to your school or company email.",
         ),
       );
     } catch (e) {
@@ -248,8 +248,8 @@ export function SignIn({ enabled }: { enabled: boolean }) {
         <h1>{t("加入研究者社区", "Join the community")}</h1>
         <p className="social-description">
           {t(
-            "用学校或机构邮箱登录，与大家讨论论文和实现。",
-            "Sign in with your school or institutional email to discuss papers and implementations.",
+            "用学校或公司邮箱注册／登录，与大家讨论论文和实现。",
+            "Register or sign in with your school or company email to discuss papers and implementations.",
           )}
         </p>
         {capabilities?.invite_only && (
@@ -258,6 +258,11 @@ export function SignIn({ enabled }: { enabled: boolean }) {
               "当前为邀请制内测。机构邮箱验证和管理员邀请均通过后才能登录；需要加入时请联系维护者。",
               "This beta is invitation-only. Sign-in requires both an administrator invitation and a verified institutional email. Contact the maintainers to request access.",
             )}
+          </SocialNotice>
+        )}
+        {workEmailRegistration && (
+          <SocialNotice>
+            {t("开放学校和公司邮箱注册，无需邀请码。Gmail、QQ、Outlook 等个人邮箱暂不支持；收到并验证邮件验证码后才会创建账户。", "School and company email registration is open without invitations. Personal email services such as Gmail, QQ and Outlook are excluded. Your account is created after you verify the emailed code.")}
           </SocialNotice>
         )}
         {!enabled && (
@@ -278,7 +283,7 @@ export function SignIn({ enabled }: { enabled: boolean }) {
           }}
         >
           <label>
-            {t("学校／机构邮箱", "School / institutional email")}
+            {t("学校／公司邮箱", "School / company email")}
             <input
               type="email"
               autoComplete="email"
@@ -353,7 +358,10 @@ export function SignIn({ enabled }: { enabled: boolean }) {
           )}
         </form>
         <p className="account-fineprint">
-          {t(
+          {workEmailRegistration ? t(
+            "昵称和头像始终公开，完整邮箱保持私密。机构名称经域名审核后才会显示认证标记。",
+            "Your display name and avatar are always public; your full email stays private. Institution badges require a reviewed domain.",
+          ) : t(
             "只有通过审核的机构邮箱可以注册。昵称和头像始终公开，机构和国家／地区由你选择是否展示。",
             "Registration is limited to approved institutional email domains. Your display name and avatar are always public. You choose whether to display your institution and country or region.",
           )}
@@ -362,7 +370,7 @@ export function SignIn({ enabled }: { enabled: boolean }) {
       <aside className="account-aside">
         <div className="social-panel">
           <ShieldCheck size={27} className="accent-icon" />
-          <h3>{t("机构邮箱验证", "Institutional email verification")}</h3>
+          <h3>{t("学校／公司邮箱验证", "School / company email verification")}</h3>
           <p>
             {t(
               "验证说明你拥有这个机构邮箱，不代表在读或在职身份认证。完整邮箱不会出现在公开主页。",
@@ -370,12 +378,12 @@ export function SignIn({ enabled }: { enabled: boolean }) {
             )}
           </p>
         </div>
-        <InstitutionRequest />
+        <InstitutionRequest openRegistration={workEmailRegistration} />
       </aside>
     </div>
   );
 }
-function InstitutionRequest() {
+function InstitutionRequest({ openRegistration }: { openRegistration: boolean }) {
   const { t } = useI18n();
   const [name, setName] = useState(""),
     [website, setWebsite] = useState(""),
@@ -406,7 +414,10 @@ function InstitutionRequest() {
         <ChevronDown size={15} />
       </summary>
       <p>
-        {t(
+        {openRegistration ? t(
+          "可以先验证邮箱注册。提交学校或公司信息，经审核后可在个人资料中展示机构名称。",
+          "You can register by verifying your email first. Submit your school or company details for review to display an institution name on your profile.",
+        ) : t(
           "提供机构信息，管理员审核域名后即可使用邮箱验证。",
           "Suggest your institution. Email verification becomes available once an administrator approves its domain.",
         )}
@@ -699,13 +710,16 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               </>
             ) : (
               <>
-                <h3>{t("已验证的账户", "Verified account")}</h3>
+                <h3>{t("邮箱已验证", "Email verified")}</h3>
                 <p className="private-email">{user.email}</p>
                 <InstitutionBadge institution={user.institution} />
                 <p>
-                  {t(
+                  {user.institution ? t(
                     "此处的完整邮箱仅本人可见。机构名称是否公开由左侧开关控制。",
                     "Only you can see your full email here. Use the visibility setting to control whether your institution appears publicly.",
+                  ) : t(
+                    "此处的完整邮箱仅本人可见。邮箱归属已验证，学校或公司名称尚未审核。",
+                    "Only you can see your full email here. Mailbox ownership is verified; your school or company name has not been reviewed.",
                   )}
                 </p>
               </>

@@ -39,7 +39,7 @@ def dispatch(handler, method, payload=None):
                 "generation": {"ready": False, "reason": PAPER_WORKFLOW_REASON},
                 "sandbox": {"ready": False, "reason": PAPER_WORKFLOW_REASON}})
         if not user:
-            return handler.respond(401, {"error": "Sign in with your test account to continue." if auth_mode() == "test" else "Sign in with your invited institutional email to continue."})
+            return handler.respond(401, {"error": "Sign in with your test account to continue." if auth_mode() == "test" else "Sign in with your verified school or company email to continue."})
         accounts, _ = social_api.services()
         practice = PracticeService(accounts.db_path)
         if path == "/api/practice/workspace" and method == "GET":

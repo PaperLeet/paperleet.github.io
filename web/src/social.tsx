@@ -26,6 +26,7 @@ export type AccountUser = PublicUser & {
   show_progress: boolean;
   institution: Institution | null;
   institution_verified?: boolean;
+  email_verified?: boolean;
   login_username?: string;
   country: string;
 };
@@ -34,6 +35,9 @@ export type AccountCapabilities = {
   auth_mode?: "institutional" | "test";
   test_login_available?: boolean;
   invite_only?: boolean;
+  registration_policy?: "invite_only" | "work_email";
+  work_email_registration?: boolean;
+  email_verification_required?: boolean;
   institution_verification_required: boolean;
   institutions: (Institution & { domains: string[] })[];
   reason?: string;

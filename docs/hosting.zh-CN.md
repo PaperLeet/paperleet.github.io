@@ -1,4 +1,4 @@
-# 部署邀请制内测版
+# 部署账号与在线判题
 
 [English](hosting.md) | [简体中文](hosting.zh-CN.md)
 
@@ -20,7 +20,7 @@
 
 只有 Caddy 发布公网端口。API 保存账号和应用数据，不持有 Docker socket。内部判题管理服务使用 Docker socket 创建临时容器；这些容器没有宿主机目录挂载、网络或应用凭据。管理服务的 socket 权限实际等同于控制 Docker 宿主机，因此内测应使用专门的服务器，并保护其端口和令牌。容器共享宿主机内核，这套方案面向受邀用户内测，不是对任意敌对代码开放的公共执行服务。
 
-## 配置邀请与邮箱验证
+## 配置注册与邮箱验证
 
 使用管理员创建的内测账号时选择 `test`；使用真实邮箱验证时选择 `institutional`（默认值）。[测试账号说明](test-accounts.zh-CN.md)可以替代下面的邮箱配置步骤，服务器、域名、存储和判题配置不变。测试模式下可以留空 Supabase、邀请邮箱和管理员邮箱，通过维护命令创建账号并授予管理员角色。
 
@@ -40,13 +40,19 @@ openssl rand -hex 32
 | --- | --- |
 | `PAPERLEET_DOMAIN` | 实际域名，如 `paperleet.yourdomain.com`，不带协议或路径 |
 | `PAPERLEET_AUTH_MODE` | 默认为 `institutional`；设为 `test` 时使用管理员创建的测试账号，无需邮箱 |
+| `PAPERLEET_REGISTRATION_POLICY` | `work_email` 开放学校／公司邮箱注册；未设置时为 `invite_only`，保留旧邀请制 |
+| `PAPERLEET_BLOCKED_EMAIL_DOMAINS` | 可选：额外拦截的邮箱域名，以逗号分隔；内置名单始终生效 |
 | `SUPABASE_URL` | Supabase 项目 URL |
 | `SUPABASE_PUBLISHABLE_KEY` | 项目的 publishable key，或旧版 anon key；不要使用 service-role key |
-| `PAPERLEET_INVITE_EMAILS` | 允许参加内测的**完整机构邮箱地址**，以逗号分隔 |
-| `PAPERLEET_ADMIN_EMAILS` | 可选：获得管理员权限的已受邀机构邮箱 |
+| `PAPERLEET_INVITE_EMAILS` | 仅邀请制需要：允许参加内测的**完整机构邮箱地址**，以逗号分隔 |
+| `PAPERLEET_ADMIN_EMAILS` | 可选：完成邮箱验证并满足当前注册规则后获得管理员权限的完整邮箱 |
 | `PAPERLEET_JUDGE_TOKEN` | 仅由 API 与内部判题管理服务共享的随机令牌 |
 
-受邀邮箱还必须匹配 [`institutions.yaml`](../institutions.yaml) 中审核通过的**精确邮箱域名**。邀请和机构审核是两个独立条件：填写邮箱不会自动批准学校；批准学校也不会邀请整个学校。初始批准的是 `mit.edu` 和 `berkeley.edu`。新增域名或学生邮箱子域名前，要核实机构官方资料。用户提交机构申请只会进入待审核队列。
+开放注册配置：`PAPERLEET_AUTH_MODE=institutional` 和 `PAPERLEET_REGISTRATION_POLICY=work_email`。无需逐个邀请，也不要求域名已在机构名单中；`.edu`、`.edu.cn`、其他学校域名和公司自有域名均走邮件验证码。后端在发送和验证验证码之前拦截 Gmail、QQ、Outlook、163、iCloud、Proton 等常见个人邮箱及部分临时邮箱服务，其子域名也会拦截。公司的 Google Workspace／Microsoft 365 邮箱使用公司自有域名，不会因邮件托管商被拒绝。名单需要维护，可以通过额外拦截域名扩充；“不在名单中”不能证明域名确实属于公司。
+
+邮箱验证通过后才创建本地账户和会话。未收录域名的账户可以使用私有草稿、社区和判题，但不会自动得到机构标记；公开主页始终隐藏完整邮箱。已审核机构仍使用 [`institutions.yaml`](../institutions.yaml) 中的精确域名匹配，不从 `.edu` 后缀或用户填写的学校／公司名称推断机构身份。机构收录申请只进入审核队列。更改注册规则或额外拦截域名后，已有会话及排队判题任务都会重新检查资格。
+
+邀请制配置：`PAPERLEET_REGISTRATION_POLICY=invite_only`。受邀邮箱还必须匹配 `institutions.yaml` 中审核通过的精确域名。邀请和机构审核是两个独立条件；初始批准的是 `mit.edu` 和 `berkeley.edu`。新增学校或公司域名及其子域名前，要核实机构官方资料。
 
 在 Supabase 中开启 Email 登录和注册，在 **Magic Link** 邮件模板中加入 `{{ .Token }}`，让用户收到可以在 PaperLeet 输入的验证码。给真实受邀用户发信前配置自定义 SMTP；Supabase 默认发信服务只允许向项目团队邮箱发送。参考 [邮箱 OTP](https://supabase.com/docs/guides/auth/auth-email-passwordless)、[邮件模板](https://supabase.com/docs/guides/auth/auth-email-templates)、[SMTP 配置](https://supabase.com/docs/guides/auth/auth-smtp)。
 
@@ -71,7 +77,7 @@ curl --fail https://paperleet.yourdomain.com/api/health
 ./deploy/manage.sh logs
 ```
 
-健康响应应包含 `"mode":"hosted"`、`"auth_required":true` 和 `"judge":{"ready":true,...}`。确认证书可用，然后用真实受邀邮箱完整测试：收验证码、登录、运行一道题，再从另一浏览器登录同一账号并打开草稿。同时测试一个未受邀邮箱和一个未批准机构域名，二者均不应获得使用权限。模拟账号测试不能证明 SMTP 已经可以实际发信。
+健康响应应包含 `"mode":"hosted"`、`"auth_required":true` 和 `"judge":{"ready":true,...}`。确认证书可用，然后用真实学校／公司邮箱完整测试：收验证码、登录、运行一道题，再从另一浏览器登录同一账号并打开草稿。开放模式测试个人邮箱被拒绝、未收录公司域名可以验证；邀请模式则测试未受邀邮箱和未批准机构域名均被拒绝。模拟账号测试不能证明 SMTP 已经可以实际发信。
 
 网站提交异步任务到 SQLite FIFO 队列，并用短请求查询状态。API 一次执行一个排队任务，运行和等待中的任务合计最多 8 个，每个账号最多一个。页面显示前方任务数，可以取消尚未开始的任务；刷新同一浏览器标签页会恢复查看。判题过程中继续编辑不会改变本次提交的代码，短暂断网后只恢复查询，不重复执行。队列满时仍会明确提示容量已满，草稿保留。排队最长等待 20 分钟，终态任务保留 24 小时后可被清理。此队列只支持单 API 实例。
 

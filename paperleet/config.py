@@ -17,6 +17,13 @@ def auth_mode():
     return mode
 
 
+def registration_policy():
+    policy = os.environ.get("PAPERLEET_REGISTRATION_POLICY", "invite_only")
+    if policy not in ("invite_only", "work_email"):
+        raise ValueError("PAPERLEET_REGISTRATION_POLICY must be invite_only or work_email")
+    return policy
+
+
 def data_directory():
     return Path(os.environ.get("PAPERLEET_DATA_DIR", root() / ".paperleet")).expanduser().resolve()
 
@@ -44,6 +51,7 @@ def public_origin():
 
 def validate_hosted_settings():
     authentication = auth_mode()
+    registration = registration_policy()
     mode = os.environ.get("PAPERLEET_MODE", "local")
     if mode not in ("local", "hosted"):
         raise ValueError("PAPERLEET_MODE must be local or hosted")
@@ -51,7 +59,9 @@ def validate_hosted_settings():
         return
     required = ["PAPERLEET_PUBLIC_URL", "PAPERLEET_DATA_DIR", "PAPERLEET_JUDGE_URL", "PAPERLEET_JUDGE_TOKEN"]
     if authentication == "institutional":
-        required += ["PAPERLEET_INVITE_EMAILS", "SUPABASE_URL"]
+        required += ["SUPABASE_URL"]
+        if registration == "invite_only":
+            required += ["PAPERLEET_INVITE_EMAILS"]
     missing = [key for key in required if not os.environ.get(key, "").strip()]
     if authentication == "institutional" and not (os.environ.get("SUPABASE_PUBLISHABLE_KEY") or os.environ.get("SUPABASE_ANON_KEY")):
         missing.append("SUPABASE_PUBLISHABLE_KEY")
@@ -71,3 +81,5 @@ def validate_hosted_settings():
         from paperleet.accounts import SupabaseEmailProvider
         if not SupabaseEmailProvider().available:
             raise ValueError("Configure a valid Supabase URL and publishable key")
+        from paperleet.accounts import blocked_email_domains
+        blocked_email_domains()

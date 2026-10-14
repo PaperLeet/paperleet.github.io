@@ -32,6 +32,8 @@ class EmailProvider:
 
 @pytest.fixture
 def accounts(tmp_path, monkeypatch):
+    monkeypatch.delenv("PAPERLEET_REGISTRATION_POLICY", raising=False)
+    monkeypatch.delenv("PAPERLEET_BLOCKED_EMAIL_DOMAINS", raising=False)
     monkeypatch.delenv("PAPERLEET_ADMIN_EMAILS", raising=False)
     monkeypatch.setenv("PAPERLEET_MODE", "local")
     monkeypatch.delenv("PAPERLEET_INVITE_EMAILS", raising=False)
@@ -47,6 +49,73 @@ def accounts(tmp_path, monkeypatch):
 
 def sign_in(accounts, email="student@research.edu"):
     return accounts.verify_code(email, "123456")
+
+
+@pytest.mark.parametrize("email", ["student@another.edu", "student@school.edu.cn", "student@dept.university.ac.uk", "engineer@company.example", "engineer@mail.company.example"])
+def test_open_registration_verifies_unlisted_school_and_company_mailboxes(accounts, monkeypatch, email):
+    monkeypatch.setenv("PAPERLEET_MODE", "hosted")
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    capabilities = accounts.capabilities()
+    assert capabilities["auth_available"] and capabilities["work_email_registration"]
+    assert not capabilities["invite_only"] and not capabilities["institution_verification_required"]
+    accounts.request_code(email)
+    with sqlite3.connect(accounts.db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0
+    token, user = sign_in(accounts, email)
+    assert user["email_verified"] is True and user["institution_verified"] is False
+    assert user["institution"] is None and user["role"] == "member"
+    assert accounts.get_session(token)["id"] == user["id"]
+    public = accounts.update_profile(user["id"], {"show_institution": True})
+    assert public["institution"] is None
+    assert not {"email", "email_verified", "provider_id", "institution"}.intersection(accounts.public_user(user["id"]))
+
+
+@pytest.mark.parametrize("domain", ["GMAIL.COM", "qq.com", "foxmail.com", "outlook.com", "icloud.com", "proton.me", "163.com", "yahoo.co.jp", "mail.gmail.com", "mailinator.com", "duck.com"])
+def test_open_registration_blocks_personal_email_before_any_provider_call(accounts, monkeypatch, domain):
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    def forbidden(*args):
+        pytest.fail("Ineligible mailbox contacted the email provider")
+    accounts.provider.request_code = accounts.provider.verify_code = forbidden
+    for action in (accounts.request_code, lambda email: sign_in(accounts, email)):
+        with pytest.raises(AccountError, match="Personal email"):
+            action("person@" + domain)
+    with sqlite3.connect(accounts.db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0
+
+
+def test_open_registration_keeps_reviewed_badges_and_blocks_policy_changes(accounts, monkeypatch):
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    _, school = sign_in(accounts)
+    assert school["institution_verified"] and school["institution"]["id"] == "institute"
+    token, company = sign_in(accounts, "engineer@company.example")
+    monkeypatch.setenv("PAPERLEET_BLOCKED_EMAIL_DOMAINS", "company.example")
+    assert accounts.get_session(token) is None
+    with pytest.raises(AccountError, match="Personal email"):
+        accounts.check_email_access(company)
+    monkeypatch.setenv("PAPERLEET_BLOCKED_EMAIL_DOMAINS", "")
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "invite_only")
+    assert accounts.get_session(token) is None
+
+
+@pytest.mark.parametrize("setting,value", [("PAPERLEET_REGISTRATION_POLICY", "anything"), ("PAPERLEET_BLOCKED_EMAIL_DOMAINS", "*@example.com")])
+def test_open_registration_invalid_policy_fails_closed(accounts, monkeypatch, setting, value):
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    monkeypatch.setenv(setting, value)
+    assert accounts.capabilities()["auth_available"] is False
+    with pytest.raises(AuthUnavailable):
+        sign_in(accounts, "engineer@company.example")
+
+
+def test_open_registration_wrong_or_mismatched_verification_creates_no_account(accounts, monkeypatch):
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    with pytest.raises(AuthenticationError):
+        accounts.verify_code("engineer@company.example", "000000")
+    accounts.provider.response = {"id": "provider", "email": "other@company.example", "email_confirmed_at": "now"}
+    with pytest.raises(AuthenticationError, match="does not match"):
+        sign_in(accounts, "engineer@company.example")
+    with sqlite3.connect(accounts.db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0
+        assert conn.execute("SELECT COUNT(*) FROM account_sessions").fetchone()[0] == 0
 
 
 def test_no_credentials_never_creates_a_verified_account(accounts):

@@ -1,7 +1,7 @@
-"""Institutional mailbox verification, private sessions, and public profiles.
+"""Verified school/work mailboxes, private sessions, and public profiles.
 
-The authentication provider verifies mailbox control. An exact local domain
-allowlist determines eligibility; neither suffixes nor profile fields grant it.
+Registration eligibility and reviewed institution badges are separate checks.
+The provider confirms mailbox control, never student or employment status.
 """
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -19,7 +19,7 @@ from urllib.request import Request, urlopen
 import uuid
 
 import yaml
-from paperleet.config import auth_mode
+from paperleet.config import auth_mode, registration_policy
 
 
 class AccountError(ValueError):
@@ -52,6 +52,28 @@ SESSION_TTL = 7 * 24 * 60 * 60
 TEST_CODE_ITERATIONS = 600000
 DEFAULT_INSTITUTIONS = Path(__file__).resolve().parents[1] / "institutions.yaml"
 
+# A maintained baseline, not a proof that every other domain belongs to a company.
+# Workspace/Microsoft 365 customers use their own domains and remain eligible.
+PERSONAL_EMAIL_DOMAINS = frozenset("""
+gmail.com googlemail.com outlook.com hotmail.com live.com msn.com
+hotmail.co.uk hotmail.fr hotmail.de outlook.fr live.co.uk live.fr live.de
+yahoo.com yahoo.co.uk yahoo.co.jp yahoo.fr yahoo.de yahoo.ca yahoo.com.au
+yahoo.co.in yahoo.in yahoo.com.cn yahoo.cn ymail.com rocketmail.com
+icloud.com me.com mac.com aol.com aim.com mail.com email.com usa.com
+gmx.com gmx.net gmx.de web.de proton.me protonmail.com protonmail.ch
+pm.me tutanota.com tutanota.de tuta.com tuta.io tutamail.com keemail.me
+fastmail.com fastmail.fm hey.com hushmail.com zoho.com zohomail.com
+qq.com foxmail.com 163.com 126.com  yeah.net 188.com vip.163.com vip.126.com
+sohu.com sina.com sina.cn vip.sina.com 139.com 189.cn 21cn.com aliyun.com
+mail.ru inbox.ru list.ru bk.ru internet.ru yandex.ru yandex.com ya.ru
+naver.com daum.net hanmail.net nate.com orange.fr wanadoo.fr laposte.net
+free.fr libero.it virgilio.it alice.it t-online.de wp.pl o2.pl onet.pl
+duck.com simplelogin.com simplelogin.co slmail.me mozmail.com
+anonaddy.com anonaddy.me addy.io mailinator.com guerrillamail.com
+guerrillamail.net guerrillamail.org grr.la sharklasers.com yopmail.com
+yopmail.fr yopmail.net 10minutemail.com temp-mail.org dispostable.com
+""".split())
+
 
 def _now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -76,6 +98,14 @@ def _email(value):
     if parts[0].startswith(".") or parts[0].endswith(".") or ".." in parts[0]:
         raise AccountError("A valid institutional email address is required")
     return parts[0] + "@" + _domain(parts[1])
+
+
+def blocked_email_domains():
+    values = os.environ.get("PAPERLEET_BLOCKED_EMAIL_DOMAINS", "").split(",")
+    try:
+        return PERSONAL_EMAIL_DOMAINS | {_domain(value) for value in values if value.strip()}
+    except AccountError:
+        raise AuthUnavailable("PAPERLEET_BLOCKED_EMAIL_DOMAINS must contain valid domain names") from None
 
 
 def load_institutions(path=None):
@@ -225,21 +255,34 @@ class AccountService:
         available = bool(self.provider.available)
         result = {"auth_mode": "institutional", "test_login_available": False,
                   "auth_available": available, "institution_verification_required": True,
-                  "invite_only": os.environ.get("PAPERLEET_MODE", "local") == "hosted",
+                  "invite_only": False,
                   "institutions": [{**_institution_public(item), "domains": item["domains"]}
                                    for item in self.institutions.values()]}
         if not available:
             result["reason"] = "Institutional email sign-in is not configured. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY."
         try:
+            policy = self._registration_policy()
+            result.update(registration_policy=policy, work_email_registration=policy == "work_email",
+                          email_verification_required=True, institution_verification_required=policy != "work_email",
+                          invite_only=policy == "invite_only" and os.environ.get("PAPERLEET_MODE", "local") == "hosted")
             self._invites()
+            if policy == "work_email":
+                blocked_email_domains()
         except AuthUnavailable as exc:
             result.update(auth_available=False, reason=str(exc))
         return result
 
+    @staticmethod
+    def _registration_policy():
+        try:
+            return registration_policy()
+        except ValueError as exc:
+            raise AuthUnavailable(str(exc)) from None
+
     def _invites(self):
         # Read on each operation, including session lookup: removing an invite
         # revokes access without relying on session expiry or another sign-in.
-        if os.environ.get("PAPERLEET_MODE", "local") != "hosted":
+        if self._registration_policy() == "work_email" or os.environ.get("PAPERLEET_MODE", "local") != "hosted":
             return None
         values = [value.strip() for value in os.environ.get("PAPERLEET_INVITE_EMAILS", "").split(",") if value.strip()]
         if not values:
@@ -264,6 +307,13 @@ class AccountService:
 
     def _institution(self, email):
         domain = email.rsplit("@", 1)[1]
+        if self._registration_policy() == "work_email":
+            if any(domain == item or domain.endswith("." + item) for item in blocked_email_domains()):
+                raise AccountError("Use a school or company email. Personal email services are not eligible for registration.")
+            for item in self.institutions.values():
+                if domain in item["domains"]:
+                    return item
+            return None
         for item in self.institutions.values():
             if domain in item["domains"]:
                 return item
@@ -325,11 +375,11 @@ class AccountService:
                 if status != "active":
                     raise AuthenticationError("This account is not active")
                 conn.execute("UPDATE accounts_private SET verified_at=? WHERE user_id=?", (now, user_id))
-                conn.execute("UPDATE users SET institution_id=?, role=? WHERE id=?", (institution["id"], "admin" if email in admin_emails else "member", user_id))
+                conn.execute("UPDATE users SET institution_id=?, role=? WHERE id=?", (institution["id"] if institution else None, "admin" if email in admin_emails else "member", user_id))
             else:
                 user_id = uuid.uuid4().hex
                 conn.execute("INSERT INTO users (id,username,display_name,avatar_color,institution_id,role,created_at) VALUES (?,?,?,?,?,?,?)",
-                             (user_id, "member_" + user_id[:12], "Researcher " + user_id[:6], "#" + user_id[:6], institution["id"], "admin" if email in admin_emails else "member", now))
+                             (user_id, "member_" + user_id[:12], "Researcher " + user_id[:6], "#" + user_id[:6], institution["id"] if institution else None, "admin" if email in admin_emails else "member", now))
                 conn.execute("INSERT INTO accounts_private VALUES (?,?,?,?)", (user_id, email, provider_user["id"], now))
             conn.execute("DELETE FROM account_sessions WHERE expires_at <= ?", (time.time(),))
             conn.execute("INSERT INTO account_sessions VALUES (?,?,?,?)", (digest, user_id, time.time() + SESSION_TTL, now))
@@ -346,9 +396,10 @@ class AccountService:
             result.update({key: row[key] for key in ("email", "role", "country")})
             result.update({key: bool(row[key]) for key in ("show_institution", "show_country", "show_progress")})
             if row["is_test_user"]:
-                result.update(email="", institution=None, institution_verified=False, login_username=row["login_username"])
+                result.update(email="", email_verified=False, institution=None, institution_verified=False, login_username=row["login_username"])
                 return result
             institution = self.institutions.get(row["institution_id"])
+            result["email_verified"] = True
             result["institution"] = _institution_public(institution) if institution else None
             result["institution_verified"] = bool(institution and row["email"].rsplit("@", 1)[1] in institution["domains"])
             return result
@@ -375,10 +426,17 @@ class AccountService:
         if user["is_test_user"]:
             return None
         try:
-            self._check_invitation(user["email"])
+            self.check_email_access(user)
         except AccountError:
             return None
-        return user if user["institution_verified"] else None
+        return user
+
+    def check_email_access(self, user):
+        """Recheck current eligibility, including jobs already waiting in the queue."""
+        if user["is_test_user"] or not user.get("email_verified"):
+            raise AuthenticationError("A verified school or company email is required")
+        self._check_invitation(user["email"])
+        self._institution(user["email"])
 
     def logout(self, token):
         if isinstance(token, str):

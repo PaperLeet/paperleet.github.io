@@ -42,9 +42,7 @@ def execute(owner, job):
             practice.workspace(user_id)  # Recheck that the account is still active.
             user = accounts.get_user(user_id)
             if auth_mode() == "institutional":
-                accounts._check_invitation(user["email"])
-                if not user["institution_verified"] or user["is_test_user"]:
-                    raise PermissionError("Your account is no longer eligible for hosted judging.")
+                accounts.check_email_access(user)
             elif not user["is_test_user"]:
                 raise PermissionError("Sign in with a test account to run this job.")
             report = run_hosted_problem(entry, job["code"], job["layers"])

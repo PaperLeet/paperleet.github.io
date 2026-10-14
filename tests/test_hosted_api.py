@@ -23,6 +23,7 @@ PUBLIC_ORIGIN = "https://paperleet.test"
 @pytest.fixture
 def hosted_api_server(tmp_path, monkeypatch):
     settings = {
+        "PAPERLEET_REGISTRATION_POLICY": "invite_only", "PAPERLEET_BLOCKED_EMAIL_DOMAINS": "",
         "PAPERLEET_MODE": "hosted", "PAPERLEET_AUTH_MODE": "institutional", "PAPERLEET_PUBLIC_URL": PUBLIC_ORIGIN,
         "PAPERLEET_DATA_DIR": str(tmp_path / "persistent-data"),
         "PAPERLEET_INVITE_EMAILS": "alice@mit.edu,bob@mit.edu,admin@mit.edu,invited@gmail.com",
@@ -124,6 +125,51 @@ def hosted_api_server(tmp_path, monkeypatch):
         if key[1] == tmp_path / "persistent-data":
             submissions._stores.pop(key)
     assert not forbidden_workspace.exists(), "Hosted request wrote to the local execution workspace"
+
+
+def test_open_company_registration_real_http_private_workspace_and_queued_judging(hosted_api_server, monkeypatch):
+    api = hosted_api_server
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    monkeypatch.delenv("PAPERLEET_INVITE_EMAILS")
+    validate_hosted_settings()
+    caps = api("account/me")[1]["capabilities"]
+    assert caps["work_email_registration"] and not caps["invite_only"]
+    assert api("account/send-code", {"email": "person@gmail.com"})[0] == 400
+    email = "developer@company.example"
+    assert api("account/send-code", {"email": email})[0] == 200
+    assert api("account/verify", {"email": email, "code": "000000"})[0] == 401
+    status, payload, headers = api("account/verify", {"email": email, "code": "123456"})
+    assert status == 200, payload
+    user = payload["user"]
+    cookie = headers["Set-Cookie"].split(";", 1)[0]
+    assert "Secure" in headers["Set-Cookie"] and "HttpOnly" in headers["Set-Cookie"]
+    assert user["email_verified"] and not user["institution_verified"] and user["institution"] is None
+    assert api("account/verify", {"email": email, "code": "123456"})[0] == 401
+    assert api("practice/draft", {"problem": "rl/gae", "code": "private draft", "expected_user_id": user["id"]}, cookie)[0] == 200
+    assert api("practice/workspace", cookie=cookie)[1]["workspace"]["rl/gae"]["code"] == "private draft"
+    assert api("practice/workspace")[0] == 401
+    identifier = uuid.uuid4().hex
+    assert api("judge/jobs", {"id": identifier, "problem": "rl/gae", "code": "correct", "expected_user_id": user["id"]}, cookie)[0] == 202
+    deadline = time.monotonic() + 4
+    while time.monotonic() < deadline:
+        result = api(f"judge/jobs/{identifier}", cookie=cookie)[1]
+        if result["status"] in ("succeeded", "failed"):
+            break
+        time.sleep(.01)
+    assert result["status"] == "succeeded", result
+    assert result["report"]["passed"]
+    monkeypatch.setenv("PAPERLEET_BLOCKED_EMAIL_DOMAINS", "company.example")
+    assert api("account/me", cookie=cookie)[1]["user"] is None
+    assert api("practice/workspace", cookie=cookie)[0] == 401
+
+
+def test_open_registration_still_requires_email_provider_settings(hosted_api_server, monkeypatch):
+    monkeypatch.setenv("PAPERLEET_REGISTRATION_POLICY", "work_email")
+    monkeypatch.delenv("PAPERLEET_INVITE_EMAILS")
+    validate_hosted_settings()
+    monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY")
+    with pytest.raises(ValueError, match="SUPABASE_PUBLISHABLE_KEY"):
+        validate_hosted_settings()
 
 
 def sign_in(api, name):
