@@ -25,6 +25,7 @@ PILOTS = {
     "representation/moge_alignment", "representation/var_tokenizer", "architecture/var_next_scale",
     "diffusion/block_diffusion", "rl/pkpo", "diffusion/diffusion_nft", "diffusion/fd_population",
     "diffusion/jit", "diffusion/drifting", "diffusion/dmd", "diffusion/dmd2",
+    "diffusion/fd_loss",
 }
 
 SHARED_FILES = (

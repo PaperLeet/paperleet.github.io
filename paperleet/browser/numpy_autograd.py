@@ -466,6 +466,7 @@ class Tensor:
         if self.ndim != 2: raise RuntimeError('trace expects a matrix')
         self._real_only()
         return result(np.trace(self._data), (self, lambda g: np.eye(*self.shape, dtype=self.dtype) * g))
+    def det(self): return det(self)
     def prod(self, dim=None, keepdim=False, *, dtype=None):
         if dim is None and keepdim: raise TypeError('prod keepdim requires an explicit dimension')
         if dim is not None and not isinstance(dim,(int,np.integer)): raise BrowserUnsupported('prod requires one dimension')
@@ -530,6 +531,19 @@ class Tensor:
                 for axis in sorted(axes): g = np.expand_dims(g, axis)
             return g * derivative
         return result(value if keepdim else value.squeeze(axis=axes), (self, vjp))
+    def diagonal(self, offset=0, dim1=0, dim2=1):
+        if self.ndim < 2: raise RuntimeError('diagonal requires at least two dimensions')
+        if not isinstance(offset, (int, np.integer)): raise TypeError('Diagonal offset must be an integer')
+        axes = reduction_axes((dim1, dim2), self.ndim)
+        value = np.diagonal(self._data, offset=int(offset), axis1=axes[0], axis2=axes[1])
+        if self._data.flags.writeable: value.setflags(write=True)
+        def vjp(g):
+            gradient = np.zeros_like(self._data)
+            moved = np.moveaxis(gradient, axes, (-2, -1))
+            index = np.arange(value.shape[-1])
+            moved[..., index + max(-int(offset), 0), index + max(int(offset), 0)] = g
+            return gradient
+        return result(value, (self, vjp))
     def diag(self, diagonal=0, *, out=None):
         if out is not None: raise BrowserUnsupported('diag out arguments require the server')
         if self.ndim not in (1, 2): raise RuntimeError('diag expects a vector or matrix')
@@ -1020,13 +1034,66 @@ def svd(input, full_matrices=True, *, driver=None, out=None):
 
 
 def eigh(input, UPLO='L', *, out=None):
-    """Independent NumPy Gram-matrix oracle; differentiable eigensolvers use the server."""
+    """Real symmetric eigendecomposition with separate value/vector VJPs."""
     real_matrix(input)
-    if out is not None or _grad_enabled and input.requires_grad:
-        raise BrowserUnsupported('Differentiable eigh/output buffers require the server')
+    if out is not None: raise BrowserUnsupported('eigh output buffers require the server')
     if input.shape[-2] != input.shape[-1] or UPLO not in ('L','U'): raise RuntimeError('Invalid eigh shape/triangle')
     values, vectors = np.linalg.eigh(input._data, UPLO=UPLO)
-    return namedtuple('Eigh',['eigenvalues','eigenvectors'])(Tensor(values),Tensor(vectors))
+    count = input.shape[-1]
+    transposed = np.swapaxes(vectors, -1, -2)
+    saved = (Tensor(values), Tensor(vectors))
+    def spectral_gaps():
+        with np.errstate(over='ignore', invalid='ignore'):
+            gaps = values[..., None, :] - values[..., :, None]
+        scale = np.max(np.abs(values), axis=-1, keepdims=True, initial=0)
+        tolerance = np.finfo(input.dtype).eps * max(count, 1) * scale[..., None]
+        unresolved = (np.abs(gaps) <= tolerance) & ~np.eye(count, dtype=bool)
+        return gaps, unresolved
+    def dl(g):
+        _, unresolved = spectral_gaps()
+        # At repeated spectra a differentiable spectral objective has equal
+        # derivatives within each eigenspace. Otherwise the chosen basis would
+        # invent a platform-dependent gradient.
+        differences = np.abs(g[..., None, :] - g[..., :, None])
+        tolerance = 8 * np.finfo(input.dtype).eps * np.maximum(1, np.max(np.abs(g), axis=-1, keepdims=True, initial=0))[..., None]
+        if np.any(unresolved & (differences > tolerance)):
+            raise BrowserUnsupported('Basis-dependent repeated-eigenvalue gradients require the server')
+        return (vectors * g[..., None, :]) @ transposed
+    def dq(g):
+        gaps, unresolved = spectral_gaps()
+        if np.any(unresolved) or not np.isfinite(gaps).all():
+            raise BrowserUnsupported('Degenerate or unresolved eigenvector gradients require the server')
+        inner = transposed @ g
+        core = .5 * np.divide(inner - np.swapaxes(inner, -1, -2), gaps,
+                              out=np.zeros_like(inner), where=~np.eye(count, dtype=bool))
+        # PyTorch assumes symmetric input: the VJP is symmetric, even when
+        # UPLO selected just one triangle for the forward computation.
+        return vectors @ core @ transposed
+    return namedtuple('Eigh',['eigenvalues','eigenvectors'])(
+        result(values, (input, dl), saved=saved), result(vectors, (input, dq), saved=saved))
+
+
+def eigvalsh(input, UPLO='L', *, out=None):
+    if out is not None: raise BrowserUnsupported('eigvalsh output buffers require the server')
+    return eigh(input, UPLO).eigenvalues
+
+
+def det(input, *, out=None):
+    real_matrix(input)
+    if out is not None: raise BrowserUnsupported('Determinant output buffers require the server')
+    if input.shape[-2] != input.shape[-1]: raise RuntimeError('det expects square matrices')
+    value = np.linalg.det(input._data)
+    def vjp(g):
+        # Products of all other singular values give the cofactor matrix
+        # without dividing by a singular determinant or singular value.
+        u, s, vh = np.linalg.svd(input._data, full_matrices=False)
+        ones = np.ones(s.shape[:-1] + (1,), dtype=s.dtype)
+        prefix = np.concatenate((ones, np.cumprod(s, axis=-1)), axis=-1)
+        suffix = np.concatenate((np.flip(np.cumprod(np.flip(s, axis=-1), axis=-1), axis=-1), ones), axis=-1)
+        cofactors = prefix[..., :-1] * suffix[..., 1:]
+        orientation = np.linalg.det(u) * np.linalg.det(vh)
+        return (g * orientation)[..., None, None] * ((u * cofactors[..., None, :]) @ vh)
+    return result(value, (input, vjp))
 
 
 def qr(input, mode='reduced', *, out=None):
@@ -1840,6 +1907,8 @@ def install():
     torch.remainder = lambda input,other,*,out=None: input.remainder(other,out=out)
     torch.floor_divide = lambda input,other: wrap(input).floor_divide(other)
     torch.trace = lambda input: input.trace()
+    torch.det = det
+    torch.diagonal = lambda input,offset=0,dim1=0,dim2=1: input.diagonal(offset,dim1,dim2)
     torch.logaddexp = lambda input,other: input.logaddexp(other)
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
@@ -1932,6 +2001,7 @@ def install():
     torch.linalg.inv = inv
     torch.linalg.norm = linalg_norm
     torch.linalg.svd, torch.linalg.eigh, torch.linalg.qr = svd, eigh, qr
+    torch.linalg.eigvalsh, torch.linalg.det = eigvalsh, det
     torch.linalg.svdvals = lambda input,*,driver=None,out=None: svd(input,False,driver=driver,out=out).S
     torch.__getattr__ = unsupported
     return torch

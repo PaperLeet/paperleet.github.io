@@ -120,7 +120,7 @@ def test_qr_basis_reconstructs_inputs_without_assuming_phase_identity(shape,mode
 
 def test_unsupported_spectral_modes_never_silently_drop_gradients():
     a=wasm.Tensor(np.eye(3),requires_grad=True)
-    for function in (wasm.eigh,wasm.qr):
+    for function in (wasm.qr,):
         with pytest.raises(wasm.BrowserUnsupported): function(a)
         with wasm.no_grad():
             assert all(not tensor.requires_grad for tensor in function(a))
