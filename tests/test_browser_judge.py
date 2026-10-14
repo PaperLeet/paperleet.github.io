@@ -87,8 +87,11 @@ from paperleet.browser.harness import prepare, calibrate, run_suite
 bundle = json.load(open(sys.argv[1]))
 prepare(bundle, bundle['adapter'], sys.argv[2])
 updates=[]
-calibration = calibrate(bundle, sys.argv[2], progress=lambda *row: updates.append(row))
+activities=[]
+calibration = calibrate(bundle, sys.argv[2], progress=lambda *row: updates.append(row), activity=lambda *row: activities.append(row))
 assert updates == [('reference', i, 8) for i in range(9)] + [('mutants', i, 5) for i in range(6)], updates
+assert [(row[0],row[1],row[2],row[3],row[7]) for row in activities] == [('reference',i,8,i,'') for i in range(8)] + [('mutants',m,5,i,name) for m,name in enumerate(bundle['mutants']) for i in range(8)], activities
+assert all(row[4].startswith('test_') and row[5] in {'T0','T1','T2','T3'} and row[6] for row in activities)
 assert calibration['compatible'], calibration
 assert calibration['reference_passed'] == 8
 assert len(calibration['mutants_caught']) == 5
@@ -96,9 +99,11 @@ source = bundle['reference']
 assert run_suite(bundle, source, sys.argv[2])['passed']
 wrong = source.replace('return ab.sqrt() * x0 + (1 - ab).sqrt() * noise', 'return x0')
 updates.clear()
-wrong_report=run_suite(bundle,wrong,sys.argv[2],progress=lambda *row:updates.append(row))
+activities.clear()
+wrong_report=run_suite(bundle,wrong,sys.argv[2],progress=lambda *row:updates.append(row),activity=lambda *row:activities.append(row))
 assert not wrong_report['passed']
 assert updates == [('tests', i, 8) for i in range(9)], updates
+assert [(row[0],row[1],row[2],row[3]) for row in activities]==[('tests',i,8,i) for i in range(8)],activities
 assert any(row.get('comparison',{}).get('kind')=='value' for row in wrong_report['tests'])
 syntax = run_suite(bundle, 'def broken(', sys.argv[2])
 assert not syntax['passed'] and any('SyntaxError' in row['message'] for row in syntax['tests'])
@@ -151,13 +156,18 @@ import json,sys
 from paperleet.browser.harness import prepare, calibrate, run_suite
 b=json.load(open(sys.argv[1]));prepare(b,b['adapter'],sys.argv[2])
 updates=[]
-c=calibrate(b,sys.argv[2],progress=lambda *row:updates.append(row));assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'error':c.get('reference',{}).get('error'), 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
+activities=[]
+c=calibrate(b,sys.argv[2],progress=lambda *row:updates.append(row),activity=lambda *row:activities.append(row));assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'error':c.get('reference',{}).get('error'), 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
 assert c['reference_passed']==int(sys.argv[3]);assert len(c['mutants_caught'])==int(sys.argv[4])
 count,mutants=int(sys.argv[3]),int(sys.argv[4])
 assert updates==[('reference',i,count) for i in range(count+1)]+[('mutants',i,mutants) for i in range(mutants+1)],updates
+assert [(row[0],row[1],row[2],row[3],row[7]) for row in activities]==[('reference',i,count,i,'') for i in range(count)]+[('mutants',m,mutants,i,name) for m,name in enumerate(b['mutants']) for i in range(count)],activities
 updates.clear()
-r=run_suite(b,b['reference'],sys.argv[2],progress=lambda *row:updates.append(row));assert r['passed'],r
+activities.clear()
+r=run_suite(b,b['reference'],sys.argv[2],progress=lambda *row:updates.append(row),activity=lambda *row:activities.append(row));assert r['passed'],r
 assert updates==[('tests',i,count) for i in range(count+1)],updates
+assert [(row[0],row[1],row[2],row[3]) for row in activities]==[('tests',i,count,i) for i in range(count)],activities
+assert [(row[4],row[5],row[6]) for row in activities]==[(row['nodeid'].split('::')[-1],row['layer'],row['why']) for row in r['tests']],activities
 assert not b['tests'].get('T3') or any(t['artifacts'] for t in r['tests'])
 if b['problem']=='architecture/attention':
     invalid=b['reference'].replace('return weights @ v, weights','return (weights @ v) * float("nan"), weights')

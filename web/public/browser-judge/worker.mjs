@@ -25,9 +25,13 @@ self.onmessage = async ({ data }) => {
     py.globals.set('bundle_json', JSON.stringify(bundle));
     py.runPython(`import json, inspect\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);
     py.globals.set('_browser_progress', (step, completed, total) => progress(step === 'tests' ? 'running' : 'calibrating', { step, completed, total }));
+    py.globals.set('_browser_activity', (step, completed, total, index, test, layer, why, mutant) => progress(step === 'tests' ? 'running' : 'calibrating', {
+      step, completed, total, activity: { index, test, layer, why, ...(mutant ? { mutant } : {}) },
+    }));
     // Older immutable bundles have a harness without optional callbacks.
     const withProgress = py.runPython("'progress' in inspect.signature(calibrate).parameters and 'progress' in inspect.signature(run_suite).parameters");
-    const extra = withProgress ? ', progress=_browser_progress' : '';
+    const withActivity = py.runPython("'activity' in inspect.signature(calibrate).parameters and 'activity' in inspect.signature(run_suite).parameters");
+    const extra = (withProgress ? ', progress=_browser_progress' : '') + (withActivity ? ', activity=_browser_activity' : '');
     progress('calibrating');
     const calibration = JSON.parse(py.runPython(`json.dumps(calibrate(bundle, '/judge'${extra}), allow_nan=False)`));
     if (!calibration.compatible) return unsupported('calibration_failed', calibrationDiagnostic(calibration));

@@ -105,6 +105,7 @@ try {
     const runningDeadline = [...deadlines.entries()].find(([, value]) => value.ms === 30_000)[0];
     for (let completed=0; completed<=8; completed++) {
       for (const fn of listeners) fn({ source: timedFrame.contentWindow, data: { nonce: timedNonce, payload: { type: 'progress', stage: 'running', step: 'tests', completed, total:8 } } });
+      if(completed<8) for(const fn of listeners) fn({source:timedFrame.contentWindow,data:{nonce:timedNonce,payload:{type:'progress',stage:'running',step:'tests',completed,total:8,activity:{index:completed,test:'test_original',layer:'T3',why:'Full original experiment.'}}}});
       assert(deadlines.has(runningDeadline), 'Detailed progress must never renew the learner deadline');
       assert(!timedFrame.removed, 'Finishing test counters is not a result message');
     }
@@ -128,6 +129,7 @@ try {
     const calibration=[...deadlines.entries()].find(([,v])=>v.ms===240_000)[0];
     for(let completed=1;completed<=8;completed++){
       sendLong({type:'progress',stage:'calibrating',step:'reference',completed,total:8});
+      if(completed<8) sendLong({type:'progress',stage:'calibrating',step:'reference',completed,total:8,activity:{index:completed,test:'test_original',layer:'T3',why:'Full original experiment.'}});
       assert(deadlines.has(calibration)&&deadlines.has(hard[0]),'Calibration progress cannot extend either cap');
     }
     sendLong({type:'progress',stage:'running'});

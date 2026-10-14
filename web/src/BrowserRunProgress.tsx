@@ -20,6 +20,11 @@ export function BrowserRunProgress({ progress, onStop }: { progress: BrowserProg
     <div role="status" aria-live="polite" aria-atomic="true">
       <p>{browserProgressText(progress, locale === 'en')}</p>
       <progress aria-label={t('当前阶段进度', 'Current stage progress')} value={hasCount ? progress.completed : undefined} max={hasCount ? progress.total : undefined} />
+      {progress.activity && <div className="browser-run-activity">
+        <p>{t('当前测试', 'Current test')} · {progress.activity.layer} · <code>{progress.activity.test}</code></p>
+        {progress.activity.mutant && <p>{t('错误实现', 'Mutation case')} · <code>{progress.activity.mutant}</code></p>}
+        <p>{progress.activity.why}</p>
+      </div>}
     </div>
     <p className="browser-run-progress-hint">{progress.stage === 'loading'
       ? t('首次运行需要下载环境，之后可复用缓存。你可以继续编辑或停止运行。', 'The first run downloads the runtime; later runs can reuse cached assets. You can keep editing or stop the run.')

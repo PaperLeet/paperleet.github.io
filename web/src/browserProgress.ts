@@ -1,8 +1,21 @@
 export type BrowserStage = 'loading' | 'calibrating' | 'running';
 export type BrowserStep = 'bundle' | 'python' | 'syntax' | 'packages' | 'preparing' | 'reference' | 'mutants' | 'tests';
-export type BrowserProgress = { stage: BrowserStage; step?: BrowserStep; completed?: number; total?: number };
+export type BrowserActivity = { index: number; test: string; layer: 'T0' | 'T1' | 'T2' | 'T3'; why: string; mutant?: string };
+export type BrowserProgress = { stage: BrowserStage; step?: BrowserStep; completed?: number; total?: number; activity?: BrowserActivity };
 const stages: BrowserStage[] = ['loading', 'calibrating', 'running'];
 const steps: Record<BrowserStage, BrowserStep[]> = { loading: ['bundle', 'python', 'syntax', 'packages', 'preparing'], calibrating: ['reference', 'mutants'], running: ['tests'] };
+
+function parseActivity(value: unknown, step: BrowserStep, completed: number, total: number, tests: number): BrowserActivity | undefined {
+  if (!value || typeof value !== 'object' || completed >= total) return;
+  const row = value as Record<string, unknown>;
+  if (!Number.isSafeInteger(row.index) || Number(row.index) < 0 || Number(row.index) >= tests
+    || step !== 'mutants' && row.index !== completed) return;
+  const text = (input: unknown, limit: number): input is string => typeof input === 'string' && input.trim().length > 0 && input.length <= limit && !/[\u0000-\u001f\u007f]/.test(input);
+  if (!text(row.test, 200) || !text(row.why, 320) || typeof row.layer !== 'string' || !['T0','T1','T2','T3'].includes(row.layer)) return;
+  if (step === 'mutants' ? !text(row.mutant, 120) : row.mutant !== undefined) return;
+  return { index: Number(row.index), test: row.test, layer: row.layer as BrowserActivity['layer'], why: row.why,
+    ...(step === 'mutants' ? { mutant: row.mutant as string } : {}) };
+}
 
 /** Ignore malformed/stale advisory messages. They never determine acceptance or reset deadlines. */
 export function advanceBrowserProgress(previous: BrowserProgress, message: unknown, totals: { tests: number; mutants: number }): BrowserProgress | undefined {
@@ -22,10 +35,15 @@ export function advanceBrowserProgress(previous: BrowserProgress, message: unkno
     if (!Number.isSafeInteger(value.completed) || !Number.isSafeInteger(value.total) || value.total !== total
       || total < 1 || Number(value.completed) < 0 || Number(value.completed) > total) return;
     next.completed = Number(value.completed); next.total = total;
+    const activity = parseActivity(value.activity, step, next.completed, total, totals.tests);
+    if (activity) next.activity = activity;
   }
   if (phase === before && previous.step) {
     const oldIndex = steps[stage].indexOf(previous.step);
-    if (index < oldIndex || index === oldIndex && (stage === 'loading' || next.completed! <= (previous.completed ?? -1))) return;
+    if (index < oldIndex || index === oldIndex && (stage === 'loading' || next.completed! < (previous.completed ?? -1))) return;
+    if (index === oldIndex && next.completed === previous.completed
+      && (!next.activity || next.activity.index <= (previous.activity?.index ?? -1)
+        || previous.activity && next.activity.mutant !== previous.activity.mutant)) return;
   }
   return next;
 }

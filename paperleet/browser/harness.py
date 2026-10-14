@@ -33,10 +33,19 @@ def _jsonable(value):
 
 
 class Recorder:
-    def __init__(self, source, reference, progress=None, progress_step="tests", total=0):
+    def __init__(self, source, reference, progress=None, progress_step="tests", total=0, activity=None):
         self.source, self.reference, self.rows = source, reference, {}
         self.progress, self.progress_step, self.total = progress, progress_step, total
         self.completed = 0
+        self.activity = activity
+
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_runtest_setup(self, item):
+        if self.activity:
+            layer = next((f"T{i}" for i in range(4) if item.get_closest_marker(f"t{i}")), "T0")
+            why = (inspect.getdoc(item.obj) or "Implementation contract").splitlines()[0]
+            self.activity(self.progress_step, self.completed, self.total, self.completed,
+                          item.name[:200], layer, why[:320], "")
 
     def pytest_runtest_logfinish(self, nodeid, location):
         self.completed += 1
@@ -105,9 +114,9 @@ def prepare(bundle, adapter_source, directory):
     return folder
 
 
-def run_suite(bundle, source, directory, *, progress=None, progress_step="tests"):
+def run_suite(bundle, source, directory, *, progress=None, progress_step="tests", activity=None):
     total = sum(bundle["tests"].values())
-    recorder = Recorder(source, bundle["reference"], progress, progress_step, total)
+    recorder = Recorder(source, bundle["reference"], progress, progress_step, total, activity)
     if progress: progress(progress_step, 0, total)
     # A bounded sink avoids unbounded pytest/learner output in the worker.
     class Sink(io.TextIOBase):
@@ -136,14 +145,16 @@ def run_suite(bundle, source, directory, *, progress=None, progress_step="tests"
     return result
 
 
-def calibrate(bundle, directory, *, progress=None):
-    reference = run_suite(bundle, bundle["reference"], directory, progress=progress, progress_step="reference")
+def calibrate(bundle, directory, *, progress=None, activity=None):
+    reference = run_suite(bundle, bundle["reference"], directory, progress=progress, progress_step="reference", activity=activity)
     if not reference["passed"]:
         return {"compatible": False, "reason": "reference_failed", "reference": reference}
     caught = {}
     if progress: progress("mutants", 0, len(bundle["mutants"]))
     for name, source in bundle["mutants"].items():
-        report = run_suite(bundle, source, directory)
+        def mutant_activity(step, completed, total, index, test, layer, why, mutant):
+            activity("mutants", len(caught), len(bundle["mutants"]), index, test, layer, why, name[:120])
+        report = run_suite(bundle, source, directory, activity=mutant_activity if activity else None)
         if any("BrowserUnsupported" in row["message"] for row in report["tests"]):
             return {"compatible": False, "reason": "mutant_api_unsupported", "mutant": name}
         failures = [row["id"] for row in report["tests"] if row["outcome"] == "failed"]

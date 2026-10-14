@@ -1,0 +1,17 @@
+# Browser active-test feedback — 2026-10-14
+
+Long training tests previously left only a completion counter visible. The runner now shows the actual current test name, layer and public contract, plus the mutation name during calibration. Activity appears before judging configuration and previous-result metadata.
+
+The optional callback fires before test setup. It never changes test outcomes, suites, experiments, loop counts, numerical thresholds or completion counts. Activity messages cannot renew either phase or absolute worker deadlines. The existing progress callback keeps its three-argument contract; the worker detects both optional callback parameters so immutable older bundles remain usable. All 44 browser modules receive the same shared harness update.
+
+## Validation
+
+- `.venv/bin/python -m pytest tests/test_browser*.py -q`: **533 passed**. Every maintained browser suite and mutant calibration was exercised. Activity indices, counts, names, layers and descriptions match the actual reference, mutation and learner test sequences. Ordinary failures and unsupported operations retain their existing semantics.
+- `cd web && npm run check`: passed. Coverage includes malformed/oversized activity, escaped display text, duplicate/backward indices, mutation boundaries, optional-data rejection without losing valid counts, completed-counter cleanup, legacy progress, bilingual accessible rendering, and nonrenewable run/calibration/absolute deadlines.
+- `cd web && npm run build`: TypeScript/build passed; initial graph **371,095 bytes raw / 118,871 bytes gzip** across three JavaScript assets. Deferred editor and other feature chunks remain deferred.
+- Real in-app browser against a disposable loopback production build, **Browser only**: **Schedules 8/8**, reference 8/8 and all 5 mutants; **Attention 7/7**, reference 7/7 and all 3 mutants; **LoRA 6/6**, reference 6/6 and all 4 mutants. These runs include the unchanged attention gradient checks and LoRA's complete 300-step experiment. No GPU/WebGPU is used.
+- A separate LoRA QA submission added a single 15-second pause before the first training forward pass, solely to make the active state observable. The UI displayed **5/6 completed**, **T3**, `test_rank_two_regression` and its original contract while the experiment was in progress, and subsequently passed 6/6. No maintained problem file was edited for this fixture.
+- At **390 × 844**, the active card remained readable at 324 pixels wide; document width and scroll width were both 390 pixels. Desktop and mobile screenshots were inspected. The results divider was adjusted through its keyboard control to inspect the desktop progress card.
+- A separate longer waiting fixture allowed Stop to be exercised during the actual T3 test. The worker terminated, activity disappeared, the previous result remained available, and the UI reported that the browser run had stopped. Restoring the exact original LoRA reference and rerunning returned 6/6 with full calibration.
+
+The test environment used a temporary database, blocked native judge submissions, and served self-hosted runtime assets. Request logs recorded zero native judge submissions and zero HTTP errors. The temporary servers and test tab were closed after validation. Browser coverage remains 44/60 modules; this iteration did not change numerical adapters or enable new modules. Production deployment and additional browser engines/devices were not exercised.

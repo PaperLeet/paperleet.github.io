@@ -1126,6 +1126,9 @@ function Workspace() {
                   </div>
                   <div className="editor-results-panel" id="problem-results-panel">
                   {problem.browser_judge && <div className="browser-judge-panel">
+                    {browser.active && (browserHere
+                      ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
+                      : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     <label>{t("判题位置", "Run tests in")}{" "}
                       <select aria-label={t("判题位置", "Run tests in")} value={judgeMode} disabled={running} onChange={(event) => setJudgeMode(event.target.value as JudgeMode)}>
                         <option value="auto">{t("自动（优先浏览器）", "Auto (browser first)")}</option>
@@ -1140,9 +1143,6 @@ function Workspace() {
                     {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}
                     {browser.diagnostics[problem.id] && <details><summary>{t("运行时详情", "Runtime details")}</summary><code>{browser.diagnostics[problem.id]}</code></details>}
                     {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}</p>}
-                    {browser.active && (browserHere
-                      ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
-                      : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                   </div>}
                   {!problem.browser_judge && <div className="server-judge-panel"><strong>{t('服务端 CPU 判题', 'Server CPU judging')}</strong><small>{t('在网页完成实现后提交，服务端执行完整测试并返回结果。', 'Implement on the web, then submit for the complete suite and feedback from the server.')}</small>{hosted && !user && <small>{t('登录后可提交；现在可以先阅读题面、编辑和保存本机草稿。', 'Sign in to submit. You can read, edit and save a browser draft first.')}</small>}</div>}
                   {judge.active && <div className="practice-notice judge-queue-notice" role="status">

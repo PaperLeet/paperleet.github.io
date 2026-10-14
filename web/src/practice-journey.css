@@ -46,6 +46,7 @@
 .browser-judge-panel p { margin: 6px 0 0; }
 .browser-judge-panel button { margin-left: 10px; }
 .browser-run-progress { margin-top: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.browser-judge-panel > .browser-run-progress:first-child { margin-top: 0; margin-bottom: 10px; }
 .browser-run-progress-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .browser-run-progress-header button { flex: none; }
 .browser-run-progress ol { display: flex; gap: 12px; flex-wrap: wrap; list-style: none; padding: 0; margin: 9px 0 5px; color: var(--muted); }
@@ -54,6 +55,9 @@
 .browser-run-progress li[data-state="current"] { color: var(--accent); font-weight: 600; }
 .browser-run-progress li[data-state="done"] span { color: var(--accent); }
 .browser-run-progress progress { display: block; width: 100%; height: 5px; margin-top: 6px; accent-color: var(--accent); }
+.browser-run-activity { margin-top: 8px; padding: 8px; border-radius: 5px; background: var(--surface); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.browser-run-activity p:last-child { color: var(--muted); }
+.browser-run-activity code { white-space: normal; }
 .browser-run-progress .browser-run-progress-hint { margin-top: 8px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 
 .judge-capability-badge { display: inline-flex; align-items: center; padding: 2px 7px; border: 1px solid var(--line); border-radius: 5px; color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); font-size: 10px; font-weight: 500; line-height: 1.5; vertical-align: middle; white-space: nowrap; }
