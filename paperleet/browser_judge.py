@@ -17,6 +17,7 @@ PILOTS = {
     "representation/rotation_trick", "world_models/lewm_prediction",
     "world_models/lewm_planning", "world_models/causal_jepa",
     "representation/repa", "representation/ijepa", "finetuning/distillm2",
+    "finetuning/opsd_alignment", "finetuning/opsd_clipping", "rl/sdpo_feedback", "rl/sdpo_topk",
 }
 
 SHARED_FILES = (

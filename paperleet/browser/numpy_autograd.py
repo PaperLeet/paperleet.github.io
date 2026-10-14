@@ -136,6 +136,10 @@ class Tensor:
     def __len__(self): return len(self._data)
     def __float__(self): return float(self._data)
     def __int__(self): return int(self._data)
+    def __index__(self):
+        if self.numel() != 1 or self.dtype.kind not in 'biu':
+            raise TypeError('Only integer tensors of a single element can be used as an index')
+        return int(self._data.item())
     def __bool__(self): return bool(self._data)
     def __repr__(self): return f'Tensor({self._data!r}, requires_grad={self.requires_grad})'
     def item(self): return self._data.item()
@@ -143,6 +147,7 @@ class Tensor:
     def numpy(self): return self._data
     def numel(self): return self._data.size
     def dim(self): return self.ndim
+    def count_nonzero(self, dim=None): return count_nonzero(self, dim)
     def size(self, dim=None): return self.shape if dim is None else self.shape[dim]
     def detach(self): return Tensor(self._data)
     def clone(self): return result(self._data.copy(), (self, lambda g: g))
@@ -435,6 +440,47 @@ class Tensor:
         else:
             indices = np.argsort(self._data, axis=dim, kind=kind)
         return Tensor(indices, dtype=np.int64)
+    def topk(self, k, dim=None, largest=True, sorted=True, *, out=None):
+        if out is not None: raise BrowserUnsupported('topk output buffers require the server')
+        if not isinstance(k, (int, np.integer)) or isinstance(k, (bool, np.bool_)): raise TypeError('topk k must be an integer')
+        if not isinstance(largest, bool) or not isinstance(sorted, bool): raise TypeError('topk flags must be boolean')
+        dim = -1 if dim is None else dim
+        if not isinstance(dim, (int, np.integer)) or not -max(self.ndim, 1) <= dim < max(self.ndim, 1):
+            raise IndexError('topk dimension out of range')
+        if self.dtype.kind not in 'fiu': raise BrowserUnsupported('topk for this dtype requires the server')
+        size = self.shape[dim] if self.ndim else 1
+        if not 0 <= k <= size: raise RuntimeError('topk selected index k out of range')
+        pair = namedtuple('TopK', ['values', 'indices'])
+        if not self.ndim: return pair(self.clone(), Tensor(0, dtype=np.int64))
+        # Sorted output is also valid when sorted=False. Tie identities are not
+        # guaranteed by PyTorch; VJPs always follow the indices actually returned.
+        ordered = self.argsort(dim, descending=largest, stable=True)
+        slices = [slice(None)] * self.ndim; slices[dim] = slice(0, k)
+        indices = ordered[tuple(slices)]
+        return pair(self.gather(dim, indices), indices)
+    def scatter(self, dim, index, src, *, reduce=None):
+        if reduce is not None: raise BrowserUnsupported('Scatter reductions require the server')
+        if not self.ndim: raise BrowserUnsupported('Scalar scatter requires the server')
+        if not isinstance(dim, (int, np.integer)) or not -self.ndim <= dim < self.ndim: raise IndexError('scatter dimension out of range')
+        dim %= self.ndim
+        index = wrap(index)
+        if index.dtype != np.dtype('int64'): raise BrowserUnsupported('Scatter indices must be int64')
+        if index.ndim != self.ndim: raise RuntimeError('scatter index rank must match input')
+        if any(index.shape[d] > self.shape[d] for d in range(self.ndim) if d != dim): raise RuntimeError('scatter index shape does not match input')
+        if np.any(index._data < 0) or np.any(index._data >= self.shape[dim]): raise IndexError('scatter index out of bounds')
+        if isinstance(src, Tensor):
+            if src.dtype != self.dtype: raise RuntimeError('scatter source dtype must match input')
+            if src.shape != index.shape: raise BrowserUnsupported('Scatter tensor sources must match index shape')
+            if np.any(np.diff(np.sort(index._data, axis=dim), axis=dim) == 0):
+                raise BrowserUnsupported('Scatter with duplicate tensor-source destinations requires the server')
+        elif not np.isscalar(src) or np.iscomplexobj(src): raise BrowserUnsupported('This scatter source requires the server')
+        coordinates = list(np.indices(index.shape)); coordinates[dim] = index._data
+        coordinates = tuple(coordinates)
+        data = self._data.copy(); data[coordinates] = src._data if isinstance(src, Tensor) else src
+        overwritten = np.zeros(self.shape, dtype=bool); overwritten[coordinates] = True
+        edges = [(self, lambda g: np.where(overwritten, 0, g))]
+        if isinstance(src, Tensor): edges.append((src, lambda g: g[coordinates]))
+        return result(data, *edges, saved=(index,))
     def flip(self, dims):
         if dims is None: raise TypeError('flip requires dimensions')
         axes = () if isinstance(dims, (tuple, list)) and not dims else reduction_axes(dims, self.ndim)
@@ -548,6 +594,11 @@ class Tensor:
     def __invert__(self): return Tensor(~self._data)
     def __and__(self, other): return Tensor(self._data & wrap(other)._data)
     def __or__(self, other): return Tensor(self._data | wrap(other)._data)
+
+
+def count_nonzero(input, dim=None):
+    axes = None if dim is None else reduction_axes(dim, input.ndim)
+    return Tensor(np.count_nonzero(input._data, axis=axes), dtype=np.int64)
 
 
 def where(condition, x, y):
@@ -1123,6 +1174,9 @@ def install():
     torch.stack = lambda tensors,dim=0: concatenate(tensors,dim,stack=True)
     torch.linspace = lambda start,end,steps,dtype=np.float32,device=None: (check_device(device), Tensor(np.linspace(start,end,steps,dtype=dtype)))[1]
     torch.argsort = lambda x,dim=-1,descending=False,*,stable=False: x.argsort(dim,descending,stable=stable)
+    torch.topk = lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out)
+    torch.scatter = lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce)
+    torch.count_nonzero = count_nonzero
     torch.manual_seed = np.random.seed
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         setattr(torch, name, lambda *shape, _kind=name, **kw: create(_kind, *shape, **kw))
@@ -1141,7 +1195,7 @@ def install():
     torch.pdist = pdist
     for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
-    for name in ('isfinite', 'isnan', 'count_nonzero'):
+    for name in ('isfinite', 'isnan'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
     torch.isclose = lambda a,b,**kw: Tensor(np.isclose(wrap(a)._data, wrap(b)._data, **kw))
     torch.allclose = lambda a,b,**kw: bool(torch.isclose(a,b,**kw).all())

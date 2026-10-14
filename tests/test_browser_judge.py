@@ -128,6 +128,7 @@ print(json.dumps(calibration))
     ('representation/rotation_trick',7,4),('world_models/lewm_prediction',8,4),
     ('world_models/lewm_planning',8,4),('world_models/causal_jepa',8,4),
     ('representation/repa',7,4),('representation/ijepa',9,4),('finetuning/distillm2',9,4),
+    ('finetuning/opsd_alignment',7,4),('finetuning/opsd_clipping',7,4),('rl/sdpo_feedback',7,4),('rl/sdpo_topk',7,4),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
