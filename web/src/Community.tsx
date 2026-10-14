@@ -47,6 +47,8 @@ import {
 } from "./social";
 import type { PublicUser } from "./social";
 import { withConfirmedReply, type Counts, type Post, type Reply, type PostDetail } from './communityDiscussion';
+import { readPublication, preparePublication, clearPublication, postPublication, replyPublication, samePublication, type PublicationReceipt } from './publicationRequests';
+import PublicationRecovery from './PublicationRecovery';
 type Profile = PublicUser & {
   counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
@@ -259,6 +261,8 @@ function Composer({
   const initialCategory = category || (topic ? "questions" : "papers");
   const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
   const currentDraft = useRef(draft);
+  const [publication,setPublication] = useState(() => readPublication(tabDraftStorage(),owner,'post',scope));
+  const publishing = useRef(false);
   const { title, body, category: board } = draft;
   const [preview, setPreview] = useState(false),
     [discardRequested, setDiscardRequested] = useState(false),
@@ -288,26 +292,29 @@ function Composer({
     setDiscardRequested(false);
     setPreview(false);
   }
-  async function publish() {
-    if (busy) return;
+  async function publish(previous?:PublicationReceipt) {
+    if (busy || publishing.current) return;
     const submitted = { ...currentDraft.current };
     const submittedRoute = location.hash;
     setBusy(true);
+    publishing.current = true;
     setError("");
     try {
+      const pending = preparePublication(tabDraftStorage(),owner,'post',scope,previous?.payload || postPublication(submitted,topic?.id),previous);
+      setPublication(pending);
       const post = await socialApi<Post>("community/posts", {
-        title: submitted.title.trim(),
-        body: submitted.body.trim(),
-        category: submitted.category,
+        ...pending.receipt.payload,
+        request_id: pending.receipt.requestId,
         expected_user_id: owner,
-        ...(topic ? { problem_id: topic.id } : {}),
       });
-      clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
+      clearPublication(tabDraftStorage(),pending.receipt);
+      if (samePublication(pending.receipt,postPublication(submitted,topic?.id))) clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
       if (mounted.current && location.hash === submittedRoute) location.hash = postHref(post.id, submittedRoute);
     } catch (e) {
-      setError(errorMessage(e));
+      if (mounted.current) setError(errorMessage(e));
     } finally {
-      setBusy(false);
+      publishing.current = false;
+      if (mounted.current) setBusy(false);
     }
   }
   return (
@@ -344,6 +351,7 @@ function Composer({
           <button type="button" onClick={() => setDiscardRequested(false)}>{t("保留草稿", "Keep draft")}</button>
         </div>
       )}
+      <PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id)} busy={busy} onRetry={() => void publish(publication?.receipt)} />
       <form
         className="social-form"
         onSubmit={(e) => {
@@ -431,7 +439,7 @@ function Composer({
           </small>
           <button className="button" disabled={busy || !body.trim()}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
-            {t("发布", "Publish")}
+            {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>
         </div>
       </form>
@@ -715,11 +723,14 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   const owner = user?.id || "";
   const [draft, setDraft] = useState<ReplyDraft>(() => readReplyDraft(tabDraftStorage(), owner, id) || { body: "" });
   const currentDraft = useRef(draft);
+  const [publication,setPublication] = useState(() => readPublication(tabDraftStorage(),owner,'reply',id));
+  const publishing = useRef(false);
   const [draftSaved, setDraftSaved] = useState<boolean | null>(() => hasReplyDraft(draft) ? true : null);
   const [discardReply, setDiscardReply] = useState(false);
   const [replyPreview, setReplyPreview] = useState(false);
   const [replyNotice, setReplyNotice] = useState<'' | 'posted' | 'refresh-failed'>('');
   const [postedReplyId, setPostedReplyId] = useState<string>();
+  const [replyDraftKept,setReplyDraftKept] = useState(false);
   const readVersion = useRef(0);
   const mounted = useRef(true);
   useEffect(() => {
@@ -735,6 +746,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
     setDraft(next);
     setDraftSaved(writeReplyDraft(tabDraftStorage(), owner, id, next));
     setReplyNotice("");
+    setReplyDraftKept(false);
   }
   async function refresh() {
     if (!mounted.current) return false;
@@ -778,24 +790,32 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
       setBusy(false);
     }
   }
-  async function reply() {
-    if (!user || busy || loading || !currentDraft.current.body.trim() || missingTarget) return;
+  async function reply(previous?:PublicationReceipt) {
+    if (!user || busy || publishing.current || loading || !previous && (!currentDraft.current.body.trim() || missingTarget)) return;
     const submitted = { ...currentDraft.current };
     const submittedRoute = location.hash;
     setBusy(true);
+    publishing.current = true;
     setError("");
     setReplyNotice("");
     try {
+      const pending=preparePublication(tabDraftStorage(),owner,'reply',id,previous?.payload || replyPublication(submitted),previous);
+      setPublication(pending);
       const published = await socialApi<Reply>(`${postPath(id)}/replies`, {
-        body: submitted.body.trim(),
+        ...pending.receipt.payload,
+        request_id: pending.receipt.requestId,
         expected_user_id: owner,
-        ...(submitted.parentId ? { parent_id: submitted.parentId } : {}),
       });
-      clearPublishedReplyDraft(tabDraftStorage(), owner, id, submitted);
+      clearPublication(tabDraftStorage(),pending.receipt);
+      const sendsCurrent=samePublication(pending.receipt,replyPublication(submitted));
+      if(sendsCurrent)clearPublishedReplyDraft(tabDraftStorage(), owner, id, submitted);
       if (!mounted.current || location.hash !== submittedRoute) return;
+      setPublication(current=>current?.receipt.requestId===pending.receipt.requestId?undefined:current);
       setPost(previous => withConfirmedReply(previous,published));
       setPostedReplyId(published.id);
-      if (sameReplyDraft(currentDraft.current, submitted)) {
+      const clearCurrent=sendsCurrent && sameReplyDraft(currentDraft.current, submitted);
+      setReplyDraftKept(!clearCurrent);
+      if (clearCurrent) {
         currentDraft.current = { body: "" };
         setDraft(currentDraft.current);
         setDraftSaved(null);
@@ -809,6 +829,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
     } finally {
+      publishing.current = false;
       if (mounted.current) setBusy(false);
     }
   }
@@ -1009,9 +1030,11 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                 <button type="button" disabled={busy} onClick={() => { editReply({ body: "", parentId: undefined }); setDiscardReply(false); setReplyPreview(false); }}>{t("确认丢弃", "Discard draft")}</button>
                 <button type="button" disabled={busy} onClick={() => setDiscardReply(false)}>{t("保留草稿", "Keep draft")}</button>
               </div>}
+              <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={busy || loading} onRetry={() => void reply(publication?.receipt)} />
               {replyNotice && <div className="reply-publication-notice" role="status"><p>{replyNotice === 'posted'
                 ? t('回复已发布。','Reply posted.')
                 : t('回复已发布并已显示。暂未获取到讨论的最新状态，可重试加载讨论，无需再次发布。','Your reply is posted and visible. The latest discussion could not load; retry loading without posting again.')}</p>
+                {replyDraftKept && <p>{t('当前未发布的回复草稿已保留。','Your current unpublished reply draft is kept.')}</p>}
                 {postedReplyId && post.replies.some(row => row.id === postedReplyId) && <button className="text-button" type="button" onClick={() => {
                   const row = document.getElementById(`reply-${postedReplyId}`); row?.focus(); row?.scrollIntoView({block:'nearest'});
                 }}>{t('查看刚发布的回复','View your posted reply')}</button>}
@@ -1054,7 +1077,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                   </small>
                   <button className="button" disabled={busy || loading || !body.trim() || missingTarget}>
                     <MessageCircle size={14} />
-                    {t("发布回复", "Post reply")}
+                    {publication ? samePublication(publication.receipt,replyPublication(draft)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布回复", "Post reply")}
                   </button>
                 </div>
               </form>
