@@ -1,5 +1,5 @@
 export type PostDraft = { title: string; body: string; category: string };
-type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 const categories = new Set(["papers", "implementation", "questions", "career", "lounge"]);
 
 export function draftKey(owner: string, scope: string): string {

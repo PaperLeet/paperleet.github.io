@@ -31,6 +31,7 @@ import ProfileProgress from "./ProfileProgress";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
 import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
+import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft, writeReplyDraft, type ReplyDraft } from "./replyDrafts";
 import {
   Avatar,
   DateLabel,
@@ -727,12 +728,33 @@ function Discussion({ id }: { id: string }) {
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
-    [body, setBody] = useState(""),
-    [target, setTarget] = useState<Reply>(),
     [deleteTarget, setDeleteTarget] = useState<string>();
+  // Community keys this component by both post and account before it renders.
+  const owner = user?.id || "";
+  const [draft, setDraft] = useState<ReplyDraft>(() => readReplyDraft(tabDraftStorage(), owner, id) || { body: "" });
+  const currentDraft = useRef(draft);
+  const [draftSaved, setDraftSaved] = useState<boolean | null>(() => hasReplyDraft(draft) ? true : null);
+  const [discardReply, setDiscardReply] = useState(false);
+  const [replyPreview, setReplyPreview] = useState(false);
+  const [replyNotice, setReplyNotice] = useState("");
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  const { body } = draft;
+  const target = draft.parentId ? post?.replies.find((reply) => reply.id === draft.parentId) : undefined;
+  const missingTarget = !!draft.parentId && !!post && !target;
+  function editReply(change: Partial<ReplyDraft>) {
+    const next = { ...currentDraft.current, ...change };
+    currentDraft.current = next;
+    setDraft(next);
+    setDraftSaved(writeReplyDraft(tabDraftStorage(), owner, id, next));
+    setReplyNotice("");
+  }
   async function refresh() {
     const data = await socialApi<PostDetail>(postPath(id));
-    setPost(data);
+    if (mounted.current) setPost(data);
   }
   useEffect(() => {
     let live = true;
@@ -773,21 +795,36 @@ function Discussion({ id }: { id: string }) {
     }
   }
   async function reply() {
+    if (!user || busy || !currentDraft.current.body.trim() || missingTarget) return;
+    const submitted = { ...currentDraft.current };
+    const submittedRoute = location.hash;
     setBusy(true);
     setError("");
+    setReplyNotice("");
     try {
       await socialApi(`${postPath(id)}/replies`, {
-        body: body.trim(),
-        expected_user_id: user?.id,
-        ...(target ? { parent_id: target.id } : {}),
+        body: submitted.body.trim(),
+        expected_user_id: owner,
+        ...(submitted.parentId ? { parent_id: submitted.parentId } : {}),
       });
-      setBody("");
-      setTarget(undefined);
-      await refresh();
+      clearPublishedReplyDraft(tabDraftStorage(), owner, id, submitted);
+      if (!mounted.current || location.hash !== submittedRoute) return;
+      if (sameReplyDraft(currentDraft.current, submitted)) {
+        currentDraft.current = { body: "" };
+        setDraft(currentDraft.current);
+        setDraftSaved(null);
+        setDiscardReply(false);
+        setReplyPreview(false);
+      }
+      setReplyNotice(t("回复已发布。", "Reply posted."));
+      try { await refresh(); }
+      catch {
+        if (mounted.current) setError(t("回复已发布，但刷新讨论失败。请刷新页面查看。", "Your reply was posted, but the discussion could not refresh. Refresh the page to view it."));
+      }
     } catch (e) {
-      setError(errorMessage(e));
+      if (mounted.current) setError(errorMessage(e));
     } finally {
-      setBusy(false);
+      if (mounted.current) setBusy(false);
     }
   }
   async function remove() {
@@ -923,9 +960,11 @@ function Discussion({ id }: { id: string }) {
                   {user && (
                     <button
                       className="reply-link"
+                      disabled={busy}
                       onClick={() => {
-                        setTarget(r);
-                        document.getElementById("reply-body")?.focus();
+                        editReply({ parentId: r.id });
+                        setReplyPreview(false);
+                        requestAnimationFrame(() => document.getElementById("reply-body")?.focus());
                       }}
                     >
                       <MessageCircle size={12} />
@@ -949,20 +988,36 @@ function Discussion({ id }: { id: string }) {
                 <h3>{t("参与讨论", "Join the discussion")}</h3>
                 <PersonLink user={user} compact />
               </div>
-              {target && (
+              {draft.parentId && (
                 <div className="reply-target">
                   <span>
-                    {t("回复", "Replying to")} {target.author.display_name}
+                    {t("回复", "Replying to")} {target?.author.display_name || t("已删除或暂不可用的回复", "a deleted or unavailable reply")}
                   </span>
                   <button
                     className="icon-button"
                     aria-label={t("取消指定回复", "Cancel reply target")}
-                    onClick={() => setTarget(undefined)}
+                    disabled={busy}
+                    onClick={() => editReply({ parentId: undefined })}
                   >
                     <X size={14} />
                   </button>
                 </div>
               )}
+              {missingTarget && <SocialNotice error={t("原回复已删除或暂不可用。草稿已保留；请取消指定回复，或选择另一条回复后再发布。", "The original reply is deleted or unavailable. Your draft is kept; cancel the reply target or choose another reply before posting.")} />}
+              <div className="community-draft-status" role="status">
+                <span>{draftSaved === false
+                  ? t("当前标签页无法保存回复草稿，离开前请复制内容。", "This tab cannot save your reply draft. Copy the text before leaving.")
+                  : hasReplyDraft(draft)
+                    ? t("回复草稿已保存在本标签页，仅当前账号和此帖子可恢复。", "Reply draft saved in this tab, separately for your account and this post.")
+                    : t("回复草稿仅保存在本标签页，发布后才会公开。", "Reply drafts stay in this tab and become public only when posted.")}</span>
+                {hasReplyDraft(draft) && <button className="text-button" type="button" disabled={busy} onClick={() => setDiscardReply(true)}>{t("丢弃回复草稿", "Discard reply draft")}</button>}
+              </div>
+              {discardReply && <div className="draft-discard-confirm" role="alert">
+                <span>{t("丢弃后无法恢复，确定清空回复内容和回复对象？", "Discard this reply draft? Its text and reply target cannot be recovered.")}</span>
+                <button type="button" disabled={busy} onClick={() => { editReply({ body: "", parentId: undefined }); setDiscardReply(false); setReplyPreview(false); }}>{t("确认丢弃", "Discard draft")}</button>
+                <button type="button" disabled={busy} onClick={() => setDiscardReply(false)}>{t("保留草稿", "Keep draft")}</button>
+              </div>}
+              {replyNotice && <p role="status">{replyNotice}</p>}
               <form
                 className="social-form"
                 onSubmit={(e) => {
@@ -970,21 +1025,27 @@ function Discussion({ id }: { id: string }) {
                   void reply();
                 }}
               >
-                <label>
+                <div className="editor-toggle" role="group" aria-label={t("回复编辑模式", "Reply editor mode")}>
+                  <button type="button" className={!replyPreview ? "selected" : ""} aria-pressed={!replyPreview} disabled={busy} onClick={() => setReplyPreview(false)}>{t("编写", "Write")}</button>
+                  <button type="button" className={replyPreview ? "selected" : ""} aria-pressed={replyPreview} disabled={busy} onClick={() => setReplyPreview(true)}>{t("预览", "Preview")}</button>
+                  <small>Markdown</small>
+                </div>
+                {replyPreview ? <div className="compose-preview"><CommunityMarkdown body={body || t("写下内容后在这里预览。", "Your preview will appear here.")} /></div> : <label>
                   <span className="sr-only">{t("回复内容", "Your reply")}</span>
                   <textarea
                     id="reply-body"
                     required
                     rows={5}
                     maxLength={10000}
+                    disabled={busy}
                     value={body}
                     placeholder={t(
                       "写下你的回复…（支持 Markdown）",
                       "Write a reply… (Markdown supported)",
                     )}
-                    onChange={(e) => setBody(e.target.value)}
+                    onChange={(e) => editReply({ body: e.target.value })}
                   />
-                </label>
+                </label>}
                 <div className="form-footer">
                   <small>
                     {t(
@@ -992,7 +1053,7 @@ function Discussion({ id }: { id: string }) {
                       "Replies appear publicly on your profile.",
                     )}
                   </small>
-                  <button className="button" disabled={busy || !body.trim()}>
+                  <button className="button" disabled={busy || !body.trim() || missingTarget}>
                     <MessageCircle size={14} />
                     {t("发布回复", "Post reply")}
                   </button>
