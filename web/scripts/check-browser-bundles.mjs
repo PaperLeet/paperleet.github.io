@@ -133,7 +133,7 @@ try {
   assert.equal(paths.filter(path => path.includes('/runtime-')).length, 6, 'The immutable public cache must remain bounded');
   await bounded(target(1), 'https://paperleet.example/another-preview/', signal());
   assert.equal(paths.filter(path => path.includes('/runtime-')).length, 7, 'Different deployment bases must have isolated cache keys');
-  console.log('PASS browser bundles: all 26 source-faithful exports, two shared downloads, legacy compatibility, bounded cache, identity/path/backend validation, retry and independent cancellation');
+  console.log(`PASS browser bundles: all ${pilots.length} source-faithful exports, two shared downloads, legacy compatibility, bounded cache, identity/path/backend validation, retry and independent cancellation`);
 } finally {
   await server.close();
 }

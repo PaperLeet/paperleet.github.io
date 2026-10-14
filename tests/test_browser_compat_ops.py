@@ -170,7 +170,7 @@ def test_gradcheck_and_inplace_unsupported_paths_fail_explicitly():
     for inputs, options in [((x,), {'fast_mode': True}), ((x.float(),), {}), ((x, x), {}), ((x.expand(3,2),), {}), ((wasm.Tensor(np.zeros(257), requires_grad=True),), {})]:
         with pytest.raises(wasm.BrowserUnsupported): wasm.gradcheck(lambda *a: a[0].square(), inputs, **options)
     for name in ('__iadd__', '__isub__', '__imul__', '__itruediv__'):
-        with wasm.no_grad(), pytest.raises(wasm.BrowserUnsupported): getattr(x, name)(1.)
+        with pytest.raises(wasm.BrowserUnsupported): getattr(x, name)(1.)
     constant = wasm.Tensor([1., 2.]); alias = constant.detach()
     constant += 3
     np.testing.assert_array_equal(alias.numpy(), [4., 5.])

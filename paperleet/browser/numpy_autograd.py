@@ -7,6 +7,7 @@ Unsupported APIs raise BrowserUnsupported and retain server judging.
 import contextlib
 import types
 import sys
+import weakref
 from collections import namedtuple
 import numpy as np
 
@@ -16,6 +17,25 @@ class BrowserUnsupported(NotImplementedError):
 
 
 _grad_enabled = True
+_storages = {}
+
+
+class StorageVersion:
+    def __init__(self): self.version = 0
+
+
+def storage_version(data):
+    """Views, detach and dtype-preserving casts share their NumPy allocation's counter."""
+    owner = data
+    while isinstance(owner.base, np.ndarray): owner = owner.base
+    key = id(owner)
+    previous = _storages.get(key)
+    if previous is not None and previous[0]() is owner: return previous[1]
+    counter = StorageVersion()
+    def release(reference):
+        if _storages.get(key, (None,))[0] is reference: _storages.pop(key, None)
+    _storages[key] = (weakref.ref(owner, release), counter)
+    return counter
 
 
 def unsupported(name):
@@ -48,10 +68,16 @@ def reduction_axes(dim, ndim):
     return axes
 
 
-def result(data, *edges):
+def result(data, *edges, saved=()):
     value = Tensor(data)
     value._parents = tuple((node, vjp) for node, vjp in edges if node.requires_grad and _grad_enabled)
     value.requires_grad = bool(value._parents)
+    if value.requires_grad:
+        # Conservatively guard every operand, including frozen operands and output
+        # arrays captured by VJP closures. Unsupported graph reuse falls back rather
+        # than returning derivatives calculated from mutated storage.
+        counters = {node._storage for node in (value, *(node for node, _ in edges), *saved)}
+        value._saved_versions = tuple((counter, counter.version) for counter in counters)
     return value
 
 
@@ -67,6 +93,9 @@ def backprop(output, seed):
             visited.add(id(node))
             stack.append((node, True))
             stack.extend((parent, False) for parent, _ in node._parents)
+    for node in order:
+        if any(counter.version != version for counter, version in node._saved_versions):
+            raise BrowserUnsupported('A tensor saved for backward was modified in-place; this graph requires the server')
     gradients = {id(output): np.asarray(seed, dtype=output.dtype)}
     for node in reversed(order):
         grad = gradients.get(id(node))
@@ -85,6 +114,8 @@ class Tensor:
 
     def __init__(self, data, dtype=None, requires_grad=False):
         self._data = np.asarray(data, dtype=dtype)
+        self._storage = storage_version(self._data)
+        self._saved_versions = ()
         self.requires_grad = bool(requires_grad)
         if requires_grad and self.dtype.kind != 'f':
             raise RuntimeError('Only floating point tensors can require gradients')
@@ -156,8 +187,9 @@ class Tensor:
                 node.grad = Tensor(grad.copy() if node.grad is None else node.grad._data + grad)
 
     def __getitem__(self, index):
+        saved = []
         def convert(key):
-            if isinstance(key, Tensor): return key._data
+            if isinstance(key, Tensor): saved.append(key); return key._data
             if isinstance(key, tuple): return tuple(convert(k) for k in key)
             return key
         index = convert(index)
@@ -165,13 +197,20 @@ class Tensor:
             grad = np.zeros_like(self._data)
             np.add.at(grad, index, g)
             return grad
-        return result(self._data[index], (self, vjp))
+        return result(self._data[index], (self, vjp), saved=saved)
 
     def __setitem__(self, index, value):
         if _grad_enabled and (self.requires_grad or isinstance(value, Tensor) and value.requires_grad):
             raise BrowserUnsupported('In-place edits of differentiable tensors require the server')
-        if isinstance(index, Tensor): index = index._data
+        if self.requires_grad and self._parents:
+            raise BrowserUnsupported('In-place updates of non-leaf tensors require the server')
+        def convert(key):
+            if isinstance(key, Tensor): return key._data
+            if isinstance(key, tuple): return tuple(convert(k) for k in key)
+            return key
+        index = convert(index)
         self._data[index] = value._data if isinstance(value, Tensor) else value
+        self._storage.version += 1
 
     def _binary(self, other, op, left, right):
         if not isinstance(other, (Tensor, np.ndarray)) and self.dtype.kind == 'f':
@@ -196,7 +235,7 @@ class Tensor:
     def __rtruediv__(self, other): return self._binary(other, lambda a,b: b/a, lambda g,a,b: -g*b/(a*a), lambda g,a,b: g/a)
     def __neg__(self): return result(-self._data, (self, lambda g: -g))
     def _inplace(self, other, operation):
-        if self.requires_grad or wrap(other).requires_grad:
+        if _grad_enabled and (self.requires_grad or wrap(other).requires_grad):
             raise BrowserUnsupported('In-place updates of differentiable tensors require the server')
         value = operation(self, other)
         if value.shape != self.shape or not np.can_cast(value.dtype, self.dtype, casting='same_kind'):
@@ -220,6 +259,10 @@ class Tensor:
         data = np.exp(self._data)
         return result(data, (self, lambda g: g * data))
     def log(self): return result(np.log(self._data), (self, lambda g: g / self._data))
+    def logaddexp(self, other):
+        return self._binary(other, np.logaddexp,
+                            lambda g,a,b: g * np.exp(-np.logaddexp(0, b-a)),
+                            lambda g,a,b: g * np.exp(-np.logaddexp(0, a-b)))
 
     def __matmul__(self, other):
         other = wrap(other)
@@ -465,7 +508,8 @@ class Tensor:
         return result(value, (x, lambda g: g - np.exp(value) * g.sum(axis=dim, keepdims=True)))
     def gather(self, dim, index):
         dim %= self.ndim
-        index = wrap(index)._data
+        saved_index = wrap(index)
+        index = saved_index._data
         if index.ndim != self.ndim or index.dtype.kind not in 'iu': raise ValueError('gather needs integer indices of the same rank')
         if np.any(index < 0) or np.any(index >= self.shape[dim]): raise IndexError('gather index out of bounds')
         if any(index.shape[d] > self.shape[d] for d in range(self.ndim) if d != dim): raise ValueError('gather dimensions do not match')
@@ -474,7 +518,7 @@ class Tensor:
             coordinates = list(np.indices(index.shape)); coordinates[dim] = index
             grad = np.zeros_like(self._data); np.add.at(grad, tuple(coordinates), g)
             return grad
-        return result(np.take_along_axis(self._data[slices], index, axis=dim), (self, vjp))
+        return result(np.take_along_axis(self._data[slices], index, axis=dim), (self, vjp), saved=(saved_index,))
     def var(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
         dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
         count = int(np.prod([self.shape[d] for d in dims]))
@@ -507,10 +551,11 @@ class Tensor:
 
 
 def where(condition, x, y):
-    mask, a, b = wrap(condition)._data, wrap(x), wrap(y)
+    condition, a, b = wrap(condition), wrap(x), wrap(y)
+    mask = condition._data
     return result(np.where(mask, a._data, b._data),
                   (a, lambda g: unbroadcast(np.where(mask, g, 0), a.shape)),
-                  (b, lambda g: unbroadcast(np.where(mask, 0, g), b.shape)))
+                  (b, lambda g: unbroadcast(np.where(mask, 0, g), b.shape)), saved=(condition,))
 
 
 def tensor(data, dtype=None, *, device=None, requires_grad=False):
@@ -740,6 +785,7 @@ class Adam:
             self.m[i] *= b1; self.m[i] += (1 - b1) * g
             self.v[i] *= b2; self.v[i] += (1 - b2) * g * g
             p._data[...] -= self.lr * (self.m[i] / (1 - b1 ** self.steps)) / (np.sqrt(self.v[i] / (1 - b2 ** self.steps)) + self.eps)
+            p._storage.version += 1
 
 
 class AdamW:
@@ -787,6 +833,8 @@ class AdamW:
                 p._data[...] *= 1 - group['lr'] * group['weight_decay']
                 denominator = np.sqrt(v) / np.sqrt(1 - b2 ** count) + group['eps']
                 p._data[...] -= (group['lr'] / (1 - b1 ** count)) * m / denominator
+                p._storage.version += 1
+                for value in state.values(): value._storage.version += 1
 
 
 def concatenate(tensors, dim=0, *, stack=False):
@@ -985,6 +1033,38 @@ def normalize(input, p=2., dim=1, eps=1e-12, out=None):
     return input / input.norm(2, dim, keepdim=True).clamp_min(eps)
 
 
+def smooth_l1_loss(input, target, size_average=None, reduce=None, reduction='mean', beta=1.):
+    """Independent raw NumPy loss and analytical derivatives for both inputs."""
+    if size_average is not None or reduce is not None or input.shape != target.shape:
+        raise BrowserUnsupported('Legacy or broadcast smooth L1 requires the server')
+    if input.dtype != target.dtype or input.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('Smooth L1 requires matching float32/float64 tensors')
+    if not np.isfinite(beta) or beta < 0: raise ValueError('beta must be finite and nonnegative')
+    if reduction not in ('none', 'sum', 'mean'): raise ValueError('Invalid smooth L1 reduction')
+    difference = input._data - target._data
+    absolute = np.abs(difference)
+    if beta == 0:
+        losses, derivative = absolute, np.sign(difference)
+    else:
+        quadratic = absolute < beta
+        losses = np.where(quadratic, .5 * difference ** 2 / beta, absolute - .5 * beta)
+        derivative = np.where(quadratic, difference / beta, np.sign(difference))
+    count = difference.size
+    value = losses if reduction == 'none' else losses.sum() if reduction == 'sum' else losses.mean() if count else np.asarray(np.nan, dtype=input.dtype)
+    def vjp(g): return derivative * g / (max(count, 1) if reduction == 'mean' else 1)
+    return result(np.asarray(value, dtype=input.dtype), (input, vjp), (target, lambda g: -vjp(g)))
+
+
+def mse_loss(input, target, size_average=None, reduce=None, reduction='mean'):
+    if size_average is not None or reduce is not None or input.shape != target.shape:
+        raise BrowserUnsupported('Legacy or broadcast MSE requires the server')
+    if input.dtype != target.dtype or input.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('MSE requires matching float32/float64 tensors')
+    if reduction not in ('none', 'sum', 'mean'): raise ValueError('Invalid MSE reduction')
+    losses = (input - target).square()
+    return losses if reduction == 'none' else losses.sum() if reduction == 'sum' else losses.mean()
+
+
 def cross_entropy(input, target, weight=None, size_average=None, ignore_index=-100,
                   reduce=None, reduction='mean', label_smoothing=0.):
     """Independent stable NumPy oracle/VJP for 2D class-index cross entropy."""
@@ -1029,6 +1109,7 @@ def install():
     torch.uint8 = np.dtype('uint8')
     torch.inf, torch.pi = np.inf, np.pi
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
+    torch.logaddexp = lambda input,other: input.logaddexp(other)
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
     torch.full, torch.randint, torch.device, torch.finfo = full, randint, Device, np.finfo
@@ -1079,6 +1160,8 @@ def install():
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
     torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()
     torch.nn.functional.normalize, torch.nn.functional.cross_entropy = normalize, cross_entropy
+    torch.nn.functional.smooth_l1_loss = smooth_l1_loss
+    torch.nn.functional.mse_loss = mse_loss
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.rms_norm = rms_norm_oracle
     torch.nn.functional.scaled_dot_product_attention = scaled_dot_product_attention_oracle
