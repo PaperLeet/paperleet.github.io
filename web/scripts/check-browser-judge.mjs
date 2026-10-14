@@ -103,6 +103,28 @@ try {
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
   assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 22);
+
+  const frameCount = frames.length;
+  for (const fail of [async () => { throw new TypeError('offline'); }, async () => new Response('', { status: 503 }), async () => new Response('invalid JSON')]) {
+    globalThis.fetch = fail;
+    assert.equal((await runBrowserJudge(problem, 'private source', new AbortController().signal, () => {})).reason, 'runtime_failed');
+    assert.equal(frames.length, frameCount, 'Failed public downloads must not create a learner sandbox');
+  }
+  const attention = index.problems.find(p => p.id === 'architecture/attention');
+  let releaseRuntime;
+  globalThis.fetch = async url => {
+    if (String(url).includes('/runtime-')) return new Promise(resolve => { releaseRuntime = resolve; });
+    return new Response(fs.readFileSync(`public${new URL(url).pathname}`));
+  };
+  const beforeWorker = new AbortController();
+  const cancelledDownload = runBrowserJudge(attention, 'never execute', beforeWorker.signal, () => {});
+  const cancelled = assert.rejects(cancelledDownload, { name: 'AbortError' });
+  await new Promise(done => setImmediate(done));
+  beforeWorker.abort();
+  await cancelled;
+  assert.equal(frames.length, frameCount, 'Stop while downloading shared assets must never start a learner worker');
+  releaseRuntime(new Response('', { status: 503 }));
+  await new Promise(done => setImmediate(done));
   console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all twenty-two CPU/WASM routes');
 } finally {
   Object.assign(globalThis, originals);

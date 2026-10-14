@@ -1,21 +1,46 @@
 """Keep browser compatibility checks tied to the maintained problem suites."""
+import hashlib
 import json
-from pathlib import Path
 import subprocess
 import sys
 
 import pytest
 
-from paperleet.browser_judge import PILOTS, export_browser_bundle
+from paperleet.browser_judge import PILOTS, SHARED_FILES, export_browser_bundle
 from paperleet.catalog import problem, root
 
 
+def hydrate_bundle(output, metadata):
+    """Materialize the actual exported manifest/runtime pair for isolated CPU checks."""
+    manifest = json.loads((output / metadata['bundle_url']).read_text())
+    runtime = json.loads((output / manifest['runtime_bundle_url']).read_text())
+    assert runtime['backend'] == metadata['backend']
+    return {**manifest, 'adapter': runtime['adapter'], 'harness': runtime['harness'],
+            'files': {**runtime['files'], **manifest['files']}}
+
+
+def hydrated_path(output, metadata):
+    path = output / 'hydrated.json'
+    path.write_text(json.dumps(hydrate_bundle(output, metadata)))
+    return path
+
+
 def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
+    old_bytes = 0
     for identifier in PILOTS:
         entry = problem(identifier)
         metadata = export_browser_bundle(entry, tmp_path)
         path = tmp_path / metadata['bundle_url']
-        bundle = json.loads(path.read_text())
+        manifest = json.loads(path.read_text())
+        assert manifest['version'] == 2
+        assert not {'adapter', 'harness'}.intersection(manifest)
+        assert not set(SHARED_FILES).intersection(manifest['files'])
+        for asset in (path, tmp_path / manifest['runtime_bundle_url']):
+            assert hashlib.sha256(asset.read_bytes()).hexdigest()[:20] in asset.name
+        bundle = hydrate_bundle(tmp_path, metadata)
+        assert bundle['adapter'] == (root() / 'paperleet/browser' / ('schedules_numpy.py' if identifier == 'diffusion/schedules' else 'numpy_autograd.py')).read_text()
+        assert bundle['harness'] == (root() / 'paperleet/browser/harness.py').read_text()
+        assert bundle['files']['paperleet/common/asserts.py'] == (root()/'paperleet/common/asserts.py').read_text()
         assert bundle['problem'] == identifier
         assert bundle['tests'] == entry['tests']
         assert bundle['files']['paperleet/common/comparisons.py'] == (root()/'paperleet/common/comparisons.py').read_text()
@@ -30,6 +55,15 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
                 assert bundle['files'][relative] == (root() / relative).read_text()
         assert metadata == export_browser_bundle(entry, tmp_path)
         assert metadata['backend'] == ('numpy-wasm' if identifier == 'diffusion/schedules' else 'numpy-autograd-wasm')
+        legacy = {key: value for key, value in bundle.items() if key != 'runtime_bundle_url'}
+        legacy['version'] = 1
+        old_bytes += len(json.dumps(legacy, ensure_ascii=False, separators=(',', ':')).encode())
+    runtimes = list((tmp_path / 'browser-judge').glob('runtime-*.json'))
+    assert len(runtimes) == 2, 'Twenty-one autodiff modules must share one runtime'
+    for runtime in runtimes:
+        assert set(json.loads(runtime.read_text())['files']) == set(SHARED_FILES)
+    new_bytes = sum(asset.stat().st_size for asset in (tmp_path / 'browser-judge').glob('*.json'))
+    assert new_bytes < old_bytes * 0.35, 'Public runtime deduplication must save at least 65% across the catalog'
     assert export_browser_bundle({'id': 'other/example'}, tmp_path) is None
 
 
@@ -72,7 +106,7 @@ else:
     raise AssertionError('Autograd must not be simulated')
 print(json.dumps(calibration))
 '''
-    result = subprocess.run([sys.executable, '-c', script, str(tmp_path / metadata['bundle_url']), str(tmp_path / 'judge')],
+    result = subprocess.run([sys.executable, '-c', script, str(hydrated_path(tmp_path, metadata)), str(tmp_path / 'judge')],
                             cwd=root(), capture_output=True, text=True, timeout=45)
     assert result.returncode == 0, result.stdout + result.stderr
     assert len(json.loads(result.stdout)['mutants_caught']) == 5
@@ -112,7 +146,7 @@ b['mutants']={'unsupported':b['reference']+'\nimport torch\ntorch.cuda.synchroni
 rejected=calibrate(b,sys.argv[2]);assert not rejected['compatible'] and rejected['reason']=='mutant_api_unsupported',rejected
 print(json.dumps({'calibration':c,'report':r}))
 '''
-    out = subprocess.run([sys.executable, '-c', script, str(folder / metadata['bundle_url']), str(folder / 'judge'), str(count), str(mutants)],
+    out = subprocess.run([sys.executable, '-c', script, str(hydrated_path(folder, metadata)), str(folder / 'judge'), str(count), str(mutants)],
                          cwd=root(), capture_output=True, text=True, timeout=45)
     assert out.returncode == 0, out.stdout + out.stderr
     payload = json.loads(out.stdout)

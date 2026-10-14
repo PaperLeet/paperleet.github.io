@@ -2,6 +2,7 @@
     encode zstd gzip
     header /data/index.json Cache-Control "no-cache"
     header /data/modules/* Cache-Control "public, max-age=31536000, immutable"
+    header /data/browser-judge/* Cache-Control "public, max-age=31536000, immutable"
     header /browser-runtime/* Access-Control-Allow-Origin "*"
     header /browser-runtime/* Cross-Origin-Resource-Policy "cross-origin"
     header /browser-runtime/* Cache-Control "public, max-age=31536000, immutable"

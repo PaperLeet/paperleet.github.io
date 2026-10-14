@@ -10,7 +10,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "check": "node scripts/check.mjs && node scripts/check-practice.mjs && node scripts/check-account.mjs && node scripts/check-random-problem.mjs && node scripts/check-profile.mjs && node scripts/check-journey.mjs && node scripts/check-data-and-jobs.mjs && node scripts/check-browser-judge.mjs && node scripts/check-community-topics.mjs && node scripts/check-community-drafts.mjs"
+    "check": "node scripts/check.mjs && node scripts/check-practice.mjs && node scripts/check-account.mjs && node scripts/check-random-problem.mjs && node scripts/check-profile.mjs && node scripts/check-journey.mjs && node scripts/check-data-and-jobs.mjs && node scripts/check-browser-bundles.mjs && node scripts/check-browser-judge.mjs && node scripts/check-community-topics.mjs && node scripts/check-community-drafts.mjs"
   },
   "dependencies": {
     "@codemirror/lang-python": "^6.2.1",

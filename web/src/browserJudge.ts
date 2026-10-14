@@ -1,4 +1,5 @@
 import { parseReport } from './reports';
+import { loadBrowserBundle } from './browserBundles';
 import type { Problem, Report } from './types';
 
 export type JudgeMode = 'auto' | 'browser' | 'server';
@@ -25,11 +26,12 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
   if (!problem.browser_judge || !globalThis.Worker || !globalThis.WebAssembly)
     return { type: 'unsupported', reason: 'unavailable' };
   const base = new URL(import.meta.env.BASE_URL, location.href).href;
-  if (!/^browser-judge\/\d+-[a-f0-9]{20}\.json$/.test(problem.browser_judge.bundle_url)) return { type: 'unsupported', reason: 'runtime_failed' };
-  const response = await fetch(new URL(`data/${problem.browser_judge.bundle_url}`, base), { signal: AbortSignal.any([signal, AbortSignal.timeout(30_000)]), cache: 'force-cache', credentials: 'omit' });
-  if (!response.ok) return { type: 'unsupported', reason: 'runtime_failed' };
-  const bundle = await response.json();
-  if (bundle.version !== 1 || bundle.problem !== problem.id) return { type: 'unsupported', reason: 'runtime_failed' };
+  let bundle: Record<string, unknown>;
+  try { bundle = await loadBrowserBundle(problem, base, signal); }
+  catch {
+    if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
+    return { type: 'unsupported', reason: 'runtime_failed' };
+  }
   return new Promise((resolve, reject) => {
     const frame = document.createElement('iframe');
     frame.setAttribute('sandbox', 'allow-scripts');
