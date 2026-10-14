@@ -32,7 +32,7 @@ jobs:
         env:
           VITE_PUBLIC_SITE: '1'
           VITE_APP_EDITION: local
-          VITE_HOSTED_APP_AVAILABLE: '0'
+          VITE_HOSTED_APP_AVAILABLE: '1'
           VITE_HOSTED_APP_URL: https://app.paperleet.com
         run: |
           npm ci
