@@ -1,7 +1,11 @@
+import { communityContinuation } from './communityNavigation';
+
 const continuationPrefix = "account/continue/";
 
 /** Allow only known shapes of local hash routes; never an external destination. */
 function returnRoute(route: string): string | undefined {
+  if (route.startsWith('#')) return undefined;
+  if (route.includes('?')) return communityContinuation(route);
   if (route === "" || route === "community" || route === "submit") return route;
   if (/^[1-9]\d*$/.test(route)) return route;
   if (/^community\/problem\/[a-z0-9_-]+\/[a-z0-9_-]+$/.test(route)) return route;
@@ -15,7 +19,10 @@ function returnRoute(route: string): string | undefined {
 export function signInHref(destination: string): string {
   let route = destination;
   if (destination.startsWith("#")) {
-    try { route = decodeURIComponent(destination.replace(/^#\/?/, "")); }
+    try {
+      const raw = destination.replace(/^#\/?/, ""), query = raw.indexOf('?');
+      route = query < 0 ? decodeURIComponent(raw) : decodeURIComponent(raw.slice(0, query)) + raw.slice(query);
+    }
     catch { return "#/account"; }
   }
   const valid = returnRoute(route);

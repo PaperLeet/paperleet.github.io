@@ -148,7 +148,10 @@ export function parseSaved(value: unknown): Record<string, Saved> {
 
 export function decodeProblemHash(hash: string): string {
   try {
-    return decodeURIComponent(hash.replace(/^#\/?/, ""));
+    // Decode only the path: an escaped '&' in a search must stay query data.
+    const raw = hash.replace(/^#\/?/, "");
+    const query = raw.indexOf('?');
+    return query < 0 ? decodeURIComponent(raw) : decodeURIComponent(raw.slice(0, query)) + raw.slice(query);
   } catch {
     return "";
   }

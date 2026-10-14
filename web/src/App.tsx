@@ -395,8 +395,9 @@ function Workspace() {
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
   const submissionPage = id === "submit";
-  const communityPage = id === "community" || id.startsWith("community/");
-  const communityTopicId = topicIdFromRoute(id);
+  const communityPath = id.split('?')[0];
+  const communityPage = communityPath === "community" || communityPath.startsWith("community/");
+  const communityTopicId = topicIdFromRoute(communityPath);
   const communityProblem = communityTopicId ? problems.find((p) => p.id === communityTopicId) : undefined;
   const accountPage = isAccountRoute(id);
   const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
@@ -681,13 +682,14 @@ function Workspace() {
       </header>
       {communityPage ? (
         <Community
+          route={id}
           topicId={communityTopicId}
           topic={communityProblem ? topicFromProblem(communityProblem) : undefined}
           catalogLoading={!problems.length && !loadError}
           catalogError={loadError}
           reloadCatalog={loadCatalog}
           postId={
-            id === "community" || communityTopicId ? undefined : id.slice("community/".length)
+            communityPath === "community" || communityTopicId ? undefined : communityPath.slice("community/".length)
           }
         />
       ) : accountPage ? (

@@ -1511,3 +1511,4 @@
   .profile-community-content .profile-tabs { gap: 19px; }
   .profile-community-content .profile-tabs button { font-size: 13px; }
 }
+.community-result-summary { margin: 0 0 12px; color: var(--muted); font-size: 12px; }

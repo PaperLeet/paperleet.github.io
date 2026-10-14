@@ -30,6 +30,7 @@ import { useI18n } from "./i18n";
 import ProfileProgress from "./ProfileProgress";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
+import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, communityFeedHref, communityPostHref, communityPostReturn, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
 import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
 import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft, writeReplyDraft, type ReplyDraft } from "./replyDrafts";
 import {
@@ -79,7 +80,6 @@ type Connection = PublicUser & {
 };
 type Activity = { kind: string; created_at: string; post: Post; reply?: Reply };
 type Page<T> = { items: T[]; total: number; limit?: number; offset?: number };
-const PAGE_SIZE = 20;
 const CATEGORIES = [
   { id: "papers", zh: "论文讨论", en: "Papers", icon: BookOpen },
   { id: "implementation", zh: "代码实现", en: "Implementation", icon: Code2 },
@@ -92,7 +92,7 @@ const CATEGORIES = [
   },
   { id: "lounge", zh: "闲聊", en: "Lounge", icon: Coffee },
 ];
-const postHref = (id: string) => `#/community/${encodeURIComponent(id)}`;
+const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
 function TopicContext({ topic, discussion = false }: {
   topic: ProblemTopic;
@@ -235,7 +235,7 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity }: { post: Post; activity?: ReactNode }) {
+function PostCard({ post, activity, returnTo }: { post: Post; activity?: ReactNode; returnTo?: string }) {
   const { locale } = useI18n();
   return (
     <article className="community-post-card">
@@ -257,7 +257,7 @@ function PostCard({ post, activity }: { post: Post; activity?: ReactNode }) {
             <DateLabel value={post.created_at} />
             <Category value={post.category} />
           </div>
-          <a className="post-title" href={postHref(post.id)}>
+          <a className="post-title" href={postHref(post.id, returnTo)}>
             {post.title}
           </a>
           {post.problem && (
@@ -350,7 +350,7 @@ function Composer({
         ...(topic ? { problem_id: topic.id } : {}),
       });
       clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
-      if (mounted.current && location.hash === submittedRoute) location.hash = `/community/${encodeURIComponent(post.id)}`;
+      if (mounted.current && location.hash === submittedRoute) location.hash = postHref(post.id, submittedRoute);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -481,6 +481,7 @@ function Composer({
   );
 }
 type CommunityProps = {
+  route?: string;
   postId?: string;
   topicId?: string;
   topic?: ProblemTopic;
@@ -488,32 +489,53 @@ type CommunityProps = {
   catalogError?: string;
   reloadCatalog?: () => void;
 };
-export default function Community({ postId, ...scope }: CommunityProps) {
+export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
   return postId ? (
-    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} />
+    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} />
   ) : (
-    <CommunityFeed key={`${scope.topicId || "all"}:${user?.id || "guest"}`} {...scope} />
+    <CommunityFeed key={`${scope.topicId || "all"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
 }
-function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCatalog }: Omit<CommunityProps, "postId">) {
-  const { t } = useI18n();
+function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog }: Omit<CommunityProps, "postId">) {
+  const { t, locale } = useI18n();
   const { user } = useAccount();
   const draftScope = topicId || "general";
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
-  const returnTo = topicId ? topicHref(topicId) : "community";
-  const [category, setCategory] = useState(""),
-    [following, setFollowing] = useState(false),
-    [query, setQuery] = useState(""),
-    [search, setSearch] = useState("");
-  const [offset, setOffset] = useState(0),
-    [data, setData] = useState<Page<Post>>({ items: [], total: 0 }),
+  const filters = readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
+  const { category, following, search, page } = filters;
+  const offset = (page - 1) * PAGE_SIZE;
+  const returnTo = communityFeedHref(topicId, filters);
+  const requestKey = JSON.stringify([topicId, user?.id, category, following, search, page]);
+  const [query, setQuery] = useState(search);
+  const boards = useRef<HTMLElement>(null);
+  const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
     [compose, setCompose] = useState(false),
     [retry, setRetry] = useState(0);
+  const pending = loading || data.requestKey !== requestKey;
+  function choose(change: Partial<CommunityFeedState>) {
+    location.hash = communityFeedHref(topicId, { ...filters, page: 1, ...change });
+  }
+  useEffect(() => { setQuery(search); }, [search]);
+  useEffect(() => {
+    const board = boards.current;
+    if (!board) return;
+    const reveal = () => {
+      const selected = board.querySelector('button[aria-pressed="true"]');
+      if (!selected || board.scrollWidth <= board.clientWidth) return;
+      const frame = board.getBoundingClientRect(), item = selected.getBoundingClientRect();
+      const delta = item.left < frame.left ? item.left - frame.left : item.right > frame.right ? item.right - frame.right : 0;
+      if (delta) board.scrollBy({ left: delta });
+    };
+    reveal();
+    window.addEventListener('resize', reveal);
+    return () => window.removeEventListener('resize', reveal);
+  }, [category, locale]);
   useEffect(() => {
     let live = true;
+    let redirected = false;
     setLoading(true);
     setError("");
     const params = new URLSearchParams({
@@ -525,19 +547,26 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
       ...(topicId ? { problem_id: topicId } : {}),
     });
     if (following && !user) {
-      setData({ items: [], total: 0 });
+      setData({ items: [], total: 0, requestKey });
       setLoading(false);
       return;
     }
     socialApi<Page<Post>>(`community/posts?${params}`)
       .then((data) => {
-        if (live) setData(data);
+        if (!live) return;
+        const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
+        if (page > lastPage) {
+          redirected = true;
+          location.replace(communityFeedHref(topicId, { category, following, search, page: lastPage }));
+          return;
+        }
+        setData({ ...data, requestKey });
       })
       .catch((e) => {
         if (live) setError(errorMessage(e));
       })
       .finally(() => {
-        if (live) setLoading(false);
+        if (live && !redirected) setLoading(false);
       });
     return () => {
       live = false;
@@ -575,15 +604,13 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
         ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} />
       )}
       <div className="community-layout">
-        <aside className="community-sidebar">
+        <aside ref={boards} className="community-sidebar">
           <section className="social-panel board-list">
             <span className="sidebar-label">{t("版块", "Boards")}</span>
             <button
               className={!category ? "selected" : ""}
-              onClick={() => {
-                setCategory("");
-                setOffset(0);
-              }}
+              aria-pressed={!category}
+              onClick={() => choose({ category: '' })}
             >
               <MessagesSquare size={17} />
               {t("所有讨论", "All discussions")}
@@ -592,10 +619,8 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
               <button
                 key={c.id}
                 className={category === c.id ? "selected" : ""}
-                onClick={() => {
-                  setCategory(c.id);
-                  setOffset(0);
-                }}
+                aria-pressed={category === c.id}
+                onClick={() => choose({ category: c.id })}
               >
                 <c.icon size={17} />
                 {t(c.zh, c.en)}
@@ -611,19 +636,15 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
             <div className="social-tabs compact">
               <button
                 className={!following ? "selected" : ""}
-                onClick={() => {
-                  setFollowing(false);
-                  setOffset(0);
-                }}
+                aria-pressed={!following}
+                onClick={() => choose({ following: false })}
               >
                 {t("最新", "Latest")}
               </button>
               <button
                 className={following ? "selected" : ""}
-                onClick={() => {
-                  setFollowing(true);
-                  setOffset(0);
-                }}
+                aria-pressed={following}
+                onClick={() => choose({ following: true })}
               >
                 <Users size={14} />
                 {t("关注", "Following")}
@@ -633,8 +654,7 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
               className="community-search"
               onSubmit={(e) => {
                 e.preventDefault();
-                setSearch(query.trim());
-                setOffset(0);
+                choose({ search: query.trim() });
               }}
             >
               <Search size={14} />
@@ -642,11 +662,11 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
                 aria-label={t("搜索讨论", "Search discussions")}
                 placeholder={t("搜索讨论…", "Search discussions…")}
                 value={query}
+                maxLength={200}
                 onChange={(e) => {
                   setQuery(e.target.value);
                   if (!e.target.value) {
-                    setSearch("");
-                    setOffset(0);
+                    choose({ search: '' });
                   }
                 }}
               />
@@ -655,6 +675,9 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
               </button>
             </form>
           </div>
+          {!pending && !error && !(following && !user) && <p className="community-result-summary" role="status">
+            {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
+          </p>}
           <div className="social-panel feed-items">
             {error ? (
               <div className="feed-error">
@@ -666,7 +689,7 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
                   {t("重试", "Retry")}
                 </button>
               </div>
-            ) : loading ? (
+            ) : pending ? (
               <Loading />
             ) : following && !user ? (
               <Empty
@@ -704,16 +727,17 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
                           topicId ? "Ask about the formulas, implementation, or test results." : "Share a paper or an implementation question to start the first discussion.",
                         )}
                 </p>
+                {(category || following || search) && <button className="button subtle" onClick={() => choose(emptyCommunityFeed())}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={post.id} post={post} />)
+              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} />)
             )}
           </div>
-          {!loading && !error && (
+          {!pending && !error && (
             <Pagination
               offset={offset}
               total={data.total}
-              onChange={setOffset}
+              onChange={(offset) => choose({ page: Math.floor(offset / PAGE_SIZE) + 1 })}
             />
           )}
         </section>
@@ -721,7 +745,7 @@ function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCat
     </main>
   );
 }
-function Discussion({ id }: { id: string }) {
+function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   const { t } = useI18n();
   const { user } = useAccount();
   const [post, setPost] = useState<PostDetail>(),
@@ -776,7 +800,7 @@ function Discussion({ id }: { id: string }) {
   }, [id, user?.id]);
   async function react(kind: "like" | "repost") {
     if (!user) {
-      location.hash = signInHref(postHref(id));
+      location.hash = signInHref(postHref(id, returnTo));
       return;
     }
     if (!post) return;
@@ -829,6 +853,7 @@ function Discussion({ id }: { id: string }) {
   }
   async function remove() {
     if (!deleteTarget) return;
+    const submittedRoute = location.hash;
     setBusy(true);
     setError("");
     try {
@@ -838,7 +863,10 @@ function Discussion({ id }: { id: string }) {
           : `community/replies/${encodeURIComponent(deleteTarget)}/delete`,
         { expected_user_id: user?.id },
       );
-      if (deleteTarget === "post") location.hash = "/community";
+      if (deleteTarget === "post") {
+        if (mounted.current && location.hash === submittedRoute)
+          location.hash = returnTo || (post?.problem ? topicHref(post.problem.id) : '#/community');
+      }
       else await refresh();
       setDeleteTarget(undefined);
     } catch (e) {
@@ -849,9 +877,9 @@ function Discussion({ id }: { id: string }) {
   }
   return (
     <main className="social-page discussion-page">
-      <a className="social-back" href={post?.problem ? topicHref(post.problem.id) : "#/community"}>
+      <a className="social-back" href={returnTo || (post?.problem ? topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
-        {post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
+        {returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a>
       {error && <SocialNotice error={error} />}
       {loading ? (
@@ -1062,7 +1090,7 @@ function Discussion({ id }: { id: string }) {
             </section>
           ) : (
             <section className="social-panel">
-              <JoinPrompt returnTo={postHref(id)} />
+              <JoinPrompt returnTo={postHref(id, returnTo)} />
             </section>
           )}
           {deleteTarget && (
