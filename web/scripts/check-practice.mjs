@@ -3,6 +3,7 @@ import { createServer } from "vite";
 import { checkBrowserWorkspace } from './check-browser-workspace.mjs';
 import { checkBrowserLearning } from './check-browser-learning.mjs';
 import { checkBrowserNotifications } from './check-browser-notifications.mjs';
+import { checkCodeBackup } from './check-code-backup.mjs';
 const server = await createServer({
   server: { middlewareMode: true },
   appType: "custom",
@@ -138,6 +139,7 @@ try {
   await checkBrowserWorkspace(server);
   await checkBrowserLearning(server);
   await checkBrowserNotifications(server);
+  await checkCodeBackup(server);
 } finally {
   await server.close();
 }

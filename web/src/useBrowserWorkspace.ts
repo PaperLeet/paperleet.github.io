@@ -176,13 +176,16 @@ export function useBrowserWorkspace(owner?: BrowserOwner) {
     change(runtime,{saved:{...latest.current.saved,[problem.id]:withPracticeReport(latest.current.saved[problem.id] || {},problem,report)}});
     runtime.reports.push({problem,report}); runtime.failed = false; void drain(runtime);
   }
-  function resetToStarter(problem: Problem, expected: DraftExpectation) {
+  function replaceCode(problem: Problem, code: string, expected: DraftExpectation) {
     const runtime = active.current;
-    if (!runtime || !current(runtime) || runtime.processing || runtime.failed) return false;
+    if (!runtime || !current(runtime) || runtime.processing || runtime.pending.size || runtime.reports.length || runtime.failed) return false;
     const previous = latest.current.saved[problem.id];
-    if ((previous?.code ?? problem.starter) === problem.starter) return false;
-    const displaced = sourceSnapshot(previous,runtime.bases.get(problem.id) || '');
-    return update(problem.id,{code:problem.starter},expected,displaced);
+    if ((previous?.code ?? problem.starter) === code) return false;
+    const displaced = sourceSnapshot({...previous,code:previous?.code ?? problem.starter},runtime.bases.get(problem.id) || '');
+    return update(problem.id,{code},expected,displaced);
+  }
+  function resetToStarter(problem: Problem, expected: DraftExpectation) {
+    return replaceCode(problem,problem.starter,expected);
   }
   function resolveConflict(id: string, keepLocal: boolean) {
     const runtime = active.current, alternative = view.conflicts[id];
@@ -218,7 +221,7 @@ export function useBrowserWorkspace(owner?: BrowserOwner) {
   const visible = view.owner === owner ? view : empty(owner);
   return {...visible,loading:!visible.ready,pending:visible.saving,backups:visible.backups,
     error:visible.failed ? t('无法保存本机工作区。请下载代码备份，再重试保存。','Could not save the browser workspace. Download a code backup, then retry saving.') : '',
-    update,applyReport,resetToStarter,resolveConflict,restoreBackup,discardBackup,
+    update,applyReport,replaceCode,resetToStarter,resolveConflict,restoreBackup,discardBackup,
     retry:() => {const runtime=active.current;if(runtime && runtime.owner === owner && current(runtime)){runtime.failed=false;void drain(runtime);}},
   };
 }

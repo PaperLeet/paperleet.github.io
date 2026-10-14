@@ -346,14 +346,19 @@ export function usePracticeWorkspace() {
     });
   }
   const visible = bundle.owner === owner ? bundle : emptyBundle(owner);
+  function replaceCode(problem: Problem, code: string, expected: DraftExpectation) {
+    if (owner === 'local' || owner === 'anonymous') return browserWorkspace.replaceCode(problem,code,expected);
+    const latest = currentBundle.current;
+    if (!latest.hydrated || latest.owner !== owner || currentOwner.current !== expected.owner || saving || flushing.current || failed.current
+      || Object.keys(latest.pending).length || error || storageError.current || latest.conflicts[problem.id]
+      || (latest.records[problem.id]?.code ?? problem.starter) === code) return false;
+    return update(problem.id,{code},expected);
+  }
   function resetToStarter(problem: Problem, expected: DraftExpectation) {
-    if (owner === 'local' || owner === 'anonymous') return browserWorkspace.resetToStarter(problem,expected);
-    if (!visible.hydrated || saving || Object.keys(visible.pending).length || error || storageError.current || visible.conflicts[problem.id]
-      || (visible.records[problem.id]?.code ?? problem.starter) === problem.starter) return false;
-    return update(problem.id,{code:problem.starter},expected);
+    return replaceCode(problem,problem.starter,expected);
   }
   if (owner === "local" || owner === "anonymous") return {
-    ...browserWorkspace, owner, hosted, flush, update, applyReport, resetToStarter, resolveConflict,
+    ...browserWorkspace, owner, hosted, flush, update, applyReport, replaceCode, resetToStarter, resolveConflict,
     owns: (expected: string) => currentOwner.current === expected,
   };
   return {
@@ -372,6 +377,7 @@ export function usePracticeWorkspace() {
     conflicts: visible.conflicts,
     update,
     applyReport,
+    replaceCode,
     resetToStarter,
     resolveConflict,
     retry: () => {

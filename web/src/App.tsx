@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Highlight } from "./SyntaxHighlight";
-import { Community, UserProfile, Account, Submissions, Visuals, ArtifactCharts, Prose, PythonEditor } from "./deferredPages";
+import { Community, UserProfile, Account, Submissions, Visuals, ArtifactCharts, Prose, PythonEditor, WorkspaceBackup } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -289,6 +289,8 @@ function Workspace() {
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
   const [labView, setLabView] = useState<ExperimentView>("auto");
+  const [backupOpen, setBackupOpen] = useState(false);
+  useEffect(() => { setBackupOpen(false); }, [practice.owner]);
   function openLab(view: ExperimentView = "auto") {
     setLabView(view);
     setTab("lab");
@@ -614,6 +616,7 @@ function Workspace() {
             <button onClick={() => setGuide(true)}>
               {t("使用指南", "Guide")}
             </button>
+            <button type="button" aria-haspopup="dialog" aria-expanded={backupOpen} disabled={practice.owner === 'unresolved' || !problems.length} onClick={() => setBackupOpen(open => !open)}>{t('代码备份', 'Code backup')}</button>
           </nav>
           <div className="nav-actions">
             <span
@@ -670,6 +673,21 @@ function Workspace() {
           </div>
         </div>
       </header>
+      {backupOpen && <WorkspaceBackup key={practice.owner} owner={practice.owner} problems={problems} saved={saved} backups={practice.backups} conflicts={practice.conflicts}
+        recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {
+          if (!editorRecoveryReason && practice.owns(practice.owner)) location.reload();
+        }}}
+        ready={practice.ready && !practice.loading} blocked={running ? t('请先停止测试或等待运行完成。', 'Stop the tests or wait for the run to finish.')
+          : practice.error ? t('请先重试工作区保存；仍可下载备份。', 'Retry workspace saving first. Backup downloads remain available.')
+          : Object.keys(practice.conflicts).length ? t('请先解决工作区草稿冲突。', 'Resolve workspace draft conflicts first.')
+          : practice.pending || practice.saving ? t('请等待草稿保存完成。', 'Wait for drafts to finish saving.') : ''}
+        onClose={() => setBackupOpen(false)} onDownload={download}
+        onReplace={(entry, source, expected) => {
+          if (running || !practice.owns(expected.owner) || !practice.ready || practice.pending || practice.saving || practice.error || Object.keys(practice.conflicts).length) return false;
+          const replaced = practice.replaceCode(entry,source,expected);
+          if (replaced) setToast(t('代码已载入，请留意保存状态并重新运行测试。', 'Code loaded. Check the save status and run tests again.'));
+          return replaced;
+        }} />}
       {handoff.pending && handoffProblem && user && <DraftHandoffNotice key={`${practice.owner}:${handoff.pending.id}`} pending={handoff.pending} problem={handoffProblem} current={handoffSaved} username={user.username} open={problem?.id === handoff.pending.problem} ready={progressReady} conflict={!!practice.conflicts[handoff.pending.problem]} onImport={importHeldDraft} onDiscard={() => handoff.discard(handoff.pending!.id)} />}
       {communityPage ? (
         <Community

@@ -2481,9 +2481,6 @@ h3 {
   .topbar nav button {
     font-size: 14px;
   }
-  .topbar nav button:last-child {
-    display: none;
-  }
   .nav-actions {
     gap: 5px;
   }
