@@ -1,5 +1,6 @@
 import { parseReport } from './reports';
 import { loadBrowserBundle } from './browserBundles';
+import { browserBudget } from './browserBudgets';
 import { advanceBrowserProgress, type BrowserProgress, type BrowserStage } from './browserProgress';
 export type { BrowserStage, BrowserProgress } from './browserProgress';
 import type { Problem, Report } from './types';
@@ -37,6 +38,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
   }
   const totals = { tests: Object.values(problem.tests || {}).reduce((sum, count) => sum + count, 0),
     mutants: bundle.mutants && typeof bundle.mutants === 'object' ? Object.keys(bundle.mutants).length : 0 };
+  const budget = browserBudget(problem);
   return new Promise((resolve, reject) => {
     const frame = document.createElement('iframe');
     frame.setAttribute('sandbox', 'allow-scripts');
@@ -46,7 +48,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     const nonce = crypto.randomUUID();
     let settled = false;
     let phase = -1;
-    const hardDeadline = setTimeout(() => finish({ type: 'unsupported', reason: 'timeout' }), 120_000);
+    const hardDeadline = setTimeout(() => finish({ type: 'unsupported', reason: 'timeout' }), budget.total);
     let timer: ReturnType<typeof setTimeout>;
     const finish = (outcome?: BrowserOutcome, error?: unknown) => {
       if (settled) return;
@@ -76,7 +78,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
         const nextPhase = ['loading', 'calibrating', 'running'].indexOf(next.stage);
         if (nextPhase > phase) {
           phase = nextPhase;
-          arm(next.stage === 'running' ? 30_000 : 90_000);
+          arm(next.stage === 'running' ? budget.run : next.stage === 'calibrating' ? budget.calibration : 90_000);
         }
         progress(next.stage, next);
       } else if (message?.type === 'unsupported') {

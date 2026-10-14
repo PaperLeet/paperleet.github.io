@@ -43,6 +43,11 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
         assert bundle['files']['paperleet/common/asserts.py'] == (root()/'paperleet/common/asserts.py').read_text()
         assert bundle['problem'] == identifier
         assert bundle['tests'] == entry['tests']
+        if identifier in {'diffusion/ddpm_sampling','diffusion/ddim','diffusion/flow_matching'}:
+            for name in ('toydata.py', 'oracles.py', 'metrics.py', 'models.py'):
+                assert bundle['files'][f'paperleet/common/{name}'] == (root() / 'paperleet/common' / name).read_text()
+            yaml_path = entry['directory'] / 'problem.yaml'
+            assert bundle['files'][yaml_path.relative_to(root()).as_posix()] == yaml_path.read_text()
         for helper in ('experiment.py', 'toy.py'):
             path = entry['directory'] / helper
             if path.exists():
@@ -135,6 +140,8 @@ print(json.dumps(calibration))
     ('finetuning/opsd_alignment',7,4),('finetuning/opsd_clipping',7,4),('rl/sdpo_feedback',7,4),('rl/sdpo_topk',7,4),
     ('optimization/muon_split',7,4),('finetuning/svdquant',9,4),('architecture/flash_attention',7,4),('architecture/kimi_kda',7,4),
     ('rl/glm5_offpolicy',7,4),('rl/opd',6,4),('diffusion/consistency',7,4),('diffusion/progressive_distillation',6,4),
+    ('diffusion/ddpm_sampling',10,5),('diffusion/ddim',9,5),
+    ('diffusion/flow_matching',8,4),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
@@ -166,7 +173,7 @@ rejected=calibrate(b,sys.argv[2]);assert not rejected['compatible'] and rejected
 print(json.dumps({'calibration':c,'report':r}))
 '''
     out = subprocess.run([sys.executable, '-c', script, str(hydrated_path(folder, metadata)), str(folder / 'judge'), str(count), str(mutants)],
-                         cwd=root(), capture_output=True, text=True, timeout=45)
+                         cwd=root(), capture_output=True, text=True, timeout=120 if identifier in {'diffusion/ddpm_sampling','diffusion/ddim'} else 45)
     assert out.returncode == 0, out.stdout + out.stderr
     payload = json.loads(out.stdout)
     assert payload['report']['runtime'] == 'browser-numpy-wasm'

@@ -5,7 +5,7 @@ type RuntimeBundle = { version: 1; backend: string; adapter: string; harness: st
 const sharedFiles = ['paperleet/__init__.py', 'paperleet/common/__init__.py', 'paperleet/common/asserts.py', 'paperleet/common/comparisons.py'];
 const object = (value: unknown): value is RecordValue => !!value && typeof value === 'object' && !Array.isArray(value);
 const stringFiles = (value: unknown): value is Record<string, string> => object(value) && Object.entries(value).every(
-  ([name, source]) => /^(?:[a-zA-Z0-9_]+\/)*[a-zA-Z0-9_]+\.py$/.test(name) && typeof source === 'string');
+  ([name, source]) => /^(?:[a-zA-Z0-9_]+\/)*(?:[a-zA-Z0-9_]+\.py|problem\.yaml)$/.test(name) && typeof source === 'string');
 const stopped = () => new DOMException('Stopped', 'AbortError');
 
 /** Cancelling one run must not cancel another run's shared, public download. */

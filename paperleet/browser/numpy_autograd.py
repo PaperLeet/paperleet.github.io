@@ -6,6 +6,7 @@ Unsupported APIs raise BrowserUnsupported and retain server judging.
 """
 import contextlib
 import copy
+import math
 import types
 import sys
 import weakref
@@ -292,6 +293,22 @@ class Tensor:
         data = np.exp(self._data)
         return result(data, (self, lambda g: g * data))
     def log(self): return result(np.log(self._data), (self, lambda g: g / self._data))
+    def logit(self, eps=None):
+        if self.dtype.kind != 'f': raise BrowserUnsupported('logit requires floating tensors')
+        if eps is not None and (not np.isfinite(eps) or not 0 <= eps <= .5):
+            raise BrowserUnsupported('logit eps outside [0, .5] requires the server')
+        probability = self._data if eps is None else np.clip(self._data, eps, 1 - eps)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            value = np.log(probability / (1 - probability))
+        def vjp(g):
+            with np.errstate(divide='ignore', invalid='ignore'):
+                gradient = g / (probability * (1 - probability))
+            if eps is None:
+                gradient = np.where((self._data < 0) | (self._data > 1), np.nan, gradient)
+            else:
+                gradient = np.where((self._data < eps) | (self._data > 1 - eps), 0., gradient)
+            return gradient
+        return result(value, (self, vjp))
     def logaddexp(self, other):
         return self._binary(other, np.logaddexp,
                             lambda g,a,b: g * np.exp(-np.logaddexp(0, b-a)),
@@ -701,9 +718,63 @@ def check_device(device):
     if device not in (None, 'cpu', 'cpu:0'): raise BrowserUnsupported('Only CPU/WASM tensors are supported')
 
 
+@contextlib.contextmanager
+def fork_rng(devices=None, enabled=True, device_type='cuda'):
+    if devices and enabled: raise BrowserUnsupported('Non-CPU RNG states require the server')
+    if device_type not in ('cpu', 'cuda'): raise BrowserUnsupported('This RNG device type requires the server')
+    if not enabled:
+        yield
+        return
+    state, normal = np.random.get_state(), _default_generator.normal
+    try: yield
+    finally:
+        np.random.set_state(state)
+        _default_generator.normal = normal
+
+
 class Generator:
-    def __init__(self, device=None): check_device(device); self.rng = np.random.RandomState(42)
-    def manual_seed(self, seed): self.rng = np.random.RandomState(seed); return self
+    def __init__(self, device=None):
+        check_device(device)
+        self.rng, self.normal = np.random.RandomState(42), None
+    def manual_seed(self, seed):
+        if self.rng is np.random: np.random.seed(seed)
+        else: self.rng = np.random.RandomState(seed)
+        self.normal = None
+        return self
+
+
+_default_generator = Generator()
+_default_generator.rng = np.random
+
+
+def normal_samples(generator, shape, dtype):
+    """CPU Box-Muller filling and cached scalar draws, matching PyTorch's stream."""
+    dtype = np.dtype(dtype)
+    if dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('Normal sampling requires float32/float64')
+    size = math.prod(shape)
+    rng = generator.rng
+    if size < 16:
+        values = np.empty(size, dtype=dtype)
+        for i in range(size):
+            if generator.normal is None:
+                u1, u2 = uniform_samples(rng, (2,), np.float64)
+                radius, theta = math.sqrt(-2 * math.log1p(-u2)), 2 * math.pi * u1
+                value, generator.normal = radius * math.cos(theta), radius * math.sin(theta)
+            else:
+                value, generator.normal = generator.normal, None
+            values[i] = value
+        return values.reshape(shape)
+    values = uniform_samples(rng, (size,), dtype)
+    def transform(blocks):
+        radius = np.sqrt(-2 * np.log(1 - blocks[:, :8]))
+        theta = (2 * math.pi * blocks[:, 8:].astype(np.float64)).astype(dtype)
+        blocks[:, :8], blocks[:, 8:] = radius * np.cos(theta), radius * np.sin(theta)
+    transform(values[:size // 16 * 16].reshape(-1, 16))
+    if size % 16:
+        values[-16:] = uniform_samples(rng, (16,), dtype)
+        transform(values[-16:].reshape(1, 16))
+    return values.reshape(shape)
 
 
 def multinomial(probabilities, num_samples, replacement=False, *, generator=None):
@@ -844,7 +915,7 @@ class Parameter(Tensor):
 
 class Module:
     """Direct Parameters and nested Modules; other module interfaces fall back."""
-    def __init__(self): self.training = True
+    def __init__(self): self.training, self._buffers = True, {}
     def __getattr__(self, name):
         if name.startswith('_'): raise AttributeError(name)
         return unsupported(f'nn.Module.{name}')
@@ -856,7 +927,8 @@ class Module:
             if id(module) in modules: continue
             modules.add(id(module))
             children = []
-            for value in module.__dict__.values():
+            for name, value in module.__dict__.items():
+                if name in module._buffers: continue
                 if isinstance(value, Parameter) and id(value) not in seen:
                     seen.add(id(value)); yield value
                 elif recurse and isinstance(value, Module): children.append(value)
@@ -865,6 +937,38 @@ class Module:
     def requires_grad_(self, requires_grad=True):
         for parameter in self.parameters(): parameter.requires_grad_(requires_grad)
         return self
+
+    def register_buffer(self, name, tensor, persistent=True):
+        if not isinstance(name, str) or not name or '.' in name: raise ValueError('Buffer name must be nonempty without dots')
+        if tensor is not None and not isinstance(tensor, Tensor): raise TypeError('Buffer must be a Tensor or None')
+        if name in self.__dict__ and name not in self._buffers: raise KeyError('Attribute already exists')
+        self._buffers[name] = tensor
+        setattr(self, name, tensor)
+
+
+def linear(input, weight, bias=None):
+    if input.ndim < 1 or weight.ndim != 2 or input.shape[-1] != weight.shape[1] or input.dtype != weight.dtype:
+        raise RuntimeError('linear expects matching feature dimensions and dtypes')
+    if input.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('linear requires float32/float64')
+    if bias is not None and (bias.shape != (weight.shape[0],) or bias.dtype != input.dtype):
+        raise BrowserUnsupported('Other linear bias shapes/dtypes require the server')
+    rows = math.prod(input.shape[:-1])
+    x, w = input._data, weight._data
+    value = x @ w.T
+    if bias is not None: value = value + bias._data
+    edges = [(input, lambda g: g @ w),
+             (weight, lambda g: g.reshape(rows, w.shape[0]).T @ x.reshape(rows, w.shape[1]))]
+    if bias is not None: edges.append((bias, lambda g: g.reshape(rows, w.shape[0]).sum(axis=0)))
+    return result(value, *edges)
+
+
+def silu(input, inplace=False):
+    if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
+    x = input._data
+    exp = np.exp(-np.abs(x))
+    probability = np.where(x >= 0, 1 / (1 + exp), exp / (1 + exp))
+    return result(x * probability, (input, lambda g: g * probability * (1 + x * (1 - probability))))
 
 
 class Linear(Module):
@@ -884,8 +988,7 @@ class Linear(Module):
         self.bias = parameter((out_features,)) if bias else None
 
     def forward(self, input):
-        value = input @ self.weight.T
-        return value if self.bias is None else value + self.bias
+        return linear(input, self.weight, self.bias)
 
 
 class Sequential(Module):
@@ -910,7 +1013,7 @@ class SiLU(Module):
     def __init__(self, inplace=False):
         super().__init__()
         if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
-    def forward(self, input): return input * input.sigmoid()
+    def forward(self, input): return silu(input)
 
 
 def bincount(input, weights=None, minlength=0):
@@ -940,7 +1043,7 @@ def create(kind, *shape, dtype=np.float32, device=None, requires_grad=False, gen
     check_device(device)
     if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
     rng = generator.rng if generator else np.random
-    value = rng.standard_normal(shape) if kind == 'randn' else uniform_samples(rng, shape, dtype) if kind == 'rand' else getattr(np, kind)(shape, dtype=dtype)
+    value = normal_samples(generator or _default_generator, shape, dtype) if kind == 'randn' else uniform_samples(rng, shape, dtype) if kind == 'rand' else getattr(np, kind)(shape, dtype=dtype)
     return Tensor(value, dtype=dtype, requires_grad=requires_grad)
 
 
@@ -1303,6 +1406,26 @@ def uniform_samples(rng, shape, dtype):
     return (bits & ((1 << 24)-1)).astype(np.float32) / (1 << 24)
 
 
+def cdist(x1, x2, p=2., compute_mode='use_mm_for_euclid_dist_if_necessary'):
+    if p != 2 or compute_mode not in ('use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist'):
+        raise BrowserUnsupported('Only Euclidean cdist is supported')
+    if x1.ndim < 2 or x2.ndim < 2 or x1.shape[-1] != x2.shape[-1] or x1.dtype != x2.dtype:
+        raise RuntimeError('cdist expects matching floating feature dimensions and dtypes')
+    if x1.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('cdist requires float32/float64')
+    batch = np.broadcast_shapes(x1.shape[:-2], x2.shape[:-2])
+    size = int(np.prod(batch)) * x1.shape[-2] * x2.shape[-2] * max(1, x1.shape[-1])
+    if size > 16_000_000: raise BrowserUnsupported('Large pairwise distances require the server')
+    # Direct differences avoid the cancellation of ||a||²+||b||²-2a·b near ties.
+    difference = x1._data[..., :, None, :] - x2._data[..., None, :, :]
+    lengths = np.linalg.norm(difference, axis=-1)
+    def direction(g):
+        unit = np.divide(difference, lengths[..., None], out=np.zeros_like(difference), where=lengths[..., None] != 0)
+        return g[..., None] * unit
+    return result(lengths, (x1, lambda g: unbroadcast(direction(g).sum(axis=-2), x1.shape)),
+                  (x2, lambda g: unbroadcast(-direction(g).sum(axis=-3), x2.shape)))
+
+
 def pdist(x, p=2):
     if p != 2 or x.ndim != 2: raise BrowserUnsupported('Only 2D Euclidean pdist is supported')
     i,j = np.triu_indices(x.shape[0],k=1)
@@ -1452,7 +1575,7 @@ def install():
     torch.topk = lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out)
     torch.scatter = lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce)
     torch.count_nonzero, torch.bincount = count_nonzero, bincount
-    torch.manual_seed = np.random.seed
+    torch.manual_seed = _default_generator.manual_seed
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         setattr(torch, name, lambda *shape, _kind=name, **kw: create(_kind, *shape, **kw))
     for name in ('randn', 'zeros', 'ones', 'empty'):
@@ -1461,6 +1584,7 @@ def install():
     torch.full_like = full_like
     torch.unravel_index = lambda index, shape: tuple(Tensor(i) for i in np.unravel_index(int(index), shape))
     torch.broadcast_to = lambda x, shape: x.expand(shape)
+    torch.broadcast_shapes = np.broadcast_shapes
     torch.matmul = lambda a,b: wrap(a) @ b
     def outer(input,other):
         if input.ndim!=1 or other.ndim!=1: raise RuntimeError('outer expects vectors')
@@ -1471,7 +1595,7 @@ def install():
         if a.ndim != 1 or b.ndim != 1 or a.dtype != b.dtype: raise RuntimeError('dot expects vectors with matching dtypes')
         return a @ b
     torch.dot, torch.cov = dot, cov
-    torch.pdist = pdist
+    torch.pdist, torch.cdist = pdist, cdist
     for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril', 'amax', 'prod', 'round', 'chunk'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan'):
@@ -1480,7 +1604,8 @@ def install():
     torch.allclose = lambda a,b,**kw: bool(torch.isclose(a,b,**kw).all())
     torch.nan_to_num = lambda x,**kw: Tensor(np.nan_to_num(x._data, **kw))
     modules = {}
-    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg', 'testing'):
+    torch.logit = lambda input,eps=None: input.logit(eps)
+    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg', 'testing', 'random'):
         module = types.ModuleType('torch.' + name)
         def missing(key, _name=name):
             if key.startswith('_'): raise AttributeError(key)
@@ -1494,7 +1619,9 @@ def install():
     torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU = Linear, Sequential, SiLU
     torch.testing = modules['testing']
     torch.testing.assert_close = assert_close
-    torch.nn.functional.linear = lambda x,w,bias=None: x @ w.T if bias is None else x @ w.T + bias
+    torch.random = modules['random']
+    torch.random.fork_rng = fork_rng
+    torch.nn.functional.linear = linear
     torch.nn.functional.softmax = lambda x,dim,dtype=None: x.softmax(dim, dtype)
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
     torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()
@@ -1502,9 +1629,6 @@ def install():
     torch.nn.functional.smooth_l1_loss = smooth_l1_loss
     torch.nn.functional.mse_loss = mse_loss
     torch.nn.functional.softplus = softplus
-    def silu(input, inplace=False):
-        if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
-        return input * input.sigmoid()
     torch.nn.functional.silu = silu
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.rms_norm = rms_norm_oracle

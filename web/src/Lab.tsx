@@ -5,7 +5,7 @@ import type { Problem, Report } from "./types";
 import { useI18n } from "./i18n";
 import { decodeViz } from "./vizData";
 import { scheduleData } from "./concepts";
-import { experimentTests, type ExperimentView } from "./experimentResults";
+import { experimentTests, reportTestLabel, type ExperimentView } from "./experimentResults";
 import { ReportSourceNotice } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
 import {
@@ -1060,7 +1060,7 @@ function RunArtifacts({ problem, report, sourceState }: { problem: Problem; repo
       ? t("以下数据来自你的最近一次浏览器 CPU / WASM 实验。", "These results come from your latest browser CPU / WASM experiment.")
       : t("以下曲线和指标来自你的最近一次 T3 运行。", "These curves and metrics come from your latest T3 run.")}</p>
     {results.length ? results.map((test) => <section key={test.nodeid || test.id}>
-      <h4>{test.id} · {test.passed ? t("通过", "Passed") : t("未通过", "Failed")}</h4>
+      <h4>{reportTestLabel(test)} · {test.passed ? t("通过", "Passed") : t("未通过", "Failed")}</h4>
       <ArtifactCharts data={test.artifacts!} />
     </section>) : <p className="notice">{t("先在编辑器完成实现并运行全部测试；T3 产生的曲线和指标会显示在这里。", "Complete your implementation and run all tests. Curves and metrics produced by T3 will appear here.")}</p>}
   </section>;

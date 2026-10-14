@@ -37,6 +37,7 @@ try {
     assert.equal(bundle.files['paperleet/common/comparisons.py'], fs.readFileSync('../paperleet/common/comparisons.py', 'utf8'));
     for (const [name, source] of Object.entries(bundle.files)) {
       if (/\/tests\/test_[^/]+\.py$/.test(name)) assert.equal(source, fs.readFileSync(`../${name}`, 'utf8'));
+      if (name.endsWith('/problem.yaml')) assert.equal(source, fs.readFileSync(`../${name}`, 'utf8'));
     }
   }
   const first = await load(attention, base, signal());
@@ -62,7 +63,9 @@ try {
   for (const value of [null, [], { ...manifest, version: 3 }, { ...manifest, problem: lora.id },
     { ...manifest, files: { ...manifest.files, 'paperleet/common/asserts.py': 'override' } },
     { ...manifest, files: { '../escape.py': '' } }, { ...manifest, files: [] },
-    { ...manifest, reference: 42 }, { ...manifest, mutants: { bad: 42 } }, { ...manifest, test_file: 'missing.py' }])
+    { ...manifest, reference: 42 }, { ...manifest, mutants: { bad: 42 } }, { ...manifest, test_file: 'missing.py' },
+    { ...manifest, files:{...manifest.files,'../problem.yaml':'unsafe'} },
+    { ...manifest, files:{...manifest.files,'settings.yaml':'unapproved resource'} }])
     await invalidProblem(value);
   for (const path of ['https://other.example/runtime.json', '/api/private', '../browser-judge/runtime-' + 'a'.repeat(20) + '.json',
     'browser-judge/runtime-' + 'a'.repeat(20) + '.json?token=private', 'browser-judge/runtime-%2e%2e.json']) {

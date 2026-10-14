@@ -11,10 +11,13 @@ try {
   const { paperJudgeCapability,PaperJudgeBadge,ModuleJudgeBadge }=await server.ssrLoadModule('/src/JudgeCapability.tsx');
   const { paperModules,PaperDetail }=await server.ssrLoadModule('/src/PaperViews.tsx');
   const mixed=papers.find(p=>p.id==='ddpm');
-  const modules=paperModules(mixed,problems);
+  // Exercise mixed-runtime rendering even when current multi-module papers
+  // have uniform coverage; exported problem data remain unchanged.
+  const fixtureProblems=problems.map(p=>p.id==='diffusion/ddpm_sampling'?{...p,browser_judge:undefined}:p);
+  const modules=paperModules(mixed,fixtureProblems);
   assert.deepEqual(paperJudgeCapability(modules),{browser:1,server:1,total:2});
   assert(renderToString(React.createElement(PaperJudgeBadge,{modules})).includes('部分浏览器 1/2'));
-  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems,saved:{},onGuide(){}}));
+  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{},onGuide(){}}));
   assert(detail.includes('浏览器判题 · 无需 GPU') && detail.includes('服务端判题'));
   assert(renderToString(React.createElement(ModuleJudgeBadge,{problem:modules.find(p=>!p.browser_judge)})).includes('服务端判题'));
   assert.equal(renderToString(React.createElement(PaperJudgeBadge,{modules:[]})),'');

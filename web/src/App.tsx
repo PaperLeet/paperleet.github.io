@@ -46,9 +46,10 @@ import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobs";
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason, type JudgeMode } from "./browserJudge";
+import { browserBudget } from './browserBudgets';
 import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
-import type { ExperimentView } from "./experimentResults";
+import { reportTestLabel, type ExperimentView } from "./experimentResults";
 import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
 import TestComparison from "./TestComparison";
@@ -197,7 +198,7 @@ function ReportView({
         >
           <summary>
             {test.passed ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
-            <span>{test.id}</span>
+            <span>{reportTestLabel(test)}</span>
             <b>{test.layer}</b>
             <small>{(test.duration_s || 0).toFixed(2)}s</small>
           </summary>
@@ -1121,6 +1122,7 @@ function Workspace() {
                       </select>
                     </label>
                     <small>{judgeMode === 'server' ? t('将提交当前代码，由服务端 CPU 执行完整测试。', 'Submit the current source for the complete suite on the server CPU.') : t("原型：本机 CPU / WASM 运行完整测试，无需 GPU。", "Prototype: the complete suite runs on your CPU / WASM; no GPU needed.")}</small>
+                    {judgeMode !== 'server' && browserBudget(problem).total > 120_000 && <small>{t(`完整实验包含模型训练与错误实现校准，最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止后切换服务端。`, `The full experiment includes model training and mutant calibration, capped at ${browserBudget(problem).total / 60_000} minutes. You can stop and switch to Server.`)}</small>}
                     {hosted && <small>{t("浏览器结果仅供本机反馈；服务端确认后计入账号进度与统计。", "Browser results are local feedback; server verification records account progress and statistics.")}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")}。{judgeMode === "auto" ? t("自动模式回退到服务端，请查看下方状态。", "Auto mode falls back to the server; see the status below.") : t("可切换至服务端运行。", "Select Server to run this suite.")}</p>}
                     {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}

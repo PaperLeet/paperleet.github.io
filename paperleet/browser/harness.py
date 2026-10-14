@@ -46,6 +46,7 @@ class Recorder:
     @pytest.fixture(autouse=True)
     def deterministic(self):
         np.random.seed(42)
+        sys.modules['torch'].manual_seed(42)
 
     @pytest.fixture
     def impl(self):

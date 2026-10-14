@@ -20,6 +20,7 @@ PILOTS = {
     "finetuning/opsd_alignment", "finetuning/opsd_clipping", "rl/sdpo_feedback", "rl/sdpo_topk",
     "optimization/muon_split", "finetuning/svdquant", "architecture/flash_attention", "architecture/kimi_kda",
     "rl/glm5_offpolicy", "rl/opd", "diffusion/consistency", "diffusion/progressive_distillation",
+    "diffusion/ddpm_sampling", "diffusion/ddim", "diffusion/flow_matching",
 }
 
 SHARED_FILES = (
@@ -55,6 +56,10 @@ def export_browser_bundle(entry, output):
     files["paperleet/common/comparisons.py"] = (package / "common/comparisons.py").read_text()
     if entry["id"] in {"rl/gae", "rl/ppo_clip", "rl/grpo", "rl/dr_grpo"}:
         files["paperleet/common/rl_envs.py"] = (package / "common/rl_envs.py").read_text()
+    if entry['id'] in {'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching'}:
+        for name in ('toydata.py', 'oracles.py', 'metrics.py', 'models.py'):
+            files[f'paperleet/common/{name}'] = (package / 'common' / name).read_text()
+        files[f'{relative}/problem.yaml'] = (directory / 'problem.yaml').read_text()
     if entry["id"] == "rl/dr_grpo":
         for name in ("solution.py", "experiment.py"):
             relative_name = f"problems/rl/grpo/{name}"

@@ -13,7 +13,9 @@ self.onmessage = async ({ data }) => {
     const { loadPyodide } = await import(`${base}browser-runtime/pyodide-0.29.4/pyodide.mjs`);
     const py = await loadPyodide({ indexURL: `${base}browser-runtime/pyodide-0.29.4/`, stdout() {}, stderr() {} });
     progress('loading', { step: 'packages' });
-    await py.loadPackage(['numpy', 'pytest']);
+    const packages = ['numpy', 'pytest'];
+    if (Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml'))) packages.push('pyyaml');
+    await py.loadPackage(packages);
     progress('loading', { step: 'preparing' });
     py.globals.set('bundle_json', JSON.stringify(bundle));
     py.globals.set('learner_source', source);

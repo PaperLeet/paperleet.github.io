@@ -28,7 +28,7 @@ function include(name) {
   names.add(name);
   for (const dependency of pkg.depends) include(dependency);
 }
-include("numpy"); include("pytest");
+include("numpy"); include("pytest"); include("pyyaml");
 await Promise.all([...names].map((name) => {
   const pkg = lock.packages[name];
   return pinnedFile(`https://cdn.jsdelivr.net/pyodide/v0.29.4/full/${pkg.file_name}`, path.join(output, pkg.file_name), pkg.sha256);

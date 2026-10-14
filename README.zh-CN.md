@@ -195,4 +195,4 @@ reports/           判题和 CI 报告，忽略于 Git
 
 VAR 与 FD-Loss 新增四个核心模块及 CPU 小实验，详见[来源与验证记录](docs/validation/var-and-fd-loss.md)。
 
-浏览器端判题现覆盖 41 个模块，包括 Schedules、Attention、LoRA、主要 RL 目标、JEPA/世界模型、OPSD/SDPO、谱分解，以及本轮新增的 GLM-5 双边重要性采样、OPD、Consistency Models 和 Progressive Distillation。全部 308 项维护测试在本机 CPU/WASM 执行，目录共维护 166 个错误实现，每题运行前先校准对应参考解与错误实现；保留原有精度、梯度、模型大小和训练轮数。单次分类采样保持正确分布，随机序列与原生 PyTorch 不要求逐项一致；不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号进度仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。
+浏览器端判题现覆盖 44 个模块，包括 Schedules、Attention、LoRA、主要 RL 目标、JEPA/世界模型、OPSD/SDPO、谱分解，以及 GLM-5 双边重要性采样、OPD、Consistency Models、Progressive Distillation、DDPM 反向采样、DDIM 和 Flow Matching。全部 335 项维护测试在本机 CPU/WASM 执行，目录共维护 180 个错误实现，每题运行前先校准对应参考解与错误实现；保留原有精度、梯度、模型大小和训练轮数。单次分类采样保持正确分布，随机序列与原生 PyTorch 不要求逐项一致；不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号进度仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。
