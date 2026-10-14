@@ -22,6 +22,7 @@ PILOTS = {
     "rl/glm5_offpolicy", "rl/opd", "diffusion/consistency", "diffusion/progressive_distillation",
     "diffusion/ddpm_sampling", "diffusion/ddim", "diffusion/flow_matching",
     "diffusion/daps", "representation/sigreg", "representation/visreg",
+    "representation/moge_alignment", "representation/var_tokenizer", "architecture/var_next_scale",
 }
 
 SHARED_FILES = (

@@ -160,6 +160,7 @@ class Tensor:
     def tolist(self): return self._data.tolist()
     def numpy(self): return self._data
     def numel(self): return self._data.size
+    def data_ptr(self): return int(self._data.__array_interface__['data'][0]) if self.numel() else 0
     def dim(self): return self.ndim
     def is_floating_point(self): return self.dtype.kind == 'f'
     def count_nonzero(self, dim=None): return count_nonzero(self, dim)
@@ -268,6 +269,9 @@ class Tensor:
                     if array.dtype.kind == 'f' and scalar.dtype.kind == 'c':
                         dtype = np.dtype('complex128' if array.dtype.itemsize == 8 else 'complex64')
             a, b = a.astype(dtype,copy=False), b.astype(dtype,copy=False)
+        elif a.dtype.kind in 'biu' and b.dtype.kind in 'biu':
+            dtype = a.dtype if a.ndim and not b.ndim and a.dtype.kind!='b' else b.dtype if b.ndim and not a.ndim and b.dtype.kind!='b' else np.result_type(a.dtype,b.dtype)
+            a,b=a.astype(dtype,copy=False),b.astype(dtype,copy=False)
         return result(op(a, b), (self, lambda g: unbroadcast(left(g, a, b), a.shape)),
                       (other, lambda g: unbroadcast(right(g, a, b), b.shape)))
     def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g)
@@ -278,6 +282,20 @@ class Tensor:
     __rmul__ = __mul__
     def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*a/(b*b))
     def __rtruediv__(self, other): return self._binary(other, lambda a,b: b/a, lambda g,a,b: -g*b/(a*a), lambda g,a,b: g/a)
+    def remainder(self, other, *, out=None):
+        if out is not None: raise BrowserUnsupported('Remainder output buffers require the server')
+        self._real_only(); wrap(other)._real_only()
+        if self.dtype.kind=='b' and wrap(other).dtype.kind=='b': raise BrowserUnsupported('Boolean remainder requires the server')
+        if self.dtype.kind in 'biu' and wrap(other).dtype.kind in 'biu' and np.any(wrap(other)._data==0):
+            raise RuntimeError('Integer division by zero')
+        return self._binary(other,np.remainder,lambda g,a,b:g,lambda g,a,b:-g*np.floor(a/b))
+    __mod__ = remainder
+    def __rmod__(self, other):
+        self._real_only(); wrap(other)._real_only()
+        if self.dtype.kind=='b' and wrap(other).dtype.kind=='b': raise BrowserUnsupported('Boolean remainder requires the server')
+        if self.dtype.kind in 'biu' and wrap(other).dtype.kind in 'biu' and np.any(self._data==0):
+            raise RuntimeError('Integer division by zero')
+        return self._binary(other,lambda a,b:np.remainder(b,a),lambda g,a,b:-g*np.floor(b/a),lambda g,a,b:g)
     def __neg__(self): return result(-self._data, (self, lambda g: -g))
     def _inplace(self, other, operation):
         if _grad_enabled and (self.requires_grad or wrap(other).requires_grad):
@@ -647,8 +665,12 @@ class Tensor:
         return result(np.clip(self._data, min, max), (self, lambda g: g * mask))
     def clamp_min(self, min): return self.clamp(min=min)
     def clamp_max(self, max): return self.clamp(max=max)
-    def sin(self): return result(np.sin(self._data), (self, lambda g: g * np.cos(self._data)))
-    def cos(self): return result(np.cos(self._data), (self, lambda g: -g * np.sin(self._data)))
+    def sin(self):
+        source=self.float() if self.dtype.kind in 'biu' else self
+        return result(np.sin(source._data), (source, lambda g: g * np.cos(source._data)))
+    def cos(self):
+        source=self.float() if self.dtype.kind in 'biu' else self
+        return result(np.cos(source._data), (source, lambda g: -g * np.sin(source._data)))
     def acos(self): return result(np.arccos(self._data), (self, lambda g: -g / np.sqrt(1 - self._data ** 2)))
     def erfinv(self, *, out=None):
         if out is not None or self.dtype not in (np.dtype('float32'), np.dtype('float64')):
@@ -1636,6 +1658,114 @@ def cross_entropy(input, target, weight=None, size_average=None, ignore_index=-1
     return result(np.asarray(value, dtype=input.dtype), (input, vjp))
 
 
+def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=None):
+    input._real_only()
+    if input.requires_grad and _grad_enabled: raise BrowserUnsupported('Unique autograd requires the server')
+    if dim is not None:
+        if not input.ndim or not isinstance(dim,(int,np.integer)) or not -input.ndim <= dim < input.ndim:
+            raise IndexError('unique dimension out of range')
+        if any(size==0 for size in input.shape): raise BrowserUnsupported('Empty dimension-wise unique requires the server')
+    values,inverse,counts=np.unique(input._data,return_inverse=True,return_counts=True,axis=dim,equal_nan=False)
+    outputs=[Tensor(values)]
+    if return_inverse:outputs.append(Tensor(inverse.reshape(input.shape if dim is None else (input.shape[dim],)),dtype=np.int64))
+    if return_counts:outputs.append(Tensor(counts,dtype=np.int64))
+    return outputs[0] if len(outputs)==1 else tuple(outputs)
+
+
+def embedding(input, weight, padding_idx=None, max_norm=None, norm_type=2., scale_grad_by_freq=False, sparse=False):
+    if max_norm is not None or sparse: raise BrowserUnsupported('Embedding renormalization/sparse gradients require the server')
+    if input.dtype not in (np.dtype('int32'),np.dtype('int64')) or weight.ndim!=2:
+        raise RuntimeError('Embedding expects integer indices and a matrix codebook')
+    if weight.dtype not in (np.dtype('float32'),np.dtype('float64')): raise BrowserUnsupported('Embedding requires real float32/float64 weights')
+    if not isinstance(scale_grad_by_freq,bool): raise TypeError('scale_grad_by_freq must be boolean')
+    n=weight.shape[0]
+    if padding_idx is not None:
+        if type(padding_idx) is not int or not -n<=padding_idx<n: raise RuntimeError('Invalid padding index')
+        padding_idx%=n
+    indices=input._data
+    if np.any(indices<0) or np.any(indices>=n): raise IndexError('Embedding index out of bounds')
+    def vjp(g):
+        gradient=np.zeros_like(weight._data)
+        flat=indices.reshape(-1).astype(np.intp,copy=False); incoming=g.reshape(input.numel(),weight.shape[1])
+        if scale_grad_by_freq:
+            counts=np.bincount(flat,minlength=n)
+            incoming=incoming/counts[flat,None]
+        if padding_idx is not None:
+            valid=flat!=padding_idx;flat=flat[valid];incoming=incoming[valid]
+        np.add.at(gradient,flat,incoming)
+        return gradient
+    return result(weight._data[indices],(weight,vjp),saved=(input,))
+
+
+def _spatial_pair(value, name, current=None):
+    pair=(value,value) if isinstance(value,(int,np.integer)) else tuple(value) if isinstance(value,(tuple,list)) else ()
+    if len(pair)!=2: raise BrowserUnsupported(f'{name} requires two spatial dimensions')
+    pair=tuple(current[i] if x is None and current is not None else x for i,x in enumerate(pair))
+    if any(not isinstance(x,(int,np.integer)) or isinstance(x,(bool,np.bool_)) or x<=0 for x in pair):
+        raise RuntimeError(f'{name} requires positive integer sizes')
+    return tuple(int(x) for x in pair)
+
+
+def _resize_matrix(length, output, dtype, *, cubic=False, align=False, factor=None):
+    weights=np.zeros((output,length),dtype=dtype)
+    if not cubic:
+        for i in range(output):
+            start=i*length//output;end=((i+1)*length+output-1)//output
+            weights[i,start:end]=1/(end-start)
+        return weights
+    scalar=dtype.type
+    scale=scalar((length-1)/(output-1) if align and output>1 else 0 if align else 1/factor if factor is not None else length/output)
+    position=np.arange(output,dtype=dtype)*scale if align else (np.arange(output,dtype=dtype)+scalar(.5))*scale-scalar(.5)
+    base=np.floor(position).astype(np.int64);t=position-base.astype(dtype)
+    a=scalar(-.75)
+    def inner(x):return ((a+2)*x-(a+3))*x*x+1
+    def outer(x):return ((a*x-5*a)*x+8*a)*x-4*a
+    coefficients=(outer(t+1),inner(t),inner(1-t),outer(2-t))
+    for offset,coefficient in zip((-1,0,1,2),coefficients):
+        np.add.at(weights,(np.arange(output),np.clip(base+offset,0,length-1)),coefficient)
+    return weights
+
+
+def _resize_2d(input, size, *, cubic=False, align=False, factors=None):
+    if input.ndim not in (3,4) or min(input.shape[-3:])<=0: raise RuntimeError('2D resize expects nonempty channel and spatial dimensions')
+    if input.dtype not in (np.dtype('float32'),np.dtype('float64')): raise BrowserUnsupported('2D resize requires real float32/float64')
+    h,w=input.shape[-2:];oh,ow=size
+    planes=math.prod(input.shape[:-2])
+    if h*oh+w*ow>4_000_000 or planes*max(oh*ow,min(oh*w,h*ow))>8_000_000:
+        raise BrowserUnsupported('This resize allocation requires the server')
+    wy=_resize_matrix(h,oh,input.dtype,cubic=cubic,align=align,factor=factors[0] if factors else None)
+    wx=_resize_matrix(w,ow,input.dtype,cubic=cubic,align=align,factor=factors[1] if factors else None)
+    # Choose the smaller intermediate for each direction, including thin maps.
+    value=(wy @ input._data) @ wx.T if oh*w<=h*ow else wy @ (input._data @ wx.T)
+    def vjp(g):return (wy.T @ g) @ wx if h*ow<=oh*w else wy.T @ (g @ wx)
+    return result(value,(input,vjp))
+
+
+def adaptive_avg_pool2d(input, output_size):
+    size=_spatial_pair(output_size,'adaptive_avg_pool2d',input.shape[-2:])
+    return _resize_2d(input,size)
+
+
+def interpolate(input, size=None, scale_factor=None, mode='nearest', align_corners=None, recompute_scale_factor=None, antialias=False):
+    if input.ndim!=4 or mode not in ('area','bicubic') or antialias:
+        raise BrowserUnsupported('Interpolation supports non-antialiased 2D area/bicubic modes')
+    if mode=='area' and align_corners is not None: raise ValueError('align_corners requires an interpolating mode')
+    if align_corners is not None and not isinstance(align_corners,bool): raise TypeError('align_corners must be boolean')
+    if recompute_scale_factor is not None and not isinstance(recompute_scale_factor,bool): raise TypeError('recompute_scale_factor must be boolean')
+    if (size is None)==(scale_factor is None): raise ValueError('Specify size or scale_factor')
+    factors=None
+    if size is not None:
+        if recompute_scale_factor: raise ValueError('recompute_scale_factor requires scale_factor')
+        shape=_spatial_pair(size,'interpolate')
+    else:
+        factors=(scale_factor,scale_factor) if np.isscalar(scale_factor) else tuple(scale_factor)
+        if len(factors)!=2 or any(not np.isscalar(x) or not np.isfinite(x) or x<=0 for x in factors): raise ValueError('Invalid scale factors')
+        shape=tuple(math.floor(n*f) for n,f in zip(input.shape[-2:],factors))
+        shape=_spatial_pair(shape,'interpolate')
+        if recompute_scale_factor or mode=='area':factors=None
+    return _resize_2d(input,shape,cubic=mode=='bicubic',align=bool(align_corners),factors=factors)
+
+
 def install():
     torch = types.ModuleType('torch')
     torch.__path__ = []
@@ -1648,6 +1778,8 @@ def install():
     torch.uint8 = np.dtype('uint8')
     torch.inf, torch.pi = np.inf, np.pi
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
+    torch.unique = unique
+    torch.remainder = lambda input,other,*,out=None: input.remainder(other,out=out)
     torch.logaddexp = lambda input,other: input.logaddexp(other)
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
@@ -1714,6 +1846,9 @@ def install():
     torch.random = modules['random']
     torch.random.fork_rng = fork_rng
     torch.nn.functional.linear = linear
+    torch.nn.functional.embedding = embedding
+    torch.nn.functional.interpolate = interpolate
+    torch.nn.functional.adaptive_avg_pool2d = adaptive_avg_pool2d
     torch.nn.functional.softmax = lambda x,dim,dtype=None: x.softmax(dim, dtype)
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
     torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()

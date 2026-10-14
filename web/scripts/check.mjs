@@ -112,8 +112,8 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 47);
-  for (const id of ['representation/rotation_trick', 'world_models/lewm_prediction', 'world_models/lewm_planning', 'world_models/causal_jepa', 'representation/repa', 'representation/ijepa', 'finetuning/distillm2', 'finetuning/opsd_alignment', 'finetuning/opsd_clipping', 'rl/sdpo_feedback', 'rl/sdpo_topk', 'optimization/muon_split', 'finetuning/svdquant', 'architecture/flash_attention', 'architecture/kimi_kda', 'rl/glm5_offpolicy', 'rl/opd', 'diffusion/consistency', 'diffusion/progressive_distillation', 'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching', 'diffusion/daps', 'representation/sigreg', 'representation/visreg']) {
+  assert.equal(browserModules.length, 50);
+  for (const id of ['representation/rotation_trick', 'world_models/lewm_prediction', 'world_models/lewm_planning', 'world_models/causal_jepa', 'representation/repa', 'representation/ijepa', 'finetuning/distillm2', 'finetuning/opsd_alignment', 'finetuning/opsd_clipping', 'rl/sdpo_feedback', 'rl/sdpo_topk', 'optimization/muon_split', 'finetuning/svdquant', 'architecture/flash_attention', 'architecture/kimi_kda', 'rl/glm5_offpolicy', 'rl/opd', 'diffusion/consistency', 'diffusion/progressive_distillation', 'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching', 'diffusion/daps', 'representation/sigreg', 'representation/visreg', 'representation/moge_alignment', 'representation/var_tokenizer', 'architecture/var_next_scale']) {
     const paper = catalog.papers.find(p => p.module_ids.includes(id));
     assert(matchingPaperModules(paper, catalog.problems, '', 'all', 'browser').some(p => p.id === id));
     assert(!matchingPaperModules(paper, catalog.problems, '', 'all', 'server').some(p => p.id === id));
