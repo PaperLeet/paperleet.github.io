@@ -8,3 +8,5 @@ Oracle 的 80/443 由已有 Nginx 管理。安装 Compose 后，设置 `deploy/.
 在 DNS 添加 `app.paperleet.com` 到 Oracle 的 A 记录。签发证书后添加 `deploy/nginx.oracle.conf` 作为独立 Nginx 配置，先 `nginx -t` 再 reload。Nginx 必须覆盖 `X-Real-IP`；不要将此 Caddy 配置放在可公开直接访问的端口。暂不要变更现有根域名，以保留旧站点直到数据迁移完成。
 
 旧部署数据需由合作方在电脑的部署目录执行 `./deploy/tunnel.sh backup`（隧道部署）或 `./deploy/manage.sh backup`（直接部署）。备份含私人账号与练习数据，应私下传输。另行保存部署配置及认证服务配置，不能提交 Git。Oracle 恢复使用全新的空数据卷；服务运行后创建了数据的卷不能直接覆盖。先恢复到独立 Compose 项目、验证账号与数据，再切换入口。开发数据库不能替代旧站点正式数据。详细流程见 hosting.zh-CN.md。
+
+当前只开放 GitHub Pages：设置 `VITE_HOSTED_APP_AVAILABLE=0`，隐藏账号、社区、投稿入口，并禁用服务端判题选择。浏览器题库、判题和本机进度照常工作。Oracle 已部署但尚无公网域名；HTTPS 验证通过后将此开关设为 `1`，再发布 Pages 即可开放入口。旧数据迁移暂不属于本阶段。

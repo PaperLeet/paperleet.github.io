@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
 import { signInHref } from "./accountNavigation";
-import { publicSite, hostedAppHref } from "./deployment";
+import { publicSite, hostedAppHref, hostedAppAvailable } from "./deployment";
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type PublicUser = {
@@ -304,6 +304,7 @@ export function DateLabel({ value }: { value: string }) {
 export function AccountNav({ returnTo = "" }: { returnTo?: string }) {
   const { user, loading } = useAccount();
   const { t } = useI18n();
+  if (!hostedAppAvailable) return null;
   return user ? (
     <a
       className="account-nav"
