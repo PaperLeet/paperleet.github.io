@@ -1,22 +1,28 @@
 # CPU/WASM browser judge prototype
 
-The three pilots use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Other modules keep the server queue. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
+Seven validated modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Other modules keep the server queue. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
 
 | Module | Backend | Maintained suite | Calibration |
 | --- | --- | --- | --- |
 | Schedules | NumPy/WASM tensor adapter | 8/8, including genuine float64 and variance preservation | Reference 8/8; all 5 mutants caught |
 | Attention | NumPy/WASM reverse-mode autodiff | 7/7, including masked rows, independent q/k/v gradients and prefix averaging | Reference 7/7; all 3 mutants caught |
 | LoRA | NumPy/WASM reverse-mode autodiff + Adam | 6/6, including frozen-base/input gradients, rank/merge checks and the 300-step training experiment | Reference 6/6; all 4 mutants caught |
+| Parameter conversion | NumPy/WASM + autodiff | 7/7, including endpoint clamps and float64 round trips | All 4 mutants caught |
+| LayerNorm | NumPy/WASM + analytical library-oracle VJP | 7/7, including token independence, affine gradients and Add & Norm | All 4 mutants caught |
+| Positional encoding | NumPy/WASM | 7/7, including odd widths, offsets, empty sequences and rotations | All 4 mutants caught |
+| DPO | NumPy/WASM + autodiff/Adam | 9/9, including shifted masked log-probs, extreme margins and preference training | All 5 mutants caught |
 
 These are bounded torch-like teaching adapters, **not the native PyTorch wheel or a general replacement for PyTorch**. Existing `import torch`, function signatures, maintained pytest files, reference implementations, mutants and experiment loops are retained. Test counts and precision tolerances are unchanged. Every browser run calibrates its runtime against the reference and every maintained mutant before executing the captured learner source. Unsupported APIs do not count as successful mutation detection. Ordinary assertion failures, syntax errors and unfinished TODOs are learner feedback and do not trigger an automatic server run.
 
 ## Differentiation and compatibility
 
-`paperleet/browser/numpy_autograd.py` implements analytical vector-Jacobian products for the operations used by Attention and LoRA: batched/broadcast matmul, supported two-input einsum, elementwise arithmetic, stable softmax, masks/where, reductions, indexing (including repeated indices), reshape/transpose/permute, expansion and repeat. Leaf gradients accumulate through `backward`; `autograd.grad` returns derivatives without accumulating into leaves. `detach` and `no_grad` disconnect the relevant paths. LoRA uses genuine gradients and Adam moments/bias correction on the original 300-step loop. NumPy supplies CPU linear algebra, including the matrix-rank check.
+`paperleet/browser/numpy_autograd.py` implements analytical vector-Jacobian products for the supported modules: batched/broadcast matmul, supported two-input einsum, elementwise arithmetic, stable softmax, masks/where, reductions, indexing (including repeated indices), reshape/transpose/permute, expansion and repeat. Leaf gradients accumulate through `backward`; `autograd.grad` returns derivatives without accumulating into leaves. `detach` and `no_grad` disconnect the relevant paths. LoRA uses genuine gradients and Adam moments/bias correction on the original 300-step loop. NumPy supplies CPU linear algebra, including the matrix-rank check.
 
-The independent parity tests compare the adapter and **native PyTorch on identical arrays** for values, batched/vector/broadcast matmul gradients, masked attention gradients, einsum, repeated indices, views, accumulation and Adam steps in float32/float64. The adapter's seeded NumPy random stream is deterministic but is not bitwise identical to PyTorch's RNG; browser and native training curves therefore need not match point for point. Both must meet the unchanged experiment thresholds.
+The independent parity tests compare the adapter and **native PyTorch on identical arrays** for values, batched/vector/broadcast matmul gradients, masked attention gradients, einsum, repeated indices, views, accumulation and Adam steps in float32/float64. CPU MT19937 integer sampling and float32/float64 uniform conversion are explicitly matched to native PyTorch and verified on 20,000 preference pairs. This keeps the unchanged DPO convergence threshold meaningful. Normal samples remain deterministic NumPy draws and are not bitwise identical to PyTorch; browser and native normal-data training curves need not match point for point. Both must meet unchanged experiment thresholds. Stable log-sigmoid/log-softmax, gather gradients, clamp/trigonometric derivatives, variance/std, pairwise distances and the separate LayerNorm oracle also have independent native checks.
 
-Higher-order derivatives, CUDA, custom extensions, unimplemented PyTorch modules/operators and differentiable in-place editing are outside this backend. Known unsupported APIs raise `BrowserUnsupported`. Auto mode falls back to the native server queue, using the **same captured source** even if the user continues editing. Browser only reports incompatibility without submitting to the server. Server can always be selected explicitly. The supported subset will not accept every valid PyTorch implementation; general PyTorch compatibility and cross-browser/mobile coverage remain beyond this prototype.
+Clamp uses subgradient 1 at the bounds, matching the hosted worker's pinned PyTorch 2.6 contract ([upstream implementation](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/csrc/autograd/FunctionsManual.cpp)). The local installed PyTorch version chooses differently at these nondifferentiable kinks, so an explicit production-contract test covers the bounds and differential tests compare smooth points.
+
+Higher-order derivatives, CUDA, custom extensions, unimplemented PyTorch modules/operators and differentiable in-place editing are outside this backend. Known unsupported APIs raise `BrowserUnsupported`. Auto mode falls back to the native server queue, using the **same captured source** even if the user continues editing. Browser only reports incompatibility without submitting to the server. Server can always be selected explicitly. PPO/GAE still require unimplemented training/environment dependencies, and other unvalidated modules remain on the server. The supported subset will not accept every valid PyTorch implementation; general PyTorch compatibility and cross-browser/mobile coverage remain beyond this prototype.
 
 ## Isolation and account progress
 
@@ -35,6 +41,8 @@ Upstream projects and license information: [Pyodide](https://github.com/pyodide/
 ## Reproducible checks
 
 - `.venv/bin/python -m pytest tests/test_browser_judge.py tests/test_browser_autograd.py -q`: unchanged source bundles, complete reference/mutant calibration, false-positive prevention, syntax/unsupported API behavior and independent native PyTorch parity. Adapter installation for full suites is isolated in subprocesses so it cannot replace the server's native torch.
-- `cd web && npm run check`: transport isolation, restricted network, message validation, report parsing, assertion failures, stop/timeout cleanup and all three CPU/WASM routes.
+- `cd web && npm run check`: transport isolation, restricted network, message validation, report parsing, assertion failures, stop/timeout cleanup and all seven CPU/WASM routes.
 - `cd web && npm run build`: TypeScript and production assets.
-- Browser: select **Browser only** and run each reference; all 21 tests pass, including LoRA training. The non-frozen-base LoRA mutant must fail the gradient test (5/6), while unsupported APIs in Auto mode retain native server judging. Run the generated reports' actual experiment charts through the Lab UI.
+- Browser: select **Browser only** and run each reference; all 51 tests must pass, including LoRA training. The non-frozen-base LoRA mutant must fail the gradient test (5/6), while unsupported APIs in Auto mode retain native server judging. Run the generated reports' actual experiment charts through the Lab UI.
+
+The paper library exposes **Runs in browser** and **Server judging** filters. Runtime capability intersects search/difficulty at the module level and also scopes random selection. Paper and module cards display browser capability, while anonymous onboarding explains when immediate browser runs are available.

@@ -83,7 +83,7 @@ class Tensor:
     shape = property(lambda self: self._data.shape)
     ndim = property(lambda self: self._data.ndim)
     dtype = property(lambda self: self._data.dtype)
-    device = property(lambda self: 'cpu')
+    device = property(lambda self: Device('cpu'))
     T = property(lambda self: self.permute(*reversed(range(self.ndim))))
     data = property(lambda self: self.detach())
 
@@ -156,6 +156,12 @@ class Tensor:
             other = Tensor(other, dtype=self.dtype)
         other = wrap(other)
         a, b = self._data, other._data
+        floating = [value.dtype for value in (a,b) if value.dtype.kind == 'f']
+        if floating:
+            dtype = np.result_type(*floating)
+            if a.ndim and not b.ndim and a.dtype.kind == 'f': dtype = a.dtype
+            if b.ndim and not a.ndim and b.dtype.kind == 'f': dtype = b.dtype
+            a, b = a.astype(dtype,copy=False), b.astype(dtype,copy=False)
         return result(op(a, b), (self, lambda g: unbroadcast(left(g, a, b), a.shape)),
                       (other, lambda g: unbroadcast(right(g, a, b), b.shape)))
     def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g)
@@ -182,6 +188,7 @@ class Tensor:
     def __matmul__(self, other):
         other = wrap(other)
         a, b = self._data, other._data
+        if a.dtype != b.dtype: raise RuntimeError('matmul operands must have the same dtype')
         # Promote vectors to matrices before calculating batched VJPs.
         aa, bb = a[None, :] if a.ndim == 1 else a, b[:, None] if b.ndim == 1 else b
         def promote(g):
@@ -272,6 +279,63 @@ class Tensor:
         return where(mask, value, self)
     def tril(self, diagonal=0): return self * Tensor(np.tril(np.ones(self.shape[-2:], dtype=self.dtype), diagonal))
     def triu(self, diagonal=0): return self * Tensor(np.triu(np.ones(self.shape[-2:], dtype=self.dtype), diagonal))
+    def clamp(self, min=None, max=None):
+        if min is None and max is None: raise ValueError('clamp needs at least one bound')
+        if isinstance(min, Tensor) or isinstance(max, Tensor): raise BrowserUnsupported('Tensor clamp bounds require the server')
+        mask = np.ones(self.shape, dtype=bool)
+        if min is not None: mask &= self._data >= min
+        if max is not None: mask &= self._data <= max
+        return result(np.clip(self._data, min, max), (self, lambda g: g * mask))
+    def sin(self): return result(np.sin(self._data), (self, lambda g: g * np.cos(self._data)))
+    def cos(self): return result(np.cos(self._data), (self, lambda g: -g * np.sin(self._data)))
+    def acos(self): return result(np.arccos(self._data), (self, lambda g: -g / np.sqrt(1 - self._data ** 2)))
+    def tanh(self):
+        value = np.tanh(self._data)
+        return result(value, (self, lambda g: g * (1 - value ** 2)))
+    def rsqrt(self): return self ** -.5
+    def sigmoid(self):
+        exp = np.exp(-np.abs(self._data))
+        value = np.where(self._data >= 0, 1 / (1 + exp), exp / (1 + exp))
+        return result(value, (self, lambda g: g * value * (1 - value)))
+    def logsigmoid(self):
+        zero = np.zeros((), dtype=self.dtype)
+        return result(-np.logaddexp(zero, -self._data), (self, lambda g: g * np.exp(-np.logaddexp(zero, self._data))))
+    def log_softmax(self, dim, dtype=None):
+        x = self.to(dtype=dtype) if dtype is not None else self
+        shifted = x._data - x._data.max(axis=dim, keepdims=True)
+        value = shifted - np.log(np.exp(shifted).sum(axis=dim, keepdims=True))
+        return result(value, (x, lambda g: g - np.exp(value) * g.sum(axis=dim, keepdims=True)))
+    def gather(self, dim, index):
+        dim %= self.ndim
+        index = wrap(index)._data
+        if index.ndim != self.ndim or index.dtype.kind not in 'iu': raise ValueError('gather needs integer indices of the same rank')
+        if np.any(index < 0) or np.any(index >= self.shape[dim]): raise IndexError('gather index out of bounds')
+        if any(index.shape[d] > self.shape[d] for d in range(self.ndim) if d != dim): raise ValueError('gather dimensions do not match')
+        slices = tuple(slice(None) if d == dim else slice(0, index.shape[d]) for d in range(self.ndim))
+        def vjp(g):
+            coordinates = list(np.indices(index.shape)); coordinates[dim] = index
+            grad = np.zeros_like(self._data); np.add.at(grad, tuple(coordinates), g)
+            return grad
+        return result(np.take_along_axis(self._data[slices], index, axis=dim), (self, vjp))
+    def var(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
+        dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
+        count = int(np.prod([self.shape[d] for d in dims]))
+        correction = int(unbiased) if correction is None else correction
+        centered = self - self.mean(dim, keepdim=True)
+        return centered.square().sum(dim, keepdim) / (count - correction)
+    def std(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
+        dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
+        correction = int(unbiased) if correction is None else correction
+        count = int(np.prod([self.shape[d] for d in dims]))
+        value = np.std(self._data, axis=dims, ddof=correction, keepdims=True)
+        centered = self._data - self._data.mean(axis=dims, keepdims=True)
+        def vjp(g):
+            if not keepdim:
+                for axis in sorted(dims): g = np.expand_dims(g, axis)
+            derivative = np.divide(centered, value * (count - correction), out=np.zeros_like(centered), where=value != 0)
+            return g * derivative
+        return result(value if keepdim else value.squeeze(axis=dims), (self, vjp))
+
     def _compare(self, other, op): return Tensor(op(self._data, wrap(other)._data))
     def __eq__(self, other): return self._compare(other, np.equal)
     def __ne__(self, other): return self._compare(other, np.not_equal)
@@ -295,7 +359,7 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
     check_device(device)
     if isinstance(data, Tensor): data = data._data.copy()
     array = np.asarray(data)
-    if dtype is None and not isinstance(data, np.ndarray):
+    if dtype is None and not isinstance(data, (np.ndarray, np.generic)):
         dtype = np.float32 if array.dtype.kind == 'f' else np.int64 if array.dtype.kind in 'iu' else None
     return Tensor(array, dtype=dtype, requires_grad=requires_grad)
 
@@ -313,7 +377,7 @@ def create(kind, *shape, dtype=np.float32, device=None, requires_grad=False, gen
     check_device(device)
     if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
     rng = generator.rng if generator else np.random
-    value = rng.standard_normal(shape) if kind == 'randn' else rng.random_sample(shape) if kind == 'rand' else getattr(np, kind)(shape, dtype=dtype)
+    value = rng.standard_normal(shape) if kind == 'randn' else uniform_samples(rng, shape, dtype) if kind == 'rand' else getattr(np, kind)(shape, dtype=dtype)
     return Tensor(value, dtype=dtype, requires_grad=requires_grad)
 
 
@@ -374,6 +438,73 @@ class Adam:
             p._data[...] -= self.lr * (self.m[i] / (1 - b1 ** self.steps)) / (np.sqrt(self.v[i] / (1 - b2 ** self.steps)) + self.eps)
 
 
+def layer_norm_oracle(x, normalized_shape, weight=None, bias=None, eps=1e-5):
+    """Separate analytical LayerNorm VJP for the library-oracle test path."""
+    x = wrap(x)
+    shape = tuple(normalized_shape)
+    if not shape or tuple(x.shape[-len(shape):]) != shape: raise ValueError('normalized_shape does not match input')
+    axes = tuple(range(x.ndim-len(shape), x.ndim))
+    centered = x._data - x._data.mean(axis=axes, keepdims=True)
+    inverse = 1 / np.sqrt(np.mean(centered ** 2, axis=axes, keepdims=True) + eps)
+    normalized = centered * inverse
+    scale = np.ones(shape, dtype=x.dtype) if weight is None else wrap(weight)._data
+    value = normalized * scale
+    if bias is not None: value = value + wrap(bias)._data
+    def dx(g):
+        scaled = g * scale
+        return inverse * (scaled - scaled.mean(axis=axes, keepdims=True) - normalized * (scaled * normalized).mean(axis=axes, keepdims=True))
+    edges = [(x, dx)]
+    if weight is not None: edges.append((weight, lambda g: unbroadcast(g * normalized, weight.shape)))
+    if bias is not None: edges.append((bias, lambda g: unbroadcast(g, bias.shape)))
+    return result(value, *edges)
+
+
+def randint(low, high, size, *, generator=None, dtype=np.int64, device=None):
+    check_device(device)
+    rng = generator.rng if generator else np.random
+    if not 0 < high-low <= 2**32: raise BrowserUnsupported('This randint range requires the server')
+    bits = rng.randint(0, 2**32, size=size, dtype=np.uint32).astype(np.uint64)
+    return Tensor((bits % (high-low)).astype(dtype) + low)
+
+
+def full(shape, fill_value, *, dtype=None, device=None, requires_grad=False):
+    check_device(device)
+    if dtype is None: dtype = np.bool_ if isinstance(fill_value, bool) else np.float32 if isinstance(fill_value, float) else np.int64
+    return Tensor(np.full(shape, fill_value, dtype=dtype), requires_grad=requires_grad)
+
+
+class Device(str):
+    def __new__(cls, name='cpu'):
+        check_device(name)
+        return str.__new__(cls, name)
+    type = property(lambda self: 'cpu')
+    index = property(lambda self: 0 if self.endswith(':0') else None)
+
+
+def uniform_samples(rng, shape, dtype):
+    # CPU MT19937 uniforms use the low mantissa bits, unlike NumPy's
+    # random_sample conversion. Keep preference-pair sampling reproducible.
+    if np.dtype(dtype) == np.dtype('float64'):
+        bits = rng.randint(0,2**32,size=tuple(shape)+(2,),dtype=np.uint32).astype(np.uint64)
+        raw = ((bits[...,0] << 32) | bits[...,1]) & np.uint64((1 << 53)-1)
+        return raw.astype(np.float64) / (1 << 53)
+    bits = rng.randint(0,2**32,size=shape,dtype=np.uint32)
+    return (bits & ((1 << 24)-1)).astype(np.float32) / (1 << 24)
+
+
+def pdist(x, p=2):
+    if p != 2 or x.ndim != 2: raise BrowserUnsupported('Only 2D Euclidean pdist is supported')
+    i,j = np.triu_indices(x.shape[0],k=1)
+    difference = x._data[i] - x._data[j]
+    lengths = np.linalg.norm(difference,axis=1)
+    def vjp(g):
+        grad = np.zeros_like(x._data)
+        direction = np.divide(difference,lengths[:,None],out=np.zeros_like(difference),where=lengths[:,None]!=0)
+        np.add.at(grad,i,g[:,None]*direction);np.add.at(grad,j,-g[:,None]*direction)
+        return grad
+    return result(lengths,(x,vjp))
+
+
 def install():
     torch = types.ModuleType('torch')
     torch.__path__ = []
@@ -385,6 +516,9 @@ def install():
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
+    torch.full, torch.randint, torch.device, torch.finfo = full, randint, Device, np.finfo
+    torch.linspace = lambda start,end,steps,dtype=np.float32,device=None: (check_device(device), Tensor(np.linspace(start,end,steps,dtype=dtype)))[1]
+    torch.argsort = lambda x,dim=-1,descending=False: Tensor(np.argsort(x._data,axis=dim) if not descending else np.flip(np.argsort(x._data,axis=dim),axis=dim),dtype=np.int64)
     torch.manual_seed = np.random.seed
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         setattr(torch, name, lambda *shape, _kind=name, **kw: create(_kind, *shape, **kw))
@@ -396,7 +530,8 @@ def install():
     torch.unravel_index = lambda index, shape: tuple(Tensor(i) for i in np.unravel_index(int(index), shape))
     torch.broadcast_to = lambda x, shape: x.expand(shape)
     torch.matmul = lambda a,b: wrap(a) @ b
-    for name in ('sum', 'mean', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'transpose', 'reshape', 'flatten', 'max', 'min'):
+    torch.pdist = pdist
+    for name in ('sum', 'mean', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'transpose', 'reshape', 'flatten', 'max', 'min', 'clamp', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan', 'count_nonzero'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -413,6 +548,9 @@ def install():
     torch.nn.functional = modules['nn.functional']
     torch.nn.functional.linear = lambda x,w,bias=None: x @ w.T if bias is None else x @ w.T + bias
     torch.nn.functional.softmax = lambda x,dim,dtype=None: x.softmax(dim, dtype)
+    torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
+    torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()
+    torch.nn.functional.layer_norm = layer_norm_oracle
     torch.optim.Adam, torch.autograd.grad = Adam, autograd_grad
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
     torch.__getattr__ = unsupported

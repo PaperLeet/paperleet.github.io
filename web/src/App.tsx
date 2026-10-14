@@ -1179,9 +1179,7 @@ function Workspace() {
                         <option value="server">{t("服务端", "Server")}</option>
                       </select>
                     </label>
-                    <small>{problem.browser_judge.backend === "numpy-wasm"
-                      ? t("原型：NumPy / WASM，保留原有完整测试。", "Prototype: NumPy / WASM, using the complete maintained suite.")
-                      : t("原型：CPU / WASM 自动微分，包含梯度与实验测试，无需 GPU。", "Prototype: CPU / WASM autodiff, including gradient and experiment tests; no GPU needed.")}</small>
+                    <small>{t("原型：本机 CPU / WASM 运行完整测试，无需 GPU。", "Prototype: the complete suite runs on your CPU / WASM; no GPU needed.")}</small>
                     {hosted && <small>{t("浏览器结果仅供本机反馈；服务端确认后计入账号进度与统计。", "Browser results are local feedback; server verification records account progress and statistics.")}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")}。{judgeMode === "auto" ? t("自动模式回退到服务端，请查看下方状态。", "Auto mode falls back to the server; see the status below.") : t("可切换至服务端运行。", "Select Server to run this suite.")}</p>}
                     {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}

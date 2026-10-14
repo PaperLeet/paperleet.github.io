@@ -113,3 +113,85 @@ def test_integer_mask_fill_preserves_float32_and_blocked_gradients():
     assert actual.dtype == np.dtype('float32')
     actual.sum().backward();expected.sum().backward()
     np.testing.assert_array_equal(x.grad.numpy(),xx.grad.numpy())
+
+
+@pytest.mark.parametrize('dtype',[np.float32,np.float64])
+def test_log_softmax_gather_and_masked_sequence_gradients(dtype):
+    rng=np.random.RandomState(103)
+    x, xx=pair(rng.randn(2,5,7)*10,dtype)
+    ids=rng.randint(0,7,(2,4,1)); mask=np.array([[0,1,1,0],[1,1,0,1]],dtype=np.int64)
+    actual=(x[:,:-1].log_softmax(-1).gather(-1,wasm.Tensor(ids)).squeeze(-1)*wasm.Tensor(mask)).sum(-1)
+    expected=(xx[:,:-1].log_softmax(-1).gather(-1,torch.tensor(ids)).squeeze(-1)*torch.tensor(mask)).sum(-1)
+    assert actual.dtype==np.dtype(dtype)
+    actual.sum().backward();expected.sum().backward()
+    tolerance=3e-6 if dtype==np.float32 else 1e-11
+    np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),atol=tolerance,rtol=tolerance)
+    np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),atol=tolerance,rtol=tolerance)
+
+
+def test_stable_logsigmoid_clamp_and_transcendental_gradients():
+    values=np.array([-10000.,-10.,-.2,0.,.5,10.,10000.])
+    x,xx=pair(values)
+    actual=x.logsigmoid(); expected=torch.nn.functional.logsigmoid(xx)
+    np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),atol=1e-12,rtol=1e-12)
+    actual.sum().backward();expected.sum().backward()
+    np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),atol=1e-12,rtol=1e-12)
+    y,yy=pair([-.8,-.49,0.,.49,.8])
+    a=(y.clamp(-.5,.5).sin()+y.cos()+y.acos()+y.tanh()).sum()
+    b=(yy.clamp(-.5,.5).sin()+yy.cos()+yy.acos()+yy.tanh()).sum()
+    a.backward();b.backward()
+    np.testing.assert_allclose(y.grad.numpy(),yy.grad.numpy(),atol=1e-12,rtol=1e-12)
+
+
+@pytest.mark.parametrize('shape',[(7,),(2,3,5),(2,3,4,5)])
+def test_layer_norm_oracle_values_and_gradients_against_native(shape):
+    rng=np.random.RandomState(44)
+    x,xx=pair(rng.randn(*shape));w,ww=pair(rng.randn(shape[-1]));b,bb=pair(rng.randn(shape[-1]))
+    actual=wasm.layer_norm_oracle(x,(shape[-1],),w,b,1e-4)
+    expected=torch.nn.functional.layer_norm(xx,(shape[-1],),ww,bb,1e-4)
+    upstream=rng.randn(*shape)
+    a=wasm.autograd_grad((actual*wasm.Tensor(upstream)).sum(),(x,w,b))
+    e=torch.autograd.grad((expected*torch.tensor(upstream)).sum(),(xx,ww,bb))
+    np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),atol=1e-11,rtol=1e-11)
+    for got,want in zip(a,e):np.testing.assert_allclose(got.numpy(),want.numpy(),atol=1e-10,rtol=1e-10)
+
+
+@pytest.mark.parametrize('correction',[0,1])
+def test_variance_standard_deviation_gradient_parity(correction):
+    rng=np.random.RandomState(62)
+    x,xx=pair(rng.randn(2,3,5))
+    actual=x.var(-1,correction=correction).mean()+x.std((0,2),correction=correction).sum()
+    expected=xx.var(-1,correction=correction).mean()+xx.std((0,2),correction=correction).sum()
+    actual.backward();expected.backward()
+    np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),atol=1e-11,rtol=1e-11)
+
+
+def test_mixed_matmul_dtype_is_rejected_like_native():
+    with pytest.raises(RuntimeError):wasm.Tensor(np.ones((2,3),dtype=np.float32))@wasm.Tensor(np.ones((3,2),dtype=np.float64))
+
+
+def test_clamp_boundary_matches_pinned_production_torch26_contract():
+    # Production uses torch==2.6.0. Its FunctionsManual.cpp explicitly chooses
+    # subgradient 1 at min/max; compare other kernels away from these kinks.
+    x=wasm.Tensor(np.array([-.8,-.5,0.,.5,.8]),requires_grad=True)
+    x.clamp(-.5,.5).sum().backward()
+    np.testing.assert_array_equal(x.grad.numpy(),[0.,1.,1.,1.,0.])
+
+
+@pytest.mark.parametrize('dtype',[np.float32,np.float64])
+def test_seeded_integer_and_uniform_stream_matches_native(dtype):
+    native=torch.Generator().manual_seed(42);generator=wasm.Generator().manual_seed(42)
+    actual=wasm.randint(0,6,(20000,2),generator=generator)
+    expected=torch.randint(0,6,(20000,2),generator=native)
+    np.testing.assert_array_equal(actual.numpy(),expected.numpy())
+    actual=wasm.create('rand',20000,generator=generator,dtype=dtype)
+    expected=torch.rand(20000,generator=native,dtype=torch.float64 if dtype==np.float64 else torch.float32)
+    np.testing.assert_array_equal(actual.numpy(),expected.numpy())
+
+
+def test_pdist_values_and_gradients_against_native():
+    rng=np.random.RandomState(74);x,xx=pair(rng.randn(6,4))
+    actual=wasm.pdist(x);expected=torch.pdist(xx)
+    np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),atol=1e-12,rtol=1e-12)
+    actual.sum().backward();expected.sum().backward()
+    np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),atol=1e-11,rtol=1e-11)

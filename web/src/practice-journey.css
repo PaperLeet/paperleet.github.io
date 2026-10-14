@@ -45,3 +45,6 @@
 .browser-judge-panel small { display: block; color: var(--muted); }
 .browser-judge-panel p { margin: 6px 0 0; }
 .browser-judge-panel button { margin-left: 10px; }
+
+.browser-capability-badge { display: inline-flex; align-items: center; padding: 2px 7px; border: 1px solid var(--line); border-radius: 5px; color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); font-size: 10px; font-weight: 500; line-height: 1.5; vertical-align: middle; white-space: nowrap; }
+.paper-info strong .browser-capability-badge { margin-left: 9px; }

@@ -1,11 +1,15 @@
-"""Static, public compatibility bundles for the three browser-judge pilots."""
+"""Static, public compatibility bundles for validated CPU/WASM browser modules."""
 import hashlib
 import json
 from pathlib import Path
 
 from paperleet.catalog import root
 
-PILOTS = {"diffusion/schedules", "architecture/attention", "finetuning/lora"}
+PILOTS = {
+    "diffusion/schedules", "architecture/attention", "finetuning/lora",
+    "diffusion/param_conversion", "architecture/layer_norm",
+    "architecture/positional_encoding", "rl/dpo",
+}
 
 
 def export_browser_bundle(entry, output):

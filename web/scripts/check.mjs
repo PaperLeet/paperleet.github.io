@@ -105,6 +105,14 @@ try {
   assert.deepEqual(matchingIds("Transformer", "M"), ["architecture/multihead_attention"],
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
+  const browserModules = catalog.problems.filter((p) => p.browser_judge);
+  assert.equal(browserModules.length, 7);
+  const runtimeMatching = (query, runtime, difficulty = "all") => matchingPaperModules(transformer, catalog.problems, query, difficulty, runtime).map((p) => p.id);
+  assert.deepEqual(runtimeMatching("Transformer", "browser"), ["architecture/attention", "architecture/layer_norm", "architecture/positional_encoding"]);
+  assert.deepEqual(runtimeMatching("Transformer", "server"), ["architecture/multihead_attention", "architecture/positionwise_ffn"]);
+  assert.deepEqual(runtimeMatching("LayerNorm", "browser"), ["architecture/layer_norm"]);
+  assert.deepEqual(runtimeMatching("LayerNorm", "server"), []);
+  assert.deepEqual(runtimeMatching("Transformer", "browser", "M"), [], "Difficulty and runtime must match the same module, including the random pool");
   const cachedStarter = catalog.problems.find((problem) => problem.id === "architecture/positional_encoding");
   assert.equal(status(cachedStarter, { code: cachedStarter.starter }), "todo",
     "A pristine cached starter must agree with random eligibility and the Not started filter");

@@ -4,6 +4,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
 from paperleet.browser_judge import PILOTS, export_browser_bundle
 from paperleet.catalog import problem, root
 
@@ -67,18 +69,22 @@ print(json.dumps(calibration))
     assert len(json.loads(result.stdout)['mutants_caught']) == 5
 
 
-def test_attention_and_lora_unchanged_suites_and_mutants(tmp_path):
-    for identifier, count, mutants in [('architecture/attention', 7, 3), ('finetuning/lora', 6, 4)]:
-        folder = tmp_path / identifier.replace('/', '-')
-        metadata = export_browser_bundle(problem(identifier), folder)
-        script = r'''
+@pytest.mark.parametrize('identifier,count,mutants', [
+    ('architecture/attention',7,3),('finetuning/lora',6,4),
+    ('diffusion/param_conversion',7,4),('architecture/layer_norm',7,4),
+    ('architecture/positional_encoding',7,4),('rl/dpo',9,5),
+])
+def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
+    folder = tmp_path / identifier.replace('/', '-')
+    metadata = export_browser_bundle(problem(identifier), folder)
+    script = r'''
 import json,sys
 from paperleet.browser.harness import prepare, calibrate, run_suite
 b=json.load(open(sys.argv[1]));prepare(b,b['adapter'],sys.argv[2])
 c=calibrate(b,sys.argv[2]);assert c['compatible'],c
 assert c['reference_passed']==int(sys.argv[3]);assert len(c['mutants_caught'])==int(sys.argv[4])
 r=run_suite(b,b['reference'],sys.argv[2]);assert r['passed'],r
-assert any(t['artifacts'] for t in r['tests'])
+assert not b['tests'].get('T3') or any(t['artifacts'] for t in r['tests'])
 syntax=run_suite(b,'def broken(',sys.argv[2]);assert not syntax['passed'] and not syntax.get('error')
 unsupported=run_suite(b,b['reference']+'\nimport torch\ntorch.cuda.synchronize()\n',sys.argv[2])
 assert not unsupported['passed'] and any('BrowserUnsupported' in t['message'] for t in unsupported['tests'])
@@ -86,8 +92,8 @@ b['mutants']={'unsupported':b['reference']+'\nimport torch\ntorch.cuda.synchroni
 rejected=calibrate(b,sys.argv[2]);assert not rejected['compatible'] and rejected['reason']=='mutant_api_unsupported',rejected
 print(json.dumps({'calibration':c,'report':r}))
 '''
-        out = subprocess.run([sys.executable, '-c', script, str(folder / metadata['bundle_url']), str(folder / 'judge'), str(count), str(mutants)],
-                             cwd=root(), capture_output=True, text=True, timeout=45)
-        assert out.returncode == 0, out.stdout + out.stderr
-        payload = json.loads(out.stdout)
-        assert payload['report']['runtime'] == 'browser-numpy-wasm'
+    out = subprocess.run([sys.executable, '-c', script, str(folder / metadata['bundle_url']), str(folder / 'judge'), str(count), str(mutants)],
+                         cwd=root(), capture_output=True, text=True, timeout=45)
+    assert out.returncode == 0, out.stdout + out.stderr
+    payload = json.loads(out.stdout)
+    assert payload['report']['runtime'] == 'browser-numpy-wasm'

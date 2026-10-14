@@ -195,4 +195,4 @@ reports/           判题和 CI 报告，忽略于 Git
 
 VAR 与 FD-Loss 新增四个核心模块及 CPU 小实验，详见[来源与验证记录](docs/validation/var-and-fd-loss.md)。
 
-浏览器端判题原型现覆盖 Schedules、Attention、LoRA：三题均在本机 CPU/WASM 执行完整测试，Attention/LoRA 支持双精度、解析自动微分和 Adam 训练；不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号进度仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。
+浏览器端判题现覆盖 Schedules、Attention、LoRA、参数化转换、LayerNorm、位置编码和 DPO：七题均在本机 CPU/WASM 执行完整测试，支持所需的双精度、解析自动微分和训练实验；不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号进度仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。

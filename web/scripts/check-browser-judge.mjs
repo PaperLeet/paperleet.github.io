@@ -86,15 +86,15 @@ try {
     globalThis.clearTimeout = nativeClearTimeout;
   }
 
-  for (const id of ['architecture/attention', 'finetuning/lora']) {
+  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo']) {
     const wasm = runBrowserJudge({ ...problem, id, browser_judge: { ...problem.browser_judge, backend: 'numpy-autograd-wasm' } }, 'private source', new AbortController().signal, () => {});
     // The mock response intentionally has the wrong identity, so it must never
-    // be executed; both new pilots use the same isolated CPU/WASM path.
+    // be executed; All autodiff modules use the same isolated CPU/WASM path.
     assert.equal((await wasm).reason, 'runtime_failed');
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
-  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 3);
-  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all three CPU/WASM routes');
+  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 7);
+  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all seven CPU/WASM routes');
 } finally {
   Object.assign(globalThis, originals);
   await server.close();

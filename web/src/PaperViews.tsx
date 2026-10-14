@@ -20,14 +20,15 @@ export function paperModules(paper: Paper, problems: Problem[]) {
     return problem ? [problem] : [];
   });
 }
-export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all") {
+export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all", runtime = "all") {
   const normalized = query.trim().toLowerCase();
   const paperMatches = [paper.number, paper.title, paper.short_title, paper.summary, paper.summary_en, ...paper.tags]
     .join(" ").toLowerCase().includes(normalized);
   return paperModules(paper, problems).filter((problem) => {
     const moduleMatches = [problem.title, problem.translations?.en?.title, problem.module.goal, problem.module.goal_en]
       .join(" ").toLowerCase().includes(normalized);
-    return (difficulty === "all" || problem.difficulty === difficulty) && (paperMatches || moduleMatches);
+    return (difficulty === "all" || problem.difficulty === difficulty) && (paperMatches || moduleMatches) &&
+      (runtime === "all" || (runtime === "browser") === !!problem.browser_judge);
   });
 }
 export function paperProgress(paper: Paper, { problems, saved }: Practice) {
@@ -67,6 +68,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [diff, setDiff] = useState("all");
+  const [runtime, setRuntime] = useState("all");
   const [state, setState] = useState("all");
   const [tag, setTag] = useState("all");
   const [category, setCategory] = useState("all");
@@ -96,11 +98,11 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const solvedModules = listedModules.filter((p) => status(p, saved[p.id]) === "done").length;
   const filtered = listedPapers.filter((paper) => {
     return (category === "all" || paper.category === category) &&
-      matchingPaperModules(paper, problems, query, diff).length > 0 &&
+      matchingPaperModules(paper, problems, query, diff, runtime).length > 0 &&
       (state === "all" || paperProgress(paper, practice).state === state) &&
       (tag === "all" || paper.tags.includes(tag));
   });
-  const filteredModules = filtered.flatMap((paper) => matchingPaperModules(paper, problems, query, diff));
+  const filteredModules = filtered.flatMap((paper) => matchingPaperModules(paper, problems, query, diff, runtime));
   const unattempted = eligibleUnattemptedProblems(filteredModules, saved);
   function randomProblem() {
     if (!progressReady) return;
@@ -111,8 +113,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     const rail = collectionRail.current;
     if (rail) rail.scrollBy({ left: direction * rail.clientWidth });
   }
-  function clear() { setQuery(""); setDiff("all"); setState("all"); setTag("all"); setCategory("all"); }
-  const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
+  function clear() { setQuery(""); setDiff("all"); setState("all"); setTag("all"); setCategory("all"); setRuntime("all"); }
+  const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all" || runtime !== "all";
   return <main className="home paper-library">
     <PracticeStart problems={listedModules} saved={saved} ready={progressReady} onGuide={onGuide} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
@@ -163,20 +165,23 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           <div className="select-wrap"><select aria-label={t("模块难度筛选", "Filter module difficulty")} value={diff} onChange={(e) => setDiff(e.target.value)}>
             <option value="all">{t("难度", "Difficulty")}</option><option value="E">{t("简单", "Easy")}</option><option value="M">{t("中等", "Medium")}</option><option value="H">{t("困难", "Hard")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
+          <div className="select-wrap"><select aria-label={t("判题位置筛选", "Filter by judge location")} value={runtime} onChange={(e) => setRuntime(e.target.value)}>
+            <option value="all">{t("运行位置", "Run location")}</option><option value="browser">{t("浏览器可运行", "Runs in browser")}</option><option value="server">{t("服务端判题", "Server judging")}</option>
+          </select><ChevronDown size={12} aria-hidden="true" /></div>
           <div className="select-wrap"><select aria-label={t("论文状态筛选", "Filter paper status")} value={state} onChange={(e) => setState(e.target.value)}>
             <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
         </div>
         <button className="random-problem" onClick={randomProblem} disabled={!progressReady || !unattempted.length} title={!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} />{t("随机一题", "Random problem")}</button>
       </div>
-      <div className="library-results" aria-live="polite"><span>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")}{progressReady && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</span>{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}</div>
+      <div className="library-results" aria-live="polite"><span>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · {filteredModules.length} {t("道题", "modules")}{progressReady && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</span>{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}</div>
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{t("论文", "Paper")}</span><span className="paper-year">{t("年份", "Year")}</span><span>{t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
       <div className="problem-rows">
         {filtered.map((paper) => {
           const progress = paperProgress(paper, practice);
           return <a className="problem-row paper-table-grid" key={paper.id} href={`#/papers/${paper.id}`}>
             <StateIcon state={progress.state} />
-            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}</strong><small title={paper.title}>{paper.title}</small></div>
+            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}{paperModules(paper, problems).some((p) => p.browser_judge) && <span className="browser-capability-badge" title={t("包含可在本机 CPU 运行测试的模块，无需 GPU", "Includes modules that run tests on your CPU; no GPU needed")}>{t("浏览器", "Browser")}</span>}</strong><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
@@ -212,7 +217,7 @@ export function PaperDetail({ paper, problems, saved, stats }: Practice & { pape
             return <a href={`#/${problem.number}`} className="paper-module-card" key={problem.id}>
               <div className="module-card-top"><StateIcon state={state} /><h3><span>{problem.number}.</span> {title}</h3><ChevronRight size={17} /></div>
               <p>{t(problem.module.goal, problem.module.goal_en)}</p>
-              <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span><span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
+              <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span>{problem.browser_judge && <span className="browser-capability-badge">{t("浏览器判题 · 无需 GPU", "Browser tests · No GPU")}</span>}<span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
               <div className="module-functions"><span>{t("需要实现", "Implement")}</span>{problem.module.required_functions.map((name) => <code key={name}>{name}</code>)}</div>
               {!!problem.module.provided_functions.length && <div className="module-functions provided-functions"><span>{t("已提供", "Provided")}</span>{problem.module.provided_functions.map((name) => <code key={name}>{name}</code>)}</div>}
               <ProblemStatsSummary stats={getProblemStats(stats, problem.id)} />

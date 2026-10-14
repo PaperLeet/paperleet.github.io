@@ -33,4 +33,4 @@ await Promise.all([...names].map((name) => {
   const pkg = lock.packages[name];
   return pinnedFile(`https://cdn.jsdelivr.net/pyodide/v0.29.4/full/${pkg.file_name}`, path.join(output, pkg.file_name), pkg.sha256);
 }));
-console.log(`Browser runtime ready: Pyodide 0.29.4, NumPy ${lock.packages.numpy.version}, pytest ${lock.packages.pytest.version}; all three pilots use CPU/WASM`);
+console.log(`Browser runtime ready: Pyodide 0.29.4, NumPy ${lock.packages.numpy.version}, pytest ${lock.packages.pytest.version}; validated browser modules use CPU/WASM`);
