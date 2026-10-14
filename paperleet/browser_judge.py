@@ -11,6 +11,7 @@ PILOTS = {
     "architecture/positional_encoding", "rl/dpo",
     "architecture/multihead_attention", "architecture/positionwise_ffn", "optimization/adamw",
     "rl/gae", "rl/ppo_clip", "rl/grpo", "rl/dr_grpo",
+    "rl/dapo", "rl/gspo", "representation/clip", "architecture/situ_glu",
 }
 
 

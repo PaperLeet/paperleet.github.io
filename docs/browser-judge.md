@@ -1,6 +1,6 @@
 # CPU/WASM browser judge prototype
 
-Fourteen validated modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Other modules keep the server queue. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
+Eighteen validated modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Other modules keep the server queue. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
 
 | Module | Backend | Maintained suite | Calibration |
 | --- | --- | --- | --- |
@@ -18,6 +18,10 @@ Fourteen validated modules use the browser's CPU through Pyodide + NumPy. **No W
 | PPO | NumPy/WASM + autodiff/Adam + native-compatible categorical sampling | 11/11, including four clipping-gradient quadrants, frozen targets, bandit learning and fixed-batch KL | All 5 mutants caught |
 | GRPO | NumPy/WASM + direct module parameters/autodiff | 9/9, including group normalization, padding isolation, frozen snapshots and 150-step EOS-aware policy training | All 5 mutants caught |
 | Dr. GRPO | NumPy/WASM + unchanged GRPO helper dependencies | 6/6, including external-length normalization, token gradient comparisons and display-only length training | All 3 mutants caught |
+| DAPO | NumPy/WASM + autodiff | 7/7, including dynamic group filtering, token averaging, asymmetric clipping, frozen snapshots and the full ratio sweep | All 4 mutants caught |
+| GSPO | NumPy/WASM + autodiff | 7/7, including geometric sequence ratios, equal token gradients, padding isolation and the cancellation experiment | All 4 mutants caught |
+| CLIP | NumPy/WASM + normalization/autodiff/Adam + independent cross-entropy oracle | 7/7, including both encoder gradients, learned temperature, zero features and 80-step bidirectional retrieval training | All 4 mutants caught |
+| SiTU-GLU | NumPy/WASM + differentiable meshgrid | 9/9, including independent branch gradients, smooth cap limits, empty/strided tensors and full scalar-curve recreation | All 4 mutants caught |
 
 These are bounded torch-like teaching adapters, **not the native PyTorch wheel or a general replacement for PyTorch**. Existing `import torch`, function signatures, maintained pytest files, reference implementations, mutants and experiment loops are retained. Test counts and precision tolerances are unchanged. Every browser run calibrates its runtime against the reference and every maintained mutant before executing the captured learner source. Unsupported APIs do not count as successful mutation detection. Ordinary assertion failures, syntax errors and unfinished TODOs are learner feedback and do not trigger an automatic server run.
 
@@ -36,6 +40,10 @@ Additional native parity covers zero-safe cumulative-product VJPs, split/repeat-
 Clamp uses subgradient 1 at the bounds, matching the hosted worker's pinned PyTorch 2.6 contract ([upstream implementation](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/csrc/autograd/FunctionsManual.cpp)). The local installed PyTorch version chooses differently at these nondifferentiable kinks, so an explicit production-contract test covers the bounds and differential tests compare smooth points.
 
 Higher-order derivatives, CUDA, custom extensions, unimplemented PyTorch modules/operators and differentiable in-place editing are outside this backend. Known unsupported APIs raise `BrowserUnsupported`. Auto mode falls back to the native server queue, using the **same captured source** even if the user continues editing. Browser only reports incompatibility without submitting to the server. Server can always be selected explicitly. Other unvalidated modules remain on the server. The supported subset will not accept every valid PyTorch implementation; general PyTorch compatibility and cross-browser/mobile coverage remain beyond this prototype.
+
+The contrastive-learning operators include Euclidean/Frobenius norms with zero-safe analytical VJPs, epsilon-clamped L2 normalization, stabilized log-sum-exp, vector/matrix diagonal extraction/construction, and differentiable `ij`/`xy` meshgrids (including scalar, empty and repeated inputs). Cross entropy uses an independent raw NumPy log-partition and analytical VJP, distinct from the Tensor log-sum-exp expression used by the CLIP tests. It supports finite `[N,C]` logits, int64 class-index `[N]` targets, ignored targets and all three reductions. Native parity includes extreme logits, ignored/empty batches, zero and sub-epsilon features, nonfinite/empty log-sum-exp reductions and diagonal offsets. Weighted/smoothed/probability-target cross entropy, other norm orders and `out` arguments remain unsupported. API semantics follow the official [normalization](https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.normalize.html), [cross entropy](https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.cross_entropy.html), [log-sum-exp](https://docs.pytorch.org/docs/2.14/generated/torch.logsumexp.html) and [meshgrid](https://docs.pytorch.org/docs/2.14/generated/torch.meshgrid.html) documentation within this bounded subset.
+
+GLM-5 off-policy remains server-only. Its exact strict-boundary test exposed a NumPy/PyTorch exponential/logarithm rounding difference. The maintained boundary assertion is not relaxed and the module is not advertised as browser-compatible.
 
 ## Isolation and account progress
 
@@ -56,9 +64,9 @@ Upstream projects and license information: [Pyodide](https://github.com/pyodide/
 ## Reproducible checks
 
 - `.venv/bin/python -m pytest tests/test_browser_judge.py tests/test_browser_autograd.py -q`: unchanged source bundles, complete reference/mutant calibration, false-positive prevention, syntax/unsupported API behavior and independent native PyTorch parity. Adapter installation for full suites is isolated in subprocesses so it cannot replace the server's native torch.
-- `cd web && npm run check`: transport isolation, restricted network, message validation, report parsing, assertion failures, stop/timeout cleanup and all fourteen CPU/WASM routes.
+- `cd web && npm run check`: transport isolation, restricted network, message validation, report parsing, assertion failures, stop/timeout cleanup and all eighteen CPU/WASM routes.
 - `cd web && npm run build`: TypeScript and production assets.
-- Browser: select **Browser only** and run each reference; all 109 tests must pass, including LoRA/FFN training, AdamW optimization and the complete RL experiments. The non-frozen-base LoRA mutant must fail the gradient test (5/6), while unsupported APIs in Auto mode retain native server judging. Run the generated reports' actual experiment charts through the Lab UI.
+- Browser: select **Browser only** and run each reference; all 139 tests must pass and all 74 maintained mutants must be caught, including LoRA/FFN/CLIP training, AdamW optimization and the complete RL experiments. The non-frozen-base LoRA mutant must fail the gradient test (5/6), while unsupported APIs in Auto mode retain native server judging. Run the generated reports' actual experiment charts through the Lab UI.
 
 The paper library exposes **Runs in browser** and **Server judging** filters. Runtime capability intersects search/difficulty at the module level and also scopes random selection. Paper and module cards display browser capability, while anonymous onboarding explains when immediate browser runs are available.
 

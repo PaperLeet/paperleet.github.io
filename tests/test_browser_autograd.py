@@ -15,6 +15,110 @@ def pair(data, dtype=np.float64):
     return wasm.Tensor(data.copy(), requires_grad=True), torch.tensor(data.copy(), requires_grad=True)
 
 
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('shape,dim,keepdim', [((3, 4), -1, False), ((2, 3, 4), (0, 2), True), ((3, 4), None, False), ((2, 0, 4), -1, False), ((), None, True)])
+def test_euclidean_norm_and_normalization_values_and_vjps(dtype, shape, dim, keepdim):
+    data = np.random.RandomState(9).randn(*shape) if shape else np.asarray(-2.)
+    if shape and data.size: data.reshape(-1)[:4] = 0
+    x, native = pair(data, dtype)
+    value, expected = x.norm(2, dim, keepdim), native.norm(2, dim, keepdim)
+    value.sum().backward(); expected.sum().backward()
+    tolerance = 2e-6 if dtype == np.float32 else 1e-12
+    np.testing.assert_allclose(value.numpy(), expected.detach().numpy(), rtol=tolerance, atol=tolerance)
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy(), rtol=tolerance, atol=tolerance)
+    if shape:
+        x, native = pair(data, dtype)
+        axis = dim if dim is not None else -1
+        got, want = wasm.normalize(x, dim=axis, eps=1e-4), torch.nn.functional.normalize(native, dim=axis, eps=1e-4)
+        got.square().sum().backward(); want.square().sum().backward()
+        np.testing.assert_allclose(got.numpy(), want.detach().numpy(), rtol=tolerance, atol=tolerance)
+        np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy(), rtol=tolerance, atol=tolerance)
+
+
+def test_normalize_zero_and_sub_epsilon_gradients():
+    x, native = pair([[0., 0.], [1e-6, -2e-6], [.3, -.4]])
+    value, expected = wasm.normalize(x, dim=-1, eps=1e-4), torch.nn.functional.normalize(native, dim=-1, eps=1e-4)
+    weights = np.asarray([[1., 2.], [3., -1.], [.7, -2.]])
+    (value * wasm.Tensor(weights)).sum().backward(); (expected * torch.tensor(weights)).sum().backward()
+    np.testing.assert_allclose(value.numpy(), expected.detach().numpy(), atol=1e-12, rtol=1e-12)
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy(), atol=1e-10, rtol=1e-12)
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('dim,keepdim', [(0, False), (-1, True), ((0, 2), False)])
+def test_logsumexp_stable_reductions_and_gradients(dim, keepdim, dtype):
+    data = np.random.RandomState(15).randn(2, 3, 4) * 20 + 10000
+    x, native = pair(data, dtype)
+    value, expected = x.logsumexp(dim, keepdim), native.logsumexp(dim, keepdim)
+    value.sum().backward(); expected.sum().backward()
+    tolerance = 2e-6 if dtype == np.float32 else 1e-12
+    np.testing.assert_allclose(value.numpy(), expected.detach().numpy(), atol=tolerance, rtol=tolerance)
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy(), atol=tolerance, rtol=tolerance)
+
+
+@pytest.mark.parametrize('data', [np.empty((2, 0)), np.asarray([[float('-inf'), float('-inf')], [float('inf'), 1.]])])
+def test_logsumexp_empty_and_nonfinite_semantics(data):
+    x, native = pair(data)
+    value, expected = x.logsumexp(-1), native.logsumexp(-1)
+    value.backward(wasm.Tensor(np.ones(value.shape))); expected.backward(torch.ones_like(expected))
+    np.testing.assert_allclose(value.numpy(), expected.detach().numpy(), equal_nan=True)
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy(), equal_nan=True)
+
+
+@pytest.mark.parametrize('shape', [(5,), (3, 5), (5, 3), (0, 3)])
+@pytest.mark.parametrize('offset', [-4, -1, 0, 2, 6])
+def test_diagonal_construction_extraction_and_gradients(shape, offset):
+    x, native = pair(np.arange(np.prod(shape)).reshape(shape))
+    value, expected = x.diag(offset), native.diag(offset)
+    value.sum().backward(); expected.sum().backward()
+    np.testing.assert_array_equal(value.numpy(), expected.detach().numpy())
+    np.testing.assert_array_equal(x.grad.numpy(), native.grad.numpy())
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('reduction', ['none', 'sum', 'mean'])
+@pytest.mark.parametrize('labels', [[0, 2, -100, 1], [-100] * 4, []])
+def test_cross_entropy_independent_native_values_and_vjps(dtype, reduction, labels):
+    data = np.asarray([[10000., 9999., -10000.], [-4., -2., -1.], [8., 2., -3.], [.2, .7, -.4]])[:len(labels)]
+    x, native = pair(data, dtype)
+    target = np.asarray(labels, dtype=np.int64)
+    value = wasm.cross_entropy(x, wasm.Tensor(target), reduction=reduction)
+    expected = torch.nn.functional.cross_entropy(native, torch.tensor(target), reduction=reduction)
+    weight = np.linspace(.2, 1.3, len(labels)).astype(dtype) if reduction == 'none' else np.asarray(.7, dtype=dtype)
+    (value * wasm.Tensor(weight)).sum().backward(); (expected * torch.tensor(weight)).sum().backward()
+    tolerance = 3e-6 if dtype == np.float32 else 1e-12
+    np.testing.assert_allclose(value.numpy(), expected.detach().numpy(), rtol=tolerance, atol=tolerance, equal_nan=True)
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy(), rtol=tolerance, atol=tolerance)
+
+
+@pytest.mark.parametrize('indexing', ['ij', 'xy'])
+@pytest.mark.parametrize('empty', [False, True])
+def test_meshgrid_views_scalar_empty_and_shared_input_gradients(indexing, empty):
+    x, native = pair([] if empty else [-2., 0., 3.])
+    scalar, native_scalar = pair(np.asarray(1.5))
+    grids = wasm.meshgrid((x, scalar, x), indexing=indexing)
+    expected = torch.meshgrid(native, native_scalar, native, indexing=indexing)
+    for actual, reference in zip(grids, expected): np.testing.assert_array_equal(actual.numpy(), reference.detach().numpy())
+    value = sum((grid.square().sum() * (i + 1) for i, grid in enumerate(grids)))
+    reference = sum((grid.square().sum() * (i + 1) for i, grid in enumerate(expected)))
+    value.backward(); reference.backward()
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy())
+    np.testing.assert_allclose(scalar.grad.numpy(), native_scalar.grad.numpy())
+
+
+def test_contrastive_operator_unsupported_options_do_not_silently_change_objective():
+    x, _ = pair([[1., 2.]])
+    target = wasm.Tensor(np.asarray([0], dtype=np.int64))
+    for options in ({'weight': wasm.Tensor([1., 2.])}, {'label_smoothing': .1}, {'size_average': False}):
+        with pytest.raises(wasm.BrowserUnsupported): wasm.cross_entropy(x, target, **options)
+    with pytest.raises(wasm.BrowserUnsupported): wasm.cross_entropy(x, wasm.Tensor([[1., 0.]]))
+    with pytest.raises(wasm.BrowserUnsupported): wasm.normalize(x, p=1)
+    with pytest.raises(wasm.BrowserUnsupported): x.norm(p=float('inf'))
+    with pytest.raises(wasm.BrowserUnsupported): wasm.normalize(x, out=x)
+    for method, args in ((x.norm, ()), (x.logsumexp, (-1,)), (x.diag, ())):
+        with pytest.raises(wasm.BrowserUnsupported): method(*args, out=x)
+
+
 @pytest.mark.parametrize('shapes', [((2,3,4,5),(1,3,5,6)), ((3,5),(5,)), ((5,),(2,5,4)), ((5,),(5,)), ((5,),(5,4))])
 def test_batched_matmul_values_and_reverse_gradients(shapes):
     rng = np.random.RandomState(77)

@@ -37,6 +37,17 @@ def wrap(value):
     return value if isinstance(value, Tensor) else tensor(value)
 
 
+def reduction_axes(dim, ndim):
+    if dim is None: return tuple(range(ndim))
+    dims = tuple(dim) if isinstance(dim, (list, tuple)) else (dim,)
+    if not dims: raise BrowserUnsupported('Empty reduction dimension lists require the server')
+    if any(not isinstance(d, (int, np.integer)) or not -max(ndim, 1) <= d < max(ndim, 1) for d in dims):
+        raise IndexError('Reduction dimension out of range')
+    axes = tuple(d % ndim for d in dims) if ndim else ()
+    if len(set(axes)) != len(axes): raise RuntimeError('Duplicate reduction dimensions')
+    return axes
+
+
 def result(data, *edges):
     value = Tensor(data)
     value._parents = tuple((node, vjp) for node, vjp in edges if node.requires_grad and _grad_enabled)
@@ -285,6 +296,47 @@ class Tensor:
     def mean(self, dim=None, keepdim=False):
         dims = tuple(range(self.ndim)) if dim is None else dim if isinstance(dim, (list, tuple)) else (dim,)
         return self.sum(dim, keepdim) / int(np.prod([self.shape[d] for d in dims]))
+    def norm(self, p='fro', dim=None, keepdim=False, dtype=None, *, out=None):
+        if out is not None: raise BrowserUnsupported('Norm out arguments require the server')
+        if p not in (2, 'fro'): raise BrowserUnsupported('Only Euclidean/Frobenius norms are supported')
+        if dtype is not None: return self.to(dtype=dtype).norm(p, dim, keepdim)
+        if self.dtype.kind != 'f': raise BrowserUnsupported('Norms require a floating tensor')
+        axes = reduction_axes(dim, self.ndim)
+        if p == 'fro' and dim is not None and len(axes) > 2:
+            raise RuntimeError('Frobenius norm accepts at most two dimensions')
+        lengths = np.sqrt(np.sum(self._data ** 2, axis=axes, keepdims=True))
+        direction = np.divide(self._data, lengths, out=np.zeros_like(self._data), where=lengths != 0)
+        def vjp(g):
+            if not keepdim:
+                for axis in sorted(axes): g = np.expand_dims(g, axis)
+            return g * direction
+        return result(lengths if keepdim else lengths.squeeze(axis=axes), (self, vjp))
+    def logsumexp(self, dim, keepdim=False, *, out=None):
+        if out is not None: raise BrowserUnsupported('logsumexp out arguments require the server')
+        if dim is None: raise TypeError('logsumexp requires a dimension')
+        if self.dtype.kind != 'f': raise BrowserUnsupported('logsumexp requires a floating tensor')
+        axes = reduction_axes(dim, self.ndim)
+        maximum = np.max(self._data, axis=axes, keepdims=True, initial=-np.inf)
+        shift = np.where(np.isfinite(maximum), maximum, 0)
+        with np.errstate(over='ignore', invalid='ignore', divide='ignore'):
+            value = np.log(np.exp(self._data - shift).sum(axis=axes, keepdims=True)) + shift
+            derivative = np.exp(self._data - value)
+        def vjp(g):
+            if not keepdim:
+                for axis in sorted(axes): g = np.expand_dims(g, axis)
+            return g * derivative
+        return result(value if keepdim else value.squeeze(axis=axes), (self, vjp))
+    def diag(self, diagonal=0, *, out=None):
+        if out is not None: raise BrowserUnsupported('diag out arguments require the server')
+        if self.ndim not in (1, 2): raise RuntimeError('diag expects a vector or matrix')
+        value = np.diag(self._data, k=diagonal)
+        def vjp(g):
+            if self.ndim == 1: return np.diag(g, k=diagonal)
+            gradient = np.zeros_like(self._data)
+            positions = np.arange(value.size, dtype=np.intp)
+            gradient[positions + max(-diagonal, 0), positions + max(diagonal, 0)] = g
+            return gradient
+        return result(value, (self, vjp))
     def any(self, dim=None, keepdim=False): return Tensor(self._data.any(axis=dim, keepdims=keepdim))
     def all(self, dim=None, keepdim=False): return Tensor(self._data.all(axis=dim, keepdims=keepdim))
     def _extreme(self, dim, keepdim, maximum):
@@ -756,6 +808,62 @@ def pdist(x, p=2):
     return result(lengths,(x,vjp))
 
 
+def meshgrid(*tensors, indexing=None):
+    if len(tensors) == 1 and isinstance(tensors[0], (list, tuple)): tensors = tuple(tensors[0])
+    if not tensors or indexing not in (None, 'ij', 'xy'): raise RuntimeError('Invalid meshgrid inputs/indexing')
+    if any(x.ndim > 1 or x.dtype != tensors[0].dtype for x in tensors):
+        raise RuntimeError('meshgrid expects scalars/vectors with one dtype')
+    shape = [x.numel() for x in tensors]
+    axes = list(range(len(tensors)))
+    if indexing == 'xy' and len(tensors) > 1:
+        axes[0], axes[1] = 1, 0
+        shape[0], shape[1] = shape[1], shape[0]
+    outputs = []
+    for x, axis in zip(tensors, axes):
+        view = [1] * len(tensors)
+        view[axis] = x.numel()
+        outputs.append(x.reshape(view).expand(shape))
+    return tuple(outputs)
+
+
+def normalize(input, p=2., dim=1, eps=1e-12, out=None):
+    if p != 2 or out is not None: raise BrowserUnsupported('Only Euclidean normalization without out is supported')
+    return input / input.norm(2, dim, keepdim=True).clamp_min(eps)
+
+
+def cross_entropy(input, target, weight=None, size_average=None, ignore_index=-100,
+                  reduce=None, reduction='mean', label_smoothing=0.):
+    """Independent stable NumPy oracle/VJP for 2D class-index cross entropy."""
+    if weight is not None or size_average is not None or reduce is not None or label_smoothing != 0:
+        raise BrowserUnsupported('Weighted, smoothed and legacy cross entropy require the server')
+    if input.ndim != 2 or target.ndim != 1 or target.dtype != np.dtype('int64'):
+        raise BrowserUnsupported('Only [N,C] logits and int64 [N] class targets are supported')
+    if input.dtype.kind != 'f' or not np.isfinite(input._data).all():
+        raise BrowserUnsupported('Cross entropy requires finite floating logits')
+    if target.shape[0] != input.shape[0] or input.shape[1] < 1:
+        raise RuntimeError('Invalid cross entropy input/target shapes')
+    if reduction not in ('none', 'sum', 'mean'): raise ValueError('Invalid cross entropy reduction')
+    labels = target._data
+    valid = labels != ignore_index
+    if np.any((labels[valid] < 0) | (labels[valid] >= input.shape[1])): raise IndexError('Target out of bounds')
+    shifted = input._data - input._data.max(axis=1, keepdims=True)
+    exponentials = np.exp(shifted)
+    partition = exponentials.sum(axis=1, keepdims=True)
+    probabilities = exponentials / partition
+    rows = np.flatnonzero(valid)
+    losses = np.zeros(input.shape[0], dtype=input.dtype)
+    losses[rows] = np.log(partition[rows, 0]) - shifted[rows, labels[rows]]
+    count = int(valid.sum())
+    value = losses if reduction == 'none' else losses.sum() if reduction == 'sum' else losses.sum() / count if count else np.asarray(np.nan, dtype=input.dtype)
+    gradient = probabilities.copy()
+    gradient[rows, labels[rows]] -= 1
+    gradient[~valid] = 0
+    def vjp(g):
+        if reduction == 'none': return gradient * np.asarray(g).reshape(-1, 1)
+        return gradient * g / (max(count, 1) if reduction == 'mean' else 1)
+    return result(np.asarray(value, dtype=input.dtype), (input, vjp))
+
+
 def install():
     torch = types.ModuleType('torch')
     torch.__path__ = []
@@ -769,6 +877,7 @@ def install():
     torch.from_numpy = lambda x: Tensor(x)
     torch.full, torch.randint, torch.device, torch.finfo = full, randint, Device, np.finfo
     torch.multinomial, torch.randperm = multinomial, randperm
+    torch.meshgrid = meshgrid
     torch.minimum = elementwise_extreme
     torch.maximum = lambda a,b: elementwise_extreme(a,b,maximum=True)
     torch.eye = lambda n,m=None,*,dtype=np.float32,device=None,requires_grad=False: (check_device(device), Tensor(np.eye(n, m, dtype=dtype), requires_grad=requires_grad))[1]
@@ -789,7 +898,7 @@ def install():
     torch.broadcast_to = lambda x, shape: x.expand(shape)
     torch.matmul = lambda a,b: wrap(a) @ b
     torch.pdist = pdist
-    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod'):
+    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan', 'count_nonzero'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -809,6 +918,7 @@ def install():
     torch.nn.functional.softmax = lambda x,dim,dtype=None: x.softmax(dim, dtype)
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
     torch.nn.functional.logsigmoid = lambda x: x.logsigmoid()
+    torch.nn.functional.normalize, torch.nn.functional.cross_entropy = normalize, cross_entropy
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.scaled_dot_product_attention = scaled_dot_product_attention_oracle
     def relu(x, inplace=False):
