@@ -67,6 +67,7 @@ import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { ResetCodeButton } from './ResetCodeButton';
 import { learnerTraceLocation, type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { SourceLocationButton } from './SourceLocationButton';
+import { libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -318,9 +319,10 @@ function Workspace() {
     setLabView(view);
     selectReadingTab("lab");
   }
-  const { stats: problemStats, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(id);
+  const path = routePath(id), libraryReturn = libraryReturnHref(id), libraryView = readLibraryRoute(id);
+  const { stats: problemStats, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(path);
   const sourceProblem = problems.find(
-    (p) => p.id === id || String(p.number) === id,
+    (p) => p.id === path || String(p.number) === path,
   );
   const localize = (p: Problem): Problem =>
     locale === "en" && p.translations?.en ? { ...p, ...p.translations.en } : p;
@@ -335,7 +337,7 @@ function Workspace() {
   const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
   const current = problem ? saved[problem.id] || {} : {};
   const selectedPaper = papers.find((paper) =>
-    sourceProblem ? paper.id === sourceProblem.paper_id : id === `papers/${paper.id}`,
+    sourceProblem ? paper.id === sourceProblem.paper_id : path === `papers/${paper.id}`,
   );
   const siblingModules = selectedPaper
     ? paperModules(selectedPaper, problems)
@@ -512,7 +514,7 @@ function Workspace() {
           return;
         }
         if (outcome.type === 'syntax_error') {
-          if ([problem.id,String(problem.number)].includes(getId())) setTab('tests');
+          if ([problem.id,String(problem.number)].includes(routePath(getId()))) setTab('tests');
           setToast(t('请先修正 Python 语法错误。','Fix the Python syntax error before running tests.'));
           return;
         }
@@ -593,7 +595,7 @@ function Workspace() {
                   ? "active"
                   : ""
               }
-              href="#"
+              href={libraryReturn || '#'}
             >
               <BilingualText zh="论文题库" en="Papers" />
             </a>
@@ -601,7 +603,7 @@ function Workspace() {
               className={`continue-link ${problem ? "active" : ""}`}
               disabled={!problem && !resumeProblem}
               onClick={() => {
-                if (!problem && resumeProblem) location.hash = `/${resumeProblem.number}`;
+                if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number,libraryView ? libraryHref(libraryView.collectionId,libraryView.filters) : undefined).slice(1);
               }}
             >
               {problem ? <BilingualText zh="工作区" en="Workspace" /> : progressReady && problems.length > 0 && !resumeProblem ? <BilingualText zh="核心模块已完成" en="Core modules complete" /> : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? <BilingualText zh="继续练习" en="Continue" /> : <BilingualText zh="开始练习" en="Start practice" />}
@@ -701,7 +703,7 @@ function Workspace() {
             <h2>{t("题目暂时无法加载", "Module unavailable")}</h2>
             <p>{t("你的草稿仍然保留，请重试加载题目。", "Your draft is preserved. Try loading this module again.")}</p>
             <button className="button" onClick={() => setDetailRetry((value) => value + 1)}>{t("重试加载", "Retry loading")}</button>
-            <a className="text-button" href="#">{t("返回题库", "Back to papers")}</a>
+            <a className="text-button" href={libraryReturn || '#'}>{t("返回题库", "Back to papers")}</a>
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
       ) : !problem ? (
@@ -716,6 +718,12 @@ function Workspace() {
           <PaperLibrary
             key={collectionIdFromRoute(id) || "all-papers"}
             collectionId={collectionIdFromRoute(id)}
+            route={id}
+            onFilters={href => {
+              if (!readLibraryRoute(href)) return;
+              try { history.replaceState(history.state,'',href); } catch { /* Filtering and explicit return links remain usable if history writes are blocked. */ }
+              setId(decodeProblemHash(href));
+            }}
             progressReady={progressReady}
             categories={categories}
             papers={papers}
@@ -728,7 +736,7 @@ function Workspace() {
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={selectedPaper ? `#/papers/${selectedPaper.id}` : "#"}
+              href={selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
               {selectedPaper
@@ -746,7 +754,7 @@ function Workspace() {
                 aria-label={t("上一个模块", "Previous module")}
                 disabled={moduleIndex <= 0}
                 onClick={() =>
-                  (location.hash = `/${siblingModules[moduleIndex - 1].number}`)
+                  (location.hash = withLibraryContext(siblingModules[moduleIndex - 1].number,libraryReturn).slice(1))
                 }
               >
                 <ChevronLeft size={15} />
@@ -759,7 +767,7 @@ function Workspace() {
                 aria-label={t("下一个模块", "Next module")}
                 disabled={moduleIndex >= siblingModules.length - 1}
                 onClick={() =>
-                  (location.hash = `/${siblingModules[moduleIndex + 1].number}`)
+                  (location.hash = withLibraryContext(siblingModules[moduleIndex + 1].number,libraryReturn).slice(1))
                 }
               >
                 <ChevronRight size={15} />
@@ -921,7 +929,7 @@ function Workspace() {
                         <span>{problem.estimated_minutes || 25} min</span>
                         {problem.parent && (
                           <a
-                            href={`#/${problems.find((p) => p.id === problem.parent)?.number || problem.parent}`}
+                            href={problems.find(p => p.id === problem.parent) ? withLibraryContext(problems.find(p => p.id === problem.parent)!.number,libraryReturn) : `#/${problem.parent}`}
                           >
                             {t("前置题", "Prerequisite")}:{" "}
                             {problems.find((p) => p.id === problem.parent)
@@ -1128,7 +1136,7 @@ function Workspace() {
                       theme={theme === "dark" ? "dark" : "light"}
                       onChange={(value) => update(problem.id, { code: value })}
                       recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {
-                        if (!editorRecoveryReason && practice.owns(practice.owner) && [problem.id,String(problem.number)].includes(getId())) location.reload();
+                        if (!editorRecoveryReason && practice.owns(practice.owner) && [problem.id,String(problem.number)].includes(routePath(getId()))) location.reload();
                       }}}
                       font={font}
                       label={`${problem.title} ${t("Python 代码编辑器", "Python code editor")}`}

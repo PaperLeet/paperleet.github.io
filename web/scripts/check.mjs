@@ -145,7 +145,8 @@ try {
     report: { problem: cachedStarter.id, summary: { T0: [0, 1] }, tests: [{ id: "failed", layer: "T0", passed: false }] },
   }), "started", "Resetting a failed attempt to its starter does not make it untouched");
   console.log("PASS bilingual module searches, paper searches, difficulty conjunction, and pristine-starter status");
-  const rowIds = (html) => [...html.matchAll(/href="#\/papers\/([^"]+)"/g)].map((match) => match[1]);
+  const rowIds = (html) => [...html.matchAll(/href="#\/papers\/([^?\"]+)(?:\?[^\"]*)?"/g)].map((match) => match[1]);
+  const {libraryReturnHref} = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const headingText = (html) => html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)[1]
     // Inactive translations reserve layout space but are not readable headings.
     .replace(/<span\b[^>]*aria-hidden="true"[^>]*>[^<]*<\/span>/g, "")
@@ -180,6 +181,8 @@ try {
       `${list.id}: do not fall back to unsolved modules outside a fully completed collection`);
     assert.deepEqual(rowIds(html), list.paperIds,
       `${list.id}: the library must show exactly the selected papers in curated order`);
+    for (const match of html.matchAll(/href="(#\/papers\/[^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), `#/collections/${list.id}`,
+      'Every collection paper must retain its library return context');
     assert(headingText(html).includes(`${list.name} ${members.length}`),
       `${list.id}: the heading must count papers within the selected collection`);
     assert(headingText(html).includes(`已通过模块 1 / ${moduleIds.size}`),

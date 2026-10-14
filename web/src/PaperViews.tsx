@@ -97,23 +97,51 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const [category, setCategory] = useState("all");
   const practice = { problems, saved };
   const selectedCollection = paperCollections.find((collection) => collection.id === collectionId);
+  const listedPapers = papersInCollection(papers, selectedCollection);
+  const filters = normalizeLibraryFilters(readLibraryRoute(route)?.filters || emptyLibraryFilters(), listedPapers);
+  const {query,category,tag,difficulty:diff,runtime,state} = filters;
+  const waitingForStatus = state !== 'all' && !progressReady;
+  const viewHref = libraryHref(selectedCollection?.id, filters);
+  const editedHref = useRef<string | undefined>(undefined);
+  function change(patch: Partial<LibraryFilters>) {
+    const next = normalizeLibraryFilters({...filters,...patch},listedPapers);
+    const href = libraryHref(selectedCollection?.id,next);
+    editedHref.current = href;
+    onFilters?.(href);
+  }
+  useEffect(() => {
+    if (waitingForStatus) return;
+    let disposed = false, stop: (() => void) | undefined;
+    const restore = editedHref.current !== viewHref;
+    editedHref.current = undefined;
+    void import('./libraryPosition').then(({watchLibraryPosition}) => {
+      if (!disposed) stop = watchLibraryPosition(viewHref,restore);
+    }).catch(() => { /* Return links and URL filters also work without scroll recovery. */ });
+    return () => { disposed = true; stop?.(); };
+  },[viewHref,waitingForStatus]);
   const collectionRail = useRef<HTMLElement>(null);
   const [railEdges, setRailEdges] = useState({ previous: false, next: false });
   useEffect(() => {
     const rail = collectionRail.current;
     if (!rail) return;
-    rail.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const reveal = () => {
+      const card = rail.querySelector('[aria-current="page"]');
+      if (!card) return;
+      const bounds = rail.getBoundingClientRect(), selected = card.getBoundingClientRect();
+      if (selected.left < bounds.left) rail.scrollLeft -= bounds.left - selected.left;
+      else if (selected.right > bounds.right) rail.scrollLeft += selected.right - bounds.right;
+    };
+    reveal();
     const measure = () => setRailEdges({ previous: rail.scrollLeft > 2, next: rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 2 });
     measure();
     rail.addEventListener("scroll", measure, { passive: true });
     const observer = new ResizeObserver(() => {
-      rail.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+      reveal();
       measure();
     });
     observer.observe(rail);
     return () => { rail.removeEventListener("scroll", measure); observer.disconnect(); };
   }, [selectedCollection?.id]);
-  const listedPapers = papersInCollection(papers, selectedCollection);
   const listedModuleIds = new Set(listedPapers.flatMap((paper) => paper.module_ids));
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
   const visibleCategories = categories.filter((item) => listedPapers.some((paper) => paper.category === item.id));
@@ -130,13 +158,13 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   function randomProblem() {
     if (!progressReady) return;
     const next = pickRandomUnattemptedProblem(filteredModules, saved);
-    if (next) location.hash = `/${next.number}`;
+    if (next) location.hash = withLibraryContext(next.number,viewHref).slice(1);
   }
   function scrollCollections(direction: number) {
     const rail = collectionRail.current;
     if (rail) rail.scrollBy({ left: direction * rail.clientWidth });
   }
-  function clear() { setQuery(""); setDiff("all"); setState("all"); setTag("all"); setCategory("all"); setRuntime("all"); }
+  function clear() { change(emptyLibraryFilters()); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all" || runtime !== "all";
   return <main className="home paper-library">
     <PracticeStart problems={listedModules} saved={saved} ready={progressReady} onBrowse={browse} />
@@ -154,7 +182,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const count = new Set(members.flatMap((paper) => paper.module_ids)).size;
           const label = t(collection.name, collection.name_en);
           const selected = selectedCollection?.id === collection.id;
-          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} onClick={clear} aria-current={selected ? "page" : undefined} aria-label={`${label} · ${members.length} ${t("篇论文", "papers")} · ${count} ${t("道题", "problems")}`}>
+          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-current={selected ? "page" : undefined} aria-label={`${label} · ${members.length} ${t("篇论文", "papers")} · ${count} ${t("道题", "problems")}`}>
             <div className="collection-copy">
               <span className="collection-count">{members.length} {t("篇论文", "papers")}<span> / </span>{count} {t("道题", "problems")}</span>
               <h3>{label}</h3>
@@ -187,13 +215,13 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           <div className="select-wrap"><select aria-label={t("主题筛选", "Filter by topic")} value={tag} onChange={(e) => setTag(e.target.value)}>
             <option value="all">{t("主题", "Topic")}</option>{tags.map((name) => <option key={name}>{name}</option>)}
           </select><ChevronDown size={12} aria-hidden="true" /></div>
-          <div className="select-wrap"><select aria-label={t("模块难度筛选", "Filter module difficulty")} value={diff} onChange={(e) => setDiff(e.target.value)}>
+          <div className="select-wrap"><select aria-label={t("模块难度筛选", "Filter module difficulty")} value={diff} onChange={(e) => change({difficulty:e.target.value})}>
             <option value="all">{t("难度", "Difficulty")}</option><option value="E">{t("简单", "Easy")}</option><option value="M">{t("中等", "Medium")}</option><option value="H">{t("困难", "Hard")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
-          <div className="select-wrap"><select aria-label={t("判题位置筛选", "Filter by judge location")} value={runtime} onChange={(e) => setRuntime(e.target.value)}>
+          <div className="select-wrap"><select aria-label={t("判题位置筛选", "Filter by judge location")} value={runtime} onChange={(e) => change({runtime:e.target.value})}>
             <option value="all">{t("运行位置", "Run location")}</option><option value="browser">{t("浏览器可运行", "Runs in browser")}</option><option value="server">{t("服务端判题", "Server judging")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
-          <div className="select-wrap"><select aria-label={t("论文状态筛选", "Filter paper status")} value={state} onChange={(e) => setState(e.target.value)}>
+          <div className="select-wrap"><select aria-label={t("论文状态筛选", "Filter paper status")} disabled={!progressReady} value={state} onChange={(e) => change({state:e.target.value})}>
             <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
         </div>
@@ -202,7 +230,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       <div className="library-results"><span role="status">{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · {filteredModules.length} {t("道题", "modules")}{progressReady && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</span><div className="library-result-actions">{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}<div className="library-density" role="group" aria-label={t('列表密度','List density')}><button aria-label={t('舒适列表','Comfortable list')} title={t('舒适列表','Comfortable list')} aria-pressed={density==='comfortable'} onClick={()=>changeDensity('comfortable')}><Rows3 size={15}/></button><button aria-label={t('紧凑列表','Compact list')} title={t('紧凑列表','Compact list')} aria-pressed={density==='compact'} onClick={()=>changeDensity('compact')}><List size={15}/></button></div></div></div>
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{t("论文", "Paper")}</span><span className="paper-year">{t("年份", "Year")}</span><span>{t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
       <div className="problem-rows">
-        {filtered.map((paper) => {
+        {!waitingForStatus && filtered.map((paper) => {
           const progress = paperProgress(paper, practice);
           return <div className="paper-result-group" key={paper.id}><a className="problem-row paper-table-grid" data-paper-id={paper.id} href={`#/papers/${paper.id}`}>
             <StateIcon state={progress.state} />
@@ -213,7 +241,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           </a>{!!query.trim() && <div className="matching-modules"><span>{t('匹配模块','Matching modules')}</span>{matchingPaperModules(paper,problems,query,diff,runtime).map(module=><a key={module.id} href={`#/${module.number}`}>{module.number}. {t(module.title,module.translations?.en?.title || module.title)}<ArrowRight size={12} aria-hidden="true"/></a>)}</div>}</div>;
         })}
       </div>
-      {!filtered.length && <div className="no-results"><Search size={25} /><p>{t("没有符合条件的论文", "No matching papers")}</p><button className="text-button" onClick={clear}>{t("清除筛选", "Clear filters")}</button></div>}
+      {!waitingForStatus && !filtered.length && <div className="no-results"><Search size={25} /><p>{t("没有符合条件的论文", "No matching papers")}</p><button className="text-button" onClick={clear}>{t("清除筛选", "Clear filters")}</button></div>}
     </section>
     </div>
     <LibraryOverview problems={listedModules} saved={saved} ready={progressReady} difficulty={diff} onDifficulty={setDiff} onBrowse={browse}/>
@@ -228,7 +256,7 @@ export function PaperDetail({ paper, problems, saved, stats }: Practice & { pape
   const next = modules.find((p) => !p.module.optional && status(p, saved[p.id]) !== "done") || modules[0];
   const authors = Array.isArray(paper.authors) ? paper.authors.join(", ") : paper.authors;
   return <main className="home paper-detail">
-    <a className="back-link paper-library-link" href="#"><ArrowLeft size={15} />{t("全部论文", "All papers")}</a>
+    <a className="back-link paper-library-link" href={returnTo || '#'}><ArrowLeft size={15} />{returnTo && returnTo !== '#' ? t('返回题库结果','Back to library results') : t("全部论文", "All papers")}</a>
     <div className="paper-detail-header">
       <div><h1><span>{paper.number}.</span> {paper.short_title}</h1><p className="paper-full-title">{paper.title}</p><div className="paper-detail-meta">{paper.venue && <span>{paper.venue}</span>}{paper.year && !paper.venue?.includes(String(paper.year)) && <span>{paper.year}</span>}{paper.tags.map((tag) => <span className="paper-topic" key={tag}>{tag}</span>)}</div></div>
       <a className="button subtle" href={paper.url} target="_blank" rel="noreferrer"><BookOpen size={15} />{t("阅读论文", "Read paper")}<ExternalLink size={13} /></a>
@@ -241,7 +269,7 @@ export function PaperDetail({ paper, problems, saved, stats }: Practice & { pape
           {modules.map((problem) => {
             const title = locale === "en" ? problem.translations?.en?.title || problem.title : problem.title;
             const state = status(problem, saved[problem.id]);
-            return <a href={`#/${problem.number}`} className="paper-module-card" key={problem.id}>
+            return <a href={withLibraryContext(problem.number,returnTo)} className="paper-module-card" key={problem.id}>
               <div className="module-card-top"><StateIcon state={state} /><h3><span>{problem.number}.</span> {title}</h3><ChevronRight size={17} /></div>
               <p>{t(problem.module.goal, problem.module.goal_en)}</p>
               <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span><span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
@@ -253,7 +281,7 @@ export function PaperDetail({ paper, problems, saved, stats }: Practice & { pape
         </section>
       </div>
       <aside className="home-sidebar">
-        <section className="paper-completion-card"><div className="aside-title"><h3>{t("论文进度", "Paper progress")}</h3><StateIcon state={progress.state} /></div><div className="paper-completion-count"><b>{progress.completed}</b><span>/ {progress.total}</span></div><p>{t("核心模块已通过", "core modules solved")}</p><ProgressBar {...progress} />{progress.state === "done" && <div className="core-complete"><CheckCircle2 size={16} />{t("本篇核心模块已完成", "Selected core modules complete")}</div>}{next && <a className="button" href={`#/${next.number}`}>{progress.state === "done" ? t("回顾模块", "Review modules") : progress.state === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></a>}</section>
+        <section className="paper-completion-card"><div className="aside-title"><h3>{t("论文进度", "Paper progress")}</h3><StateIcon state={progress.state} /></div><div className="paper-completion-count"><b>{progress.completed}</b><span>/ {progress.total}</span></div><p>{t("核心模块已通过", "core modules solved")}</p><ProgressBar {...progress} />{progress.state === "done" && <div className="core-complete"><CheckCircle2 size={16} />{t("本篇核心模块已完成", "Selected core modules complete")}</div>}{next && <a className="button" href={withLibraryContext(next.number,returnTo)}>{progress.state === "done" ? t("回顾模块", "Review modules") : progress.state === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></a>}</section>
         <section className="paper-source-card"><div className="aside-title"><h3>{t("论文信息", "Paper details")}</h3><BookOpen size={16} /></div><p>{authors}</p><a className="text-button" href={paper.url} target="_blank" rel="noreferrer">{paper.arxiv ? `arXiv:${paper.arxiv}` : t("原始论文", "Original paper")}<ExternalLink size={13} /></a></section>
       </aside>
     </div>

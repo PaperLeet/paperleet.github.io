@@ -1,0 +1,74 @@
+import { paperCollections } from './paperCollections';
+import type { Paper } from './types';
+
+export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string };
+export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
+export const routePath = (route: string) => route.split('?')[0];
+const practicePath = /^(?:[1-9]\d*|(?:rl|architecture|diffusion|finetuning|optimization|representation|world_models)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
+
+function parts(route: string) {
+  if (route.length > 8192) return;
+  const hash = route.startsWith('#');
+  const raw = hash ? route.replace(/^#\/?/, '') : route;
+  const query = raw.indexOf('?');
+  try {
+    return { path: hash ? decodeURIComponent(query < 0 ? raw : raw.slice(0, query)) : query < 0 ? raw : raw.slice(0, query), params: new URLSearchParams(query < 0 ? '' : raw.slice(query + 1)) };
+  } catch { return; }
+}
+function only(params: URLSearchParams, names: string[]) {
+  return [...params.keys()].every(key => names.includes(key) && params.getAll(key).length === 1);
+}
+const bounded = (value: string, length: number) => Array.from(value).length <= length && !/[\u0000-\u001f\u007f]/.test(value);
+
+export function readLibraryRoute(route: string): { collectionId?: string; filters: LibraryFilters } | undefined {
+  const value = parts(route);
+  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state'])) return;
+  const collectionId = /^(?:collections|lists)\/([a-z0-9_-]+)$/.exec(value.path)?.[1];
+  if (value.path && (!collectionId || !paperCollections.some(collection => collection.id === collectionId))) return;
+  const filters = { query: value.params.get('q') || '', category: value.params.get('category') || 'all', tag: value.params.get('tag') || 'all',
+    difficulty: value.params.get('difficulty') || 'all', runtime: value.params.get('runtime') || 'all', state: value.params.get('state') || 'all' };
+  if (!bounded(filters.query, 200) || !bounded(filters.tag, 80) || !/^[a-z0-9-]{1,80}$/.test(filters.category)
+    || !['all', 'E', 'M', 'H'].includes(filters.difficulty) || !['all', 'browser', 'server'].includes(filters.runtime)
+    || !['all', 'todo', 'started', 'done'].includes(filters.state)) return;
+  return { collectionId, filters };
+}
+
+export function libraryHref(collectionId: string | undefined, filters: LibraryFilters): string {
+  const params = new URLSearchParams();
+  if (filters.query) params.set('q', filters.query);
+  for (const key of ['category', 'tag', 'difficulty', 'runtime', 'state'] as const) if (filters[key] !== 'all') params.set(key, filters[key]);
+  const base = collectionId ? `#/collections/${collectionId}` : '#';
+  const href = base + (params.size ? `${collectionId ? '?' : '/?'}${params}` : '');
+  if (!readLibraryRoute(href)) throw Error('Invalid library filters');
+  return href;
+}
+
+/** Discard retired categories/topics without creating a hidden, impossible selection. */
+export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]): LibraryFilters {
+  const category = filters.category === 'all' || papers.some(paper => paper.category === filters.category) ? filters.category : 'all';
+  const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.includes(filters.tag)) ? filters.tag : 'all';
+  return { ...filters, category, tag };
+}
+
+export function libraryReturnHref(route: string): string | undefined {
+  const value = parts(route);
+  if (!value || !practicePath.test(value.path) || !only(value.params, ['from']) || !value.params.has('from')) return;
+  const view = readLibraryRoute(value.params.get('from') || '');
+  return view ? libraryHref(view.collectionId, view.filters) : undefined;
+}
+
+export function withLibraryContext(path: string | number, returnTo?: string): string {
+  if (!practicePath.test(String(path))) throw Error('Invalid practice destination');
+  const base = `#/${path}`, view = returnTo && readLibraryRoute(returnTo);
+  if (!view) return base;
+  const href = libraryHref(view.collectionId, view.filters);
+  return href === '#' ? base : `${base}?${new URLSearchParams({ from: href.slice(2) })}`;
+}
+
+/** Account return targets may carry only a library view, never another continuation. */
+export function libraryContinuation(route: string): string | undefined {
+  const view = readLibraryRoute(route);
+  if (view) return libraryHref(view.collectionId, view.filters).replace(/^#\/?/, '');
+  const back = libraryReturnHref(route), value = parts(route);
+  return back && value ? withLibraryContext(value.path, back).slice(2) : undefined;
+}

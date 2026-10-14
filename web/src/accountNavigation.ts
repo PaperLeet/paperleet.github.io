@@ -1,4 +1,5 @@
 import { communityContinuation } from './communityNavigation';
+import { libraryContinuation } from './libraryNavigation';
 
 const continuationPrefix = "account/continue/";
 const errorPrefix = "account/error/";
@@ -7,7 +8,7 @@ const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", 
 /** Allow only known shapes of local hash routes; never an external destination. */
 function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
-  if (route.includes('?')) return communityContinuation(route);
+  if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
   if (route === "" || route === "community" || route === "submit") return route;
   if (/^[1-9]\d*$/.test(route)) return route;
   if (/^community\/problem\/[a-z0-9_-]+\/[a-z0-9_-]+$/.test(route)) return route;

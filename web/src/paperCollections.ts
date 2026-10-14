@@ -79,5 +79,5 @@ export function papersInCollection(papers: Paper[], collection?: PaperCollection
 
 export function collectionIdFromRoute(route: string): string | undefined {
   // Keep previously shared learning-list links usable.
-  return /^(?:collections|lists)\/(.+)$/.exec(route)?.[1];
+  return /^(?:collections|lists)\/([a-z0-9_-]+)$/.exec(route.split('?')[0])?.[1];
 }
