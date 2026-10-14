@@ -69,6 +69,8 @@ The website runs code through the judge service and displays results automatical
 
 Online accounts, synchronized drafts, profiles and community discussions require the separately operated application. The standalone local edition hides these routes and makes no account API requests. Browser and native local practice remain available without sign-in.
 
+Discussion pages offer read-only refresh/retry without discarding reply drafts. A reply acknowledged by the server appears immediately even if the follow-up read fails, with an action to focus that reply. Retrying the read does not submit the reply again; returning to the list keeps the module, search and filters.
+
 ## Submit paper
 
 In **local maintainer mode**, click **Submit paper / 提交论文** in the top navigation and provide a paper URL, an optional official code URL, and what you want to practice. The model reads these sources and generates Chinese and English problem statements, starter code, a reference implementation, layered tests, and buggy variants. Candidates proceed to human review after passing isolated validation. Only the current version approved by a human reviewer receives a numeric problem ID and enters the paper library as a module. Export groups modules that cite the same arXiv paper or source URL under one paper. The generator currently creates one candidate module per submission. It looks for author toys and paper figures, labels teaching adaptations explicitly, and generates T3 tests that record measured curves and metrics through a bounded `artifact` fixture. Human reviewers can inspect those results before approval.

@@ -1526,3 +1526,10 @@
   .profile-community-content .profile-tabs button { font-size: 13px; }
 }
 .community-result-summary { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
+
+.discussion-navigation { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.discussion-navigation .social-back { margin: 0; }
+.discussion-navigation .button { min-height: 38px; font-size: 13px; }
+.reply-publication-notice { margin: 14px 0; padding: 12px; border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: 6px; font-size: 13px; line-height: 1.7; }
+.reply-publication-notice p { margin: 0 0 6px; }
+.community-reply:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

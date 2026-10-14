@@ -17,6 +17,7 @@ import {
   MessageCircle,
   MessagesSquare,
   Plus,
+  RefreshCw,
   Repeat2,
   Search,
   Settings2,
@@ -45,31 +46,7 @@ import {
   useAccount,
 } from "./social";
 import type { PublicUser } from "./social";
-
-type Counts = { likes: number; reposts: number; replies: number };
-type Post = {
-  id: string;
-  title: string;
-  body: string;
-  category: string;
-  problem_id: string | null;
-  problem: ProblemTopic | null;
-  created_at: string;
-  updated_at: string;
-  author: PublicUser;
-  counts: Counts;
-  viewer: { liked: boolean; reposted: boolean; can_delete: boolean };
-};
-type Reply = {
-  id: string;
-  post_id: string;
-  parent_id: string | null;
-  body: string;
-  created_at: string;
-  author: PublicUser;
-  can_delete: boolean;
-};
-type PostDetail = Post & { replies: Reply[] };
+import { withConfirmedReply, type Counts, type Post, type Reply, type PostDetail } from './communityDiscussion';
 type Profile = PublicUser & {
   counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
@@ -741,7 +718,9 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   const [draftSaved, setDraftSaved] = useState<boolean | null>(() => hasReplyDraft(draft) ? true : null);
   const [discardReply, setDiscardReply] = useState(false);
   const [replyPreview, setReplyPreview] = useState(false);
-  const [replyNotice, setReplyNotice] = useState("");
+  const [replyNotice, setReplyNotice] = useState<'' | 'posted' | 'refresh-failed'>('');
+  const [postedReplyId, setPostedReplyId] = useState<string>();
+  const readVersion = useRef(0);
   const mounted = useRef(true);
   useEffect(() => {
     mounted.current = true;
@@ -758,28 +737,28 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
     setReplyNotice("");
   }
   async function refresh() {
-    const data = await socialApi<PostDetail>(postPath(id));
-    if (mounted.current) setPost(data);
+    if (!mounted.current) return false;
+    const version = ++readVersion.current;
+    setLoading(true); setError('');
+    try {
+      const data = await socialApi<PostDetail>(postPath(id));
+      if (!mounted.current || version !== readVersion.current) return false;
+      setPost(data);
+      setReplyNotice(previous => previous === 'refresh-failed' ? 'posted' : previous);
+      return true;
+    } catch (e) {
+      if (mounted.current && version === readVersion.current) setError(errorMessage(e));
+      return false;
+    } finally {
+      if (mounted.current && version === readVersion.current) setLoading(false);
+    }
   }
   useEffect(() => {
-    let live = true;
-    setLoading(true);
-    setError("");
-    socialApi<PostDetail>(postPath(id))
-      .then((data) => {
-        if (live) setPost(data);
-      })
-      .catch((e) => {
-        if (live) setError(errorMessage(e));
-      })
-      .finally(() => {
-        if (live) setLoading(false);
-      });
-    return () => {
-      live = false;
-    };
+    void refresh();
+    return () => { readVersion.current++; };
   }, [id, user?.id]);
   async function react(kind: "like" | "repost") {
+    if (loading || busy) return;
     if (!user) {
       location.hash = signInHref(postHref(id, returnTo));
       return;
@@ -800,20 +779,22 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
     }
   }
   async function reply() {
-    if (!user || busy || !currentDraft.current.body.trim() || missingTarget) return;
+    if (!user || busy || loading || !currentDraft.current.body.trim() || missingTarget) return;
     const submitted = { ...currentDraft.current };
     const submittedRoute = location.hash;
     setBusy(true);
     setError("");
     setReplyNotice("");
     try {
-      await socialApi(`${postPath(id)}/replies`, {
+      const published = await socialApi<Reply>(`${postPath(id)}/replies`, {
         body: submitted.body.trim(),
         expected_user_id: owner,
         ...(submitted.parentId ? { parent_id: submitted.parentId } : {}),
       });
       clearPublishedReplyDraft(tabDraftStorage(), owner, id, submitted);
       if (!mounted.current || location.hash !== submittedRoute) return;
+      setPost(previous => withConfirmedReply(previous,published));
+      setPostedReplyId(published.id);
       if (sameReplyDraft(currentDraft.current, submitted)) {
         currentDraft.current = { body: "" };
         setDraft(currentDraft.current);
@@ -821,10 +802,9 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
         setDiscardReply(false);
         setReplyPreview(false);
       }
-      setReplyNotice(t("回复已发布。", "Reply posted."));
-      try { await refresh(); }
-      catch {
-        if (mounted.current) setError(t("回复已发布，但刷新讨论失败。请刷新页面查看。", "Your reply was posted, but the discussion could not refresh. Refresh the page to view it."));
+      setReplyNotice('posted');
+      if (!await refresh() && mounted.current) {
+        setReplyNotice('refresh-failed');
       }
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
@@ -833,7 +813,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
     }
   }
   async function remove() {
-    if (!deleteTarget) return;
+    if (!deleteTarget || busy || loading) return;
     const submittedRoute = location.hash;
     setBusy(true);
     setError("");
@@ -858,12 +838,14 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   }
   return (
     <main className="social-page discussion-page">
-      <a className="social-back" href={returnTo || (post?.problem ? topicHref(post.problem.id) : "#/community")}>
+      <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
         {returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
-      </a>
+      </a><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
+        <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
+      </button></div>
       {error && <SocialNotice error={error} />}
-      {loading ? (
+      {loading && !post ? (
         <Loading />
       ) : post ? (
         <>
@@ -891,7 +873,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
             <div className="discussion-actions">
               <button
                 className={post.viewer.liked ? "active" : ""}
-                disabled={busy}
+                disabled={busy || loading}
                 aria-pressed={post.viewer.liked}
                 onClick={() => void react("like")}
               >
@@ -904,7 +886,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
               </button>
               <button
                 className={post.viewer.reposted ? "active" : ""}
-                disabled={busy}
+                disabled={busy || loading}
                 aria-pressed={post.viewer.reposted}
                 onClick={() => void react("repost")}
               >
@@ -932,6 +914,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                   key={r.id}
                   className={`community-reply ${r.parent_id ? "nested-reply" : ""}`}
                   id={`reply-${r.id}`}
+                  tabIndex={-1}
                 >
                   <div className="reply-heading">
                     <PersonLink user={r.author} compact />
@@ -1026,7 +1009,13 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                 <button type="button" disabled={busy} onClick={() => { editReply({ body: "", parentId: undefined }); setDiscardReply(false); setReplyPreview(false); }}>{t("确认丢弃", "Discard draft")}</button>
                 <button type="button" disabled={busy} onClick={() => setDiscardReply(false)}>{t("保留草稿", "Keep draft")}</button>
               </div>}
-              {replyNotice && <p role="status">{replyNotice}</p>}
+              {replyNotice && <div className="reply-publication-notice" role="status"><p>{replyNotice === 'posted'
+                ? t('回复已发布。','Reply posted.')
+                : t('回复已发布并已显示。暂未获取到讨论的最新状态，可重试加载讨论，无需再次发布。','Your reply is posted and visible. The latest discussion could not load; retry loading without posting again.')}</p>
+                {postedReplyId && post.replies.some(row => row.id === postedReplyId) && <button className="text-button" type="button" onClick={() => {
+                  const row = document.getElementById(`reply-${postedReplyId}`); row?.focus(); row?.scrollIntoView({block:'nearest'});
+                }}>{t('查看刚发布的回复','View your posted reply')}</button>}
+              </div>}
               <form
                 className="social-form"
                 onSubmit={(e) => {
@@ -1063,7 +1052,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                       "Replies appear publicly on your profile.",
                     )}
                   </small>
-                  <button className="button" disabled={busy || !body.trim() || missingTarget}>
+                  <button className="button" disabled={busy || loading || !body.trim() || missingTarget}>
                     <MessageCircle size={14} />
                     {t("发布回复", "Post reply")}
                   </button>

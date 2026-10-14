@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'vite';
+import { checkCommunityDiscussion } from './check-community-discussion.mjs';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 try {
+  await checkCommunityDiscussion(server);
   const { draftKey, hasDraft, readPostDraft, writePostDraft, clearPublishedDraft } = await server.ssrLoadModule('/src/communityDrafts.ts');
   const values = new Map();
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
