@@ -176,6 +176,14 @@ export function useBrowserWorkspace(owner?: BrowserOwner) {
     change(runtime,{saved:{...latest.current.saved,[problem.id]:withPracticeReport(latest.current.saved[problem.id] || {},problem,report)}});
     runtime.reports.push({problem,report}); runtime.failed = false; void drain(runtime);
   }
+  function resetToStarter(problem: Problem, expected: DraftExpectation) {
+    const runtime = active.current;
+    if (!runtime || !current(runtime) || runtime.processing || runtime.failed) return false;
+    const previous = latest.current.saved[problem.id];
+    if ((previous?.code ?? problem.starter) === problem.starter) return false;
+    const displaced = sourceSnapshot(previous,runtime.bases.get(problem.id) || '');
+    return update(problem.id,{code:problem.starter},expected,displaced);
+  }
   function resolveConflict(id: string, keepLocal: boolean) {
     const runtime = active.current, alternative = view.conflicts[id];
     if (!runtime || runtime.owner !== owner || !current(runtime) || runtime.processing || !alternative) return;
@@ -210,7 +218,7 @@ export function useBrowserWorkspace(owner?: BrowserOwner) {
   const visible = view.owner === owner ? view : empty(owner);
   return {...visible,loading:!visible.ready,pending:visible.saving,backups:visible.backups,
     error:visible.failed ? t('无法保存本机工作区。请下载代码备份，再重试保存。','Could not save the browser workspace. Download a code backup, then retry saving.') : '',
-    update,applyReport,resolveConflict,restoreBackup,discardBackup,
+    update,applyReport,resetToStarter,resolveConflict,restoreBackup,discardBackup,
     retry:() => {const runtime=active.current;if(runtime && runtime.owner === owner && current(runtime)){runtime.failed=false;void drain(runtime);}},
   };
 }

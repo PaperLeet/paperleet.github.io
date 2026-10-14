@@ -346,8 +346,14 @@ export function usePracticeWorkspace() {
     });
   }
   const visible = bundle.owner === owner ? bundle : emptyBundle(owner);
+  function resetToStarter(problem: Problem, expected: DraftExpectation) {
+    if (owner === 'local' || owner === 'anonymous') return browserWorkspace.resetToStarter(problem,expected);
+    if (!visible.hydrated || saving || Object.keys(visible.pending).length || error || storageError.current || visible.conflicts[problem.id]
+      || (visible.records[problem.id]?.code ?? problem.starter) === problem.starter) return false;
+    return update(problem.id,{code:problem.starter},expected);
+  }
   if (owner === "local" || owner === "anonymous") return {
-    ...browserWorkspace, owner, hosted, flush, update, applyReport, resolveConflict,
+    ...browserWorkspace, owner, hosted, flush, update, applyReport, resetToStarter, resolveConflict,
     owns: (expected: string) => currentOwner.current === expected,
   };
   return {
@@ -366,6 +372,7 @@ export function usePracticeWorkspace() {
     conflicts: visible.conflicts,
     update,
     applyReport,
+    resetToStarter,
     resolveConflict,
     retry: () => {
       failed.current = false;

@@ -89,3 +89,14 @@
 .browser-draft-backups article > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .browser-draft-backups button { padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; }
 .browser-draft-backups button:disabled { opacity: .5; cursor: default; }
+
+.reset-code-dialog { width: min(580px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); box-sizing: border-box; overflow: auto; padding: 24px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: var(--surface); box-shadow: 0 20px 70px #0004; }
+.reset-code-dialog::backdrop { background: #0007; }
+.reset-code-dialog h2 { margin: 0 0 12px; font-size: 20px; line-height: 1.4; }
+.reset-code-dialog p { margin: 10px 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
+.reset-code-dialog details { margin: 16px 0; font-size: 13px; }
+.reset-code-dialog summary { cursor: pointer; }
+.reset-code-dialog pre { max-height: 220px; overflow: auto; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; line-height: 1.5; white-space: pre; }
+.reset-code-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.reset-code-actions .button { min-height: 40px; font-size: 13px; }
+@media (max-width: 500px) { .reset-code-dialog { padding: 18px; } .reset-code-actions { flex-direction: column; } .reset-code-actions .button { width: 100%; } }

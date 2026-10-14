@@ -6,6 +6,7 @@ import 'fake-indexeddb/auto';
 export async function checkBrowserWorkspace(server) {
   const {loadBrowserWorkspace,writeBrowserDraft,writeBrowserReport,deleteBrowserBackup,legacyBrowserWorkspace} = await server.ssrLoadModule('/src/browserWorkspaceStore.ts');
   const {BrowserDraftBackups} = await server.ssrLoadModule('/src/BrowserDraftBackups.tsx');
+  const {ResetCodeButton} = await server.ssrLoadModule('/src/ResetCodeButton.tsx');
   const {LocaleProvider} = await server.ssrLoadModule('/src/i18n.tsx');
   const owner='local', stamp='2026-10-14T12:00:00Z';
   const problem={id:'architecture/store-test',test_count:1};
@@ -82,6 +83,21 @@ export async function checkBrowserWorkspace(server) {
   assert(!snapshot.backups.some(row=>row.writer==='quota'));
   assert.equal(snapshot.records[switchId].saved.code,'ordinary next edit');
   assert(!snapshot.backups.some(row=>row.writer==='preserved:quota-switch'),'A failed preservation transaction cannot partially archive or replace a draft');
+  for (const originalCode of ['', source]) {
+    const id = `module/reset-${originalCode ? 'unicode' : 'empty'}`, writer = 'reset-tab';
+    const first = (await writeBrowserDraft(owner,id,writer,'',originalCode,stamp)).record;
+    const resetProblem = {...problem,id};
+    await writeBrowserReport(owner,resetProblem,{...accepted,problem:id});
+    const starter = '# starter\nraise NotImplementedError()\n';
+    const reset = await writeBrowserDraft(owner,id,writer,first.version,starter,stamp,
+      [{key:`reset-${id}`,base:first.version,code:originalCode,updated:stamp}]);
+    const after = await loadBrowserWorkspace(owner);
+    assert.equal(after.records[id].saved.code,starter);
+    assert(after.backups.some(row=>row.id===id&&row.code===originalCode),'Restoring the starter must archive the exact prior source, including an empty file');
+    assert(after.records[id].saved.acceptedReport.tests[0].passed,'Reset changes source without erasing earlier acceptance');
+    await writeBrowserDraft(owner,id,writer,reset.record.version,'# another attempt',stamp);
+    assert((await loadBrowserWorkspace(owner)).backups.some(row=>row.id===id&&row.code===originalCode),'Typing after reset must not reuse the only pre-reset source slot');
+  }
   const originalStorage=globalThis.localStorage, originalLocation=globalThis.location;
   try {
     globalThis.location={origin:'https://paperleet.example'};
@@ -92,6 +108,14 @@ export async function checkBrowserWorkspace(server) {
     assert.deepEqual(legacyBrowserWorkspace('local'),{});
     for(const en of [false,true]){
       globalThis.localStorage={getItem:()=>en?'en':'zh'};
+      const resetProps={owner,problem:{...problem,starter:'# starter'},saved:{code:''},ready:true,busy:false,conflict:false,failed:false,browserWorkspace:true,onReset(){return true;},onDownload(){}};
+      const resetButton=renderToString(React.createElement(LocaleProvider,null,React.createElement(ResetCodeButton,resetProps)));
+      assert(resetButton.includes(en?'Reset starter with backup':'恢复初始代码并备份'));
+      assert(!resetButton.includes('disabled=""'),'An empty edited file is a real draft that can be reviewed and backed up');
+      for(const blocked of [{ready:false},{busy:true},{conflict:true},{failed:true},{saved:{code:'# starter'}}]){
+        const html=renderToString(React.createElement(LocaleProvider,null,React.createElement(ResetCodeButton,{...resetProps,...blocked})));
+        assert(html.includes('disabled=""'),'Reset must be unavailable for pristine, unready, busy, failed or conflicted workspaces');
+      }
       const backup={owner:'local',id:'architecture/demo',writer:'a',version:'a1',base:'old',code:'<script>not executable</script>\n',updated:stamp};
       const html=renderToString(React.createElement(LocaleProvider,null,React.createElement(BrowserDraftBackups,{
         backups:[backup,{...backup,writer:'b',version:'b1'}],source:'current source',conflict:{code:'other source'},busy:false,onRestore(){},async onDiscard(){},

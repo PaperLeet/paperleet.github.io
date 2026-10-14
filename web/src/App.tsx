@@ -20,7 +20,6 @@ import {
   Moon,
   MessageCircle,
   Play,
-  RotateCcw,
   Sun,
   Terminal,
   X,
@@ -63,6 +62,7 @@ import { BrowserDraftBackups } from './BrowserDraftBackups';
 import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
+import { ResetCodeButton } from './ResetCodeButton';
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -1075,38 +1075,14 @@ function Workspace() {
                       >
                         <ArrowDownToLine size={14} />
                       </button>
-                      <button
-                        className="icon-button"
-                        title={t(
-                          "恢复初始代码（先下载备份）",
-                          "Reset code (download backup first)",
-                        )}
-                        disabled={!practice.ready}
-                        aria-label={t(
-                          "恢复初始代码并备份",
-                          "Reset starter with backup",
-                        )}
-                        onClick={() => {
-                          const hasDraft =
-                            !!current.code && current.code !== problem.starter;
-                          if (hasDraft)
-                            download(
-                              `problem-${problem.number}-backup.py`,
-                              current.code!,
-                            );
-                          update(problem.id, { code: problem.starter });
-                          setToast(
-                            hasDraft
-                              ? t(
-                                  "已恢复初始代码，原代码已下载备份。",
-                                  "Starter restored. Your previous code was downloaded as a backup.",
-                                )
-                              : t("已恢复初始代码。", "Starter restored."),
-                          );
-                        }}
-                      >
-                        <RotateCcw size={14} />
-                      </button>
+                      <ResetCodeButton key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} saved={current}
+                        ready={practice.ready} busy={practice.pending || practice.saving || running} conflict={!!practice.conflicts[problem.id]} failed={!!practice.error} browserWorkspace={browserWorkspace}
+                        onDownload={source => download(`problem-${problem.number}-backup.py`,source)}
+                        onReset={expected => {
+                          if (!practice.resetToStarter(problem,expected)) return false;
+                          setToast(t("已载入初始代码。请留意备份与保存状态。", "Starter loaded. Check your backup and workspace save status."));
+                          return true;
+                        }} />
                     </div>
                   </div>
                   <div className="code-editor">
