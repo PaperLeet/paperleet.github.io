@@ -112,11 +112,9 @@ export function Chart({
           <path
             key={i}
             d={s
-              .filter((p) => p.every(Number.isFinite))
-              .map(
-                (p, j) =>
-                  `${j ? "L" : "M"}${x(p[0]).toFixed(2)},${y(p[1]).toFixed(2)}`,
-              )
+              .map((p, j) => p.every(Number.isFinite)
+                ? `${j && s[j-1].every(Number.isFinite) ? "L" : "M"}${x(p[0]).toFixed(2)},${y(p[1]).toFixed(2)}`
+                : "")
               .join(" ")}
             fill="none"
             stroke={colors[i % colors.length]}
@@ -889,24 +887,15 @@ export function ArtifactCharts({ data, referenceRun = false, implementationLabel
             )
           ) {
             const records = value as Record<string, unknown>[],
-              numeric = Object.keys(records[0]).filter(
-                (k) =>
-                  typeof records[0][k] === "number" &&
-                  Number.isFinite(records[0][k]),
+              numeric = [...new Set(records.flatMap(Object.keys))].filter(
+                (k) => records.some((row) => typeof row[k] === "number" && Number.isFinite(row[k])) &&
+                  records.every((row) => row[k] == null || typeof row[k] === "number" && Number.isFinite(row[k])),
               ),
               xkey = ["step", "epoch", "lam", "t", "index"].find((k) =>
-                numeric.includes(k),
+                numeric.includes(k) && records.every((row) => typeof row[k] === "number" && Number.isFinite(row[k])),
               ),
               keys = numeric.filter((k) => k !== xkey);
-            if (
-              keys.length &&
-              records.every((row) =>
-                numeric.every(
-                  (key) =>
-                    typeof row[key] === "number" && Number.isFinite(row[key]),
-                ),
-              )
-            )
+            if (keys.length)
               return (
                 <section key={key}>
                   <h4>{key}</h4>
@@ -916,7 +905,7 @@ export function ArtifactCharts({ data, referenceRun = false, implementationLabel
                       series={[
                         records.map((r, i) => [
                           xkey ? Number(r[xkey]) : i,
-                          Number(r[k]),
+                          r[k] == null ? NaN : Number(r[k]),
                         ]),
                       ]}
                       labels={[k]}
@@ -927,6 +916,8 @@ export function ArtifactCharts({ data, referenceRun = false, implementationLabel
                 </section>
               );
           }
+          if (key === "display_only" && value === true)
+            return <p className="notice" key={key}>{t("此实验的趋势仅供展示，不按单次趋势判分。", "This experiment displays a trend; a single-run trend is not graded.")}</p>;
           if (typeof value === "number" && Number.isFinite(value))
             return (
               <div className="artifact-number" key={key}>

@@ -10,6 +10,7 @@ PILOTS = {
     "diffusion/param_conversion", "architecture/layer_norm",
     "architecture/positional_encoding", "rl/dpo",
     "architecture/multihead_attention", "architecture/positionwise_ffn", "optimization/adamw",
+    "rl/gae", "rl/ppo_clip", "rl/grpo", "rl/dr_grpo",
 }
 
 
@@ -25,6 +26,12 @@ def export_browser_bundle(entry, output):
         files[f"{relative}/experiment.py"] = experiment.read_text()
     package = Path(__file__).resolve().parent
     files["paperleet/common/asserts.py"] = (package / "common/asserts.py").read_text()
+    if entry["id"] in {"rl/gae", "rl/ppo_clip", "rl/grpo", "rl/dr_grpo"}:
+        files["paperleet/common/rl_envs.py"] = (package / "common/rl_envs.py").read_text()
+    if entry["id"] == "rl/dr_grpo":
+        for name in ("solution.py", "experiment.py"):
+            relative_name = f"problems/rl/grpo/{name}"
+            files[relative_name] = (repository / relative_name).read_text()
     for name in list(files):
         parts = name.split("/")[:-1]
         for length in range(1, len(parts) + 1):

@@ -5,6 +5,7 @@ import type { Problem, Report } from "./types";
 import { useI18n } from "./i18n";
 import { decodeViz } from "./vizData";
 import { scheduleData } from "./concepts";
+import { experimentTests, type ExperimentView } from "./experimentResults";
 import {
   ArtifactCharts,
   Bars,
@@ -1047,11 +1048,25 @@ function FlowLab({ data }: { data: Data }) {
     </>
   );
 }
-function ToyExperiment({ problem, report, data }: { problem: Problem; report?: Report; data: Data }) {
+function RunArtifacts({ problem, report }: { problem: Problem; report?: Report }) {
+  const { t } = useI18n();
+  const results = experimentTests(problem.id, report);
+  return <section className="toy-experiment">
+    <h3>{t("我的运行结果", "My run results")}</h3>
+    <p>{report?.runtime === "browser-numpy-wasm" && report.problem === problem.id
+      ? t("以下数据来自你的最近一次浏览器 CPU / WASM 实验。", "These results come from your latest browser CPU / WASM experiment.")
+      : t("以下曲线和指标来自你的最近一次 T3 运行。", "These curves and metrics come from your latest T3 run.")}</p>
+    {results.length ? results.map((test) => <section key={test.nodeid || test.id}>
+      <h4>{test.id} · {test.passed ? t("通过", "Passed") : t("未通过", "Failed")}</h4>
+      <ArtifactCharts data={test.artifacts!} />
+    </section>) : <p className="notice">{t("先在编辑器完成实现并运行全部测试；T3 产生的曲线和指标会显示在这里。", "Complete your implementation and run all tests. Curves and metrics produced by T3 will appear here.")}</p>}
+  </section>;
+}
+
+function ToyExperiment({ problem, report, data, initialView = "auto" }: { problem: Problem; report?: Report; data: Data; initialView?: ExperimentView }) {
   const { t } = useI18n();
   const hasReference = data.kind === "toy_experiment";
-  const [view, setView] = useState(hasReference ? "reference" : "yours");
-  const results = report?.problem === problem.id ? report.tests.filter((test) => test.layer === "T3" && test.artifacts && Object.keys(test.artifacts).length) : [];
+  const [view, setView] = useState(() => !hasReference || initialView === "run" || initialView === "auto" && experimentTests(problem.id, report).length ? "yours" : "reference");
   const { id: _id, problem: _problem, kind: _kind, title, provenance, ...artifacts } = data;
   return <section className="toy-experiment">
     <h3>{problem.title || title}</h3>
@@ -1061,19 +1076,26 @@ function ToyExperiment({ problem, report, data }: { problem: Problem; report?: R
       {hasReference && <button aria-pressed={view === "reference"} onClick={() => setView("reference")}>{t("参考实验", "Reference experiment")}</button>}
       <button aria-pressed={view === "yours"} onClick={() => setView("yours")}>{t("我的运行结果", "My run results")}</button>
     </div>
-    {view === "reference" ? <ArtifactCharts data={artifacts} referenceRun /> : results?.length ? results.map((test) => <section key={test.nodeid || test.id}><h4>{test.id} · {test.passed ? t("通过", "Passed") : t("未通过", "Failed")}</h4><ArtifactCharts data={test.artifacts!} /></section>) : <p className="notice">{t("先在编辑器完成实现并运行全部测试；T3 产生的曲线和指标会显示在这里。", "Complete your implementation and run all tests. Curves and metrics produced by T3 will appear here.")}</p>}
+    {view === "reference" ? <ArtifactCharts data={artifacts} referenceRun /> : <RunArtifacts problem={problem} report={report} />}
   </section>;
 }
 
-export default function Lab({ problem, report }: { problem: Problem; report?: Report }) {
+export default function Lab({ problem, report, initialView = "auto" }: { problem: Problem; report?: Report; initialView?: ExperimentView }) {
   const tx = useLabText();
+  const { t } = useI18n();
+  const [view, setView] = useState(() => initialView === "auto" ? experimentTests(problem.id, report).length ? "run" : "concept" : initialView);
   const data = useMemo(
     () => decodeViz(problem.vizData || {}) as Data,
     [problem.vizData],
   );
-  if (data.kind === "toy_experiment" || (!problem.vizData && report?.tests.some((test) => test.layer === "T3" && test.artifacts && Object.keys(test.artifacts).length))) return <ToyExperiment problem={problem} report={report} data={data} />;
+  if (data.kind === "toy_experiment" || (!problem.vizData && experimentTests(problem.id, report).length)) return <ToyExperiment problem={problem} report={report} data={data} initialView={initialView} />;
   return (
     <>
+      <div className="toy-view-tabs" role="group" aria-label={t("实验视图", "Experiment view")}>
+        <button aria-pressed={view === "concept"} onClick={() => setView("concept")}>{t("公式与参考实验", "Concepts & reference experiments")}</button>
+        <button aria-pressed={view === "run"} onClick={() => setView("run")}>{t("我的运行结果", "My run results")}</button>
+      </div>
+      {view === "run" ? <RunArtifacts problem={problem} report={report} /> : <>
       <div className="lab-heading">
         <span className="live-dot" />
         {tx("公式实验台")}
@@ -1094,6 +1116,7 @@ export default function Lab({ problem, report }: { problem: Problem; report?: Re
       ) : (
         <Missing />
       )}
+      </>}
     </>
   );
 }

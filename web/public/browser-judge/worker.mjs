@@ -1,4 +1,5 @@
 // Runs only inside the disposable, opaque-origin browser judge sandbox.
+import { calibrationDiagnostic } from './diagnostics.mjs';
 const send = globalThis.postMessage.bind(globalThis);
 let started = false;
 self.onmessage = async ({ data }) => {
@@ -17,7 +18,7 @@ self.onmessage = async ({ data }) => {
     py.runPython(`import json\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);
     progress('calibrating');
     const calibration = JSON.parse(py.runPython("json.dumps(calibrate(bundle, '/judge'))"));
-    if (!calibration.compatible) return unsupported('calibration_failed', calibration.reason);
+    if (!calibration.compatible) return unsupported('calibration_failed', calibrationDiagnostic(calibration));
     progress('running');
     const report = JSON.parse(py.runPython("json.dumps(run_suite(bundle, learner_source, '/judge'))"));
     if (report.error) return unsupported('collection_failed');

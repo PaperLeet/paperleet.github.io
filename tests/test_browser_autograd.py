@@ -329,3 +329,127 @@ def test_pdist_values_and_gradients_against_native():
     np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),atol=1e-12,rtol=1e-12)
     actual.sum().backward();expected.sum().backward()
     np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),atol=1e-11,rtol=1e-11)
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('axis', [0, -1])
+def test_cumprod_zero_safe_values_and_gradients_against_native(dtype, axis):
+    values = np.array([[.2, 0., -.3, 2.], [0., .7, 0., .5], [-.6, .1, .5, 0.]], dtype=dtype)
+    x, xx = pair(values, dtype)
+    actual, expected = x.cumprod(axis), xx.cumprod(axis)
+    weight = np.random.RandomState(91).randn(*values.shape).astype(dtype)
+    (actual * wasm.Tensor(weight)).sum().backward(); (expected * torch.tensor(weight)).sum().backward()
+    tolerance = 1e-6 if dtype == np.float32 else 1e-12
+    np.testing.assert_allclose(actual.numpy(), expected.detach().numpy(), atol=tolerance, rtol=tolerance)
+    np.testing.assert_allclose(x.grad.numpy(), xx.grad.numpy(), atol=tolerance, rtol=tolerance)
+
+
+@pytest.mark.parametrize('shape', [(), (2, 0)])
+def test_cumprod_scalar_and_empty_inputs(shape):
+    x, xx = pair(np.ones(shape))
+    actual, expected = x.cumprod(-1), xx.cumprod(-1)
+    actual.sum().backward(); expected.sum().backward()
+    np.testing.assert_array_equal(actual.numpy(), expected.detach().numpy())
+    np.testing.assert_array_equal(x.grad.numpy(), xx.grad.numpy())
+
+
+@pytest.mark.parametrize('maximum', [False, True])
+def test_elementwise_extrema_ties_nan_broadcast_and_gradient_sharing(maximum):
+    a, aa = pair([[.2, 1., -1., np.nan], [2., 1., 0., .5]])
+    b, bb = pair([.2, .5, 0., 1.])
+    actual = wasm.elementwise_extreme(a, b, maximum)
+    expected = (torch.maximum if maximum else torch.minimum)(aa, bb)
+    actual.sum().backward(); expected.sum().backward()
+    np.testing.assert_array_equal(actual.numpy(), expected.detach().numpy())
+    np.testing.assert_array_equal(a.grad.numpy(), aa.grad.numpy())
+    np.testing.assert_array_equal(b.grad.numpy(), bb.grad.numpy())
+
+
+def test_ppo_clipped_objective_gradients_match_independent_native_expression():
+    new, native_new = pair(np.log([.5, .9, 1., 1.1, 1.5, .5, 1.5]))
+    old, native_old = pair(np.zeros(7)); adv, native_adv = pair([1., -2., 3., -1., 2., -1., -2.])
+    ratio = (new - old.detach()).exp(); native_ratio = (native_new - native_old.detach()).exp()
+    actual = -wasm.elementwise_extreme(ratio * adv.detach(), ratio.clamp(.8, 1.2) * adv.detach()).mean()
+    expected = -torch.minimum(native_ratio * native_adv.detach(), native_ratio.clamp(.8, 1.2) * native_adv.detach()).mean()
+    actual.backward(); expected.backward()
+    np.testing.assert_allclose(actual.numpy(), expected.detach().numpy(), atol=1e-12)
+    np.testing.assert_allclose(new.grad.numpy(), native_new.grad.numpy(), atol=1e-12)
+    assert old.grad is adv.grad is None and native_old.grad is native_adv.grad is None
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('seed', [7, 42, 2026])
+def test_multinomial_and_permutation_match_native_mixed_rng_stream(dtype, seed):
+    probabilities = np.array([[0., .1, .3, .6], [.7, 0., .2, .1]], dtype=dtype).T.copy().T
+    generator = wasm.Generator().manual_seed(seed); native = torch.Generator().manual_seed(seed)
+    for _ in range(3):
+        actual = wasm.multinomial(wasm.Tensor(probabilities), 2000, replacement=True, generator=generator)
+        expected = torch.multinomial(torch.tensor(probabilities), 2000, replacement=True, generator=native)
+        np.testing.assert_array_equal(actual.numpy(), expected.numpy())
+        for count in (0, 1, 17, 256):
+            np.testing.assert_array_equal(wasm.randperm(count, generator=generator).numpy(), torch.randperm(count, generator=native).numpy())
+    np.testing.assert_array_equal(wasm.create('rand', 100, generator=generator, dtype=dtype).numpy(),
+                                  torch.rand(100, generator=native, dtype=torch.float64 if dtype == np.float64 else torch.float32).numpy())
+    with pytest.raises(wasm.BrowserUnsupported): wasm.multinomial(wasm.Tensor(probabilities), 1, replacement=True)
+    with pytest.raises(wasm.BrowserUnsupported): wasm.multinomial(wasm.Tensor(probabilities), 2, replacement=False)
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('columns', [None, 2])
+def test_linear_solve_values_and_analytic_gradients_match_native(dtype, columns):
+    rng = np.random.RandomState(173)
+    values = rng.randn(4, 4); values = values.T @ values + np.eye(4)
+    a, aa = pair(values, dtype); b, bb = pair(rng.randn(*((4,) if columns is None else (4, columns))), dtype)
+    actual, expected = wasm.solve(a, b), torch.linalg.solve(aa, bb)
+    actual.square().sum().backward(); expected.square().sum().backward()
+    tolerance = 2e-6 if dtype == np.float32 else 1e-11
+    for got, want in [(actual, expected.detach()), (a.grad, aa.grad), (b.grad, bb.grad)]:
+        np.testing.assert_allclose(got.numpy(), want.numpy(), atol=tolerance, rtol=tolerance)
+
+
+def test_split_repeat_interleave_and_integer_cast_contracts():
+    x, xx = pair(np.arange(14).reshape(2, 7))
+    for sections in (3, [2, 0, 5]):
+        got, want = x.split(sections, dim=-1), xx.split(sections, dim=-1)
+        a = sum((chunk * (i+1)).sum() for i, chunk in enumerate(got))
+        b = sum((chunk * (i+1)).sum() for i, chunk in enumerate(want))
+        np.testing.assert_allclose(wasm.autograd_grad(a, x)[0].numpy(), torch.autograd.grad(b, xx)[0].numpy(), atol=1e-12)
+    counts = np.array([0, 1, 2, 0, 1, 2, 3])
+    a = x.repeat_interleave(wasm.Tensor(counts), dim=-1)
+    b = xx.repeat_interleave(torch.tensor(counts), dim=-1)
+    a.sum().backward(); b.sum().backward()
+    np.testing.assert_array_equal(a.numpy(), b.detach().numpy())
+    np.testing.assert_array_equal(x.grad.numpy(), xx.grad.numpy())
+    repeated, native_repeated = x.repeat_interleave(2, dim=-1), xx.repeat_interleave(2, dim=-1)
+    np.testing.assert_array_equal(repeated.numpy(), native_repeated.detach().numpy())
+    np.testing.assert_array_equal(wasm.autograd_grad(repeated.sum(), x)[0].numpy(), torch.autograd.grad(native_repeated.sum(), xx)[0].numpy())
+    assert not x.long().requires_grad and not x.bool().requires_grad
+    target = wasm.Tensor(np.zeros(2))
+    with pytest.raises(wasm.BrowserUnsupported): target[0] = x[0, 0]
+
+
+def test_direct_and_nested_module_parameters_and_forward_gradients_match_native():
+    def build(module_type, parameter_type, make):
+        class Layer(module_type):
+            def __init__(self, scale):
+                super().__init__(); self.weight = parameter_type(make(np.eye(3) * scale))
+            def forward(self, x): return x @ self.weight
+        class Model(module_type):
+            def __init__(self):
+                super().__init__(); self.left = Layer(.5); self.right = Layer(2.)
+                self.bias = parameter_type(make(np.array([.1, -.2, .4])))
+                self.alias = self.left.weight
+            def forward(self, x): return self.left(x) + self.right(x) + self.bias
+        return Model()
+    model = build(wasm.Module, wasm.Parameter, wasm.Tensor)
+    native = build(torch.nn.Module, torch.nn.Parameter, torch.tensor)
+    params, native_params = list(model.parameters()), list(native.parameters())
+    assert len(params) == len(native_params) == 3
+    assert len(list(model.parameters(recurse=False))) == 2
+    x, xx = pair(np.arange(6).reshape(2, 3))
+    actual, expected = model(x), native(xx)
+    actual.square().sum().backward(); expected.square().sum().backward()
+    for got, want in zip([x, *params], [xx, *native_params]):
+        np.testing.assert_allclose(got.numpy(), want.detach().numpy(), atol=1e-12)
+        np.testing.assert_allclose(got.grad.numpy(), want.grad.numpy(), atol=1e-12)
+    with pytest.raises(wasm.BrowserUnsupported): model.state_dict()

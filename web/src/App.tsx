@@ -55,6 +55,7 @@ import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason, type JudgeMode } from "./browserJudge";
 import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
+import type { ExperimentView } from "./experimentResults";
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -371,6 +372,11 @@ function Workspace() {
   const [details, setDetails] = useState<Record<string, Problem>>({});
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
+  const [labView, setLabView] = useState<ExperimentView>("auto");
+  function openLab(view: ExperimentView = "auto") {
+    setLabView(view);
+    setTab("lab");
+  }
   const { stats: problemStats, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(id);
   const sourceProblem = problems.find(
     (p) => p.id === id || String(p.number) === id,
@@ -792,7 +798,7 @@ function Workspace() {
                   <button
                     key={key}
                     className={tab === key ? "selected" : ""}
-                    onClick={() => setTab(key)}
+                    onClick={() => key === "lab" ? openLab() : setTab(key)}
                   >
                     {key === "description" ? (
                       <FileCode2 size={14} />
@@ -822,11 +828,11 @@ function Workspace() {
                 {tab === "tests" ? (
                   <ReportView report={report} problem={problem}>
                     {!running && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
-                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => setTab("lab")} />
+                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
                     )}
                   </ReportView>
                 ) : tab === "lab" ? (
-                  <Visuals key={problem.id} problem={problem} report={report} />
+                  <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} initialView={labView} />
                 ) : tab === "notes" ? (
                   status(problem, current) !== "done" ? (
                     <div className="empty-state">
@@ -857,7 +863,7 @@ function Workspace() {
                     <Prose
                       content={problem.notes}
                       problemId={problem.id}
-                      onViz={() => setTab("lab")}
+                      onViz={() => openLab("concept")}
                     />
                   )
                 ) : tab === "solution" ? (
@@ -973,7 +979,7 @@ function Workspace() {
                       </section>
                     )}
                     {tab === "explanation" && (
-                      <Visuals key={problem.id} problem={problem} report={report} />
+                      <Visuals key={problem.id} problem={problem} report={report} initialView="concept" />
                     )}
                     {locale === "en" && !problem.translations?.en && (
                       <div className="notice">
@@ -984,12 +990,12 @@ function Workspace() {
                     <Prose
                       content={webReadme || ""}
                       problemId={problem.id}
-                      onViz={() => setTab("lab")}
+                      onViz={() => openLab("concept")}
                     />
                     {tab === "description" && (
                       <button
                         className="lab-callout"
-                        onClick={() => setTab("lab")}
+                        onClick={() => openLab(problem.vizData?.kind === "toy_experiment" ? "auto" : "concept")}
                       >
                         <FlaskConical size={21} />
                         <span>
@@ -1028,7 +1034,7 @@ function Workspace() {
               </div>
               {rightTab === "lab" ? (
                 <div className="editor-lab">
-                  <Visuals key={problem.id} problem={problem} report={report} />
+                  <Visuals key={problem.id} problem={problem} report={report} initialView="concept" />
                 </div>
               ) : (
                 <>

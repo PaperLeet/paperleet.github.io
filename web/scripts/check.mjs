@@ -10,7 +10,8 @@ const server = await createServer({
 });
 try {
   const { default: Lab } = await server.ssrLoadModule("/src/Lab.tsx");
-  const { ArtifactCharts } = await server.ssrLoadModule("/src/Visuals.tsx");
+  const { ArtifactCharts, Chart } = await server.ssrLoadModule("/src/Visuals.tsx");
+  const { experimentTests } = await server.ssrLoadModule("/src/experimentResults.ts");
   const { isPassed, status } = await server.ssrLoadModule("/src/types.ts");
   const { parseReport, parseSaved, decodeProblemHash } =
     await server.ssrLoadModule("/src/reports.ts");
@@ -106,7 +107,7 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 10);
+  assert.equal(browserModules.length, 14);
   const runtimeMatching = (query, runtime, difficulty = "all") => matchingPaperModules(transformer, catalog.problems, query, difficulty, runtime).map((p) => p.id);
   assert.deepEqual(runtimeMatching("Transformer", "browser"), transformer.module_ids);
   assert.deepEqual(runtimeMatching("Transformer", "server"), []);
@@ -386,6 +387,34 @@ try {
   );
   assert(output.includes("你的实现与参考对照"));
   assert(output.includes("60.0"));
+  const gapArtifacts = renderToString(React.createElement(ArtifactCharts, { data: { training: [
+    {step: 0, reward: .2, wrong_length: 4.16},
+    {step: 1, reward: .7, wrong_length: null},
+    {step: 2, reward: .98, wrong_length: 3.5},
+  ] } }));
+  assert(gapArtifacts.includes('reward / step') && gapArtifacts.includes('wrong_length / step'), 'Optional null metrics must not hide valid reward/length curves');
+  assert(!gapArtifacts.includes('NaN') && !gapArtifacts.includes('<pre>'));
+  const displayOnlyHtml = renderToString(React.createElement(ArtifactCharts, {data:{experiment:{display_only:true,training:[{step:0,reward:.2},{step:1,reward:.9}]}}}));
+  assert(displayOnlyHtml.includes('不按单次趋势判分'), 'Display-only experiments must keep their grading scope visible');
+  const gapChart = renderToString(React.createElement(Chart, { series: [[[0,1],[1,NaN],[2,3]]] }));
+  assert.match(gapChart, /d="M[^\"]* M/, 'Missing observations must break the plotted line instead of becoming zero or interpolated evidence');
+  const ppoModule = catalog.problems.find((entry) => entry.id === 'rl/ppo_clip');
+  const ownReport = {problem: ppoModule.id, runtime:'browser-numpy-wasm', tests:[
+    {id:'browser_run_marker',layer:'T3',passed:true,artifacts:{bandit:{training:[{step:0,reward:0},{step:1,reward:.99}],best_prob:.99,max_kl:.09}}},
+    {id:'not_an_experiment',layer:'T2',passed:true,artifacts:{must_stay_hidden:100}},
+  ]};
+  assert.equal(experimentTests(ppoModule.id, ownReport).length, 1);
+  assert.deepEqual(experimentTests('rl/gae', ownReport), []);
+  assert.deepEqual(experimentTests(ppoModule.id, {...ownReport,tests:[{id:'empty',layer:'T3',passed:false,artifacts:{}}]}), []);
+  const runHtml = renderToString(React.createElement(Lab, {problem:ppoModule,report:ownReport}));
+  assert(runHtml.includes('browser_run_marker') && runHtml.includes('CPU / WASM'), 'Completed experiments must open actual submitted-run data by default');
+  assert(!runHtml.includes('must_stay_hidden') && !runHtml.includes('同一个 batch，多轮更新后会发生什么'));
+  const explicitConcept = renderToString(React.createElement(Lab, {problem:ppoModule,report:ownReport,initialView:'concept'}));
+  assert(!explicitConcept.includes('browser_run_marker') && explicitConcept.includes('同一个 batch，多轮更新后会发生什么'), 'Formula entry points must still open the interactive reference view after a completed run');
+  const foreignHtml = renderToString(React.createElement(Lab, {problem:ppoModule,report:{...ownReport,problem:'rl/gae'}}));
+  assert(!foreignHtml.includes('browser_run_marker'), 'Reports must never bleed between modules');
+  const failedHtml = renderToString(React.createElement(Lab, {problem:ppoModule,report:{...ownReport,tests:[{...ownReport.tests[0],passed:false}]}}));
+  assert(failedHtml.includes('browser_run_marker') && failedHtml.includes('未通过'), 'Failed T3 artifacts remain useful feedback with their failed status visible');
   for (const data of [
     { curve: [{ step: 0, loss: 1 }, null] },
     {

@@ -1,10 +1,19 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createServer } from 'vite';
+import { calibrationDiagnostic } from '../public/browser-judge/diagnostics.mjs';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const originals = Object.fromEntries(['Worker', 'window', 'document', 'location', 'fetch'].map((key) => [key, globalThis[key]]));
 try {
+  const diagnostic = calibrationDiagnostic({reason:'reference_failed',reference:{tests:[
+    {id:'wrong_number',passed:false,message:'expected 1; got 2'},
+    {id:'passed',passed:true,message:'must not appear'},
+  ],artifacts:{private_or_large_payload:'must not appear'}}});
+  assert(diagnostic.includes('wrong_number') && diagnostic.includes('expected 1; got 2'));
+  assert(!diagnostic.includes('must not appear'));
+  assert(calibrationDiagnostic({reason:'mutant_not_caught',mutant:'wrong'}).includes('mutant: wrong'));
+  assert(calibrationDiagnostic({reason:'failed',reference:{error:'x'.repeat(10000),tests:Array.from({length:10},()=>({passed:false,message:'y'.repeat(10000)}))}}).length <= 4000);
   const { runBrowserJudge } = await server.ssrLoadModule('/src/browserJudge.ts');
   const { parseReport } = await server.ssrLoadModule('/src/reports.ts');
   const listeners = new Set();
@@ -86,15 +95,15 @@ try {
     globalThis.clearTimeout = nativeClearTimeout;
   }
 
-  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo', 'architecture/multihead_attention', 'architecture/positionwise_ffn', 'optimization/adamw']) {
+  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo', 'architecture/multihead_attention', 'architecture/positionwise_ffn', 'optimization/adamw', 'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo']) {
     const wasm = runBrowserJudge({ ...problem, id, browser_judge: { ...problem.browser_judge, backend: 'numpy-autograd-wasm' } }, 'private source', new AbortController().signal, () => {});
     // The mock response intentionally has the wrong identity, so it must never
     // be executed; All autodiff modules use the same isolated CPU/WASM path.
     assert.equal((await wasm).reason, 'runtime_failed');
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
-  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 10);
-  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all ten CPU/WASM routes');
+  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 14);
+  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all fourteen CPU/WASM routes');
 } finally {
   Object.assign(globalThis, originals);
   await server.close();

@@ -21,6 +21,12 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
         for test in (entry['directory'] / 'tests').glob('test_*.py'):
             name = test.relative_to(root()).as_posix()
             assert bundle['files'][name] == test.read_text()
+        if identifier in {'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo'}:
+            assert bundle['files']['paperleet/common/rl_envs.py'] == (root() / 'paperleet/common/rl_envs.py').read_text()
+        if identifier == 'rl/dr_grpo':
+            for name in ('solution.py', 'experiment.py'):
+                relative = f'problems/rl/grpo/{name}'
+                assert bundle['files'][relative] == (root() / relative).read_text()
         assert metadata == export_browser_bundle(entry, tmp_path)
         assert metadata['backend'] == ('numpy-wasm' if identifier == 'diffusion/schedules' else 'numpy-autograd-wasm')
     assert export_browser_bundle({'id': 'other/example'}, tmp_path) is None
@@ -74,6 +80,7 @@ print(json.dumps(calibration))
     ('diffusion/param_conversion',7,4),('architecture/layer_norm',7,4),
     ('architecture/positional_encoding',7,4),('rl/dpo',9,5),
     ('architecture/multihead_attention',7,4),('architecture/positionwise_ffn',7,4),('optimization/adamw',7,4),
+    ('rl/gae',11,4),('rl/ppo_clip',11,5),('rl/grpo',9,5),('rl/dr_grpo',6,3),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
@@ -82,7 +89,7 @@ def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,
 import json,sys
 from paperleet.browser.harness import prepare, calibrate, run_suite
 b=json.load(open(sys.argv[1]));prepare(b,b['adapter'],sys.argv[2])
-c=calibrate(b,sys.argv[2]);assert c['compatible'],c
+c=calibrate(b,sys.argv[2]);assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
 assert c['reference_passed']==int(sys.argv[3]);assert len(c['mutants_caught'])==int(sys.argv[4])
 r=run_suite(b,b['reference'],sys.argv[2]);assert r['passed'],r
 assert not b['tests'].get('T3') or any(t['artifacts'] for t in r['tests'])

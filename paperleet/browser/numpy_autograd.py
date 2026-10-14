@@ -109,6 +109,11 @@ class Tensor:
     def is_contiguous(self): return bool(self._data.flags.c_contiguous)
     def double(self): return self.to(dtype=np.float64)
     def float(self): return self.to(dtype=np.float32)
+    def long(self): return self.to(dtype=np.int64)
+    def bool(self): return self.to(dtype=np.bool_)
+    def new_zeros(self, *shape, **kw): return create('zeros', *shape, **({'dtype': self.dtype} | kw))
+    def new_ones(self, *shape, **kw): return create('ones', *shape, **({'dtype': self.dtype} | kw))
+    def zero_(self): self[...] = 0; return self
     def type_as(self, other): return self.to(other)
 
     def to(self, other=None, *, dtype=None, device=None):
@@ -117,7 +122,8 @@ class Tensor:
         elif other is not None: dtype = other
         if device not in (None, 'cpu', 'cpu:0'):
             raise BrowserUnsupported('Only CPU/WASM tensors are supported')
-        return result(self._data.astype(dtype or self.dtype, copy=False), (self, lambda g: g.astype(self.dtype)))
+        data = self._data.astype(dtype or self.dtype, copy=False)
+        return result(data, (self, lambda g: g.astype(self.dtype))) if data.dtype.kind == 'f' else Tensor(data)
 
     def requires_grad_(self, requires_grad=True):
         if requires_grad and self.dtype.kind != 'f': raise RuntimeError('Only floating tensors can require grad')
@@ -147,7 +153,7 @@ class Tensor:
         return result(self._data[index], (self, vjp))
 
     def __setitem__(self, index, value):
-        if self.requires_grad and _grad_enabled:
+        if _grad_enabled and (self.requires_grad or isinstance(value, Tensor) and value.requires_grad):
             raise BrowserUnsupported('In-place edits of differentiable tensors require the server')
         if isinstance(index, Tensor): index = index._data
         self._data[index] = value._data if isinstance(value, Tensor) else value
@@ -211,6 +217,22 @@ class Tensor:
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
         return result(self._data.reshape(shape), (self, lambda g: g.reshape(self.shape)))
     view = reshape
+    def reshape_as(self, other): return self.reshape(other.shape)
+    def split(self, split_size_or_sections, dim=0):
+        if not -self.ndim <= dim < self.ndim: raise IndexError('split dimension out of range')
+        dim %= self.ndim
+        size = self.shape[dim]
+        if isinstance(split_size_or_sections, int):
+            if split_size_or_sections <= 0 and (size or split_size_or_sections < 0): raise RuntimeError('Invalid split size')
+            lengths = [min(split_size_or_sections, size - start) for start in range(0, size, split_size_or_sections or 1)] or [0]
+        else:
+            lengths = list(split_size_or_sections)
+            if any(not isinstance(length, int) or length < 0 for length in lengths) or sum(lengths) != size: raise RuntimeError('Split sizes must sum to the dimension length')
+        parts, start = [], 0
+        for length in lengths:
+            index = [slice(None)] * self.ndim; index[dim] = slice(start, start + length)
+            parts.append(self[tuple(index)]); start += length
+        return tuple(parts)
     def flatten(self, start_dim=0, end_dim=-1):
         if not self.ndim: return self.reshape(1)
         end_dim %= self.ndim
@@ -237,6 +259,20 @@ class Tensor:
         shape = (1,) * (len(repeats) - self.ndim) + self.shape
         interleaved = tuple(v for pair in zip(repeats, shape) for v in pair)
         return result(np.tile(self._data, repeats), (self, lambda g: g.reshape(interleaved).sum(axis=tuple(range(0, len(interleaved), 2))).reshape(self.shape)))
+    def repeat_interleave(self, repeats, dim=None, *, output_size=None):
+        source = self.flatten() if dim is None else self
+        dim = 0 if dim is None else dim
+        if not -source.ndim <= dim < source.ndim: raise IndexError('repeat_interleave dimension out of range')
+        dim %= source.ndim
+        counts = wrap(repeats)._data
+        if counts.dtype.kind not in 'iu' or counts.ndim > 1 or np.any(counts < 0): raise RuntimeError('Invalid repetition counts')
+        if np.any(counts > np.iinfo(np.intp).max):
+            raise BrowserUnsupported('Repetition counts exceed this runtime index range')
+        # wasm32 uses int32 indices even though torch.long remains int64.
+        indices = np.repeat(np.arange(source.shape[dim], dtype=np.intp), counts.astype(np.intp))
+        if output_size is not None and output_size != len(indices): raise RuntimeError('Incorrect repeat_interleave output_size')
+        index = [slice(None)] * source.ndim; index[dim] = indices
+        return source[tuple(index)]
 
     def sum(self, dim=None, keepdim=False, *, dtype=None):
         dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
@@ -271,6 +307,22 @@ class Tensor:
         return Tensor(np.expand_dims(value, dim) if keepdim and dim is not None else value)
     def cumsum(self, dim):
         return result(self._data.cumsum(axis=dim), (self, lambda g: np.flip(np.flip(g, axis=dim).cumsum(axis=dim), axis=dim)))
+    def cumprod(self, dim, *, dtype=None):
+        if not self.ndim and dim in (0, -1):
+            target = dtype or (np.int64 if self.dtype.kind in 'biu' else self.dtype)
+            return self.to(dtype=target)
+        if not -self.ndim <= dim < self.ndim: raise IndexError('cumprod dimension out of range')
+        dim %= self.ndim
+        if dtype is None and self.dtype.kind in 'biu': dtype = np.int64
+        value = self._data.cumprod(axis=dim, dtype=dtype)
+        def vjp(g):
+            x, prefix, incoming = (np.moveaxis(array, dim, -1) for array in (self._data, value, g))
+            grad = np.empty_like(incoming); carry = np.zeros(incoming.shape[:-1], dtype=incoming.dtype)
+            for i in reversed(range(x.shape[-1])):
+                carry = incoming[..., i] + (carry * x[..., i + 1] if i + 1 < x.shape[-1] else 0)
+                grad[..., i] = carry * (prefix[..., i - 1] if i else 1)
+            return np.moveaxis(grad, -1, dim)
+        return result(value, (self, vjp))
     def softmax(self, dim, dtype=None):
         x = self.to(dtype=dtype) if dtype is not None else self
         shifted = x._data - x._data.max(axis=dim, keepdims=True)
@@ -376,6 +428,88 @@ def check_device(device):
 class Generator:
     def __init__(self, device=None): check_device(device); self.rng = np.random.RandomState(42)
     def manual_seed(self, seed): self.rng = np.random.RandomState(seed); return self
+
+
+def multinomial(probabilities, num_samples, replacement=False, *, generator=None):
+    weights = wrap(probabilities)._data
+    if not replacement or num_samples == 1:
+        raise BrowserUnsupported('Single-draw and without-replacement multinomial require the server')
+    if weights.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('Multinomial supports float32/float64 probabilities')
+    if weights.ndim not in (1, 2) or not weights.shape[-1] or type(num_samples) is not int or num_samples < 1:
+        raise RuntimeError('Invalid multinomial shape or sample count')
+    if not np.isfinite(weights).all() or np.any(weights < 0): raise RuntimeError('Invalid multinomial probabilities')
+    rng = generator.rng if generator else np.random
+    draws = []
+    for row in weights.reshape(-1, weights.shape[-1]):
+        cumulative = np.cumsum(row, dtype=weights.dtype)
+        if not cumulative[-1] > 0: raise RuntimeError('Multinomial probabilities must sum to a positive value')
+        cumulative /= cumulative[-1]; cumulative[-1] = 1
+        # Native CPU replacement sampling consumes float64 uniform draws even
+        # when the probabilities themselves are float32.
+        draws.append(np.searchsorted(cumulative, uniform_samples(rng, (num_samples,), np.float64), side='left'))
+    return Tensor(np.asarray(draws, dtype=np.int64).reshape(weights.shape[:-1] + (num_samples,)))
+
+
+def randperm(n, *, generator=None, dtype=np.int64, device=None):
+    check_device(device)
+    if type(n) is not int or n < 0: raise RuntimeError('randperm needs a non-negative integer')
+    if n > 1_000_000 or np.dtype(dtype) != np.dtype('int64'):
+        raise BrowserUnsupported('Large/non-int64 permutations require the server')
+    rng = generator.rng if generator else np.random
+    values = np.arange(n, dtype=np.int64)
+    bits = rng.randint(0, 2**32, size=max(0, n-1), dtype=np.uint32)
+    for i, bit in enumerate(bits):
+        other = i + int(bit) % (n-i)
+        values[i], values[other] = values[other], values[i]
+    return Tensor(values)
+
+
+def elementwise_extreme(a, b, maximum=False):
+    a = wrap(a)
+    def share(left, right):
+        blocked = left < right if maximum else left > right
+        return np.where(left == right, .5, np.where(blocked, 0., 1.))
+    return a._binary(b, np.maximum if maximum else np.minimum,
+                     lambda g,x,y: g * share(x,y), lambda g,x,y: g * share(y,x))
+
+
+def solve(a, b):
+    a, b = wrap(a), wrap(b)
+    if a.ndim != 2 or b.ndim not in (1, 2): raise BrowserUnsupported('Batched linear solves require the server')
+    if a.dtype != b.dtype or a.dtype.kind != 'f': raise RuntimeError('solve expects matching floating dtypes')
+    value = np.linalg.solve(a._data, b._data)
+    def db(g): return np.linalg.solve(a._data.T, g)
+    def da(g):
+        incoming = db(g)
+        return -(incoming[:, None] @ value[None, :] if b.ndim == 1 else incoming @ value.T)
+    return result(value, (a, da), (b, db))
+
+
+class Parameter(Tensor):
+    def __init__(self, data=None, requires_grad=True):
+        super().__init__(np.empty(0, dtype=np.float32) if data is None else wrap(data)._data, requires_grad=requires_grad)
+
+
+class Module:
+    """Direct Parameters and nested Modules; other module interfaces fall back."""
+    def __init__(self): self.training = True
+    def __getattr__(self, name):
+        if name.startswith('_'): raise AttributeError(name)
+        return unsupported(f'nn.Module.{name}')
+    def __call__(self, *args, **kw): return self.forward(*args, **kw)
+    def parameters(self, recurse=True):
+        seen, modules, pending = set(), set(), [self]
+        while pending:
+            module = pending.pop()
+            if id(module) in modules: continue
+            modules.add(id(module))
+            children = []
+            for value in module.__dict__.values():
+                if isinstance(value, Parameter) and id(value) not in seen:
+                    seen.add(id(value)); yield value
+                elif recurse and isinstance(value, Module): children.append(value)
+            pending.extend(reversed(children))
 
 
 def create(kind, *shape, dtype=np.float32, device=None, requires_grad=False, generator=None):
@@ -634,6 +768,9 @@ def install():
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
     torch.full, torch.randint, torch.device, torch.finfo = full, randint, Device, np.finfo
+    torch.multinomial, torch.randperm = multinomial, randperm
+    torch.minimum = elementwise_extreme
+    torch.maximum = lambda a,b: elementwise_extreme(a,b,maximum=True)
     torch.eye = lambda n,m=None,*,dtype=np.float32,device=None,requires_grad=False: (check_device(device), Tensor(np.eye(n, m, dtype=dtype), requires_grad=requires_grad))[1]
     torch.equal = lambda a,b: bool(np.array_equal(wrap(a)._data, wrap(b)._data))
     torch.cat = concatenate
@@ -652,7 +789,7 @@ def install():
     torch.broadcast_to = lambda x, shape: x.expand(shape)
     torch.matmul = lambda a,b: wrap(a) @ b
     torch.pdist = pdist
-    for name in ('sum', 'mean', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'max', 'min', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std'):
+    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan', 'count_nonzero'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -667,6 +804,7 @@ def install():
         sys.modules['torch.' + name] = module
     torch.nn, torch.optim, torch.autograd, torch.linalg = (modules[k] for k in ('nn', 'optim', 'autograd', 'linalg'))
     torch.nn.functional = modules['nn.functional']
+    torch.nn.Module, torch.nn.Parameter = Module, Parameter
     torch.nn.functional.linear = lambda x,w,bias=None: x @ w.T if bias is None else x @ w.T + bias
     torch.nn.functional.softmax = lambda x,dim,dtype=None: x.softmax(dim, dtype)
     torch.nn.functional.log_softmax = lambda x,dim,dtype=None: x.log_softmax(dim,dtype)
@@ -680,5 +818,6 @@ def install():
     torch.optim.Adam, torch.autograd.grad = Adam, autograd_grad
     torch.optim.AdamW = AdamW
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
+    torch.linalg.solve = solve
     torch.__getattr__ = unsupported
     return torch
