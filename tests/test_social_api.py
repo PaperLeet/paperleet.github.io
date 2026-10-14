@@ -79,6 +79,27 @@ def login(api, name):
     return data["user"], social_api.COOKIE + "=" + value.value
 
 
+def test_module_threads_http_session_filtering_and_persistence(api):
+    _, cookie = login(api, "module-author")
+    payload = {"title": "Attention mask question", "body": "How should fully masked rows behave?",
+               "category": "questions", "problem_id": "architecture/attention"}
+    assert api("community/posts", payload)[0] == 401
+    status, post, _ = api("community/posts", payload, cookie)
+    assert status == 201 and post["problem"]["number"] == 22
+    assert api("community/posts", {**payload, "problem_id": "22"}, cookie)[0] == 400
+    assert api("community/posts", {**payload, "problem_id": "finetuning/lora"}, cookie)[0] == 201
+    status, page, _ = api("community/posts?problem_id=architecture%2Fattention&category=questions&q=mask&limit=1")
+    assert status == 200 and page["total"] == 1
+    assert page["items"][0]["id"] == post["id"]
+    assert page["items"][0]["viewer"]["can_delete"] is False
+    assert api("community/posts?problem_id=architecture%2Fattention&category=papers")[1]["total"] == 0
+    assert api("community/posts?problem_id=..%2Fattention")[0] == 400
+    assert api("community/posts?problem_id=architecture%2Fattention&following=true")[0] == 401
+    assert api("community/posts/" + post["id"])[1]["problem"] == post["problem"]
+    restarted = CommunityService(api.community.db_path, api.accounts.institutions)
+    assert restarted.list_posts(problem_id="architecture/attention")["items"][0]["id"] == post["id"]
+
+
 def test_anonymous_reads_and_verified_mailbox_write_gate(api):
     status, data, _ = api("account/me")
     assert status == 200 and data["user"] is None

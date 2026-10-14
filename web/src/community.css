@@ -61,6 +61,59 @@
 .social-back:hover {
   color: var(--text);
 }
+.problem-discussion-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface2);
+  flex-wrap: wrap;
+}
+.problem-discussion-context > div:first-child {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.problem-discussion-context strong {
+  font-size: 16px;
+}
+.problem-discussion-context small {
+  color: var(--text-secondary);
+}
+.problem-discussion-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+.post-problem-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent);
+  font-size: 12px;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+.module-discussion-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.module-discussion-tab:hover,
+.module-discussion-tab:focus-visible {
+  color: var(--accent);
+}
 .social-avatar {
   display: inline-flex;
   flex-shrink: 0;

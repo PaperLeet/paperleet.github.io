@@ -22,6 +22,7 @@ import {
   Globe2,
   LockKeyhole,
   Moon,
+  MessageCircle,
   Play,
   RotateCcw,
   Sun,
@@ -52,6 +53,7 @@ import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobs";
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason, type JudgeMode } from "./browserJudge";
+import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -378,6 +380,8 @@ function Workspace() {
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
   const submissionPage = id === "submit";
   const communityPage = id === "community" || id.startsWith("community/");
+  const communityTopicId = topicIdFromRoute(id);
+  const communityProblem = communityTopicId ? problems.find((p) => p.id === communityTopicId) : undefined;
   const accountPage = id === "account";
   const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
   const current = problem ? saved[problem.id] || {} : {};
@@ -663,8 +667,13 @@ function Workspace() {
       </header>
       {communityPage ? (
         <Community
+          topicId={communityTopicId}
+          topic={communityProblem ? topicFromProblem(communityProblem) : undefined}
+          catalogLoading={!problems.length && !loadError}
+          catalogError={loadError}
+          reloadCatalog={loadCatalog}
           postId={
-            id === "community" ? undefined : id.slice("community/".length)
+            id === "community" || communityTopicId ? undefined : id.slice("community/".length)
           }
         />
       ) : accountPage ? (
@@ -804,6 +813,9 @@ function Workspace() {
                     )}
                   </button>
                 ))}
+                <a className="module-discussion-tab" href={topicHref(problem.id)}>
+                  <MessageCircle size={14} />{t("讨论", "Discuss")}
+                </a>
               </div>
               <div className="description-scroll" key={problem.id}>
                 {tab === "tests" ? (

@@ -4,6 +4,14 @@ The community adds persistent posts, replies, likes, reposts, and follow relatio
 
 The default **local development service** runs practice code on your machine and keeps drafts in the browser. The separate [hosted deployment](hosting.md) provides an isolated judge and private per-user cloud drafts. A deployment package is available; no public server has been provisioned by these implementation steps.
 
+## Module discussions
+
+Each practice workspace has a **Discuss** link. It opens that module's discussions, with a **Back to practice** link that preserves the private editor draft. New posts from this view carry the module's canonical ID; only the text entered in the composer is published. Code drafts, reports, and test artifacts are never attached automatically. General community posts remain available without a module association.
+
+Module scope intersects board, keyword, following, and pagination filters. The module label appears on feed cards, post details, and profile activity, with links back to its discussions and exercise. Visitors can read threads; posting still requires sign-in. Existing posts keep a null association when the database upgrades. Threads for retired modules stay readable and do not redirect to a newly numbered exercise.
+
+The collection API accepts `GET /api/community/posts?problem_id=architecture%2Fattention`. Creating a post accepts an optional canonical `problem_id` in the existing POST payload. The server validates it against the maintained catalog and derives public module metadata itself. Submitted titles, numbers, and author objects cannot spoof this context. Omit the parameter for the general feed.
+
 ## Public profiles and privacy
 
 | Field or activity | Visibility |

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "./i18n";
 import ProfileProgress from "./ProfileProgress";
+import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import {
   Avatar,
   DateLabel,
@@ -48,6 +49,8 @@ type Post = {
   title: string;
   body: string;
   category: string;
+  problem_id: string | null;
+  problem: ProblemTopic | null;
   created_at: string;
   updated_at: string;
   author: PublicUser;
@@ -88,6 +91,33 @@ const CATEGORIES = [
 ];
 const postHref = (id: string) => `#/community/${encodeURIComponent(id)}`;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
+function TopicContext({ topic, discussion = false }: {
+  topic: ProblemTopic;
+  discussion?: boolean;
+}) {
+  const { t, locale } = useI18n();
+  return (
+    <div className="problem-discussion-context">
+      <div>
+        <span className="social-eyebrow">{t("题目讨论", "Module discussion")}</span>
+        <strong>{topicTitle(topic, locale === "en")}</strong>
+        {topic.retired && (
+          <small>{t("这道题已下架，历史讨论仍可阅读。", "This module is retired; its discussions remain readable.")}</small>
+        )}
+      </div>
+      <div className="problem-discussion-links">
+        {discussion && (
+          <a href={topicHref(topic.id)}>{t("查看题目讨论", "All module discussions")}</a>
+        )}
+        {!topic.retired && (
+          <a className="button subtle" href={practiceHref(topic.id)}>
+            <Code2 size={15} />{t("返回练习", "Back to practice")}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
 function CommunityMarkdown({ body }: { body: string }) {
   return (
     <div className="prose community-prose">
@@ -203,6 +233,7 @@ function JoinPrompt() {
   );
 }
 function PostCard({ post, activity }: { post: Post; activity?: ReactNode }) {
+  const { locale } = useI18n();
   return (
     <article className="community-post-card">
       {activity && <div className="activity-label">{activity}</div>}
@@ -226,6 +257,11 @@ function PostCard({ post, activity }: { post: Post; activity?: ReactNode }) {
           <a className="post-title" href={postHref(post.id)}>
             {post.title}
           </a>
+          {post.problem && (
+            <a className="post-problem-link" href={topicHref(post.problem.id)}>
+              <Code2 size={13} />{topicTitle(post.problem, locale === "en")}
+            </a>
+          )}
           <p className="post-excerpt">
             {post.body.replace(/[#*`>\[\]]/g, "").slice(0, 190)}
           </p>
@@ -250,15 +286,17 @@ function PostCard({ post, activity }: { post: Post; activity?: ReactNode }) {
 }
 function Composer({
   category,
+  topic,
   onClose,
 }: {
   category: string;
+  topic?: ProblemTopic;
   onClose: () => void;
 }) {
   const { t } = useI18n();
   const [title, setTitle] = useState(""),
     [body, setBody] = useState(""),
-    [board, setBoard] = useState(category || "papers"),
+    [board, setBoard] = useState(category || (topic ? "questions" : "papers")),
     [preview, setPreview] = useState(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -270,6 +308,7 @@ function Composer({
         title: title.trim(),
         body: body.trim(),
         category: board,
+        ...(topic ? { problem_id: topic.id } : {}),
       });
       location.hash = `/community/${encodeURIComponent(post.id)}`;
     } catch (e) {
@@ -292,6 +331,7 @@ function Composer({
         </button>
       </div>
       {error && <SocialNotice error={error} />}
+      {topic && <TopicContext topic={topic} />}
       <form
         className="social-form"
         onSubmit={(e) => {
@@ -368,6 +408,7 @@ function Composer({
               "帖子以你的公开昵称发布。",
               "Posts are published under your public display name.",
             )}
+            {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
           <button className="button" disabled={busy || !body.trim()}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
@@ -378,10 +419,23 @@ function Composer({
     </section>
   );
 }
-export default function Community({ postId }: { postId?: string }) {
-  return postId ? <Discussion key={postId} id={postId} /> : <CommunityFeed />;
+type CommunityProps = {
+  postId?: string;
+  topicId?: string;
+  topic?: ProblemTopic;
+  catalogLoading?: boolean;
+  catalogError?: string;
+  reloadCatalog?: () => void;
+};
+export default function Community({ postId, ...scope }: CommunityProps) {
+  const { user } = useAccount();
+  return postId ? (
+    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} />
+  ) : (
+    <CommunityFeed key={`${scope.topicId || "all"}:${user?.id || "guest"}`} {...scope} />
+  );
 }
-function CommunityFeed() {
+function CommunityFeed({ topicId, topic, catalogLoading, catalogError, reloadCatalog }: Omit<CommunityProps, "postId">) {
   const { t } = useI18n();
   const { user } = useAccount();
   const [category, setCategory] = useState(""),
@@ -404,6 +458,7 @@ function CommunityFeed() {
       following: following ? "true" : "false",
       offset: String(offset),
       limit: String(PAGE_SIZE),
+      ...(topicId ? { problem_id: topicId } : {}),
     });
     if (following && !user) {
       setData({ items: [], total: 0 });
@@ -423,23 +478,38 @@ function CommunityFeed() {
     return () => {
       live = false;
     };
-  }, [category, following, search, offset, user?.id, retry]);
+  }, [category, following, search, offset, user?.id, retry, topicId]);
   return (
     <main className="social-page community-page">
+      {topicId && (
+        <a className="social-back" href="#/community">
+          <ArrowLeft size={14} />{t("所有社区讨论", "All community discussions")}
+        </a>
+      )}
       <div className="social-page-heading community-heading">
-        <h1>{t("社区", "Community")}</h1>
-        {user ? (
+        <h1>{topicId ? t("题目讨论", "Module discussions") : t("社区", "Community")}</h1>
+        {user && (!topicId || topic) ? (
           <button className="button" onClick={() => setCompose(true)}>
             <Plus size={16} />
             {t("发布帖子", "New post")}
           </button>
-        ) : (
+        ) : !user ? (
           <a className="button" href="#/account">
             <Plus size={16} />
             {t("登录发帖", "Sign in to post")}
           </a>
-        )}
+        ) : null}
       </div>
+      {topicId && (
+        catalogLoading ? <Loading /> : catalogError ? (
+          <div className="feed-error">
+            <SocialNotice error={catalogError} />
+            <button className="button subtle" onClick={reloadCatalog}>
+              {t("重新加载题目信息", "Reload module details")}
+            </button>
+          </div>
+        ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} />
+      )}
       <div className="community-layout">
         <aside className="community-sidebar">
           <section className="social-panel board-list">
@@ -471,7 +541,7 @@ function CommunityFeed() {
         </aside>
         <section className="community-feed">
           {compose && user && (
-            <Composer category={category} onClose={() => setCompose(false)} />
+            <Composer category={category} topic={topic} onClose={() => setCompose(false)} />
           )}
           <div className="community-feed-toolbar">
             <div className="social-tabs compact">
@@ -554,7 +624,7 @@ function CommunityFeed() {
                           "关注动态会显示在这里",
                           "Your following feed starts here",
                         )
-                      : t("这里还没有帖子", "No discussions yet")
+                      : topicId ? t("还没有这道题的讨论", "No discussions for this module yet") : t("这里还没有帖子", "No discussions yet")
                 }
               >
                 <p>
@@ -566,8 +636,8 @@ function CommunityFeed() {
                           "Follow other members to see their posts here.",
                         )
                       : t(
-                          "分享一篇论文或一个实现问题，开启第一个讨论。",
-                          "Share a paper or an implementation question to start the first discussion.",
+                          topicId ? "可以分享你对公式、实现或测试结果的疑问。" : "分享一篇论文或一个实现问题，开启第一个讨论。",
+                          topicId ? "Ask about the formulas, implementation, or test results." : "Share a paper or an implementation question to start the first discussion.",
                         )}
                 </p>
               </Empty>
@@ -677,15 +747,16 @@ function Discussion({ id }: { id: string }) {
   }
   return (
     <main className="social-page discussion-page">
-      <a className="social-back" href="#/community">
+      <a className="social-back" href={post?.problem ? topicHref(post.problem.id) : "#/community"}>
         <ArrowLeft size={14} />
-        {t("返回社区", "Back to community")}
+        {post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a>
       {error && <SocialNotice error={error} />}
       {loading ? (
         <Loading />
       ) : post ? (
         <>
+          {post.problem && <TopicContext topic={post.problem} discussion />}
           <article className="social-panel discussion-post">
             <div className="discussion-heading">
               <Category value={post.category} />

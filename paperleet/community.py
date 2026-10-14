@@ -2,10 +2,12 @@
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+import re
 import sqlite3
 import uuid
 
 from .accounts import public_user
+from .catalog import problem, problems
 
 
 CATEGORIES = ("papers", "implementation", "questions", "career", "lounge")
@@ -94,6 +96,12 @@ class CommunityService:
                 CREATE INDEX IF NOT EXISTS community_reactions_author ON community_reactions(user_id, kind, created_at DESC);
                 CREATE INDEX IF NOT EXISTS community_follows_target ON community_follows(target_id, created_at DESC);
             """)
+            # Serialize schema upgrades across processes; keep existing posts
+            # unassociated rather than inferring a topic from their text.
+            db.execute("BEGIN IMMEDIATE")
+            if "problem_id" not in {row[1] for row in db.execute("PRAGMA table_info(community_posts)")}:
+                db.execute("ALTER TABLE community_posts ADD COLUMN problem_id TEXT")
+            db.execute("CREATE INDEX IF NOT EXISTS community_posts_problem ON community_posts(problem_id, created_at DESC, id)")
 
     @contextmanager
     def connection(self):
@@ -147,8 +155,17 @@ class CommunityService:
         user = db.execute("SELECT status, role FROM users WHERE id = ?", (user_id,)).fetchone()
         return bool(user and user["status"] == "active" and (user_id == owner_id or user["role"] == "admin"))
 
-    def _post(self, db, row, viewer_id=None):
-        result = {field: row[field] for field in ("id", "title", "body", "category", "created_at", "updated_at")}
+    def _post(self, db, row, viewer_id=None, problem_index=None):
+        result = {field: row[field] for field in ("id", "title", "body", "category", "created_at", "updated_at", "problem_id")}
+        result["problem"] = None
+        if row["problem_id"]:
+            if problem_index is None:
+                problem_index = {entry["id"]: entry for entry in problems()}
+            entry = problem_index.get(row["problem_id"])
+            # Retired modules must not make historical posts unreadable or
+            # redirect to a different module which reused their number.
+            result["problem"] = ({key: entry.get(key) for key in ("id", "number", "title", "title_en")}
+                                 if entry else {"id": row["problem_id"], "title": row["problem_id"], "retired": True})
         result["author"] = self._public_user(db, self._user(db, row["user_id"]))
         reactions = dict(db.execute("SELECT kind, COUNT(*) FROM community_reactions WHERE post_id = ? GROUP BY kind", (row["id"],)))
         result["counts"] = {
@@ -167,13 +184,22 @@ class CommunityService:
         result["can_delete"] = self._can_delete(db, viewer_id, row["user_id"])
         return result
 
-    def list_posts(self, viewer_id=None, category=None, query="", following=False, limit=30, offset=0):
+    def list_posts(self, viewer_id=None, category=None, query="", following=False, limit=30, offset=0, problem_id=None):
         limit, offset = _page(limit, offset)
         if category and category not in CATEGORIES:
             raise ValueError("Unknown category")
         if not isinstance(query, str) or len(query) > 200:
             raise ValueError("Search must be at most 200 characters")
         where, params = [], []
+        if problem_id is not None:
+            if not isinstance(problem_id, str) or len(problem_id) > 200:
+                raise ValueError("Invalid problem_id")
+            # Canonical IDs also keep historical threads accessible after a
+            # module is retired. Creation still requires a current module.
+            if not re.fullmatch(r"[a-z0-9_\-]+/[a-z0-9_\-]+", problem_id):
+                raise ValueError("problem_id must be a canonical module ID")
+            where.append("p.problem_id = ?")
+            params.append(problem_id)
         if category:
             where.append("p.category = ?")
             params.append(category)
@@ -190,7 +216,8 @@ class CommunityService:
         with self.connection() as db:
             total = db.execute("SELECT COUNT(*) FROM community_posts p" + clause, params).fetchone()[0]
             rows = db.execute("SELECT p.* FROM community_posts p" + clause + " ORDER BY p.created_at DESC, p.id DESC LIMIT ? OFFSET ?", [*params, limit, offset]).fetchall()
-            return {"items": [self._post(db, row, viewer_id) for row in rows], "total": total, "limit": limit, "offset": offset}
+            problem_index = {entry["id"]: entry for entry in problems()} if any(row["problem_id"] for row in rows) else {}
+            return {"items": [self._post(db, row, viewer_id, problem_index) for row in rows], "total": total, "limit": limit, "offset": offset}
 
     def get_post(self, post_id, viewer_id=None):
         with self.connection() as db:
@@ -206,11 +233,17 @@ class CommunityService:
         category = payload.get("category", "questions")
         if category not in CATEGORIES:
             raise ValueError("Unknown category")
+        problem_id = payload.get("problem_id")
+        if problem_id is not None:
+            if not isinstance(problem_id, str) or len(problem_id) > 200:
+                raise ValueError("Invalid problem_id")
+            if problem(problem_id)["id"] != problem_id:
+                raise ValueError("problem_id must be a canonical module ID")
         post_id, timestamp = uuid.uuid4().hex, now()
         with self.connection() as db:
             self._require_user(db, user_id)
-            db.execute("INSERT INTO community_posts(id,user_id,title,body,category,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
-                       (post_id, user_id, title, body, category, timestamp, timestamp))
+            db.execute("INSERT INTO community_posts(id,user_id,title,body,category,created_at,updated_at,problem_id) VALUES(?,?,?,?,?,?,?,?)",
+                       (post_id, user_id, title, body, category, timestamp, timestamp, problem_id))
             return self._post(db, self._post_row(db, post_id), user_id)
 
     def reply(self, user_id, post_id, payload):
@@ -312,9 +345,10 @@ class CommunityService:
             tie_breaker = "post_id" if tab in ("likes", "reposts") else "id"
             rows = db.execute(f"SELECT * FROM {table} WHERE {condition} ORDER BY created_at DESC, {tie_breaker} DESC LIMIT ? OFFSET ?", [*params, limit, offset]).fetchall()
             items = []
-            for row in rows:
-                post = row if tab == "posts" else self._post_row(db, row["post_id"])
-                item = {"kind": tab, "created_at": row["created_at"], "post": self._post(db, post, viewer_id)}
+            post_rows = [row if tab == "posts" else self._post_row(db, row["post_id"]) for row in rows]
+            problem_index = {entry["id"]: entry for entry in problems()} if any(post["problem_id"] for post in post_rows) else {}
+            for row, post in zip(rows, post_rows):
+                item = {"kind": tab, "created_at": row["created_at"], "post": self._post(db, post, viewer_id, problem_index)}
                 if tab == "replies":
                     item["reply"] = self._reply(db, row, viewer_id)
                 items.append(item)

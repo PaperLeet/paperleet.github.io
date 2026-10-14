@@ -34,6 +34,77 @@ def make_post(community, user="a", **extra):
     return community.create_post(user, {"title": "Residual connections", "body": "How does the **gradient** flow?", "category": "papers", **extra})
 
 
+def test_module_context_is_canonical_public_and_persists_every_projection(community):
+    post = make_post(community, problem_id="architecture/attention", problem={"title": "Spoofed", "number": 999})
+    assert post["problem_id"] == "architecture/attention"
+    assert post["problem"] == {"id": "architecture/attention", "number": 22,
+                               "title": "缩放点积注意力", "title_en": "Scaled Dot-Product Attention"}
+    community.reply("b", post["id"], {"body": "What happens for a fully masked row?"})
+    community.set_reaction("b", post["id"], "like", True)
+    restarted = CommunityService(community.db_path, community.institutions)
+    for projection in (restarted.get_post(post["id"]), restarted.list_posts()["items"][0],
+                       restarted.activity("alice", "posts")["items"][0]["post"],
+                       restarted.activity("bob", "replies")["items"][0]["post"],
+                       restarted.activity("bob", "likes")["items"][0]["post"]):
+        assert projection["problem"] == post["problem"]
+        assert projection["problem_id"] == post["problem_id"]
+        assert_private_fields_hidden(projection["author"])
+    assert make_post(community)["problem"] is None
+
+
+def test_module_scope_intersects_following_category_search_and_pagination(community):
+    wanted = [make_post(community, problem_id="architecture/attention", category="questions", title=f"Mask gradient {i}") for i in range(3)]
+    make_post(community, problem_id="finetuning/lora", category="questions", title="Mask gradient elsewhere")
+    make_post(community, problem_id="architecture/attention", category="papers", title="Mask gradient paper")
+    make_post(community, problem_id="architecture/attention", category="questions", title="Unrelated topic", body="No matching text")
+    make_post(community, "c", problem_id="architecture/attention", category="questions", title="Mask gradient unfollowed")
+    make_post(community, category="questions", title="Mask gradient without association")
+    community.follow("b", "alice", True)
+    scope = dict(viewer_id="b", problem_id="architecture/attention", following=True, category="questions", query="mask gradient", limit=2)
+    first, second = community.list_posts(**scope), community.list_posts(**scope, offset=2)
+    assert first["total"] == second["total"] == 3
+    assert len(first["items"]) == 2 and len(second["items"]) == 1
+    assert {p["id"] for p in first["items"] + second["items"]} == {p["id"] for p in wanted}
+    assert community.list_posts(problem_id="architecture/attention", query="%_")["total"] == 0
+    assert community.list_posts(problem_id="retired/module")["total"] == 0
+
+
+@pytest.mark.parametrize("identifier", [22, True, {}, [], "22", "attention", "architecture/unknown", "../attention", "architecture/attention/extra", "", "a" * 201])
+def test_module_posts_reject_unknown_or_noncanonical_associations(community, identifier):
+    with pytest.raises(ValueError):
+        make_post(community, problem_id=identifier)
+    assert community.list_posts()["total"] == 0
+
+
+@pytest.mark.parametrize("identifier", [22, True, {}, [], "22", "../attention", "architecture/attention' OR 1=1--", "", "a" * 201])
+def test_module_filters_reject_malformed_identifiers(community, identifier):
+    with pytest.raises(ValueError):
+        community.list_posts(problem_id=identifier)
+
+
+def test_module_schema_upgrade_preserves_old_posts_and_is_concurrency_safe(community):
+    original = make_post(community)
+    with community.connection() as db:
+        db.execute("DROP INDEX community_posts_problem")
+        db.execute("ALTER TABLE community_posts DROP COLUMN problem_id")
+    with ThreadPoolExecutor(max_workers=4) as workers:
+        services = list(workers.map(lambda _: CommunityService(community.db_path, community.institutions), range(8)))
+    for service in services:
+        migrated = service.get_post(original["id"])
+        assert migrated["body"] == original["body"]
+        assert migrated["problem_id"] is None and migrated["problem"] is None
+    assert make_post(services[0], problem_id="finetuning/lora")["problem"]["id"] == "finetuning/lora"
+
+
+def test_retired_module_threads_remain_readable_without_number_redirect(community, monkeypatch):
+    post = make_post(community, problem_id="architecture/attention")
+    monkeypatch.setattr("paperleet.community.problems", lambda: [])
+    for projection in (community.get_post(post["id"]),
+                       community.list_posts(problem_id="architecture/attention")["items"][0],
+                       community.activity("alice", "posts")["items"][0]["post"]):
+        assert projection["problem"] == {"id": "architecture/attention", "title": "architecture/attention", "retired": True}
+
+
 def assert_private_fields_hidden(user):
     assert user["display_name"] and user["avatar_color"]
     assert "institution" not in user and "country" not in user

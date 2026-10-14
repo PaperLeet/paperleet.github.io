@@ -137,7 +137,7 @@ def dispatch(handler, method, data=None):
                     if following and not viewer:
                         return handler.respond(401, {"error": "Sign in to see your following feed."})
                     result = community.list_posts(viewer_id=viewer, category=option("category") or None,
-                        query=option("q"), following=following,
+                        query=option("q"), following=following, problem_id=option("problem_id") or None,
                         limit=int(option("limit", "30")), offset=int(option("offset", "0")))
                     return handler.respond(200, result)
                 if method == "POST":
