@@ -33,8 +33,15 @@ def _jsonable(value):
 
 
 class Recorder:
-    def __init__(self, source, reference):
+    def __init__(self, source, reference, progress=None, progress_step="tests", total=0):
         self.source, self.reference, self.rows = source, reference, {}
+        self.progress, self.progress_step, self.total = progress, progress_step, total
+        self.completed = 0
+
+    def pytest_runtest_logfinish(self, nodeid, location):
+        self.completed += 1
+        if self.progress:
+            self.progress(self.progress_step, self.completed, self.total)
 
     @pytest.fixture(autouse=True)
     def deterministic(self):
@@ -97,8 +104,10 @@ def prepare(bundle, adapter_source, directory):
     return folder
 
 
-def run_suite(bundle, source, directory):
-    recorder = Recorder(source, bundle["reference"])
+def run_suite(bundle, source, directory, *, progress=None, progress_step="tests"):
+    total = sum(bundle["tests"].values())
+    recorder = Recorder(source, bundle["reference"], progress, progress_step, total)
+    if progress: progress(progress_step, 0, total)
     # A bounded sink avoids unbounded pytest/learner output in the worker.
     class Sink(io.TextIOBase):
         def __init__(self): self.text = ""
@@ -126,11 +135,12 @@ def run_suite(bundle, source, directory):
     return result
 
 
-def calibrate(bundle, directory):
-    reference = run_suite(bundle, bundle["reference"], directory)
+def calibrate(bundle, directory, *, progress=None):
+    reference = run_suite(bundle, bundle["reference"], directory, progress=progress, progress_step="reference")
     if not reference["passed"]:
         return {"compatible": False, "reason": "reference_failed", "reference": reference}
     caught = {}
+    if progress: progress("mutants", 0, len(bundle["mutants"]))
     for name, source in bundle["mutants"].items():
         report = run_suite(bundle, source, directory)
         if any("BrowserUnsupported" in row["message"] for row in report["tests"]):
@@ -139,4 +149,5 @@ def calibrate(bundle, directory):
         if not failures:
             return {"compatible": False, "reason": "mutant_not_caught", "mutant": name, "report": report}
         caught[name] = failures
+        if progress: progress("mutants", len(caught), len(bundle["mutants"]))
     return {"compatible": True, "reference_passed": len(reference["tests"]), "mutants_caught": caught}

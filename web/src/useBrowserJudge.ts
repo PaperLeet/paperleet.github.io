@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { runBrowserJudge, type BrowserOutcome, type BrowserStage } from './browserJudge';
+import { startTransition, useEffect, useRef, useState } from 'react';
+import { runBrowserJudge, type BrowserOutcome, type BrowserStage, type BrowserProgress } from './browserJudge';
 import type { Problem, Report } from './types';
 
-type View = { owner: string; problem?: string; stage?: BrowserStage; reports: Record<string, Report>; reasons: Record<string, string>; diagnostics: Record<string, string>; calibrations: Record<string, { reference_passed: number; mutants_caught: Record<string, string[]> }> };
+type View = { owner: string; problem?: string; stage?: BrowserStage; progress?: BrowserProgress; reports: Record<string, Report>; reasons: Record<string, string>; diagnostics: Record<string, string>; calibrations: Record<string, { reference_passed: number; mutants_caught: Record<string, string[]> }> };
 const empty = (owner: string): View => ({ owner, reports: {}, reasons: {}, diagnostics: {}, calibrations: {} });
 export function useBrowserJudge(owner: string) {
   const [view, setView] = useState<View>(() => empty(owner));
@@ -20,20 +20,26 @@ export function useBrowserJudge(owner: string) {
     controller.current?.abort();
     const next = new AbortController();
     controller.current = next;
-    setView((previous) => ({ ...(previous.owner === owner ? previous : empty(owner)), problem: problem.id, stage: 'loading', reasons: { ...previous.reasons, [problem.id]: '' }, diagnostics: { ...previous.diagnostics, [problem.id]: '' } }));
+    setView((previous) => {
+      const current = previous.owner === owner ? previous : empty(owner);
+      return { ...current, problem: problem.id, stage: 'loading', progress: { stage: 'loading', step: 'bundle' },
+        reasons: { ...current.reasons, [problem.id]: '' }, diagnostics: { ...current.diagnostics, [problem.id]: '' } };
+    });
     try {
-      const outcome = await runBrowserJudge(problem, source, next.signal, (stage) => {
-        if (!next.signal.aborted && currentOwner.current === owner) setView((previous) => ({ ...previous, stage }));
+      const outcome = await runBrowserJudge(problem, source, next.signal, (stage, progress) => {
+        if (!next.signal.aborted && currentOwner.current === owner && controller.current === next)
+          startTransition(() => setView((previous) => previous.owner === owner && previous.problem === problem.id && controller.current === next ? { ...previous, stage, progress } : previous));
       });
-      if (next.signal.aborted || currentOwner.current !== owner) throw new DOMException('Stopped', 'AbortError');
-      setView((previous) => ({ ...previous, problem: undefined, stage: undefined,
+      if (next.signal.aborted || currentOwner.current !== owner || controller.current !== next) throw new DOMException('Stopped', 'AbortError');
+      setView((previous) => previous.owner !== owner || controller.current !== next ? previous : ({ ...previous, problem: undefined, stage: undefined, progress: undefined,
         calibrations: outcome.type === 'result' ? { ...previous.calibrations, [problem.id]: outcome.calibration } : previous.calibrations,
         reports: outcome.type === 'result' ? { ...previous.reports, [problem.id]: outcome.report } : previous.reports,
         diagnostics: { ...previous.diagnostics, [problem.id]: outcome.type === 'unsupported' ? outcome.detail || '' : '' },
         reasons: { ...previous.reasons, [problem.id]: outcome.type === 'unsupported' ? outcome.reason : '' } }));
       return outcome;
     } catch (error) {
-      if (currentOwner.current === owner) setView((previous) => ({ ...previous, problem: undefined, stage: undefined }));
+      if (currentOwner.current === owner && controller.current === next)
+        setView((previous) => previous.owner === owner && controller.current === next ? { ...previous, problem: undefined, stage: undefined, progress: undefined } : previous);
       if (next.signal.aborted || currentOwner.current !== owner) throw new DOMException('Stopped', 'AbortError');
       // Failed asset downloads also take the automatic server fallback path.
       const outcome = { type: 'unsupported' as const, reason: 'runtime_failed', detail: String(error).slice(0, 500) };

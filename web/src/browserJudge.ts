@@ -1,9 +1,10 @@
 import { parseReport } from './reports';
 import { loadBrowserBundle } from './browserBundles';
+import { advanceBrowserProgress, type BrowserProgress, type BrowserStage } from './browserProgress';
+export type { BrowserStage, BrowserProgress } from './browserProgress';
 import type { Problem, Report } from './types';
 
 export type JudgeMode = 'auto' | 'browser' | 'server';
-export type BrowserStage = 'loading' | 'calibrating' | 'running';
 export type BrowserOutcome =
   | { type: 'result'; report: Report; calibration: { reference_passed: number; mutants_caught: Record<string, string[]> } }
   | { type: 'unsupported'; reason: string; detail?: string };
@@ -21,17 +22,21 @@ export function browserReason(reason: string, en = false) {
 }
 
 /** Client feedback, never authority for hosted progress/rankings. */
-export async function runBrowserJudge(problem: Problem, source: string, signal: AbortSignal, progress: (stage: BrowserStage) => void): Promise<BrowserOutcome> {
+export async function runBrowserJudge(problem: Problem, source: string, signal: AbortSignal, progress: (stage: BrowserStage, detail?: BrowserProgress) => void): Promise<BrowserOutcome> {
   if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
   if (!problem.browser_judge || !globalThis.Worker || !globalThis.WebAssembly)
     return { type: 'unsupported', reason: 'unavailable' };
   const base = new URL(import.meta.env.BASE_URL, location.href).href;
+  let lastProgress: BrowserProgress = { stage: 'loading', step: 'bundle' };
+  progress(lastProgress.stage, lastProgress);
   let bundle: Record<string, unknown>;
   try { bundle = await loadBrowserBundle(problem, base, signal); }
   catch {
     if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
     return { type: 'unsupported', reason: 'runtime_failed' };
   }
+  const totals = { tests: Object.values(problem.tests || {}).reduce((sum, count) => sum + count, 0),
+    mutants: bundle.mutants && typeof bundle.mutants === 'object' ? Object.keys(bundle.mutants).length : 0 };
   return new Promise((resolve, reject) => {
     const frame = document.createElement('iframe');
     frame.setAttribute('sandbox', 'allow-scripts');
@@ -65,12 +70,15 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
       if (message?.type === 'ready') {
         frame.contentWindow!.postMessage({ nonce, input: { base, bundle, source } }, '*');
       } else if (message?.type === 'progress') {
-        const nextPhase = ['loading', 'calibrating', 'running'].indexOf(message.stage);
+        const next = advanceBrowserProgress(lastProgress, message, totals);
+        if (!next) return;
+        lastProgress = next;
+        const nextPhase = ['loading', 'calibrating', 'running'].indexOf(next.stage);
         if (nextPhase > phase) {
           phase = nextPhase;
-          progress(message.stage);
-          arm(message.stage === 'running' ? 30_000 : 90_000);
+          arm(next.stage === 'running' ? 30_000 : 90_000);
         }
+        progress(next.stage, next);
       } else if (message?.type === 'unsupported') {
         finish({ type: 'unsupported', reason: String(message.reason), detail: message.detail });
       } else if (message?.type === 'result') {

@@ -77,15 +77,19 @@ import json, sys
 from paperleet.browser.harness import prepare, calibrate, run_suite
 bundle = json.load(open(sys.argv[1]))
 prepare(bundle, bundle['adapter'], sys.argv[2])
-calibration = calibrate(bundle, sys.argv[2])
+updates=[]
+calibration = calibrate(bundle, sys.argv[2], progress=lambda *row: updates.append(row))
+assert updates == [('reference', i, 8) for i in range(9)] + [('mutants', i, 5) for i in range(6)], updates
 assert calibration['compatible'], calibration
 assert calibration['reference_passed'] == 8
 assert len(calibration['mutants_caught']) == 5
 source = bundle['reference']
 assert run_suite(bundle, source, sys.argv[2])['passed']
 wrong = source.replace('return ab.sqrt() * x0 + (1 - ab).sqrt() * noise', 'return x0')
-assert not run_suite(bundle, wrong, sys.argv[2])['passed']
-wrong_report=run_suite(bundle,wrong,sys.argv[2])
+updates.clear()
+wrong_report=run_suite(bundle,wrong,sys.argv[2],progress=lambda *row:updates.append(row))
+assert not wrong_report['passed']
+assert updates == [('tests', i, 8) for i in range(9)], updates
 assert any(row.get('comparison',{}).get('kind')=='value' for row in wrong_report['tests'])
 syntax = run_suite(bundle, 'def broken(', sys.argv[2])
 assert not syntax['passed'] and any('SyntaxError' in row['message'] for row in syntax['tests'])
@@ -131,9 +135,14 @@ def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,
 import json,sys
 from paperleet.browser.harness import prepare, calibrate, run_suite
 b=json.load(open(sys.argv[1]));prepare(b,b['adapter'],sys.argv[2])
-c=calibrate(b,sys.argv[2]);assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
+updates=[]
+c=calibrate(b,sys.argv[2],progress=lambda *row:updates.append(row));assert c['compatible'], {**{k:v for k,v in c.items() if k!='reference'}, 'failures': [(t['id'],t['message']) for t in c.get('reference',{}).get('tests',[]) if not t['passed']]}
 assert c['reference_passed']==int(sys.argv[3]);assert len(c['mutants_caught'])==int(sys.argv[4])
-r=run_suite(b,b['reference'],sys.argv[2]);assert r['passed'],r
+count,mutants=int(sys.argv[3]),int(sys.argv[4])
+assert updates==[('reference',i,count) for i in range(count+1)]+[('mutants',i,mutants) for i in range(mutants+1)],updates
+updates.clear()
+r=run_suite(b,b['reference'],sys.argv[2],progress=lambda *row:updates.append(row));assert r['passed'],r
+assert updates==[('tests',i,count) for i in range(count+1)],updates
 assert not b['tests'].get('T3') or any(t['artifacts'] for t in r['tests'])
 if b['problem']=='architecture/attention':
     invalid=b['reference'].replace('return weights @ v, weights','return (weights @ v) * float("nan"), weights')

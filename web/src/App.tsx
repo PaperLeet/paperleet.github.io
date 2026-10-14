@@ -43,6 +43,8 @@ import Community, { UserProfile } from "./Community";
 import Account from "./Account";
 import { AccountNav, AccountProvider, useAccount } from "./social";
 import { usePracticeWorkspace } from "./PracticeWorkspace";
+import { BrowserRunProgress } from "./BrowserRunProgress";
+import { browserProgressText } from "./browserProgress";
 import Brand from "./Brand";
 import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
 import ResizableSplit from "./ResizableSplit";
@@ -429,10 +431,7 @@ function Workspace() {
   const browserAvailable = !!problem?.browser_judge && judgeMode !== "server";
   const browserHere = browser.problem === problem?.id;
   const running = preparingRun || judge.active || browser.active;
-  const browserStatus = browser.stage === "calibrating" ? t("校验参考实现与错误实现…", "Validating reference and mutation cases…")
-    : browser.stage === "running" ? t("浏览器正在执行完整测试…", "Running the complete suite in your browser…")
-
-    : t("加载浏览器 Python 运行时（首次运行需下载）…", "Loading browser Python (download required on first run)…");
+  const browserStatus = browserProgressText(browser.progress || { stage: browser.stage || 'loading' }, locale === 'en');
   const queuedHere = judge.pending?.problem === problem?.id;
   const runStatus = judge.reconnecting ? t("连接中断，正在恢复任务状态…", "Reconnecting to your existing job…")
     : judge.job?.status === "queued" ? t(`正在排队，前方 ${judge.job.ahead} 个任务`, `Queued · ${judge.job.ahead} jobs ahead`)
@@ -1214,7 +1213,9 @@ function Workspace() {
                     {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}
                       {hosted && <button className="text-button" disabled={running || !user || !online} onClick={() => void run("server")}>{t("服务端确认", "Verify on server")}</button>}
                     </p>}
-                    {browser.active && <div role="status">{browserHere ? browserStatus : t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>}
+                    {browser.active && (browserHere
+                      ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
+                      : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                   </div>}
                   {judge.active && <div className="practice-notice judge-queue-notice" role="status">
                     <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />

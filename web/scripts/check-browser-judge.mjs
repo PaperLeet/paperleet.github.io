@@ -35,7 +35,7 @@ try {
     createElement(tag) { assert.equal(tag, 'iframe'); return frame(); },
     body: { append(value) { frames.push(value); } },
   };
-  const problem = { id: 'diffusion/schedules', browser_judge: { backend: 'numpy-wasm', bundle_url: 'browser-judge/6-0123456789abcdef0123.json' } };
+  const problem = { id: 'diffusion/schedules', tests: {T0:1,T1:1,T2:6,T3:0}, browser_judge: { backend: 'numpy-wasm', bundle_url: 'browser-judge/6-0123456789abcdef0123.json' } };
   globalThis.fetch = async (url, options) => {
     requests.push(String(url));
     assert.equal(options.credentials, 'omit');
@@ -57,7 +57,7 @@ try {
   assert(!sandbox.removed);
   emit({ type: 'progress', stage: 'running' });
   emit({ type: 'progress', stage: 'loading' });
-  assert.deepEqual(stages, ['running'], 'Stale progress cannot extend learner execution');
+  assert.deepEqual(stages, ['loading', 'running'], 'Stale progress cannot extend learner execution');
   const report = { problem: problem.id, runtime: 'browser-numpy-wasm', tests: [{ id: 'failed', layer: 'T0', passed: false }], summary: { T0: [0, 1] } };
   emit({ type: 'result', report, calibration: { reference_passed: 8, mutants_caught: { wrong: ['failed'] } } });
   assert.equal((await pending).type, 'result', 'A learner assertion failure is feedback, not a compatibility fallback');
@@ -85,6 +85,12 @@ try {
     const timedFrame = frames.at(-1);
     const timedNonce = timedFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
     for (const fn of listeners) fn({ source: timedFrame.contentWindow, data: { nonce: timedNonce, payload: { type: 'progress', stage: 'running' } } });
+    const runningDeadline = [...deadlines.entries()].find(([, value]) => value.ms === 30_000)[0];
+    for (let completed=0; completed<=8; completed++) {
+      for (const fn of listeners) fn({ source: timedFrame.contentWindow, data: { nonce: timedNonce, payload: { type: 'progress', stage: 'running', step: 'tests', completed, total:8 } } });
+      assert(deadlines.has(runningDeadline), 'Detailed progress must never renew the learner deadline');
+      assert(!timedFrame.removed, 'Finishing test counters is not a result message');
+    }
     [...deadlines.values()].find(({ ms }) => ms === 30_000).fn();
     assert.equal((await timed).reason, 'timeout');
     assert(timedFrame.removed);
