@@ -11,6 +11,7 @@ import torch
 
 from paperleet.catalog import root
 from paperleet.judge.loader import load_implementation
+from paperleet.common.comparisons import comparison_from_exception
 
 
 def pytest_addoption(parser):
@@ -138,6 +139,8 @@ def pytest_runtest_makereport(item, call):
         row["passed"] = False
         row["outcome"] = "failed" if report.failed and report.when == "call" else ("skipped" if report.skipped else "error")
         row["message"] += str(report.longrepr)[-16000:]
+        comparison = comparison_from_exception(call.excinfo.value) if call.excinfo else None
+        if comparison is not None: row["comparison"] = comparison
     row["artifacts"] = getattr(item, "_paperleet_artifacts", {})
     destination = item.config.getoption("--paperleet-result")
     if destination and report.when == "teardown":

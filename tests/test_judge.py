@@ -69,6 +69,26 @@ def test_layer_selection(mini_repo):
         normalize_layers("T0,T9")
 
 
+def test_native_report_preserves_structured_numerical_and_shape_failures(mini_repo):
+    (mini_repo / 'tests/test_add.py').write_text('''import pytest
+import torch
+from paperleet.common.asserts import assert_close_located as close
+@pytest.mark.t0
+def test_shape(impl):
+    close(torch.zeros(2), torch.zeros(2,1))
+@pytest.mark.t2
+def test_values(impl):
+    close(impl.add(torch.tensor([2.,3.]),torch.ones(2)),torch.tensor([3.,4.]))
+''')
+    report=run_problem('X1',mini_repo/'mutants/wrong_sign.py')
+    assert not report['passed']
+    assert report['tests'][0]['comparison']=={'kind':'shape','expected_shape':[2,1],'actual_shape':[2]}
+    assert report['tests'][1]['comparison']['index']==[0]
+    assert report['tests'][1]['comparison']['expected']==3
+    assert report['tests'][1]['comparison']['actual']==1
+    assert 'max abs diff' in report['tests'][1]['message']
+
+
 def test_mutation_checks_same_suite(mini_repo):
     report = mutate(problem("X1"))
     assert report["passed"], report

@@ -18,6 +18,7 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
         bundle = json.loads(path.read_text())
         assert bundle['problem'] == identifier
         assert bundle['tests'] == entry['tests']
+        assert bundle['files']['paperleet/common/comparisons.py'] == (root()/'paperleet/common/comparisons.py').read_text()
         for test in (entry['directory'] / 'tests').glob('test_*.py'):
             name = test.relative_to(root()).as_posix()
             assert bundle['files'][name] == test.read_text()
@@ -50,6 +51,8 @@ source = bundle['reference']
 assert run_suite(bundle, source, sys.argv[2])['passed']
 wrong = source.replace('return ab.sqrt() * x0 + (1 - ab).sqrt() * noise', 'return x0')
 assert not run_suite(bundle, wrong, sys.argv[2])['passed']
+wrong_report=run_suite(bundle,wrong,sys.argv[2])
+assert any(row.get('comparison',{}).get('kind')=='value' for row in wrong_report['tests'])
 syntax = run_suite(bundle, 'def broken(', sys.argv[2])
 assert not syntax['passed'] and any('SyntaxError' in row['message'] for row in syntax['tests'])
 missing = run_suite(bundle, source + '\nimport torch\ntorch.linalg\n', sys.argv[2])
@@ -96,6 +99,12 @@ c=calibrate(b,sys.argv[2]);assert c['compatible'], {**{k:v for k,v in c.items() 
 assert c['reference_passed']==int(sys.argv[3]);assert len(c['mutants_caught'])==int(sys.argv[4])
 r=run_suite(b,b['reference'],sys.argv[2]);assert r['passed'],r
 assert not b['tests'].get('T3') or any(t['artifacts'] for t in r['tests'])
+if b['problem']=='architecture/attention':
+    invalid=b['reference'].replace('return weights @ v, weights','return (weights @ v) * float("nan"), weights')
+    invalid_report=run_suite(b,invalid,sys.argv[2]);assert not invalid_report['passed']
+    assert any(t.get('comparison',{}).get('actual')=='NaN' for t in invalid_report['tests'])
+    assert any(t['artifacts'] for t in invalid_report['tests'])
+    assert 'nan' in json.dumps(invalid_report,allow_nan=False)
 syntax=run_suite(b,'def broken(',sys.argv[2]);assert not syntax['passed'] and not syntax.get('error')
 unsupported=run_suite(b,b['reference']+'\nimport torch\ntorch.cuda.synchronize()\n',sys.argv[2])
 assert not unsupported['passed'] and any('BrowserUnsupported' in t['message'] for t in unsupported['tests'])

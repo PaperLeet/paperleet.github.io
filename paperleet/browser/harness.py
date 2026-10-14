@@ -5,6 +5,7 @@ import hashlib
 import inspect
 import io
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -17,15 +18,17 @@ import pytest
 
 def _jsonable(value):
     if isinstance(value, getattr(sys.modules.get("torch"), "Tensor", ())):
-        return value.detach().tolist()
+        value = value.detach().tolist()
     if isinstance(value, np.ndarray):
-        return value.tolist()
+        value = value.tolist()
     if isinstance(value, np.generic):
-        return value.item()
+        value = value.item()
     if isinstance(value, dict):
         return {str(k): _jsonable(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
         return [_jsonable(v) for v in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return str(value)
     return value
 
 
@@ -71,6 +74,10 @@ class Recorder:
             row["passed"] = False
             row["outcome"] = "failed" if report.when == "call" and report.failed else "error"
             row["message"] += str(report.longrepr)[-4000:]
+            # Imported after prepare has written the bundle's package files.
+            from paperleet.common.comparisons import comparison_from_exception
+            comparison = comparison_from_exception(call.excinfo.value) if call.excinfo else None
+            if comparison is not None: row["comparison"] = comparison
         row["artifacts"] = getattr(item, "browser_artifacts", {})
 
 

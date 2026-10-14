@@ -18,6 +18,8 @@ try {
     await server.ssrLoadModule("/src/reports.ts");
   const { fingerprintSource, reportSourceState } = await server.ssrLoadModule("/src/reportSource.ts");
   const { ReportSourceNotice } = await server.ssrLoadModule("/src/ReportSourceNotice.tsx");
+  const { parseComparison } = await server.ssrLoadModule("/src/comparisons.ts");
+  const { default: TestComparison } = await server.ssrLoadModule("/src/TestComparison.tsx");
   const { decodeViz } = await server.ssrLoadModule("/src/vizData.ts");
   const { highlight } = await server.ssrLoadModule("/src/highlight.ts");
   const { dpoObjective, tokenGradient, difficultyAdvantage, scheduleData } =
@@ -254,6 +256,25 @@ try {
     ],
   };
   const problem = { id: "example", tests: { T0: 1, T1: 1, T2: 1, T3: 0 } };
+  const comparison = {kind:'value',expected_shape:[2,3],actual_shape:[2,3],index:[1,2],expected:.5,actual:.25,absolute_error:.25,rtol:1e-5,atol:1e-8};
+  assert.deepEqual(parseComparison(comparison),comparison);
+  const comparisonHtml = renderToString(React.createElement(TestComparison,{comparison}));
+  assert(comparisonHtml.includes('[1, 2]') && comparisonHtml.includes('0.5') && comparisonHtml.includes('0.25') && comparisonHtml.includes('允许误差'));
+  const shapeComparison = {kind:'shape',expected_shape:[2,3],actual_shape:[3,2]};
+  assert.deepEqual(parseComparison(shapeComparison),shapeComparison);
+  assert(renderToString(React.createElement(TestComparison,{comparison:shapeComparison})).includes('张量形状不匹配'));
+  const nonfiniteComparison = {...comparison,index:[],expected_shape:[],actual_shape:[],expected:'NaN',actual:'Infinity',absolute_error:'Infinity'};
+  assert.deepEqual(parseComparison(nonfiniteComparison),nonfiniteComparison);
+  assert(renderToString(React.createElement(TestComparison,{comparison:nonfiniteComparison})).includes('NaN 不会通过'));
+  const exactInteger = {...comparison,actual:'1152921504606846976'};
+  assert(renderToString(React.createElement(TestComparison,{comparison:exactInteger})).includes('1152921504606846976'));
+  const failedComparisonReport = {...report,tests:[{...report.tests[0],passed:false,comparison},...report.tests.slice(1)],summary:{...report.summary,T0:[0,1]}};
+  assert.deepEqual(parseReport(failedComparisonReport).tests[0].comparison,comparison);
+  assert.equal(parseReport({...report,tests:report.tests.map(test=>({...test,comparison}))}).tests[0].comparison,undefined,'A passed row must not show stale failure diagnostics');
+  for (const invalid of [null,[],{}, {...comparison,kind:'invented'}, {...comparison,index:[2,0]}, {...comparison,index:[true,1]}, {...comparison,rtol:-1}, {...comparison,atol:Infinity}, {...comparison,absolute_error:-1}, {...comparison,actual:'<script>alert(1)</script>'}, {...comparison,expected_shape:[2,3,4]}, {...comparison,expected_shape:Array(33).fill(1)}, {...shapeComparison,actual_shape:[2,3]}]) {
+    assert.equal(parseComparison(invalid),undefined);
+    assert.equal(parseReport({...failedComparisonReport,tests:[{...failedComparisonReport.tests[0],comparison:invalid},...failedComparisonReport.tests.slice(1)]}).tests[0].comparison,undefined,'Malformed optional diagnostics must leave the failed test and trace usable');
+  }
   const source = '# 中文 🧪\nprint("hello")\n';
   const fingerprint = await fingerprintSource(source);
   assert.equal(fingerprint.sha256, createHash('sha256').update(source, 'utf8').digest('hex'), 'Browser and Python must hash identical UTF-8 bytes');

@@ -143,6 +143,7 @@ def expected_tests(entry, layers):
 def validate_report(report, job, entry=None):
     """Derive acceptance from complete, consistent rows, never an input flag."""
     entry = entry or problem(job["problem"])
+    from paperleet.common.comparisons import normalize_comparison
     digest = hashlib.sha256(job["code"].encode()).hexdigest()
     if not isinstance(report, dict) or report.get("problem") != job["problem"] or report.get("layers") != job["layers"] or report.get("source_sha256") != digest:
         raise InvalidReport("Judge returned a report for a different submission")
@@ -171,6 +172,8 @@ def validate_report(report, job, entry=None):
         clean.append({"id": identifier, "nodeid": nodeid, "layer": layer, "passed": row["passed"],
             "outcome": row["outcome"], "duration_s": duration, "artifacts": row.get("artifacts", {}),
             "message": row.get("message", "")[:16000], "why": row.get("why", "")[:2000]})
+        comparison = normalize_comparison(row.get("comparison")) if not row["passed"] else None
+        if comparison is not None: clean[-1]["comparison"] = comparison
     if any(count > allowed[key] for key, count in actual.items()):
         raise InvalidReport("Judge returned unexpected repeated tests")
     error = report.get("error")

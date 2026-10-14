@@ -1,4 +1,5 @@
 import type { Report, Saved, TestResult } from "./types";
+import { parseComparison } from "./comparisons";
 
 const validLayers = new Set(["T0", "T1", "T2", "T3"]);
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -44,6 +45,7 @@ export function parseReport(value: unknown): Report {
       id: row.id,
       layer: row.layer,
       passed: row.passed,
+      comparison: row.passed ? undefined : parseComparison(row.comparison),
       nodeid,
       why: optionalString(row.why, `${field}.why`),
       message: optionalString(row.message, `${field}.message`),

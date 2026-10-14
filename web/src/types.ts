@@ -1,4 +1,5 @@
 import { parseReport } from "./reports";
+import type { TestComparison } from "./comparisons";
 
 export type Category = { id: string; name: string; name_en: string };
 
@@ -61,6 +62,7 @@ export type Problem = {
   vizData?: Record<string, unknown> | null;
 };
 export type TestResult = {
+  comparison?: TestComparison;
   id: string;
   nodeid?: string;
   layer: string;

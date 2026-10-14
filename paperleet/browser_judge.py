@@ -29,6 +29,7 @@ def export_browser_bundle(entry, output):
         files[f"{relative}/experiment.py"] = experiment.read_text()
     package = Path(__file__).resolve().parent
     files["paperleet/common/asserts.py"] = (package / "common/asserts.py").read_text()
+    files["paperleet/common/comparisons.py"] = (package / "common/comparisons.py").read_text()
     if entry["id"] in {"rl/gae", "rl/ppo_clip", "rl/grpo", "rl/dr_grpo"}:
         files["paperleet/common/rl_envs.py"] = (package / "common/rl_envs.py").read_text()
     if entry["id"] == "rl/dr_grpo":

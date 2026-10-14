@@ -58,6 +58,7 @@ import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigati
 import type { ExperimentView } from "./experimentResults";
 import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
+import TestComparison from "./TestComparison";
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -315,9 +316,10 @@ function ReportView({
               {test.why ||
                 t("见本题测试说明。", "See the problem's test specification.")}
             </p>
-            {test.message && (
+            {test.comparison && <TestComparison comparison={test.comparison} />}
+            {test.message && (test.comparison ? <details className="failure-trace"><summary>{t("完整错误信息", "Full error details")}</summary><pre className="failure-message">{test.message}</pre></details> : (
               <pre className="failure-message">{test.message}</pre>
-            )}
+            ))}
             {test.artifacts && Object.keys(test.artifacts).length > 0 && (
               <ArtifactCharts data={test.artifacts} />
             )}

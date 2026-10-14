@@ -97,6 +97,20 @@ def test_incomplete_error_report_cannot_be_accepted(job):
     assert result["passed"] is False and result["error"] == "Import failed"
 
 
+def test_optional_comparisons_survive_hosted_validation_without_affecting_outcomes(job):
+    raw=report_for(job,False)
+    comparison={'kind':'value','expected_shape':[],'actual_shape':[],'index':[], 'expected':1.,'actual':'NaN','absolute_error':'Infinity','rtol':1e-5,'atol':1e-8}
+    raw['tests'][0]['comparison']=comparison
+    result=validate_report(raw,job)
+    assert not result['passed'] and result['tests'][0]['comparison']==comparison
+    raw['tests'][0]['comparison']={'kind':'invented','actual':'x'*10000}
+    assert 'comparison' not in validate_report(raw,job)['tests'][0]
+    accepted=report_for(job)
+    accepted['tests'][0]['comparison']=comparison
+    assert validate_report(accepted,job)['passed']
+    assert 'comparison' not in validate_report(accepted,job)['tests'][0]
+
+
 @pytest.mark.parametrize("configured,expected", [(None, 150), ("1", 1), ("90", 90), ("150", 150)])
 def test_judge_timeout_retains_default_and_allows_shorter_deadlines(monkeypatch, configured, expected):
     monkeypatch.delenv("PAPERLEET_JUDGE_TIMEOUT_SECONDS", raising=False)
