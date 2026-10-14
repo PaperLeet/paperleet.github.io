@@ -845,6 +845,18 @@ export function ArtifactCharts({ data, referenceRun = false, implementationLabel
             ),
         )
         .map(([key, value]) => {
+          if (key === 'comparison_loss_curves' && value && typeof value === 'object' && !Array.isArray(value)) {
+            const entries = Object.entries(value), series = entries.map(([, points]) => asPoints(points));
+            return entries.length && series.every((points) => points !== null) ? (
+              <section key={key}>
+                <h4>{t('训练损失对比', 'Training loss comparison')}</h4>
+                <Chart series={series as Point[][]} labels={entries.map(([name]) => name)}
+                  xLabel={typeof data.x_label === 'string' ? data.x_label : 'step'} yLabel={t('损失', 'Loss')} />
+              </section>
+            ) : (
+              <details key={key}><summary>{t('训练损失对比', 'Training loss comparison')}</summary><pre>{JSON.stringify(value, null, 2).slice(0, 16000)}</pre></details>
+            );
+          }
           const p = asPoints(value);
           if (p)
             return (

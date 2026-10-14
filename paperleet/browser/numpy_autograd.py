@@ -282,6 +282,20 @@ class Tensor:
     __rmul__ = __mul__
     def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*a/(b*b))
     def __rtruediv__(self, other): return self._binary(other, lambda a,b: b/a, lambda g,a,b: -g*b/(a*a), lambda g,a,b: g/a)
+    def floor_divide(self, other):
+        other_value = wrap(other)
+        self._real_only(); other_value._real_only()
+        if self.dtype.kind == other_value.dtype.kind == 'b': raise BrowserUnsupported('Boolean floor division requires the server')
+        if _grad_enabled and (self.requires_grad or other_value.requires_grad):
+            raise BrowserUnsupported('Floor division has no supported backward; use the server')
+        if self.dtype.kind in 'biu' and other_value.dtype.kind in 'biu':
+            if np.any(other_value._data == 0): raise RuntimeError('Integer division by zero')
+            if self.dtype.kind == 'i' and np.any(self._data == np.iinfo(self.dtype).min) and np.any(other_value._data == -1):
+                raise BrowserUnsupported('Overflowing integer floor division requires the server')
+        with np.errstate(divide='ignore', invalid='ignore'):
+            return self._binary(other, np.floor_divide, lambda *args: unsupported('floor_divide backward'), lambda *args: unsupported('floor_divide backward'))
+    __floordiv__ = floor_divide
+    def __rfloordiv__(self, other): return wrap(other).floor_divide(self)
     def remainder(self, other, *, out=None):
         if out is not None: raise BrowserUnsupported('Remainder output buffers require the server')
         self._real_only(); wrap(other)._real_only()
@@ -448,6 +462,10 @@ class Tensor:
     def mean(self, dim=None, keepdim=False):
         dims = tuple(range(self.ndim)) if dim is None else dim if isinstance(dim, (list, tuple)) else (dim,)
         return self.sum(dim, keepdim) / int(np.prod([self.shape[d] for d in dims]))
+    def trace(self):
+        if self.ndim != 2: raise RuntimeError('trace expects a matrix')
+        self._real_only()
+        return result(np.trace(self._data), (self, lambda g: np.eye(*self.shape, dtype=self.dtype) * g))
     def prod(self, dim=None, keepdim=False, *, dtype=None):
         if dim is None and keepdim: raise TypeError('prod keepdim requires an explicit dimension')
         if dim is not None and not isinstance(dim,(int,np.integer)): raise BrowserUnsupported('prod requires one dimension')
@@ -760,6 +778,7 @@ class Tensor:
     def __le__(self, other): return self._compare(other, np.less_equal)
     def __gt__(self, other): return self._compare(other, np.greater)
     def __ge__(self, other): return self._compare(other, np.greater_equal)
+    eq, ne, lt, le, gt, ge = __eq__, __ne__, __lt__, __le__, __gt__, __ge__
     def __invert__(self): return Tensor(~self._data)
     def __and__(self, other): return Tensor(self._data & wrap(other)._data)
     def __or__(self, other): return Tensor(self._data | wrap(other)._data)
@@ -1018,6 +1037,20 @@ def qr(input, mode='reduced', *, out=None):
     return namedtuple('QR',['Q','R'])(Tensor(q),Tensor(r))
 
 
+def linalg_norm(input, ord=None, dim=None, keepdim=False, *, out=None, dtype=None):
+    if out is not None: raise BrowserUnsupported('Norm output buffers require the server')
+    if dtype is not None and (np.dtype(dtype).kind != 'f' or np.dtype(dtype).itemsize < input.dtype.itemsize):
+        raise BrowserUnsupported('Narrowing/non-floating norm dtypes require the server')
+    axes = reduction_axes(dim, input.ndim)
+    if dim is not None and len(axes) not in (1, 2): raise RuntimeError('linalg.norm requires one or two dimensions')
+    if ord is not None:
+        if dim is None and input.ndim not in (1, 2): raise RuntimeError('An explicit norm order requires a vector or matrix')
+        if ord == 'fro' and len(axes) != 2: raise RuntimeError('Frobenius norm requires two dimensions')
+        if ord != 'fro' and (ord != 2 or len(axes) != 1):
+            raise BrowserUnsupported('Other vector norms and spectral matrix norms require the server')
+    return input.norm(2, dim, keepdim, dtype)
+
+
 class Parameter(Tensor):
     def __init__(self, data=None, requires_grad=True):
         super().__init__(np.empty(0, dtype=np.float32) if data is None else wrap(data)._data, requires_grad=requires_grad)
@@ -1125,6 +1158,13 @@ class SiLU(Module):
         super().__init__()
         if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
     def forward(self, input): return silu(input)
+
+
+class ReLU(Module):
+    def __init__(self, inplace=False):
+        super().__init__()
+        if inplace: raise BrowserUnsupported('In-place ReLU requires the server')
+    def forward(self, input): return input.relu()
 
 
 def bincount(input, weights=None, minlength=0):
@@ -1478,8 +1518,26 @@ def cov(x, *, correction=1, fweights=None, aweights=None):
     return result(value.squeeze(), (x, vjp))
 
 
-def randint(low, high, size, *, generator=None, dtype=np.int64, device=None):
+def randint(low=0, high=None, size=None, *, generator=None, dtype=np.int64, device=None):
     check_device(device)
+    if size is None and isinstance(high, (tuple, list)):
+        size, high, low = high, low, 0
+    elif high is None:
+        high, low = low, 0
+    if not isinstance(low, (int, np.integer)) or not isinstance(high, (int, np.integer)):
+        raise TypeError('randint bounds must be integers')
+    low, high = int(low), int(high)
+    if not isinstance(size, (tuple, list)) or any(not isinstance(s, (int, np.integer)) for s in size):
+        raise TypeError('randint requires an integer shape')
+    size = tuple(int(s) for s in size)
+    if any(s < 0 for s in size): raise RuntimeError('randint dimensions must be nonnegative')
+    if math.prod(size) > 16_000_000: raise BrowserUnsupported('randint allocation exceeds the browser limit')
+    if dtype is None: dtype = np.int64
+    dtype = np.dtype(dtype)
+    if dtype.kind not in 'biuf': raise BrowserUnsupported('This randint dtype requires the server')
+    if dtype.kind in 'biu':
+        lower, upper = (0, 1) if dtype.kind == 'b' else (np.iinfo(dtype).min, np.iinfo(dtype).max)
+        if low < lower or high - 1 > upper: raise RuntimeError('randint bounds exceed the output dtype')
     rng = generator.rng if generator else np.random
     if not 0 < high-low <= 2**32: raise BrowserUnsupported('This randint range requires the server')
     bits = rng.randint(0, 2**32, size=size, dtype=np.uint32).astype(np.uint64)
@@ -1780,6 +1838,8 @@ def install():
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
     torch.unique = unique
     torch.remainder = lambda input,other,*,out=None: input.remainder(other,out=out)
+    torch.floor_divide = lambda input,other: wrap(input).floor_divide(other)
+    torch.trace = lambda input: input.trace()
     torch.logaddexp = lambda input,other: input.logaddexp(other)
     torch.as_tensor = lambda x: x if isinstance(x, Tensor) else tensor(x)
     torch.from_numpy = lambda x: Tensor(x)
@@ -1840,7 +1900,7 @@ def install():
     torch.nn, torch.optim, torch.autograd, torch.linalg = (modules[k] for k in ('nn', 'optim', 'autograd', 'linalg'))
     torch.nn.functional = modules['nn.functional']
     torch.nn.Module, torch.nn.Parameter = Module, Parameter
-    torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU = Linear, Sequential, SiLU
+    torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU, torch.nn.ReLU = Linear, Sequential, SiLU, ReLU
     torch.testing = modules['testing']
     torch.testing.assert_close = assert_close
     torch.random = modules['random']
@@ -1870,6 +1930,7 @@ def install():
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
     torch.linalg.solve = solve
     torch.linalg.inv = inv
+    torch.linalg.norm = linalg_norm
     torch.linalg.svd, torch.linalg.eigh, torch.linalg.qr = svd, eigh, qr
     torch.linalg.svdvals = lambda input,*,driver=None,out=None: svd(input,False,driver=driver,out=out).S
     torch.__getattr__ = unsupported

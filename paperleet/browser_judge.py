@@ -23,6 +23,8 @@ PILOTS = {
     "diffusion/ddpm_sampling", "diffusion/ddim", "diffusion/flow_matching",
     "diffusion/daps", "representation/sigreg", "representation/visreg",
     "representation/moge_alignment", "representation/var_tokenizer", "architecture/var_next_scale",
+    "diffusion/block_diffusion", "rl/pkpo", "diffusion/diffusion_nft", "diffusion/fd_population",
+    "diffusion/jit", "diffusion/drifting", "diffusion/dmd", "diffusion/dmd2",
 }
 
 SHARED_FILES = (

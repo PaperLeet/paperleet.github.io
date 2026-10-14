@@ -112,8 +112,8 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 50);
-  for (const id of ['representation/rotation_trick', 'world_models/lewm_prediction', 'world_models/lewm_planning', 'world_models/causal_jepa', 'representation/repa', 'representation/ijepa', 'finetuning/distillm2', 'finetuning/opsd_alignment', 'finetuning/opsd_clipping', 'rl/sdpo_feedback', 'rl/sdpo_topk', 'optimization/muon_split', 'finetuning/svdquant', 'architecture/flash_attention', 'architecture/kimi_kda', 'rl/glm5_offpolicy', 'rl/opd', 'diffusion/consistency', 'diffusion/progressive_distillation', 'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching', 'diffusion/daps', 'representation/sigreg', 'representation/visreg', 'representation/moge_alignment', 'representation/var_tokenizer', 'architecture/var_next_scale']) {
+  assert.equal(browserModules.length, 58);
+  for (const id of ['representation/rotation_trick', 'world_models/lewm_prediction', 'world_models/lewm_planning', 'world_models/causal_jepa', 'representation/repa', 'representation/ijepa', 'finetuning/distillm2', 'finetuning/opsd_alignment', 'finetuning/opsd_clipping', 'rl/sdpo_feedback', 'rl/sdpo_topk', 'optimization/muon_split', 'finetuning/svdquant', 'architecture/flash_attention', 'architecture/kimi_kda', 'rl/glm5_offpolicy', 'rl/opd', 'diffusion/consistency', 'diffusion/progressive_distillation', 'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching', 'diffusion/daps', 'representation/sigreg', 'representation/visreg', 'representation/moge_alignment', 'representation/var_tokenizer', 'architecture/var_next_scale', 'diffusion/block_diffusion', 'rl/pkpo', 'diffusion/diffusion_nft', 'diffusion/fd_population', 'diffusion/jit', 'diffusion/drifting', 'diffusion/dmd', 'diffusion/dmd2']) {
     const paper = catalog.papers.find(p => p.module_ids.includes(id));
     assert(matchingPaperModules(paper, catalog.problems, '', 'all', 'browser').some(p => p.id === id));
     assert(!matchingPaperModules(paper, catalog.problems, '', 'all', 'server').some(p => p.id === id));
@@ -437,6 +437,13 @@ try {
   );
   assert(output.includes("你的实现与参考对照"));
   assert(output.includes("60.0"));
+  const strategyCurves = renderToString(React.createElement(ArtifactCharts, {data:{comparison_loss_curves:{
+    real_score_only:[[0,2],[40,1]], matching:[[0,3],[80,.1]], matching_regression:[[0,4],[20,.2]],
+  }}}));
+  assert(strategyCurves.includes('real_score_only') && strategyCurves.includes('matching_regression') && strategyCurves.includes('step') && strategyCurves.includes('训练损失对比'));
+  assert(!strategyCurves.includes('二维点云') && strategyCurves.includes('损失'), 'Strategy loss histories must share a line chart with their actual step coordinates, not become point clouds');
+  const malformedCurves = renderToString(React.createElement(ArtifactCharts,{data:{comparison_loss_curves:{matching:[[0,1],null]}}}));
+  assert(malformedCurves.includes('<pre>') && malformedCurves.includes('matching'), 'Malformed comparison curves retain readable raw evidence');
   const gapArtifacts = renderToString(React.createElement(ArtifactCharts, { data: { training: [
     {step: 0, reward: .2, wrong_length: 4.16},
     {step: 1, reward: .7, wrong_length: null},
