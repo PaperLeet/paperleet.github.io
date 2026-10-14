@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { parseSaved } from "./reports";
-import { isPassed } from "./types";
+import { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
+import { useBrowserWorkspace } from "./useBrowserWorkspace";
+export { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
 import type { Problem, Report, Saved } from "./types";
 import { SocialError, errorMessage, socialApi, useAccount } from "./social";
 
-const LOCAL_KEY = "paperleet.workspace.v1";
 type PendingDraft = {
   code: string;
   updated: string;
@@ -25,17 +26,6 @@ const emptyBundle = (owner: string): Bundle => ({
   conflicts: {},
   hydrated: false,
 });
-export type DraftExpectation = { owner: string; code?: string; updated?: string };
-export function draftSnapshotMatches(saved: Saved | undefined, expected: DraftExpectation) {
-  return saved?.code === expected.code && (saved?.updated || '') === (expected.updated || '');
-}
-function readLocal(): Record<string, Saved> {
-  try {
-    return parseSaved(JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"));
-  } catch {
-    return {};
-  }
-}
 export function practiceOwner(
   mode: "local" | "hosted" | undefined,
   userId?: string,
@@ -76,23 +66,6 @@ export function mergeWorkspaceSnapshot(
   }
   return { records, pending: dirty, conflicts };
 }
-export function withPracticeReport(
-  saved: Saved,
-  problem: Problem,
-  report: Report,
-): Saved {
-  return {
-    ...saved,
-    report,
-    acceptedReport: isPassed(problem, report)
-      ? report
-      : isPassed(problem, saved.acceptedReport)
-        ? saved.acceptedReport
-        : isPassed(problem, saved.report)
-          ? saved.report
-          : undefined,
-  };
-}
 function readPending(owner: string): Record<string, PendingDraft> {
   try {
     const data = JSON.parse(localStorage.getItem(cacheKey(owner)) || "{}");
@@ -121,6 +94,7 @@ export function usePracticeWorkspace() {
   } = useAccount();
   const owner = practiceOwner(health?.mode, user?.id, accountLoading);
   const hosted = health?.mode === "hosted";
+  const browserWorkspace = useBrowserWorkspace(owner === "local" || owner === "anonymous" ? owner : undefined);
   const [bundle, setBundle] = useState<Bundle>(() => emptyBundle("unresolved"));
   const [error, setError] = useState(""),
     [loading, setLoading] = useState(false),
@@ -138,9 +112,7 @@ export function usePracticeWorkspace() {
   const storageError = useRef("");
   function persist(next: Bundle) {
     try {
-      if (next.owner === "local")
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(next.records));
-      else if (next.owner !== "unresolved")
+      if (next.owner.startsWith("user:"))
         localStorage.setItem(
           cacheKey(next.owner),
           JSON.stringify(next.pending),
@@ -174,14 +146,8 @@ export function usePracticeWorkspace() {
       setLoading(true);
       return;
     }
-    if (owner === "local") {
-      setBundle({
-        ...emptyBundle(owner),
-        records: readLocal(),
-        hydrated: true,
-      });
-      setLoading(false);
-      return;
+    if (owner === "local" || owner === "anonymous") {
+      setBundle(emptyBundle(owner)); setLoading(false); return;
     }
     const pending = readPending(owner);
     const records = Object.fromEntries(
@@ -194,12 +160,8 @@ export function usePracticeWorkspace() {
       ...emptyBundle(owner),
       records,
       pending,
-      hydrated: owner === "anonymous",
+      hydrated: false,
     });
-    if (owner === "anonymous") {
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     socialApi<{ user_id: string; workspace: Record<string, Saved> }>(
       "practice/workspace",
@@ -317,6 +279,7 @@ export function usePracticeWorkspace() {
     return () => clearTimeout(timer);
   }, [bundle, owner, hosted, flushVersion]);
   function update(id: string, change: Partial<Saved>, expected?: DraftExpectation) {
+    if (owner === "local" || owner === "anonymous") return browserWorkspace.update(id,change,expected);
     let applied = false;
     mutate((previous) => {
       if (expected && (previous.conflicts[id] || !draftSnapshotMatches(previous.records[id],expected))) return previous;
@@ -350,6 +313,7 @@ export function usePracticeWorkspace() {
     report: Report,
     expectedOwner: string,
   ) {
+    if (owner === "local" || owner === "anonymous") return browserWorkspace.applyReport(problem,report,expectedOwner);
     mutate((previous) => {
       const saved = previous.records[problem.id] || {};
       return {
@@ -362,6 +326,7 @@ export function usePracticeWorkspace() {
     }, expectedOwner);
   }
   function resolveConflict(id: string, keepLocal: boolean) {
+    if (owner === "local" || owner === "anonymous") return browserWorkspace.resolveConflict(id,keepLocal);
     failed.current = false;
     setError("");
     mutate((previous) => {
@@ -381,7 +346,14 @@ export function usePracticeWorkspace() {
     });
   }
   const visible = bundle.owner === owner ? bundle : emptyBundle(owner);
+  if (owner === "local" || owner === "anonymous") return {
+    ...browserWorkspace, owner, hosted, flush, update, applyReport, resolveConflict,
+    owns: (expected: string) => currentOwner.current === expected,
+  };
   return {
+    backups: [] as typeof browserWorkspace.backups,
+    restoreBackup: browserWorkspace.restoreBackup,
+    discardBackup: browserWorkspace.discardBackup,
     owner,
     saved: visible.records,
     hosted,

@@ -59,6 +59,10 @@ import { matchesBrowserSubmission } from './browserVerification';
 import { useDraftHandoff } from './useDraftHandoff';
 import { DraftHandoffNotice } from './DraftHandoffNotice';
 import { BrowserSyntaxNotice } from './BrowserSyntaxNotice';
+import { BrowserDraftBackups } from './BrowserDraftBackups';
+import { useBrowserLearning } from './useBrowserLearning';
+import { browserLearningView } from './browserLearning';
+import { BrowserLearningNotice } from './BrowserLearningNotice';
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -259,6 +263,7 @@ function Workspace() {
   const { saved, update } = practice;
   const online = !!health?.judge.ready && !healthError;
   const hosted = health?.mode === "hosted";
+  const browserWorkspace = practice.owner === 'local' || practice.owner === 'anonymous';
   const testAuth = capabilities?.auth_mode === "test";
   const [problems, setProblems] = useState<Problem[]>([]),
     [categories, setCategories] = useState<Category[]>([]),
@@ -305,10 +310,15 @@ function Workspace() {
       ? [sourceProblem]
       : [];
   const moduleIndex = siblingModules.findIndex((p) => p.id === problem?.id);
-  const progressReady = practice.ready && !practice.loading;
-  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(siblingModules, saved) : undefined) || recommendPractice(problems, saved) : undefined;
+  const learning = useBrowserLearning(hosted ? practice.owner : 'unresolved');
+  const learningView = browserLearningView(practice.owner,problems,saved,learning.records);
+  const learningSaved = learningView.saved;
+  const notesUnlocked = !!problem && status(problem,learningSaved[problem.id]) === 'done';
+  const learningNotice = hosted && <BrowserLearningNotice count={learningView.localPasses} failed={learning.failed} saving={learning.saving} onRetry={learning.retry} />;
+  const progressReady = practice.ready && !practice.loading && learning.ready;
+  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(siblingModules, learningSaved) : undefined) || recommendPractice(problems, learningSaved) : undefined;
   const nextProblem = problem && progressReady
-    ? nextPractice(problem, selectedPaper?.module_ids || [], problems, saved)
+    ? nextPractice(problem, selectedPaper?.module_ids || [], problems, learningSaved)
     : undefined;
   const browser = useBrowserJudge(practice.owner);
   const judge = useQueuedJudge(practice.owner, !publicSite && progressReady && problems.length > 0, (report, runOwner) => {
@@ -316,13 +326,14 @@ function Workspace() {
     if (!entry || !practice.owns(runOwner)) return;
     practice.applyReport(entry, report, runOwner);
     browser.clear(entry.id);
+    learning.dismiss(entry,runOwner);
     void refreshProblemStats();
     if ([entry.id, String(entry.number)].includes(getId())) setTab("tests");
     setToast(t("判题已完成", "Run complete"));
   });
   useEffect(() => { runToken.current = undefined; setPreparingRun(false); }, [practice.owner]);
   const [judgeMode, setJudgeMode] = useState<JudgeMode>("auto");
-  const report = problem ? browser.reports[problem.id] || current.report : undefined;
+  const report = problem ? browser.reports[problem.id] || learningView.records[problem.id]?.report || current.report : undefined;
   const syntaxFailure = problem ? browser.syntaxErrors?.[problem.id] : undefined;
   const hasCurrentSyntaxError = !!syntaxFailure && syntaxFailure.source === (current.code ?? problem?.starter);
   const reportSource = useReportSource(report, current.code ?? problem?.starter ?? "");
@@ -437,6 +448,7 @@ function Workspace() {
         if (outcome.type === "result") {
           // Hosted completions and shared statistics remain server-authoritative.
           if (!hosted) practice.applyReport(problem, outcome.report, runOwner);
+          else learning.record(problem,outcome.report,runOwner);
           if ([problem.id,String(problem.number)].includes(getId())) setTab("tests");
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
@@ -525,7 +537,7 @@ function Workspace() {
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
-    `## 6. ${t("编写与运行", "Write and run")}\n\n${hosted && problem?.browser_judge ? t("本题可直接在浏览器 CPU/WASM 运行完整测试，无需 GPU。未登录时草稿保存在当前浏览器；登录后可确认导入本题代码，再由服务端判题计入账号成绩并解锁坑点。", "Run this complete suite directly on your browser CPU/WASM; no GPU is needed. Signed-out drafts stay in this browser. After signing in, choose whether to import this module’s code, then use server judging to record account results and unlock Notes.") : hosted ? (testAuth ? t("使用内测账号登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Sign in with your test account, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.") : t("受邀用户登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Invited members can sign in, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.")) : t("在右侧编辑器中完成实现，点击「运行全部测试」。测试结果会在「测试」标签页显示；全部通过后解锁坑点。草稿会自动保存在当前浏览器。", "Complete the implementation in the editor and select Run all tests. Results appear in the Tests tab; passing all tests unlocks Notes. Drafts are saved automatically in this browser.")}\n`,
+    `## 6. ${t("编写与运行", "Write and run")}\n\n${hosted && problem?.browser_judge ? t("本题可直接在浏览器 CPU/WASM 运行完整测试，无需 GPU。未登录时草稿保存在当前浏览器；通过后可复盘坑点并继续练习，本机学习记录会保留；登录后可确认导入代码，由服务端判题计入账号成绩。", "Run this complete suite directly on your browser CPU/WASM; no GPU is needed. Signed-out drafts stay in this browser. Passing unlocks Notes and saves learning progress in this browser. After signing in, choose whether to import this code, then use server judging to record account results.") : hosted ? (testAuth ? t("使用内测账号登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Sign in with your test account, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.") : t("受邀用户登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Invited members can sign in, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.")) : t("在右侧编辑器中完成实现，点击「运行全部测试」。测试结果会在「测试」标签页显示；全部通过后解锁坑点。草稿会自动保存在当前浏览器。", "Complete the implementation in the editor and select Run all tests. Results appear in the Tests tab; passing all tests unlocks Notes. Drafts are saved automatically in this browser.")}\n`,
   );
   return (
     <div className={`app ${problem ? "workspace-view" : ""}`}>
@@ -554,7 +566,7 @@ function Workspace() {
                 if (!problem && resumeProblem) location.hash = `/${resumeProblem.number}`;
               }}
             >
-              {problem ? t("工作区", "Workspace") : progressReady && problems.length > 0 && !resumeProblem ? t("核心模块已完成", "Core modules complete") : resumeProblem && status(resumeProblem, saved[resumeProblem.id]) === "started" ? t("继续练习", "Continue") : t("开始练习", "Start practice")}
+              {problem ? t("工作区", "Workspace") : progressReady && problems.length > 0 && !resumeProblem ? t("核心模块已完成", "Core modules complete") : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? t("继续练习", "Continue") : t("开始练习", "Start practice")}
             </button>
             {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} href={hostedAppHref("#/submit")}>
               {t("提交论文", "Submit paper")}
@@ -670,11 +682,11 @@ function Workspace() {
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
       ) : !problem ? (
-        selectedPaper ? (
+        <>{learningNotice}{selectedPaper ? (
           <PaperDetail
             paper={selectedPaper}
             problems={problems}
-            saved={saved}
+            saved={learningSaved}
             stats={problemStats}
             onGuide={() => setGuide(true)}
           />
@@ -682,14 +694,14 @@ function Workspace() {
           <PaperLibrary
             key={collectionIdFromRoute(id) || "all-papers"}
             collectionId={collectionIdFromRoute(id)}
-            progressReady={practice.ready && !practice.loading}
+            progressReady={progressReady}
             categories={categories}
             papers={papers}
             problems={problems}
-            saved={saved}
+            saved={learningSaved}
             onGuide={() => setGuide(true)}
           />
-        )
+        )}</>
       ) : (
         <>
           <div className="workspace-toolbar">
@@ -759,7 +771,7 @@ function Workspace() {
                     ) : key === "lab" ? (
                       <FlaskConical size={14} />
                     ) : key === "notes" &&
-                      status(problem, current) !== "done" ? (
+                      !notesUnlocked ? (
                       <LockKeyhole size={12} />
                     ) : null}
                     {label}
@@ -780,12 +792,13 @@ function Workspace() {
                 </a>}
               </div>
               <div className="description-scroll" key={problem.id}>
+                {learningNotice}
                 {tab === "tests" ? (
                   <>
                   {syntaxFailure && <BrowserSyntaxNotice failure={syntaxFailure} source={current.code ?? problem.starter} />}
                   {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource}>
                     {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} error={handoff.error} onSignIn={signInWithDraft} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
-                    {!running && reportSource === "current" && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
+                    {!running && reportSource === "current" && progressReady && isPassed(problem, report) && (
                       <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
                     )}
                   </ReportView>}
@@ -793,7 +806,7 @@ function Workspace() {
                 ) : tab === "lab" ? (
                   <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} sourceState={reportSource} initialView={labView} />
                 ) : tab === "notes" ? (
-                  status(problem, current) !== "done" ? (
+                  !notesUnlocked ? (
                     <div className="empty-state">
                       <div className="empty-icon">
                         <LockKeyhole size={25} />
@@ -862,7 +875,7 @@ function Workspace() {
                         <span>
                           {t("模块", "MODULE")} {problem.number}
                         </span>
-                        {status(problem, current) === "done" && (
+                        {notesUnlocked && (
                           <span className="accepted">
                             <CheckCircle2 size={14} />
                             {t("已通过", "Solved")}
@@ -1112,6 +1125,12 @@ function Workspace() {
                       <Check size={12} />
                       {practice.loading
                         ? t("正在加载工作区…", "Loading workspace…")
+                        : browserWorkspace && practice.error
+                          ? t('本机保存失败，请下载代码备份','Browser save failed; download a code backup')
+                        : browserWorkspace && practice.saving
+                          ? t('正在保存本机草稿…','Saving browser draft…')
+                        : browserWorkspace && practice.conflicts[problem.id]
+                          ? t('本机草稿版本冲突，请核对后选择','Browser draft conflict; review and choose a version')
                         : hosted
                           ? !user
                             ? t(
@@ -1168,9 +1187,15 @@ function Workspace() {
                     {judge.job?.status === "queued" && <button onClick={() => void judge.cancel()}>{t("取消排队", "Leave queue")}</button>}
                   </div>}
                   {judge.error && <div className="practice-notice" role="alert">{jobErrorText(judge.error, locale)}</div>}
+                  {practice.error && <div className="practice-notice" role="alert">
+                    <span>{practice.error}</span>
+                    <button disabled={practice.saving} onClick={practice.retry}>
+                      {browserWorkspace ? t('重试本机保存','Retry browser save') : t("重试同步", "Retry sync")}
+                    </button>
+                  </div>}
+                  {browserWorkspace && <BrowserDraftBackups backups={practice.backups.filter(backup => backup.id === problem.id)} source={current.code ?? problem.starter} conflict={practice.conflicts[problem.id]} busy={practice.saving || !!practice.error} onRestore={practice.restoreBackup} onDiscard={practice.discardBackup} />}
                   {!judge.active && judge.job?.status === "cancelled" && <div className="practice-notice" role="status">{t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
-                  {(practice.error ||
-                    practice.conflicts[problem.id] ||
+                  {(practice.conflicts[problem.id] ||
                     (!health && healthError) ||
                     (hosted && !browserAvailable && (!user || !online))) && (
                     <div className="practice-notice" role="status">
@@ -1178,30 +1203,25 @@ function Workspace() {
                         <>
                           <span>
                             {t(
-                              "其他设备更新了这道题的草稿。选择保留哪个版本；当前代码尚未覆盖服务器。",
-                              "Another device updated this draft. Choose which version to keep; your current code has not overwritten the server.",
+                              browserWorkspace ? "另一标签页修改了这道题。两个版本均已保留，请核对后选择。" : "其他设备更新了这道题的草稿。选择保留哪个版本；当前代码尚未覆盖服务器。",
+                              browserWorkspace ? "Another tab changed this module. Both versions are kept; review them before choosing." : "Another device updated this draft. Choose which version to keep; your current code has not overwritten the server.",
                             )}
                           </span>
                           <button
+                            disabled={practice.saving}
                             onClick={() =>
                               practice.resolveConflict(problem.id, false)
                             }
                           >
-                            {t("使用服务器版本", "Use server draft")}
+                            {browserWorkspace ? t('使用另一版本','Use the other version') : t("使用服务器版本", "Use server draft")}
                           </button>
                           <button
+                            disabled={practice.saving}
                             onClick={() =>
                               practice.resolveConflict(problem.id, true)
                             }
                           >
                             {t("保留当前版本", "Keep this draft")}
-                          </button>
-                        </>
-                      ) : practice.error ? (
-                        <>
-                          <span>{practice.error}</span>
-                          <button onClick={practice.retry}>
-                            {t("重试同步", "Retry sync")}
                           </button>
                         </>
                       ) : !health ? (

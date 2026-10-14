@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createServer } from 'vite';
 import { calibrationDiagnostic, runtimeDiagnostic } from '../public/browser-judge/diagnostics.mjs';
+import './check-browser-packages.mjs';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const originals = Object.fromEntries(['Worker', 'window', 'document', 'location', 'fetch'].map((key) => [key, globalThis[key]]));

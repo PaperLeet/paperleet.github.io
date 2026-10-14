@@ -80,3 +80,12 @@
 .draft-handoff-notice pre { max-height: 180px; overflow: auto; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); white-space: pre; font-size: 12px; }
 .draft-handoff-notice > button, .draft-handoff-notice > a { margin-right: 14px; }
 @media (max-width: 600px) { .draft-handoff-notice { padding: 12px; } .browser-result-buttons { align-items: stretch; } .browser-result-buttons .button { width: 100%; } }
+
+.browser-draft-backups { margin: 10px 0; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; }
+.browser-draft-backups summary { cursor: pointer; font-weight: 600; }
+.browser-draft-backups p { line-height: 1.6; color: var(--muted); }
+.browser-draft-backups pre { max-height: 160px; max-width: 100%; overflow: auto; padding: 10px; background: var(--surface); border: 1px solid var(--line); font-family: var(--font-mono); white-space: pre; }
+.browser-draft-backups article + article { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
+.browser-draft-backups article > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.browser-draft-backups button { padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; }
+.browser-draft-backups button:disabled { opacity: .5; cursor: default; }

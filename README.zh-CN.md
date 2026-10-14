@@ -49,6 +49,8 @@ GitHub Pages 在 https://paperleet.github.io/ 提供浏览器练习。本地服�
 
 LLM 基础新增 RMSNorm、GQA 和 RoPE，包含独立梯度测试、完整 CPU/WASM 判题与教学实验。详见[公共核心验证](docs/validation/llm-foundations-public.md)。
 
+本地版与未登录草稿按模块保存在 IndexedDB，不同标签页不会覆盖其他题目；同题并发修改会保留可恢复版本，供核对后选择。旧浏览器草稿会自动迁移。保存失败时仍可编辑、下载代码并重试。线上浏览器判题通过后，本机学习进度在刷新后保留，按游客／账号和测试版本隔离；账号成绩仍需服务端确认。详见[浏览器工作区验证](docs/validation/browser-workspace-public.md)。
+
 顶部 **浅色 / 深色** 按钮用于切换外观。首次访问跟随系统主题，手动选择后会在当前浏览器记住。题库集中展示分类、搜索、筛选和模块进度；技术简介与可展开的练习范围放在论文详情页。
 
 拖动工作区分隔条，可调整题面与代码区的左右宽度、代码与测试结果区的上下高度，比例会保存在当前浏览器。双击分隔条，或选中后按 Enter，可恢复默认比例；方向键可微调。运行按钮始终保留在底部，窄屏上题面和编辑器自动上下排列。
@@ -191,4 +193,4 @@ reports/           判题和 CI 报告，忽略于 Git
 
 VAR 与 FD-Loss 新增四个核心模块及 CPU 小实验，详见[来源与验证记录](docs/validation/var-and-fd-loss.md)。
 
-浏览器端判题现覆盖 44 个模块，包括 Schedules、Attention、LoRA、主要 RL 目标、JEPA/世界模型、OPSD/SDPO、谱分解，以及 GLM-5 双边重要性采样、OPD、Consistency Models、Progressive Distillation、DDPM 反向采样、DDIM 和 Flow Matching。全部 335 项维护测试在本机 CPU/WASM 执行，目录共维护 180 个错误实现，每题运行前先校准对应参考解与错误实现；保留原有精度、梯度、模型大小和训练轮数。单次分类采样保持正确分布，随机序列与原生 PyTorch 不要求逐项一致；不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号进度仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。
+浏览器端判题现覆盖全部 63 个维护模块，包括 Schedules、Attention、LoRA、主要 RL 目标、JEPA／世界模型、扩散采样、谱分解、RMSNorm、GQA 和 RoPE。全部 491 项维护测试在本机 CPU/WASM 执行；每题运行前先校准对应参考解与错误实现，目录共维护 257 个错误实现。保留原有精度、梯度、模型大小和训练轮数，无需 GPU。不支持的 API 或运行时故障自动回退服务端。编辑器可切换自动、仅浏览器和服务端模式。运行时按需加载；线上账号成绩仍由服务端确认。[实现与兼容性说明](docs/browser-judge.md)。

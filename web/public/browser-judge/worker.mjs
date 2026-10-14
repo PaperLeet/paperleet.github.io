@@ -1,6 +1,7 @@
 // Runs only inside the disposable, opaque-origin browser judge sandbox.
 import { calibrationDiagnostic, runtimeDiagnostic } from './diagnostics.mjs';
 import { syntaxCheck } from './syntax.mjs';
+import { loadJudgePackages } from './packages.mjs';
 const send = globalThis.postMessage.bind(globalThis);
 let started = false;
 self.onmessage = async ({ data }) => {
@@ -18,9 +19,7 @@ self.onmessage = async ({ data }) => {
     const diagnostic = JSON.parse(py.runPython(syntaxCheck));
     if (diagnostic) return send({ type: 'syntax_error', diagnostic });
     progress('loading', { step: 'packages' });
-    const packages = ['numpy', 'pytest'];
-    if (Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml'))) packages.push('pyyaml');
-    await py.loadPackage(packages);
+    await loadJudgePackages(py, Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml')));
     progress('loading', { step: 'preparing' });
     py.globals.set('bundle_json', JSON.stringify(bundle));
     py.runPython(`import json, inspect\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);

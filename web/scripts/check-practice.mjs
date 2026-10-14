@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { createServer } from "vite";
+import { checkBrowserWorkspace } from './check-browser-workspace.mjs';
+import { checkBrowserLearning } from './check-browser-learning.mjs';
+import { checkBrowserNotifications } from './check-browser-notifications.mjs';
 const server = await createServer({
   server: { middlewareMode: true },
   appType: "custom",
@@ -132,6 +135,9 @@ try {
   console.log(
     "PASS private workspace isolation, cross-device conflicts, server acceptance and late-result draft preservation",
   );
+  await checkBrowserWorkspace(server);
+  await checkBrowserLearning(server);
+  await checkBrowserNotifications(server);
 } finally {
   await server.close();
 }
