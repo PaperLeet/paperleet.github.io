@@ -57,6 +57,12 @@ def wrap(value):
     return value if isinstance(value, Tensor) else tensor(value)
 
 
+def inherited_options(dtype, options):
+    options=dict(options)
+    if options.get('dtype') is None: options['dtype']=dtype
+    return options
+
+
 def reduction_axes(dim, ndim):
     if dim is None: return tuple(range(ndim))
     dims = tuple(dim) if isinstance(dim, (list, tuple)) else (dim,)
@@ -147,6 +153,7 @@ class Tensor:
     def numpy(self): return self._data
     def numel(self): return self._data.size
     def dim(self): return self.ndim
+    def is_floating_point(self): return self.dtype.kind == 'f'
     def count_nonzero(self, dim=None): return count_nonzero(self, dim)
     def size(self, dim=None): return self.shape if dim is None else self.shape[dim]
     def detach(self): return Tensor(self._data)
@@ -159,8 +166,10 @@ class Tensor:
     def long(self): return self.to(dtype=np.int64)
     def int(self): return self.to(dtype=np.int32)
     def bool(self): return self.to(dtype=np.bool_)
-    def new_zeros(self, *shape, **kw): return create('zeros', *shape, **({'dtype': self.dtype} | kw))
-    def new_ones(self, *shape, **kw): return create('ones', *shape, **({'dtype': self.dtype} | kw))
+    def new_zeros(self, *shape, **kw): return create('zeros', *shape, **inherited_options(self.dtype,kw))
+    def new_ones(self, *shape, **kw): return create('ones', *shape, **inherited_options(self.dtype,kw))
+    def new_empty(self, *shape, **kw): return create('empty', *shape, **inherited_options(self.dtype,kw))
+    def new_full(self, size, fill_value, **kw): return full(size, fill_value, **inherited_options(self.dtype,kw))
     def new_tensor(self, data, *, dtype=None, device=None, requires_grad=False):
         check_device(device)
         return Tensor(np.array(data._data if isinstance(data, Tensor) else data, dtype=dtype or self.dtype, copy=True), requires_grad=requires_grad)
@@ -308,6 +317,14 @@ class Tensor:
             index = [slice(None)] * self.ndim; index[dim] = slice(start, start + length)
             parts.append(self[tuple(index)]); start += length
         return tuple(parts)
+    def chunk(self, chunks, dim=0):
+        if not isinstance(chunks,int) or isinstance(chunks,bool) or chunks < 1: raise RuntimeError('chunks must be a positive integer')
+        if not -self.ndim <= dim < self.ndim: raise IndexError('chunk dimension out of range')
+        size = self.shape[dim]
+        if not size:
+            index=[slice(None)]*self.ndim;index[dim]=slice(0,0)
+            return tuple(self[tuple(index)] for _ in range(chunks))
+        return self.split((size+chunks-1)//chunks,dim)
     def flatten(self, start_dim=0, end_dim=-1):
         if not self.ndim: return self.reshape(1)
         end_dim %= self.ndim
@@ -360,6 +377,39 @@ class Tensor:
     def mean(self, dim=None, keepdim=False):
         dims = tuple(range(self.ndim)) if dim is None else dim if isinstance(dim, (list, tuple)) else (dim,)
         return self.sum(dim, keepdim) / int(np.prod([self.shape[d] for d in dims]))
+    def prod(self, dim=None, keepdim=False, *, dtype=None):
+        if dim is None and keepdim: raise TypeError('prod keepdim requires an explicit dimension')
+        if dim is not None and not isinstance(dim,(int,np.integer)): raise BrowserUnsupported('prod requires one dimension')
+        axes=reduction_axes(dim,self.ndim)
+        if dtype is not None and np.dtype(dtype) != self.dtype: return self.to(dtype=dtype).prod(dim,keepdim)
+        target = np.int64 if dtype is None and self.dtype.kind in 'biu' else dtype
+        value=np.prod(self._data,axis=axes,keepdims=True,dtype=target)
+        zeros=self._data==0
+        count=zeros.sum(axis=axes,keepdims=True)
+        nonzero=np.prod(np.where(zeros,1,self._data),axis=axes,keepdims=True,dtype=target)
+        def vjp(g):
+            if not np.isfinite(self._data).all(): raise BrowserUnsupported('Nonfinite product gradients require the server')
+            if not keepdim:
+                for axis in sorted(axes): g=np.expand_dims(g,axis)
+            ordinary=np.divide(value,self._data,out=np.zeros_like(self._data),where=~zeros)
+            derivative=np.where(count==0,ordinary,np.where((count==1)&zeros,nonzero,0))
+            return g*derivative
+        return result(value if keepdim else value.squeeze(axis=axes),(self,vjp))
+    def amax(self, dim=None, keepdim=False, *, out=None):
+        if out is not None: raise BrowserUnsupported('amax output buffers require the server')
+        axes=reduction_axes(dim,self.ndim)
+        value=np.max(self._data,axis=axes,keepdims=True)
+        mask=self._data==value
+        def vjp(g):
+            if not keepdim:
+                for axis in sorted(axes): g=np.expand_dims(g,axis)
+            return g*mask/mask.sum(axis=axes,keepdims=True)
+        return result(value if keepdim else value.squeeze(axis=axes),(self,vjp))
+    def round(self, *, decimals=0, out=None):
+        if decimals!=0 or out is not None: raise BrowserUnsupported('Decimal round/output buffers require the server')
+        if self.dtype.kind in 'iu': return self.clone()
+        if self.dtype.kind!='f': raise BrowserUnsupported('round requires real floating or integer inputs')
+        return result(np.rint(self._data),(self,lambda g: np.zeros_like(self._data)))
     def norm(self, p='fro', dim=None, keepdim=False, dtype=None, *, out=None):
         if out is not None: raise BrowserUnsupported('Norm out arguments require the server')
         if p not in (2, 'fro'): raise BrowserUnsupported('Only Euclidean/Frobenius norms are supported')
@@ -681,6 +731,72 @@ def solve(a, b):
         incoming = db(g)
         return -(incoming[:, None] @ value[None, :] if b.ndim == 1 else incoming @ value.T)
     return result(value, (a, da), (b, db))
+
+
+def real_matrix(input):
+    if input.ndim < 2: raise RuntimeError('Linear algebra expects matrices')
+    if input.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('This linear algebra backend requires real float32/float64 matrices')
+    if not np.isfinite(input._data).all(): raise RuntimeError('Linear algebra requires finite inputs')
+
+
+def svd(input, full_matrices=True, *, driver=None, out=None):
+    """Real batched SVD with analytical vector/rectangular-complement VJPs."""
+    real_matrix(input)
+    if driver is not None or out is not None: raise BrowserUnsupported('SVD drivers/output buffers require the server')
+    if not isinstance(full_matrices, bool): raise TypeError('full_matrices must be boolean')
+    all_u, singular, all_vh = np.linalg.svd(input._data, full_matrices=full_matrices)
+    rank = singular.shape[-1]
+    u, vh = all_u[..., :, :rank], all_vh[..., :rank, :]
+    ut, v = np.swapaxes(u,-1,-2), np.swapaxes(vh,-1,-2)
+    saved = tuple(Tensor(value) for value in (all_u, singular, all_vh))
+    def ds(g): return (u * g[..., None, :]) @ vh
+    def vector_factors():
+        # Do not fabricate derivatives at rank boundaries or repeated spectra.
+        with np.errstate(over='ignore',invalid='ignore'):
+            squared = singular ** 2
+            gap = squared[..., None, :] - squared[..., :, None]
+        diagonal = np.eye(rank, dtype=bool)
+        cutoff = np.finfo(input.dtype).eps * max(input.shape[-2:])
+        if not np.isfinite(squared).all() or np.any(singular <= cutoff * singular[..., :1]) or np.any((np.abs(gap) <= cutoff * squared[..., :1, None]) & ~diagonal):
+            raise BrowserUnsupported('Degenerate or numerically unresolved SVD vector gradients require the server')
+        return np.divide(1, gap, out=np.zeros_like(gap), where=~diagonal)
+    def du(g):
+        if not rank: return np.zeros_like(input._data)
+        g = g[..., :, :rank]
+        inner = ut @ g
+        core = vector_factors() * (inner - np.swapaxes(inner,-1,-2)) * singular[..., None, :]
+        gradient = u @ core @ vh
+        if input.shape[-2] > rank: gradient += ((g - u @ inner) / singular[..., None, :]) @ vh
+        return gradient
+    def dvh(g):
+        if not rank: return np.zeros_like(input._data)
+        g = g[..., :rank, :]
+        inner = vh @ np.swapaxes(g,-1,-2)
+        core = vector_factors() * (inner - np.swapaxes(inner,-1,-2)) * singular[..., :, None]
+        gradient = u @ core @ vh
+        if input.shape[-1] > rank: gradient += u @ ((g - (g @ v) @ vh) / singular[..., :, None])
+        return gradient
+    pair = namedtuple('SVD', ['U','S','Vh'])
+    return pair(result(all_u,(input,du),saved=saved), result(singular,(input,ds),saved=saved), result(all_vh,(input,dvh),saved=saved))
+
+
+def eigh(input, UPLO='L', *, out=None):
+    """Independent NumPy Gram-matrix oracle; differentiable eigensolvers use the server."""
+    real_matrix(input)
+    if out is not None or _grad_enabled and input.requires_grad:
+        raise BrowserUnsupported('Differentiable eigh/output buffers require the server')
+    if input.shape[-2] != input.shape[-1] or UPLO not in ('L','U'): raise RuntimeError('Invalid eigh shape/triangle')
+    values, vectors = np.linalg.eigh(input._data, UPLO=UPLO)
+    return namedtuple('Eigh',['eigenvalues','eigenvectors'])(Tensor(values),Tensor(vectors))
+
+
+def qr(input, mode='reduced', *, out=None):
+    real_matrix(input)
+    if out is not None or mode not in ('reduced','complete') or _grad_enabled and input.requires_grad:
+        raise BrowserUnsupported('Differentiable/other-mode QR or output buffers require the server')
+    q, r = np.linalg.qr(input._data, mode=mode)
+    return namedtuple('QR',['Q','R'])(Tensor(q),Tensor(r))
 
 
 class Parameter(Tensor):
@@ -1020,6 +1136,12 @@ def full(shape, fill_value, *, dtype=None, device=None, requires_grad=False):
     return Tensor(np.full(shape, fill_value, dtype=dtype), requires_grad=requires_grad)
 
 
+def full_like(input, fill_value, *, dtype=None, device=None, requires_grad=False, **options):
+    if options: raise BrowserUnsupported('These full_like options require the server')
+    check_device(device)
+    return Tensor(np.full_like(input._data,fill_value,dtype=input.dtype if dtype is None else dtype),requires_grad=requires_grad)
+
+
 class Device(str):
     def __new__(cls, name='cpu'):
         check_device(name)
@@ -1082,6 +1204,17 @@ def cartesian_prod(*tensors):
 def normalize(input, p=2., dim=1, eps=1e-12, out=None):
     if p != 2 or out is not None: raise BrowserUnsupported('Only Euclidean normalization without out is supported')
     return input / input.norm(2, dim, keepdim=True).clamp_min(eps)
+
+
+def softplus(input, beta=1., threshold=20.):
+    if input.dtype not in (np.dtype('float32'),np.dtype('float64')):
+        raise BrowserUnsupported('Softplus requires float32/float64 inputs')
+    if not np.isfinite(beta) or beta <= 0 or not np.isfinite(threshold):
+        raise BrowserUnsupported('These softplus parameters require the server')
+    scaled=beta*input._data
+    value=np.where(scaled>threshold,input._data,np.logaddexp(0,scaled)/beta)
+    derivative=np.where(scaled>threshold,1,np.exp(-np.logaddexp(0,-scaled)))
+    return result(value,(input,lambda g:g*derivative))
 
 
 def smooth_l1_loss(input, target, size_average=None, reduce=None, reduction='mean', beta=1.):
@@ -1181,19 +1314,23 @@ def install():
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         setattr(torch, name, lambda *shape, _kind=name, **kw: create(_kind, *shape, **kw))
     for name in ('randn', 'zeros', 'ones', 'empty'):
-        setattr(torch, name + '_like', lambda x, _kind=name, **kw: create(_kind, *x.shape, **({'dtype': x.dtype} | kw)))
+        setattr(torch, name + '_like', lambda x, _kind=name, **kw: create(_kind, *x.shape, **inherited_options(x.dtype,kw)))
     torch.arange = lambda *args, dtype=None, device=None: (check_device(device), Tensor(np.arange(*args, dtype=dtype or (np.float32 if any(isinstance(x, float) for x in args) else np.int64))))[1]
-    torch.ones_like = lambda x, **kw: create('ones', *x.shape, **({'dtype': x.dtype} | kw))
-    torch.full_like = lambda x, value: Tensor(np.full_like(x._data, value))
+    torch.full_like = full_like
     torch.unravel_index = lambda index, shape: tuple(Tensor(i) for i in np.unravel_index(int(index), shape))
     torch.broadcast_to = lambda x, shape: x.expand(shape)
     torch.matmul = lambda a,b: wrap(a) @ b
+    def outer(input,other):
+        if input.ndim!=1 or other.ndim!=1: raise RuntimeError('outer expects vectors')
+        return input.unsqueeze(-1)*other.unsqueeze(0)
+    torch.outer=outer
+    torch.is_floating_point=lambda input: input.is_floating_point()
     def dot(a,b):
         if a.ndim != 1 or b.ndim != 1 or a.dtype != b.dtype: raise RuntimeError('dot expects vectors with matching dtypes')
         return a @ b
     torch.dot, torch.cov = dot, cov
     torch.pdist = pdist
-    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril'):
+    for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril', 'amax', 'prod', 'round', 'chunk'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan'):
         setattr(torch, name, lambda x, _name=name: Tensor(getattr(np, _name)(wrap(x)._data)))
@@ -1216,6 +1353,7 @@ def install():
     torch.nn.functional.normalize, torch.nn.functional.cross_entropy = normalize, cross_entropy
     torch.nn.functional.smooth_l1_loss = smooth_l1_loss
     torch.nn.functional.mse_loss = mse_loss
+    torch.nn.functional.softplus = softplus
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.rms_norm = rms_norm_oracle
     torch.nn.functional.scaled_dot_product_attention = scaled_dot_product_attention_oracle
@@ -1228,5 +1366,7 @@ def install():
     torch.optim.AdamW = AdamW
     torch.linalg.matrix_rank = lambda x: Tensor(np.linalg.matrix_rank(x._data), dtype=np.int64)
     torch.linalg.solve = solve
+    torch.linalg.svd, torch.linalg.eigh, torch.linalg.qr = svd, eigh, qr
+    torch.linalg.svdvals = lambda input,*,driver=None,out=None: svd(input,False,driver=driver,out=out).S
     torch.__getattr__ = unsupported
     return torch
