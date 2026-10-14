@@ -14,6 +14,8 @@ PILOTS = {
     "rl/dapo", "rl/gspo", "representation/clip", "architecture/situ_glu",
     "finetuning/qlora", "architecture/block_attention_residual",
     "architecture/differential_attention", "representation/vicreg",
+    "representation/rotation_trick", "world_models/lewm_prediction",
+    "world_models/lewm_planning", "world_models/causal_jepa",
 }
 
 SHARED_FILES = (

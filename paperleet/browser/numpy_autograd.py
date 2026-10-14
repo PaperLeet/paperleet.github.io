@@ -121,6 +121,7 @@ class Tensor:
     def double(self): return self.to(dtype=np.float64)
     def float(self): return self.to(dtype=np.float32)
     def long(self): return self.to(dtype=np.int64)
+    def int(self): return self.to(dtype=np.int32)
     def bool(self): return self.to(dtype=np.bool_)
     def new_zeros(self, *shape, **kw): return create('zeros', *shape, **({'dtype': self.dtype} | kw))
     def new_ones(self, *shape, **kw): return create('ones', *shape, **({'dtype': self.dtype} | kw))
@@ -377,6 +378,20 @@ class Tensor:
         value = np.argmin(self._data, axis=dim)
         if keepdim and self.ndim: value = np.reshape(value, (1,) * self.ndim) if dim is None else np.expand_dims(value, dim)
         return Tensor(value, dtype=np.int64)
+    def argsort(self, dim=-1, descending=False, *, stable=False):
+        if self.dtype.kind not in 'fiub': raise BrowserUnsupported('Sorting this dtype requires the server')
+        if not isinstance(dim, (int, np.integer)) or not -max(self.ndim, 1) <= dim < max(self.ndim, 1):
+            raise IndexError('argsort dimension out of range')
+        if not isinstance(descending, bool) or not isinstance(stable, bool): raise TypeError('argsort flags must be boolean')
+        if not self.ndim: return Tensor(0, dtype=np.int64)
+        kind = 'stable' if stable else 'quicksort'
+        if descending:
+            # Reverse the input too: preserve equal-key order without negating
+            # unsigned values or overflowing the smallest signed integer.
+            indices = self.shape[dim] - 1 - np.flip(np.argsort(np.flip(self._data, axis=dim), axis=dim, kind=kind), axis=dim)
+        else:
+            indices = np.argsort(self._data, axis=dim, kind=kind)
+        return Tensor(indices, dtype=np.int64)
     def flip(self, dims):
         if dims is None: raise TypeError('flip requires dimensions')
         axes = () if isinstance(dims, (tuple, list)) and not dims else reduction_axes(dims, self.ndim)
@@ -956,6 +971,15 @@ def meshgrid(*tensors, indexing=None):
     return tuple(outputs)
 
 
+def cartesian_prod(*tensors):
+    if not tensors: raise RuntimeError('cartesian_prod expects a non-empty tensor list')
+    if any(not isinstance(x, Tensor) or x.ndim != 1 or x.dtype != tensors[0].dtype for x in tensors):
+        raise RuntimeError('cartesian_prod expects one-dimensional tensors with the same dtype')
+    if len(tensors) == 1: return tensors[0]
+    grids = meshgrid(*tensors, indexing='ij')
+    return concatenate([grid.reshape(-1) for grid in grids], dim=1, stack=True)
+
+
 def normalize(input, p=2., dim=1, eps=1e-12, out=None):
     if p != 2 or out is not None: raise BrowserUnsupported('Only Euclidean normalization without out is supported')
     return input / input.norm(2, dim, keepdim=True).clamp_min(eps)
@@ -1001,6 +1025,7 @@ def install():
     torch.float64, torch.float32 = np.dtype('float64'), np.dtype('float32')
     torch.float, torch.double = torch.float32, torch.float64
     torch.long, torch.int64, torch.bool = np.dtype('int64'), np.dtype('int64'), np.dtype('bool')
+    torch.int, torch.int32 = np.dtype('int32'), np.dtype('int32')
     torch.uint8 = np.dtype('uint8')
     torch.inf, torch.pi = np.inf, np.pi
     torch.tensor, torch.where, torch.einsum = tensor, where, einsum
@@ -1008,7 +1033,7 @@ def install():
     torch.from_numpy = lambda x: Tensor(x)
     torch.full, torch.randint, torch.device, torch.finfo = full, randint, Device, np.finfo
     torch.multinomial, torch.randperm = multinomial, randperm
-    torch.meshgrid = meshgrid
+    torch.meshgrid, torch.cartesian_prod = meshgrid, cartesian_prod
     torch.minimum = elementwise_extreme
     torch.maximum = lambda a,b: elementwise_extreme(a,b,maximum=True)
     torch.eye = lambda n,m=None,*,dtype=np.float32,device=None,requires_grad=False: (check_device(device), Tensor(np.eye(n, m, dtype=dtype), requires_grad=requires_grad))[1]
@@ -1016,7 +1041,7 @@ def install():
     torch.cat = concatenate
     torch.stack = lambda tensors,dim=0: concatenate(tensors,dim,stack=True)
     torch.linspace = lambda start,end,steps,dtype=np.float32,device=None: (check_device(device), Tensor(np.linspace(start,end,steps,dtype=dtype)))[1]
-    torch.argsort = lambda x,dim=-1,descending=False: Tensor(np.argsort(x._data,axis=dim) if not descending else np.flip(np.argsort(x._data,axis=dim),axis=dim),dtype=np.int64)
+    torch.argsort = lambda x,dim=-1,descending=False,*,stable=False: x.argsort(dim,descending,stable=stable)
     torch.manual_seed = np.random.seed
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         setattr(torch, name, lambda *shape, _kind=name, **kw: create(_kind, *shape, **kw))

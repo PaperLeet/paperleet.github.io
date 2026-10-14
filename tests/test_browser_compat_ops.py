@@ -11,6 +11,66 @@ def pair(data, dtype=np.float64):
     return wasm.Tensor(array.copy(), requires_grad=True), torch.tensor(array.copy(), requires_grad=True)
 
 
+@pytest.mark.parametrize('dtype', [np.float32, np.float64, np.int64, np.uint8, np.bool_])
+@pytest.mark.parametrize('dim', [0, -1])
+@pytest.mark.parametrize('descending', [False, True])
+def test_stable_argsort_matches_native_ties_strides_and_index_dtype(dtype, dim, descending):
+    data = np.array([[2, 1, 2, 0], [1, 1, 0, 2], [2, 0, 0, 2]], dtype=dtype).T
+    actual = wasm.Tensor(data).argsort(dim=dim, descending=descending, stable=True)
+    expected = torch.argsort(torch.tensor(data), dim=dim, descending=descending, stable=True)
+    np.testing.assert_array_equal(actual.numpy(), expected.numpy())
+    assert actual.dtype == np.dtype('int64') and not actual.requires_grad
+    np.testing.assert_array_equal(data, np.array([[2, 1, 2, 0], [1, 1, 0, 2], [2, 0, 0, 2]], dtype=dtype).T)
+
+
+@pytest.mark.parametrize('descending', [False, True])
+def test_stable_argsort_nan_integer_extremes_scalar_and_empty(descending):
+    cases = [np.array([np.nan, -np.inf, 0., np.nan, np.inf, -0.]),
+             np.array([np.iinfo(np.int64).min, 0, np.iinfo(np.int64).max, 0]),
+             np.array(7.), np.empty((2, 0))]
+    for data in cases:
+        actual = wasm.Tensor(data).argsort(descending=descending, stable=True)
+        expected = torch.argsort(torch.tensor(data), descending=descending, stable=True)
+        np.testing.assert_array_equal(actual.numpy(), expected.numpy())
+    with pytest.raises(IndexError): wasm.Tensor([1.]).argsort(2)
+    with pytest.raises(wasm.BrowserUnsupported): wasm.Tensor([1j]).argsort()
+
+
+@pytest.mark.parametrize('sizes', [(3,), (3, 2), (2, 3, 2), (0, 3), (2, 0, 3)])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+def test_cartesian_product_order_shape_empty_and_analytical_gradients(sizes, dtype):
+    pairs = [pair(np.arange(size) * .4 + i, dtype) for i, size in enumerate(sizes)]
+    inputs, native = zip(*pairs)
+    actual, expected = wasm.cartesian_prod(*inputs), torch.cartesian_prod(*native)
+    np.testing.assert_array_equal(actual.numpy(), expected.detach().numpy())
+    upstream = np.arange(actual.numel(), dtype=dtype).reshape(actual.shape) * .2
+    (actual * wasm.Tensor(upstream)).sum().backward()
+    (expected * torch.tensor(upstream)).sum().backward()
+    for x, n in pairs:
+        np.testing.assert_allclose(x.grad.numpy(), n.grad.numpy(), rtol=2e-6, atol=2e-6)
+        np.testing.assert_array_equal(x.numpy(), n.detach().numpy())
+
+
+def test_cartesian_product_accumulates_repeated_inputs_and_validates_geometry():
+    x, native = pair([.2, .5])
+    wasm.cartesian_prod(x, x).square().sum().backward()
+    torch.cartesian_prod(native, native).square().sum().backward()
+    np.testing.assert_allclose(x.grad.numpy(), native.grad.numpy())
+    for inputs in [(), (x, x.float()), (x.reshape(1, 2),), (wasm.Tensor(1.),)]:
+        with pytest.raises(RuntimeError): wasm.cartesian_prod(*inputs)
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64, np.int64, np.uint8, np.bool_])
+def test_int_conversion_uses_int32_and_detaches(dtype):
+    data = np.array([1.9, 0., 3., 2.], dtype=dtype)
+    if np.dtype(dtype).kind == 'f': data[0] = -1.9
+    x = wasm.Tensor(data, requires_grad=np.dtype(dtype).kind == 'f')
+    native = torch.tensor(data, requires_grad=x.requires_grad)
+    actual = x.int()
+    assert actual.dtype == np.dtype('int32') and not actual.requires_grad
+    np.testing.assert_array_equal(actual.numpy(), native.int().numpy())
+
+
 @pytest.mark.parametrize('dtype', [np.float32, np.float64])
 @pytest.mark.parametrize('shape', [(2, 3, 4), (2, 0, 4), (3, 2, 4)])
 @pytest.mark.parametrize('weighted', [False, True])

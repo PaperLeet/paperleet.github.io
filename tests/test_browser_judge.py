@@ -59,7 +59,7 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
         legacy['version'] = 1
         old_bytes += len(json.dumps(legacy, ensure_ascii=False, separators=(',', ':')).encode())
     runtimes = list((tmp_path / 'browser-judge').glob('runtime-*.json'))
-    assert len(runtimes) == 2, 'Twenty-one autodiff modules must share one runtime'
+    assert len(runtimes) == 2, 'All autodiff modules must share one runtime'
     for runtime in runtimes:
         assert set(json.loads(runtime.read_text())['files']) == set(SHARED_FILES)
     new_bytes = sum(asset.stat().st_size for asset in (tmp_path / 'browser-judge').glob('*.json'))
@@ -121,6 +121,8 @@ print(json.dumps(calibration))
     ('rl/dapo',7,4),('rl/gspo',7,4),('representation/clip',7,4),('architecture/situ_glu',9,4),
     ('finetuning/qlora',6,4),('architecture/block_attention_residual',7,4),
     ('architecture/differential_attention',7,4),('representation/vicreg',9,4),
+    ('representation/rotation_trick',7,4),('world_models/lewm_prediction',8,4),
+    ('world_models/lewm_planning',8,4),('world_models/causal_jepa',8,4),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
