@@ -51,6 +51,8 @@ Local and signed-out drafts are saved per module in IndexedDB. Separate tabs can
 
 Restoring the starter opens a source review before replacing code. Confirming starts an exact-source backup download; local and signed-out workspaces also retain the old source under **Other recoverable versions** when the change saves. Pending saves, conflicts and changed review snapshots prevent an accidental overwrite. Empty files are backed up too. Earlier acceptance remains, while old results are marked as belonging to previous code.
 
+If the code editor cannot load, plain-text mode still supports editing, saving and browser tests. **Reload editor** refreshes the page after workspace and learning writes finish; it stays disabled during tests, failed saves or draft conflicts, with a reason shown beside it. Saved source and results restore after reload.
+
 Failed shared numerical assertions show the zero-based mismatch coordinate, expected/actual values, absolute error and test tolerances, or both tensor shapes when they differ. Full error details remain expandable. These optional diagnostics work with browser and server reports, survive refresh, and do not affect grading. NaN/Infinity experiment data remain readable failure evidence rather than breaking browser result transport; older reports retain their original error text.
 
 Use **Light / Dark** in the top bar to choose an appearance. The first visit follows your system preference; an explicit choice is remembered in this browser. The paper library puts categories, search, filters, and module progress together; paper details contain the technical summary and expandable practice scope.

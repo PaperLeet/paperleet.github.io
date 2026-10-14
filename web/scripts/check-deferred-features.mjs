@@ -14,6 +14,15 @@ try {
   assert(editor.includes('<textarea') && editor.includes('aria-label="Python code editor"') && !/\sreadonly=/i.test(editor));
   assert(editor.includes('&lt;script&gt;') && !editor.includes('<script>'), 'Fallback code must remain escaped text');
   assert(editor.includes('普通文本模式') && editor.includes('重试加载') && editor.includes('刷新页面'));
+  const recoveryProps = {...props, retry(){}, recovery:{blocked:false,reason:'',reload(){}}};
+  const recovery = renderToString(React.createElement(EditorFailure,recoveryProps));
+  assert(recovery.includes('重新加载编辑器') && recovery.includes('已保存的测试结果会保留'));
+  assert(!recovery.includes('重试加载') && !recovery.includes('刷新页面</button>'),'The workspace editor must use its guarded reload rather than ineffective repeated imports or an unguarded refresh');
+  for(const reason of ['saving draft','storage failed','draft conflict','running tests','saving learning progress','owner unresolved']){
+    const waiting = renderToString(React.createElement(EditorFailure,{...recoveryProps,recovery:{...recoveryProps.recovery,blocked:true,reason}}));
+    assert(waiting.includes('disabled=""') && waiting.includes(reason) && waiting.includes('role="status"'));
+    assert(!/\sreadonly=/i.test(waiting),'A blocked recovery must still allow editing in plain-text mode');
+  }
   assert(/\sreadonly=/i.test(renderToString(React.createElement(EditorFailure, { ...props, readOnly:true, retry() {} }))));
   const loading = renderToString(React.createElement(EditorLoading, props));
   assert(loading.includes('aria-busy="true"') && loading.includes('私有草稿') && !loading.includes('<textarea'));

@@ -342,6 +342,19 @@ function Workspace() {
   const browserAvailable = !!problem?.browser_judge && judgeMode !== "server";
   const browserHere = browser.problem === problem?.id;
   const running = preparingRun || judge.active || browser.active;
+  const editorRecoveryReason = running
+    ? t('请先停止测试或等待运行完成，再重新加载。', 'Stop the tests or wait for the run to finish before reloading.')
+    : Object.keys(practice.conflicts).length
+      ? t('请先解决草稿冲突，再重新加载。', 'Resolve draft conflicts before reloading.')
+    : practice.error
+      ? t('工作区保存失败。请先下载代码备份并重试保存。', 'Workspace saving failed. Download a code backup and retry saving first.')
+    : learning.failed
+      ? t('请先重试保存本机学习记录，再重新加载。', 'Retry saving browser learning progress before reloading.')
+    : !practice.ready || practice.loading || !learning.ready
+      ? t('正在加载工作区，暂不能重新加载编辑器。', 'Wait for the workspace to finish loading before reloading the editor.')
+    : practice.pending || practice.saving || learning.saving
+      ? t('正在保存草稿和学习记录，保存完成后可重新加载。', 'Saving drafts and learning progress. Reloading becomes available when saving finishes.')
+    : '';
   const browserStatus = browserProgressText(browser.progress || { stage: browser.stage || 'loading' }, locale === 'en');
   const queuedHere = judge.pending?.problem === problem?.id;
   const runStatus = judge.reconnecting ? t("连接中断，正在恢复任务状态…", "Reconnecting to your existing job…")
@@ -1092,6 +1105,9 @@ function Workspace() {
                       value={current.code ?? problem.starter}
                       theme={theme === "dark" ? "dark" : "light"}
                       onChange={(value) => update(problem.id, { code: value })}
+                      recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {
+                        if (!editorRecoveryReason && practice.owns(practice.owner) && [problem.id,String(problem.number)].includes(getId())) location.reload();
+                      }}}
                       font={font}
                       label={`${problem.title} ${t("Python 代码编辑器", "Python code editor")}`}
                     />
