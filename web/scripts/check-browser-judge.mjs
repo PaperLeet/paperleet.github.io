@@ -144,14 +144,14 @@ try {
     globalThis.clearTimeout = nativeClearTimeout;
   }
 
-  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo', 'architecture/multihead_attention', 'architecture/positionwise_ffn', 'optimization/adamw', 'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo', 'rl/dapo', 'rl/gspo', 'representation/clip', 'architecture/situ_glu', 'finetuning/qlora', 'architecture/block_attention_residual', 'architecture/differential_attention', 'representation/vicreg', 'representation/rotation_trick', 'world_models/lewm_prediction', 'world_models/lewm_planning', 'world_models/causal_jepa', 'representation/repa', 'representation/ijepa', 'finetuning/distillm2', 'finetuning/opsd_alignment', 'finetuning/opsd_clipping', 'rl/sdpo_feedback', 'rl/sdpo_topk', 'optimization/muon_split', 'finetuning/svdquant', 'architecture/flash_attention', 'architecture/kimi_kda', 'rl/glm5_offpolicy', 'rl/opd', 'diffusion/consistency', 'diffusion/progressive_distillation', 'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching', 'diffusion/daps', 'representation/sigreg', 'representation/visreg', 'representation/moge_alignment', 'representation/var_tokenizer', 'architecture/var_next_scale', 'diffusion/block_diffusion', 'rl/pkpo', 'diffusion/diffusion_nft', 'diffusion/fd_population', 'diffusion/jit', 'diffusion/drifting', 'diffusion/dmd', 'diffusion/dmd2', 'diffusion/fd_loss', 'diffusion/meanflow', 'architecture/rms_norm', 'architecture/gqa', 'architecture/rope']) {
+  for (const id of ['architecture/attention', 'finetuning/lora', 'diffusion/param_conversion', 'architecture/layer_norm', 'architecture/positional_encoding', 'rl/dpo', 'architecture/multihead_attention', 'architecture/positionwise_ffn', 'optimization/adamw', 'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo', 'rl/dapo', 'rl/gspo', 'representation/clip', 'architecture/situ_glu', 'finetuning/qlora', 'architecture/block_attention_residual', 'architecture/differential_attention', 'representation/vicreg', 'representation/rotation_trick', 'world_models/lewm_prediction', 'world_models/lewm_planning', 'world_models/causal_jepa', 'representation/repa', 'representation/ijepa', 'finetuning/distillm2', 'finetuning/opsd_alignment', 'finetuning/opsd_clipping', 'rl/sdpo_feedback', 'rl/sdpo_topk', 'optimization/muon_split', 'finetuning/svdquant', 'architecture/flash_attention', 'architecture/kimi_kda', 'rl/glm5_offpolicy', 'rl/opd', 'diffusion/consistency', 'diffusion/progressive_distillation', 'diffusion/ddpm_sampling', 'diffusion/ddim', 'diffusion/flow_matching', 'diffusion/daps', 'representation/sigreg', 'representation/visreg', 'representation/moge_alignment', 'representation/var_tokenizer', 'architecture/var_next_scale', 'diffusion/block_diffusion', 'rl/pkpo', 'diffusion/diffusion_nft', 'diffusion/fd_population', 'diffusion/jit', 'diffusion/drifting', 'diffusion/dmd', 'diffusion/dmd2', 'diffusion/fd_loss', 'diffusion/meanflow', 'architecture/rms_norm', 'architecture/gqa', 'architecture/rope', 'retrieval/semantic_ids', 'retrieval/generative_retrieval']) {
     const wasm = runBrowserJudge({ ...problem, id, browser_judge: { ...problem.browser_judge, backend: 'numpy-autograd-wasm' } }, 'private source', new AbortController().signal, () => {});
     // The mock response intentionally has the wrong identity, so it must never
     // be executed; All autodiff modules use the same isolated CPU/WASM path.
     assert.equal((await wasm).reason, 'runtime_failed');
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
-  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 63);
+  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 65);
 
   const frameCount = frames.length;
   for (const fail of [async () => { throw new TypeError('offline'); }, async () => new Response('', { status: 503 }), async () => new Response('invalid JSON')]) {
@@ -174,7 +174,7 @@ try {
   assert.equal(frames.length, frameCount, 'Stop while downloading shared assets must never start a learner worker');
   releaseRuntime(new Response('', { status: 503 }));
   await new Promise(done => setImmediate(done));
-  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all 63 CPU/WASM routes');
+  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all 65 CPU/WASM routes');
 } finally {
   Object.assign(globalThis, originals);
   await server.close();

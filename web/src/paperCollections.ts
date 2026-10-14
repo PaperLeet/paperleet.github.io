@@ -20,6 +20,14 @@ export const paperCollections: PaperCollection[] = [
     paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora"],
   },
   {
+    id: "retrieval",
+    name: "检索与推荐",
+    name_en: "Retrieval",
+    description: "对比检索 · 向量量化 · 生成式召回",
+    description_en: "Contrastive retrieval · Quantization · Generative retrieval",
+    paperIds: ["clip", "rotation-trick", "tiger"],
+  },
+  {
     id: "rl",
     name: "强化学习",
     name_en: "Reinforcement Learning",

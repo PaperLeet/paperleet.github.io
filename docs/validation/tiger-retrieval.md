@@ -1,0 +1,29 @@
+# TIGER generative retrieval teaching modules
+
+Validated locally on 2026-10-14. Paper 50 adds modules 64 (`retrieval/semantic_ids`) and 65 (`retrieval/generative_retrieval`) with stable new IDs. The catalog now has 50 papers, 65 modules, 507 maintained checks and 266 fault variants; all modules are CPU/WASM enabled. The retrieval collection connects CLIP, Rotation Trick and TIGER: three papers / four modules.
+
+## Primary sources and exercise boundary
+
+The [original paper](https://arxiv.org/html/2305.05065) and [NeurIPS record](https://papers.neurips.cc/paper_files/paper/2023/hash/20dcab0f14046a5c6b02b61da9f13229-Abstract-Conference.html) were checked through the Hugging Face paper-reading workflow and original HTML. Section 3.1 supplies distinct residual codebooks, Section 4 explains collision suffixes, and Sections 3.2 / 4.5 motivate beam generation followed by exact full-ID filtering. No third-party implementation is presented as official code.
+
+The first task freezes supplied latents/codebooks: no RQ-VAE encoder, decoder, codebook learning or straight-through gradient training. The second supplies a fixed conditional-logit callback: no T5 or user-history training. Prefix matching is a paper extension, not the original decoder being reproduced here. Exact-score/lexicographic ties and occurrence-ordered collision suffixes are explicit teaching conventions. Position-local toy tokens are distinguished from the paper's level-specific vocabulary. Real catalog mappings must be persisted rather than silently reassigning collision suffixes after edits.
+
+Both packages have bilingual seven-section statements, starter contracts, notes, independent scalar oracles, eight maintained checks, complete fault variants and learner-driven experiment artifacts. Inputs satisfy their documented contracts; unrelated argument validation is not a required learner function. An independently written scalar-loop learner implementation passes every maintained check in both native and isolated browser-adapter suites. This is automated alternative-implementation acceptance, not an independent-reader blind study.
+
+## Calibration and limits
+
+Eight deterministic synthetic two-dimensional latents use three five-entry codebooks. Frozen reference reconstruction RMSE goes from **0.5695392875** after one level to **0.0847791248** after three. Scalar reconstruction error and collision suffix error are zero; six semantic prefixes become eight unique full IDs. Nonincreasing residual error is asserted only for books containing zero, not as a general quantizer guarantee.
+
+The decoding toy uses the identical eight IDs, five tokens and four positions. An independent scalar enumeration of all **625** complete sequences establishes model ranking. Widths 1, 2, 4, 8, 16 and 625 are compared using the actual submitted functions. At full width, top-three overlap is **1**, all three valid items are returned, **617** unknown IDs are filtered, and maximum log-score error is **1.78e-15**. Greedy top-three overlap is **0** for this fixture. These are fixed-model approximation diagnostics, not recommendation relevance Recall/NDCG or a claim that wider beams universally improve results. No pretrained weights, dataset downloads, optimizer or stochastic training are involved. Native fixtures seed Python/NumPy/Torch at 42 and use two CPU threads; each task retains the ten-second T3 budget.
+
+## Verification
+
+- Full native `paperleet ci`: **65 modules / 7,812 cases / three repeats**, **101.18 seconds**. All references pass; all 266 fault variants are caught by assertions, within the ten-line bound. New packages contribute 264 repeated reference/variant cases, with 4 and 5 variants respectively.
+- Full public regression: **1,089 passed, 1 skipped**, **117.56 seconds**. The only warning is the existing native PyTorch `torch.jit.script` deprecation during a forward-AD parity check. Focused isolated bundle calibration and scalar learner acceptance pass.
+- Complete frontend check suite passes, including all 65 CPU/WASM routes, 396 maintained source compilations, catalog/collection filters and retrieval practice/sign-in continuation paths. No runtime/shared adapter/harness file changed. All 63 preexisting browser metadata and immutable detail URLs compare equal to the previous commit, preserving their source/suite identities.
+- Pages and hosted TypeScript/production builds pass the unchanged 400 KiB raw / 130 KiB gzip initial-JavaScript limits: **401,201 / 128,960** bytes for Pages and **405,496 / 130,210** for hosted.
+- Real static Pages-style site with no API service: both new references pass **8/8** in Browser only mode after complete reference/variant calibration (**4/5** variants). A positive residual-update fault passes only **5/8**; filtering after prematurely truncating k passes only **6/8**. Restored references pass and the paper reaches **2/2** completion. The next-module and return-to-collection paths retain context.
+- Actual submitted-run charts and model-ranking metrics render in Lab, with reference results separately available. Reloading a 390 × 844 iframe restores the solved code and progress; English statements render. Measured viewport, main and body scroll widths are all **390 px**. The iframe browser automation required keyboard activation after a click-location failure; this was an automation issue, not a missing control.
+- Static request log contains **zero API calls**. Only the browser's unsolicited `/favicon.ico` request returns 404; maintained assets load. No browser error or warning is logged. Owned QA tabs/servers are cleaned up after verification.
+
+Local screenshots/logs are in ignored `reports/` rather than published source. No independent-reader blind study, public push or deployment is claimed. Private hosted integration is checked separately against a pinned public commit; browser passes retain local provenance and cannot update server account acceptance by themselves.

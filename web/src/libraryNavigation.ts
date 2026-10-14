@@ -4,7 +4,7 @@ import type { Paper } from './types';
 export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string };
 export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
 export const routePath = (route: string) => route.split('?')[0];
-const practicePath = /^(?:[1-9]\d*|(?:rl|architecture|diffusion|finetuning|optimization|representation|world_models)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
+const practicePath = /^(?:[1-9]\d*|(?:rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
 
 function parts(route: string) {
   if (route.length > 8192) return;

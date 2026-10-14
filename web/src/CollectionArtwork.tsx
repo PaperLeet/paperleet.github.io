@@ -24,6 +24,17 @@ export default function CollectionArtwork({ kind }: { kind: string }) {
         </>
       );
       break;
+    case "retrieval":
+      artwork = (
+        <g fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+          <path d="M28 90h32m0 0 35-43m-35 43 35 43m0-86 46-18m-46 18 46 18m-46 68 46-18m-46 18 46 18" strokeOpacity=".55" />
+          {[[28,90],[60,90],[95,47],[95,133],[141,29],[141,65],[141,115],[141,151]].map(([cx,cy],i) => (
+            <circle key={i} cx={cx} cy={cy} r={i < 4 ? 9 : 6} fill="white" fillOpacity={i === 5 ? .9 : .2} strokeOpacity=".7" />
+          ))}
+          <path d="m135 64 4 4 8-9" stroke="#15464e" />
+        </g>
+      );
+      break;
     case "rl":
       artwork = (
         <>

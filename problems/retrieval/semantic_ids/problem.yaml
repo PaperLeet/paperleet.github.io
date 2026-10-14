@@ -1,0 +1,76 @@
+id: retrieval/semantic_ids
+number: 64
+title: TIGER：残差量化与语义 ID
+title_en: 'TIGER: Residual Quantization and Semantic IDs'
+paper:
+  title: Recommender Systems with Generative Retrieval
+  authors: Shashank Rajput et al.
+  venue: NeurIPS 2023
+  arxiv: '2305.05065'
+  anchors:
+  - 'Section 3.1: residual quantization'
+  - 'Section 4: unique fourth codeword'
+  - 'Sections 3.2 and 4.5: beam decoding and invalid ID filtering'
+paper_id: tiger
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: residual_quantize
+  signature: 'residual_quantize(latents: Tensor, codebooks: Tensor) -> tuple[Tensor,
+    Tensor]'
+- name: resolve_collisions
+  signature: 'resolve_collisions(codes: Tensor) -> Tensor'
+module:
+  goal: 逐层量化剩余误差，并为共享语义元组的物品分配唯一后缀。
+  goal_en: Quantize the remaining residual at each level and assign unique suffixes
+    to colliding items.
+  scope: 实现冻结码本的残差编码与组内碰撞后缀；不训练编码器、解码器或码本。
+  scope_en: Frozen residual encoding from Section 3.1 and collision suffixes from
+    Section 4; no encoder/decoder/codebook training.
+  required_functions:
+  - residual_quantize
+  - resolve_collisions
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/64 for quantization; float64 logits, int64 IDs.
+  device: CPU; no weights, datasets, network or GPU required
+  contract: See starter docstrings and bilingual statements; tie and suffix order
+    are explicit teaching conventions.
+tests:
+  T0: 1
+  T1: 1
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- TIGER
+- Generative Retrieval
+- Semantic IDs
+- Residual VQ
+viz:
+- toy_experiment
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://arxiv.org/html/2305.05065
+  - https://papers.neurips.cc/paper_files/paper/2023/hash/20dcab0f14046a5c6b02b61da9f13229-Abstract-Conference.html
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2305.05065
+  anchor: Sections 3.1, 3.2, 4 and 4.5
+  adaptation: Frozen residual encoding from Section 3.1 and collision suffixes from
+    Section 4; no encoder/decoder/codebook training.
+mutants:
+- id: m1_original_latent
+  bug: 每层错误地量化原始 latent
+- id: m2_add_residual
+  bug: 更新残差时错误相加
+- id: m3_last_reconstruction
+  bug: 重建只保留最后一级向量
+- id: m4_global_suffix
+  bug: 全局行号替代组内碰撞序号

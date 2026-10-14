@@ -15,7 +15,7 @@ function returnRoute(route: string): string | undefined {
   if (/^community\/[a-f0-9]{32}$/.test(route)) return route;
   if (/^u\/[a-z0-9_]{3,24}$/.test(route)) return route;
   if (/^(papers|collections|lists)\/[a-z0-9_-]+$/.test(route)) return route;
-  if (/^(rl|architecture|diffusion|finetuning|optimization|representation|world_models)\/[a-z0-9_-]+$/.test(route)) return route;
+  if (/^(rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+$/.test(route)) return route;
   return undefined;
 }
 

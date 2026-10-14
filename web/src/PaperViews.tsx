@@ -64,6 +64,7 @@ const categoryLabels: Record<string, [string, string]> = {
   architecture: ["架构与推理", "Architecture"],
   optimization: ["优化算法", "Optimization"],
   representation: ["表征学习", "Representation"],
+  "retrieval": ["检索与推荐", "Retrieval & Recommendation"],
   "world-models": ["世界模型", "World Models"],
 };
 

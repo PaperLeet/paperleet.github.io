@@ -15,14 +15,14 @@ try {
   const { PracticeNextStep } = await server.ssrLoadModule('/src/PracticeJourney.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
-  for (const collectionId of [undefined, 'llm-basics', 'diffusion']) for (const query of ['', 'attention', ' 张量 & mask=1? 100%_% # + / 😀 ']) {
+  for (const collectionId of [undefined, 'llm-basics', 'diffusion', 'retrieval']) for (const query of ['', 'attention', ' 张量 & mask=1? 100%_% # + / 😀 ']) {
     const filters = { query, category: 'architecture', tag: 'attention & mask', difficulty: 'M', runtime: 'browser', state: 'started' };
     const href = libraryHref(collectionId, filters);
     assert.deepEqual(readLibraryRoute(href), { collectionId, filters });
     assert.deepEqual(readLibraryRoute(decodeProblemHash(href)), { collectionId, filters });
     assert.equal(accountReturnHref(decodeProblemHash(signInHref(href))), href);
     assert.equal(accountReturnHref(decodeProblemHash(signInHref(decodeProblemHash(href)))), href);
-    for (const path of ['6', 'diffusion/schedules', 'papers/ddpm']) {
+    for (const path of ['6', 'diffusion/schedules', 'papers/ddpm', 'retrieval/semantic_ids', 'retrieval/generative_retrieval']) {
       const target = withLibraryContext(path, href);
       assert.equal(libraryReturnHref(target), href);
       assert.equal(libraryReturnHref(decodeProblemHash(target)), href);

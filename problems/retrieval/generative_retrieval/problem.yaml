@@ -1,0 +1,78 @@
+id: retrieval/generative_retrieval
+number: 65
+title: TIGER：生成 ID 与合法物品召回
+title_en: 'TIGER: Generate IDs and Retrieve Valid Items'
+paper:
+  title: Recommender Systems with Generative Retrieval
+  authors: Shashank Rajput et al.
+  venue: NeurIPS 2023
+  arxiv: '2305.05065'
+  anchors:
+  - 'Section 3.1: residual quantization'
+  - 'Section 4: unique fourth codeword'
+  - 'Sections 3.2 and 4.5: beam decoding and invalid ID filtering'
+paper_id: tiger
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: beam_search
+  signature: 'beam_search(next_logits: Callable, length: int, beam_width: int) ->
+    list'
+- name: lookup_candidates
+  signature: 'lookup_candidates(beams: list, catalog_ids: Tensor, k: int) -> list'
+module:
+  goal: 累计条件 log 概率生成完整 ID，再过滤无效和重复物品。
+  goal_en: Generate complete IDs with cumulative conditional log-probabilities, then
+    filter invalid and duplicate items.
+  scope: 实现无约束完整 ID 的 beam 解码，再查表过滤合法物品；不训练序列模型或使用前缀匹配。
+  scope_en: 'Sections 3.2 and 4.5: unconstrained full-ID beam decoding followed by
+    exact catalog filtering; fixed logits, no seq2seq training or prefix matching.'
+  required_functions:
+  - beam_search
+  - lookup_candidates
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/64 for quantization; float64 logits, int64 IDs.
+  device: CPU; no weights, datasets, network or GPU required
+  contract: See starter docstrings and bilingual statements; tie and suffix order
+    are explicit teaching conventions.
+tests:
+  T0: 1
+  T1: 1
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- TIGER
+- Generative Retrieval
+- Semantic IDs
+- Beam Search
+viz:
+- toy_experiment
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://arxiv.org/html/2305.05065
+  - https://papers.neurips.cc/paper_files/paper/2023/hash/20dcab0f14046a5c6b02b61da9f13229-Abstract-Conference.html
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2305.05065
+  anchor: Sections 3.1, 3.2, 4 and 4.5
+  adaptation: 'Sections 3.2 and 4.5: unconstrained full-ID beam decoding followed
+    by exact catalog filtering; fixed logits, no seq2seq training or prefix matching.'
+mutants:
+- id: m1_last_score
+  bug: 丢失前缀累计概率
+- id: m2_raw_logits
+  bug: 没有按前缀计算 log-softmax
+- id: m3_truncate_first
+  bug: 在合法性过滤前截断 k
+- id: m4_duplicates
+  bug: 重复返回相同物品
+- id: m5_first_parent
+  bug: 只扩展第一个 beam

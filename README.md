@@ -11,7 +11,7 @@
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The pilot includes **49 papers and 63 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The pilot includes **50 papers and 65 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
 
 ## Run locally
 
@@ -115,7 +115,7 @@ paperleet ci
 
 `init` does not overwrite existing code by default. Use `--force` when you intend to reset it.
 
-`paperleet ci` checks that every reference solution passes, every mutant triggers at least one genuine test failure, each mutant changes at most 10 lines, results remain consistent across three runs, and the per-test T3 CPU budget and total runtime meet the limits. The expanded 63-module catalog has a 300-second total budget (override with `--budget`); individual T3 limits stay in each package. Results are written to `reports/ci.json`, with full reference reports for each problem also saved under `reports/`. Import and syntax errors do not count as valid mutant detections.
+`paperleet ci` checks that every reference solution passes, every mutant triggers at least one genuine test failure, each mutant changes at most 10 lines, results remain consistent across three runs, and the per-test T3 CPU budget and total runtime meet the limits. The expanded 65-module catalog has a 300-second total budget (override with `--budget`); individual T3 limits stay in each package. Results are written to `reports/ci.json`, with full reference reports for each problem also saved under `reports/`. Import and syntax errors do not count as valid mutant detections.
 
 ## Papers and selected core modules
 
@@ -170,6 +170,7 @@ paperleet ci
 | 47 | RMSNorm | Full and first-k RMS normalization, scale identities, prefix bias, and cross-feature gradients. | 61 |
 | 48 | GQA | Group-wise KV projection conversion, contiguous query routing, shared-head gradients, and persistent cache capacity. | 62 |
 | 49 | RoFormer / RoPE | Adjacent-pair rotations, relative-position logits, analytical gradients, and cached-decoding offsets. | 63 |
+| 50 | TIGER | Frozen residual quantization, collision suffixes, unconstrained beam search, and valid full-ID catalog lookup. | 64–65 |
 
 RMSNorm, GQA and RoPE are part of LLM Basics. Each includes independent gradient checks, complete CPU/WASM judging and supplied synthetic experiments. See [public-core validation](docs/validation/llm-foundations-public.md).
 

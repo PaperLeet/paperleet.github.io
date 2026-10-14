@@ -554,3 +554,14 @@ papers:
     scope: 实现完整维度的 RoPE，验证方向、频率、梯度和分块缓存的绝对位置。
     scope_en: Implement full-width RoPE; verify direction, frequencies, gradients and absolute offsets in chunked caches.
     module_ids: [architecture/rope]
+  - id: tiger
+    number: 50
+    category: retrieval
+    short_title: TIGER
+    year: 2023
+    tags: [Generative Retrieval, Semantic IDs, Residual VQ, Beam Search]
+    summary: 用残差量化将物品表示为语义 ID，再生成 ID 并查回合法物品。
+    summary_en: Encode items as residual-quantized semantic IDs, then generate IDs and retrieve valid catalog items.
+    scope: 冻结码本的残差编码与碰撞消解，以及无约束 beam search 后的完整 ID 过滤；不训练 RQ-VAE 或推荐模型。
+    scope_en: Frozen residual encoding and collision suffixes, then unconstrained beam search and exact-ID filtering; no RQ-VAE or recommender training.
+    module_ids: [retrieval/semantic_ids, retrieval/generative_retrieval]
