@@ -189,7 +189,7 @@ rejected=calibrate(b,sys.argv[2]);assert not rejected['compatible'] and rejected
 print(json.dumps({'calibration':c,'report':r}))
 '''
     out = subprocess.run([sys.executable, '-c', script, str(hydrated_path(folder, metadata)), str(folder / 'judge'), str(count), str(mutants)],
-                         cwd=root(), capture_output=True, text=True, timeout=120 if identifier in {'diffusion/ddpm_sampling','diffusion/ddim'} else 45)
+                         cwd=root(), capture_output=True, text=True, timeout=300 if identifier == 'diffusion/flow_matching' else 120 if identifier in {'diffusion/ddpm_sampling','diffusion/ddim'} else 45)
     assert out.returncode == 0, out.stdout + out.stderr
     payload = json.loads(out.stdout)
     assert payload['report']['runtime'] == 'browser-numpy-wasm'

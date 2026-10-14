@@ -14,8 +14,10 @@ def test_cpu_normal_samples_and_following_uniform_stream_match_native(dtype, siz
     generator, native = wasm.Generator().manual_seed(42), torch.Generator().manual_seed(42)
     actual = wasm.create('randn', size, dtype=dtype, generator=generator)
     expected = torch.randn(size, dtype=torch.float32 if dtype == np.float32 else torch.float64, generator=native)
-    # float32 SIMD transcendentals can differ across CPU architectures.
-    np.testing.assert_allclose(actual.numpy(), expected.numpy(), rtol=3e-6 if dtype == np.float32 else 1e-13, atol=5e-7 if dtype == np.float32 else 1e-14)
+    # float32 SIMD transcendentals differ across CPU architectures. Linux AVX
+    # native values differ by up to 1.2e-6 near zero; uniform stream state
+    # below remains an exact equality check.
+    np.testing.assert_allclose(actual.numpy(), expected.numpy(), rtol=3e-6 if dtype == np.float32 else 1e-13, atol=2e-6 if dtype == np.float32 else 1e-14)
     following = wasm.create('rand', 10, dtype=np.float64, generator=generator)
     np.testing.assert_array_equal(following.numpy(), torch.rand(10, dtype=torch.float64, generator=native).numpy())
 
