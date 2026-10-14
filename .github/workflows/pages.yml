@@ -30,6 +30,7 @@ jobs:
       - name: Build public site
         working-directory: web
         env:
+          PAPERLEET_MAIN_SITE_ENABLED: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED }}
           VITE_PUBLIC_SITE: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && '0' || '1' }}
           VITE_APP_EDITION: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'hosted' || 'local' }}
           VITE_API_ORIGIN: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'https://app.paperleet.com' || '' }}
@@ -38,7 +39,7 @@ jobs:
         run: |
           npm ci
           npm run build
-          if [ '${{ vars.PAPERLEET_MAIN_SITE_ENABLED }}' = '1' ]; then
+          if [ "$PAPERLEET_MAIN_SITE_ENABLED" = '1' ]; then
             echo paperleet.com > dist/CNAME
           fi
       - uses: actions/upload-pages-artifact@v3
