@@ -57,6 +57,7 @@ import { BrowserResultActions } from './BrowserResultActions';
 import { matchesBrowserSubmission } from './browserVerification';
 import { useDraftHandoff } from './useDraftHandoff';
 import { DraftHandoffNotice } from './DraftHandoffNotice';
+import { BrowserSyntaxNotice } from './BrowserSyntaxNotice';
 import "./community.css";
 
 const difficulty = (d: string) =>
@@ -321,6 +322,8 @@ function Workspace() {
   useEffect(() => { runToken.current = undefined; setPreparingRun(false); }, [practice.owner]);
   const [judgeMode, setJudgeMode] = useState<JudgeMode>("auto");
   const report = problem ? browser.reports[problem.id] || current.report : undefined;
+  const syntaxFailure = problem ? browser.syntaxErrors?.[problem.id] : undefined;
+  const hasCurrentSyntaxError = !!syntaxFailure && syntaxFailure.source === (current.code ?? problem?.starter);
   const reportSource = useReportSource(report, current.code ?? problem?.starter ?? "");
   const handoffProblem = problems.find(entry => entry.id === handoff.pending?.problem);
   const handoffSaved = handoffProblem ? saved[handoffProblem.id] || {} : {};
@@ -437,6 +440,11 @@ function Workspace() {
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
         }
+        if (outcome.type === 'syntax_error') {
+          if ([problem.id,String(problem.number)].includes(getId())) setTab('tests');
+          setToast(t('请先修正 Python 语法错误。','Fix the Python syntax error before running tests.'));
+          return;
+        }
         if (requestedMode === "browser") return;
       }
       if (!ownsRun()) return;
@@ -500,7 +508,7 @@ function Workspace() {
     ["solution", t("参考解", "Solution")],
   ];
   const webReadme = problem?.readme.replace(
-    /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|Write and run|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
+    /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
     `## 6. ${t("编写与运行", "Write and run")}\n\n${hosted && problem?.browser_judge ? t("本题可直接在浏览器 CPU/WASM 运行完整测试，无需 GPU。未登录时草稿保存在当前浏览器；登录后可确认导入本题代码，再由服务端判题计入账号成绩并解锁坑点。", "Run this complete suite directly on your browser CPU/WASM; no GPU is needed. Signed-out drafts stay in this browser. After signing in, choose whether to import this module’s code, then use server judging to record account results and unlock Notes.") : hosted ? (testAuth ? t("使用内测账号登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Sign in with your test account, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.") : t("受邀用户登录后，可在右侧完成实现并运行测试。草稿与判题结果会私密同步到账号；全部通过后解锁坑点。", "Invited members can sign in, implement the module, and run tests. Drafts and judging results sync privately to your account; passing all tests unlocks Notes.")) : t("在右侧编辑器中完成实现，点击「运行全部测试」。测试结果会在「测试」标签页显示；全部通过后解锁坑点。草稿会自动保存在当前浏览器。", "Complete the implementation in the editor and select Run all tests. Results appear in the Tests tab; passing all tests unlocks Notes. Drafts are saved automatically in this browser.")}\n`,
   );
   return (
@@ -739,10 +747,11 @@ function Workspace() {
                       <LockKeyhole size={12} />
                     ) : null}
                     {label}
-                    {key === "tests" && report && (
+                    {key === "tests" && (report || syntaxFailure) && (
                       <i
+                        aria-hidden="true"
                         className={
-                          isPassed(problem, report)
+                          !hasCurrentSyntaxError && reportSource === 'current' && isPassed(problem, report)
                             ? "green-dot"
                             : "yellow-dot"
                         }
@@ -756,12 +765,15 @@ function Workspace() {
               </div>
               <div className="description-scroll" key={problem.id}>
                 {tab === "tests" ? (
-                  <ReportView report={report} problem={problem} sourceState={reportSource}>
+                  <>
+                  {syntaxFailure && <BrowserSyntaxNotice failure={syntaxFailure} source={current.code ?? problem.starter} />}
+                  {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource}>
                     {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} error={handoff.error} onSignIn={signInWithDraft} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
                     {!running && reportSource === "current" && progressReady && !(hosted && report?.runtime === "browser-numpy-wasm") && isPassed(problem, report) && (
                       <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
                     )}
-                  </ReportView>
+                  </ReportView>}
+                  </>
                 ) : tab === "lab" ? (
                   <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} sourceState={reportSource} initialView={labView} />
                 ) : tab === "notes" ? (
@@ -1227,7 +1239,7 @@ function Workspace() {
                         <Terminal size={14} />
                         {t("测试结果", "Test results")}
                       </span>
-                      {report && (
+                      {(report || syntaxFailure) && (
                         <button
                           className="text-button"
                           onClick={() => setTab("tests")}
@@ -1240,6 +1252,10 @@ function Workspace() {
                     <p>
                       {running
                         ? browserHere ? browserStatus : queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
+                        : syntaxFailure
+                          ? hasCurrentSyntaxError
+                            ? t('语法检查失败。查看详情定位错误，修改后重新运行。','Syntax check failed. View details, fix the source, and run again.')
+                            : t('代码已修改，请重新运行语法检查与测试。','Code changed. Run syntax checks and tests again.')
                         : report
                           ? `${t("上次结果：", "Last result: ")}${report.tests.filter((test) => test.passed).length} / ${report.tests.length} ${t("项测试通过。", "tests passed.")}`
                           : t(

@@ -13,7 +13,7 @@ try {
   let current = { stage:'loading', step:'bundle' };
   const accept = message => { const next=advanceBrowserProgress(current,message,totals); assert(next); current=next; };
   const ignore = message => assert.equal(advanceBrowserProgress(current,message,totals),undefined);
-  for (const step of ['python','packages','preparing']) accept({stage:'loading',step});
+  for (const step of ['python','syntax','packages','preparing']) accept({stage:'loading',step});
   ignore({stage:'loading',step:'python'});
   accept({stage:'calibrating'}); // Existing phase-only workers remain supported.
   accept({stage:'calibrating',step:'reference',completed:0,total:7});

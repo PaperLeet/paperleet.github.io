@@ -1,8 +1,8 @@
 export type BrowserStage = 'loading' | 'calibrating' | 'running';
-export type BrowserStep = 'bundle' | 'python' | 'packages' | 'preparing' | 'reference' | 'mutants' | 'tests';
+export type BrowserStep = 'bundle' | 'python' | 'syntax' | 'packages' | 'preparing' | 'reference' | 'mutants' | 'tests';
 export type BrowserProgress = { stage: BrowserStage; step?: BrowserStep; completed?: number; total?: number };
 const stages: BrowserStage[] = ['loading', 'calibrating', 'running'];
-const steps: Record<BrowserStage, BrowserStep[]> = { loading: ['bundle', 'python', 'packages', 'preparing'], calibrating: ['reference', 'mutants'], running: ['tests'] };
+const steps: Record<BrowserStage, BrowserStep[]> = { loading: ['bundle', 'python', 'syntax', 'packages', 'preparing'], calibrating: ['reference', 'mutants'], running: ['tests'] };
 
 /** Ignore malformed/stale advisory messages. They never determine acceptance or reset deadlines. */
 export function advanceBrowserProgress(previous: BrowserProgress, message: unknown, totals: { tests: number; mutants: number }): BrowserProgress | undefined {
@@ -35,6 +35,7 @@ export function browserProgressText(value: BrowserProgress, en = false) {
   const labels: Record<BrowserStep, [string, string]> = {
     bundle: ['加载题目测试包…', 'Loading problem test bundles…'],
     python: ['准备浏览器 Python…', 'Preparing browser Python…'],
+    syntax: ['检查 Python 语法…', 'Checking Python syntax…'],
     packages: ['加载 NumPy 与测试工具…', 'Loading NumPy and test tools…'],
     preparing: ['准备隔离的测试环境…', 'Preparing the isolated test environment…'],
     reference: [`校验参考测试${count}`, `Checking reference tests${count}`],

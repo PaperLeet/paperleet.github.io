@@ -1,6 +1,7 @@
 import { parseReport } from './reports';
 import { loadBrowserBundle } from './browserBundles';
 import { browserBudget } from './browserBudgets';
+import { parseSyntaxDiagnostic, type BrowserSyntaxFailure } from './browserSyntax';
 import { advanceBrowserProgress, type BrowserProgress, type BrowserStage } from './browserProgress';
 export type { BrowserStage, BrowserProgress } from './browserProgress';
 import type { Problem, Report } from './types';
@@ -8,6 +9,7 @@ import type { Problem, Report } from './types';
 export type JudgeMode = 'auto' | 'browser' | 'server';
 export type BrowserOutcome =
   | { type: 'result'; report: Report; calibration: { reference_passed: number; mutants_caught: Record<string, string[]> } }
+  | { type: 'syntax_error'; failure: BrowserSyntaxFailure }
   | { type: 'unsupported'; reason: string; detail?: string };
 
 export function browserReason(reason: string, en = false) {
@@ -81,6 +83,9 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
           arm(next.stage === 'running' ? budget.run : next.stage === 'calibrating' ? budget.calibration : 90_000);
         }
         progress(next.stage, next);
+      } else if (message?.type === 'syntax_error') {
+        const diagnostic = parseSyntaxDiagnostic(message.diagnostic,source);
+        finish(diagnostic ? {type:'syntax_error',failure:{source,diagnostic}} : {type:'unsupported',reason:'collection_failed'});
       } else if (message?.type === 'unsupported') {
         finish({ type: 'unsupported', reason: String(message.reason), detail: message.detail });
       } else if (message?.type === 'result') {

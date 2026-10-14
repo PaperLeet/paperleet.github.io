@@ -69,6 +69,20 @@ try {
   assert.equal(parseReport(report).runtime, 'browser-numpy-wasm');
   assert.deepEqual(requests, ['https://paperleet.example/data/browser-judge/6-0123456789abcdef0123.json']);
 
+  for(const valid of [true,false]){
+    const source='bad = (',syntaxStages=[];
+    const syntaxRun=runBrowserJudge(problem,source,new AbortController().signal,stage=>syntaxStages.push(stage));
+    await new Promise(done=>setImmediate(done));
+    const currentFrame=frames.at(-1),token=currentFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
+    const diagnostic={kind:'SyntaxError',message:'unclosed parenthesis',line:1,column:valid?7:-1};
+    for(const fn of listeners)fn({source:currentFrame.contentWindow,data:{nonce:token,payload:{type:'syntax_error',diagnostic,source:'forged source',passed:true}}});
+    const outcome=await syntaxRun;
+    assert.equal(outcome.type,valid?'syntax_error':'unsupported');
+    if(valid){assert.equal(outcome.failure.source,source);assert.deepEqual(outcome.failure.diagnostic,diagnostic);assert(!outcome.report);}
+    assert.deepEqual(syntaxStages,['loading']);
+    assert(currentFrame.removed&&listeners.size===0);
+  }
+
   const controller = new AbortController();
   const stopped = runBrowserJudge(problem, 'while True: pass', controller.signal, () => {});
   await new Promise((done) => setImmediate(done));
