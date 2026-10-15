@@ -10,7 +10,7 @@ try {
   const { emptyLibraryFilters, libraryHref, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const { signInHref, accountReturnHref } = await server.ssrLoadModule('/src/accountNavigation.ts');
   const { decodeProblemHash } = await server.ssrLoadModule('/src/reports.ts');
-  const { collectionIdFromRoute } = await server.ssrLoadModule('/src/paperCollections.ts');
+  const { collectionIdFromRoute, paperCollections, papersInCollection } = await server.ssrLoadModule('/src/paperCollections.ts');
   const { PaperLibrary, PaperDetail } = await server.ssrLoadModule('/src/PaperViews.tsx');
   const { PracticeNextStep } = await server.ssrLoadModule('/src/PracticeJourney.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
@@ -83,8 +83,16 @@ try {
     const render = (Component, props) => renderToString(React.createElement(LocaleProvider, null, React.createElement(Component, props)));
     const library = render(PaperLibrary, { ...catalog, saved: {}, collectionId: 'diffusion', route: decodeProblemHash(returnTo) });
     assert(library.includes('value="DDPM"') && library.includes('value="E" selected=""'));
+    assert(library.includes('collection-page-header') && !library.includes('featured-collections') && !library.includes('practice-start'), 'A collection opens its own page, without homepage sections');
     assert(!library.includes('Filter by judge location') && !library.includes('判题位置筛选') && !library.includes('judge-capability-badge'));
     assert(library.includes(withLibraryContext('papers/ddpm', currentReturn).replaceAll('&', '&amp;')));
+    for (const collection of paperCollections) {
+      const page = render(PaperLibrary, { ...catalog, saved: {}, collectionId: collection.id, route: `collections/${collection.id}` });
+      assert.equal((page.match(/<h1>/g) || []).length, 1, 'Collection pages have one dedicated page title');
+      assert(page.includes(`<h1>${en ? collection.name_en.replaceAll('&', '&amp;') : collection.name.replaceAll('&', '&amp;')}</h1>`));
+      assert.equal((page.match(/data-paper-id=/g) || []).length, papersInCollection(catalog.papers, collection).length, 'The collection page lists its own papers');
+      assert(page.includes('class="back-link" href="#"') && page.includes('class="button collection-practice"'), 'Each collection has home and practice navigation');
+    }
     const legacyServer = render(PaperLibrary,{...catalog,saved:{},route:'?runtime=server'});
     assert.equal((legacyServer.match(/data-paper-id=/g)||[]).length,catalog.papers.length,'A saved server filter must not empty an all-browser catalog');
     const waiting = render(PaperLibrary, { ...catalog, saved: {}, progressReady: false, route: libraryHref(undefined, { ...emptyLibraryFilters(), state: 'done' }) });

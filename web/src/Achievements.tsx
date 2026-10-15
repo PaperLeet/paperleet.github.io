@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, Award, Check, Circle, Cloud, LockKeyhole, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, Check, Circle, Cloud, LockKeyhole } from 'lucide-react';
 import { useI18n } from './i18n';
 import { achievementProgress } from './achievementProgress';
 import { AchievementMedal } from './AchievementMedal';
@@ -37,7 +37,7 @@ export function AchievementCollectionView({progress,returnTo,workspaceName,error
   const visible = progress?.badges.filter(badge => filter === 'all' || badge.unlocked === (filter === 'earned')) || [];
   return <main className="achievements-page">
     <a className="back-link achievement-back" href={returnTo}><ArrowLeft size={15} aria-hidden="true" />{t('返回刚才的页面','Back to where you left off')}</a>
-    <header className="achievement-heading"><span className="achievement-eyebrow"><Sparkles size={13} aria-hidden="true" />{t('每一次进步，都有迹可循','EVERY STEP COUNTS')}</span><h1>{t('学习勋章','Learning achievements')}</h1><p>{t('把论文里的想法写成代码，点亮属于你的研究星图。','Turn paper ideas into code. Build a constellation of what you’ve learned.')}</p></header>
+    <header className="achievement-heading"><h1>{t('学习勋章','Learning achievements')}</h1></header>
     {!progress ? <section className="achievement-load" aria-busy={!loadError}>{loadError ? <><p role="alert">{loadError}</p><button className="button subtle" onClick={retry}>{t('重试加载','Try again')}</button></> : <><span className="spinner"/><p role="status">{user ? t('正在同步账号勋章…','Syncing account achievements…') : t('正在核对工作区的通过记录…','Checking your workspace’s completed modules…')}</p></>}</section> : <>
       {user && <div className="achievement-sync-status"><span><Cloud size={15} aria-hidden="true" />{t('已连接账号勋章','Account achievements connected')}</span><a href={profileHref(user)}>{t('查看个人主页','View your profile')}<ArrowRight size={13} aria-hidden="true" /></a></div>}
       {syncError && <p className="achievement-sync-error" role="alert">{syncError} <button type="button" className="text-button" onClick={onSyncRetry}>{t('重试同步','Retry sync')}</button></p>}

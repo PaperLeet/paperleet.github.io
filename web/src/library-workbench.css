@@ -24,6 +24,15 @@
 .paper-library .collection-learning-progress { left: 20px; right: 20px; bottom: 16px; }
 .paper-library .collection-art { width: 140px; height: 140px; bottom: 6px; }
 .paper-library .collection-open { top: 17px; right: 17px; }
+.collection-page-header { margin-bottom: 28px; }
+.collection-page-header > .back-link { margin: 0 0 22px; }
+.collection-page-title-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.collection-page-identity { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.collection-page-mark { display: grid; place-items: center; flex: 0 0 56px; height: 56px; border-radius: 12px; color: #fff; }
+.collection-page-identity h1 { font-size: clamp(26px, 2.6vw, 34px); line-height: 1.25; font-weight: 650; letter-spacing: -.035em; }
+.collection-page-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 7px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.collection-practice { flex-shrink: 0; }
+.paper-library .library-heading h2 { font-size: 19px; font-weight: 600; letter-spacing: -.025em; }
 .library-layout { display: grid; grid-template-columns: minmax(0, 1fr) 248px; gap: 28px; align-items: start; }
 .library-main { min-width: 0; scroll-margin-top: 84px; }
 .paper-library .library-heading { min-height: 36px; margin-bottom: 16px; }
@@ -127,6 +136,13 @@
 }
 @media (max-width: 700px) {
   .home.paper-library { padding-top: 18px; }
+  .collection-page-header { margin-bottom: 24px; }
+  .collection-page-header > .back-link { margin-bottom: 18px; }
+  .collection-page-title-row { flex-wrap: wrap; gap: 18px; }
+  .collection-page-identity { gap: 12px; }
+  .collection-page-mark { flex-basis: 46px; height: 46px; border-radius: 10px; }
+  .collection-page-identity h1 { font-size: 25px; }
+  .collection-practice { margin-left: 58px; }
   .paper-library .practice-start, .paper-library .practice-start[data-returning] { padding: 20px; grid-template-columns: minmax(0, 1fr); gap: 18px; margin-bottom: 24px; }
   .paper-library .practice-start h2 { font-size: 25px; }
   .paper-library .practice-start .practice-recommendation { padding: 18px 0 0; border-left: 0; border-top: 1px solid var(--line); }

@@ -34,7 +34,6 @@ export function Waitlist({ user, onSignOut, onRefresh, refreshFailed }: Omit<Acc
       <button type="button" onClick={() => setLocale(locale === 'zh' ? 'en' : 'zh')} aria-label={t('切换为英文', 'Switch to Chinese')}>{locale === 'zh' ? 'English' : '中文'}</button>
     </header>
     <section className="social-panel waitlist-card" aria-labelledby="waitlist-title">
-      <span className="social-eyebrow">WAITLIST</span>
       <h1 id="waitlist-title">{t('已加入等待名单', 'You’re on the waitlist')}</h1>
       <p className="social-description">{t('你的 PaperLeet 账号已创建。', 'Your PaperLeet account has been created.')}</p>
       <p className="waitlist-email">{user.email}</p>

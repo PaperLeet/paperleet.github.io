@@ -36,7 +36,8 @@
   font-size: 15px;
 }
 .community-heading {
-  padding: 0 0 20px;
+  min-height: 43px;
+  padding: 0;
 }
 .community-heading h1 {
   margin: 0;
@@ -446,7 +447,15 @@
 .community-sidebar {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 19px;
+}
+.community-board-scroll {
+  min-width: 0;
+}
+.community-compose-button {
+  width: 100%;
+  justify-content: center;
 }
 .board-list {
   padding: 16px 10px 10px;
@@ -486,6 +495,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 15px;
+  min-height: 43px;
   margin-bottom: 16px;
 }
 .social-tabs {
@@ -1218,8 +1228,19 @@
   .account-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+  .community-heading {
+    min-height: auto;
+    padding-bottom: 0;
+  }
   .community-sidebar {
+    gap: 14px;
+  }
+  .community-board-scroll {
     overflow-x: auto;
+  }
+  .community-compose-button {
+    width: auto;
+    align-self: flex-start;
   }
   .board-list {
     display: flex;

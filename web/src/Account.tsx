@@ -109,7 +109,6 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
   }
   return <><div className="account-grid">
     <section className="social-panel login-card">
-      <span className="social-eyebrow">PAPERLEET</span>
       <h1>{t("登录 PaperLeet", "Sign in to PaperLeet")}</h1>
       <p className="social-description">{t("使用 Google 或 Microsoft 账号登录，首次登录将创建 PaperLeet 账号，无需接收本站验证码。", "Sign in with Google or Microsoft. Your first sign-in creates a PaperLeet account without an emailed code from us.")}</p>
       {(error || (loginError && failures[loginError])) && <SocialNotice error={error || failures[loginError!]} />}
@@ -166,7 +165,6 @@ export function TestSignIn({ enabled }: { enabled: boolean }) {
   return (
     <div className="account-grid">
       <section className="social-panel login-card">
-        <span className="social-eyebrow">PAPERLEET BETA</span>
         <h1>{t("内测账号登录", "Test account sign-in")}</h1>
         <p className="social-description">
           {t(
@@ -379,7 +377,6 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
   return (
     <div className="account-grid">
       <section className="social-panel login-card">
-        <span className="social-eyebrow">PAPERLEET ACCOUNT</span>
         <h1>{t("加入研究者社区", "Join the community")}</h1>
         <p className="social-description">
           {t(

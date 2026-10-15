@@ -24,9 +24,7 @@ export function PracticeStart({ problems, saved, ready, returnTo, onBrowse }: {
   const title = next && (locale === "en" ? next.translations?.en?.title || next.title : next.title);
   return <section className="practice-start" data-returning={ready && attempted || undefined} aria-label={t("你的下一步", "Your next step")}>
     <div className="practice-start-copy">
-      <span className="journey-kicker">{t("读懂论文 · 写出核心算法", "Read the paper. Implement the idea.")}</span>
       <h2>{!ready ? t("正在加载学习进度…", "Loading your progress…") : !core.length ? t("当前范围暂无核心模块", "No core modules in this view") : !next ? t("本范围核心模块已完成", "Core modules complete in this view") : attempted ? t("接着上次，继续前进", "Keep your learning going") : t("把论文里的想法，写成代码。", "Turn paper ideas into working code.")}</h2>
-      <p>{t("只实现论文的关键函数，配套代码已提供。用测试验证，再到实验台观察算法行为。", "Implement the key functions with supporting code provided. Check your work with tests, then explore how it behaves in the lab.")}</p>
       {!attempted && <ol className="journey-steps">
         <li><BookOpen size={15} aria-hidden="true" />{t("读目标和公式", "Read the goal")}</li>
         <li><Code2 size={15} aria-hidden="true" />{t("补全核心函数", "Implement the core")}</li>

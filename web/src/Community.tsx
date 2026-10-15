@@ -98,7 +98,6 @@ function TopicContext({ topic, discussion = false }: {
   return (
     <div className="problem-discussion-context">
       <div>
-        <span className="social-eyebrow">{t("题目讨论", "Module discussion")}</span>
         <strong>{topicTitle(topic, locale === "en")}</strong>
         {topic.retired && (
           <small>{t("这道题已下架，历史讨论仍可阅读。", "This module is retired; its discussions remain readable.")}</small>
@@ -464,7 +463,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, category, following, saved, savedGate, search, page]);
   const [query, setQuery] = useState(search);
-  const boards = useRef<HTMLElement>(null);
+  const boards = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -538,65 +537,48 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           <ArrowLeft size={14} />{t("所有社区讨论", "All community discussions")}
         </a>
       )}
-      <div className="social-page-heading community-heading">
-        <h1>{topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
-        {user && (!topicId || topic) ? (
-          <button className="button" onClick={() => setCompose(true)}>
-            <Plus size={16} />
-            {draftAvailable ? t("继续草稿", "Resume draft") : category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
-          </button>
-        ) : !user ? (
-          <a className="button" href={signInHref(returnTo)}>
-            <Plus size={16} />
-            {t("登录发帖", "Sign in to post")}
-          </a>
-        ) : null}
-      </div>
-      {topicId && (
-        catalogLoading ? <Loading /> : catalogError ? (
-          <div className="feed-error">
-            <SocialNotice error={catalogError} />
-            <button className="button subtle" onClick={reloadCatalog}>
-              {t("重新加载题目信息", "Reload module details")}
-            </button>
-          </div>
-        ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} />
-      )}
       <div className="community-layout">
-        <aside ref={boards} className="community-sidebar">
-          <section className="social-panel board-list">
-            <span className="sidebar-label">{t("版块", "Boards")}</span>
-            <button
-              className={!category ? "selected" : ""}
-              aria-pressed={!category}
-              onClick={() => choose({ category: '' })}
-            >
-              <MessagesSquare size={17} />
-              {t("所有讨论", "All discussions")}
-            </button>
-            {CATEGORIES.map((c) => (
+        <aside className="community-sidebar">
+          <div className="social-page-heading community-heading">
+            <h1>{topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
+          </div>
+          <div ref={boards} className="community-board-scroll">
+            <section className="social-panel board-list">
+              <span className="sidebar-label">{t("版块", "Boards")}</span>
               <button
-                key={c.id}
-                className={category === c.id ? "selected" : ""}
-                aria-pressed={category === c.id}
-                onClick={() => choose({ category: c.id })}
+                className={!category ? "selected" : ""}
+                aria-pressed={!category}
+                onClick={() => choose({ category: '' })}
               >
-                <c.icon size={17} />
-                {t(c.zh, c.en)}
+                <MessagesSquare size={17} />
+                {t("所有讨论", "All discussions")}
               </button>
-            ))}
-          </section>
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  className={category === c.id ? "selected" : ""}
+                  aria-pressed={category === c.id}
+                  onClick={() => choose({ category: c.id })}
+                >
+                  <c.icon size={17} />
+                  {t(c.zh, c.en)}
+                </button>
+              ))}
+            </section>
+          </div>
+          {user && (!topicId || topic) ? (
+            <button className="button community-compose-button" onClick={() => setCompose(true)}>
+              <Plus size={16} />
+              {draftAvailable ? t("继续草稿", "Resume draft") : category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
+            </button>
+          ) : !user ? (
+            <a className="button community-compose-button" href={signInHref(returnTo)}>
+              <Plus size={16} />
+              {t("登录发帖", "Sign in to post")}
+            </a>
+          ) : null}
         </aside>
         <section className="community-feed">
-          {category === 'papers' && !topicId && <section className="paper-board-intro" aria-label={t('论文讨论板块', 'Paper discussion board')}>
-            <BookOpen size={23} />
-            <div><h2>{t('从一篇论文，开始一场讨论。', 'Bring a paper. Start a conversation.')}</h2>
-              <p>{capabilities?.community_papers ? t('粘贴 arXiv 链接，附上论文预览，分享你的问题、理解或复现结果。', 'Attach an arXiv paper with a preview, then share your questions, insights, or reproduction results.') : t('分享你正在读的论文，讨论方法、实验和复现中的发现。', 'Share what you are reading and discuss its methods, experiments, and reproduction results.')}</p>
-            </div>
-          </section>}
-          {compose && user && (
-            <Composer category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
-          )}
           <div className="community-feed-toolbar">
             <div className="social-tabs compact">
               <button
@@ -644,6 +626,19 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>
             </form>
           </div>
+          {topicId && (
+            catalogLoading ? <Loading /> : catalogError ? (
+              <div className="feed-error">
+                <SocialNotice error={catalogError} />
+                <button className="button subtle" onClick={reloadCatalog}>
+                  {t("重新加载题目信息", "Reload module details")}
+                </button>
+              </div>
+            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} />
+          )}
+          {compose && user && (
+            <Composer category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
+          )}
           {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && <p data-reading-list="" tabIndex={-1} className="community-result-summary" role="status">
             {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
           </p>}

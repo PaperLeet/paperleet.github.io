@@ -16,11 +16,11 @@ export default function SettingsPage({ theme, onTheme, returnTo, onBackup, backu
   const { locale, setLocale, t } = useI18n();
   return <main className="settings-page">
     <a className="back-link settings-back" href={returnTo}><ArrowLeft size={15} aria-hidden="true" />{t('返回刚才的页面', 'Back to where you left off')}</a>
-    <header className="settings-heading"><span className="settings-eyebrow">{t('你的工作区', 'YOUR WORKSPACE')}</span><h1>{t('设置', 'Settings')}</h1><p>{t('调整使用偏好，管理代码备份。', 'Make yourself at home and keep your code backed up.')}</p></header>
+    <header className="settings-heading"><h1>{t('设置', 'Settings')}</h1></header>
     <section className="settings-card" aria-labelledby="settings-preferences-title">
       <div className="settings-card-heading"><span className="settings-section-icon"><Palette size={19} aria-hidden="true" /></span><div><h2 id="settings-preferences-title">{t('使用偏好', 'Preferences')}</h2><p>{t('这些偏好会自动保存在当前浏览器。', 'Preferences save automatically in this browser.')}</p></div></div>
       <div className="settings-row">
-        <div><h3>{t('外观', 'Appearance')}</h3><p>{t('选择阅读和编写代码时的主题。', 'Choose a theme for reading and writing code.')}</p></div>
+        <div><h3>{t('外观', 'Appearance')}</h3></div>
         <div className="settings-choice" role="group" aria-label={t('外观', 'Appearance')}>
           <button type="button" aria-pressed={theme === 'light'} onClick={() => onTheme('light')}><Sun size={16} aria-hidden="true" />{t('浅色', 'Light')}{theme === 'light' && <Check size={13} aria-hidden="true" />}</button>
           <button type="button" aria-pressed={theme === 'dark'} onClick={() => onTheme('dark')}><Moon size={16} aria-hidden="true" />{t('深色', 'Dark')}{theme === 'dark' && <Check size={13} aria-hidden="true" />}</button>
@@ -39,7 +39,7 @@ export default function SettingsPage({ theme, onTheme, returnTo, onBackup, backu
       <p className="settings-backup-description">{t('导出所有练习代码，或从备份中核对并恢复。换设备、清理浏览器数据前，可以先在这里保留一份。', 'Export your practice code, or review and restore a backup. Keep a copy before switching devices or clearing browser data.')}</p>
       <div className="settings-card-actions"><span>{t('仅包含代码，不导入成绩或账号资料。', 'Code only. Grades and account details are not imported.')}</span><button className="button subtle" type="button" aria-haspopup="dialog" disabled={!backupReady} onClick={onBackup}>{t('管理代码备份', 'Manage code backups')}<ArrowRight size={15} aria-hidden="true" /></button></div>
     </section>
-    {accountHref && <a className="settings-resource" href={accountHref}><span className="settings-section-icon"><UserRound size={19} aria-hidden="true" /></span><span><b>{t('个人资料与隐私', 'Profile & privacy')}</b><small>{t('管理公开资料、头像和账号可见性。', 'Manage your profile, avatar and public visibility.')}</small></span><ArrowRight size={16} aria-hidden="true" /></a>}
-    <a className="settings-resource" href="#/achievements"><span className="settings-section-icon"><Award size={19} aria-hidden="true" /></span><span><b>{t('学习勋章', 'Learning achievements')}</b><small>{t('查看已解锁的勋章，找到下一个学习目标。', 'See your achievements and find your next milestone.')}</small></span><ArrowRight size={16} aria-hidden="true" /></a>
+    {accountHref && <a className="settings-resource" href={accountHref}><span className="settings-section-icon"><UserRound size={19} aria-hidden="true" /></span><span><b>{t('个人资料与隐私', 'Profile & privacy')}</b></span><ArrowRight size={16} aria-hidden="true" /></a>}
+    <a className="settings-resource" href="#/achievements"><span className="settings-section-icon"><Award size={19} aria-hidden="true" /></span><span><b>{t('学习勋章', 'Learning achievements')}</b></span><ArrowRight size={16} aria-hidden="true" /></a>
   </main>;
 }

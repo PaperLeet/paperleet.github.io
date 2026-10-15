@@ -81,7 +81,7 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
    finally{inflight.current=false;if(active.current){setBusy(false);}}
  }
  return <section className="interview-composer social-panel" aria-labelledby="interview-compose-heading">
-  <div className="interview-compose-heading"><div><span className="social-eyebrow">{t('把经验留给下一位','HELP THE NEXT PERSON')}</span><h2 id="interview-compose-heading">{t('分享面经','Share an interview experience')}</h2></div><button className="icon-button" type="button" disabled={busy} aria-label={t('关闭，保留草稿','Close and keep draft')} onClick={onClose}><X size={18}/></button></div>
+  <div className="interview-compose-heading"><div><h2 id="interview-compose-heading">{t('分享面经','Share an interview experience')}</h2></div><button className="icon-button" type="button" disabled={busy} aria-label={t('关闭，保留草稿','Close and keep draft')} onClick={onClose}><X size={18}/></button></div>
   <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。以你的公开昵称发布。','Company, role and linked concepts are public. Outcome and location are optional. Your public display name appears as the author.')}</p>
   {!durable&&<p role="alert" className="interview-notice">{t('草稿暂时无法保存到此标签页，请保持页面打开或复制内容。','This tab cannot save the draft. Keep this page open or copy your text.')}</p>}
   {error&&<p role="alert" className="interview-error">{error}</p>}

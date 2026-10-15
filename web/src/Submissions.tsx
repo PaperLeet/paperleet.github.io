@@ -409,12 +409,6 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
             {t("返回题库", "Back to problems")}
           </a>
           <h1>{t("提交论文", "Submit paper")}</h1>
-          <p>
-            {t(
-              "从论文和官方代码中提炼一道可练习、可验证的题目。",
-              "Turn a paper and its official code into a focused, testable problem.",
-            )}
-          </p>
         </div>
         <button
           className="button subtle"

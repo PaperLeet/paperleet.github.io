@@ -137,11 +137,20 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   }
   function clear() { change({...emptyLibraryFilters(), sort}); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
-  return <main className="home paper-library">
+  const nextInCollection = selectedCollection && progressReady ? recommendPractice(filteredModules, saved) || filteredModules[0] : undefined;
+  const nextState = nextInCollection && status(nextInCollection, saved[nextInCollection.id]);
+  return <main className={`home paper-library${selectedCollection ? " collection-page" : ""}`}>
+    {selectedCollection ? <header className="collection-page-header">
+      <a className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</a>
+      <div className="collection-page-title-row">
+        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{listedPapers.length} {t("篇论文", "papers")}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
+        {nextInCollection && <a className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></a>}
+      </div>
+    </header> : <>
     <PracticeStart problems={filteredModules} saved={saved} ready={progressReady} returnTo={viewHref} onBrowse={() => libraryMain.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" })} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
       <div className="collections-heading">
-        <div><h2>{t("精选合集", "Featured collections")}</h2><p>{t("选一个方向，从核心算法开始。", "Pick a direction. Start with the core ideas.")}</p></div>
+        <h2>{t("精选合集", "Featured collections")}</h2>
         <div className="collection-controls">
           <button aria-label={t("上一组合集", "Previous collections")} disabled={!railEdges.previous} onClick={() => scrollCollections(-1)}><ChevronLeft size={18} /></button>
           <button aria-label={t("下一组合集", "Next collections")} disabled={!railEdges.next} onClick={() => scrollCollections(1)}><ChevronRight size={18} /></button>
@@ -154,8 +163,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const count = memberIds.size;
           const completed = problems.filter(problem => memberIds.has(problem.id) && status(problem,saved[problem.id]) === "done").length;
           const label = t(collection.name, collection.name_en);
-          const selected = selectedCollection?.id === collection.id;
-          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-current={selected ? "page" : undefined} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${members.length} ${t("篇论文", "papers")} · ${count} ${t("道题", "problems")}`}>
+          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${members.length} ${t("篇论文", "papers")} · ${count} ${t("道题", "problems")}`}>
             <div className="collection-copy">
               <span className="collection-count">{members.length} {t("篇论文", "papers")}<span> / </span>{count} {t("道题", "problems")}</span>
               <h3>{label}</h3>
@@ -163,15 +171,16 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             </div>
             <div className="collection-learning-progress" aria-hidden="true"><span>{progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : t("正在加载进度…", "Loading progress…")}</span><div><i style={{ width: `${progressReady && count ? completed / count * 100 : 0}%` }} /></div></div>
             <CollectionArtwork kind={collection.id} />
-            <span className="collection-open" aria-hidden="true">{selected ? <CheckCircle2 size={20} /> : <ArrowRight size={20} />}</span>
+            <span className="collection-open" aria-hidden="true"><ArrowRight size={20} /></span>
           </a>;
         })}
       </nav>
     </section>
+    </>}
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
-      <div className="library-title"><h1><BilingualText zh={selectedCollection?.name || "论文题库"} en={selectedCollection?.name_en || "Papers"} /> <span>{listedPapers.length}</span></h1>{selectedCollection && <a className="clear-collection" href="#" onClick={clear} aria-label={t("返回全部论文", "Back to all papers")} title={t("返回全部论文", "Back to all papers")}><X size={17} /></a>}</div>
+      <div className="library-title">{selectedCollection ? <h2>{t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{solvedModules} / {listedModules.length}</b></div>
     </header>
     <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
