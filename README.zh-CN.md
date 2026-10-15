@@ -7,9 +7,9 @@
 
 [English](README.md) | **简体中文**
 
-**网站源码：**[PaperLeet/paperleet.github.io](https://github.com/PaperLeet/paperleet.github.io) 包含本站前端、题库和浏览器／本机判题工具。网站顶部的 GitHub 图标指向此仓库。
+**网站源码：**[PaperLeet/paperleet.github.io](https://github.com/PaperLeet/paperleet.github.io) 包含本站前端、题库和浏览器／本机判题工具。
 
-**独立离线版：**[Hongyang-Du/PaperLeet](https://github.com/Hongyang-Du/PaperLeet) 是重点维护与推广的开源入口，提供完整学习指南、本机 CPU 做题、本地解答保存和 MIT 许可证。欢迎在该仓库点 Star 支持项目。
+**独立离线版：**[Hongyang-Du/PaperLeet](https://github.com/Hongyang-Du/PaperLeet) 是重点维护与推广的开源入口，提供完整学习指南、本机 CPU 做题、本地解答保存和 MIT 许可证。网站顶部的 GitHub 图标指向此离线版仓库。欢迎在该仓库点 Star 支持项目。
 
 读论文，写实现，用数学性质和真实行为验证理解。
 

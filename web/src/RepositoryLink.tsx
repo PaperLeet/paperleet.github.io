@@ -3,9 +3,9 @@ import { useI18n } from "./i18n";
 
 export default function RepositoryLink() {
   const { t } = useI18n();
-  const label = t("网站源码（GitHub）", "Website source (GitHub)");
+  const label = t("离线版仓库（GitHub）", "Offline repository (GitHub)");
   return (
-    <a className="repository-link" href="https://github.com/PaperLeet/paperleet.github.io"
+    <a className="repository-link" href="https://github.com/Hongyang-Du/PaperLeet"
       target="_blank" rel="noopener noreferrer" title={label} aria-label={label}>
       <Github size={18} aria-hidden="true" />
     </a>

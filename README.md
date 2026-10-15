@@ -7,9 +7,9 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**Website source:** [PaperLeet/paperleet.github.io](https://github.com/PaperLeet/paperleet.github.io) contains this website, its practice catalog, and the browser/local judging tools. The site's GitHub icon opens this repository.
+**Website source:** [PaperLeet/paperleet.github.io](https://github.com/PaperLeet/paperleet.github.io) contains this website, its practice catalog, and the browser/local judging tools.
 
-**Standalone offline edition:** [Hongyang-Du/PaperLeet](https://github.com/Hongyang-Du/PaperLeet) is the main open-source project for local CPU practice, with the full learning guide, saved local solutions, and an MIT license. Star that repository to support the project.
+**Standalone offline edition:** [Hongyang-Du/PaperLeet](https://github.com/Hongyang-Du/PaperLeet) is the main open-source project for local CPU practice, with the full learning guide, saved local solutions, and an MIT license. The site's GitHub icon opens this offline repository. Star that repository to support the project.
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
