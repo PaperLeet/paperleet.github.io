@@ -4,10 +4,11 @@ import { parseBrowserBudgets } from './browserBudgets';
 type RecordValue = Record<string, unknown>;
 type RuntimeBundle = { version: 1; backend: string; adapter: string; harness: string; files: Record<string, string> };
 const sharedFiles = ['paperleet/__init__.py', 'paperleet/common/__init__.py', 'paperleet/common/asserts.py', 'paperleet/common/comparisons.py'];
-const libraryFile = (name: string) => /^paperleet_torch\/[a-zA-Z0-9_]+\.py$/.test(name);
+const libraryNotice = (name: string) => name === 'paperleet_torch/LICENSE' || name === 'paperleet_torch/NOTICE';
+const libraryFile = (name: string) => /^paperleet_torch\/[a-zA-Z0-9_]+\.py$/.test(name) || libraryNotice(name);
 const object = (value: unknown): value is RecordValue => !!value && typeof value === 'object' && !Array.isArray(value);
 const stringFiles = (value: unknown): value is Record<string, string> => object(value) && Object.entries(value).every(
-  ([name, source]) => /^(?:[a-zA-Z0-9_]+\/)*(?:[a-zA-Z0-9_]+\.py|problem\.yaml)$/.test(name) && typeof source === 'string');
+  ([name, source]) => (/^(?:[a-zA-Z0-9_]+\/)*(?:[a-zA-Z0-9_]+\.py|problem\.yaml)$/.test(name) || libraryNotice(name)) && typeof source === 'string');
 const stopped = () => new DOMException('Stopped', 'AbortError');
 
 /** Cancelling one run must not cancel another run's shared, public download. */

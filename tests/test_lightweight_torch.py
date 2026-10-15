@@ -57,6 +57,12 @@ x=torch.tensor([2.,3.],requires_grad=True);x.square().sum().backward()
 assert x.grad.tolist()==[4.,6.]
 sources=importlib.import_module(name+'.runtime').source_files()
 assert 'paperleet_torch/_tensor.py' in sources and 'paperleet_torch/_autograd.py' in sources
+for profile in ('autograd', 'schedules'):
+    resources=importlib.import_module(name+'.runtime').source_files(profile)
+    for filename in ('LICENSE', 'NOTICE'):
+        installed=pathlib.Path(library.__file__).parent / filename
+        assert resources['paperleet_torch/'+filename] == installed.read_text(encoding='utf-8')
+    assert 'Version 2.0, January 2004' in resources['paperleet_torch/LICENSE']
 assert 'torch' not in sys.modules
 assert ('paperleet' not in sys.modules) if standalone else ('paperleet_torch' not in sys.modules)
 '''
@@ -77,6 +83,14 @@ def test_built_wheels_work_without_checkout_paths(tmp_path, runtime_wheels, dist
             metadata = archive.read(metadata_name).decode()
             requirements = [line for line in metadata.splitlines() if line.startswith('Requires-Dist:')]
             assert len(requirements) == 1 and requirements[0].startswith('Requires-Dist: numpy')
+            assert 'License-Expression: Apache-2.0\n' in metadata
+            for filename in ('LICENSE', 'NOTICE'):
+                assert 'License-File: ' + filename + '\n' in metadata
+                canonical = (ROOT / 'packages/paperleet-torch' / filename).read_bytes()
+                assert archive.read('paperleet_torch/' + filename) == canonical
+                notice = next(name for name in archive.namelist()
+                              if name.endswith('.dist-info/licenses/' + filename))
+                assert archive.read(notice) == canonical
     isolated_runtime(target, distribution)
 
 
@@ -103,6 +117,8 @@ manifest = json.loads((output / metadata['bundle_url']).read_text())
 runtime = json.loads((output / manifest['runtime_bundle_url']).read_text())
 assert 'paperleet_torch/_autograd.py' in runtime['files']
 assert 'paperleet_torch/_nn.py' in runtime['files']
+assert 'Version 2.0, January 2004' in runtime['files']['paperleet_torch/LICENSE']
+assert 'Copyright 2026 PaperLeet contributors' in runtime['files']['paperleet_torch/NOTICE']
 assert 'paperleet_torch' not in sys.modules and 'torch' not in sys.modules
 '''
     result = subprocess.run([sys.executable, '-I', '-c', script, str(target), str(catalog)],

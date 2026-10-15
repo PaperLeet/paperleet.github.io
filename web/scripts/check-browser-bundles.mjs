@@ -35,6 +35,8 @@ try {
     assert.equal(bundle.adapter, fs.readFileSync(`../paperleet/browser/${adapter}`, 'utf8'));
     assert.equal(bundle.files['paperleet/common/asserts.py'], fs.readFileSync('../paperleet/common/asserts.py', 'utf8'));
     assert.equal(bundle.files['paperleet/common/comparisons.py'], fs.readFileSync('../paperleet/common/comparisons.py', 'utf8'));
+    for (const name of ['LICENSE', 'NOTICE'])
+      assert.equal(bundle.files[`paperleet_torch/${name}`], fs.readFileSync(`../packages/paperleet-torch/${name}`, 'utf8'));
     for (const [name, source] of Object.entries(bundle.files)) {
       if (/\/tests\/test_[^/]+\.py$/.test(name)) assert.equal(source, fs.readFileSync(`../${name}`, 'utf8'));
       if (name.endsWith('/problem.yaml')) assert.equal(source, fs.readFileSync(`../${name}`, 'utf8'));
@@ -63,6 +65,8 @@ try {
   for (const value of [null, [], { ...manifest, version: 4 }, { ...manifest, version:'3' }, { ...manifest, problem: lora.id },
     { ...manifest, files: { ...manifest.files, 'paperleet/common/asserts.py': 'override' } },
     { ...manifest, files: { ...manifest.files, 'paperleet_torch/_tensor.py': 'override' } },
+    { ...manifest, files: { ...manifest.files, 'paperleet_torch/LICENSE': 'override' } },
+    { ...manifest, files: { ...manifest.files, 'paperleet_torch/NOTICE': 'override' } },
     { ...manifest, files: { '../escape.py': '' } }, { ...manifest, files: [] },
     { ...manifest, reference: 42 }, { ...manifest, mutants: { bad: 42 } }, { ...manifest, test_file: 'missing.py' },
     { ...manifest, files:{...manifest.files,'../problem.yaml':'unsafe'} },
@@ -78,6 +82,10 @@ try {
   const version2={...manifest,version:2};delete version2.test_files;delete version2.packages;delete version2.budgets;
   const oldLoad=createBrowserBundleLoader(async url=>Response.json(String(url).includes('/runtime-')?runtime:version2));
   assert.equal((await oldLoad(attention,base,signal())).version,2);
+  const oldRuntime = clone(runtime);
+  delete oldRuntime.files['paperleet_torch/LICENSE']; delete oldRuntime.files['paperleet_torch/NOTICE'];
+  const oldRuntimeLoad = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? oldRuntime : version2));
+  assert.equal((await oldRuntimeLoad(attention, base, signal())).adapter, runtime.adapter);
   for (const path of ['https://other.example/runtime.json', '/api/private', '../browser-judge/runtime-' + 'a'.repeat(20) + '.json',
     'browser-judge/runtime-' + 'a'.repeat(20) + '.json?token=private', 'browser-judge/runtime-%2e%2e.json']) {
     await invalidProblem({ ...manifest, runtime_bundle_url: path });
@@ -88,6 +96,12 @@ try {
     { ...runtime, files: { ...runtime.files, 'paperleet_torch/../escape.py': 'override' } },
     { ...runtime, files: { ...runtime.files, 'paperleet/common/asserts.py': 12 } }]) {
     const reject = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? value : manifest));
+    await assert.rejects(reject(attention, base, signal()));
+  }
+  for (const name of ['LICENSE', 'NOTICE', 'paperleet/LICENSE', 'paperleet_torch/LICENSE.txt',
+    'paperleet_torch/COPYING', 'paperleet_torch/subdir/NOTICE', 'paperleet_torch/../LICENSE', '/paperleet_torch/LICENSE']) {
+    const reject = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-')
+      ? { ...runtime, files: { ...runtime.files, [name]: 'unexpected notice' } } : manifest));
     await assert.rejects(reject(attention, base, signal()));
   }
   const mismatch = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? runtime : manifest));

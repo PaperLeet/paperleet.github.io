@@ -53,6 +53,8 @@ class Tensor:
     __array_priority__ = 1000
     __hash__ = object.__hash__
     _retain_grad = False
+    _backward_hooks = None
+    _post_accumulate_grad_hooks = None
 
     def __init__(self, data, dtype=None, requires_grad=False):
         self._data = np.asarray(data, dtype=dtype)
@@ -81,7 +83,13 @@ class Tensor:
         if not self.requires_grad:raise RuntimeError('Cannot retain_grad on a tensor that does not require grad')
         if self._grad_node is not None:
             self._retain_grad = True
-            self._grad_node.retained = weakref.ref(self)
+            _tensor_hooks.callbacks_for(self)
+
+    def register_hook(self, hook):
+        return _tensor_hooks.register(self, hook)
+
+    def register_post_accumulate_grad_hook(self, hook):
+        return _tensor_hooks.register(self, hook, post=True)
 
     shape = property(lambda self: self._data.shape)
     ndim = property(lambda self: self._data.ndim)
@@ -280,6 +288,44 @@ class Tensor:
         if isinstance(value, Tensor) and value.ndim:
             raise RuntimeError('fill_ requires a scalar value')
         self[...] = value
+        return self
+
+    def copy_(self, src, non_blocking=False):
+        if not isinstance(src, Tensor):raise TypeError('copy_ source must be a Tensor')
+        if type(non_blocking) is not bool:raise TypeError('non_blocking must be bool')
+        if _state._jvp_active:raise _errors.BrowserUnsupported('Tensor copy_ inside forward AD is unsupported')
+        if self.dtype.kind not in 'biufc' or src.dtype.kind not in 'biufc':
+            raise _errors.BrowserUnsupported('copy_ requires boolean or numeric Tensor storage')
+        if _state._grad_enabled and (self.requires_grad or src.requires_grad):
+            raise _errors.BrowserUnsupported('Differentiable in-place copy_ requires the server')
+        destination,source = self._data,src._data
+        try:np.broadcast_to(source,destination.shape)
+        except ValueError as error:raise RuntimeError('copy_ source cannot broadcast to destination shape') from error
+        same = (destination.dtype==source.dtype and destination.shape==source.shape and
+                destination.strides==source.strides and
+                destination.__array_interface__['data'][0]==source.__array_interface__['data'][0])
+        if not same and destination.size:
+            if any(size>1 and stride==0 for size,stride in zip(destination.shape,destination.strides)):
+                raise RuntimeError('copy_ destination has overlapping elements')
+            try:overlap=np.shares_memory(destination,source,max_work=1000)
+            except np.exceptions.TooHardError as error:
+                raise _errors.BrowserUnsupported('copy_ storage overlap cannot be determined within its budget') from error
+            if overlap:raise RuntimeError('copy_ source and destination overlap; clone the source first')
+            writable=destination.view()
+            try:writable.setflags(write=True)
+            except ValueError as error:raise _errors.BrowserUnsupported('copy_ destination has read-only backing storage') from error
+            if source.dtype.kind=='c' and destination.dtype.kind not in 'cb':
+                if not _state._copy_complex_warning_emitted:
+                    import warnings
+                    _state._copy_complex_warning_emitted=True
+                    warnings.warn('Casting complex values to real discards the imaginary part',UserWarning,stacklevel=2)
+                source=source.real
+            if source.dtype==destination.dtype:
+                np.copyto(writable,source,casting='unsafe')
+            else:
+                with np.errstate(all='ignore'):
+                    np.copyto(writable,source,casting='unsafe')
+        self._storage.bump()
         return self
 
     def __deepcopy__(self, memo):
@@ -996,4 +1042,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state
+from . import _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks

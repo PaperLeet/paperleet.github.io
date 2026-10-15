@@ -112,6 +112,20 @@ behavior. Passing its current exercises alone does not establish library readine
 - Independent CPU/WASM contracts and retained-loss memory/control benchmarks
   validate values, release behavior and performance costs.
 
+## Version 0.10 milestone
+
+- Tensor gradient callbacks support replacement/observation, phase snapshots,
+  requested-input pruning, retained gradients, weak handles and no-grad scopes.
+- Leaf post-accumulation callbacks support inline updates and gradient clearing;
+  explicitly returned hook Tensor graphs survive at requested gradient targets.
+- Callback metadata shares the optional non-leaf retention slot. Plain graphs
+  allocate no hook dictionaries or additional graph-node slots, and backward
+  skips derivative records used only by autograd.grad.
+- CPU/no-grad copy_ supports broadcasting, casts, strided views, alias/version
+  guards and overlap errors, with typed boundaries for differentiable mutation.
+- Native and independent NumPy/WASM training workflows validate transformed
+  gradients, inline SGD, reverse-over-forward and retained callback lifetimes.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization
@@ -121,7 +135,7 @@ behavior. Passing its current exercises alone does not establish library readine
    numerical and performance evidence justify them; keep state compatibility and
    unknown-option errors explicit. Profile small-parameter update overhead.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
-   remaining retention corner cases, tensor hooks and forward-mode gaps. Add APIs
+   remaining retention corner cases, graph-node callbacks and forward-mode gaps. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
 4. Neural-network coverage: expand batch/group normalization, attention options,
    weighted/smoothed/spatial losses and convolution, with masked/empty/non-contiguous
@@ -150,8 +164,9 @@ behavior. Passing its current exercises alone does not establish library readine
 - Maintain native-reference core API tests and a standalone test entry point;
   NumPy is the only runtime dependency. Check packaging metadata, license,
   documented scope, installation, CLI and import-alias behavior before publishing.
-  The repository currently has no license file; the independent distribution's
-  license must be decided before a public package release.
+  The independent library uses Apache-2.0. Wheel metadata, both installed layouts
+  and both browser profiles carry LICENSE/NOTICE; this scope does not license the
+  rest of the application. Public package publication remains separate work.
 - Run the complete application infrastructure suite, all configured original
   reference/mutant suites, exported-source checks and representative real WASM
   regressions. New backend behavior also needs real browser Worker evidence.

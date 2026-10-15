@@ -14,6 +14,17 @@ def test_runtime_submodule_uses_normal_package_imports():
     assert 'paperleet_torch/_tensor.py' in runtime.source_files()
 
 
+@pytest.mark.parametrize('profile', ['autograd', 'schedules'])
+def test_embedded_runtime_carries_redistribution_notices(profile):
+    from importlib.resources import files
+    from paperleet_torch import runtime
+    sources = runtime.source_files(profile)
+    for name in ('LICENSE', 'NOTICE'):
+        assert sources['paperleet_torch/' + name] == files('paperleet_torch').joinpath(name).read_text(encoding='utf-8')
+    assert 'Version 2.0, January 2004' in sources['paperleet_torch/LICENSE']
+    assert 'Copyright 2026 PaperLeet contributors' in sources['paperleet_torch/NOTICE']
+
+
 @pytest.mark.parametrize('dtype', [torch.float32, torch.float64])
 def test_namespace_keeps_broadcast_gradients_and_storage_guards(dtype):
     x = torch.tensor([[1., 2.], [3., 4.]], dtype=dtype, requires_grad=True)

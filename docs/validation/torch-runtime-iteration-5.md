@@ -94,9 +94,14 @@ milestone; no PyPI publication is performed.
 Baseline: frozen `d7ddd29` / 0.4.0; candidate: frozen 0.5.0 sources. Versions run
 sequentially in fresh processes/Workers, with no correctness jobs running during
 timing. Identical seeded fixtures use three warmups then **11 × 120 calls** per
-case and dtype. CPU is Python 3.12.11 / NumPy 2.5.4 with OMP/MKL/OpenBLAS threads
-set to one. Node v25.9.0 and Chrome use the pinned WASM runtime above. Imports and
+case and dtype. CPU is Python 3.12.11 / NumPy 2.5.4 with OMP/MKL/OpenBLAS environment
+variables set to 1. Node v25.9.0 and Chrome use the pinned WASM runtime above. Imports and
 fixture construction are excluded except for explicitly named construction cases.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 | float32 workload | CPU 0.4 → 0.5 (ms) | Chrome WASM 0.4 → 0.5 (ms) |
 | --- | ---: | ---: |

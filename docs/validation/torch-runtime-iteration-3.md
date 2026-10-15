@@ -72,9 +72,14 @@ is undecided. This milestone does not publish a package to PyPI.
 The baseline is frozen remote main `bc663da` (library 0.2.0), and the candidate is
 frozen 0.3.0 source. Each version runs sequentially in a fresh process/Worker,
 with three warmups and 11 batches of 120 calls. Both dtypes use identical seeded
-fixtures. CPU uses Python 3.12.11 / NumPy 2.5.4 and one OMP/MKL/OpenBLAS thread;
+fixtures. CPU uses Python 3.12.11 / NumPy 2.5.4 and OMP/MKL/OpenBLAS environment variables set to 1;
 Node and Chrome use the pinned Pyodide/NumPy runtime above. No correctness jobs
 were run concurrently with these timing measurements.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 The small MLP is 16→32→8 on a 16-row batch. Construction includes initialization,
 allocation and registration; a training step includes gradient reset, forward,

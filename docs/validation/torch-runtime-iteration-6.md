@@ -56,9 +56,14 @@ Baseline controls use frozen `202d247` / 0.5.0 sources; candidate uses frozen 0.
 sources. Source hashes are retained and all **26 Python sources** match after
 rebasing unrelated UI changes through `fbde557`. Every timing run is sequential
 in fresh processes/Workers with no local correctness jobs running. CPU is Python
-3.12.11 / NumPy 2.5.4, one OMP/MKL/OpenBLAS thread; Node v25.9.0 and Chrome
+3.12.11 / NumPy 2.5.4, OMP/MKL/OpenBLAS environment variables set to 1; Node v25.9.0 and Chrome
 155.0.8059.40 use Pyodide 0.29.4 / NumPy 2.2.5. Workloads use three warmups and
 11 batches × 120 calls. Construction/imports are excluded from scheduler timings.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 | Scheduler workload (ms) | CPU | Node WASM | Chrome WASM |
 | --- | ---: | ---: | ---: |
@@ -91,7 +96,7 @@ flat. One initial CPU float32 candidate run was anomalously slow (some array
 workloads 72–149% higher) while float64 was stable. The cause is not established.
 The original results are retained. A separate balanced **baseline→candidate→
 candidate→baseline** rerun used 11 × 360 calls per case in fresh processes, with
-the same frozen sources and single-thread settings. The anomaly did not recur;
+the same frozen sources and environment settings. The anomaly did not recur;
 both versions measured comparable latency. No CPU kernel speedup is inferred.
 Adam lazy-state allocation controls retain their previous zero constructor
 moment bytes; scheduling adds no per-parameter moments.

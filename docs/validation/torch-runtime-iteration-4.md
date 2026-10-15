@@ -82,11 +82,16 @@ Baseline: frozen `dcbd26b` / library 0.3.0. Candidate: frozen 0.4.0 sources, wit
 per-file hashes checked after rebase. Each version runs sequentially in a fresh
 process or Worker, three warmups then **11 batches × 120 calls**, identical seeded
 fixtures and separate parameter fixtures for each optimizer workload. CPU uses
-Python 3.12.11 / NumPy 2.5.4, one OMP/MKL/OpenBLAS thread. Node v25.9.0 and Chrome
+Python 3.12.11 / NumPy 2.5.4, OMP/MKL/OpenBLAS environment variables set to 1. Node v25.9.0 and Chrome
 use the pinned WASM runtime above. Imports/fixture creation are excluded except
 where construction itself is the named workload.
 The small MLP is 16→32→8 on a 16-row batch, including gradient reset, forward,
 backward and SGD update in each timed step.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 | float32 workload | CPU 0.3 → 0.4 (ms) | Chrome WASM 0.3 → 0.4 (ms) |
 | --- | ---: | ---: |

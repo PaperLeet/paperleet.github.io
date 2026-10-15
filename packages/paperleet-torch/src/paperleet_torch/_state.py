@@ -3,6 +3,8 @@
 
 _grad_enabled = True
 
+_copy_complex_warning_emitted = False
+
 
 _jvp_active = False
 

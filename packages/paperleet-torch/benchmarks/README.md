@@ -18,6 +18,26 @@ package source directory, allowing a frozen baseline to run in a separate fresh
 process. CPU baselines can use `PYTHONPATH=/path/to/baseline-parent` with the
 same benchmark file. Inspect the recorded implementation path to verify imports.
 
+`bench_cpu.py --benchmark runtime --threads 1 --output cpu.json` sets OMP/MKL/
+OpenBLAS/vecLib limits before NumPy imports and records the actual NumPy BLAS
+provider. On supported Apple Accelerate builds it also selects the single-thread
+BLAS/LAPACK policy and checks it before/after the run. Without that API, it reports
+environment configuration without claiming a verified thread count. Other
+arguments pass through to the selected runner. The direct bench_*.py scripts
+leave thread setup to their caller. CPU and WASM results record source hashes.
+
+`bench_tensor_hooks.py` measures plain leaf/graph backward, retained non-leaf
+backward, leaf observers/transforms/post-accumulation callbacks, intermediate
+registration/dispatch and explicit registration/removal. Each case uses a
+separate fixture; ordinary leaf hooks are registered outside timings. The
+intermediate cases include registration because each forward creates a new
+intermediate Tensor. Graph cases reset gradients and evaluate a squared mean
+through a square on 16×32 inputs. Leaf cases reverse fixed seeds on 16 elements.
+Contiguous/strided copy cases use frozen 64×128 inputs.
+Registration/removal uses ten times the requested inner count. Historical
+runtimes without Tensor hooks still execute three common reverse/retention cases.
+Use `bench_wasm.mjs --benchmark tensor_hooks --iterations 1200` on pinned WASM.
+
 `bench_module_hooks.py` measures unhooked/removed-hook/active-hook dispatch,
 16-layer identity composition, frozen linear inference, module construction,
 checkpoint saving/loading and registration/removal. Run it on CPU, or pass

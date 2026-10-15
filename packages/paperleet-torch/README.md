@@ -175,6 +175,48 @@ reverse-over-forward rules remain available. `retain_grad` inside an active
 forward AD transform is unsupported; import aliases and numerical state remain
 process-wide.
 
+## Tensor gradient callbacks and copying
+
+`Tensor.register_hook` observes or replaces a computed gradient before retained
+or leaf `.grad` accumulation. Return a matching-shape/dtype Tensor or `None`.
+Callbacks run in registration order; each phase snapshots its callbacks. They
+also run for requested inputs of `autograd.grad`, which does not accumulate leaf
+gradients. Handles use the same weak, removable/context-manager interface as
+model callbacks.
+
+```python
+with layer.weight.register_hook(lambda gradient: gradient.clamp(-1., 1.)):
+    loss.backward()
+    optimizer.step()
+```
+
+`register_post_accumulate_grad_hook` accepts leaf tensors and runs after their
+`.grad` updates during backward. It receives the parameter, may update/clear its
+gradient or perform an inline update, and must return `None`. It does not run in
+`autograd.grad`. Callback execution starts in no-grad mode; use `enable_grad`
+explicitly when needed. Mode changes are scoped to that reverse node, including
+on exceptions. A hook directly returned at a requested gradient preserves its
+Tensor object and any explicitly constructed graph. General higher-order reverse
+execution remains unsupported.
+
+Ordinary graphs allocate no callback dictionaries. Non-leaf callback state is
+created only for retention or registration, weakly references the Tensor wrapper,
+and keeps hooks attached to history after that wrapper is collected. Copying a
+Tensor/Parameter drops its Tensor callbacks. Existing leaf hooks participate in
+reverse-over-forward; registration inside an active forward transform is
+unsupported. Module/global backward and raw graph-node hooks remain separate work.
+
+`target.copy_(source, non_blocking=False)` copies Tensor values into existing CPU
+storage, preserving target shape/dtype/identity and sharing with views. Boolean/numeric source
+broadcasting and casts are supported; non-numeric storage fails before mutation. Use `no_grad` for parameter initialization
+and copies involving tensors that require gradients. Shared version counters are
+updated; existing saved-state mutation guards still apply. Exact self/view copies
+are accepted, while partial source/destination overlap and expanded destinations
+with repeated elements fail. Complex-to-real copies warn once; complex-to-bool
+keeps ordinary complex truth values. CPU copies are synchronous even when
+`non_blocking=True`. Differentiable in-place copy graphs, copies inside forward AD
+and mutation of read-only backing allocations remain unsupported.
+
 ## CPU model conversion and gradient modes
 
 Existing CPU selection and dtype-conversion code works with the import aliases:
@@ -407,7 +449,9 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.9 validation record](../../docs/validation/torch-runtime-iteration-9.md)
+See the [0.10 validation record](../../docs/validation/torch-runtime-iteration-10.md)
+for Tensor gradient callbacks, CPU copies, complete training and runtime costs.
+The [0.9 validation record](../../docs/validation/torch-runtime-iteration-9.md)
 for graph lifetime, requested gradients, native retention policies and memory/latency tradeoffs.
 The [0.8 validation record](../../docs/validation/torch-runtime-iteration-8.md)
 for model introspection, local callbacks, checkpoint transforms and dispatch costs.
@@ -429,3 +473,11 @@ Ongoing development and release gates are tracked in [ROADMAP.md](ROADMAP.md).
 The [benchmark tools](benchmarks/README.md) cover CPU/WASM kernels and an
 experimental WebGPU matmul probe. The probe is separate from the supported
 CPU/NumPy torch runtime.
+
+## License
+
+This standalone library is licensed under [Apache-2.0](LICENSE); attribution is
+in [NOTICE](NOTICE). Installed packages and `runtime.source_files()` include both
+files, including the smaller schedules profile. PaperLeet's private bundled copy
+carries the same notices. This license applies to `packages/paperleet-torch/`;
+it does not set a license for the rest of the application or its dependencies.

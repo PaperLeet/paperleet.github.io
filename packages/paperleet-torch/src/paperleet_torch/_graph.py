@@ -1,17 +1,17 @@
 """Reverse graph metadata, independent of intermediate Tensor storage."""
 import numpy as np
 
-from . import _errors
+from . import _errors, _tensor_hooks
 
 
 class Node:
     __slots__ = ('_parents', 'joint', 'versions', 'shape', 'dtype',
-                 'retained', 'saved', 'released')
+                 'callbacks', 'saved', 'released')
 
     def __init__(self, tensor, parents, *, versions=(), saved=False, joint=None):
         self._parents, self.joint, self.versions = parents, joint, versions
         self.shape, self.dtype = tensor.shape, tensor.dtype
-        self.saved, self.released, self.retained = saved, False, None
+        self.saved, self.released, self.callbacks = saved, False, None
 
     def release(self):
         if self.saved:
@@ -55,12 +55,28 @@ def run(roots, seeds, *, retain_graph=False, targets=None, accumulate=False):
             continue
         parents = node._parents
         leaf = not parents
-        owner = node if leaf else node.retained() if node.retained is not None else None
-        if owner is not None and owner.requires_grad and (owner.retains_grad or
-                accumulate and leaf and (targets is None or key in targets)):
-            owner._accumulate_gradient(gradient)
-        if leaf or targets is not None and key in targets or owner is not None and owner.retains_grad:
-            derivatives[key] = gradient
+        if leaf:
+            owner = node
+            hook_gradient = None
+            update = accumulate and owner.requires_grad and (targets is None or key in targets)
+            if node._backward_hooks or update and node._post_accumulate_grad_hooks:
+                gradient, hook_gradient = _tensor_hooks.apply(gradient, node._backward_hooks,
+                    owner if update else None)
+            elif update:
+                owner._accumulate_gradient(gradient)
+        elif node.callbacks is not None:
+            callbacks = node.callbacks
+            owner = callbacks()
+            retained = owner is not None and owner.requires_grad and owner.retains_grad
+            hook_gradient = None
+            if callbacks.hooks:
+                gradient, hook_gradient = _tensor_hooks.apply(gradient, callbacks.hooks, owner if retained else None)
+            elif retained:
+                owner._accumulate_gradient(gradient)
+        else:
+            owner = None
+        if not accumulate and (leaf or targets is not None and key in targets or owner is not None and owner.retains_grad):
+            derivatives[key] = hook_gradient if (leaf or node.callbacks is not None) and hook_gradient is not None else gradient
         execute_target = accumulate and targets is not None and key in targets and not leaf
         edges = parents if needed is None or execute_target else tuple(edge for edge in parents if id(edge[0]) in needed)
         if not edges:

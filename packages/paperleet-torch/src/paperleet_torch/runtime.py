@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def source_files(profile='autograd'):
-    """Return self-contained Python sources, using installed package resources.
+    """Return Python sources and redistribution notices from installed resources.
 
     No PaperLeet modules or source checkout are required. The small schedules
     profile retains its original unsupported-AD behavior.
@@ -16,5 +16,6 @@ def source_files(profile='autograd'):
                  if p.name not in ('_legacy.py', 'runtime.py', '_cli.py', '__main__.py')]
     else:
         raise ValueError(f'Unknown runtime profile: {profile}')
+    names += ['LICENSE', 'NOTICE']
     return {f'paperleet_torch/{name}': (package / name).read_text(encoding='utf-8')
             for name in names}

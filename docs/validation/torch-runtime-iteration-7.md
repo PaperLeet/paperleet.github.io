@@ -58,11 +58,16 @@ checked against [PyTorch's derivative implementation](https://github.com/pytorch
 
 The baseline is frozen `254b653` / 0.6.0; candidate is frozen 0.7.0. All 29 Python
 source hashes match the benchmark snapshot. CPU uses Python 3.12.11 / NumPy 2.5.4
-with one OMP/MKL/OpenBLAS thread. Node v25.9.0 and Chrome 155.0.8059.40 use
+with OMP/MKL/OpenBLAS environment variables set to 1. Node v25.9.0 and Chrome 155.0.8059.40 use
 Pyodide 0.29.4 / NumPy 2.2.5. Timings run sequentially in fresh processes/Workers,
 without local correctness jobs. Each case has three warmups and eleven batches
 of 120 calls. CPU uses baseline→candidate→candidate→baseline order; the table
 averages the two process medians per variant. Imports are excluded.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 | Workload (ms) | CPU 0.6 → 0.7 | Node WASM 0.6 → 0.7 | Chrome WASM 0.6 → 0.7 |
 | --- | ---: | ---: | ---: |

@@ -1,0 +1,77 @@
+--- a/_graph.py
++++ b/_graph.py
+@@ -66,13 +66,9 @@
+                 owner._accumulate_gradient(gradient)
+         elif node.callbacks is not None:
+             callbacks = node.callbacks
+-            owner = callbacks()
++            owner = callbacks.owner()
+             retained = owner is not None and owner.requires_grad and owner.retains_grad
+-            hook_gradient = None
+-            if callbacks.hooks:
+-                gradient, hook_gradient = _tensor_hooks.apply(gradient, callbacks.hooks, owner if retained else None)
+-            elif retained:
+-                owner._accumulate_gradient(gradient)
++            gradient, hook_gradient = _tensor_hooks.apply(gradient, callbacks.hooks, owner if retained else None)
+         else:
+             owner = None
+         if not accumulate and (leaf or targets is not None and key in targets or owner is not None and owner.retains_grad):
+--- a/_tensor.py
++++ b/_tensor.py
+@@ -294,8 +294,6 @@
+         if not isinstance(src, Tensor):raise TypeError('copy_ source must be a Tensor')
+         if type(non_blocking) is not bool:raise TypeError('non_blocking must be bool')
+         if _state._jvp_active:raise _errors.BrowserUnsupported('Tensor copy_ inside forward AD is unsupported')
+-        if self.dtype.kind not in 'biufc' or src.dtype.kind not in 'biufc':
+-            raise _errors.BrowserUnsupported('copy_ requires boolean or numeric Tensor storage')
+         if _state._grad_enabled and (self.requires_grad or src.requires_grad):
+             raise _errors.BrowserUnsupported('Differentiable in-place copy_ requires the server')
+         destination,source = self._data,src._data
+@@ -320,11 +318,7 @@
+                     _state._copy_complex_warning_emitted=True
+                     warnings.warn('Casting complex values to real discards the imaginary part',UserWarning,stacklevel=2)
+                 source=source.real
+-            if source.dtype==destination.dtype:
+-                np.copyto(writable,source,casting='unsafe')
+-            else:
+-                with np.errstate(all='ignore'):
+-                    np.copyto(writable,source,casting='unsafe')
++            np.copyto(writable,source,casting='unsafe')
+         self._storage.bump()
+         return self
+ 
+--- a/_tensor_hooks.py
++++ b/_tensor_hooks.py
+@@ -6,11 +6,11 @@
+ from ._module_hooks import RemovableHandle
+ 
+ 
+-class NodeCallbacks(weakref.ref):
+-    __slots__ = ('hooks',)
++class NodeCallbacks:
++    __slots__ = ('owner', 'hooks')
+ 
+     def __init__(self, tensor):
+-        self.hooks = None
++        self.owner, self.hooks = weakref.ref(tensor), None
+ 
+ 
+ def callbacks_for(tensor):
+--- a/runtime.py
++++ b/runtime.py
+@@ -3,7 +3,7 @@
+ 
+ 
+ def source_files(profile='autograd'):
+-    """Return Python sources and redistribution notices from installed resources.
++    """Return self-contained Python sources, using installed package resources.
+ 
+     No PaperLeet modules or source checkout are required. The small schedules
+     profile retains its original unsupported-AD behavior.
+@@ -16,6 +16,5 @@
+                  if p.name not in ('_legacy.py', 'runtime.py', '_cli.py', '__main__.py')]
+     else:
+         raise ValueError(f'Unknown runtime profile: {profile}')
+-    names += ['LICENSE', 'NOTICE']
+     return {f'paperleet_torch/{name}': (package / name).read_text(encoding='utf-8')
+             for name in names}

@@ -73,10 +73,15 @@ paths skip unused dictionary/iterator and incompatible-key object allocations.
 
 Timings compare frozen main `89580984f64b6832cf3adbad8b1d946b489efc94` / 0.7.0
 with 0.8.0. All 30 candidate source files and benchmark scripts are hashed;
-baselines have 29 sources. CPU uses Python 3.12.11 / NumPy 2.5.4 with one
-OMP/MKL/OpenBLAS thread. Node v25.9.0 and Chrome 155.0.8059.40 use Pyodide
+baselines have 29 sources. CPU uses Python 3.12.11 / NumPy 2.5.4 with
+OMP/MKL/OpenBLAS environment variables set to 1. Node v25.9.0 and Chrome 155.0.8059.40 use Pyodide
 0.29.4 / NumPy 2.2.5. Runs are sequential in fresh processes/Workers without
 local correctness jobs. CPU uses baseline→candidate→candidate→baseline order.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 Each case uses three warmups and eleven batches. Module/checkpoint cases use
 1,200 calls per batch; small dispatch/construction/registration cases use 12,000

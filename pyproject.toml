@@ -23,6 +23,7 @@ packages = ["paperleet", "paperleet.browser", "paperleet.common", "paperleet.jud
 
 [tool.setuptools.package-data]
 paperleet = ["interview_catalog.json"]
+"paperleet._vendor.torch" = ["LICENSE", "NOTICE"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "problems"]

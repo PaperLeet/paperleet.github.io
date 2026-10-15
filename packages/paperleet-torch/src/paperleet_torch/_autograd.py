@@ -252,7 +252,9 @@ def autograd_grad(output, inputs, grad_outputs=None, retain_graph=None, create_g
         if key not in gradients:
             if not allow_unused:raise RuntimeError('A differentiated tensor was not used in the graph')
             values.append(_tensor.Tensor(np.zeros_like(value._data)) if materialize_grads else None)
-        else:values.append(_tensor.Tensor(gradients[key]))
+        else:
+            value=gradients[key]
+            values.append(value if isinstance(value,_tensor.Tensor) else _tensor.Tensor(value))
     return tuple(values) if keys is None else dict(zip(keys,values))
 
 

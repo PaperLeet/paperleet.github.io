@@ -88,12 +88,17 @@ to reproduce the allocation fixture.
 
 Timings compare frozen main `fe09cfa6ae2a792f1e93e6b107164799967ca1be` / 0.8.0
 with 0.9.0. All 31 candidate sources and benchmark scripts are hashed; the
-baseline has 30 sources. CPU uses Python 3.12.11 / NumPy 2.5.4 with one
-OMP/MKL/OpenBLAS thread. Node v25.9.0 and Chrome 155.0.8059.40 use Pyodide
+baseline has 30 sources. CPU uses Python 3.12.11 / NumPy 2.5.4 with
+OMP/MKL/OpenBLAS environment variables set to 1. Node v25.9.0 and Chrome 155.0.8059.40 use Pyodide
 0.29.4 / NumPy 2.2.5. Fresh processes/Workers run sequentially without overlapping
 local correctness/build jobs. CPU uses baseline→candidate→candidate→baseline.
 Each case has three warmups and eleven batches of 120 calls. Balanced Node
 controls use 360 calls per batch. All individual samples are retained.
+
+CPU configuration clarification: these variables record environment settings;
+they do not establish Apple Accelerate's threading policy. Historical samples
+remain unchanged. The [0.10 record](torch-runtime-iteration-10.md) describes the
+later BLAS provider audit and directly verified Accelerate controls.
 
 The 16→32→8 MLP fixture includes gradient reset, forward, backward and SGD update
 on a 16-row batch. Core fixtures exclude imports and construction. AdamW uses a
