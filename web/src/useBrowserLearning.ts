@@ -4,7 +4,9 @@ import type { createLearningController, LearningCommand, LearningView } from './
 import type { Problem, Report } from './types';
 
 type Runtime={owner:string;pending:LearningCommand[];controller?:ReturnType<typeof createLearningController>};
-const empty=(owner:string):LearningView=>({owner,records:{},ready:!learningOwner(owner),failed:false,saving:false});
+/** Browser feedback for guests is already held in memory by useBrowserJudge. */
+export const persistsBrowserLearning = (owner:string) => owner.startsWith('user:') && learningOwner(owner);
+const empty=(owner:string):LearningView=>({owner,records:{},ready:!persistsBrowserLearning(owner),failed:false,saving:false});
 export function useBrowserLearning(owner:string) {
   const [view,setView]=useState(()=>empty(owner));
   const latest=useRef(view),active=useRef<Runtime|undefined>(undefined),currentOwner=useRef(owner);currentOwner.current=owner;
@@ -20,7 +22,7 @@ export function useBrowserLearning(owner:string) {
   }
   useEffect(()=>{
     latest.current=empty(owner);setView(latest.current);
-    if(!learningOwner(owner)){active.current=undefined;return;}
+    if(!persistsBrowserLearning(owner)){active.current=undefined;return;}
     const runtime:Runtime={owner,pending:[]};active.current=runtime;void start(runtime);
     return()=>{runtime.controller?.dispose();if(active.current===runtime)active.current=undefined;};
   },[owner]);

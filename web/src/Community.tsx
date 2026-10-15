@@ -1,3 +1,4 @@
+import { PublishingRules } from './PublishingRules';
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown, { CommunityFormatHelp } from "./CommunityMarkdown";
@@ -429,6 +430,7 @@ function Composer({
             />
           </label>
         )}
+        <PublishingRules action="post" />
         <div className="form-footer">
           <small>
             {t(
@@ -1068,6 +1070,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                     onChange={(e) => editReply({ body: e.target.value })}
                   />
                 </label>}
+                <PublishingRules action="reply" />
                 <div className="form-footer">
                   <small>
                     {t(

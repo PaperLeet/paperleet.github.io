@@ -1,13 +1,10 @@
 import { deferredFeature, FeatureFailure } from './deferredFeature';
 import { EditorFailure, EditorLoading } from './EditorFallback';
-import { WorkspaceBackupFailure } from './WorkspaceBackupFallback';
 
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
 export const UserProfile = deferredFeature<Parameters<typeof import('./Community').UserProfile>[0]>(() => import('./Community').then(module => ({ default: module.UserProfile })), ['个人主页', 'profile']);
 export const Account = deferredFeature(() => import('./Account'), ['账号页面', 'account page']);
-export const WorkspaceBackup = deferredFeature(() => import('./WorkspaceBackup'), ['代码备份', 'code backup'], {
-  failure: props => <WorkspaceBackupFailure onClose={props.onClose} recovery={props.recovery} />,
-});
+export const SolutionHistory = deferredFeature(() => import('./SolutionHistory'), ['提交记录', 'submission history']);
 export const Submissions = deferredFeature(() => import('./Submissions'), ['论文提交页面', 'paper submission page']);
 export const Visuals = deferredFeature(() => import('./Lab'), ['实验室', 'lab']);
 export const ArtifactCharts = deferredFeature<Parameters<typeof import('./Visuals').ArtifactCharts>[0]>(() => import('./Visuals').then(module => ({ default: module.ArtifactCharts })), ['实验图表', 'experiment charts']);

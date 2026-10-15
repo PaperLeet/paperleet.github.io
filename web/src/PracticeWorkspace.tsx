@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { parseSaved } from "./reports";
 import { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
-import { useBrowserWorkspace } from "./useBrowserWorkspace";
+import { useGuestWorkspace } from "./useGuestWorkspace";
 export { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
 import type { Problem, Report, Saved } from "./types";
 import { SocialError, errorMessage, socialApi, useAccount } from "./social";
@@ -94,7 +94,7 @@ export function usePracticeWorkspace() {
   } = useAccount();
   const owner = practiceOwner(health?.mode, user?.id, accountLoading);
   const hosted = health?.mode === "hosted";
-  const browserWorkspace = useBrowserWorkspace(owner === "local" || owner === "anonymous" ? owner : undefined);
+  const browserWorkspace = useGuestWorkspace(owner === "local" || owner === "anonymous" ? owner : undefined);
   const [bundle, setBundle] = useState<Bundle>(() => emptyBundle("unresolved"));
   const [error, setError] = useState(""),
     [loading, setLoading] = useState(false),
@@ -120,7 +120,7 @@ export function usePracticeWorkspace() {
       storageError.current = "";
     } catch {
       storageError.current =
-        "Browser storage is full. Download your code to keep a backup.";
+        "Browser storage is full. Keep this page open and retry syncing your draft.";
     }
   }
   function mutate(change: (previous: Bundle) => Bundle, expectedOwner = owner) {

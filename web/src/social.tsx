@@ -5,6 +5,7 @@ import { useI18n } from "./i18n";
 import { signInHref } from "./accountNavigation";
 import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
 import { apiFetch } from "./apiClient";
+import { currentQuotaMessage } from "./publicationQuota";
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type PublicUser = {
@@ -76,7 +77,7 @@ export async function socialApi<T>(path: string, body?: unknown): Promise<T> {
   }
   if (!response.ok)
     throw new SocialError(
-      data.error || "Request failed",
+      currentQuotaMessage(data) || data.error || "Request failed",
       response.status,
       data.code,
     );

@@ -1,0 +1,17 @@
+.bilingual-text {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  max-width: 100%;
+  vertical-align: baseline;
+}
+.bilingual-text > span {
+  grid-area: 1 / 1;
+  min-width: 0;
+  align-self: start;
+}
+.bilingual-text > span[aria-hidden="true"] {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}

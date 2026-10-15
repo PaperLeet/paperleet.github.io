@@ -146,6 +146,8 @@ try {
   console.log("PASS bilingual module searches, paper searches, difficulty conjunction, and pristine-starter status");
   const rowIds = (html) => [...html.matchAll(/href="#\/papers\/([^"]+)"/g)].map((match) => match[1]);
   const headingText = (html) => html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)[1]
+    // Inactive translations reserve layout space but are not readable headings.
+    .replace(/<span\b[^>]*aria-hidden="true"[^>]*>[^<]*<\/span>/g, "")
     .replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
   const acceptedFixture = (module) => ({
     acceptedReport: {

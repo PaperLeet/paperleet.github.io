@@ -1,3 +1,5 @@
+import { PublishingRules } from './PublishingRules';
+import { currentQuotaMessage } from './publicationQuota';
 import { apiFetch } from "./apiClient";
 import { useEffect, useState } from "react";
 import {
@@ -126,7 +128,7 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
     );
   }
   if (!response.ok)
-    throw Error(data.error || `Request failed (${response.status})`);
+    throw Error(currentQuotaMessage(data) || data.error || `Request failed (${response.status})`);
   return data;
 }
 export default function Submissions({
@@ -554,6 +556,7 @@ export default function Submissions({
                       />
                     </label>
                   </details>
+                  {caps?.mode === "hosted" && <PublishingRules action="paper" />}
                   <div className="review-required">
                     <ShieldCheck size={18} />
                     <p>

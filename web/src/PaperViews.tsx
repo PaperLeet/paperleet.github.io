@@ -4,6 +4,7 @@ import {
   ChevronLeft, ChevronRight, Circle, ExternalLink, Search, Library, Shuffle, X,
 } from "lucide-react";
 import { useI18n } from "./i18n";
+import { BilingualText } from "./BilingualText";
 import { status } from "./types";
 import type { Category, Paper, Problem, Saved } from "./types";
 import { paperCollections, papersInCollection } from "./paperCollections";
@@ -12,7 +13,6 @@ import CollectionArtwork from "./CollectionArtwork";
 import { getProblemStats, ProblemStatsSummary } from "./ProblemStats";
 import type { ProblemStatsMap } from "./ProblemStats";
 import { PracticeStart } from "./PracticeJourney";
-import { ModuleJudgeBadge, PaperJudgeBadge } from "./JudgeCapability";
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export function paperModules(paper: Paper, problems: Problem[]) {
@@ -146,14 +146,14 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     </section>
     <div className="library-main">
     <header className="library-heading">
-      <div className="library-title"><h1>{selectedCollection ? t(selectedCollection.name, selectedCollection.name_en) : t("论文题库", "Papers")} <span>{listedPapers.length}</span></h1>{selectedCollection && <a className="clear-collection" href="#" onClick={clear} aria-label={t("返回全部论文", "Back to all papers")} title={t("返回全部论文", "Back to all papers")}><X size={17} /></a>}</div>
-      <div className="library-progress"><CheckCircle2 size={16} /><span>{t("已通过模块", "Modules solved")}</span><b>{solvedModules} / {listedModules.length}</b></div>
+      <div className="library-title"><h1><BilingualText zh={selectedCollection?.name || "论文题库"} en={selectedCollection?.name_en || "Papers"} /> <span>{listedPapers.length}</span></h1>{selectedCollection && <a className="clear-collection" href="#" onClick={clear} aria-label={t("返回全部论文", "Back to all papers")} title={t("返回全部论文", "Back to all papers")}><X size={17} /></a>}</div>
+      <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{solvedModules} / {listedModules.length}</b></div>
     </header>
     <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
-      <button aria-pressed={category === "all"} onClick={() => { setCategory("all"); setTag("all"); }}><Library size={16} />{t("全部", "All")}<span>{listedPapers.length}</span></button>
+      <button aria-pressed={category === "all"} onClick={() => { setCategory("all"); setTag("all"); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
       {visibleCategories.map((item) => {
         const label = categoryLabels[item.id] || [item.name, item.name_en];
-        return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { setCategory(item.id); setTag("all"); }}><i aria-hidden="true" />{t(label[0], label[1])}<span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
+        return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { setCategory(item.id); setTag("all"); }}><i aria-hidden="true" /><BilingualText zh={label[0]} en={label[1]} /><span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
       })}
     </div>
     <section className="problem-list" aria-label={t("论文列表", "Paper list")}>
@@ -173,7 +173,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
         </div>
-        <button className="random-problem" onClick={randomProblem} disabled={!progressReady || !unattempted.length} title={!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} />{t("随机一题", "Random problem")}</button>
+        <button className="random-problem" onClick={randomProblem} disabled={!progressReady || !unattempted.length} title={!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} /><BilingualText zh="随机一题" en="Random problem" /></button>
       </div>
       <div className="library-results" aria-live="polite"><span>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · {filteredModules.length} {t("道题", "modules")}{progressReady && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</span>{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}</div>
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{t("论文", "Paper")}</span><span className="paper-year">{t("年份", "Year")}</span><span>{t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
@@ -182,7 +182,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const progress = paperProgress(paper, practice);
           return <a className="problem-row paper-table-grid" key={paper.id} href={`#/papers/${paper.id}`}>
             <StateIcon state={progress.state} />
-            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}<PaperJudgeBadge modules={paperModules(paper, problems)} /></strong><small title={paper.title}>{paper.title}</small></div>
+            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}</strong><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
@@ -218,7 +218,7 @@ export function PaperDetail({ paper, problems, saved, stats }: Practice & { pape
             return <a href={`#/${problem.number}`} className="paper-module-card" key={problem.id}>
               <div className="module-card-top"><StateIcon state={state} /><h3><span>{problem.number}.</span> {title}</h3><ChevronRight size={17} /></div>
               <p>{t(problem.module.goal, problem.module.goal_en)}</p>
-              <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span><ModuleJudgeBadge problem={problem} /><span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
+              <div className="module-card-tags"><span className={`difficulty ${problem.difficulty}`}>{({ E: "Easy", M: "Medium", H: "Hard" } as Record<string, string>)[problem.difficulty] || problem.difficulty}</span><span>{problem.estimated_minutes || 25} min</span><span>{problem.module.optional ? t("可选拓展", "Optional extension") : t("核心模块", "Core module")}</span>{state === "done" && <span className="accepted">{t("已通过", "Solved")}</span>}</div>
               <div className="module-functions"><span>{t("需要实现", "Implement")}</span>{problem.module.required_functions.map((name) => <code key={name}>{name}</code>)}</div>
               {!!problem.module.provided_functions.length && <div className="module-functions provided-functions"><span>{t("已提供", "Provided")}</span>{problem.module.provided_functions.map((name) => <code key={name}>{name}</code>)}</div>}
               <ProblemStatsSummary stats={getProblemStats(stats, problem.id)} />

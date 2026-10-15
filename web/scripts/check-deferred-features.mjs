@@ -16,7 +16,7 @@ try {
   assert(editor.includes('普通文本模式') && editor.includes('重试加载') && editor.includes('刷新页面'));
   const recoveryProps = {...props, retry(){}, recovery:{blocked:false,reason:'',reload(){}}};
   const recovery = renderToString(React.createElement(EditorFailure,recoveryProps));
-  assert(recovery.includes('重新加载编辑器') && recovery.includes('已保存的测试结果会保留'));
+  assert(recovery.includes('重新加载编辑器') && recovery.includes('账号中已保存的解答会保留') && recovery.includes('游客代码会丢失'));
   assert(!recovery.includes('重试加载') && !recovery.includes('刷新页面</button>'),'The workspace editor must use its guarded reload rather than ineffective repeated imports or an unguarded refresh');
   for(const reason of ['saving draft','storage failed','draft conflict','running tests','saving learning progress','owner unresolved']){
     const waiting = renderToString(React.createElement(EditorFailure,{...recoveryProps,recovery:{...recoveryProps.recovery,blocked:true,reason}}));

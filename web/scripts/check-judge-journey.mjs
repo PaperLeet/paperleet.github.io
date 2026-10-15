@@ -8,19 +8,13 @@ const server=await createServer({server:{middlewareMode:true},appType:'custom'})
 try {
   const { problems,papers }=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
   const attention=problems.find(p=>p.id==='architecture/attention');
-  const { paperJudgeCapability,PaperJudgeBadge,ModuleJudgeBadge }=await server.ssrLoadModule('/src/JudgeCapability.tsx');
-  const { paperModules,PaperDetail }=await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { PaperDetail }=await server.ssrLoadModule('/src/PaperViews.tsx');
   const mixed=papers.find(p=>p.id==='ddpm');
   // Exercise mixed-runtime rendering even when current multi-module papers
   // have uniform coverage; exported problem data remain unchanged.
   const fixtureProblems=problems.map(p=>p.id==='diffusion/ddpm_sampling'?{...p,browser_judge:undefined}:p);
-  const modules=paperModules(mixed,fixtureProblems);
-  assert.deepEqual(paperJudgeCapability(modules),{browser:1,server:1,total:2});
-  assert(renderToString(React.createElement(PaperJudgeBadge,{modules})).includes('部分浏览器 1/2'));
   const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{},onGuide(){}}));
-  assert(detail.includes('浏览器判题 · 无需 GPU') && detail.includes('服务端判题'));
-  assert(renderToString(React.createElement(ModuleJudgeBadge,{problem:modules.find(p=>!p.browser_judge)})).includes('服务端判题'));
-  assert.equal(renderToString(React.createElement(PaperJudgeBadge,{modules:[]})),'');
+  assert(!detail.includes('judge-capability-badge'), 'Module cards should not display runtime badges');
 
   const { verificationReason,matchesBrowserSubmission }=await server.ssrLoadModule('/src/browserVerification.ts');
   const { fingerprintSource }=await server.ssrLoadModule('/src/reportSource.ts');
@@ -39,7 +33,7 @@ try {
   const { BrowserResultActions }=await server.ssrLoadModule('/src/BrowserResultActions.tsx');
   const props={...ready,problem:attention,report,onSignIn(){},onVerify(){},onRefresh(){},onLab(){}};
   const guest=renderToString(React.createElement(BrowserResultActions,{...props,signedIn:false}));
-  assert(guest.includes('保留本题代码并登录') && !guest.includes('服务端确认成绩'));
+  assert(guest.includes('登录后提交') && guest.includes('未登录的代码不会保存') && !guest.includes('提交并保存解答'));
   const changed=renderToString(React.createElement(BrowserResultActions,{...props,sourceState:'changed'}));
   assert(changed.includes('代码已改变') && changed.includes('disabled=""'));
   const offline=renderToString(React.createElement(BrowserResultActions,{...props,online:false}));
@@ -82,5 +76,5 @@ try {
   assert(notice.includes('&lt;script&gt;') && !notice.includes('<script>'));
   const waiting=renderToString(React.createElement(DraftHandoffNotice,{pending:held,problem:attention,current:{},username:'alice',open:true,ready:false,conflict:false,onImport(){},onDiscard(){}}));
   assert(waiting.includes('正在加载账号草稿') && !waiting.includes('私有草稿'));
-  console.log('PASS judge journey: honest mixed/server badges, exact-source verification, guest sign-in actions, tab-scoped source-only handoff, TTL/account isolation, overwrite review and stale-draft guards');
+  console.log('PASS judge journey: module cards without runtime badges, exact-source verification, guest sign-in actions, tab-scoped source-only handoff, TTL/account isolation, overwrite review and stale-draft guards');
 } finally { await server.close(); }

@@ -108,10 +108,10 @@ export async function checkBrowserWorkspace(server) {
     assert.deepEqual(legacyBrowserWorkspace('local'),{});
     for(const en of [false,true]){
       globalThis.localStorage={getItem:()=>en?'en':'zh'};
-      const resetProps={owner,problem:{...problem,starter:'# starter'},saved:{code:''},ready:true,busy:false,conflict:false,failed:false,browserWorkspace:true,onReset(){return true;},onDownload(){}};
+      const resetProps={owner,problem:{...problem,starter:'# starter'},saved:{code:''},ready:true,busy:false,conflict:false,failed:false,signedIn:false,onReset(){return true;}};
       const resetButton=renderToString(React.createElement(LocaleProvider,null,React.createElement(ResetCodeButton,resetProps)));
-      assert(resetButton.includes(en?'Reset starter with backup':'恢复初始代码并备份'));
-      assert(!resetButton.includes('disabled=""'),'An empty edited file is a real draft that can be reviewed and backed up');
+      assert(resetButton.includes(en?'Restore starter code':'恢复初始代码'));
+      assert(!resetButton.includes('disabled=""'),'An empty edited file is a real draft that can be reviewed and reset');
       for(const blocked of [{ready:false},{busy:true},{conflict:true},{failed:true},{saved:{code:'# starter'}}]){
         const html=renderToString(React.createElement(LocaleProvider,null,React.createElement(ResetCodeButton,{...resetProps,...blocked})));
         assert(html.includes('disabled=""'),'Reset must be unavailable for pristine, unready, busy, failed or conflicted workspaces');

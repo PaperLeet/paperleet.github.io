@@ -220,7 +220,7 @@ export function TestSignIn({ enabled }: { enabled: boolean }) {
               )
             : t(
                 "内测账号由管理员创建，昵称和头像始终公开。本地模式的练习记录保存在当前浏览器中。",
-                "Test accounts are created by an administrator. Display names and avatars are always public. Local-mode practice stays in this browser.",
+                "Test accounts are created by an administrator. Display names and avatars are always public. Guest practice is not saved after the page closes or reloads.",
               )}
         </p>
       </section>
