@@ -8,7 +8,7 @@ const source = html.match(/<script id="app-startup">([\s\S]*?)<\/script>/)?.[1];
 assert(source, 'Recovery must run inline, before downloaded app modules');
 assert(html.includes('id="startup-title"') && html.includes('<noscript>'), 'The document must be readable even when the app cannot load');
 
-function harness({ english = false, blockedStorage = false, parsed = true } = {}) {
+function harness({ english = false, blockedStorage = false, parsed = true, language = 'zh-CN' } = {}) {
   let connected = parsed, cleared = false, timer;
   const nodes = Object.fromEntries(['startup-title', 'startup-message', 'startup-retry'].map(id => [id, { textContent: '', hidden: true, href: '' }]));
   const events = () => {
@@ -22,7 +22,7 @@ function harness({ english = false, blockedStorage = false, parsed = true } = {}
   };
   const window = events(), document = { ...events(), getElementById: id => connected ? nodes[id] : null };
   vm.runInNewContext(source, {
-    window, document, URL, Date,
+    window, document, URL, Date, navigator: { language, languages: [language] },
     location: { href: 'https://paperleet.com/?campaign=demo#/account/continue/22' },
     localStorage: { getItem() { if (blockedStorage) throw Error('Storage blocked'); return english ? 'en' : null; } },
     setTimeout(fn, ms) { assert.equal(ms, 10000); timer = fn; return 1; },

@@ -35,6 +35,7 @@ import { usePracticeWorkspace } from "./PracticeWorkspace";
 import { BrowserRunProgress } from "./BrowserRunProgress";
 import { browserProgressText } from "./browserProgress";
 import Brand from "./Brand";
+import RepositoryLink from "./RepositoryLink";
 import OnlinePresence from "./OnlinePresence";
 import { BilingualText } from "./BilingualText";
 import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
@@ -589,18 +590,7 @@ function Workspace() {
             </a>}
           </nav>
           <div className="nav-actions">
-            <span
-              className={`connection ${online ? "connected" : ""}`}
-              title={t(
-                "网页直接提交代码并显示测试结果",
-                "Run code and view test results in this workspace",
-              )}
-            >
-              <i />
-              {publicSite ? <BilingualText zh="浏览器练习" en="Browser practice" /> : online
-                ? <BilingualText zh="判题服务已连接" en="Judge connected" />
-                : <BilingualText zh="判题服务未连接" en="Judge offline" />}
-            </span>
+            <RepositoryLink />
             <OnlinePresence />
             <button
               className="language-toggle"
@@ -1278,7 +1268,7 @@ function Workspace() {
                   </div>
                   </ResizableSplit>
                   <div className="editor-bottom">
-                    <span>
+                    <span className="editor-run-status" role="status">
                       {running ? (
                         <>
                           <span className="spinner" />
@@ -1291,12 +1281,16 @@ function Workspace() {
                       ) : online || browserAvailable ? (
                         <>
                           <i className="green-dot" />
-                          {t("可以运行", "Ready")}
+                          {browserAvailable
+                            ? online
+                              ? t("浏览器 / 服务端可用", "Browser / server ready")
+                              : t("浏览器测试可用", "Browser tests ready")
+                            : t("判题服务已连接", "Judge connected")}
                         </>
                       ) : (
                         <>
                           <i className="yellow-dot" />
-                          {t("判题服务暂时不可用", "Judge unavailable")}
+                          {t("判题服务未连接", "Judge offline")}
                         </>
                       )}
                     </span>

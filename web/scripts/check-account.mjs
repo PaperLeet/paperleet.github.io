@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import React from "react";
-import { renderToString } from "react-dom/server";
+import { localizedRenderer } from "./render-locale.mjs";
 import { createServer } from "vite";
 const server = await createServer({
   server: { middlewareMode: true },
   appType: "custom",
 });
 try {
+  const renderToString = await localizedRenderer(server, "zh");
   const { TestSignIn, SignIn, OrganizationSignIn, ProfileSettings } =
     await server.ssrLoadModule("/src/Account.tsx");
   const { PersonLink, AccountNav } = await server.ssrLoadModule("/src/social.tsx");

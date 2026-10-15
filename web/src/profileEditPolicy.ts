@@ -1,3 +1,5 @@
+import { currentLocale } from "./locale";
+
 export type ProfileEditPolicy = {
   username: { interval_seconds: number; next_change_at: string | null };
   display_name: { interval_seconds: number; next_change_at: string | null };
@@ -32,7 +34,5 @@ export function profileEditLimitMessage(value: unknown, english: boolean): strin
 }
 
 export function currentProfileEditLimitMessage(value: unknown) {
-  let english = false;
-  try { english = localStorage.getItem("paperleet.locale") === "en"; } catch { /* Default language. */ }
-  return profileEditLimitMessage(value, english);
+  return profileEditLimitMessage(value, currentLocale() === "en");
 }

@@ -186,22 +186,6 @@ h3 {
   gap: 20px;
   margin-left: auto;
 }
-.connection {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 14px;
-}
-.connection > i {
-  width: 6px;
-  height: 6px;
-  border-radius: 100%;
-  background: var(--muted);
-}
-.connection.connected > i {
-  background: var(--green);
-}
 .avatar {
   border: 1px solid #8e745047;
   border-radius: 50%;
@@ -2278,9 +2262,6 @@ h3 {
     padding: 0 24px;
     gap: 32px;
   }
-  .connection {
-    display: none;
-  }
   .description-scroll {
     padding: 28px;
   }
@@ -3455,9 +3436,6 @@ h3 {
   animation: spin 1.2s linear infinite;
 }
 @media (max-width: 1050px) {
-  .connection {
-    display: none;
-  }
   .submission-columns {
     grid-template-columns: 220px minmax(0, 1fr);
     gap: 18px;
@@ -3890,7 +3868,6 @@ html { scrollbar-gutter: stable; }
 .language-toggle > span.selected { font-weight: 600; }
 .topbar .sign-in-nav { width: 78px; }
 @media (max-width: 1400px) {
-  .topbar .connection { display: none; }
   .nav-inner { gap: 20px; }
   .topbar nav { gap: 14px; }
   .nav-actions { gap: 10px; }
@@ -3911,4 +3888,14 @@ html { scrollbar-gutter: stable; }
   .topbar .nav-actions { gap: 4px; }
   .topbar .online-presence { width: 48px; }
   .online-presence b { max-width: 30px; }
+}
+
+/* Repository access stays in the navigation; judge readiness stays by Run. */
+.repository-link { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--muted); border-radius: 6px; }
+.repository-link:hover { color: var(--text); background: var(--surface3); }
+.repository-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.editor-bottom .editor-run-status { min-width: 0; flex-wrap: wrap; font-size: 12px; line-height: 1.5; }
+@media (max-width: 520px) {
+  .repository-link { width: 28px; height: 30px; }
+  .editor-bottom .editor-run-status { font-size: 11px; }
 }

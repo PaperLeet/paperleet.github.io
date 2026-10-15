@@ -56,7 +56,7 @@ function ProgressBar({ completed, total }: { completed: number; total: number })
 }
 
 const categoryLabels: Record<string, [string, string]> = {
-  "reinforcement-learning": ["强化学习", "RL"],
+  "reinforcement-learning": ["强化学习", "Reinforcement Learning"],
   "post-training": ["后训练与微调", "Post-training"],
   "generative-models": ["生成模型", "Generative models"],
   architecture: ["架构与推理", "Architecture"],

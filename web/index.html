@@ -40,8 +40,13 @@
     </script>
     <script id="app-startup">
       (() => {
-        let ready = false, failed = false, slow = false, english = false;
-        try { english = localStorage.getItem('paperleet.locale') === 'en'; } catch {}
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
         function update() {
           if (ready) return;
           const title = document.getElementById('startup-title');
@@ -89,10 +94,10 @@
       <main class="startup-screen">
         <section class="startup-card" aria-labelledby="startup-title">
           <strong>PaperLeet</strong>
-          <h1 id="startup-title">正在打开 PaperLeet…</h1>
-          <p id="startup-message" role="status">正在加载页面，请稍候。</p>
-          <a id="startup-retry" href="?reload=1" hidden>重新加载</a>
-          <noscript><p>请启用 JavaScript 后重新加载。 Please enable JavaScript and reload.</p></noscript>
+          <h1 id="startup-title">Opening PaperLeet…</h1>
+          <p id="startup-message" role="status">Loading the page. Please wait.</p>
+          <a id="startup-retry" href="?reload=1" hidden>Reload page</a>
+          <noscript><p>Please enable JavaScript and reload.</p></noscript>
         </section>
       </main>
     </div>

@@ -1,3 +1,5 @@
+import { currentLocale } from "./locale";
+
 type QuotaResponse = { code?: unknown; quota?: { action?: unknown; limit?: unknown; reset_at?: unknown } };
 
 /** Use only validated server fields; the account quota is enforced by the API. */
@@ -16,7 +18,5 @@ export function publicationQuotaMessage(data: QuotaResponse, english: boolean): 
 }
 
 export function currentQuotaMessage(data: QuotaResponse) {
-  let english = false;
-  try { english = localStorage.getItem('paperleet.locale') === 'en'; } catch { /* Default language. */ }
-  return publicationQuotaMessage(data, english);
+  return publicationQuotaMessage(data, currentLocale() === "en");
 }

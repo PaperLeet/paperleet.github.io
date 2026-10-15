@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import React from 'react';
-import { renderToString } from 'react-dom/server';
+import { localizedRenderer } from "./render-locale.mjs";
 import { createServer } from 'vite';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 try {
+  const renderToString = await localizedRenderer(server, "zh");
   const { EditorFailure, EditorLoading } = await server.ssrLoadModule('/src/EditorFallback.tsx');
   const { FeatureLoading, FeatureFailure, deferredFeature } = await server.ssrLoadModule('/src/deferredFeature.tsx');
   const { Prose } = await server.ssrLoadModule('/src/RichText.tsx');

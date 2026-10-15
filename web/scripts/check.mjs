@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createHash } from "node:crypto";
 import React from "react";
-import { renderToString } from "react-dom/server";
+import { localizedRenderer } from "./render-locale.mjs";
 import { createServer } from "vite";
 
 const server = await createServer({
@@ -10,6 +10,7 @@ const server = await createServer({
   appType: "custom",
 });
 try {
+  const renderToString = await localizedRenderer(server, "zh");
   const { default: Lab } = await server.ssrLoadModule("/src/Lab.tsx");
   const { ArtifactCharts, Chart } = await server.ssrLoadModule("/src/Visuals.tsx");
   const { experimentTests } = await server.ssrLoadModule("/src/experimentResults.ts");

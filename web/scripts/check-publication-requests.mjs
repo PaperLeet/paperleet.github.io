@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import React from 'react';
-import {renderToString} from 'react-dom/server';
+import { localizedRenderer } from "./render-locale.mjs";
 
 export async function checkPublicationRequests(server){
+ const renderToString = await localizedRenderer(server, "zh");
  const {preparePublication,readPublication,clearPublication,postPublication,replyPublication,samePublication,publicationKey}=await server.ssrLoadModule('/src/publicationRequests.ts');
  const values=new Map(),storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};
  const owner='publication-alice',scope='architecture/attention';

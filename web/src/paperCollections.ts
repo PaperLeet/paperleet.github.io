@@ -22,7 +22,7 @@ export const paperCollections: PaperCollection[] = [
   {
     id: "rl",
     name: "强化学习",
-    name_en: "RL",
+    name_en: "Reinforcement Learning",
     description: "策略梯度 · 奖励优化 · 推理",
     description_en: "Policy gradients · Rewards · Reasoning",
     paperIds: [

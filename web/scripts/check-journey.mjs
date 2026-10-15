@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import React from "react";
-import { renderToString } from "react-dom/server";
+import { localizedRenderer } from "./render-locale.mjs";
 import { createServer } from "vite";
 
 const server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
 try {
+  const renderToString = await localizedRenderer(server, "zh");
   const { recommendPractice, nextPractice } = await server.ssrLoadModule("/src/practice-recommendation.ts");
   const { PracticeStart, PracticeNextStep } = await server.ssrLoadModule("/src/PracticeJourney.tsx");
   const { problems, papers } = JSON.parse(fs.readFileSync("public/data/catalog.json", "utf8"));

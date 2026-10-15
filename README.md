@@ -7,6 +7,8 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+**Standalone offline edition:** [Hongyang-Du/PaperLeet](https://github.com/Hongyang-Du/PaperLeet) is the main open-source project for local CPU practice, with the full learning guide, saved local solutions, and an MIT license. Star that repository to support the project.
+
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
 The pilot includes **49 papers and 63 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.

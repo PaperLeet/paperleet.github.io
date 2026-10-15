@@ -8,7 +8,8 @@ const originalStorage=globalThis.localStorage;
 try {
   const {default:CommunityMarkdown,CommunityFormatHelp}=await server.ssrLoadModule('/src/CommunityMarkdown.tsx');
   const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
-  const render=body=>renderToStaticMarkup(React.createElement(CommunityMarkdown,{body}));
+  globalThis.localStorage={getItem:()=>"zh"};
+  const render=body=>renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(CommunityMarkdown,{body})));
   const math=render('Scale $\\alpha/r$.\n\n$$\n\\Delta W = \\frac{\\alpha}{r}BA\n$$');
   assert(math.includes('katex-inline')||math.includes('class="katex"'));
   assert(math.includes('katex-display')&&math.includes('<math')&&math.includes('annotation encoding="application/x-tex"'));

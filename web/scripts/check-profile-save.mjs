@@ -57,6 +57,7 @@ const names = ['window', 'document', 'location', 'localStorage', 'fetch', 'creat
 const originals = new Map(names.map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
 let root;
 try {
+  const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const { ProfileSettings } = await server.ssrLoadModule('/src/Account.tsx');
   const { AccountProvider, useAccount } = await server.ssrLoadModule('/src/social.tsx');
   const document = new TestNode(9, '#document', null);
@@ -83,14 +84,14 @@ try {
     requests.push(JSON.parse(options.body));
     return new Promise(resolve => { completeSave = resolve; });
   };
-  Object.assign(globalThis, { window, document, location, fetch, localStorage: { setItem() {} }, IS_REACT_ACT_ENVIRONMENT: true });
+  Object.assign(globalThis, { window, document, location, fetch, localStorage: { getItem: key => key === 'paperleet.locale' ? 'zh' : null, setItem() {} }, IS_REACT_ACT_ENVIRONMENT: true });
 
   let account;
   function ObserveAccount() { account = useAccount(); return null; }
   const container = document.createElement('div');
   root = createRoot(container);
-  await act(async () => root.render(React.createElement(AccountProvider, null,
-    React.createElement(ProfileSettings, { user }), React.createElement(ObserveAccount))));
+  await act(async () => root.render(React.createElement(LocaleProvider, null, React.createElement(AccountProvider, null,
+    React.createElement(ProfileSettings, { user }), React.createElement(ObserveAccount)))));
   let form = findNode(container, node => node.tagName === 'FORM');
   assert(form);
   const uploadInput = () => findNode(form, node => node.tagName === 'INPUT' && node.attributes.type === 'file');
@@ -151,8 +152,8 @@ try {
   };
   async function showSettings(next, key) {
     location.hash = '#/account';
-    await act(async () => root.render(React.createElement(AccountProvider, null,
-      React.createElement(ProfileSettings, { user: next, key }), React.createElement(ObserveAccount))));
+    await act(async () => root.render(React.createElement(LocaleProvider, null, React.createElement(AccountProvider, null,
+      React.createElement(ProfileSettings, { user: next, key }), React.createElement(ObserveAccount)))));
     form = findNode(container, node => node.tagName === 'FORM');
   }
   async function dispatch(type, target) {
