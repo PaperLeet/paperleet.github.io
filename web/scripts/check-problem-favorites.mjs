@@ -1,0 +1,70 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/#/favorites',pretendToBeVisual:true});
+const values={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__favoriteFixture:undefined};
+const old=new Map(Object.keys(values).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value] of Object.entries(values))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'favorite-account',enforce:'pre',resolveId(source){if(source==='./social')return '\0favorite-account';},load(name){if(name==='\0favorite-account')return "import React from 'react';export const useAccount=()=>globalThis.__favoriteFixture.account;export const socialApi=(...args)=>globalThis.__favoriteFixture.request(...args);export class SocialError extends Error{constructor(message,status,code){super(message);this.status=status;this.code=code;}};export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);";}}]});
+let root;
+try{
+ const {createFavoriteStore}=await server.ssrLoadModule('/src/problemFavoriteStore.ts');
+ const item=id=>({problem_id:id,created_at:'2026-10-15T00:00:00Z'});
+ const snapshot=(revision,ids,owner='unit')=>({owner_id:owner,revision,items:ids.map(item)});
+ let readResolve,writeResolve,reads=0,writes=0,fail=false;
+ const mutations=[];
+ const store=createFavoriteStore('unit',async(body)=>{if(!body){reads++;return new Promise(resolve=>readResolve=resolve);}writes++;mutations.push(body);if(fail)throw Error('Lost acknowledgement');return new Promise(resolve=>writeResolve=resolve);});
+ const first=store.refresh(),second=store.refresh();assert.equal(reads,1);readResolve(snapshot(0,[]));await Promise.all([first,second]);
+ fail=true;await store.set('architecture/attention',true);assert.equal(store.getSnapshot().pending['architecture/attention'].active,true);assert.equal(store.getSnapshot().snapshot.items.length,0);
+ fail=false;const retry=store.set('architecture/attention',false);assert.equal(mutations.at(-1).active,true,'Retry keeps intended save direction');writeResolve({...snapshot(1,['architecture/attention']),problem_id:'architecture/attention',active:true});await retry;
+ const stale=store.refresh();const removal=store.set('architecture/attention',false);writeResolve({...snapshot(2,[]),problem_id:'architecture/attention',active:false});await removal;readResolve(snapshot(1,['architecture/attention']));await stale;assert.equal(store.getSnapshot().snapshot.revision,2);assert.equal(store.getSnapshot().snapshot.items.length,0,'A late GET cannot resurrect removed favorites');
+ const duplicate=createFavoriteStore('unit',async()=>snapshot(3,['x','x']));await duplicate.refresh();assert(duplicate.getSnapshot().error);assert(!duplicate.getSnapshot().snapshot);
+ const wrong=createFavoriteStore('unit',async()=>snapshot(3,['private'],'other'));await wrong.refresh();assert(wrong.getSnapshot().error);assert(!wrong.getSnapshot().snapshot,'Another account response must never render');
+ let raceReplies=[];
+ const race=createFavoriteStore('unit',body=>body?new Promise(resolve=>raceReplies.push({body,resolve})):Promise.resolve(snapshot(0,[])));
+ await race.refresh();const a=race.set('a',true),b=race.set('b',true);
+ raceReplies[1].resolve({...snapshot(2,['a','b']),problem_id:'b',active:true});await b;
+ raceReplies[0].resolve({...snapshot(1,['a']),problem_id:'a',active:true});await a;
+ assert.deepEqual(race.getSnapshot().snapshot.items.map(row=>row.problem_id),['a','b'],'An older write acknowledgement cannot erase a newer distinct write');
+ const unconfirmed=createFavoriteStore('unit',body=>Promise.resolve(body?{...snapshot(1,[]),problem_id:'other',active:true}:snapshot(0,[])));
+ await unconfirmed.refresh();await unconfirmed.set('a',true);assert(unconfirmed.getSnapshot().pending.a.error);assert.equal(unconfirmed.getSnapshot().snapshot.revision,0);
+ const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {ProblemFavoriteButton,ProblemFavoritesPage}=await server.ssrLoadModule('/src/ProblemFavorites.tsx');
+ const {withLibraryContext,libraryReturnHref,libraryContinuation}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const {signInHref,accountReturnHref}=await server.ssrLoadModule('/src/accountNavigation.ts');
+ const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
+ for(const path of [22,'architecture/attention']){const target=withLibraryContext(path,'#/favorites');assert.equal(libraryReturnHref(target),'#/favorites');assert.equal(accountReturnHref(decodeProblemHash(signInHref(target))),target);assert.equal(libraryContinuation(target),target.slice(2));}
+ assert.equal(accountReturnHref(decodeProblemHash(signInHref('favorites'))),'#/favorites');
+ const filtered='#/favorites?'+new URLSearchParams({q:'注意力 & LoRA',state:'todo'});
+ assert.equal(libraryReturnHref(withLibraryContext(22,filtered)),filtered);
+ assert.equal(accountReturnHref(decodeProblemHash(signInHref(withLibraryContext(22,filtered)))),withLibraryContext(22,filtered));
+ assert.equal(accountReturnHref(decodeProblemHash(signInHref(filtered))),filtered);
+ assert.equal(libraryReturnHref('#/22?from=favorites%3Fuser_id%3Dbob'),undefined);
+ assert.equal(libraryReturnHref('#/22?from=favorites&from=community'),undefined);
+ let revision=0,ids=['architecture/attention','finetuning/lora','old/removed'],failRead=false,failWrite=false,delay=false,release,refreshes=0;
+ const account={user:{id:'alice',display_name:'Alice'},loading:false,capabilities:{problem_bookmarks:true},refresh:async()=>{refreshes++;}};
+ const calls=[];
+ globalThis.__favoriteFixture={account,request:async(path,body)=>{assert.equal(path,'account/problem-bookmarks');calls.push(body);if(!body){if(failRead)throw Error('Saved problems unavailable');return snapshot(revision,ids,account.user.id);}if(failWrite)throw Error('Connection lost');if(delay)return new Promise(resolve=>release=resolve);assert.equal(body.expected_user_id,account.user.id);ids=body.active?[...new Set([...ids,body.problem_id])]:ids.filter(id=>id!==body.problem_id);revision++;return {...snapshot(revision,ids,account.user.id),problem_id:body.problem_id,active:body.active};}};
+ const problems=[{id:'architecture/attention',number:22,title:'注意力',translations:{en:{title:'Attention'}},difficulty:'M'},{id:'finetuning/lora',number:3,title:'LoRA',difficulty:'E'}];
+ const {createRoot}=await import('react-dom/client');
+ root=createRoot(document.getElementById('root'));
+ const render=async(extra={})=>act(async()=>root.render(React.createElement(LocaleProvider,null,React.createElement(React.Fragment,null,React.createElement(ProblemFavoriteButton,{problemId:'architecture/attention',returnTo:'22?from=favorites'}),React.createElement(ProblemFavoritesPage,{key:account.user?.id||'guest',problems,saved:{},progressReady:true,catalogReady:true,onRetryCatalog:()=>{},...extra})))));
+ const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
+ const button=text=>[...document.querySelectorAll('button')].find(node=>node.textContent===text);
+ await render();assert.equal(calls.filter(row=>!row).length,1,'All entry points share one initial account read');assert.equal(document.querySelectorAll('.favorite-problem-row').length,3);assert(document.querySelector('.favorite-problem-main>a').getAttribute('href').includes('from=favorites'));
+ const firstRow=document.querySelector('.favorite-problem-row');const target=firstRow.querySelector('button');await click(target);assert.equal(document.querySelector('.favorite-problem-row'),firstRow);assert(firstRow.hasAttribute('data-removed'));assert.equal(document.activeElement,target);assert.equal(document.querySelectorAll('button[aria-pressed="false"]').length,2,'Workspace and saved row agree');await click(target);assert(!firstRow.hasAttribute('data-removed'));
+ failWrite=true;await click(target);assert(firstRow.querySelector('[role=status]').textContent.includes('unconfirmed'));assert.equal(target.getAttribute('aria-pressed'),'true');failWrite=false;await click(target);assert(firstRow.hasAttribute('data-removed'));assert.equal(calls.at(-1).active,false);
+ // Search is local, retains rows, and never rewrites the catalog or progress.
+ const input=document.querySelector('input[type=search]');await act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(input,'LoRA');input.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});assert.equal(document.querySelectorAll('.favorite-problem-row').length,1);assert(document.querySelector('.favorite-problem-row').textContent.includes('LoRA'));assert.equal(libraryReturnHref(document.querySelector('.favorite-problem-row a').getAttribute('href')),'#/favorites?q=LoRA');
+ await act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(input,'');input.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
+ failRead=true;await click(document.querySelector('[aria-label="Refresh saved problems"]'));assert(document.querySelector('[role=alert]').textContent.includes('unavailable'));assert(document.querySelector('.favorite-problem-row button').disabled);failRead=false;await click(button('Retry loading'));assert(!document.querySelector('.favorite-problem-row button').disabled);
+ // A cross-tab invalidation refetches the private account view; it carries no content.
+ ids=['finetuning/lora'];revision++;await act(async()=>window.dispatchEvent(new dom.window.StorageEvent('storage',{key:'paperleet.problem-favorites.changed',newValue:JSON.stringify({owner:'alice',at:1})})));assert.equal(document.querySelector('.favorites-toolbar>span').textContent,'1 saved problem');
+ // A late write for Alice cannot become Bob's private list.
+ delay=true;const lastButton=document.querySelector('.favorite-problem-row button');await click(lastButton);account.user={id:'bob',display_name:'Bob'};ids=[];revision=0;await render();await act(async()=>release({...snapshot(99,['architecture/attention'],'alice'),problem_id:'finetuning/lora',active:false}));delay=false;assert.equal(document.querySelectorAll('.favorite-problem-row').length,0);assert(document.querySelector('.favorites-empty').textContent.includes('Save your next problem'));
+ account.user=null;await render();assert(!document.querySelector('.favorites-list'));assert(document.querySelector('.favorites-empty a').getAttribute('href').includes('account/continue/favorites'));
+ account.user={id:'capability',display_name:'New'};account.capabilities.problem_bookmarks=false;const before=calls.length;await render();assert.equal(calls.length,before);assert(document.querySelector('[role=alert]').textContent.includes('currently unavailable'));
+ console.log('PASS account problem favorites: real React page/buttons, deduped loads, save/remove/undo without row or focus jumps, search, read/write failure recovery, fixed-direction retry, revision races, strict owner DTOs, cross-tab refresh, account changes and late writes, truthful guest/capability states, practice/login continuations, no progress writes');
+}finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,value] of old){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}

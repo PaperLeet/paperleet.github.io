@@ -68,6 +68,8 @@ const mocks = {
   './PaperViews': `export const PaperDetail=()=>null;export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
   './ReportView': `import React from 'react';import Report from '/src/ReportView.tsx?fixture_actual=1';globalThis.__paperleetWorkspaceActionTest.calls.detailsLoads++;export default function FixtureReport(props){if(globalThis.__paperleetWorkspaceActionTest.failDetails)throw Error('Fixture detail failure');return React.createElement(Report,props);}`,
   './deferredPages': `import React,{useEffect} from 'react';
+    export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
+    export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},'Favorite page fixture');
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
     export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
@@ -283,6 +285,17 @@ try {
   await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
   await settle(()=>find('#problem-editor-panel textarea')&&reading.currentReadingReturn()?.phase==='reading');
   assert.equal(location.hash,practiceHref);assert.equal(find('#problem-editor-panel textarea').value,fixture.practice.saved[problem.id].code,'Re-arming a reading return never changes learner code');reading.discardReadingReturn();
+  await act(async()=>root.unmount());root=undefined;
+  const savedOrigin='#/favorites?'+new URLSearchParams({q:'Attention',state:'todo'});
+  window.history.replaceState(null,'',libraryNav.withLibraryContext(problem.number,savedOrigin));
+  await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
+  await settle(()=>find('#problem-editor-panel textarea'));
+  assert.equal(find('.workspace-toolbar .back-link').getAttribute('href'),savedOrigin);
+  assert.equal(find('[data-test-favorite]').getAttribute('data-test-favorite'),problem.id,'The practice favorite uses the canonical ID, even on numeric routes');
+  assert.equal(find('#problem-editor-panel textarea').value,fixture.practice.saved[problem.id].code);
+  await act(async()=>{location.hash=savedOrigin;window.dispatchEvent(new window.HashChangeEvent('hashchange'));});
+  await settle(()=>find('[data-test-favorites]'));
+  assert.equal(find('[data-test-favorites]').getAttribute('data-test-favorites'),savedOrigin.slice(2),'The real App routes favorites with their exact filters');
   console.log('PASS actual App workspace: left Description/Result tabs, inline browser/server success and failure without navigation, stale server error/cancellation guards, result scroll reset, abort/queue/syntax feedback, lazy persistent diagnostics, unchanged editor/draft/cursor, verified source locations, guest actions, keyboard duplicate-run guard and catalog-bound practice reading-origin re-arm without source changes');
 } finally {
   if(root)await act(async()=>root.unmount());

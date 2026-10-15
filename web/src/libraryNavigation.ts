@@ -65,10 +65,22 @@ export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]
   return { ...filters, category, tag, runtime: 'all' };
 }
 
+export function readFavoriteRoute(route:string):{query:string;state:string}|undefined {
+  const value=parts(route);
+  if(!value||value.path!=='favorites'||!only(value.params,['q','state']))return;
+  const query=value.params.get('q')||'',state=value.params.get('state')||'all';
+  return bounded(query,200)&&['all','todo','started','done'].includes(state)?{query,state}:undefined;
+}
+export function favoriteHref(view:{query:string;state:string}):string {
+  const params=new URLSearchParams();if(view.query)params.set('q',view.query);if(view.state!=='all')params.set('state',view.state);
+  return '#/favorites'+(params.size?'?'+params:'');
+}
+
 export function libraryReturnHref(route: string): string | undefined {
   const value = parts(route);
   if (!value || !practicePath.test(value.path) || !only(value.params, ['from']) || !value.params.has('from')) return;
   const from=value.params.get('from')||'',interview=readInterviewRoute(from);
+  const favorites=readFavoriteRoute(from);if(favorites)return favoriteHref(favorites);
   if(interview)return interviewHref(interview);
   const view = readLibraryRoute(from);
   return view ? libraryHref(view.collectionId, view.filters) : undefined;
@@ -76,6 +88,8 @@ export function libraryReturnHref(route: string): string | undefined {
 
 export function withLibraryContext(path: string | number, returnTo?: string): string {
   if (!practicePath.test(String(path))) throw Error('Invalid practice destination');
+  const favorites=returnTo?readFavoriteRoute(returnTo):undefined;
+  if(favorites)return `#/${path}?${new URLSearchParams({from:favoriteHref(favorites).slice(2)})}`;
   const base = `#/${path}`, view = returnTo ? readLibraryRoute(returnTo) : undefined,interview=returnTo?readInterviewRoute(returnTo):undefined;
   if (!view&&!interview) return base;
   const href = interview?interviewHref(interview):libraryHref(view!.collectionId, view!.filters);
