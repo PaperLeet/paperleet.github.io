@@ -63,6 +63,37 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## Models and in-memory checkpoints
+
+`nn.Module` registers parameters, child modules and buffers, with deduplicated
+`named_parameters()`, `named_buffers()` and `named_modules()` traversal. Shared
+layers remain shared. `train()`, `eval()`, `requires_grad_()`, `zero_grad()` and
+`apply()` recurse through registered children. `Sequential`, `ModuleList`,
+`ModuleDict`, `ParameterList` and `ParameterDict` support model composition.
+
+```python
+import copy
+
+model.eval()
+best = copy.deepcopy(model.state_dict())
+# Continue training, then restore into the same parameter objects:
+model.load_state_dict(best)
+model.train()
+```
+
+`state_dict()` returns shallow tensor references by default; `deepcopy` takes an
+independent snapshot while preserving buffer views. Persistent buffers, shared
+parameter paths, metadata and subclass extra state are included. Loading copies
+values into existing parameters, preserving optimizer references, and reports
+missing/unexpected keys. Shape/type errors still fail with `strict=False`.
+
+This is in-memory state support. Model hooks, `load_state_dict(assign=True)`,
+model device/dtype transforms, optimizer checkpoints and `torch.save/load` remain
+unsupported. `ModuleList.insert` supports indices from zero through its length;
+insertion into a named `Sequential` is unsupported. Copying a model clears copied
+parameter gradients, as native PyTorch does. Copying non-leaf tensors or exotic
+non-dense NumPy backing allocations fails explicitly.
+
 ## Modules and compatibility
 
 The implementation is divided into tensor/storage, analytical autodiff and JVP,
@@ -117,8 +148,10 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.2 validation record](../../docs/validation/torch-runtime-iteration-2.md)
-for native parity, wheel isolation, exported WASM, real Chrome and memory results.
+See the [0.3 validation record](../../docs/validation/torch-runtime-iteration-3.md)
+for model/checkpoint parity, independent wheel, exported WASM, real Chrome and
+measured construction/training overhead. The [0.2 record](../../docs/validation/torch-runtime-iteration-2.md)
+retains the kernel, memory and import-alias results.
 The [extraction record](../../docs/validation/lightweight-torch-extraction.md)
 documents the original baseline.
 

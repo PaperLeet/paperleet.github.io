@@ -555,4 +555,7 @@ def test_direct_and_nested_module_parameters_and_forward_gradients_match_native(
     for got, want in zip([x, *params], [xx, *native_params]):
         np.testing.assert_allclose(got.numpy(), want.detach().numpy(), atol=1e-12)
         np.testing.assert_allclose(got.grad.numpy(), want.grad.numpy(), atol=1e-12)
-    with pytest.raises(wasm.BrowserUnsupported): model.state_dict()
+    state, native_state = model.state_dict(), native.state_dict()
+    assert list(state) == list(native_state)
+    for name in state:
+        np.testing.assert_array_equal(state[name].numpy(), native_state[name].numpy())

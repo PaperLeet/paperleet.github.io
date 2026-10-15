@@ -18,10 +18,22 @@ behavior. Passing its current exercises alone does not establish library readine
 - Maintain reproducible CPython/WASM benchmarks and a separately labeled WebGPU
   feasibility probe with full upload/dispatch/readback timings and value checks.
 
+## Version 0.3 milestone
+
+- Registered model lifecycle: recursive train/eval/apply, shared-module and
+  parameter/buffer traversal, four registered containers and Sequential slicing.
+- In-memory state dictionaries with metadata, extra state, persistent buffers,
+  strict key validation, native copying rules and retained optimizer references.
+- Independent checkpoint copies preserve tensor storage views; copied model
+  Parameters start without gradients. Native-reference and NumPy-only tests cover
+  training, checkpoint restoration and continued updates under CPython and WASM.
+- Hooks, assign-based loading, model device/dtype conversion, file serialization
+  and optimizer checkpoints remain outside the implemented contract.
+
 ## Next implementation areas
 
-1. Model lifecycle: recursive train/eval, named parameter/buffer traversal, shared
-   modules, containers and in-memory state save/load with native alias/copy rules.
+1. Remaining model lifecycle: dtype/device transforms and common hooks where
+   bounded behavior can be validated; define file checkpoint serialization.
 2. Optimizer lifecycle: parameter groups, lazy per-parameter state, state save/load,
    checkpoint resume and learning-rate updates. Unify duplicated update machinery
    where parity and benchmarks support it; preserve unknown-option errors.

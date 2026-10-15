@@ -208,6 +208,7 @@ def test_registered_buffers_stay_outside_parameters_and_copy_independently():
     actual.requires_grad_(False)
     assert not actual.weight.requires_grad and not actual.frequency.requires_grad
     for name in ('', 'contains.dot'):
-        with pytest.raises(ValueError): actual.register_buffer(name, None)
+        for module in (actual, expected):
+            with pytest.raises(KeyError): module.register_buffer(name, None)
     with pytest.raises(KeyError): actual.register_buffer('weight', None)
     with pytest.raises(TypeError): actual.register_buffer('bad', [1.])

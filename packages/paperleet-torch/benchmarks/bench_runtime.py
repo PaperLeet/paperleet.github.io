@@ -21,6 +21,7 @@ def workloads(dtype='float32'):
     if dtype not in (np.dtype('float32'), np.dtype('float64')):
         raise ValueError('Benchmark dtype must be float32 or float64')
     rng = np.random.default_rng(412)
+    np.random.seed(412)  # Module initialization uses the library's global RNG.
 
     def tensor(shape, requires_grad=True):
         return torch.tensor(rng.normal(size=shape).astype(dtype), requires_grad=requires_grad)
@@ -61,9 +62,27 @@ def workloads(dtype='float32'):
     def adam_step():
         optimizer.step()
 
+    def model_construct():
+        return torch.nn.Sequential(torch.nn.Linear(16, 32, dtype=dtype), torch.nn.ReLU(),
+                                    torch.nn.Linear(32, 8, dtype=dtype))
+
+    model = torch.nn.Sequential(torch.nn.Linear(16, 32, dtype=dtype), torch.nn.ReLU(),
+                                torch.nn.Linear(32, 8, dtype=dtype))
+    model_input = tensor((16, 16), requires_grad=False)
+    model_optimizer = torch.optim.SGD(model.parameters(), lr=.001)
+
+    def model_training_step():
+        model_optimizer.zero_grad()
+        model(model_input).square().mean().backward()
+        model_optimizer.step()
+
+    def model_parameter_walk():
+        return list(model.parameters())
+
     cases = dict(linear_backward=linear_backward, attention_backward=attention_backward,
                  slice_backward=slice_backward, indexed_backward=indexed_backward,
-                 adam_step=adam_step)
+                 adam_step=adam_step, model_construct=model_construct,
+                 model_training_step=model_training_step, model_parameter_walk=model_parameter_walk)
     for m, k, n in [(32, 32, 32), (64, 128, 128), (128, 128, 128),
                     (256, 256, 256), (512, 512, 512), (37, 53, 29)]:
         a = torch.tensor(((np.arange(m*k) % 17 - 8) / 9).astype(dtype).reshape(m, k))

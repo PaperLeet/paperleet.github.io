@@ -31,6 +31,8 @@ def create_torch(name='torch', *, register=False):
     torch.nn.functional = modules['torch.nn.functional']
     for name, cls in {
         'Module': _nn.Module, 'Parameter': _nn.Parameter, 'Linear': _nn.Linear, 'Sequential': _nn.Sequential,
+        'ModuleList': _nn.ModuleList, 'ModuleDict': _nn.ModuleDict,
+        'ParameterList': _nn.ParameterList, 'ParameterDict': _nn.ParameterDict,
         'SiLU': _nn.SiLU, 'ReLU': _nn.ReLU, 'Softplus': _nn.Softplus, 'LogSigmoid': _nn.LogSigmoid,
         'BCEWithLogitsLoss': _nn.BCEWithLogitsLoss, 'KLDivLoss': _nn.KLDivLoss, 'CosineSimilarity': _nn.CosineSimilarity,
     }.items(): setattr(torch.nn, name, cls)

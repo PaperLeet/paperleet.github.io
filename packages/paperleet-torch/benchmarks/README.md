@@ -29,6 +29,12 @@ imports and serialization are excluded. `adam_step` measures updates with a fixe
 gradient. Matmul-only cases use frozen inputs. These measure kernel/graph work,
 not cold start, training convergence or complete application latency.
 
+`model_construct` includes layer initialization and container registration for a
+16→32→8 MLP. `model_training_step` includes gradient reset, the same MLP's forward,
+backward and SGD update on a 16-row batch. `model_parameter_walk` enumerates that
+model's parameters. These common workloads also run against the 0.2 baseline;
+new checkpoint features are checked for correctness separately.
+
 For browser measurements, serve these files and the pinned runtime from a local
 HTTP origin. Load `bench_runtime.py` and package sources into a fresh Pyodide
 Worker, import `bench_runtime`, and call `run_benchmarks(repeat=11, iterations=30)`.

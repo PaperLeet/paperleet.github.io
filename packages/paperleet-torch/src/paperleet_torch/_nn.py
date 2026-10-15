@@ -5,42 +5,8 @@ import numpy as np
 
 from . import _tensor
 
-class Parameter(_tensor.Tensor):
-    def __init__(self, data=None, requires_grad=True):
-        super().__init__(np.empty(0, dtype=np.float32) if data is None else _ops.wrap(data)._data, requires_grad=requires_grad)
-
-
-class Module:
-    """Direct Parameters and nested Modules; other module interfaces fall back."""
-    def __init__(self): self.training, self._buffers = True, {}
-    def __getattr__(self, name):
-        if name.startswith('_'): raise AttributeError(name)
-        return _errors.unsupported(f'nn.Module.{name}')
-    def __call__(self, *args, **kw): return self.forward(*args, **kw)
-    def parameters(self, recurse=True):
-        seen, modules, pending = set(), set(), [self]
-        while pending:
-            module = pending.pop()
-            if id(module) in modules: continue
-            modules.add(id(module))
-            children = []
-            for name, value in module.__dict__.items():
-                if name in module._buffers: continue
-                if isinstance(value, Parameter) and id(value) not in seen:
-                    seen.add(id(value)); yield value
-                elif recurse and isinstance(value, Module): children.append(value)
-            pending.extend(reversed(children))
-
-    def requires_grad_(self, requires_grad=True):
-        for parameter in self.parameters(): parameter.requires_grad_(requires_grad)
-        return self
-
-    def register_buffer(self, name, tensor, persistent=True):
-        if not isinstance(name, str) or not name or '.' in name: raise ValueError('Buffer name must be nonempty without dots')
-        if tensor is not None and not isinstance(tensor, _tensor.Tensor): raise TypeError('Buffer must be a Tensor or None')
-        if name in self.__dict__ and name not in self._buffers: raise KeyError('Attribute already exists')
-        self._buffers[name] = tensor
-        setattr(self, name, tensor)
+from ._module import Module, Parameter
+from ._containers import Sequential, ModuleList, ModuleDict, ParameterList, ParameterDict
 
 
 def linear(input, weight, bias=None):
@@ -88,28 +54,18 @@ class Linear(Module):
         def parameter(shape):
             return Parameter((_random.uniform_samples(np.random, shape, dtype) * (2 * bound) - bound).astype(dtype))
         self.weight = parameter((out_features, in_features))
-        self.bias = parameter((out_features,)) if bias else None
+        if bias:
+            self.bias = parameter((out_features,))
+        else:
+            self.register_parameter('bias', None)
 
     def forward(self, input):
         return linear(input, self.weight, self.bias)
 
+    def extra_repr(self):
+        return f'in_features={self.in_features}, out_features={self.out_features}, bias={self.bias is not None}'
 
-class Sequential(Module):
-    def __init__(self, *modules):
-        super().__init__()
-        if any(not isinstance(module, Module) for module in modules):
-            raise _errors.BrowserUnsupported('Sequential supports positional Module instances')
-        self._sequence_names = tuple(str(i) for i in range(len(modules)))
-        for name, module in zip(self._sequence_names, modules): setattr(self, name, module)
 
-    def __iter__(self): return (getattr(self, name) for name in self._sequence_names)
-    def __len__(self): return len(self._sequence_names)
-    def __getitem__(self, index):
-        values = tuple(self)
-        return Sequential(*values[index]) if isinstance(index, slice) else values[index]
-    def forward(self, input):
-        for module in self: input = module(input)
-        return input
 
 
 class SiLU(Module):

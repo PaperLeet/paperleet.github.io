@@ -166,7 +166,17 @@ class Tensor:
     def __deepcopy__(self, memo):
         if self._parents:
             raise _errors.BrowserUnsupported('Copying non-leaf autograd tensors requires the server')
-        value = type(self)(self._data.copy(), requires_grad=self.requires_grad)
+        owner = self._data
+        while isinstance(owner.base, np.ndarray): owner = owner.base
+        if owner.dtype.hasobject or not (owner.flags.c_contiguous or owner.flags.f_contiguous):
+            raise _errors.BrowserUnsupported('Copying tensors with non-dense backing storage is unsupported')
+        # Memoize the allocation, not each view: detached checkpoint entries can
+        # share storage with different shapes, offsets and strides.
+        cloned_owner = copy.deepcopy(owner, memo)
+        offset = self._data.__array_interface__['data'][0] - owner.__array_interface__['data'][0]
+        data = np.ndarray(self.shape, dtype=self.dtype, buffer=cloned_owner,
+                          offset=offset, strides=self._data.strides)
+        value = type(self)(data, requires_grad=self.requires_grad)
         memo[id(self)] = value
         value.grad = copy.deepcopy(self.grad, memo)
         return value
