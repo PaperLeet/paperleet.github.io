@@ -30,3 +30,24 @@ Extended the existing browser judge to DDPM reverse sampling, DDIM and condition
 - A trusted DDIM fixture using unsupported `cdist(p=1)` produced a compatibility message and zero server submissions in Browser only. Auto created exactly one queued job for the identical source and returned native CPU **Accepted 9/9** in a disposable directory. This did not exercise the production Docker service.
 
 The catalog now supports **44/60 modules, 335 maintained tests and 180 mutants** in CPU/WASM. Active shared exports total **867,766 bytes**, versus **5,388,655 bytes** for equivalent self-contained bundles (83.9% less), excluding runtime wheels and retained historical hashes. Slow or incompatible environments keep the server path. Production Docker deployment and other browser/device coverage are outside this local verification.
+
+## Page-local calibration reuse — 2026-10-14
+
+The immutable worker and full hydrated problem bytes now key a bounded in-memory compatibility cache. References and every mutant still run on first use; cached evidence expires after 15 minutes, never renews on a hit, and disappears on reload. Python/NumPy ABI checks precede reuse. Every learner submission starts a fresh opaque-origin worker and executes the unchanged complete suite. Worker/helper changes regenerate the worker hash, including during Vite development. No learner code, trained state or result is cached as calibration.
+
+Actual in-app browser observations against an isolated localhost production build:
+
+| Module / run | Preparation | Reference + mutant calibration | Complete learner tests | Result |
+| --- | ---: | ---: | ---: | --- |
+| LoRA first | 1.36 s | 0.42 s | 0.07 s | 6/6; all 4 mutants calibrated |
+| LoRA same-page repeat | 1.36 s | displayed 0.00 s, reused | 0.17 s | 6/6 |
+| Flow Matching first | 1.40 s | 162.39 s | 32.90 s | 8/8; all 4 mutants calibrated |
+| Flow Matching same-page repeat | 1.45 s | displayed 0.00 s, reused | 32.35 s | 8/8 |
+
+The Flow Matching total decreased from approximately **196.7 to 33.8 seconds** on this device. The 2,000-step model training, sample counts, tests, distribution checks and numerical thresholds were unchanged. These are paired single observations on localhost, not cross-device or Oracle benchmarks. Displayed zero calibration time is rounded, rather than a claim that validation/comparison costs nothing. Preparation includes bundle delivery, Python initialization, controller import, hashing and relay overhead.
+
+Changing LoRA's scaling while reusing calibration returned **3/6**, and restoring the original source returned **6/6**; a cached compatibility record never supplied a learner pass. Reload retained the saved code/report but forced fresh calibration (0.44 seconds in the observed rerun). A separate 390px iframe completed Attention **7/7**, reference 7/7 and all 3 mutants; document and viewport widths were both 390px. Initial dynamic editor/rich-text requests failed transiently in one tab; the readable editor fallback retained the code and tests, and reload restored the normal editor.
+
+With a temporary real account, an exact reviewed Attention fixture using unsupported `cdist(p=1)` was reported as incompatible in Browser only with **zero judge POSTs**. Auto then captured that same source, created **one job / one native execution** and passed **7/7**. It did not import a guest pass into the account. The QA adapter accepts only fixed reviewed fixtures; this is not production Docker execution.
+
+The full frontend checks cover exact calibration counts/names, full bundle and worker byte identities, runtime fingerprint mismatch, non-renewing expiry, sleep/clock anomalies, LRU bounds, immutable public-only records, late-message rejection, stop/error cleanup, fresh source, and hashing-unavailable full-calibration fallback. A real filesystem-watcher test verifies that editing a helper regenerates the worker asset and reloads development clients. Original numerical source/bundle exports are unchanged. Same-origin hosted, browser-only Pages and split-origin hosted builds remain under the unchanged initial-JavaScript limits.

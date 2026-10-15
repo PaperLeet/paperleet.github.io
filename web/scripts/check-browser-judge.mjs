@@ -23,18 +23,26 @@ try {
   const listeners = new Set();
   const frames = [];
   const requests = [];
+  const delay = globalThis.setTimeout;
+  const nextFrame = async () => {
+    for(let i=0;i<1000;i++) {
+      if(frames.at(-1) && !frames.at(-1).removed) return frames.at(-1);
+      await new Promise(done=>delay(done,1));
+    }
+    throw Error('The asynchronous bundle digest did not produce a sandbox');
+  };
   globalThis.location = new URL('https://paperleet.example/');
   globalThis.Worker = class {};
   globalThis.window = {
     addEventListener(name, fn) { assert.equal(name, 'message'); listeners.add(fn); },
     removeEventListener(name, fn) { listeners.delete(fn); },
   };
-  const frame = () => ({
-    attrs: {}, hidden: false, removed: false, messages: [],
+  const frame = () => { const messages=[]; return ({
+    attrs: {}, hidden: false, removed: false, messages,
     setAttribute(name, value) { this.attrs[name] = value; },
     remove() { this.removed = true; },
-    contentWindow: { postMessage() {} },
-  });
+    contentWindow: { postMessage(message) {messages.push(message);} },
+  }); };
   globalThis.document = {
     createElement(tag) { assert.equal(tag, 'iframe'); return frame(); },
     body: { append(value) { frames.push(value); } },
@@ -43,12 +51,11 @@ try {
   globalThis.fetch = async (url, options) => {
     requests.push(String(url));
     assert.equal(options.credentials, 'omit');
-    return Response.json({ version: 1, problem: problem.id });
+    return Response.json({ version: 1, problem: problem.id, tests:problem.tests, mutants:{wrong:'public wrong implementation'} });
   };
   const stages = [];
   const pending = runBrowserJudge(problem, 'frozen learner source', new AbortController().signal, (stage) => stages.push(stage));
-  await new Promise((done) => setImmediate(done));
-  const sandbox = frames.at(-1);
+  const sandbox = await nextFrame();
   assert.equal(sandbox.attrs.sandbox, 'allow-scripts', 'Learner code must never get same-origin privileges');
   assert.match(sandbox.srcdoc, /connect-src https:\/\/paperleet.example\/browser-runtime\//);
   assert(!sandbox.srcdoc.includes('/api/'));
@@ -59,9 +66,12 @@ try {
   emit({ type: 'unsupported', reason: 'injected' }, {});
   emit({ type: 'unsupported', reason: 'injected' }, sandbox.contentWindow, 'wrong-token');
   assert(!sandbox.removed);
+  emit({type:'ready'});
+  emit({type:'progress',stage:'calibrating'});
+  emit({type:'calibrated',proof:{key:sandbox.messages.at(-1).input.calibrationKey,environment:'test ABI',summary:{reference_passed:8,mutants_caught:{wrong:['failed']}}},reused:false});
   emit({ type: 'progress', stage: 'running' });
   emit({ type: 'progress', stage: 'loading' });
-  assert.deepEqual(stages, ['loading', 'running'], 'Stale progress cannot extend learner execution');
+  assert.deepEqual(stages, ['loading', 'calibrating', 'running'], 'Stale progress cannot extend learner execution');
   const report = { problem: problem.id, runtime: 'browser-numpy-wasm', tests: [{ id: 'failed', layer: 'T0', passed: false }], summary: { T0: [0, 1] } };
   emit({ type: 'result', report, calibration: { reference_passed: 8, mutants_caught: { wrong: ['failed'] } } });
   assert.equal((await pending).type, 'result', 'A learner assertion failure is feedback, not a compatibility fallback');
@@ -73,8 +83,7 @@ try {
   for(const valid of [true,false]){
     const source='bad = (',syntaxStages=[];
     const syntaxRun=runBrowserJudge(problem,source,new AbortController().signal,stage=>syntaxStages.push(stage));
-    await new Promise(done=>setImmediate(done));
-    const currentFrame=frames.at(-1),token=currentFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
+    const currentFrame=await nextFrame(),token=currentFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
     const diagnostic={kind:'SyntaxError',message:'unclosed parenthesis',line:1,column:valid?7:-1};
     for(const fn of listeners)fn({source:currentFrame.contentWindow,data:{nonce:token,payload:{type:'syntax_error',diagnostic,source:'forged source',passed:true}}});
     const outcome=await syntaxRun;
@@ -86,7 +95,7 @@ try {
 
   const controller = new AbortController();
   const stopped = runBrowserJudge(problem, 'while True: pass', controller.signal, () => {});
-  await new Promise((done) => setImmediate(done));
+  await nextFrame();
   controller.abort();
   await assert.rejects(stopped, { name: 'AbortError' });
   assert(frames.at(-1).removed);
@@ -99,8 +108,7 @@ try {
     globalThis.setTimeout = (fn, ms) => { const key = {}; deadlines.set(key, { fn, ms }); return key; };
     globalThis.clearTimeout = (key) => deadlines.delete(key);
     const timed = runBrowserJudge(problem, 'while True: pass', new AbortController().signal, () => {});
-    await new Promise((done) => setImmediate(done));
-    const timedFrame = frames.at(-1);
+    const timedFrame = await nextFrame();
     const timedNonce = timedFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
     for (const fn of listeners) fn({ source: timedFrame.contentWindow, data: { nonce: timedNonce, payload: { type: 'progress', stage: 'running' } } });
     const runningDeadline = [...deadlines.entries()].find(([, value]) => value.ms === 30_000)[0];
@@ -121,8 +129,7 @@ try {
     const flowProblem={...problem,id:'diffusion/flow_matching'};
     globalThis.fetch=async()=>Response.json({version:1,problem:flowProblem.id});
     const long=runBrowserJudge(flowProblem,'full original training',new AbortController().signal,()=>{});
-    await new Promise(done=>setImmediate(done));
-    const longFrame=frames.at(-1),longNonce=longFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
+    const longFrame=await nextFrame(),longNonce=longFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
     const sendLong=payload=>{for(const fn of listeners)fn({source:longFrame.contentWindow,data:{nonce:longNonce,payload}});};
     const hard=[...deadlines.entries()].find(([,v])=>v.ms===300_000);
     assert(hard,'Heavy training still has an absolute five-minute cap');

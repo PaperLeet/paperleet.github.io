@@ -5,27 +5,21 @@ import { parseSyntaxDiagnostic, type BrowserSyntaxFailure } from './browserSynta
 import { advanceBrowserProgress, type BrowserProgress, type BrowserStage } from './browserProgress';
 export type { BrowserStage, BrowserProgress } from './browserProgress';
 import type { Problem, Report } from './types';
+import { browserWorkerAsset, browserWorkerDigest } from './browserWorkerAsset.generated';
+import { browserMeasurements, calibrationProof, createCalibrationCache } from './browserCalibration';
+import type { BrowserMeasurements, CalibrationSummary, CalibrationProof } from './browserCalibration';
+const compatibility = createCalibrationCache();
 
 export type JudgeMode = 'auto' | 'browser' | 'server';
 export type BrowserOutcome =
-  | { type: 'result'; report: Report; calibration: { reference_passed: number; mutants_caught: Record<string, string[]> } }
+  | { type: 'result'; report: Report; calibration: CalibrationSummary & {reused?:boolean}; measurements?:BrowserMeasurements }
   | { type: 'syntax_error'; failure: BrowserSyntaxFailure }
   | { type: 'unsupported'; reason: string; detail?: string };
 
-export function browserReason(reason: string, en = false) {
-  const messages: Record<string, [string, string]> = {
-    python_api_unsupported: ['当前实现使用了浏览器兼容层未支持的 Python / PyTorch API', 'This implementation uses Python / PyTorch APIs outside the browser adapter'],
-    calibration_failed: ['浏览器运行时未通过参考实现及错误实现校验', 'The browser runtime failed reference and mutation calibration'],
-    collection_failed: ['浏览器未能收集完整的原始测试', 'The browser could not collect the complete maintained suite'],
-    runtime_failed: ['浏览器 Python 运行时加载或执行失败', 'The browser Python runtime could not load or execute'],
-    timeout: ['浏览器运行超时', 'The browser run timed out'],
-    unavailable: ['此环境不支持隔离的浏览器判题', 'Isolated browser judging is unavailable in this environment'],
-  };
-  return (messages[reason] || messages.unavailable)[en ? 1 : 0];
-}
+export { browserReason } from './browserMessages';
 
 /** Client feedback, never authority for hosted progress/rankings. */
-export async function runBrowserJudge(problem: Problem, source: string, signal: AbortSignal, progress: (stage: BrowserStage, detail?: BrowserProgress) => void): Promise<BrowserOutcome> {
+export async function runBrowserJudge(problem: Problem, source: string, signal: AbortSignal, progress: (stage: BrowserStage, detail?: BrowserProgress) => void, requestedAt = performance.now()): Promise<BrowserOutcome> {
   if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
   if (!problem.browser_judge || !globalThis.Worker || !globalThis.WebAssembly)
     return { type: 'unsupported', reason: 'unavailable' };
@@ -38,6 +32,16 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
     return { type: 'unsupported', reason: 'runtime_failed' };
   }
+  let calibrationKey = '';
+  let reuseAllowed = true;
+  try {
+    const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(bundle)));
+    calibrationKey = browserWorkerDigest + ':' + [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+  } catch {
+    reuseAllowed = false;
+    calibrationKey = 'uncached:' + crypto.randomUUID();
+  }
+  if(signal.aborted) throw new DOMException('Stopped','AbortError');
   const totals = { tests: Object.values(problem.tests || {}).reduce((sum, count) => sum + count, 0),
     mutants: bundle.mutants && typeof bundle.mutants === 'object' ? Object.keys(bundle.mutants).length : 0 };
   const budget = browserBudget(problem);
@@ -50,11 +54,17 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     const nonce = crypto.randomUUID();
     let settled = false;
     let phase = -1;
+    let calibrationSeen = false;
+    let reused = false;
+    let readySeen = false;
+    let granted: CalibrationProof | undefined;
+    let checkedCalibration: CalibrationSummary | undefined;
     const hardDeadline = setTimeout(() => finish({ type: 'unsupported', reason: 'timeout' }), budget.total);
     let timer: ReturnType<typeof setTimeout>;
     const finish = (outcome?: BrowserOutcome, error?: unknown) => {
       if (settled) return;
       settled = true;
+      if(error || outcome?.type === 'unsupported' || outcome?.type === 'syntax_error') compatibility.remove(calibrationKey);
       clearTimeout(timer);
       clearTimeout(hardDeadline);
       window.removeEventListener('message', receive);
@@ -71,8 +81,10 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     const receive = (event: MessageEvent) => {
       if (event.source !== frame.contentWindow || event.data?.nonce !== nonce || settled) return;
       const message = event.data.payload;
-      if (message?.type === 'ready') {
-        frame.contentWindow!.postMessage({ nonce, input: { base, bundle, source } }, '*');
+      if (message?.type === 'ready' && !readySeen) {
+        readySeen = true;
+        granted = reuseAllowed ? compatibility.get(calibrationKey,bundle) : undefined;
+        frame.contentWindow!.postMessage({ nonce, input: { base, bundle, source, calibrationKey, cachedCalibration:granted } }, '*');
       } else if (message?.type === 'progress') {
         const next = advanceBrowserProgress(lastProgress, message, totals);
         if (!next) return;
@@ -83,6 +95,15 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
           arm(next.stage === 'running' ? budget.run : next.stage === 'calibrating' ? budget.calibration : 90_000);
         }
         progress(next.stage, next);
+      } else if (message?.type === 'calibrated' && readySeen && !calibrationSeen && phase === 1) {
+        const proof = calibrationProof(message.proof,calibrationKey,bundle);
+        if(proof && typeof message.reused === 'boolean'
+            && (!message.reused || granted && JSON.stringify(proof) === JSON.stringify(granted))) {
+          calibrationSeen = true; reused = message.reused;
+          checkedCalibration = proof.summary;
+          // Reuse cannot renew the lifetime of an existing compatibility proof.
+          if(!reused && reuseAllowed) compatibility.put(calibrationKey,bundle,proof);
+        }
       } else if (message?.type === 'syntax_error') {
         const diagnostic = parseSyntaxDiagnostic(message.diagnostic,source);
         finish(diagnostic ? {type:'syntax_error',failure:{source,diagnostic}} : {type:'unsupported',reason:'collection_failed'});
@@ -92,7 +113,12 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
         try {
           const report = parseReport(message.report);
           if (report.problem !== problem.id || report.runtime !== 'browser-numpy-wasm') throw Error('Invalid browser report');
-          finish({ type: 'result', report, calibration: message.calibration });
+          if(!checkedCalibration || phase !== 2) throw Error('Missing pre-execution compatibility evidence');
+          const measured = browserMeasurements(message.measurements);
+          const overhead = measured ? Math.max(0,performance.now()-requestedAt-measured.total_ms) : 0;
+          const measurements = calibrationSeen && measured?.reused === reused
+            ? {...measured,loading_ms:measured.loading_ms+overhead,total_ms:measured.total_ms+overhead} : undefined;
+          finish({ type: 'result', report, calibration: {...checkedCalibration,reused}, measurements });
         } catch { finish({ type: 'unsupported', reason: 'collection_failed' }); }
       }
     };
@@ -101,9 +127,9 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     // The opaque origin cannot read site storage. Blob workers inherit this
     // CSP: only public runtime assets, never /api or third-party destinations.
     const asset = new URL('browser-runtime/', base).href;
-    const scripts = new URL('browser-judge/', base).href;
-    const csp = `default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' blob: ${asset} ${scripts}; worker-src blob:; connect-src ${asset};`;
-    const workerImport = `self.onmessage = async event => { try { await import('${new URL('browser-judge/worker.mjs', base).href}'); self.onmessage(event); } catch (error) { self.postMessage({type:'unsupported', reason:'runtime_failed', detail:String(error)}); } };`;
+    const worker = new URL(browserWorkerAsset,base).href;
+    const csp = `default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' blob: ${asset} ${worker}; worker-src blob:; connect-src ${asset};`;
+    const workerImport = `self.onmessage = async event => { try { await import('${worker}'); self.onmessage(event); } catch (error) { self.postMessage({type:'unsupported', reason:'runtime_failed', detail:String(error)}); } };`;
     const bootstrap = `
       const nonce = ${JSON.stringify(nonce)};
       const relay = payload => parent.postMessage({nonce, payload}, '*');

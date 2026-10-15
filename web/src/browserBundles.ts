@@ -19,7 +19,7 @@ function untilAborted<T>(pending: Promise<T>, signal: AbortSignal): Promise<T> {
   });
 }
 
-/** Cache only immutable public code. Every run still gets its own worker and calibration. */
+/** Cache only immutable public code. Every run still gets its own learner worker. */
 export function createBrowserBundleLoader(fetcher?: typeof fetch) {
   const runtimes = new Map<string, Promise<RuntimeBundle>>();
   async function download(url: URL, signal: AbortSignal): Promise<unknown> {

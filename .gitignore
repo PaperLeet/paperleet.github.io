@@ -12,6 +12,8 @@ reports/
 web/node_modules/
 web/dist/
 web/public/browser-runtime/
+web/public/browser-judge/worker-*.mjs
+web/src/browserWorkerAsset.generated.ts
 .DS_Store
 .vite/
 deploy/backups/
