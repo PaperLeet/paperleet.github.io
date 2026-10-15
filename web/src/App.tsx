@@ -1,3 +1,4 @@
+import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
@@ -351,9 +352,13 @@ function Workspace() {
   const notesUnlocked = !!problem && status(problem,learningSaved[problem.id]) === 'done';
   const learningNotice = hosted && <BrowserLearningNotice count={learningView.localPasses} failed={learning.failed} saving={learning.saving} onRetry={learning.retry} />;
   const progressReady = practice.ready && !practice.loading && learning.ready;
-  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(siblingModules, learningSaved) : undefined) || recommendPractice(problems, learningSaved) : undefined;
+  const practiceReturn = libraryView ? libraryHref(libraryView.collectionId, libraryView.filters) : libraryReturn;
+  const practiceScope = selectLibraryPractice(papers, problems, learningSaved, libraryView || (libraryReturn ? readLibraryRoute(libraryReturn) : undefined));
+  const scopedSiblings = siblingModules.filter(module => practiceScope.problems.some(candidate => candidate.id === module.id));
+  const idlePracticeLabel = !practiceScope.problems.some(module => !module.module.optional) ? t("当前范围暂无核心模块", "No core modules in this view") : practiceReturn && practiceReturn !== "#" ? t("本范围核心模块已完成", "Core modules complete in this view") : t("核心模块已完成", "Core modules complete");
+  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(scopedSiblings, learningSaved) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
   const nextProblem = problem && progressReady
-    ? nextPractice(problem, selectedPaper?.module_ids || [], problems, learningSaved)
+    ? nextPractice(problem, selectedPaper?.module_ids || [], practiceScope.problems, learningSaved)
     : undefined;
   const browser = useBrowserJudge(practice.owner);
   const queueReady = !publicSite && practice.ready && !practice.loading && problems.length > 0 && (!hosted || !!user);
@@ -604,7 +609,7 @@ function Workspace() {
               className={`continue-link ${problem ? "active" : ""}`}
               disabled={!problem && !resumeProblem}
               onClick={() => {
-                if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number,libraryView ? libraryHref(libraryView.collectionId,libraryView.filters) : undefined).slice(1);
+                if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number, practiceReturn).slice(1);
               }}
             >
               {problem ? <BilingualText zh="工作区" en="Workspace" /> : progressReady && problems.length > 0 && !resumeProblem ? <BilingualText zh="核心模块已完成" en="Core modules complete" /> : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? <BilingualText zh="继续练习" en="Continue" /> : <BilingualText zh="开始练习" en="Start practice" />}

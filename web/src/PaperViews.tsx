@@ -1,3 +1,4 @@
+import { paperModules, matchingPaperModules, paperProgress, selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronDown,
@@ -17,33 +18,7 @@ import type { ProblemStatsMap } from "./ProblemStats";
 import { PracticeStart } from "./PracticeJourney";
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
-export function paperModules(paper: Paper, problems: Problem[]) {
-  return paper.module_ids.flatMap((id) => {
-    const problem = problems.find((p) => p.id === id);
-    return problem ? [problem] : [];
-  });
-}
-export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all", runtime = "all") {
-  const normalized = query.trim().toLowerCase();
-  const paperMatches = [paper.number, paper.title, paper.short_title, paper.summary, paper.summary_en, ...paper.tags]
-    .join(" ").toLowerCase().includes(normalized);
-  return paperModules(paper, problems).filter((problem) => {
-    const moduleMatches = [problem.title, problem.translations?.en?.title, problem.module.goal, problem.module.goal_en]
-      .join(" ").toLowerCase().includes(normalized);
-    return (difficulty === "all" || problem.difficulty === difficulty) && (paperMatches || moduleMatches) &&
-      (runtime === "all" || (runtime === "browser") === !!problem.browser_judge);
-  });
-}
-export function paperProgress(paper: Paper, { problems, saved }: Practice) {
-  const modules = paperModules(paper, problems).filter((p) => !p.module.optional);
-  const completed = modules.filter((p) => status(p, saved[p.id]) === "done").length;
-  const started = modules.some((p) => status(p, saved[p.id]) !== "todo");
-  return {
-    completed,
-    total: modules.length,
-    state: completed > 0 && completed === modules.length ? "done" : started ? "started" : "todo",
-  };
-}
+export { paperModules, matchingPaperModules, paperProgress } from './libraryPractice';
 
 function StateIcon({ state }: { state: string }) {
   const { t } = useI18n();
@@ -148,13 +123,9 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const visibleCategories = categories.filter((item) => listedPapers.some((paper) => paper.category === item.id));
   const tags = [...new Set(listedPapers.filter((paper) => category === "all" || paper.category === category).flatMap((paper) => paper.tags))];
   const solvedModules = listedModules.filter((p) => status(p, saved[p.id]) === "done").length;
-  const filtered = listedPapers.filter((paper) => {
-    return (category === "all" || paper.category === category) &&
-      matchingPaperModules(paper, problems, query, diff, runtime).length > 0 &&
-      (state === "all" || paperProgress(paper, practice).state === state) &&
-      (tag === "all" || paper.tags.includes(tag));
-  });
-  const filteredModules = filtered.flatMap((paper) => matchingPaperModules(paper, problems, query, diff, runtime));
+  const selection = selectLibraryPractice(papers, problems, saved, { collectionId: selectedCollection?.id, filters });
+  const filtered = selection.papers;
+  const filteredModules = filtered.flatMap(paper => selection.problems.filter(problem => paper.module_ids.includes(problem.id)));
   const unattempted = eligibleUnattemptedProblems(filteredModules, saved);
   function randomProblem() {
     if (!progressReady) return;
