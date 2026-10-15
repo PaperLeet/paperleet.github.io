@@ -12,7 +12,7 @@ dom.window.HTMLElement.prototype.scrollIntoView=function(options){lastScroll={el
 dom.window.matchMedia=()=>({matches:true});
 const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('hosted'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('0'),'import.meta.env.VITE_API_ORIGIN':JSON.stringify('')},plugins:[{
  name:'company-preparation-fixture',enforce:'pre',resolveId(source){if(source==='./social')return '\0company-preparation-fixture';},
- load(id){if(id==='\0company-preparation-fixture')return `import React from 'react';export const useAccount=()=>({user:null});export const socialApi=(...args)=>globalThis.__companyFixture.request(...args);export const errorMessage=e=>e.message;export const PersonLink=({user})=>React.createElement('span',null,user.display_name);export const DateLabel=({value})=>React.createElement('time',null,value);`;}
+ load(id){if(id==='\0company-preparation-fixture')return `import React from 'react';export const useAccount=()=>({user:null});export const socialApi=(...args)=>globalThis.__companyFixture.request(...args);export const errorMessage=e=>e.message;export class SocialError extends Error{};export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);export const PersonLink=({user})=>React.createElement('span',null,user.display_name);export const DateLabel=({value})=>React.createElement('time',null,value);`;}
 }]});
 let root;
 try{

@@ -20,7 +20,7 @@ export function readInterviewDetails(raw:unknown,now=new Date()):InterviewDetail
   return {company:value.company as string,role:value.role as string,stage:value.stage as string,outcome:value.outcome as string,interview_month:value.interview_month,location:value.location.trim(),questions:[...value.questions as string[]].sort()};
 }
 export type InterviewSummary={reports:number;contributors:number;days:string;basis:'published-community-reports';generated_at:string;companies:{company:string;reports:number;contributors:number}[];questions:{problem_id:string;reports:number;contributors:number;companies:{company:string;reports:number;contributors:number;latest:string;problem_id:string}[]}[]};
-export type InterviewFeed={items:InterviewPost[];total:number;limit:number;offset:number};
+export type InterviewFeed={items:InterviewPost[];total:number;limit:number;offset:number;owner_id?:string|null};
 const count=(value:unknown):value is number=>Number.isSafeInteger(value)&&Number(value)>=0;
 const companyCount=(row:unknown)=>{
   if(!row||typeof row!=='object')return false;
@@ -30,6 +30,7 @@ const companyCount=(row:unknown)=>{
 export function readInterviewFeed(raw:unknown):InterviewFeed|undefined {
   const value=raw as InterviewFeed;
   if(!value||!Array.isArray(value.items)||!count(value.total)||!count(value.offset)||!count(value.limit)||value.limit<1||value.limit>40||value.items.length>value.limit)return;
+  if(value.owner_id!==undefined&&value.owner_id!==null&&typeof value.owner_id!=='string')return;
   if(value.items.some(post=>!post||!readInterviewDetails(post.interview)||!/^[a-f0-9]{32}$/.test(post.id)||post.category!=='career'||typeof post.title!=='string'||typeof post.body!=='string'||!post.author||typeof post.author.id!=='string'||typeof post.author.username!=='string'||typeof post.author.display_name!=='string'||typeof post.author.avatar_color!=='string'||typeof post.created_at!=='string'||!post.counts||![post.counts.likes,post.counts.replies,post.counts.reposts].every(count)))return;
   return value;
 }
