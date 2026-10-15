@@ -195,7 +195,8 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.linalg.matrix_rank', lambda input: _tensor.Tensor(np.linalg.matrix_rank(input._data),dtype=np.int64), reverse='nondifferentiable')
     registry.add('torch.testing.assert_close', _ops.assert_close, reverse='control')
     registry.add('torch.random.fork_rng', _random.fork_rng, reverse='control')
-    registry.group('torch.autograd', {'grad': _autograd.autograd_grad, 'gradcheck': _autograd.gradcheck}, reverse='control')
+    registry.group('torch.autograd', {'grad': _autograd.autograd_grad, 'gradcheck': _autograd.gradcheck,
+                                    'backward': _autograd.autograd_backward}, reverse='control')
     registry.add('torch.func.jvp', _autograd.jvp, reverse='control')
     torch._browser_capabilities = types.MappingProxyType(registry.capabilities)
     torch.__getattr__ = _errors.unsupported

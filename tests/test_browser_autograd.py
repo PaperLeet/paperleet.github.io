@@ -163,7 +163,7 @@ def test_views_repeated_indices_broadcast_and_gradient_accumulation():
     def expression(t):
         return ((t[[1,1,0]].transpose(0,1).unsqueeze(0).repeat(2,1,1) - 2).square().mean() + t.sum(0).expand(5,4).exp().mean())
     value, expected = expression(x), expression(xx)
-    value.backward(); expected.backward(retain_graph=True)
+    value.backward(retain_graph=True); expected.backward(retain_graph=True)
     np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),rtol=1e-11,atol=1e-11)
     value.backward(); expected.backward()
     np.testing.assert_allclose(x.grad.numpy(),xx.grad.numpy(),rtol=1e-11,atol=1e-11)

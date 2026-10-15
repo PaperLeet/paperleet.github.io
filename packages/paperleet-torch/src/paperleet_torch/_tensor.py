@@ -52,24 +52,42 @@ def storage_version(data):
 class Tensor:
     __array_priority__ = 1000
     __hash__ = object.__hash__
-    _joint_vjp = None
+    _retain_grad = False
 
     def __init__(self, data, dtype=None, requires_grad=False):
         self._data = np.asarray(data, dtype=dtype)
         self._storage = storage_version(self._data)
-        self._saved_versions = ()
+        self._grad_node = None
         self.requires_grad = bool(requires_grad)
         if requires_grad and self.dtype.kind == 'c': raise _errors.BrowserUnsupported('Complex autograd requires the server')
         if requires_grad and self.dtype.kind != 'f':
             raise RuntimeError('Only floating point tensors can require gradients')
-        self._parents = ()
         self.grad = None
+
+    @property
+    def _parents(self):
+        node = self._grad_node
+        return () if node is None else node._parents
+
+    @property
+    def _joint_vjp(self):
+        node = self._grad_node
+        return None if node is None else node.joint
+
+    retains_grad = property(lambda self: bool(self._retain_grad and self._grad_node is not None))
+
+    def retain_grad(self):
+        if _state._jvp_active:raise _errors.BrowserUnsupported('retain_grad inside a forward AD transform is unsupported')
+        if not self.requires_grad:raise RuntimeError('Cannot retain_grad on a tensor that does not require grad')
+        if self._grad_node is not None:
+            self._retain_grad = True
+            self._grad_node.retained = weakref.ref(self)
 
     shape = property(lambda self: self._data.shape)
     ndim = property(lambda self: self._data.ndim)
     dtype = property(lambda self: self._data.dtype)
     device = property(lambda self: _device._CPU)
-    is_leaf = property(lambda self: not self._parents)
+    is_leaf = property(lambda self: self._grad_node is None)
     _version = property(lambda self: self._storage.version)
     T = property(lambda self: self.permute(*reversed(range(self.ndim))))
     data = property(lambda self: self.detach())
@@ -102,7 +120,7 @@ class Tensor:
     def clone(self, *, memory_format=None):
         fmt = _conversion.memory_format(memory_format)
         data = self._data.copy(order='C' if fmt is _conversion.MemoryFormat.contiguous_format else 'K')
-        return _autograd.result(data, (self, lambda g: g))
+        return _autograd.result(data, (self, lambda g: g), saves_tensors=False)
     def cpu(self, memory_format=None):
         if memory_format is None or memory_format is _conversion.MemoryFormat.preserve_format:
             return self
@@ -150,7 +168,7 @@ class Tensor:
         if target == self.dtype and not copy:
             return self
         data = self._data.astype(target, order='C' if contiguous else 'K', copy=copy)
-        return _autograd.result(data, (self, lambda g: g)) if data.dtype.kind in 'fc' else Tensor(data)
+        return _autograd.result(data, (self, lambda g: g), saves_tensors=False) if data.dtype.kind in 'fc' else Tensor(data)
 
     def type(self, dtype=None, non_blocking=False, **kwargs):
         if dtype is None:
@@ -190,30 +208,31 @@ class Tensor:
         if _state._jvp_active: raise _errors.BrowserUnsupported('Changing gradient flags inside JVP requires the server')
         if requires_grad and self.dtype.kind == 'c': raise _errors.BrowserUnsupported('Complex autograd requires the server')
         if requires_grad and self.dtype.kind != 'f': raise RuntimeError('Only floating tensors can require grad')
+        if self._parents and not requires_grad:raise RuntimeError('Only leaf tensors can change requires_grad flags')
         self.requires_grad = requires_grad
         return self
 
-    def backward(self, gradient=None, *, retain_graph=False, create_graph=False):
-        if create_graph: raise _errors.BrowserUnsupported('Higher-order autograd is not supported')
-        if gradient is None and self.numel() != 1: raise RuntimeError('Non-scalar outputs require a gradient')
-        seed = np.ones_like(self._data) if gradient is None else _ops.wrap(gradient)._data
-        order, gradients = _autograd.backprop(self, seed)
-        for node in order:
-            if node.requires_grad and not node._parents and id(node) in gradients:
-                grad = gradients[id(node)]
-                if node.grad is None:
-                    node.grad = Tensor(grad.copy())
-                else:
-                    if not isinstance(node.grad, Tensor) or node.grad.shape != grad.shape or node.grad.dtype.kind != 'f':
-                        raise RuntimeError('Existing gradient must be a floating Tensor of the correct shape')
-                    node.grad._data[...] += grad
-                    node.grad._storage.bump()
+    def backward(self, gradient=None, *, retain_graph=None, create_graph=False, inputs=None):
+        return _autograd.autograd_backward(self, gradient, retain_graph, create_graph, inputs=inputs)
+
+    def _accumulate_gradient(self, grad):
+        if self.grad is None:
+            self.grad = Tensor(grad.copy())
+        else:
+            if not isinstance(self.grad, Tensor) or self.grad.shape != grad.shape or self.grad.dtype.kind != 'f':
+                raise RuntimeError('Existing gradient must be a floating Tensor of the correct shape')
+            self.grad._data[...] += grad
+            self.grad._storage.bump()
 
     def __getitem__(self, index):
         original_data = self._data
+        original_shape,original_dtype = self.shape,self.dtype
         saved = []
         def convert(key):
-            if isinstance(key, Tensor): saved.append(key); return key._data
+            if isinstance(key, Tensor):
+                if key.ndim==0 and key.dtype in (np.dtype('int32'),np.dtype('int64')):
+                    return int(key._data.item())
+                saved.append(key);return key._data
             if isinstance(key, tuple): return tuple(convert(k) for k in key)
             return key
         index = convert(index)
@@ -222,7 +241,7 @@ class Tensor:
                     isinstance(key, (int, np.integer)) and not isinstance(key, (bool, np.bool_))
                     for key in keys)
         def vjp(g):
-            grad = np.zeros_like(original_data)
+            grad = np.zeros(original_shape,dtype=original_dtype)
             # Basic slices address each destination once. Advanced indexing can
             # repeat destinations, and must retain unbuffered scatter addition.
             if basic:
@@ -230,7 +249,18 @@ class Tensor:
             else:
                 np.add.at(grad, index, g)
             return grad
-        return _autograd.result(original_data[index], (self, vjp), saved=saved)
+        data=original_data[index]
+        if basic and not isinstance(data,np.ndarray):
+            # NumPy returns a scalar object for an all-integer selection.
+            # Preserve Torch's zero-dimensional view and shared version counter.
+            slices=[];axis=0
+            for key in keys:
+                if key is Ellipsis:slices.append(key)
+                else:
+                    position=int(key);position=position if position>=0 else position+original_shape[axis]
+                    slices.append(slice(position,position+1));axis+=1
+            data=original_data[tuple(slices)].reshape(()) if slices else original_data.view().reshape(())
+        return _autograd.result(data, (self, vjp), saved=saved, saves_tensors=not basic)
 
     def __setitem__(self, index, value):
         if _state._jvp_active: raise _errors.BrowserUnsupported('Tensor mutation during JVP requires the server')
@@ -270,7 +300,7 @@ class Tensor:
         value.grad = copy.deepcopy(self.grad, memo)
         return value
 
-    def _binary(self, other, op, left, right):
+    def _binary(self, other, op, left, right, *, saves_tensors=True):
         if not isinstance(other, (Tensor, np.ndarray)):
             if isinstance(other, (complex, np.complexfloating)):
                 other = Tensor(other, dtype=np.complex128 if self.dtype in (np.dtype('float64'),np.dtype('complex128')) else np.complex64)
@@ -289,11 +319,16 @@ class Tensor:
         elif a.dtype.kind in 'biu' and b.dtype.kind in 'biu':
             dtype = a.dtype if a.ndim and not b.ndim and a.dtype.kind!='b' else b.dtype if b.ndim and not a.ndim and b.dtype.kind!='b' else np.result_type(a.dtype,b.dtype)
             a,b=a.astype(dtype,copy=False),b.astype(dtype,copy=False)
+        if not saves_tensors:
+            left_shape,right_shape = a.shape,b.shape
+            return _autograd.result(op(a,b),
+                (self,lambda g:_ops.unbroadcast(left(g,None,None),left_shape)),
+                (other,lambda g:_ops.unbroadcast(right(g,None,None),right_shape)),saves_tensors=False)
         return _autograd.result(op(a, b), (self, lambda g: _ops.unbroadcast(left(g, a, b), a.shape)),
                       (other, lambda g: _ops.unbroadcast(right(g, a, b), b.shape)))
-    def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g)
+    def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g, saves_tensors=False)
     __radd__ = __add__
-    def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g)
+    def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g, saves_tensors=False)
     def __rsub__(self, other): return -self + other
     def __mul__(self, other): return self._binary(other, np.multiply, lambda g,a,b:g*b, lambda g,a,b:g*a)
     __rmul__ = __mul__
@@ -319,7 +354,8 @@ class Tensor:
         if self.dtype.kind=='b' and _ops.wrap(other).dtype.kind=='b': raise _errors.BrowserUnsupported('Boolean remainder requires the server')
         if self.dtype.kind in 'biu' and _ops.wrap(other).dtype.kind in 'biu' and np.any(_ops.wrap(other)._data==0):
             raise RuntimeError('Integer division by zero')
-        return self._binary(other,np.remainder,lambda g,a,b:g,lambda g,a,b:-g*np.floor(a/b))
+        return self._binary(other,np.remainder,lambda g,a,b:g,lambda g,a,b:-g*np.floor(a/b),
+                            saves_tensors=_ops.wrap(other).requires_grad)
     __mod__ = remainder
     def __rmod__(self, other):
         self._real_only(); _ops.wrap(other)._real_only()
@@ -327,7 +363,7 @@ class Tensor:
         if self.dtype.kind in 'biu' and _ops.wrap(other).dtype.kind in 'biu' and np.any(self._data==0):
             raise RuntimeError('Integer division by zero')
         return self._binary(other,lambda a,b:np.remainder(b,a),lambda g,a,b:-g*np.floor(b/a),lambda g,a,b:g)
-    def __neg__(self): return _autograd.result(-self._data, (self, lambda g: -g))
+    def __neg__(self): return _autograd.result(-self._data, (self, lambda g: -g), saves_tensors=False)
     def _inplace(self, other, operation):
         if _state._grad_enabled and (self.requires_grad or _ops.wrap(other).requires_grad):
             raise _errors.BrowserUnsupported('In-place updates of differentiable tensors require the server')
@@ -444,8 +480,9 @@ class Tensor:
 
     def reshape(self, *shape):
         original_data = self._data
+        original_shape = self.shape
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
-        return _autograd.result(original_data.reshape(shape), (self, lambda g: g.reshape(original_data.shape)))
+        return _autograd.result(original_data.reshape(shape), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
     view = reshape
     def reshape_as(self, other): return self.reshape(other.shape)
     def split(self, split_size_or_sections, dim=0):
@@ -477,36 +514,48 @@ class Tensor:
         return self.reshape(*self.shape[:start_dim], -1, *self.shape[end_dim+1:])
     def unsqueeze(self, dim):
         original_data = self._data
-        return _autograd.result(np.expand_dims(original_data, dim), (self, lambda g: g.reshape(original_data.shape)))
+        original_shape = self.shape
+        return _autograd.result(np.expand_dims(original_data, dim), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
     def squeeze(self, dim=None):
         original_data = self._data
+        original_shape = self.shape
         if dim is not None and original_data.shape[dim] != 1: return self
-        return _autograd.result(np.squeeze(original_data, axis=dim), (self, lambda g: g.reshape(original_data.shape)))
+        return _autograd.result(np.squeeze(original_data, axis=dim), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
     def permute(self, *dims):
         if len(dims) == 1 and isinstance(dims[0], (tuple, list)): dims = tuple(dims[0])
         dims = tuple(d % self.ndim for d in dims)
-        return _autograd.result(self._data.transpose(dims), (self, lambda g: g.transpose(np.argsort(dims))))
+        return _autograd.result(self._data.transpose(dims), (self, lambda g: g.transpose(np.argsort(dims))), saves_tensors=False)
     def transpose(self, dim0, dim1):
         dims = list(range(self.ndim)); dims[dim0], dims[dim1] = dims[dim1], dims[dim0]
         return self.permute(*dims)
     def expand(self, *shape):
         original_data = self._data
+        original_shape = self.shape
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
         leading = (1,) * (len(shape) - original_data.ndim) + original_data.shape
         target = tuple(old if new == -1 else new for old, new in zip(leading, shape))
-        return _autograd.result(np.broadcast_to(original_data, target), (self, lambda g: _ops.unbroadcast(g, original_data.shape)))
+        return _autograd.result(np.broadcast_to(original_data, target), (self, lambda g: _ops.unbroadcast(g, original_shape)), saves_tensors=False)
     def expand_as(self, other): return self.expand(other.shape)
     def repeat(self, *repeats):
         original_data = self._data
+        original_shape = self.shape
         if len(repeats) == 1 and isinstance(repeats[0], (tuple, list)): repeats = tuple(repeats[0])
         shape = (1,) * (len(repeats) - original_data.ndim) + original_data.shape
         interleaved = tuple(v for pair in zip(repeats, shape) for v in pair)
-        return _autograd.result(np.tile(original_data, repeats), (self, lambda g: g.reshape(interleaved).sum(axis=tuple(range(0, len(interleaved), 2))).reshape(original_data.shape)))
+        return _autograd.result(np.tile(original_data, repeats), (self, lambda g: g.reshape(interleaved).sum(axis=tuple(range(0, len(interleaved), 2))).reshape(original_shape)), saves_tensors=False)
     def repeat_interleave(self, repeats, dim=None, *, output_size=None):
         source = self.flatten() if dim is None else self
         dim = 0 if dim is None else dim
         if not -source.ndim <= dim < source.ndim: raise IndexError('repeat_interleave dimension out of range')
         dim %= source.ndim
+        if isinstance(repeats,(int,np.integer)) and not isinstance(repeats,(bool,np.bool_)):
+            count=int(repeats)
+            if count<0:raise RuntimeError('Invalid repetition counts')
+            if output_size is not None and output_size!=source.shape[dim]*count:
+                raise RuntimeError('Incorrect repeat_interleave output_size')
+            shape=list(source.shape);shape.insert(dim+1,count)
+            return _autograd.result(np.repeat(source._data,count,axis=dim),
+                (source,lambda g:g.reshape(shape).sum(axis=dim+1)),saves_tensors=False)
         counts = _ops.wrap(repeats)._data
         if counts.dtype.kind not in 'iu' or counts.ndim > 1 or np.any(counts < 0): raise RuntimeError('Invalid repetition counts')
         if np.any(counts > np.iinfo(np.intp).max):
@@ -518,22 +567,40 @@ class Tensor:
         return source[tuple(index)]
 
     def sum(self, dim=None, keepdim=False, *, dtype=None):
+        if dtype is not None and np.dtype(dtype).kind not in 'fc' and self.requires_grad and _state._grad_enabled:
+            raise RuntimeError('Autograd does not support a non-floating sum dtype')
         original_data = self._data
-        dims = tuple(range(original_data.ndim)) if dim is None else tuple(d % original_data.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
+        original_shape = self.shape
+        dims = tuple(range(self.ndim)) if isinstance(dim,(tuple,list)) and not dim else _ops.reduction_axes(dim,self.ndim)
         def vjp(g):
             if not keepdim:
                 for axis in sorted(dims): g = np.expand_dims(g, axis)
-            return np.broadcast_to(g, original_data.shape)
+            return np.broadcast_to(g, original_shape)
         if dtype is None and original_data.dtype.kind in 'biu': dtype = np.int64
-        return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp))
-    def mean(self, dim=None, keepdim=False):
-        dims = tuple(range(self.ndim)) if dim is None else dim if isinstance(dim, (list, tuple)) else (dim,)
-        return self.sum(dim, keepdim) / int(np.prod([self.shape[d] for d in dims]))
+        return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False)
+    def mean(self, dim=None, keepdim=False, *, dtype=None):
+        target = self.dtype if dtype is None else np.dtype(dtype)
+        if target.kind not in 'fc':raise RuntimeError('mean requires floating or complex dtype')
+        dims = tuple(range(self.ndim)) if isinstance(dim,(tuple,list)) and not dim else _ops.reduction_axes(dim,self.ndim)
+        shape = self.shape
+        count = int(np.prod([shape[d] for d in dims]))
+        def vjp(g):
+            if not keepdim:
+                for axis in sorted(dims):g=np.expand_dims(g,axis)
+            with np.errstate(divide='ignore',invalid='ignore'):
+                return np.broadcast_to(np.divide(g,count,dtype=g.dtype),shape)
+        if count:
+            value = self._data.mean(axis=dims,keepdims=keepdim,dtype=target)
+        else:
+            with np.errstate(divide='ignore',invalid='ignore'):
+                value = self._data.sum(axis=dims,keepdims=keepdim,dtype=target)/np.asarray(0,dtype=target)
+        return _autograd.result(value,(self,vjp),saves_tensors=False)
     def trace(self):
         original_data = self._data
         if original_data.ndim != 2: raise RuntimeError('trace expects a matrix')
         self._real_only()
-        return _autograd.result(np.trace(original_data), (self, lambda g: np.eye(*original_data.shape, dtype=original_data.dtype) * g))
+        shape,dtype = self.shape,self.dtype
+        return _autograd.result(np.trace(original_data), (self, lambda g: np.eye(*shape, dtype=dtype) * g), saves_tensors=False)
     def det(self): return _linalg.det(self)
     def prod(self, dim=None, keepdim=False, *, dtype=None):
         original_data = self._data
@@ -585,7 +652,8 @@ class Tensor:
         if decimals!=0 or out is not None: raise _errors.BrowserUnsupported('Decimal round/output buffers require the server')
         if original_data.dtype.kind in 'iu': return self.clone()
         if original_data.dtype.kind!='f': raise _errors.BrowserUnsupported('round requires real floating or integer inputs')
-        return _autograd.result(np.rint(original_data),(self,lambda g: np.zeros_like(original_data)))
+        shape,dtype = self.shape,self.dtype
+        return _autograd.result(np.rint(original_data),(self,lambda g: np.zeros(shape,dtype=dtype)),saves_tensors=False)
     def norm(self, p='fro', dim=None, keepdim=False, dtype=None, *, out=None):
         if out is not None: raise _errors.BrowserUnsupported('Norm out arguments require the server')
         if p not in (2, 'fro'): raise _errors.BrowserUnsupported('Only Euclidean/Frobenius norms are supported')
@@ -629,30 +697,34 @@ class Tensor:
         return _autograd.result(value if keepdim else value.squeeze(axis=axes), (self, vjp))
     def diagonal(self, offset=0, dim1=0, dim2=1):
         original_data = self._data
+        shape,dtype = self.shape,self.dtype
         if original_data.ndim < 2: raise RuntimeError('diagonal requires at least two dimensions')
         if not isinstance(offset, (int, np.integer)): raise TypeError('Diagonal offset must be an integer')
         axes = _ops.reduction_axes((dim1, dim2), original_data.ndim)
         value = np.diagonal(original_data, offset=int(offset), axis1=axes[0], axis2=axes[1])
         if original_data.flags.writeable: value.setflags(write=True)
+        length = value.shape[-1]
         def vjp(g):
-            gradient = np.zeros_like(original_data)
+            gradient = np.zeros(shape,dtype=dtype)
             moved = np.moveaxis(gradient, axes, (-2, -1))
-            index = np.arange(value.shape[-1])
+            index = np.arange(length)
             moved[..., index + max(-int(offset), 0), index + max(int(offset), 0)] = g
             return gradient
-        return _autograd.result(value, (self, vjp))
+        return _autograd.result(value, (self, vjp),saves_tensors=False)
     def diag(self, diagonal=0, *, out=None):
         original_data = self._data
+        shape,dtype,rank = self.shape,self.dtype,self.ndim
         if out is not None: raise _errors.BrowserUnsupported('diag out arguments require the server')
         if original_data.ndim not in (1, 2): raise RuntimeError('diag expects a vector or matrix')
         value = np.diag(original_data, k=diagonal)
+        length = value.size
         def vjp(g):
-            if original_data.ndim == 1: return np.diag(g, k=diagonal)
-            gradient = np.zeros_like(original_data)
-            positions = np.arange(value.size, dtype=np.intp)
+            if rank == 1: return np.diag(g, k=diagonal)
+            gradient = np.zeros(shape,dtype=dtype)
+            positions = np.arange(length, dtype=np.intp)
             gradient[positions + max(-diagonal, 0), positions + max(diagonal, 0)] = g
             return gradient
-        return _autograd.result(value, (self, vjp))
+        return _autograd.result(value, (self, vjp),saves_tensors=False)
     def any(self, dim=None, keepdim=False): return Tensor(self._data.any(axis=dim, keepdims=keepdim))
     def all(self, dim=None, keepdim=False): return Tensor(self._data.all(axis=dim, keepdims=keepdim))
     def _extreme(self, dim, keepdim, maximum):
@@ -745,19 +817,19 @@ class Tensor:
     def flip(self, dims):
         if dims is None: raise TypeError('flip requires dimensions')
         axes = () if isinstance(dims, (tuple, list)) and not dims else _ops.reduction_axes(dims, self.ndim)
-        return _autograd.result(np.flip(self._data, axis=axes).copy(), (self, lambda g: np.flip(g, axis=axes)))
+        return _autograd.result(np.flip(self._data, axis=axes).copy(), (self, lambda g: np.flip(g, axis=axes)),saves_tensors=False)
     def roll(self, shifts, dims=None):
         if dims is None and np.ndim(shifts) and len(shifts) != 1: raise RuntimeError('roll shifts and dimensions must align')
         inverse = -np.asarray(shifts)
-        return _autograd.result(np.roll(self._data, shifts, axis=dims), (self, lambda g: np.roll(g, inverse, axis=dims)))
+        return _autograd.result(np.roll(self._data, shifts, axis=dims), (self, lambda g: np.roll(g, inverse, axis=dims)),saves_tensors=False)
     def triu(self, diagonal=0):
         if self.ndim < 2: raise RuntimeError('triu requires at least two dimensions')
-        return _autograd.result(np.triu(self._data, k=diagonal), (self, lambda g: np.triu(g, k=diagonal)))
+        return _autograd.result(np.triu(self._data, k=diagonal), (self, lambda g: np.triu(g, k=diagonal)),saves_tensors=False)
     def tril(self, diagonal=0):
         if self.ndim < 2: raise RuntimeError('tril requires at least two dimensions')
-        return _autograd.result(np.tril(self._data, k=diagonal), (self, lambda g: np.tril(g, k=diagonal)))
+        return _autograd.result(np.tril(self._data, k=diagonal), (self, lambda g: np.tril(g, k=diagonal)),saves_tensors=False)
     def cumsum(self, dim):
-        return _autograd.result(self._data.cumsum(axis=dim), (self, lambda g: np.flip(np.flip(g, axis=dim).cumsum(axis=dim), axis=dim)))
+        return _autograd.result(self._data.cumsum(axis=dim), (self, lambda g: np.flip(np.flip(g, axis=dim).cumsum(axis=dim), axis=dim)),saves_tensors=False)
     def cumprod(self, dim, *, dtype=None):
         original_data = self._data
         if not original_data.ndim and dim in (0, -1):

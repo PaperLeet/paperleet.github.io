@@ -132,6 +132,49 @@ callbacks use a fast call path, restored after the first call following removal.
 Module backward hooks, process-global registration hooks, private checkpoint-hook
 interfaces, compilation and native file serialization remain unsupported.
 
+## Reverse graphs and requested gradients
+
+`Tensor.backward`, `torch.autograd.backward` and `torch.autograd.grad` honor
+`retain_graph`. A default reverse pass frees the saved numerical state of
+executed operations. Keep the graph explicitly when another pass needs that
+state; reusing freed state raises RuntimeError. Operations with no native saved
+Tensor requirement, such as addition, basic slicing and shape/reduction paths,
+can still repeat without retention. This policy is operator-specific: even
+multiplication by a constant can require saved state.
+
+```python
+loss.backward(retain_graph=True)
+# Inspect or accumulate a second pass:
+loss.backward()
+
+gradients = torch.autograd.grad(
+    (first_loss, second_loss), dict(model.named_parameters()),
+    allow_unused=True,
+)
+```
+
+Flat multiple outputs, explicit matching gradient seeds, duplicate roots/inputs,
+unused inputs and named input dictionaries are supported. `autograd.grad` returns
+values without accumulating leaf `.grad`; `materialize_grads=True` returns zeros
+for unused inputs, following the validated Torch 2.14 `create_graph=False` rule.
+Use `intermediate.retain_grad()` to accumulate a non-leaf `.grad`, including
+during `autograd.grad`. `backward(inputs=...)` limits accumulation to selected
+inputs. It still executes a selected non-leaf's gradient function, while `grad`
+can stop there; native-reference tests cover the distinction after graph release.
+
+Graph history remains non-leaf after release. Lightweight graph metadata retains
+parent relationships without retaining every intermediate Tensor's storage;
+saved VJPs release their captured arrays after execution. Explicit retention
+keeps that state. Ordinary gradient buffers preserve their existing identities
+and mutation guards. Integer scalar selections also preserve zero-dimensional
+view storage and shared version counters.
+
+General higher-order reverse graphs (`create_graph=True`), batched reverse seeds
+and arbitrary GradientEdge inputs remain unsupported. Validated forward AD and
+reverse-over-forward rules remain available. `retain_grad` inside an active
+forward AD transform is unsupported; import aliases and numerical state remain
+process-wide.
+
 ## CPU model conversion and gradient modes
 
 Existing CPU selection and dtype-conversion code works with the import aliases:
@@ -364,7 +407,9 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.8 validation record](../../docs/validation/torch-runtime-iteration-8.md)
+See the [0.9 validation record](../../docs/validation/torch-runtime-iteration-9.md)
+for graph lifetime, requested gradients, native retention policies and memory/latency tradeoffs.
+The [0.8 validation record](../../docs/validation/torch-runtime-iteration-8.md)
 for model introspection, local callbacks, checkpoint transforms and dispatch costs.
 The [0.7 validation record](../../docs/validation/torch-runtime-iteration-7.md)
 for neural-network layers, normalization accuracy, encoder training and memory.

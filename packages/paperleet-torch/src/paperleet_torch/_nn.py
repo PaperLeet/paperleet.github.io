@@ -550,7 +550,7 @@ def _resize_2d(input, size, *, cubic=False, align=False, factors=None):
     # Choose the smaller intermediate for each direction, including thin maps.
     value=(wy @ input._data) @ wx.T if oh*w<=h*ow else wy @ (input._data @ wx.T)
     def vjp(g):return (wy.T @ g) @ wx if h*ow<=oh*w else wy.T @ (g @ wx)
-    return _autograd.result(value,(input,vjp))
+    return _autograd.result(value,(input,vjp),saves_tensors=not cubic and size!=(1,1))
 
 
 def adaptive_avg_pool2d(input, output_size):

@@ -1,25 +1,27 @@
 """NumPy-backed autograd implementation; extracted from PaperLeet."""
 import contextlib
 import math
+import warnings
 import numpy as np
 
 
-from . import _tensor
+from . import _graph, _tensor
 
-def result(data, *edges, saved=()):
+def result(data, *edges, saved=(), saves_tensors=True):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
         raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
     value = _tensor.Tensor(data)
     if value.dtype.kind == 'c' and _state._grad_enabled and any(node.requires_grad for node, _ in edges):
         raise _errors.BrowserUnsupported('Complex autograd requires the server')
-    value._parents = tuple((node, vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
-    value.requires_grad = bool(value._parents)
+    parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
+    value.requires_grad = bool(parents)
     if value.requires_grad:
         # Conservatively guard every operand, including frozen operands and output
         # arrays captured by VJP closures. Unsupported graph reuse falls back rather
         # than returning derivatives calculated from mutated storage.
-        counters = {node._storage for node in (value, *(node for node, _ in edges), *saved)}
-        value._saved_versions = tuple((counter, counter.version) for counter in counters)
+        counters = {node._storage for node in (value, *(node for node, _ in edges), *saved)} if saves_tensors else ()
+        value._grad_node = _graph.Node(value, parents, saved=saves_tensors,
+                                      versions=tuple((counter, counter.version) for counter in counters))
     return value
 
 
@@ -35,52 +37,16 @@ def joint_result(data, inputs, backward, *, saved=()):
     value = result(data, *((node, None) for node in inputs), saved=saved)
     if value.requires_grad:
         needs = tuple(node.requires_grad and _state._grad_enabled for node in inputs)
-        value._joint_vjp = (backward, needs)
+        value._grad_node.joint = (backward, needs)
     return value
 
 
-def backprop(output, seed):
-    if not output.requires_grad:
-        raise RuntimeError('Tensor does not require grad and has no grad_fn')
-    order, visited, stack = [], set(), [(output, False)]
-    while stack:
-        node, expanded = stack.pop()
-        if expanded:
-            order.append(node)
-        elif id(node) not in visited:
-            visited.add(id(node))
-            stack.append((node, True))
-            stack.extend((parent, False) for parent, _, _ in node._parents)
-    for node in order:
-        if any(counter.version != version for counter, version in node._saved_versions):
-            raise _errors.BrowserUnsupported('A tensor saved for backward was modified in-place; this graph requires the server')
-    gradients = {id(output): np.asarray(seed, dtype=output.dtype)}
-    for node in reversed(order):
-        grad = gradients.get(id(node))
-        if grad is None:
-            continue
-        if node._joint_vjp is None:
-            # Keep ordinary edges on their original hot path: no joint dispatch
-            # or shape-validation branch per edge in the WASM interpreter.
-            for parent, vjp, dtype in node._parents:
-                incoming = np.asarray(vjp(grad), dtype=dtype)
-                key = id(parent)
-                gradients[key] = incoming if key not in gradients else gradients[key] + incoming
-            continue
-        backward, needs = node._joint_vjp
-        derivatives = backward(grad, needs)
-        if not isinstance(derivatives, (tuple, list)) or len(derivatives) != len(needs):
-            raise RuntimeError('A joint VJP must return one gradient per input')
-        if any(needed and derivative is None for needed, derivative in zip(needs, derivatives)):
-            raise RuntimeError('A joint VJP omitted a required input gradient')
-        active = (derivative for needed, derivative in zip(needs, derivatives) if needed)
-        for (parent, _, dtype), derivative in zip(node._parents, active):
-            incoming = np.asarray(derivative, dtype=dtype)
-            if incoming.shape != parent.shape:
-                raise RuntimeError('A joint VJP gradient shape must match its input')
-            key = id(parent)
-            gradients[key] = incoming if key not in gradients else gradients[key] + incoming
-    return order, gradients
+def backprop(output, seed, *, retain_graph=False, inputs=None, accumulate=False):
+    outputs = (output,) if isinstance(output, _tensor.Tensor) else tuple(output)
+    seeds = (seed,) if isinstance(output, _tensor.Tensor) else tuple(seed)
+    roots = tuple(_graph.node_for(value) for value in outputs)
+    targets = None if inputs is None else {id(_graph.node_for(value)) for value in inputs}
+    return _graph.run(roots, seeds, retain_graph=retain_graph, targets=targets, accumulate=accumulate)
 
 
 class ForwardTensor(_tensor.Tensor):
@@ -226,20 +192,68 @@ def jvp(func, primals, tangents, *, strict=False, has_aux=False):
         _state._jvp_active = False
 
 
-def autograd_grad(output, inputs, grad_outputs=None, *, retain_graph=False, create_graph=False, allow_unused=False):
-    if create_graph: raise _errors.BrowserUnsupported('Higher-order autograd requires the server')
-    if isinstance(output, (tuple, list)):
-        if len(output) != 1: raise _errors.BrowserUnsupported('Multiple-output autograd requires the server')
-        output = output[0]
-    if grad_outputs is None and output.numel() != 1: raise RuntimeError('Non-scalar outputs require grad_outputs')
-    _, gradients = backprop(output, np.ones_like(output._data) if grad_outputs is None else _ops.wrap(grad_outputs)._data)
-    values = []
-    for node in ([inputs] if isinstance(inputs, _tensor.Tensor) else inputs):
-        if id(node) not in gradients:
-            if not allow_unused: raise RuntimeError('A differentiated tensor was not used in the graph')
-            values.append(None)
-        else: values.append(_tensor.Tensor(gradients[id(node)]))
-    return tuple(values)
+def _backward_arguments(outputs, gradients, retain_graph, create_graph):
+    if create_graph:raise _errors.BrowserUnsupported('Higher-order autograd requires the server')
+    if _state._jvp_active:raise _errors.BrowserUnsupported('Backward inside a forward AD transform is unsupported')
+    if retain_graph is not None and not isinstance(retain_graph,bool):raise TypeError('retain_graph must be bool or None')
+    outputs = (outputs,) if isinstance(outputs,_tensor.Tensor) else tuple(outputs)
+    if gradients is None:gradients = (None,)*len(outputs)
+    elif isinstance(gradients,_tensor.Tensor):gradients = (gradients,)
+    else:gradients = tuple(gradients)
+    if len(outputs)!=len(gradients):raise RuntimeError('Expected one gradient per output')
+    seeds=[]
+    for output,gradient in zip(outputs,gradients):
+        if not isinstance(output,_tensor.Tensor):raise TypeError('Outputs must be Tensors')
+        if not output.requires_grad:raise RuntimeError('Tensor does not require grad and has no grad_fn')
+        if gradient is None:
+            if output.numel()!=1:raise RuntimeError('Non-scalar outputs require grad_outputs')
+            seed=np.ones_like(output._data)
+        else:
+            if not isinstance(gradient,_tensor.Tensor):raise TypeError('Gradient must be a Tensor or None')
+            if gradient.shape!=output.shape:raise RuntimeError('Gradient shape must match its output')
+            if gradient.dtype.kind=='c':raise _errors.BrowserUnsupported('Complex backward seeds are unsupported')
+            seed=np.asarray(gradient._data,dtype=output.dtype)
+        seeds.append(seed)
+    return outputs,tuple(seeds),bool(retain_graph)
+
+
+def _backward_inputs(inputs):
+    inputs=(inputs,) if isinstance(inputs,_tensor.Tensor) else tuple(inputs)
+    if not inputs:raise RuntimeError('Expected nonempty differentiation inputs')
+    for value in inputs:
+        if not isinstance(value,_tensor.Tensor):raise TypeError('Differentiation inputs must be Tensors')
+        if not value.requires_grad:raise RuntimeError('A differentiated Tensor does not require grad')
+    return inputs
+
+
+def autograd_backward(tensors,grad_tensors=None,retain_graph=None,create_graph=False,
+                      grad_variables=None,inputs=None):
+    if grad_variables is not None:raise _errors.BrowserUnsupported('Deprecated grad_variables is unsupported')
+    outputs,seeds,retain_graph=_backward_arguments(tensors,grad_tensors,retain_graph,create_graph)
+    inputs=None if inputs is None else _backward_inputs(inputs)
+    if inputs is not None:
+        for value in inputs:value.retain_grad()
+    backprop(outputs,seeds,retain_graph=retain_graph,inputs=inputs,accumulate=True)
+
+
+def autograd_grad(output, inputs, grad_outputs=None, retain_graph=None, create_graph=False,
+                  only_inputs=True, allow_unused=None, is_grads_batched=False, materialize_grads=False):
+    if is_grads_batched:raise _errors.BrowserUnsupported('Batched backward seeds are unsupported')
+    if not only_inputs:warnings.warn('only_inputs is deprecated and ignored',FutureWarning,stacklevel=2)
+    if materialize_grads and allow_unused is False:raise ValueError('materialize_grads requires allow_unused=True')
+    allow_unused=materialize_grads if allow_unused is None else allow_unused
+    outputs,seeds,retain_graph=_backward_arguments(output,grad_outputs,retain_graph,create_graph)
+    keys=tuple(inputs) if type(inputs) is dict else None
+    inputs=_backward_inputs(tuple(inputs.values()) if keys is not None else inputs)
+    order,gradients=backprop(outputs,seeds,retain_graph=retain_graph,inputs=inputs)
+    values=[]
+    for value in inputs:
+        key=id(_graph.node_for(value))
+        if key not in gradients:
+            if not allow_unused:raise RuntimeError('A differentiated tensor was not used in the graph')
+            values.append(_tensor.Tensor(np.zeros_like(value._data)) if materialize_grads else None)
+        else:values.append(_tensor.Tensor(gradients[key]))
+    return tuple(values) if keys is None else dict(zip(keys,values))
 
 
 def gradcheck(func, inputs, *, eps=1e-6, atol=1e-5, rtol=1e-3, raise_exception=True, **options):
@@ -278,7 +292,7 @@ def gradcheck(func, inputs, *, eps=1e-6, atol=1e-5, rtol=1e-3, raise_exception=T
         for index in range(output.numel()):
             if output.requires_grad:
                 seed = np.zeros(output.shape); seed.flat[index] = 1
-                derivatives = autograd_grad(output, [leaves[i] for i in active], _tensor.Tensor(seed), allow_unused=True)
+                derivatives = autograd_grad(output, [leaves[i] for i in active], _tensor.Tensor(seed), allow_unused=True, retain_graph=True)
                 for matrix, derivative in zip(analytical, derivatives):
                     if derivative is not None: matrix[row] = derivative._data.reshape(-1)
             row += 1

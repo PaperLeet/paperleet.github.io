@@ -105,13 +105,25 @@ def trapezoid(y, x=None, *, dx=None, dim=-1):
     if x is not None and dx is not None: raise TypeError('Specify x or dx, not both')
     if y.shape[dim] == 0:
         return _tensor.Tensor(np.zeros(y.shape[:dim] + y.shape[dim+1:],dtype=y.dtype))
+    if x is None:
+        if dx is not None and (not np.isscalar(dx) or np.iscomplexobj(dx)):
+            raise _errors.BrowserUnsupported('trapezoid dx must be a real scalar')
+        shape=y.shape;step=np.asarray(1 if dx is None else dx,dtype=y.dtype)
+        half=np.asarray(.5,dtype=y.dtype)
+        with np.errstate(over='ignore',invalid='ignore'):
+            value=(y._data.sum(axis=dim)-(np.take(y._data,0,axis=dim)+np.take(y._data,-1,axis=dim))*half)*step
+        def vjp(g):
+            with np.errstate(over='ignore',invalid='ignore'):
+                scaled=g*step
+                gradient=np.broadcast_to(np.expand_dims(scaled,dim),shape).copy()
+                correction=scaled*half
+                edge=[slice(None)]*len(shape);edge[dim]=0;gradient[tuple(edge)]-=correction
+                edge[dim]=-1;gradient[tuple(edge)]-=correction
+            return gradient
+        return _autograd.result(value,(y,vjp),saves_tensors=False)
     left, right = [slice(None)]*y.ndim, [slice(None)]*y.ndim
     left[dim], right[dim] = slice(None,-1), slice(1,None)
     average = (y[tuple(left)] + y[tuple(right)]) / 2
-    if x is None:
-        if dx is not None and (not np.isscalar(dx) or isinstance(dx,complex)):
-            raise _errors.BrowserUnsupported('trapezoid dx must be a real scalar')
-        return (average * (1 if dx is None else dx)).sum(dim)
     x = wrap(x)
     if not x.ndim or x.ndim > y.ndim or x.dtype.kind not in 'fc':
         raise _errors.BrowserUnsupported('trapezoid coordinates require floating tensors of supported rank')
@@ -179,7 +191,7 @@ def concatenate(tensors, dim=0, *, stack=False):
             return g[tuple(index)]
         edges.append((value, vjp))
         offset = end
-    return _autograd.result(data, *edges)
+    return _autograd.result(data, *edges, saves_tensors=False)
 
 
 def cov(x, *, correction=1, fweights=None, aweights=None):

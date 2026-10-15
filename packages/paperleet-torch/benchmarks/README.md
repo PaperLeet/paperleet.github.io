@@ -33,6 +33,10 @@ Use `--dtype float64` to measure double-precision workloads. Repeat `--case`
 to select a smaller set, for example `--case attention_backward --case linear_backward`.
 `bench_attention_memory.py` separately records forward retained/peak and backward
 peak allocations with CPython tracemalloc; it must not be treated as browser RSS.
+`bench_graph_memory.py` keeps a scalar loss alive through backward after dropping
+intermediate user variables, comparing default release and explicit retention.
+It traces a 64×128 input through sixteen add/tanh stages and a squared mean loss;
+input allocation precedes tracing. Use `--dtype float64` for the wider fixture.
 
 Each case warms up three calls and reports milliseconds per call over repeated
 batches. Forward/backward cases reset gradients each call; fixture construction,

@@ -99,6 +99,19 @@ behavior. Passing its current exercises alone does not establish library readine
 - Weak handles, deep-copy behavior, lazy callback storage and an unhooked call
   path are validated with native-reference and independent NumPy/WASM workflows.
 
+## Version 0.9 milestone
+
+- Reverse graph metadata separates history from intermediate Tensor storage;
+  saved-state release and explicit retention preserve non-leaf identity.
+- Multiple roots/seeds, requested input pruning, named/duplicate/unused inputs,
+  retained non-leaf gradients and selected backward inputs follow native routing.
+- Operator-specific retention audits distinguish saved Tensor state from
+  repeatable metadata-only VJPs, including pooling/resize specializations.
+- Scalar integer views retain shared storage/version guards; reduction scalar,
+  empty-axis and dtype handling and constant-spacing trapezoid improve core APIs.
+- Independent CPU/WASM contracts and retained-loss memory/control benchmarks
+  validate values, release behavior and performance costs.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization
@@ -108,7 +121,7 @@ behavior. Passing its current exercises alone does not establish library readine
    numerical and performance evidence justify them; keep state compatibility and
    unknown-option errors explicit. Profile small-parameter update overhead.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
-   multi-output gradients, retention semantics and forward-mode gaps. Add APIs
+   remaining retention corner cases, tensor hooks and forward-mode gaps. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
 4. Neural-network coverage: expand batch/group normalization, attention options,
    weighted/smoothed/spatial losses and convolution, with masked/empty/non-contiguous

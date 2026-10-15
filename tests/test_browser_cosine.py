@@ -58,7 +58,7 @@ def test_cosine_jvp_and_reverse_gradients_of_both_channels_at_epsilon(dtype,row)
     with np.errstate(all='ignore'):
         primal,tangent=wasm.jvp(lambda x,y:wasm.cosine_similarity(x,y,0,1.),(a,b),(ta,tb))
         expected,jvp=torch.func.jvp(lambda x,y:torch.cosine_similarity(x,y,0,1.),(na,nb),(nta,ntb))
-        actual_grad=wasm.autograd_grad(primal,(a,b));expected_grad=torch.autograd.grad(expected,(na,nb),retain_graph=True)
+        actual_grad=wasm.autograd_grad(primal,(a,b),retain_graph=True);expected_grad=torch.autograd.grad(expected,(na,nb),retain_graph=True)
         actual_second=wasm.autograd_grad(tangent,(a,b,ta,tb));expected_second=torch.autograd.grad(jvp,(na,nb,nta,ntb))
     close(primal,expected,dtype);close(tangent,jvp,dtype)
     for got,want in zip(actual_grad,expected_grad):close(got,want,dtype)

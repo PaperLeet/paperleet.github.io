@@ -1,0 +1,3701 @@
+{
+  "milestone": "0.9.0",
+  "baseline": "fe09cfa6ae2a792f1e93e6b107164799967ca1be",
+  "plan": {
+    "baseline": "fe09cfa6ae2a792f1e93e6b107164799967ca1be",
+    "candidate": "0.9.0 final source: direct Tensor leaves, lazy retained-owner weakrefs, integer sum dtype guard",
+    "configuration": {
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "dtype": [
+        "float32",
+        "float64"
+      ],
+      "core_cases": [
+        "attention_backward",
+        "linear_backward",
+        "model_training_step",
+        "slice_backward",
+        "indexed_backward",
+        "adamw_step",
+        "same_dtype_to"
+      ],
+      "cpu_order": [
+        "baseline",
+        "candidate",
+        "candidate",
+        "baseline"
+      ]
+    },
+    "sources": {
+      "baseline": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "800d6a6b690aa73c8091b1cf5615068e5a16307d270ff4000f2d18c0585351f1",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_conversion.py": "b5ee84f5b45aab09855d705370640872088209039c321fc3e0b6dcf0773129b1",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_ops.py": "87e0cf37fd25d3b526c52909ded332a7f86923778d8180cfc63d06626cba7a47",
+        "_api.py": "a72138f91bcb967b48bb719edf4780c001e6c1ab383130ded2a4a98eca969d8d",
+        "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+        "__init__.py": "00907857b7f1d4e56fb703763159151fe2460a380b0642a8c5dd284ee104622d",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_tensor.py": "8262250cb359f68ae27821aaa97e0504778f20be1eb54f70c48eadfde950f848",
+        "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425",
+        "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+        "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_autograd.py": "cdc9fada50db478ac2c95308550601cbc98740661089a290f79610fe8e0d0c1d",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304"
+      },
+      "candidate": {
+        "__init__.py": "d35fae932e13fee0b4e5e924298060661f55ef8abb85a0bd1a0f4e06d57b9d6a",
+        "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_api.py": "593034b60494a2b2422bfab58841155c9b790240bd16b7c76efcbd92786c3f56",
+        "_autograd.py": "fe92de0e31a8316a13f20ff9aa47ccb4d4c67e1b3ece5815aa794420ca0d67c3",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "_conversion.py": "b5ee84f5b45aab09855d705370640872088209039c321fc3e0b6dcf0773129b1",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_graph.py": "3da78e84ffa114d16e6a26de30882c7dcd398d7c295f9d5a3e5c79dbeb81a954",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_nn.py": "937f61c72a95ebfc8833c33c5e2233de98245bf4f2a0554b6523afa63d531e5f",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_ops.py": "b6a3351bc80c972e5bf8a4c7055e333de2f20b681a4e7f2439061ac2118d0dd2",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+        "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+        "_tensor.py": "eaa5b583642c35dce2036f10bf023df00b05b19788c9f5017bfcb2f464f7adfe",
+        "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+      }
+    },
+    "benchmark_hashes": {
+      "bench_runtime.py": "9b9bd3429041f4b98790bbf77f30eb5890189d6afdd57efc711e0dbb5e186455",
+      "bench_wasm.mjs": "a5d49c759933e379fd099ce35cd0ce4c354fc3ac7e00de6dcc9d5b2723ebfe25",
+      "bench_nn.py": "fec2c23f3fd03f283a128450fc7b9d29ef1a2bcfae06e96c385c26122dc9ceb1"
+    },
+    "execution": "Final source frozen; all local correctness and timing producers terminal. Sequential CPU ABBA, Node WASM, balanced Node controls and Chrome Workers."
+  },
+  "checks": {
+    "python_summary": "2255 passed, 1 skipped, 6 warnings in 137.17s (0:02:17)",
+    "native": {
+      "passed": true,
+      "problems": 69,
+      "tests_executed": 8829,
+      "repeats": 3,
+      "duration_s": 106.72325737500068
+    },
+    "mutants_caught": 295,
+    "minimum_numpy_wheel": {
+      "numpy": "1.26.4",
+      "native_torch": false,
+      "library": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1/numpy-min-env/lib/python3.12/site-packages/paperleet_torch/__init__.py",
+      "bytes": 92330,
+      "sha256": "e706e80e51e6d49a58175de3782e8b5880ac14666cadafbd7b8b0e4d7d9bba48"
+    },
+    "minimum_numpy_tests": 100,
+    "wasm": "\n> paperleet-web@0.1.0 check:browser-wasm\n> node scripts/prepare-browser-runtime.mjs && node scripts/check-browser-wasm.mjs\n\nBrowser runtime ready: Pyodide 0.29.4, NumPy 2.2.5, pytest 8.3.5; validated browser modules use CPU/WASM\nPASS real Pyodide 0.29.4 / NumPy 2.2.5: diffusion/schedules, full reference/mutants/learner suite\nPASS real Pyodide 0.29.4 / NumPy 2.2.5: architecture/attention, full reference/mutants/learner suite, numerical regressions and typed fallback\nPASS real Pyodide 0.29.4 / NumPy 2.2.5: finetuning/lora, full reference/mutants/learner suite, numerical regressions and typed fallback\nPASS real Pyodide 0.29.4 / NumPy 2.2.5: optimization/adamw, full reference/mutants/learner suite, numerical regressions and typed fallback\nPASS real Pyodide 0.29.4 / NumPy 2.2.5: optimization/muon_split, full reference/mutants/learner suite, numerical regressions and typed fallback\n",
+    "chrome": {
+      "browser": "155.0.8059.40",
+      "fresh_workers": 5,
+      "original_tests": 35,
+      "mutants_caught": 20,
+      "additional_contracts": 82
+    },
+    "web_check": "passed",
+    "web_build": "passed",
+    "maintained_memory_smoke": {
+      "library_version": "0.9.0",
+      "python": "3.12.11",
+      "numpy": "2.5.4",
+      "implementation": "/Users/david/Developer/PaperLeet-torch-release/packages/paperleet-torch/src/paperleet_torch/_tensor.py",
+      "depth": 16,
+      "shape": [
+        64,
+        128
+      ],
+      "inputs_allocated_before_trace": true,
+      "results": [
+        {
+          "dtype": "float32",
+          "retain_graph": false,
+          "loss": 0.12623977661132812,
+          "gradient_max": 1.8220760466647334e-05,
+          "forward_retained_bytes": 561666,
+          "forward_peak_bytes": 596138,
+          "after_backward_retained_bytes": 54570,
+          "backward_peak_bytes": 668690,
+          "after_final_release_bytes": null
+        },
+        {
+          "dtype": "float32",
+          "retain_graph": true,
+          "loss": 0.12623977661132812,
+          "gradient_max": 3.644152093329467e-05,
+          "forward_retained_bytes": 561556,
+          "forward_peak_bytes": 596028,
+          "after_backward_retained_bytes": 595164,
+          "backward_peak_bytes": 667644,
+          "after_final_release_bytes": 53236
+        }
+      ]
+    },
+    "integration": {
+      "previous_ui_only": {
+        "base": "728b3c94cd2df1cd90fb7b08450c0e6f5c28e9c8",
+        "package_app_tests_problems_catalog_trees_unchanged": true,
+        "final_31_library_hashes_match": true,
+        "combined_web_check": "passed",
+        "combined_web_build": "passed",
+        "pages_retention": "15 passed"
+      },
+      "final_base": "8a5d9522e9d2cf22fa50fe844703681c65cf22b0",
+      "upstream_change": "DPO bilingual readmes and starter docstring; executable starter AST unchanged",
+      "library_app_tests_unchanged": true,
+      "canonical_catalogs_regenerated": true,
+      "catalog_config_browser": "120 passed in106.53s",
+      "dpo": "3 repetitions,162 executions,5/5 mutants,3.50s",
+      "combined_web_check": "passed",
+      "combined_web_build": "passed",
+      "final31source_hashes_match": true
+    }
+  },
+  "memory": {
+    "baseline": {
+      "version": "0.8.0",
+      "numpy": "2.5.4",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch/_tensor.py",
+      "fixture": "64x128 input beforetrace;16 add+tanh stages;stored scalar loss;all intermediate user variables dropped",
+      "results": [
+        {
+          "dtype": "float32",
+          "retain_graph": false,
+          "loss": 0.12623977661132812,
+          "gradient_max": 1.8220760466647334e-05,
+          "forward_retained_bytes": 1144820,
+          "forward_peak_bytes": 1147060,
+          "after_backward_retained_bytes": 1179468,
+          "backward_peak_bytes": 1749072,
+          "after_final_release_bytes": null
+        },
+        {
+          "dtype": "float32",
+          "retain_graph": true,
+          "loss": 0.12623977661132812,
+          "gradient_max": 3.644152093329467e-05,
+          "forward_retained_bytes": 1142708,
+          "forward_peak_bytes": 1144948,
+          "after_backward_retained_bytes": 1176540,
+          "backward_peak_bytes": 1746144,
+          "after_final_release_bytes": 1176652
+        },
+        {
+          "dtype": "float64",
+          "retain_graph": false,
+          "loss": 0.12623970015089542,
+          "gradient_max": 1.8220764937709347e-05,
+          "forward_retained_bytes": 2224128,
+          "forward_peak_bytes": 2226368,
+          "after_backward_retained_bytes": 2291264,
+          "backward_peak_bytes": 3417936,
+          "after_final_release_bytes": null
+        },
+        {
+          "dtype": "float64",
+          "retain_graph": true,
+          "loss": 0.12623970015089542,
+          "gradient_max": 3.6441529875418694e-05,
+          "forward_retained_bytes": 2224128,
+          "forward_peak_bytes": 2226368,
+          "after_backward_retained_bytes": 2290728,
+          "backward_peak_bytes": 3417400,
+          "after_final_release_bytes": 2290840
+        }
+      ]
+    },
+    "candidate": {
+      "version": "0.9.0",
+      "numpy": "2.5.4",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch/_tensor.py",
+      "fixture": "64x128 input beforetrace;16 add+tanh stages;stored scalar loss;all intermediate user variables dropped",
+      "results": [
+        {
+          "dtype": "float32",
+          "retain_graph": false,
+          "loss": 0.12623977661132812,
+          "gradient_max": 1.8220760466647334e-05,
+          "forward_retained_bytes": 562434,
+          "forward_peak_bytes": 596906,
+          "after_backward_retained_bytes": 55338,
+          "backward_peak_bytes": 669458,
+          "after_final_release_bytes": null
+        },
+        {
+          "dtype": "float32",
+          "retain_graph": true,
+          "loss": 0.12623977661132812,
+          "gradient_max": 3.644152093329467e-05,
+          "forward_retained_bytes": 561556,
+          "forward_peak_bytes": 596028,
+          "after_backward_retained_bytes": 595164,
+          "backward_peak_bytes": 667644,
+          "after_final_release_bytes": 53236
+        },
+        {
+          "dtype": "float64",
+          "retain_graph": false,
+          "loss": 0.12623970015089542,
+          "gradient_max": 1.8220764937709347e-05,
+          "forward_retained_bytes": 1085848,
+          "forward_peak_bytes": 1153112,
+          "after_backward_retained_bytes": 86480,
+          "backward_peak_bytes": 1290368,
+          "after_final_release_bytes": null
+        },
+        {
+          "dtype": "float64",
+          "retain_graph": true,
+          "loss": 0.12623970015089542,
+          "gradient_max": 3.6441529875418694e-05,
+          "forward_retained_bytes": 1085848,
+          "forward_peak_bytes": 1153112,
+          "after_backward_retained_bytes": 1152224,
+          "backward_peak_bytes": 1290248,
+          "after_final_release_bytes": 86008
+        }
+      ]
+    }
+  },
+  "cpu": {
+    "cpu-0-baseline-float32": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.8.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.22215104163478827,
+          "samples_ms": [
+            0.22708124997734558,
+            0.21914062502522333,
+            0.22215104163478827,
+            0.22056214996458343,
+            0.2244944416815997,
+            0.2164749999792548,
+            0.21606111664974983,
+            0.22031458338460652,
+            0.22472985832185563,
+            0.22525139168768268,
+            0.22523679999721935
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.04677916664756291,
+          "samples_ms": [
+            0.0503805583017917,
+            0.04853333333206441,
+            0.04677291666060531,
+            0.04672326667787274,
+            0.04704305835427173,
+            0.04677916664756291,
+            0.046687500010496784,
+            0.047423258365597576,
+            0.04682499996609598,
+            0.04651041672332212,
+            0.046591316701475684
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.06790695000139142,
+          "samples_ms": [
+            0.06790695000139142,
+            0.06661423334056356,
+            0.06654791662488908,
+            0.06662222500987507,
+            0.06657221668622999,
+            0.06912361665551241,
+            0.06938367496331921,
+            0.06845798331293433,
+            0.06824235830814966,
+            0.06843993335981698,
+            0.0676631916576298
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.04401770832676751,
+          "samples_ms": [
+            0.044344091656967066,
+            0.04590659160991587,
+            0.04145312498925099,
+            0.042174650055433936,
+            0.04247847500664648,
+            0.042370483364114385,
+            0.04360729162726784,
+            0.04463958333265813,
+            0.04405902497334561,
+            0.04410799162239224,
+            0.04401770832676751
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.10106424166830645,
+          "samples_ms": [
+            0.09831632499602468,
+            0.10088958333653864,
+            0.10025590830385529,
+            0.1006319416774204,
+            0.10106424166830645,
+            0.0993260417089914,
+            0.10201597500175315,
+            0.10120138334362612,
+            0.10153402496750157,
+            0.10159826664069745,
+            0.10283437495672842
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.07796700829203473,
+          "samples_ms": [
+            0.07905971669970313,
+            0.07908923331948851,
+            0.07887117499194574,
+            0.07714687502205682,
+            0.07851979165328278,
+            0.0751180583392852,
+            0.07600243334309198,
+            0.07708298332242218,
+            0.07827812502606928,
+            0.07796700829203473,
+            0.07684514166612644
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00010347503121010959,
+          "samples_ms": [
+            0.00010764166897085185,
+            0.00010104164781902607,
+            0.000102433356611679,
+            0.0001034667244918334,
+            0.00010451664517556007,
+            0.00010451664517556007,
+            0.00010451664517556007,
+            0.00010312499701588725,
+            0.00010520834621274844,
+            0.00010347503121010959,
+            0.00010347497057712947
+          ]
+        }
+      }
+    },
+    "cpu-0-baseline-float64": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.8.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.319698608351852,
+          "samples_ms": [
+            0.3188555499946233,
+            0.319698608351852,
+            0.31679825830603175,
+            0.326126383333758,
+            0.3265295166784199,
+            0.36960764167209464,
+            0.3238322916634691,
+            0.347426041662402,
+            0.31845659996179165,
+            0.31638715833347913,
+            0.31812743333527277
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.06043090828219041,
+          "samples_ms": [
+            0.06138368335086852,
+            0.06042534999626999,
+            0.06219930831624273,
+            0.060156941678239186,
+            0.060161800017037116,
+            0.060279866678077575,
+            0.0606208333313892,
+            0.06064930833720913,
+            0.06058090002625249,
+            0.06043090828219041,
+            0.06033055833540857
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.06793160003629357,
+          "samples_ms": [
+            0.06930139164372424,
+            0.06738993330751934,
+            0.06833576668820267,
+            0.06793160003629357,
+            0.06805694168482053,
+            0.06791632501214433,
+            0.0680420166948655,
+            0.06703124993994909,
+            0.06687708337267395,
+            0.06742049166253612,
+            0.0692336750338048
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.06595278337044874,
+          "samples_ms": [
+            0.06509097499171428,
+            0.06616110834632612,
+            0.0660961833394443,
+            0.06595278337044874,
+            0.06663610832523166,
+            0.06693889166247875,
+            0.06510312499206823,
+            0.06580069997047151,
+            0.0656204833527833,
+            0.06575278330274159,
+            0.06650937502854504
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.11202951664017746,
+          "samples_ms": [
+            0.11041076668334426,
+            0.11238471664303991,
+            0.1123177083475942,
+            0.11219340000631443,
+            0.11063680831284728,
+            0.11108576666932397,
+            0.11245243331359234,
+            0.11202951664017746,
+            0.11184549166500801,
+            0.11203715833592771,
+            0.1118763833195165
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.14707951668242458,
+          "samples_ms": [
+            0.14675902499827012,
+            0.14640173333949255,
+            0.1463937500375323,
+            0.14707951668242458,
+            0.1463836833863752,
+            0.14820070003527994,
+            0.14848506665051295,
+            0.14740277498882884,
+            0.14544722495581178,
+            0.14840035000815988,
+            0.1486881916813824
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00010382500477135181,
+          "samples_ms": [
+            0.00010903331713052467,
+            0.00010104164781902607,
+            0.00010382500477135181,
+            0.00010416667161431785,
+            0.00010312499701588725,
+            0.00010381669805307563,
+            0.00010381669805307563,
+            0.00010277502345464502,
+            0.00010451670580854018,
+            0.00010971671144943684,
+            0.00011423338340440144
+          ]
+        }
+      }
+    },
+    "cpu-1-candidate-float32": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.9.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.22762222500508264,
+          "samples_ms": [
+            0.22603333333487777,
+            0.2378892332975132,
+            0.22762222500508264,
+            0.2609295082947938,
+            0.2285937499740006,
+            0.22906041667738464,
+            0.22674514166283188,
+            0.22650589999102522,
+            0.22329583334794734,
+            0.22360416666439656,
+            0.2287100750133201
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.04859999996066714,
+          "samples_ms": [
+            0.05177222495452346,
+            0.050116666716348846,
+            0.05051528332842281,
+            0.04994166665710509,
+            0.04788403336230355,
+            0.04760312500972456,
+            0.046873958308424335,
+            0.046900699999241624,
+            0.048114933330604494,
+            0.04859999996066714,
+            0.049483683324069716
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.07127222500760884,
+          "samples_ms": [
+            0.07127222500760884,
+            0.07089548331957,
+            0.07138089998382686,
+            0.07015729170234408,
+            0.0708423583394809,
+            0.07087569168409875,
+            0.07193159999587806,
+            0.07147222501468302,
+            0.07202916670697353,
+            0.07125174167110042,
+            0.07174826666111282
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.04403819166327594,
+          "samples_ms": [
+            0.043773958350357134,
+            0.0445229166871286,
+            0.04222534165213195,
+            0.042943058360833675,
+            0.044008333316014614,
+            0.04409687498991843,
+            0.043980208344388906,
+            0.04403819166327594,
+            0.04432395829401988,
+            0.044638541658059694,
+            0.04437430834514089
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.1066725666532875,
+          "samples_ms": [
+            0.10557221667113481,
+            0.10587604162234736,
+            0.10702881669809965,
+            0.1066725666532875,
+            0.10896910001368572,
+            0.10833680832244379,
+            0.10668680000283833,
+            0.10630833336714811,
+            0.10599166665391142,
+            0.10914409995166352,
+            0.10603437500928219
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.07787916668651935,
+          "samples_ms": [
+            0.07782778332815117,
+            0.07859548331907718,
+            0.07787916668651935,
+            0.07634860836939576,
+            0.0792097249965688,
+            0.07936840829643188,
+            0.07666007501635856,
+            0.07769999998951486,
+            0.07927916667540558,
+            0.0793277750441727,
+            0.0757357666467821
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00011319164817299072,
+          "samples_ms": [
+            0.00012152498432745536,
+            0.00011354168236721307,
+            0.00011320001552424704,
+            0.0001128499813300247,
+            0.00011319170880597085,
+            0.00011354168236721307,
+            0.00011249994713580236,
+            0.00011319164817299072,
+            0.00011319164817299072,
+            0.0001128499813300247,
+            0.0001128499813300247
+          ]
+        }
+      }
+    },
+    "cpu-1-candidate-float64": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.9.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.32010277500376105,
+          "samples_ms": [
+            0.32371180829310714,
+            0.3240878416666722,
+            0.32010277500376105,
+            0.32155590003336937,
+            0.32100451662699925,
+            0.320201041661979,
+            0.3165079833706841,
+            0.31897916669549886,
+            0.31974445003773627,
+            0.31633402504667174,
+            0.319818749994738
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.061283333343453705,
+          "samples_ms": [
+            0.06198229166329838,
+            0.06206597499840427,
+            0.05934895834798226,
+            0.05980069169406003,
+            0.06167534999500882,
+            0.061283333343453705,
+            0.06096979165401232,
+            0.061026741665652175,
+            0.06139930834857902,
+            0.06117013338856244,
+            0.06135485837148735
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.0692274332929325,
+          "samples_ms": [
+            0.06986805001361063,
+            0.0692274332929325,
+            0.06921458334545605,
+            0.06921944999097225,
+            0.06927743337049226,
+            0.07023195000025832,
+            0.07003541662318942,
+            0.06936111664496518,
+            0.06909583329009668,
+            0.06898923335635725,
+            0.06835416667551424
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.06702569165402868,
+          "samples_ms": [
+            0.0668576333434127,
+            0.06603992502884164,
+            0.06589444165001623,
+            0.06599444168386981,
+            0.06683610833230584,
+            0.06827778330868266,
+            0.06793160003629357,
+            0.06760660004753542,
+            0.06702569165402868,
+            0.06825346669453818,
+            0.06796354167211878
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.11357846663789435,
+          "samples_ms": [
+            0.11430798331275582,
+            0.11480070000591998,
+            0.11458923339281075,
+            0.11357846663789435,
+            0.11287812497660828,
+            0.1125868083666622,
+            0.11279722499845472,
+            0.11339479169691913,
+            0.1149031249951804,
+            0.11387014164938591,
+            0.11233819162346965
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.14884964997084657,
+          "samples_ms": [
+            0.14834235832192158,
+            0.146359375018316,
+            0.14781354166188976,
+            0.1491253500110664,
+            0.14668090000971765,
+            0.1502697916900312,
+            0.14885208329360466,
+            0.14943715832487214,
+            0.14884964997084657,
+            0.14880729171030302,
+            0.14903124999060915
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00011320001552424704,
+          "samples_ms": [
+            0.00012118331748448934,
+            0.00011007499172895525,
+            0.0001128416746117485,
+            0.00011389165592845529,
+            0.00011354162173423295,
+            0.00011320001552424704,
+            0.0001118083067315941,
+            0.00011320001552424704,
+            0.00011319164817299072,
+            0.00011250000776878248,
+            0.0001138833492101791
+          ]
+        }
+      }
+    },
+    "cpu-2-candidate-float32": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.9.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.2265982666358468,
+          "samples_ms": [
+            0.2261069417121083,
+            0.2323229166601474,
+            0.22228055828842722,
+            0.22747916664229706,
+            0.22310278333558622,
+            0.22826041664908794,
+            0.22276423333096318,
+            0.22745903333998285,
+            0.22449895835355468,
+            0.2265982666358468,
+            0.2279680499971922
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.049545483367789224,
+          "samples_ms": [
+            0.05079513333233384,
+            0.049203125005684946,
+            0.049663191687917184,
+            0.05035902504459955,
+            0.0492041666196504,
+            0.0475284750185286,
+            0.0474038166430546,
+            0.0473711833061922,
+            0.049545483367789224,
+            0.05059166663462141,
+            0.051664241679342617
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.0713663166607148,
+          "samples_ms": [
+            0.07238923335535219,
+            0.07135971663956298,
+            0.07134374997500952,
+            0.0713663166607148,
+            0.07187847501578896,
+            0.07144548332386573,
+            0.07194409166307499,
+            0.07110312502239442,
+            0.0720718750017113,
+            0.07049062496662373,
+            0.07112430836665833
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.04417535001266515,
+          "samples_ms": [
+            0.04478194168768823,
+            0.04537049165567927,
+            0.0438274249972892,
+            0.04236632497243894,
+            0.04375173333149481,
+            0.04415069167104472,
+            0.04395799169287784,
+            0.04470485831310119,
+            0.04465450832261316,
+            0.04417535001266515,
+            0.04454304998944281
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.10785312497318955,
+          "samples_ms": [
+            0.10622360829681081,
+            0.10842777501238743,
+            0.10849305829954876,
+            0.10936909996720108,
+            0.10753159167506965,
+            0.10622777499520453,
+            0.10772674165006417,
+            0.1081024333567863,
+            0.11503195000841515,
+            0.10726389167151258,
+            0.10785312497318955
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.07736701663816348,
+          "samples_ms": [
+            0.07983888335729716,
+            0.07624304998898879,
+            0.07774826669143901,
+            0.08920589995492871,
+            0.07625485832249979,
+            0.07757395833323244,
+            0.07622812499903375,
+            0.07736006664345041,
+            0.07528333335358184,
+            0.07736701663816348,
+            0.07788992497808067
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00011388328857719898,
+          "samples_ms": [
+            0.00012152498432745536,
+            0.00011354168236721307,
+            0.00011285004196300481,
+            0.0001138833492101791,
+            0.00011423332277142133,
+            0.00011423338340440144,
+            0.00011214997357456014,
+            0.00011250000776878248,
+            0.00011388328857719898,
+            0.00011458329633266355,
+            0.0001128499813300247
+          ]
+        }
+      }
+    },
+    "cpu-2-candidate-float64": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.9.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.3179649250038589,
+          "samples_ms": [
+            0.31829409999772906,
+            0.3227520833509819,
+            0.3199930583529446,
+            0.3171406249748543,
+            0.31938368332096917,
+            0.32283055831309565,
+            0.3156843749820837,
+            0.3171850750125789,
+            0.31391770838429994,
+            0.3179649250038589,
+            0.3150822916722973
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.060561808337903734,
+          "samples_ms": [
+            0.059735416652983986,
+            0.0604117999804051,
+            0.06070729171672914,
+            0.061681600042599406,
+            0.06104999999176167,
+            0.06082360832806444,
+            0.060399308313208167,
+            0.060561808337903734,
+            0.061551391687923264,
+            0.05954097499246321,
+            0.060090625023197695
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.06936701671899452,
+          "samples_ms": [
+            0.07055208334350027,
+            0.06936701671899452,
+            0.06920764165746125,
+            0.06908506663118412,
+            0.06885625001208003,
+            0.06941215002977212,
+            0.06999340002948884,
+            0.06926596670382423,
+            0.07027360831367939,
+            0.06929999999556458,
+            0.07002986664398729
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.06620173335250001,
+          "samples_ms": [
+            0.06620173335250001,
+            0.06585278333659517,
+            0.06598229168351584,
+            0.06615694995465067,
+            0.06688923331239494,
+            0.06728194166498724,
+            0.06775416665429172,
+            0.0677854167103457,
+            0.0673347166715151,
+            0.0660250000388866,
+            0.0651489583106013
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.11314166664912288,
+          "samples_ms": [
+            0.11215868332025518,
+            0.11205798333927912,
+            0.11264791664871154,
+            0.11398298332399766,
+            0.1139746499878432,
+            0.11376666667880879,
+            0.1139201416663127,
+            0.11531945001479471,
+            0.11314166664912288,
+            0.1124076416696577,
+            0.11221006667862336
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.14733714997419156,
+          "samples_ms": [
+            0.1477208333502252,
+            0.14745243333891267,
+            0.14710416665669376,
+            0.1479083333227512,
+            0.1468565917093656,
+            0.1470621500023602,
+            0.14734062503218107,
+            0.14668507495419666,
+            0.146710416690136,
+            0.14733714997419156,
+            0.14769166664336808
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00011354168236721307,
+          "samples_ms": [
+            0.00012187495788869758,
+            0.00011320001552424704,
+            0.00011354168236721307,
+            0.00011354162173423295,
+            0.0001128416746117485,
+            0.00011458329633266355,
+            0.00011180000001331791,
+            0.00011354168236721307,
+            0.00011423332277142133,
+            0.00011493333052688588,
+            0.00011180000001331791
+          ]
+        }
+      }
+    },
+    "cpu-3-baseline-float32": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.8.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.22441562499201004,
+          "samples_ms": [
+            0.22750139166115937,
+            0.22755764166504377,
+            0.22475833332767556,
+            0.2235302083742378,
+            0.21653715005716853,
+            0.22538784996868344,
+            0.2223211833552341,
+            0.22632430833861386,
+            0.22418819165371437,
+            0.22441562499201004,
+            0.2200020833091306
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.04707743331285504,
+          "samples_ms": [
+            0.05222221667888031,
+            0.049799658336269204,
+            0.050024649984455515,
+            0.049645833314571064,
+            0.04707743331285504,
+            0.046802425034305394,
+            0.04648194165686922,
+            0.045857633328220494,
+            0.0459847250264526,
+            0.04647048335755244,
+            0.04859166668514566
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.0675524333322149,
+          "samples_ms": [
+            0.06884097498793078,
+            0.06822743331819463,
+            0.06802604166296078,
+            0.06780070004121323,
+            0.0675524333322149,
+            0.06979131667321781,
+            0.06654861663264455,
+            0.06676597501306485,
+            0.06563471664170113,
+            0.06578089996764902,
+            0.06605277497631808
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.04338611670391401,
+          "samples_ms": [
+            0.04429791667159103,
+            0.042185766627274766,
+            0.043649308342234384,
+            0.04397916666979048,
+            0.04280243332080621,
+            0.04324340000797141,
+            0.04328889165966151,
+            0.043701733314568024,
+            0.04373298330998902,
+            0.04322569166106405,
+            0.04338611670391401
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.1026645833311098,
+          "samples_ms": [
+            0.1026645833311098,
+            0.10354409999611865,
+            0.10331214998586802,
+            0.10370416663742314,
+            0.1026878416572193,
+            0.10179340000225541,
+            0.10150034164932246,
+            0.10194825833120073,
+            0.10274514170305338,
+            0.10188194167615923,
+            0.10106597498330909
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.07791770834349639,
+          "samples_ms": [
+            0.07791770834349639,
+            0.0767496583648608,
+            0.07885729167658913,
+            0.07667985834511153,
+            0.07887951663481847,
+            0.07904964998791304,
+            0.07733229164538595,
+            0.07757256668507277,
+            0.07968889161323507,
+            0.08000937499067125,
+            0.07648368330895512
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00010277502345464502,
+          "samples_ms": [
+            0.00010659162702116494,
+            0.00010104170845200618,
+            0.00010242498926042269,
+            0.00010277496282166491,
+            0.00010277502345464502,
+            0.00010277502345464502,
+            0.00010208332241745666,
+            0.0001038166374200955,
+            0.00010868328293630232,
+            0.00011215003420754026,
+            0.0001093749839734907
+          ]
+        }
+      }
+    },
+    "cpu-3-baseline-float64": {
+      "python": "3.12.11",
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "library_version": "0.8.0",
+      "implementation": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch/_tensor.py",
+      "numpy": "2.5.4",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 0.31791320003928075,
+          "samples_ms": [
+            0.3222347166229156,
+            0.31655625001197524,
+            0.31473715001387365,
+            0.3185847250279039,
+            0.3186385416483972,
+            0.31918298336677253,
+            0.3169444416319796,
+            0.31897256667434704,
+            0.3174875000089135,
+            0.31791320003928075,
+            0.316279166630314
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 0.06089791665241743,
+          "samples_ms": [
+            0.06141458337272828,
+            0.059265624986437615,
+            0.06086909997975454,
+            0.061487500048921596,
+            0.06210277497302741,
+            0.06101320001713854,
+            0.06089791665241743,
+            0.0607607583636612,
+            0.060904858340412225,
+            0.06081666664006965,
+            0.06082465830938114
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.06863819999125553,
+          "samples_ms": [
+            0.06919583338458324,
+            0.06794687499980985,
+            0.06914895833081876,
+            0.0673333333300737,
+            0.0701916666609274,
+            0.06958750000194414,
+            0.06798368334178424,
+            0.06702014167482655,
+            0.06863819999125553,
+            0.06944132498271453,
+            0.06855659169862822
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.06816041665539767,
+          "samples_ms": [
+            0.06595485835229435,
+            0.06674340832735955,
+            0.06668229167795896,
+            0.06675416667955385,
+            0.06741666669161835,
+            0.06875520830362802,
+            0.0683218750054948,
+            0.06857325831030418,
+            0.06816041665539767,
+            0.06849270830571186,
+            0.06817395836454428
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.11221632497229923,
+          "samples_ms": [
+            0.11449791666867289,
+            0.11446770834785032,
+            0.11304722502245568,
+            0.11257395835855277,
+            0.11221632497229923,
+            0.11095000002872742,
+            0.11172187496413244,
+            0.11317604166833917,
+            0.11065694167579447,
+            0.11130972501026311,
+            0.11045625002831609
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.14693714996004323,
+          "samples_ms": [
+            0.14770312500331784,
+            0.14591527500063725,
+            0.14679687495420998,
+            0.14820520833988363,
+            0.14690242502789866,
+            0.14768437504244503,
+            0.1483770833753321,
+            0.14691562500956934,
+            0.14693714996004323,
+            0.1468503499684933,
+            0.14723923328953484
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00011389165592845529,
+          "samples_ms": [
+            0.00011770832012795533,
+            0.00011250000776878248,
+            0.00011354162173423295,
+            0.00011389165592845529,
+            0.00011493333052688588,
+            0.00011389165592845529,
+            0.00011424169012267764,
+            0.00011389165592845529,
+            0.0001184000211651437,
+            0.00011354162173423295,
+            0.0001128416746117485
+          ]
+        }
+      }
+    }
+  },
+  "node": {
+    "node-baseline-float32": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.8.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 2.6614107666666684,
+          "samples_ms": [
+            2.727571533333332,
+            2.684643058333334,
+            2.6587798583333324,
+            2.6614107666666684,
+            2.6439958333333347,
+            2.6664899333333305,
+            2.657650699999999,
+            2.655032983333335,
+            2.6449211833333335,
+            2.6631545083333354,
+            2.6617395833333335
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 1.360200349999996,
+          "samples_ms": [
+            1.3496059000000025,
+            1.3618736083333305,
+            1.3635590333333316,
+            1.3799218750000009,
+            1.3565815999999988,
+            1.3465722250000016,
+            1.3620684000000012,
+            1.3513493083333308,
+            1.3631742999999994,
+            1.360200349999996,
+            1.3551715333333325
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.12211735833333275,
+          "samples_ms": [
+            0.12412812500000037,
+            0.12376458333333377,
+            0.12163089999999895,
+            0.12095382499999936,
+            0.12145554999999734,
+            0.12241528333332881,
+            0.12287118333333218,
+            0.12211735833333275,
+            0.12165729166666583,
+            0.12189374999999429,
+            0.1222718750000018
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.11426562500000219,
+          "samples_ms": [
+            0.11712846666666425,
+            0.11195139166667219,
+            0.11426562500000219,
+            0.11405937499999741,
+            0.11423333333332823,
+            0.11516945000000038,
+            0.11450625000000159,
+            0.11326770833333111,
+            0.1137413166666675,
+            0.11646839999999899,
+            0.11686075833333327
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.2151760416666685,
+          "samples_ms": [
+            0.22141527499999944,
+            0.2154111083333262,
+            0.21364235833333614,
+            0.2138628416666677,
+            0.22026666666666492,
+            0.21385416666666787,
+            0.21453471666666632,
+            0.2132010416666663,
+            0.21633020833332997,
+            0.21682639166666165,
+            0.2151760416666685
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.30318159999999467,
+          "samples_ms": [
+            0.2998881916666714,
+            0.30056910000000325,
+            0.3059947916666639,
+            0.3036114583333305,
+            0.30318159999999467,
+            0.30181076666666584,
+            0.30627534999999967,
+            0.30462360833333574,
+            0.30140243333333466,
+            0.3018281249999995,
+            0.3032010416666638
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.0003132000000016788,
+          "samples_ms": [
+            0.0003211833333294223,
+            0.0003083333333320226,
+            0.0003277750000011774,
+            0.00031215000000361925,
+            0.0003121499999962178,
+            0.0003121583333376421,
+            0.0003117999999968646,
+            0.0003132000000016788,
+            0.00031770833333795895,
+            0.00031354166666700917,
+            0.0003652750000027183
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch"
+    },
+    "node-baseline-float64": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.8.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 2.7109843749999993,
+          "samples_ms": [
+            2.754135066666667,
+            2.736973958333333,
+            2.724027783333333,
+            2.7109843749999993,
+            2.7178010416666676,
+            2.7111454833333326,
+            2.7027038250000004,
+            2.7061166666666656,
+            2.7080291666666665,
+            2.703786458333335,
+            2.7097170166666684
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 1.4340708333333267,
+          "samples_ms": [
+            1.4476503499999998,
+            1.441711808333331,
+            1.4354145833333312,
+            1.432551733333335,
+            1.4340708333333267,
+            1.430445133333332,
+            1.4251920166666656,
+            1.427520833333329,
+            1.4323124999999992,
+            1.6121909666666712,
+            1.9748503500000014
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.12429062499999717,
+          "samples_ms": [
+            0.13099549166666336,
+            0.12645520833332777,
+            0.12429062499999717,
+            0.12552534166666204,
+            0.12472951666666621,
+            0.12512430833333532,
+            0.12371596666667095,
+            0.12417742499999385,
+            0.1216281249999988,
+            0.12142535000000028,
+            0.12377465833333101
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.13213819166666418,
+          "samples_ms": [
+            0.13279722499999944,
+            0.13158298333333374,
+            0.1349312499999996,
+            0.13213819166666418,
+            0.13036944166666675,
+            0.13124375000000596,
+            0.13611041666666454,
+            0.13287187499999575,
+            0.13232708333332788,
+            0.1309708333333326,
+            0.12980242499999553
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.21810625000000528,
+          "samples_ms": [
+            0.22642881666667206,
+            0.22151458333333393,
+            0.21986145833333323,
+            0.21810625000000528,
+            0.22504479166666572,
+            0.2171114583333337,
+            0.21697083333333347,
+            0.21792743333333883,
+            0.21804930833333458,
+            0.2171729166666673,
+            0.21824027499999973
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.301592008333329,
+          "samples_ms": [
+            0.3033298583333381,
+            0.30115451666666476,
+            0.29954861666667093,
+            0.3012406249999951,
+            0.301592008333329,
+            0.3002732666666619,
+            0.30440069166666933,
+            0.30761562500000544,
+            0.30091979166666505,
+            0.30384131666666797,
+            0.30498264166666605
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.0003142416666657155,
+          "samples_ms": [
+            0.0003225666666661908,
+            0.00033264166666343203,
+            0.0003145833333310459,
+            0.00031215000000361925,
+            0.00031284166666830277,
+            0.00031562500000248406,
+            0.00031284166666830277,
+            0.0003142416666657155,
+            0.00031910000000134886,
+            0.0003132000000016788,
+            0.00031319166666765597
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch"
+    },
+    "node-candidate-float32": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.9.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 2.6692458333333335,
+          "samples_ms": [
+            2.723515625,
+            2.696160075,
+            2.6960576416666657,
+            2.6692458333333335,
+            2.688195141666668,
+            2.669500349999998,
+            2.6656579833333325,
+            2.6638135416666673,
+            2.6674645833333344,
+            2.660419450000003,
+            2.668598616666662
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 1.3702357666666682,
+          "samples_ms": [
+            1.3799885416666695,
+            1.375803475,
+            1.3728288250000054,
+            1.3677163250000048,
+            1.3725097249999967,
+            1.3799986166666665,
+            1.3697802083333377,
+            1.3692416666666687,
+            1.3694489583333302,
+            1.3667958333333379,
+            1.3702357666666682
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.13253368333333201,
+          "samples_ms": [
+            0.1343385416666676,
+            0.13186180833333339,
+            0.13252256666666332,
+            0.13394965000000555,
+            0.13365763333333577,
+            0.13375833333333365,
+            0.1336621583333327,
+            0.13237708333333487,
+            0.13253368333333201,
+            0.12960902500000296,
+            0.12724965833332824
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.10881909166666759,
+          "samples_ms": [
+            0.10881909166666759,
+            0.10703437499999986,
+            0.10970347500000403,
+            0.10967985833333731,
+            0.10935972499999853,
+            0.11101666666666343,
+            0.10753125000000363,
+            0.10592570000000172,
+            0.10868611666666379,
+            0.10935243333333548,
+            0.10687777500000273
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.21846423333333012,
+          "samples_ms": [
+            0.22575486666666458,
+            0.22033264166666142,
+            0.2183704833333374,
+            0.21846423333333012,
+            0.21914374999999855,
+            0.2224343750000024,
+            0.2174506916666615,
+            0.2167152749999938,
+            0.21888124999999517,
+            0.21727360833333118,
+            0.2164229166666661
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.30369826666666694,
+          "samples_ms": [
+            0.3023659749999963,
+            0.3047409750000026,
+            0.3026572916666674,
+            0.3049097166666644,
+            0.3023364583333373,
+            0.30538333333333484,
+            0.30185347500000237,
+            0.3048756916666691,
+            0.30473923333333247,
+            0.3026336749999932,
+            0.30369826666666694
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00031562500000248406,
+          "samples_ms": [
+            0.0003381916666711504,
+            0.0003138916666663623,
+            0.00031562500000248406,
+            0.00031562500000248406,
+            0.0003159666666678144,
+            0.00031979166666603237,
+            0.0003138916666663623,
+            0.00031770833333795895,
+            0.00029270833332706303,
+            0.00028472499999931955,
+            0.0002944499999972076
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch"
+    },
+    "node-candidate-float64": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.9.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 120,
+      "warmup": 3,
+      "results": {
+        "attention_backward": {
+          "median_ms": 2.704539933333331,
+          "samples_ms": [
+            2.8112034666666657,
+            2.7335763916666664,
+            2.719074308333332,
+            2.7060246500000016,
+            2.704539933333331,
+            2.706410766666667,
+            2.7028809000000007,
+            2.695110416666665,
+            2.702465624999998,
+            2.6943624999999987,
+            2.6953958333333286
+          ]
+        },
+        "linear_backward": {
+          "median_ms": 1.4329479166666677,
+          "samples_ms": [
+            1.4549430583333356,
+            1.436562500000001,
+            1.4329479166666677,
+            1.428706941666665,
+            1.437081249999994,
+            1.4272118083333323,
+            1.4371156250000037,
+            1.4313468750000022,
+            1.4250847166666616,
+            1.4378229166666683,
+            1.4158374999999983
+          ]
+        },
+        "model_training_step": {
+          "median_ms": 0.12895243333332918,
+          "samples_ms": [
+            0.1366756916666656,
+            0.13239860833333209,
+            0.1286711750000021,
+            0.127683675000001,
+            0.12895243333332918,
+            0.13099618333333543,
+            0.1281163166666636,
+            0.12892048333333536,
+            0.1302242999999962,
+            0.13047951666667057,
+            0.12798923333333287
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.12680659166666905,
+          "samples_ms": [
+            0.1280683999999995,
+            0.12680659166666905,
+            0.1274461749999937,
+            0.12611006666667368,
+            0.12550347499999948,
+            0.1264784666666685,
+            0.12493472499999954,
+            0.12472743333333074,
+            0.12736354166666963,
+            0.1299590333333341,
+            0.12863264166666313
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.2237559000000037,
+          "samples_ms": [
+            0.23275555833333814,
+            0.2272069500000029,
+            0.2237559000000037,
+            0.22441145833333268,
+            0.2229770833333348,
+            0.23073333333333648,
+            0.2227933999999987,
+            0.22258715000000132,
+            0.22430868333333334,
+            0.22249096666666635,
+            0.22227743333333252
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.3061673583333387,
+          "samples_ms": [
+            0.3049937500000007,
+            0.3081434083333316,
+            0.3087482666666623,
+            0.3023607583333347,
+            0.30539166666666934,
+            0.3073631999999993,
+            0.3053822916666708,
+            0.3061673583333387,
+            0.3068083333333342,
+            0.3073388916666679,
+            0.3055479166666671
+          ]
+        },
+        "same_dtype_to": {
+          "median_ms": 0.00031354166666700917,
+          "samples_ms": [
+            0.0003399333333338935,
+            0.0003117999999968646,
+            0.0003138916666663623,
+            0.00031319166666765597,
+            0.0003138916666663623,
+            0.0003128500000023256,
+            0.00031354166666700917,
+            0.00031250000000297246,
+            0.0003138916666663623,
+            0.0003128500000023256,
+            0.00031354166666700917
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch"
+    },
+    "node-controls-0-baseline-float32": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.8.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.12879050833333305,
+          "samples_ms": [
+            0.1641173611111108,
+            0.13744444444444437,
+            0.13460937500000053,
+            0.13036817222222213,
+            0.12923981388888914,
+            0.12879050833333305,
+            0.12604849444444485,
+            0.12362013888888887,
+            0.12622002500000057,
+            0.12787384444444458,
+            0.1274884277777777
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.11876539444444409,
+          "samples_ms": [
+            0.11763125000000048,
+            0.11876539444444409,
+            0.11843078888888903,
+            0.11709907500000018,
+            0.11782951388888839,
+            0.12005138888888903,
+            0.12372546111111087,
+            0.12977881944444516,
+            0.13126041666666755,
+            0.11881933055555664,
+            0.11834051111111095
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.21439872777777716,
+          "samples_ms": [
+            0.22008923611111078,
+            0.21523240833333357,
+            0.21500937499999953,
+            0.21495624999999918,
+            0.21422650555555553,
+            0.21479212777777792,
+            0.21327928333333412,
+            0.21395254444444384,
+            0.21424861111111193,
+            0.21439872777777716,
+            0.21388738333333324
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.3056269666666673,
+          "samples_ms": [
+            0.3048987277777779,
+            0.3080888888888886,
+            0.30616064722222247,
+            0.3044826388888897,
+            0.3063736111111104,
+            0.3056952555555554,
+            0.30432453888888933,
+            0.30605323888888886,
+            0.3054199083333326,
+            0.3056269666666673,
+            0.3051789333333326
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch"
+    },
+    "node-controls-0-baseline-float64": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.8.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.1261781250000001,
+          "samples_ms": [
+            0.16084965277777744,
+            0.138346180555556,
+            0.13269652777777768,
+            0.1300765055555554,
+            0.1261781250000001,
+            0.12722442222222247,
+            0.12542187499999988,
+            0.1232640027777781,
+            0.12480717777777793,
+            0.12322800833333333,
+            0.1224461805555552
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.1302478000000002,
+          "samples_ms": [
+            0.1308365722222223,
+            0.12881076388888876,
+            0.13051064999999984,
+            0.1302478000000002,
+            0.1304291666666667,
+            0.1284864583333335,
+            0.13145983611111103,
+            0.1300020833333335,
+            0.12931539166666597,
+            0.12879745555555525,
+            0.13126805555555565
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.2196554388888883,
+          "samples_ms": [
+            0.22169710555555658,
+            0.21988321666666705,
+            0.21911643611111087,
+            0.22313715277777849,
+            0.2196554388888883,
+            0.21931527777777873,
+            0.21885937499999983,
+            0.22065289166666663,
+            0.21970809999999957,
+            0.21911527777777667,
+            0.21841053055555604
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.31055405000000036,
+          "samples_ms": [
+            0.3111393527777784,
+            0.3130483777777779,
+            0.31152372499999953,
+            0.31055405000000036,
+            0.3083726861111111,
+            0.3078697916666669,
+            0.3094399305555551,
+            0.3097344916666664,
+            0.31046747777777733,
+            0.31190497777777965,
+            0.3127004638888881
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch"
+    },
+    "node-controls-1-candidate-float32": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.9.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.13526851944444435,
+          "samples_ms": [
+            0.16768032222222204,
+            0.14559062500000028,
+            0.14035115833333317,
+            0.1363707166666666,
+            0.13642534722222185,
+            0.13526851944444435,
+            0.13301631944444436,
+            0.13105960555555513,
+            0.1327800916666671,
+            0.13036921388888925,
+            0.13344467500000018
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.10994490833333334,
+          "samples_ms": [
+            0.11117673611111144,
+            0.10922361111111074,
+            0.10825509166666654,
+            0.11002534722222199,
+            0.11108136666666668,
+            0.11020694444444461,
+            0.10974907222222237,
+            0.1086748833333336,
+            0.10860208333333368,
+            0.10994490833333334,
+            0.11028298611111112
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.21774618055555583,
+          "samples_ms": [
+            0.2221321750000005,
+            0.2178145833333324,
+            0.21691736111111054,
+            0.21790740555555446,
+            0.21709409722222203,
+            0.21687453888888805,
+            0.21697025555555602,
+            0.21774618055555583,
+            0.21870081111111167,
+            0.2188254638888893,
+            0.21729351944444536
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.3030072916666669,
+          "samples_ms": [
+            0.3049289333333335,
+            0.304689002777778,
+            0.3038238444444446,
+            0.30123796388888835,
+            0.30217638888888865,
+            0.30163321666666726,
+            0.3002417833333339,
+            0.3031718750000005,
+            0.3030072916666669,
+            0.30242708333333423,
+            0.3041100694444459
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch"
+    },
+    "node-controls-1-candidate-float64": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.9.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.13278472222222276,
+          "samples_ms": [
+            0.16604780000000022,
+            0.14472928333333296,
+            0.1373613416666666,
+            0.1360393499999995,
+            0.13370879722222184,
+            0.13032233888888856,
+            0.12900636666666682,
+            0.13278472222222276,
+            0.1299826388888888,
+            0.1279763888888884,
+            0.1313984944444445
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.12794895833333364,
+          "samples_ms": [
+            0.1287625000000002,
+            0.12732210555555573,
+            0.12800046388888875,
+            0.12770879722222264,
+            0.1275442111111111,
+            0.12767743055555553,
+            0.12946284722222257,
+            0.12794895833333364,
+            0.12766909722222228,
+            0.12876597222222108,
+            0.12867488333333388
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.22190717499999987,
+          "samples_ms": [
+            0.226186688888889,
+            0.2239378472222232,
+            0.2218475694444444,
+            0.22139027777777764,
+            0.22190717499999987,
+            0.22085578611111206,
+            0.22131064722222196,
+            0.22186215277777793,
+            0.2234708333333329,
+            0.23203726944444428,
+            0.22208970000000056
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.30498854166666695,
+          "samples_ms": [
+            0.3053987249999995,
+            0.30377685000000004,
+            0.3052898138888883,
+            0.30378576388888884,
+            0.3039035861111119,
+            0.30498854166666695,
+            0.3038615722222218,
+            0.3070045138888891,
+            0.308589236111112,
+            0.3074144694444447,
+            0.3040030083333336
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch"
+    },
+    "node-controls-2-candidate-float32": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.9.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.13402129444444497,
+          "samples_ms": [
+            0.1603913194444442,
+            0.14552986111111121,
+            0.1398997694444441,
+            0.13705787222222254,
+            0.1368834472222222,
+            0.13402129444444497,
+            0.13281770833333323,
+            0.1318075250000001,
+            0.13305104166666648,
+            0.13386620277777767,
+            0.1318665500000001
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.10950601666666615,
+          "samples_ms": [
+            0.10935960555555531,
+            0.1112334500000003,
+            0.11015683055555595,
+            0.10966064722222243,
+            0.10948067222222178,
+            0.10883831111111154,
+            0.11132060000000024,
+            0.10950601666666615,
+            0.10872025277777692,
+            0.11051273055555519,
+            0.1088304388888887
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.21935995277777687,
+          "samples_ms": [
+            0.22307476944444485,
+            0.22005115833333422,
+            0.2180188666666669,
+            0.21880057777777673,
+            0.21935995277777687,
+            0.21914861111111097,
+            0.21938263888888876,
+            0.2203818277777788,
+            0.21882476666666612,
+            0.22006041666666631,
+            0.21842407499999983
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.3019832166666668,
+          "samples_ms": [
+            0.30024745277777737,
+            0.3022884277777773,
+            0.300759375,
+            0.30176898055555507,
+            0.30364999999999975,
+            0.3029502305555555,
+            0.3026594916666668,
+            0.3019832166666668,
+            0.3019166666666671,
+            0.302618402777778,
+            0.3017399305555557
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch"
+    },
+    "node-controls-2-candidate-float64": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.9.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.13187314722222232,
+          "samples_ms": [
+            0.16580763888888922,
+            0.14286134444444487,
+            0.1365196777777775,
+            0.1342544000000001,
+            0.1329807861111106,
+            0.1316155083333332,
+            0.13034363611111136,
+            0.12934988611111126,
+            0.1285430555555553,
+            0.13073564722222247,
+            0.13187314722222232
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.12754861111111065,
+          "samples_ms": [
+            0.1299342583333332,
+            0.12786921111111088,
+            0.1281577555555555,
+            0.12754861111111065,
+            0.12728402777777797,
+            0.1270777777777781,
+            0.12951816944444436,
+            0.12603425833333393,
+            0.12723611111111136,
+            0.1263303250000002,
+            0.12908622777777737
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.22262928055555545,
+          "samples_ms": [
+            0.22724919166666624,
+            0.22262928055555545,
+            0.22333449166666636,
+            0.22328692222222238,
+            0.22377581111111175,
+            0.2219266222222226,
+            0.2216618055555545,
+            0.22221203611111104,
+            0.22336840277777814,
+            0.22205671111111083,
+            0.2224210638888878
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.30459166666666604,
+          "samples_ms": [
+            0.29859085555555587,
+            0.3031415527777772,
+            0.2999695583333326,
+            0.30250266111111107,
+            0.3064725694444443,
+            0.3077325222222223,
+            0.3061587972222224,
+            0.30563287222222174,
+            0.30459166666666604,
+            0.3046427083333346,
+            0.30348391111110945
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/candidate/paperleet_torch"
+    },
+    "node-controls-3-baseline-float32": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.8.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float32",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.12702662222222175,
+          "samples_ms": [
+            0.15478587777777814,
+            0.13519189722222177,
+            0.13256666666666694,
+            0.13011840277777786,
+            0.12760567222222272,
+            0.12702662222222175,
+            0.12379016111111103,
+            0.12127754722222173,
+            0.12325428333333315,
+            0.12058229166666669,
+            0.11946111111111078
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.1162591416666667,
+          "samples_ms": [
+            0.117829513888889,
+            0.11697384166666644,
+            0.12071215277777805,
+            0.12031805555555596,
+            0.11516736111111135,
+            0.11446250000000041,
+            0.1162591416666667,
+            0.11617141111111132,
+            0.11658171388888891,
+            0.11537858888888881,
+            0.11591562499999968
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.21635682777777746,
+          "samples_ms": [
+            0.22058136388888935,
+            0.21691284722222196,
+            0.21612847222222242,
+            0.21871041666666635,
+            0.21785138888888875,
+            0.21565231388888845,
+            0.2155773138888891,
+            0.21635682777777746,
+            0.2157177083333332,
+            0.21700868055555514,
+            0.21537384444444418
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.3047761555555553,
+          "samples_ms": [
+            0.3036530111111108,
+            0.3047761555555553,
+            0.3052806694444447,
+            0.3067772000000006,
+            0.3039826388888889,
+            0.3035493055555554,
+            0.305562847222222,
+            0.3021894694444447,
+            0.303952547222223,
+            0.3063412027777774,
+            0.3064496527777763
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch"
+    },
+    "node-controls-3-baseline-float64": {
+      "python": "3.13.2",
+      "platform": "Emscripten-4.0.9-wasm32-32bit",
+      "library_version": "0.8.0",
+      "implementation": "/runtime/paperleet_torch/_tensor.py",
+      "numpy": "2.2.5",
+      "dtype": "float64",
+      "seed": 412,
+      "repeat": 11,
+      "iterations": 360,
+      "warmup": 3,
+      "results": {
+        "model_training_step": {
+          "median_ms": 0.12486539444444432,
+          "samples_ms": [
+            0.1590228027777776,
+            0.13572071944444442,
+            0.13325127222222222,
+            0.12867430555555515,
+            0.12582766388888889,
+            0.12340914444444431,
+            0.12166736111111078,
+            0.12443565000000001,
+            0.12486539444444432,
+            0.11987916666666618,
+            0.12129108611111138
+          ]
+        },
+        "slice_backward": {
+          "median_ms": 0.1308572916666664,
+          "samples_ms": [
+            0.1306589111111108,
+            0.13083217777777814,
+            0.1313423611111111,
+            0.13247326388888875,
+            0.13175786944444448,
+            0.1304791666666669,
+            0.13306284722222245,
+            0.1308572916666664,
+            0.13069884166666668,
+            0.1324523138888879,
+            0.12952176111111152
+          ]
+        },
+        "indexed_backward": {
+          "median_ms": 0.2232899305555554,
+          "samples_ms": [
+            0.2232899305555554,
+            0.21954733888888872,
+            0.2181657388888894,
+            0.23160404999999926,
+            0.23124444444444506,
+            0.22193414444444426,
+            0.22165324166666758,
+            0.22575150277777742,
+            0.22359409722222268,
+            0.22118911944444386,
+            0.22369247777777784
+          ]
+        },
+        "adamw_step": {
+          "median_ms": 0.31457488333333317,
+          "samples_ms": [
+            0.31538865833333396,
+            0.314941666666667,
+            0.31616423611111116,
+            0.3169136555555557,
+            0.3119087972222218,
+            0.3138880777777773,
+            0.31457488333333317,
+            0.3100149305555553,
+            0.31534907500000064,
+            0.30818958333333296,
+            0.3119828722222224
+          ]
+        }
+      },
+      "pyodide": "0.29.4",
+      "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-9/baseline/paperleet_torch"
+    }
+  },
+  "chrome_primary": {
+    "browser": "155.0.8059.40",
+    "results": {
+      "float32": {
+        "baseline": {
+          "variant": "baseline",
+          "dtype": "float32",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.8.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float32",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 120,
+            "warmup": 3,
+            "results": {
+              "attention_backward": {
+                "median_ms": 2.6891666666666683,
+                "samples_ms": [
+                  2.7875,
+                  2.758333333333333,
+                  2.7183333333333337,
+                  2.6891666666666683,
+                  2.6941666666666646,
+                  2.6858333333333353,
+                  2.6799999999999975,
+                  2.6791666666666694,
+                  2.6958333333333266,
+                  2.676666666666668,
+                  2.6841666666666653
+                ]
+              },
+              "linear_backward": {
+                "median_ms": 1.383333333333329,
+                "samples_ms": [
+                  1.386666666666662,
+                  1.3791666666666722,
+                  1.3774999999999944,
+                  1.382500000000005,
+                  1.3774999999999944,
+                  1.3783333333333332,
+                  1.3891666666666709,
+                  1.383333333333329,
+                  1.3850000000000064,
+                  1.3858333333333306,
+                  1.3833333333333364
+                ]
+              },
+              "model_training_step": {
+                "median_ms": 0.12749999999999892,
+                "samples_ms": [
+                  0.13500000000000364,
+                  0.1291666666666691,
+                  0.1283333333333303,
+                  0.12749999999999892,
+                  0.1283333333333377,
+                  0.12916666666666168,
+                  0.12749999999999892,
+                  0.1266666666666675,
+                  0.12749999999999892,
+                  0.1266666666666675,
+                  0.1266666666666675
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.11666666666666863,
+                "samples_ms": [
+                  0.12000000000000159,
+                  0.11583333333332983,
+                  0.11583333333332983,
+                  0.1191666666666702,
+                  0.11666666666666863,
+                  0.11750000000000001,
+                  0.11666666666666121,
+                  0.11666666666666863,
+                  0.11666666666666863,
+                  0.1191666666666628,
+                  0.11583333333332983
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.22166666666666077,
+                "samples_ms": [
+                  0.22916666666667287,
+                  0.22583333333333253,
+                  0.22333333333333094,
+                  0.2191666666666666,
+                  0.22333333333333094,
+                  0.2191666666666666,
+                  0.2175000000000038,
+                  0.22166666666666815,
+                  0.22166666666666077,
+                  0.22000000000000539,
+                  0.2191666666666666
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.30083333333333534,
+                "samples_ms": [
+                  0.30333333333333695,
+                  0.3283333333333305,
+                  0.31083333333333424,
+                  0.3041666666666683,
+                  0.32916666666666927,
+                  0.29999999999999655,
+                  0.2991666666666652,
+                  0.2991666666666652,
+                  0.30083333333333534,
+                  0.2975000000000024,
+                  0.2991666666666652
+                ]
+              },
+              "same_dtype_to": {
+                "median_ms": 0,
+                "samples_ms": [
+                  0.0008333333333313911,
+                  0.0008333333333387927,
+                  0,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0,
+                  0,
+                  0.0008333333333313911,
+                  0.0008333333333313911,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        "candidate": {
+          "variant": "candidate",
+          "dtype": "float32",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.9.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float32",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 120,
+            "warmup": 3,
+            "results": {
+              "attention_backward": {
+                "median_ms": 2.6858333333333353,
+                "samples_ms": [
+                  2.7399999999999998,
+                  2.6991666666666654,
+                  2.700833333333334,
+                  2.6899999999999995,
+                  2.6858333333333353,
+                  2.6875000000000018,
+                  2.679166666666666,
+                  2.6799999999999975,
+                  2.6783333333333377,
+                  2.6741666666666664,
+                  2.671666666666665
+                ]
+              },
+              "linear_backward": {
+                "median_ms": 1.382500000000005,
+                "samples_ms": [
+                  1.382500000000005,
+                  1.3858333333333306,
+                  1.380833333333335,
+                  1.380833333333335,
+                  1.3808333333333276,
+                  1.3800000000000034,
+                  1.3783333333333332,
+                  1.3900000000000026,
+                  1.3924999999999963,
+                  1.403333333333334,
+                  1.388333333333332
+                ]
+              },
+              "model_training_step": {
+                "median_ms": 0.13583333333333503,
+                "samples_ms": [
+                  0.14416666666666375,
+                  0.139166666666668,
+                  0.13749999999999782,
+                  0.13583333333333503,
+                  0.1366666666666664,
+                  0.13500000000000364,
+                  0.13499999999999623,
+                  0.13583333333333503,
+                  0.13416666666666485,
+                  0.13416666666667224,
+                  0.13583333333332762
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.1091666666666639,
+                "samples_ms": [
+                  0.1091666666666639,
+                  0.1091666666666713,
+                  0.1083333333333325,
+                  0.1083333333333325,
+                  0.10750000000000111,
+                  0.10999999999999528,
+                  0.10666666666666973,
+                  0.10666666666666973,
+                  0.11083333333332668,
+                  0.11000000000000269,
+                  0.11000000000000269
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.22500000000000112,
+                "samples_ms": [
+                  0.23333333333332984,
+                  0.2275000000000027,
+                  0.22500000000000112,
+                  0.22500000000000112,
+                  0.2274999999999953,
+                  0.22500000000000112,
+                  0.21999999999999797,
+                  0.22250000000000694,
+                  0.22333333333333094,
+                  0.22083333333332936,
+                  0.22333333333333835
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.2958333333333322,
+                "samples_ms": [
+                  0.29249999999999926,
+                  0.2958333333333322,
+                  0.2975000000000024,
+                  0.2975000000000024,
+                  0.2933333333333306,
+                  0.296666666666671,
+                  0.297499999999995,
+                  0.2958333333333322,
+                  0.2950000000000008,
+                  0.2958333333333322,
+                  0.2958333333333396
+                ]
+              },
+              "same_dtype_to": {
+                "median_ms": 0,
+                "samples_ms": [
+                  0,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          }
+        }
+      },
+      "float64": {
+        "baseline": {
+          "variant": "baseline",
+          "dtype": "float64",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.8.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float64",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 120,
+            "warmup": 3,
+            "results": {
+              "attention_backward": {
+                "median_ms": 2.7249999999999996,
+                "samples_ms": [
+                  2.7650000000000006,
+                  2.7249999999999996,
+                  2.7291666666666674,
+                  2.727499999999998,
+                  2.7358333333333333,
+                  2.717500000000002,
+                  2.7341666666666637,
+                  2.717499999999999,
+                  2.698333333333336,
+                  2.7041666666666706,
+                  2.7116666666666602
+                ]
+              },
+              "linear_backward": {
+                "median_ms": 1.426666666666665,
+                "samples_ms": [
+                  1.426666666666665,
+                  1.4266666666666723,
+                  1.426666666666665,
+                  1.428333333333335,
+                  1.423333333333332,
+                  1.418333333333329,
+                  1.413333333333333,
+                  1.4233333333333393,
+                  1.433333333333331,
+                  1.4291666666666667,
+                  1.4291666666666667
+                ]
+              },
+              "model_training_step": {
+                "median_ms": 0.1266666666666675,
+                "samples_ms": [
+                  0.13000000000000048,
+                  0.12500000000000475,
+                  0.12499999999999734,
+                  0.1291666666666691,
+                  0.13000000000000048,
+                  0.1266666666666675,
+                  0.12416666666666594,
+                  0.13000000000000048,
+                  0.1299999999999931,
+                  0.12333333333333456,
+                  0.12416666666666594
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.13083333333333189,
+                "samples_ms": [
+                  0.13000000000000048,
+                  0.1291666666666691,
+                  0.13166666666666327,
+                  0.13166666666667068,
+                  0.13166666666666327,
+                  0.13333333333333344,
+                  0.13083333333333189,
+                  0.13166666666667068,
+                  0.13083333333333189,
+                  0.13000000000000048,
+                  0.1291666666666691
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.22999999999999687,
+                "samples_ms": [
+                  0.23416666666666863,
+                  0.24249999999999736,
+                  0.23333333333333725,
+                  0.2666666666666669,
+                  0.23166666666666705,
+                  0.2291666666666655,
+                  0.22583333333333253,
+                  0.2291666666666655,
+                  0.22999999999999687,
+                  0.2258333333333399,
+                  0.22416666666666232
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.3041666666666683,
+                "samples_ms": [
+                  0.3041666666666609,
+                  0.3075000000000013,
+                  0.300000000000004,
+                  0.3049999999999997,
+                  0.3075000000000013,
+                  0.3041666666666609,
+                  0.2975000000000024,
+                  0.3041666666666683,
+                  0.3041666666666683,
+                  0.3049999999999997,
+                  0.3049999999999997
+                ]
+              },
+              "same_dtype_to": {
+                "median_ms": 0,
+                "samples_ms": [
+                  0,
+                  0.0008333333333313911,
+                  0.0008333333333313911,
+                  0,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0,
+                  0,
+                  0.0008333333333387927,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        "candidate": {
+          "variant": "candidate",
+          "dtype": "float64",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.9.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float64",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 120,
+            "warmup": 3,
+            "results": {
+              "attention_backward": {
+                "median_ms": 2.7133333333333343,
+                "samples_ms": [
+                  2.760000000000001,
+                  2.730833333333332,
+                  2.7133333333333343,
+                  2.729999999999999,
+                  2.717499999999999,
+                  2.717500000000002,
+                  2.712499999999999,
+                  2.708333333333331,
+                  2.7025,
+                  2.7091666666666665,
+                  2.7025
+                ]
+              },
+              "linear_backward": {
+                "median_ms": 1.4308333333333294,
+                "samples_ms": [
+                  1.4274999999999962,
+                  1.428333333333335,
+                  1.4308333333333367,
+                  1.4308333333333294,
+                  1.4324999999999997,
+                  1.428333333333335,
+                  1.4225000000000005,
+                  1.4216666666666693,
+                  1.4341666666666624,
+                  1.4341666666666697,
+                  1.4308333333333367
+                ]
+              },
+              "model_training_step": {
+                "median_ms": 0.13416666666666485,
+                "samples_ms": [
+                  0.14166666666666217,
+                  0.13500000000000364,
+                  0.13499999999999623,
+                  0.13333333333333344,
+                  0.1366666666666664,
+                  0.1366666666666664,
+                  0.13333333333333344,
+                  0.13333333333333344,
+                  0.13416666666666485,
+                  0.13083333333333189,
+                  0.13083333333333189
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.1291666666666691,
+                "samples_ms": [
+                  0.13000000000000048,
+                  0.13000000000000048,
+                  0.12749999999999892,
+                  0.12749999999999892,
+                  0.1275000000000063,
+                  0.13083333333333189,
+                  0.12749999999999892,
+                  0.1291666666666691,
+                  0.13000000000000048,
+                  0.12916666666666168,
+                  0.13000000000000048
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.23250000000000584,
+                "samples_ms": [
+                  0.24250000000000474,
+                  0.23416666666666122,
+                  0.23083333333333567,
+                  0.23416666666666863,
+                  0.23249999999999846,
+                  0.23416666666666863,
+                  0.23166666666666705,
+                  0.23083333333332826,
+                  0.23500000000000001,
+                  0.23250000000000584,
+                  0.23166666666666705
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.3950000000000046,
+                "samples_ms": [
+                  0.3966666666666674,
+                  0.40083333333333176,
+                  0.392500000000003,
+                  0.3949999999999972,
+                  0.3974999999999988,
+                  0.392500000000003,
+                  0.3966666666666674,
+                  0.3958333333333286,
+                  0.3950000000000046,
+                  0.3916666666666642,
+                  0.392500000000003
+                ]
+              },
+              "same_dtype_to": {
+                "median_ms": 0,
+                "samples_ms": [
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0.0008333333333313911,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "chrome_balanced_controls": {
+    "browser": "155.0.8059.40",
+    "order": [
+      "baseline",
+      "candidate",
+      "candidate",
+      "baseline"
+    ],
+    "results": {
+      "float32": [
+        {
+          "variant": "baseline",
+          "dtype": "float32",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.8.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float32",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.1330555555555557,
+                "samples_ms": [
+                  0.16222222222222224,
+                  0.14083333333333387,
+                  0.14027777777777775,
+                  0.13583333333333317,
+                  0.13361111111111118,
+                  0.1324999999999996,
+                  0.13111111111111148,
+                  0.1302777777777776,
+                  0.1330555555555557,
+                  0.1319444444444441,
+                  0.13250000000000084
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.12138888888888846,
+                "samples_ms": [
+                  0.12333333333333331,
+                  0.118611111111111,
+                  0.12222222222222234,
+                  0.12194444444444397,
+                  0.12111111111111134,
+                  0.11833333333333265,
+                  0.12166666666666684,
+                  0.12055555555555585,
+                  0.12138888888888846,
+                  0.12250000000000069,
+                  0.12055555555555585
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.2308333333333332,
+                "samples_ms": [
+                  0.23277777777777683,
+                  0.2394444444444452,
+                  0.23027777777777772,
+                  0.23666666666666653,
+                  0.2308333333333332,
+                  0.23222222222222255,
+                  0.22944444444444384,
+                  0.22694444444444473,
+                  0.2286111111111112,
+                  0.22777777777777738,
+                  0.23111111111111032
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.31388888888889005,
+                "samples_ms": [
+                  0.32250000000000084,
+                  0.3208333333333332,
+                  0.323888888888889,
+                  0.3124999999999995,
+                  0.30999999999999917,
+                  0.318333333333334,
+                  0.3113888888888885,
+                  0.31388888888889005,
+                  0.30888888888888943,
+                  0.3138888888888876,
+                  0.3297222222222235
+                ]
+              }
+            }
+          }
+        },
+        {
+          "variant": "candidate",
+          "dtype": "float32",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.9.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float32",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.14222222222222258,
+                "samples_ms": [
+                  0.17305555555555563,
+                  0.15249999999999986,
+                  0.14222222222222197,
+                  0.14388888888888907,
+                  0.13972222222222225,
+                  0.14027777777777775,
+                  0.14027777777777775,
+                  0.14361111111111133,
+                  0.14083333333333325,
+                  0.14222222222222258,
+                  0.14388888888888784
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.11500000000000091,
+                "samples_ms": [
+                  0.11805555555555551,
+                  0.11166666666666672,
+                  0.11333333333333319,
+                  0.11555555555555641,
+                  0.11027777777777735,
+                  0.11666666666666616,
+                  0.11500000000000091,
+                  0.11361111111111032,
+                  0.12305555555555618,
+                  0.11833333333333265,
+                  0.11277777777777769
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.24666666666666662,
+                "samples_ms": [
+                  0.24916666666666698,
+                  0.2494444444444441,
+                  0.24666666666666662,
+                  0.24083333333333334,
+                  0.24500000000000016,
+                  0.24333333333333368,
+                  0.24888888888888863,
+                  0.2552777777777774,
+                  0.2505555555555551,
+                  0.2463888888888895,
+                  0.2447222222222218
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.31416666666666476,
+                "samples_ms": [
+                  0.323888888888889,
+                  0.3386111111111114,
+                  0.3302777777777778,
+                  0.33027777777777656,
+                  0.32527777777777955,
+                  0.3122222222222224,
+                  0.31416666666666476,
+                  0.3086111111111123,
+                  0.30972222222222323,
+                  0.30749999999999883,
+                  0.31055555555555464
+                ]
+              }
+            }
+          }
+        },
+        {
+          "variant": "candidate",
+          "dtype": "float32",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.9.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float32",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.1416666666666665,
+                "samples_ms": [
+                  0.17250000000000013,
+                  0.14611111111111105,
+                  0.14777777777777817,
+                  0.1416666666666665,
+                  0.13916666666666677,
+                  0.13916666666666677,
+                  0.13916666666666677,
+                  0.1361111111111109,
+                  0.15000000000000013,
+                  0.1405555555555555,
+                  0.14194444444444423
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.10944444444444473,
+                "samples_ms": [
+                  0.11111111111111122,
+                  0.10916666666666636,
+                  0.11000000000000022,
+                  0.11249999999999932,
+                  0.10944444444444473,
+                  0.10805555555555538,
+                  0.1094444444444435,
+                  0.11000000000000022,
+                  0.10833333333333373,
+                  0.10833333333333373,
+                  0.11083333333333284
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.22194444444444406,
+                "samples_ms": [
+                  0.22527777777777824,
+                  0.22361111111111057,
+                  0.22194444444444406,
+                  0.22194444444444528,
+                  0.22305555555555504,
+                  0.22111111111111142,
+                  0.22166666666666693,
+                  0.22222222222222118,
+                  0.22166666666666693,
+                  0.2205555555555547,
+                  0.22166666666666693
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.29861111111111094,
+                "samples_ms": [
+                  0.2983333333333338,
+                  0.2977777777777783,
+                  0.29861111111111094,
+                  0.2977777777777783,
+                  0.29861111111111094,
+                  0.2991666666666664,
+                  0.29916666666666764,
+                  0.3024999999999981,
+                  0.2983333333333338,
+                  0.29916666666666764,
+                  0.2980555555555542
+                ]
+              }
+            }
+          }
+        },
+        {
+          "variant": "baseline",
+          "dtype": "float32",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.8.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float32",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.13222222222222185,
+                "samples_ms": [
+                  0.161388888888889,
+                  0.14083333333333325,
+                  0.13611111111111154,
+                  0.1324999999999996,
+                  0.13500000000000056,
+                  0.13222222222222185,
+                  0.1272222222222224,
+                  0.12472222222222205,
+                  0.1277777777777779,
+                  0.12555555555555528,
+                  0.12527777777777815
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.11722222222222227,
+                "samples_ms": [
+                  0.11888888888888874,
+                  0.11722222222222227,
+                  0.11750000000000062,
+                  0.11722222222222164,
+                  0.11722222222222288,
+                  0.11472222222222131,
+                  0.1144444444444454,
+                  0.11611111111111067,
+                  0.11750000000000001,
+                  0.11777777777777715,
+                  0.11666666666666738
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.2202777777777788,
+                "samples_ms": [
+                  0.22388888888888892,
+                  0.22222222222222243,
+                  0.21944444444444372,
+                  0.22138888888888855,
+                  0.2202777777777788,
+                  0.21999999999999922,
+                  0.2197222222222221,
+                  0.21944444444444497,
+                  0.22111111111111142,
+                  0.22027777777777757,
+                  0.22166666666666693
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.299444444444446,
+                "samples_ms": [
+                  0.2980555555555554,
+                  0.29888888888888804,
+                  0.30055555555555574,
+                  0.3019444444444451,
+                  0.2994444444444435,
+                  0.2980555555555554,
+                  0.299444444444446,
+                  0.30111111111111,
+                  0.29888888888888804,
+                  0.30055555555555574,
+                  0.3000000000000015
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "float64": [
+        {
+          "variant": "baseline",
+          "dtype": "float64",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.8.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float64",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.12916666666666662,
+                "samples_ms": [
+                  0.1619444444444445,
+                  0.13722222222222252,
+                  0.13499999999999995,
+                  0.13222222222222246,
+                  0.1308333333333331,
+                  0.12916666666666662,
+                  0.12694444444444464,
+                  0.12611111111111079,
+                  0.12527777777777815,
+                  0.12611111111111079,
+                  0.12472222222222205
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.13000000000000048,
+                "samples_ms": [
+                  0.1313888888888886,
+                  0.13000000000000048,
+                  0.13499999999999995,
+                  0.1308333333333331,
+                  0.1308333333333331,
+                  0.12916666666666662,
+                  0.1297222222222221,
+                  0.12944444444444497,
+                  0.1330555555555551,
+                  0.12944444444444497,
+                  0.12805555555555564
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.22666666666666638,
+                "samples_ms": [
+                  0.23249999999999968,
+                  0.22722222222222313,
+                  0.22666666666666638,
+                  0.22666666666666638,
+                  0.2261111111111109,
+                  0.22388888888888892,
+                  0.23055555555555607,
+                  0.22666666666666638,
+                  0.22638888888888925,
+                  0.22555555555555537,
+                  0.22555555555555537
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.3013888888888896,
+                "samples_ms": [
+                  0.2991666666666664,
+                  0.30333333333333323,
+                  0.3013888888888896,
+                  0.30444444444444424,
+                  0.30361111111111033,
+                  0.2994444444444448,
+                  0.2994444444444435,
+                  0.3000000000000015,
+                  0.304444444444443,
+                  0.30166666666666675,
+                  0.2997222222222244
+                ]
+              }
+            }
+          }
+        },
+        {
+          "variant": "candidate",
+          "dtype": "float64",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.9.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float64",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.13499999999999995,
+                "samples_ms": [
+                  0.16527777777777747,
+                  0.1452777777777778,
+                  0.1416666666666671,
+                  0.13777777777777742,
+                  0.13638888888888928,
+                  0.13499999999999995,
+                  0.13499999999999995,
+                  0.13499999999999995,
+                  0.13361111111111118,
+                  0.1313888888888886,
+                  0.13027777777777821
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.12861111111111115,
+                "samples_ms": [
+                  0.12861111111111115,
+                  0.12777777777777727,
+                  0.12805555555555564,
+                  0.13138888888888983,
+                  0.13499999999999995,
+                  0.13499999999999995,
+                  0.13777777777777742,
+                  0.12805555555555564,
+                  0.12583333333333366,
+                  0.12916666666666662,
+                  0.12694444444444464
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.2300000000000006,
+                "samples_ms": [
+                  0.2358333333333339,
+                  0.23138888888888867,
+                  0.23138888888888867,
+                  0.2297222222222222,
+                  0.2300000000000006,
+                  0.2291666666666667,
+                  0.2297222222222222,
+                  0.2319444444444442,
+                  0.22888888888888836,
+                  0.22833333333333408,
+                  0.2308333333333332
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.3063888888888891,
+                "samples_ms": [
+                  0.30277777777777776,
+                  0.3063888888888891,
+                  0.3113888888888885,
+                  0.32194444444444414,
+                  0.31055555555555464,
+                  0.3080555555555568,
+                  0.30527777777777687,
+                  0.30444444444444546,
+                  0.3080555555555556,
+                  0.30472222222222256,
+                  0.3049999999999997
+                ]
+              }
+            }
+          }
+        },
+        {
+          "variant": "candidate",
+          "dtype": "float64",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.9.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float64",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.1416666666666665,
+                "samples_ms": [
+                  0.1655555555555552,
+                  0.14361111111111133,
+                  0.14083333333333325,
+                  0.13555555555555543,
+                  0.1505555555555556,
+                  0.14361111111111133,
+                  0.13999999999999999,
+                  0.13972222222222225,
+                  0.1416666666666665,
+                  0.14194444444444423,
+                  0.138888888888889
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.1324999999999996,
+                "samples_ms": [
+                  0.13444444444444445,
+                  0.12861111111111115,
+                  0.1330555555555551,
+                  0.13305555555555632,
+                  0.12888888888888828,
+                  0.14027777777777775,
+                  0.12999999999999926,
+                  0.13222222222222246,
+                  0.1324999999999996,
+                  0.12944444444444497,
+                  0.13499999999999995
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.2391666666666656,
+                "samples_ms": [
+                  0.239444444444444,
+                  0.23500000000000001,
+                  0.24111111111111047,
+                  0.23972222222222234,
+                  0.23555555555555552,
+                  0.233888888888889,
+                  0.23916666666666686,
+                  0.2400000000000007,
+                  0.2391666666666656,
+                  0.23138888888888995,
+                  0.22944444444444384
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.30194444444444385,
+                "samples_ms": [
+                  0.38250000000000045,
+                  0.46416666666666545,
+                  0.4730555555555559,
+                  0.3844444444444441,
+                  0.30194444444444385,
+                  0.3027777777777802,
+                  0.30111111111111,
+                  0.29888888888888804,
+                  0.2969444444444456,
+                  0.30166666666666675,
+                  0.29999999999999905
+                ]
+              }
+            }
+          }
+        },
+        {
+          "variant": "baseline",
+          "dtype": "float64",
+          "pyodide": "0.29.4",
+          "core": {
+            "python": "3.13.2",
+            "platform": "Emscripten-4.0.9-wasm32-32bit",
+            "library_version": "0.8.0",
+            "implementation": "/runtime/paperleet_torch/_tensor.py",
+            "numpy": "2.2.5",
+            "dtype": "float64",
+            "seed": 412,
+            "repeat": 11,
+            "iterations": 360,
+            "warmup": 3,
+            "results": {
+              "model_training_step": {
+                "median_ms": 0.1297222222222221,
+                "samples_ms": [
+                  0.16361111111111096,
+                  0.13749999999999968,
+                  0.13777777777777803,
+                  0.13361111111111118,
+                  0.13055555555555537,
+                  0.12750000000000014,
+                  0.1288888888888889,
+                  0.1297222222222221,
+                  0.1288888888888889,
+                  0.12638888888888916,
+                  0.12333333333333331
+                ]
+              },
+              "slice_backward": {
+                "median_ms": 0.12999999999999926,
+                "samples_ms": [
+                  0.1308333333333331,
+                  0.13000000000000048,
+                  0.12916666666666662,
+                  0.12861111111111115,
+                  0.12999999999999926,
+                  0.12777777777777852,
+                  0.12999999999999926,
+                  0.12861111111111115,
+                  0.13055555555555598,
+                  0.13000000000000048,
+                  0.12833333333333277
+                ]
+              },
+              "indexed_backward": {
+                "median_ms": 0.2297222222222222,
+                "samples_ms": [
+                  0.239444444444444,
+                  0.23027777777777772,
+                  0.2291666666666667,
+                  0.2291666666666667,
+                  0.2297222222222222,
+                  0.22999999999999932,
+                  0.22888888888888959,
+                  0.22805555555555573,
+                  0.23249999999999968,
+                  0.22944444444444506,
+                  0.23055555555555485
+                ]
+              },
+              "adamw_step": {
+                "median_ms": 0.3024999999999981,
+                "samples_ms": [
+                  0.30611111111111067,
+                  0.30472222222222256,
+                  0.3011111111111112,
+                  0.30388888888888876,
+                  0.30055555555555574,
+                  0.2980555555555554,
+                  0.3013888888888884,
+                  0.30916666666666653,
+                  0.3063888888888903,
+                  0.29861111111111094,
+                  0.3024999999999981
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    "All final timing producers used final31 source hashes and ran sequentially without local correctness/build jobs.",
+    "Before-final-integer-sum-guard and initial-profiling archive every earlier measurement and variant locally.",
+    "Initial final Chrome float64 AdamW timing was +30%; preserve it alongside balanced repeats; do not infer a kernel regression or speedup from one order.",
+    "No production GPU backend; no license selected and no PyPI publication."
+  ],
+  "harness_hashes": {
+    "graph-memory.py": "21544ba0e7bb10a7997517b42148f524718fc8000eafcd58c9c5fb57249159d6",
+    "run-profiling.py": "7f42965bcd9451bf46d857f78f443c14329c5bf3930ff2d1ee5d2659bca426d5",
+    "repeat-node-controls.py": "3f163a9a7dbfe3bb226ae43fddca9a667eeeeaf3574b439b4bf1805b30d23464",
+    "browser-bench/worker.mjs": "e4b315b8c95219fcde61ede19589c820d7b56fe44c02e1ada7c44d744453d0b3",
+    "browser-bench/worker-controls.mjs": "4b5eff5e8dc86ea8e80347967945be6bdb52d05bc4d03f06fa01e7b31db6a2ff",
+    "browser-bench/run.mjs": "e42ed9d5b46bca9514cf49b11577ec2ec6b84527b3a750474efaf8108108c8b9",
+    "browser-bench/run-controls.mjs": "09a279482f219398904e1c9b0bfb98f36b820fe02d2fd10bf1de5b504025cb68"
+  },
+  "maintained_memory_harness_sha256": "fe21af32ab25dc5201b213a46e0f2dfa59d7c7bd013b57421c6f37f52ed4baf9",
+  "exports": {
+    "architecture/attention": {
+      "path": "browser-judge/runtime-3dee95aee2b460642e8e.json",
+      "sha256": "3dee95aee2b460642e8e8612e4b08faa699d4f11512e356f2424d5b90f30bf8c",
+      "bytes": 304674,
+      "source_files": 27
+    },
+    "diffusion/schedules": {
+      "path": "browser-judge/runtime-322bde179e9ff92ef170.json",
+      "sha256": "322bde179e9ff92ef17018dedfe03fb1da77e31f4b4f861d0a7414b6a509e8cd",
+      "bytes": 23850,
+      "source_files": 3
+    }
+  }
+}
