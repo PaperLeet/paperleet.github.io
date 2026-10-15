@@ -165,11 +165,9 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const label = t(collection.name, collection.name_en);
           return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${members.length} ${t("篇论文", "papers")} · ${count} ${t("道题", "problems")}`}>
             <div className="collection-copy">
-              <span className="collection-count">{members.length} {t("篇论文", "papers")}<span> / </span>{count} {t("道题", "problems")}</span>
               <h3>{label}</h3>
-              <p>{t(collection.description, collection.description_en)}</p>
             </div>
-            <div className="collection-learning-progress" aria-hidden="true"><span>{progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : t("正在加载进度…", "Loading progress…")}</span><div><i style={{ width: `${progressReady && count ? completed / count * 100 : 0}%` }} /></div></div>
+            <div className="collection-learning-progress" aria-hidden="true"><span>{progressReady ? `${completed}/${count} ${t("已通过", "solved")}` : t("正在加载进度…", "Loading progress…")}</span></div>
             <CollectionArtwork kind={collection.id} />
             <span className="collection-open" aria-hidden="true"><ArrowRight size={20} /></span>
           </a>;

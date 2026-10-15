@@ -4,6 +4,7 @@ export default function CollectionArtwork({ kind }: { kind: string }) {
 
   switch (kind) {
     case "llm-basics":
+    case "llm-frontier":
       artwork = (
         <>
           <path d="M18 130 89 165 161 126 91 92Z" fill="white" fillOpacity=".07" />

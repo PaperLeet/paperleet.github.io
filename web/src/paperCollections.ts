@@ -20,6 +20,14 @@ export const paperCollections: PaperCollection[] = [
     paperIds: ["llm-training-generation", "transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora"],
   },
   {
+    id: "llm-frontier",
+    name: "LLM 前沿",
+    name_en: "LLM Frontier",
+    description: "Kimi K3 · GLM-5",
+    description_en: "Kimi K3 · GLM-5",
+    paperIds: ["kimi-k3", "glm-5"],
+  },
+  {
     id: "retrieval",
     name: "检索与推荐",
     name_en: "Retrieval",

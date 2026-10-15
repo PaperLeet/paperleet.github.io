@@ -16,14 +16,13 @@
 .paper-library .featured-collections { margin-bottom: 28px; }
 .paper-library .collections-heading { margin-bottom: 12px; }
 .paper-library .collections-heading h2 { font-size: 15px; }
-.paper-library .collection-rail { gap: 16px; grid-auto-columns: calc((100% - 32px) / 3); }
-.paper-library .collection-card { height: 166px; border-radius: 10px; }
+.paper-library .collection-rail { gap: 14px; grid-auto-columns: calc((100% - 42px) / 4); }
+.paper-library .collection-card { height: 124px; padding: 20px; border-radius: 10px; }
 .paper-library .collection-copy { padding: 0; }
-.paper-library .collection-copy h3 { margin-top: 12px; font-size: 23px; }
-.paper-library .collection-copy p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 6px; }
-.paper-library .collection-learning-progress { left: 20px; right: 20px; bottom: 16px; }
-.paper-library .collection-art { width: 140px; height: 140px; bottom: 6px; }
-.paper-library .collection-open { top: 17px; right: 17px; }
+.paper-library .collection-copy h3 { max-width: calc(100% - 28px); margin: 0; font-size: 20px; line-height: 1.25; }
+.paper-library .collection-learning-progress { left: 20px; right: 20px; bottom: 18px; font-size: 12px; }
+.paper-library .collection-art { width: 108px; height: 108px; bottom: -8px; opacity: .3; }
+.paper-library .collection-open { top: 17px; right: 14px; width: 25px; height: 25px; }
 .collection-page-header { margin-bottom: 28px; }
 .collection-page-header > .back-link { margin: 0 0 22px; }
 .collection-page-title-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -116,6 +115,9 @@
   .library-layout { grid-template-columns: minmax(0, 1fr); }
   .library-overview { display: none; }
 }
+@media (max-width: 1050px) {
+  .paper-library .collection-rail { grid-auto-columns: calc((100% - 14px) / 2); }
+}
 @media (min-width: 851px) and (max-width: 1050px) {
   .paper-library .library-toolbar .search { flex-basis: 100%; }
   .paper-library .library-toolbar .filter-bar { flex: 1; }
@@ -147,7 +149,6 @@
   .paper-library .practice-start .practice-recommendation { padding: 18px 0 0; border-left: 0; border-top: 1px solid var(--line); }
   .paper-library .practice-recommendation .button { width: auto; }
   .paper-library .collection-rail { grid-auto-columns: 80%; gap: 12px; }
-  .paper-library .collection-card { height: 160px; }
   .paper-library .library-heading h1 { font-size: 21px; }
   .paper-library .library-progress > span { display: none; }
   .paper-library .paper-categories { flex-wrap: nowrap; margin-bottom: 12px; }
