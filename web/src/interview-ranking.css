@@ -1,4 +1,13 @@
 .interview-ranking-toolbar { display:flex; align-items:center; justify-content:space-between; gap:22px; padding:18px; border:1px solid var(--line); border-radius:11px; background:var(--surface); }
+.interview-search-help { margin:9px 0 16px; color:var(--muted); font-size:10px; line-height:1.8; }
+.interview-search-companies { display:grid; gap:10px; padding:15px 17px; margin-bottom:16px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+.interview-search-companies > span { font-size:11px; font-weight:550; color:var(--text); }
+.interview-search-companies > div { display:flex; flex-wrap:wrap; gap:8px; }
+.interview-search-companies a { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; min-height:36px; border:1px solid var(--line); border-radius:7px; color:var(--accent); background:var(--surface2); font-size:11px; }
+.interview-search-companies small { color:var(--muted); font-size:10px; line-height:1.7; }
+.interview-search-match { margin:8px 0 0; color:var(--accent); font-size:10px; line-height:1.7; overflow-wrap:anywhere; }
+.interview-search-match > span:first-child { color:var(--muted); }
+.interview-search-paper { display:block; color:var(--muted); margin-top:3px; }
 .interview-ranking-toolbar > div:first-child { min-width:0; }
 .interview-ranking-toolbar b { font-size:13px; font-weight:550; }
 .interview-ranking-toolbar p { margin:6px 0 0; font-size:11px; line-height:1.8; color:var(--muted); }
@@ -57,5 +66,5 @@
  .interview-ranking-actions .interview-ranking-evidence { align-items:flex-start; }
  .interview-question-workbench .preparation-guide > summary > span { flex-wrap:wrap; }
 }
-@media(pointer:coarse) { .interview-ranking-filters button,.interview-ranking-actions > .button,.interview-question-workbench .interview-company-tags a,.interview-question-workbench .preparation-guide > summary,.interview-ranking-more { min-height:44px; } }
+@media(pointer:coarse) { .interview-search-companies a,.interview-ranking-filters button,.interview-ranking-actions > .button,.interview-question-workbench .interview-company-tags a,.interview-question-workbench .preparation-guide > summary,.interview-ranking-more { min-height:44px; } }
 @media(prefers-reduced-motion:no-preference) { .interview-ranking-resume,.interview-ranking-filters button { transition:background .15s,border-color .15s,color .15s; } }

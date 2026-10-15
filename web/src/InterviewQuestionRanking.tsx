@@ -6,6 +6,7 @@ import {interviewCatalog,interviewLabel,type InterviewSummary} from './interview
 import {rolePreparationPaths} from './interviewPreparation';
 import {interviewHref,type InterviewFilters,type InterviewStudyState} from './interviewNavigation';
 import {interviewPracticeHref} from './interviewPracticeBatch';
+import {interviewConceptMatch,matchingInterviewCompanies,type InterviewMatchField} from './interviewSearch';
 import PreparationGuide from './PreparationGuide';
 import {status,type Problem,type Saved} from './types';
 import type {ReactNode} from 'react';
@@ -29,11 +30,14 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  const concepts:{id:string;evidence?:InterviewSummary['questions'][number]}[]=curated?curatedIds.map(id=>({id})):questions.map(evidence=>({id:evidence.problem_id,evidence}));
  const unavailable=concepts.filter(row=>!byId.has(row.id)).length;
  const title=(problem:Problem)=>locale==='en'?problem.translations?.en?.title||problem.title:problem.title;
- const query=filters.q.toLocaleLowerCase();
+ const query=filters.q.trim();
+ const companyMatches=matchingInterviewCompanies(query);
+ const matchLabel=(field:InterviewMatchField)=>({title:t('名称','Title'),module:t('模块','Module'),paper:t('论文','Paper'),goal:t('实现目标','Implementation goal'),company:t('来源公司','Source company')})[field];
  const rows=concepts.flatMap(({id,evidence},index)=>{
   const problem=byId.get(id);
-  if(query&&!`${id} ${problem?.title||''} ${problem?.translations?.en?.title||''}`.toLocaleLowerCase().includes(query))return [];
-  return [{id,evidence,problem,rank:index+1,state:ready&&problem?status(problem,saved[problem.id]):undefined}];
+  const matches=interviewConceptMatch(id,problem,evidence,query);
+  if(!matches)return [];
+  return [{id,evidence,problem,matches,rank:index+1,state:ready&&problem?status(problem,saved[problem.id]):undefined}];
  });
  const available=rows.filter(row=>row.problem);
  const progressResolved=ready&&available.length>0;
@@ -55,6 +59,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  const practice=(problem:Problem)=>interviewPracticeHref(problem,{...filters,study:selected},candidates);
  const stateLabel=(state:typeof rows[number]['state'])=>state==='done'?t('已通过','Passed'):state==='started'?t('进行中','In progress'):state==='todo'?t('未开始','Not started'):t('进度未就绪','Progress not ready');
  return <div className="interview-question-workbench">
+  {!!companyMatches.length&&<section className="interview-search-companies" aria-label={t('按搜索到的公司准备','Prepare for matching companies')}><span>{t('按公司准备','Prepare by company')}</span><div>{companyMatches.slice(0,4).map(company=><a key={company.id} href={interviewHref({...filters,company:company.id,q:'',queue:'',page:1})}><OrganizationLogo id={company.id} size={16}/>{locale==='en'?company.name_en:company.name}<ArrowRight size={12}/></a>)}{companyMatches.length>4&&<a href={interviewHref({...filters,view:'companies',company:'',concept:'',stage:'',saved:false,queue:'',page:1})}>{t(`查看全部 ${companyMatches.length} 家公司`,`View all ${companyMatches.length} companies`)}<ArrowRight size={12}/></a>}</div><small>{t('打开该公司的面经、官方资料与岗位准备题单。','Open the company’s experiences, official resources and role-based practice.')}</small></section>}
   {curated&&<div className="interview-curated-context"><span className="interview-panel-kicker"><BookOpen size={14}/>{t('编辑准备题单','CURATED PRACTICE')}</span><h3>{t('从这些知识点开始准备','Start with these practice concepts')}</h3><p>{t('当前范围尚无关联练习的面经样本。以下题单按岗位与知识体系编排；真实分享积累后，会显示对应知识点的社区提及统计。','No reports in this view link to a practice concept yet. These exercises follow the role curriculum. Real experiences will gradually build the community mention statistics.')}</p>{emptyAction}</div>}
   {unavailable>0&&<p className="interview-progress-status" role="status">{curated?t('部分练习信息尚未加载，搜索和进度汇总可能不完整。','Some practice details have not loaded. Search and progress totals may be incomplete.'):catalogError?t('部分练习信息暂不可用，搜索结果可能不完整；清除搜索后仍可阅读全部来源面经。','Some practice details are unavailable and search may be incomplete. Clear search to read all source reports.'):!problems.length?t('正在加载练习信息，来源面经仍可阅读。','Loading practice details. Source reports remain readable.'):t(`${unavailable} 个知识点暂未匹配到练习，仍保留它们的来源。`,`${unavailable} concepts have no available practice module. Their sources are kept here.`)} {catalogError&&onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}><RefreshCw size={12}/>{t('重试题库','Retry catalog')}</button>}</p>}
   {!!rows.length&&<>
@@ -68,13 +73,14 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
    {resume&&<a className="interview-ranking-resume" href={practice(resume)}><span><Clock3 size={17}/><span><b>{status(resume,saved[resume.id])==='started'?t('继续当前范围的草稿','Resume a draft in this view'):t('开始当前范围的练习','Start practicing in this view')}</b><small>{title(resume)}</small></span></span><ArrowRight size={16}/></a>}
    <p className="interview-ranking-result-count" role="status">{selected!=='all'&&!progressResolved?t('正在等待学习进度，筛选条件已保留。','Waiting for learning progress. Your filter is kept.'):t(`显示 ${shown.length} / ${matching.length} 个知识点`,`Showing ${shown.length} of ${matching.length} ${matching.length===1?'concept':'concepts'}`)}{selected!=='all'&&<button type="button" className="text-button" onClick={()=>choose('all')}>{t('显示全部状态','Show all learning states')}</button>}</p>
   </>}
-  {shown.length?<div className="interview-ranking-list">{shown.map(({id,evidence,problem,rank,state})=>{
+  {shown.length?<div className="interview-ranking-list">{shown.map(({id,evidence,problem,matches,rank,state})=>{
    const name=problem?title(problem):id;
    const sources=interviewHref({...filters,view:'reports',page:1,q:'',concept:id,saved:false});
    const heading=`interview-ranked-${encodeURIComponent(id)}`;
    return <article key={id} className="interview-ranking-row" aria-labelledby={heading}>
     <span className="interview-rank" aria-label={curated?t('编辑推荐练习','Curated exercise'):t(`社区排序第 ${rank} 位`,`Community rank ${rank}`)}>{curated?<BookOpen size={14}/>:String(rank).padStart(2,'0')}</span>
     <div className="interview-ranking-copy"><div className="interview-ranking-title">{problem?<a id={heading} href={practice(problem)}>{name}</a>:<b id={heading} tabIndex={-1}>{name}</b>}{problem&&<span className={`interview-ranking-state ${state||''}`}>{state==='done'?<CheckCircle2 size={12}/>:state==='started'?<Clock3 size={12}/>:null}{stateLabel(state)}</span>}</div>
+     {!!matches.length&&<p className="interview-search-match"><span>{t('匹配：','Matched: ')}</span>{matches.map(matchLabel).join(' · ')}{matches.includes('paper')&&problem?.paper?.title&&<span className="interview-search-paper">{problem.paper.title}</span>}{evidence&&matches.includes('goal')&&problem&&<span className="interview-search-paper">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</span>}</p>}
      {problem&&<p className="interview-ranking-module-meta">{[({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[problem.difficulty],problem.estimated_minutes?`${problem.estimated_minutes} min`:''].filter(Boolean).join(' · ')}</p>}
      {evidence?<div className="interview-company-tags">{evidence.companies.map(company=><a key={company.company} href={interviewHref({...filters,view:'reports',company:company.company,concept:id,q:'',page:1,saved:false})} aria-label={t(`阅读${interviewLabel('companies',company.company,false)}关于${name}的 ${company.reports} 篇来源面经`,`Read ${company.reports} ${interviewLabel('companies',company.company,true)} source ${company.reports===1?'report':'reports'} about ${name}`)}><OrganizationLogo id={company.company} size={14}/>{interviewLabel('companies',company.company,locale==='en')}<small>{company.reports}</small></a>)}</div>:problem&&<p className="interview-curated-goal">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</p>}
     </div>

@@ -26,11 +26,24 @@ try{
  const {default:Hub}=await server.ssrLoadModule('/src/Interviews.tsx');
  const {emptyInterviewFilters,readInterviewRoute,interviewHref}=await server.ssrLoadModule('/src/interviewNavigation.ts');
  const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const search=await server.ssrLoadModule('/src/interviewSearch.ts');
  const {interviewCatalog}=await server.ssrLoadModule('/src/interviewModels.ts');
  const problems=['architecture/attention','finetuning/lora','optimization/adamw','architecture/rope'].map((id,index)=>({id,number:index+1,title:['注意力','低秩适配','AdamW','旋转位置编码'][index],translations:{en:{title:['Attention','LoRA','AdamW','RoPE'][index]}},starter:'initial code',difficulty:index===1?'H':'M',estimated_minutes:25,module:{goal:'练习',goal_en:'Practice'},tests:{T0:1}}));
  const evidence=(problem,index)=>({problem_id:problem.id,reports:10-index,contributors:6-index,companies:[{company:'google',reports:10-index,contributors:6-index,problem_id:problem.id,latest:'2026-10-15'}]});
  const questions=problems.map(evidence),passed=problem=>({problem:problem.id,summary:{T0:[1,1]},tests:[{id:'passed',layer:'T0',passed:true}]});
  const saved={[problems[0].id]:{acceptedReport:passed(problems[0]),report:{...passed(problems[0]),error:'later failure'}},[problems[1].id]:{code:'older draft',updated:'2026-10-15T10:00:00Z'},[problems[2].id]:{code:'',updated:'2026-10-15T11:00:00Z'}};
+ // Search spans independently maintained bilingual fields, while company evidence stays explicit.
+ const searchable={...problems[0],paper:{title:'Attention Is All You Need'},module:{goal:'推导缩放与掩码',goal_en:'Derive scaling and causal masks'}};
+ for(const q of ['attention','注意力','ＡＴＴＥＮＴＩＯＮ','architecture_attention','1','causal masks','缩放','All You Need'])assert(search.interviewConceptMatch(searchable.id,searchable,questions[0],q),q);
+ assert.deepEqual(search.interviewConceptMatch(searchable.id,searchable,questions[0],'Google causal'),['goal','company']);
+ assert.deepEqual(search.interviewConceptMatch(searchable.id,searchable,questions[0],'Need 注意力'),['title','paper']);
+ assert.equal(search.interviewConceptMatch(searchable.id,searchable,undefined,'Google'),undefined,'A curated module never inherits the selected company as evidence');
+ for(const q of ['Microsoft attention','Google LoRA','[attention]','.*','%','<img>'])assert.equal(search.interviewConceptMatch(searchable.id,searchable,questions[0],q),undefined,q);
+ assert.deepEqual(search.interviewConceptMatch(searchable.id,undefined,questions[0],'google architecture attention'),['module','company'],'Real company sources remain searchable when the catalog is unavailable');
+ assert.deepEqual(search.matchingInterviewCompanies('Ｇｏｏｇｌｅ DeepMind').map(company=>company.id),['google']);
+ assert.deepEqual(search.matchingInterviewCompanies('微软 Microsoft').map(company=>company.id),['microsoft']);
+ assert.deepEqual(search.matchingInterviewCompanies(''),[]);
+ assert.equal(search.interviewConceptMatch(searchable.id,searchable,{...questions[0],companies:[{...questions[0].companies[0],reports:0,contributors:0}]},'Google'),undefined,'A zero-count company row is not evidence');
  const filters={...emptyInterviewFilters(),view:'questions',company:'google',role:'llm',stage:'technical',days:'90',q:'',track:'llm',saved:true};
  let progressRetries=0,catalogRetries=0,searchClears=0;
  const props={filters,questions,problems,saved,ready:true,onRetryProgress:()=>progressRetries++,onRetryCatalog:()=>catalogRetries++,onClearSearch:()=>searchClears++};
@@ -69,6 +82,11 @@ try{
  await render(Ranking,{problems:[],ready:false,catalogError:'offline',filters:{...filters,q:'注意力'}});assert(document.body.textContent.includes('Search is waiting for practice details'));assert(!document.body.textContent.includes('No matching concepts'));
  await click(document.querySelector('.interview-empty button'));assert.equal(searchClears,1);
  await render(Ranking,{filters:{...filters,q:'注意力'}});assert.equal(rows().length,1);assert(rows()[0].textContent.includes('Attention'));
+ await render(Ranking,{filters:{...filters,q:'Google 注意力'}});assert.equal(rows().length,1);assert(rows()[0].querySelector('.interview-search-match').textContent.includes('Source company'));assert.equal(rows()[0].querySelector('.interview-rank').textContent,'01');
+ await render(Ranking,{questions:[questions[0],{...questions[1],companies:[{...questions[1].companies[0],company:'microsoft'}]}],filters:{...filters,company:'',q:'Microsoft LoRA'}});assert.equal(rows().length,1);assert.equal(rows()[0].querySelector('.interview-rank').textContent,'02','Multi-field search preserves the original evidence ranking');
+ assert(rows()[0].querySelector('.interview-search-match').textContent.includes('Title · Source company'));
+ await render(Ranking,{problems:[],ready:false,catalogError:'offline',filters:{...filters,q:'Google'}});assert.equal(rows().length,4);assert(!document.querySelector('.interview-ranking-actions > .button'));assert.equal(document.querySelectorAll('.interview-ranking-evidence a').length,4);
+ await render(Ranking,{problems:[searchable,...problems.slice(1)],filters:{...filters,q:'Need scaling'}});assert.equal(rows().length,1);assert(rows()[0].querySelector('.interview-search-paper').textContent.includes('Attention Is All You Need'));
  await render(Ranking,{filters:{...filters,q:'not-a-topic'}});assert.equal(rows().length,0);assert(document.body.textContent.includes('No matching concepts'));
  await render(Ranking,{filters:{...filters,q:'Attention'}});
  const guide=document.querySelector('.preparation-guide');await act(async()=>{guide.open=true;guide.dispatchEvent(new dom.window.Event('toggle'));await new Promise(resolve=>setTimeout(resolve,30));});
@@ -82,6 +100,10 @@ try{
  const requests=[];
  globalThis.__rankingFixture={account:{user:{id:'alice'}},request:async(path,body)=>{assert.equal(body,undefined,'The ranking is read-only');requests.push(path);return summary;}};
  const hubFilters={...filters,saved:false};
+ await render(Hub,{route:interviewHref({...hubFilters,q:'Ｇｏｏｇｌｅ attention'}).slice(2),progressReady:true});
+ const searchInput=document.querySelector('.interview-search input');assert.equal(searchInput.getAttribute('aria-label'),'Search concepts or source companies');assert(document.getElementById(searchInput.getAttribute('aria-describedby')).textContent.includes('Separate keywords'));
+ const clear=document.querySelector('.interview-search button[aria-label="Clear search"]');clear.focus();await click(clear);assert.equal(document.activeElement,searchInput,'Clearing search restores keyboard focus to the input');assert.equal(searchInput.value,'');assert.deepEqual(readInterviewRoute(location.hash),hubFilters,'Clear only the query, retaining company, role, time and study context');
+ await render(Hub,{route:interviewHref({...hubFilters,view:'companies',company:'',q:'Ｇｏｏｇｌｅ DeepMind'}).slice(2),progressReady:true});assert.equal(document.querySelectorAll('.interview-company-card').length,1);assert(document.querySelector('.interview-company-card').textContent.includes('Google'));assert.equal(document.querySelector('.interview-search input').getAttribute('aria-label'),'Search companies');
  await render(Hub,{route:interviewHref(hubFilters).slice(2),progressReady:true});
  await click(filter('Passed'));assert.equal(rows().length,1);
  globalThis.__rankingFixture.account={user:{id:'bob'}};
@@ -116,6 +138,11 @@ try{
  await render(Ranking,{questions:[],problems:catalog,filters:{...filters,concept:'architecture/attention'},saved,ready:true});
  assert.equal(rows().length,1);assert(rows()[0].textContent.includes('Attention'));
  assert.equal(document.querySelector('progress').value,0,'A one-case fixture cannot count as passing the real catalog suite');
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,q:'Google',study:'started',queue:'1,2'},saved,ready:true});
+ assert.equal(rows().length,0,'Company preparation links never fabricate concept evidence in a curated list');
+ const companyPreparation=document.querySelector('.interview-search-companies a');assert(companyPreparation);assert.deepEqual(readInterviewRoute(companyPreparation.getAttribute('href')),{...filters,q:'',study:'started',queue:'',page:1});assert(!document.querySelector('.interview-company-tags a'));
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,q:'Microsoft'},saved,ready:true});assert.equal(readInterviewRoute(document.querySelector('.interview-search-companies a').getAttribute('href')).company,'microsoft');
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,q:'a'},saved,ready:true});const companyChoices=[...document.querySelectorAll('.interview-search-companies a')];assert.equal(companyChoices.length,5,'Broad searches show four compact company choices and an all-results link');const allCompanies=readInterviewRoute(companyChoices.at(-1).getAttribute('href'));assert.equal(allCompanies.view,'companies');assert.equal(allCompanies.q,'a');assert.equal(allCompanies.company,'');assert.equal(allCompanies.role,filters.role);assert.equal(allCompanies.saved,false);
  const attention=catalog.find(problem=>problem.id==='architecture/attention');
  const completeReport={
   problem:attention.id,
@@ -132,7 +159,7 @@ try{
  await render(Ranking,{questions,problems,filters,saved,ready:true});
  assert(!document.querySelector('.interview-curated-context'),'New real evidence replaces the editorial fallback');
  assert(document.querySelector('.interview-ranking-evidence a'));
- console.log('PASS interview ranking: real progress and retained passes, latest draft resume, stable contributor ranks, per-state recovery, catalog failure source retention, incomplete search, scoped company reports, lazy bilingual study prompts, account/route isolation, honest role-based empty-state curriculum, compact pagination, incomplete-suite rejection and read-only controls');
+ console.log('PASS interview ranking: literal bilingual multi-field/all-keyword search, evidence-only companies, full-width company names, explicit company preparation, search-clear focus, preserved contributor ranks and context, real progress and retained passes, latest draft resume, stable contributor ranks, per-state recovery, catalog failure source retention, incomplete search, scoped company reports, lazy bilingual study prompts, account/route isolation, honest role-based empty-state curriculum, compact pagination, incomplete-suite rejection and read-only controls');
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
  for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
