@@ -959,6 +959,7 @@ def forward_guard(function, name):
         'torch.softmax', 'torch.log_softmax', 'torch.isfinite', 'torch.isnan', 'torch.isinf',
         'torch.nn.functional.linear', 'torch.nn.functional.relu', 'torch.nn.functional.silu',
         'torch.nn.functional.softmax', 'torch.nn.functional.log_softmax',
+        'torch.nn.functional.binary_cross_entropy_with_logits',
     }
     def contains(value):
         if isinstance(value, ForwardTensor): return True
@@ -1976,6 +1977,76 @@ def cross_entropy(input, target, weight=None, size_average=None, ignore_index=-1
     return result(np.asarray(value, dtype=input.dtype), (input, vjp))
 
 
+def binary_cross_entropy_with_logits(input, target, weight=None, size_average=None,
+                                     reduce=None, reduction='mean', pos_weight=None):
+    """Stable raw NumPy values and analytical derivatives for logits and targets."""
+    if size_average is not None or reduce is not None:
+        raise BrowserUnsupported('Legacy binary cross entropy options require the server')
+    if not isinstance(input, Tensor) or not isinstance(target, Tensor):
+        raise TypeError('Binary cross entropy expects Tensor inputs and targets')
+    if input.shape != target.shape: raise ValueError('Target and input shapes must match')
+    if input.dtype != target.dtype or input.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('Binary cross entropy requires matching float32/float64 tensors')
+    if reduction not in ('none', 'sum', 'mean'): raise ValueError('Invalid binary cross entropy reduction')
+    for name, tensor_value in (('weight', weight), ('pos_weight', pos_weight)):
+        if tensor_value is None: continue
+        if not isinstance(tensor_value, Tensor): raise TypeError(f'{name} must be a Tensor')
+        if isinstance(tensor_value, ForwardTensor) or tensor_value.dtype != input.dtype:
+            raise BrowserUnsupported('Differentiated or mixed-dtype binary loss weights require the server')
+        if _grad_enabled and tensor_value.requires_grad:
+            raise BrowserUnsupported('Binary loss weight gradients require the server')
+        try: np.broadcast_to(tensor_value._data, input.shape)
+        except ValueError: raise RuntimeError(f'{name} cannot broadcast to the input shape') from None
+    if isinstance(input, ForwardTensor) or isinstance(target, ForwardTensor):
+        x, dx = forward_parts(input); y, dy = forward_parts(target)
+        if any(not np.isfinite(v._data).all() for v in (x, y, weight, pos_weight) if v is not None):
+            raise BrowserUnsupported('Nonfinite binary-loss JVP requires the server')
+        primal = binary_cross_entropy_with_logits(x, y, weight, reduction=reduction, pos_weight=pos_weight)
+        positive = 1 if pos_weight is None else pos_weight
+        target_gradient = -x if pos_weight is None else (-x).logsigmoid() - positive * x.logsigmoid()
+        tangent = dx * ((positive * y + 1 - y) * x.sigmoid() - positive * y) + dy * target_gradient
+        if weight is not None: tangent = tangent * weight
+        tangent = tangent if reduction == 'none' else tangent.sum() if reduction == 'sum' else tangent.mean()
+        return ForwardTensor(primal, tangent)
+    x, y = input._data, target._data
+    with np.errstate(over='ignore', under='ignore', invalid='ignore'):
+        log_positive = -np.logaddexp(np.zeros((), dtype=input.dtype), -x)
+        probability = np.exp(-np.logaddexp(np.zeros((), dtype=input.dtype), -x))
+        if pos_weight is None:
+            losses = (1 - y) * x - log_positive
+            input_gradient, target_gradient = probability - y, -x
+        else:
+            positive = pos_weight._data
+            losses = (1 - y) * x - (1 + (positive - 1) * y) * log_positive
+            weighted_target = positive * y
+            input_gradient = (weighted_target + 1 - y) * probability - weighted_target
+            target_gradient = -np.logaddexp(np.zeros((), dtype=input.dtype), x) - positive * log_positive
+        if weight is not None:
+            losses = losses * weight._data
+            input_gradient, target_gradient = input_gradient * weight._data, target_gradient * weight._data
+        count = x.size
+        value = losses if reduction == 'none' else losses.sum() if reduction == 'sum' else losses.mean() if count else np.asarray(np.nan, dtype=input.dtype)
+    def vjp(gradient, g):
+        with np.errstate(invalid='ignore', over='ignore'):
+            return gradient * g / (max(count, 1) if reduction == 'mean' else 1)
+    return result(np.asarray(value, dtype=input.dtype),
+                  (input, lambda g: vjp(input_gradient, g)), (target, lambda g: vjp(target_gradient, g)),
+                  saved=tuple(v for v in (weight, pos_weight) if v is not None))
+
+
+class BCEWithLogitsLoss(Module):
+    def __init__(self, weight=None, size_average=None, reduce=None, reduction='mean', pos_weight=None):
+        super().__init__()
+        if size_average is not None or reduce is not None:
+            raise BrowserUnsupported('Legacy binary cross entropy options require the server')
+        self.reduction = reduction
+        self.register_buffer('weight', weight)
+        self.register_buffer('pos_weight', pos_weight)
+
+    def forward(self, input, target):
+        return binary_cross_entropy_with_logits(input, target, self.weight, reduction=self.reduction, pos_weight=self.pos_weight)
+
+
 def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=None):
     input._real_only()
     if input.requires_grad and _grad_enabled: raise BrowserUnsupported('Unique autograd requires the server')
@@ -2164,6 +2235,7 @@ def install():
     torch.nn.functional = modules['nn.functional']
     torch.nn.Module, torch.nn.Parameter = Module, Parameter
     torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU, torch.nn.ReLU = Linear, Sequential, SiLU, ReLU
+    torch.nn.BCEWithLogitsLoss = BCEWithLogitsLoss
     torch.testing = modules['testing']
     torch.testing.assert_close = assert_close
     torch.random = modules['random']
@@ -2181,6 +2253,7 @@ def install():
     torch.nn.functional.smooth_l1_loss = smooth_l1_loss
     torch.nn.functional.mse_loss = mse_loss
     torch.nn.functional.softplus = softplus
+    torch.nn.functional.binary_cross_entropy_with_logits = binary_cross_entropy_with_logits
     torch.nn.functional.silu = silu
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.rms_norm = rms_norm_oracle
