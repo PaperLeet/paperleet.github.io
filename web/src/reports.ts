@@ -97,10 +97,14 @@ export function parseReport(value: unknown): Report {
     );
   }
   const sourceHash = optionalString(value.source_sha256, "source_sha256");
+  const runId = optionalString(value.run_id, "run_id");
+  if (runId !== undefined && !/^[a-f0-9]{32}$/.test(runId))
+    return invalid("run_id 必须是提交记录的 ID");
   if (sourceHash !== undefined && !/^[a-f0-9]{64}$/.test(sourceHash))
     return invalid("source_sha256 必须是 SHA-256 十六进制字符串");
   return {
     problem: value.problem,
+    ...(runId ? { run_id: runId } : {}),
     source_sha256: sourceHash,
     runtime: optionalString(value.runtime, "runtime"),
     tests,

@@ -4,6 +4,7 @@ import { useI18n } from "./i18n";
 import { useAccount } from "./social";
 import { createPresenceHeartbeat, presenceStorageKey, presenceVisitorId } from "./presence";
 import { presenceRequest } from "./presenceApi";
+import { createPresenceSnapshotSync, presenceSnapshotKey } from "./presenceSnapshot";
 import NavMetric from "./NavMetric";
 import "./online-presence.css";
 
@@ -22,20 +23,38 @@ export default function OnlinePresence() {
 
   useEffect(() => {
     setOnline(null);
-    if (loading || !presenceRequest) return;
+    const requestPresence = presenceRequest;
+    if (loading || !requestPresence) return;
+    const snapshots = createPresenceSnapshotSync({
+      read: () => window.localStorage.getItem(presenceSnapshotKey),
+      write: value => window.localStorage.setItem(presenceSnapshotKey, value),
+      onChange: setOnline,
+    });
+    let requestStartedAt = 0;
     const heartbeat = createPresenceHeartbeat({
       visitorId: browserVisitorId,
-      onChange: setOnline,
-      fetch: presenceRequest,
+      onChange: count => {
+        if (count !== null) snapshots.publish(count, requestStartedAt);
+        else snapshots.refresh();
+      },
+      fetch: (path, options) => {
+        requestStartedAt = Date.now();
+        return requestPresence(path, options);
+      },
     });
     let visitorChanged = false;
     function syncVisibility() {
+      snapshots.refresh();
       if (document.visibilityState === "visible" && navigator.onLine) {
         heartbeat.resume(visitorChanged);
         visitorChanged = false;
       } else heartbeat.pause();
     }
     function syncVisitor(event: StorageEvent) {
+      if (event.key === presenceSnapshotKey) {
+        snapshots.receive(event.newValue);
+        return;
+      }
       if (event.key !== presenceStorageKey) return;
       // A different tab may have initialized the shared browser ID first.
       visitorChanged = true;
@@ -45,12 +64,14 @@ export default function OnlinePresence() {
     syncVisibility();
     document.addEventListener("visibilitychange", syncVisibility);
     window.addEventListener("online", syncVisibility);
+    window.addEventListener("focus", syncVisibility);
     window.addEventListener("offline", syncVisibility);
     window.addEventListener("storage", syncVisitor);
     return () => {
       heartbeat.dispose();
       document.removeEventListener("visibilitychange", syncVisibility);
       window.removeEventListener("online", syncVisibility);
+      window.removeEventListener("focus", syncVisibility);
       window.removeEventListener("offline", syncVisibility);
       window.removeEventListener("storage", syncVisitor);
     };

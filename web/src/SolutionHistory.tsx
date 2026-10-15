@@ -4,6 +4,7 @@ import { useI18n } from "./i18n";
 import { createSolutionHistoryReader, emptySolutionHistory, SolutionHistoryIdentityError } from "./solutionHistoryData";
 import type { SolutionHistoryState } from "./solutionHistoryData";
 import type { Problem } from "./types";
+import { usePracticeInvalidation } from './usePracticeInvalidation';
 import "./solution-history.css";
 
 type Props = { owner: string; problem: Problem; revision: number };
@@ -11,6 +12,7 @@ type Props = { owner: string; problem: Problem; revision: number };
 export default function SolutionHistory({ owner, problem, revision }: Props) {
   const { t, locale } = useI18n();
   const [refresh, setRefresh] = useState(0);
+  usePracticeInvalidation(() => setRefresh(value => value + 1), owner, problem.id);
   const scope = JSON.stringify([owner, problem.id, revision, refresh]);
   const [view, setView] = useState<{ scope: string; state: SolutionHistoryState }>();
   const [copy, setCopy] = useState<{ scope: string; id: string; ok: boolean }>();
@@ -75,6 +77,7 @@ export default function SolutionHistory({ owner, problem, revision }: Props) {
           <div className="solution-history-source">
             <div className="solution-history-source-heading">
               <strong>{t("提交时的代码", "Submitted code")}</strong>
+              {/^[a-f0-9]{32}$/.test(run.id) && <a href={`#/submission/${run.id}`}>{t('查看结果', 'View result')}</a>}
               <button type="button" onClick={() => void copyCode(run.id, run.code)}>{t("复制代码", "Copy code")}</button>
             </div>
             {copy?.scope === scope && copy.id === run.id && <p className="solution-history-copy" role="status">{copy.ok ? t("已复制", "Copied") : t("无法自动复制，请在下方选择代码后复制。", "Copy is unavailable. Select the code below to copy it.")}</p>}

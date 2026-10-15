@@ -3,7 +3,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu } from "./deferredPages";
+import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -62,6 +62,7 @@ import { matchesBrowserSubmission } from './browserVerification';
 import { BrowserSyntaxNotice } from './BrowserSyntaxNotice';
 import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
+import { submissionDestination } from './submissionNavigation';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
@@ -137,6 +138,7 @@ function Workspace() {
     [toast, setToast] = useState(""),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
+  const [resultNotice, setResultNotice] = useState<{owner:string; href:string}>();
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number};vertical?:{ratio:number}}>();
@@ -178,6 +180,7 @@ function Workspace() {
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
   const submissionPage = id === "submit";
+  const submissionResultId = /^submission\/([a-f0-9]{32})$/.exec(path)?.[1];
   const communityPath = id.split('?')[0];
   const communityPage = communityPath === "community" || communityPath.startsWith("community/");
   const communityTopicId = topicIdFromRoute(communityPath);
@@ -222,10 +225,21 @@ function Workspace() {
     practice.applyReport(entry, report, runOwner);
     browser.clear(entry.id);
     learning.dismiss(entry,runOwner);
-    void refreshProblemStats();
-    if ([entry.id, String(entry.number)].includes(routePath(getId()))) showTests();
-    setSubmissionRevision(value => value + 1);
-    setToast(runOwner.startsWith("user:") ? t("提交完成，解答已保存到账号", "Submission complete. Solution saved to your account.") : t("测试已完成", "Run complete"));
+    const destination = submissionDestination(report, runOwner, entry, getId());
+    const resultHref = destination?.href;
+    const onSubmittedProblem = [entry.id, String(entry.number)].includes(routePath(getId()));
+    if (resultHref && destination.redirect) {
+      setResultNotice(undefined);
+      setToast('');
+      location.hash = resultHref;
+    } else if (resultHref) {
+      setResultNotice({owner:runOwner, href:resultHref});
+    } else {
+      void refreshProblemStats();
+      if (onSubmittedProblem) showTests();
+      setSubmissionRevision(value => value + 1);
+      setToast(runOwner.startsWith("user:") ? t("提交完成，解答已保存到账号", "Submission complete. Solution saved to your account.") : t("测试已完成", "Run complete"));
+    }
   });
   useEffect(() => { runToken.current = undefined; setPreparingRun(false); }, [practice.owner]);
   const report = problem ? browser.reports[problem.id] || learningView.records[problem.id]?.report || current.report : undefined;
@@ -319,6 +333,7 @@ function Workspace() {
   useEffect(() => {
     setPreparingRun(false);
     setToast("");
+    setResultNotice(undefined);
     setTab("description");
   }, [practice.owner]);
   useEffect(() => {
@@ -329,6 +344,14 @@ function Workspace() {
       theme === "dark" ? "#1a1a1a" : "#ffffff",
     );
   }, [theme]);
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key === 'paperleet.theme' || event.key === null) setTheme(initialTheme());
+      if (event.key === 'paperleet.editor.fontSize' || event.key === null) setFont(initialEditorFontSize());
+    };
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
   function selectTheme(nextTheme: Theme) {
     setTheme(nextTheme);
     try {
@@ -508,7 +531,10 @@ function Workspace() {
           if (replaced) setToast(t('代码已载入，请留意保存状态并重新运行测试。', 'Code loaded. Check the save status and run tests again.'));
           return replaced;
         }} />}
-      {achievementsPage ? (
+      {submissionResultId ? (
+        <SubmissionResultPage runId={submissionResultId} problems={problems}
+          nextProblemFor={entry => nextPractice(entry, papers.find(paper => paper.id === entry.paper_id)?.module_ids || [], problems, learningSaved)} />
+      ) : achievementsPage ? (
         <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={settingsReturn.current} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
       ) : settingsPage ? (
         <SettingsPage theme={theme} onTheme={selectTheme} returnTo={settingsReturn.current}
@@ -1234,7 +1260,15 @@ function Workspace() {
         </>
       )}
       <AchievementObserver key={practice.owner} problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} />
-      {toast && (
+      {resultNotice?.owner === practice.owner && (
+        <div role="status" className="toast">
+          <CheckCircle2 size={16} />
+          {t('提交已完成', 'Submission complete')}
+          <a href={resultNotice.href} onClick={() => setResultNotice(undefined)}>{t('查看结果', 'View result')}</a>
+          <button className="icon-button" aria-label={t('关闭提示', 'Dismiss notification')} onClick={() => setResultNotice(undefined)}><X size={13} /></button>
+        </div>
+      )}
+      {toast && !resultNotice && (
         <div role="status" className="toast">
           <CheckCircle2 size={16} />
           {toast}

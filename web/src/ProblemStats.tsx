@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
 import { publicSite } from "./deployment";
 import { apiFetch } from "./apiClient";
+import { subscribePracticeChanges } from "./practiceChanges";
 
 export type ProblemStatistics = {
   attempted_users: number;
@@ -13,6 +14,7 @@ export type ProblemStatistics = {
 };
 export type ProblemStatsMap = Record<string, ProblemStatistics>;
 export const COMMUNITY_STATS_REFRESH_MS = 60 * 60 * 1000;
+export const COMMUNITY_STATS_FOCUS_MS = 30_000;
 
 export function totalCommunitySubmissions(stats: ProblemStatsMap | undefined): number | undefined {
   if (!stats) return undefined;
@@ -54,8 +56,10 @@ export function useProblemStats(refreshKey?: string) {
   const [available, setAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const request = useRef<AbortController | null>(null);
+  const lastRefresh = useRef(-Infinity);
   const refresh = useCallback(async () => {
     if (publicSite) { setLoading(false); setAvailable(false); setError(null); return; }
+    lastRefresh.current = Date.now();
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
@@ -95,24 +99,35 @@ export function useProblemStats(refreshKey?: string) {
     if (publicSite) return;
     let nextRefresh = Date.now() + COMMUNITY_STATS_REFRESH_MS;
     let timer: number | undefined;
-    function sync() {
+    let changed = false;
+    function sync(revalidate = false) {
       window.clearTimeout(timer);
       if (document.visibilityState !== 'visible' || !navigator.onLine) return;
-      if (Date.now() >= nextRefresh) {
+      if (changed || Date.now() >= nextRefresh || (revalidate && Date.now() - lastRefresh.current >= COMMUNITY_STATS_FOCUS_MS)) {
+        changed = false;
         nextRefresh = Date.now() + COMMUNITY_STATS_REFRESH_MS;
         void refresh();
       }
-      timer = window.setTimeout(sync, Math.max(0, nextRefresh - Date.now()));
+      timer = window.setTimeout(() => sync(), Math.max(0, nextRefresh - Date.now()));
     }
+    const resume = () => sync(true);
+    const unsubscribe = subscribePracticeChanges(change => {
+      if (change.kind !== 'submission') return;
+      changed = true;
+      sync();
+    });
     sync();
-    document.addEventListener('visibilitychange', sync);
-    window.addEventListener('online', sync);
-    window.addEventListener('offline', sync);
+    document.addEventListener('visibilitychange', resume);
+    window.addEventListener('focus', resume);
+    window.addEventListener('online', resume);
+    window.addEventListener('offline', resume);
     return () => {
+      unsubscribe();
       window.clearTimeout(timer);
-      document.removeEventListener('visibilitychange', sync);
-      window.removeEventListener('online', sync);
-      window.removeEventListener('offline', sync);
+      document.removeEventListener('visibilitychange', resume);
+      window.removeEventListener('focus', resume);
+      window.removeEventListener('online', resume);
+      window.removeEventListener('offline', resume);
     };
   }, [refresh]);
   return { stats, totalSubmissions: totalCommunitySubmissions(stats), refresh, loading, error, available };

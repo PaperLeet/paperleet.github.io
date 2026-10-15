@@ -19,6 +19,50 @@ try {
   const blocked = { getItem: () => { throw Error("blocked"); }, setItem: () => { throw Error("blocked"); } };
   assert.equal(presenceVisitorId(blocked), id, "Blocked storage keeps a usable in-memory visitor ID");
 
+  const { createPresenceSnapshotSync, parsePresenceSnapshot, presenceSnapshotMaxAge } =
+    await server.ssrLoadModule('/src/presenceSnapshot.ts');
+  let snapshotNow = 10_000, sharedSnapshot = null, snapshotWrites = 0;
+  const snapshotTab = () => {
+    const seen = [];
+    const sync = createPresenceSnapshotSync({
+      now: () => snapshotNow, read: () => sharedSnapshot,
+      write: value => { sharedSnapshot = value; snapshotWrites += 1; },
+      onChange: value => seen.push(value),
+    });
+    return { sync, seen };
+  };
+  const firstTab = snapshotTab(), secondTab = snapshotTab();
+  firstTab.sync.publish(5, 9_900);
+  secondTab.sync.receive(sharedSnapshot);
+  assert.equal(secondTab.seen.at(-1), 5, 'Another window adopts the successful count without waiting for its next heartbeat');
+  assert.equal(snapshotWrites, 1, 'Received snapshots never echo storage writes');
+  secondTab.sync.publish(3, 9_800);
+  assert.equal(secondTab.seen.at(-1), 5, 'A delayed older request cannot replace a newer count');
+  assert.equal(snapshotWrites, 1);
+  secondTab.sync.publish(4, 10_000);
+  firstTab.sync.receive(sharedSnapshot);
+  assert.equal(firstTab.seen.at(-1), 4, 'A newer snapshot may correctly decrease a rolling-hour count');
+  assert.equal(snapshotWrites, 2);
+  firstTab.sync.refresh();
+  assert.equal(firstTab.seen.at(-1), 4, 'A failed local heartbeat can retain another window’s still-fresh successful snapshot');
+  assert.equal(snapshotWrites, 2, 'Failures do not broadcast an unavailable count');
+  for (const invalid of [null, 'broken', {online: -1, observedAt: 10_000}, {online: 1.5, observedAt: 10_000},
+    {online: '5', observedAt: 10_000}, {online: 5, observedAt: 10_001}, {online: 5, observedAt: -1}]) {
+    assert.equal(parsePresenceSnapshot(invalid, snapshotNow), undefined);
+    firstTab.sync.receive(invalid);
+    assert.equal(firstTab.seen.at(-1), 4, 'Invalid messages cannot replace the latest successful snapshot');
+  }
+  snapshotNow += presenceSnapshotMaxAge;
+  firstTab.sync.refresh();
+  assert.equal(firstTab.seen.at(-1), null, 'Expired snapshots do not present stale presence as current');
+  const unavailableStorageUpdates = [];
+  const noStorage = createPresenceSnapshotSync({ now: () => snapshotNow,
+    read: () => { throw Error('blocked'); }, write: () => { throw Error('blocked'); },
+    onChange: value => unavailableStorageUpdates.push(value) });
+  noStorage.publish(0, snapshotNow);
+  noStorage.refresh();
+  assert.equal(unavailableStorageUpdates.at(-1), 0, 'Real zero and session-only operation survive blocked storage');
+
   function harness() {
     let now = 0, nextTimer = 0, visitor = id;
     const timers = new Map(), calls = [], updates = [];
@@ -145,7 +189,7 @@ try {
     assert.equal(malformed.updates.at(-1), null, "Malformed responses must not display a number or alter the poll rate");
     malformed.heartbeat.dispose();
   }
-  console.log("PASS hourly presence: rolling-hour protocol, hourly display refresh, visibility-stable deadline, shared visitor identity, cookie credentials, visible lifecycle, single-flight requests, timeouts, recovery, unavailable states, and cleanup");
+  console.log("PASS hourly presence: ordered cross-window snapshots, snapshot expiry/storage failure, rolling-hour protocol, hourly refresh, visibility-stable deadline, shared visitor identity, request recovery, unavailable states, and cleanup");
 } finally {
   await server.close();
 }

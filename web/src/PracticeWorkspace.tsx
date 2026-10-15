@@ -5,13 +5,10 @@ import { useGuestWorkspace } from "./useGuestWorkspace";
 export { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
 import type { Problem, Report, Saved } from "./types";
 import { SocialError, errorMessage, socialApi, useAccount } from "./social";
+import { createHostedDraftCache, type PendingDraft } from "./hostedDraftCache";
+import { publishPracticeChange, subscribePracticeChanges } from "./practiceChanges";
+export { practiceCacheKey } from "./hostedDraftCache";
 
-type PendingDraft = {
-  code: string;
-  updated: string;
-  base: string;
-  revision: number;
-};
 type Bundle = {
   owner: string;
   records: Record<string, Saved>;
@@ -41,12 +38,6 @@ export function practiceOwner(
           ? `user:${userId}`
           : "anonymous";
 }
-export function practiceCacheKey(owner: string, origin: string) {
-  return `paperleet.practice.pending.v1:${encodeURIComponent(origin)}:${owner}`;
-}
-function cacheKey(owner: string) {
-  return practiceCacheKey(owner, location.origin);
-}
 export function mergeWorkspaceSnapshot(
   serverValue: unknown,
   pending: Record<string, PendingDraft>,
@@ -66,25 +57,6 @@ export function mergeWorkspaceSnapshot(
   }
   return { records, pending: dirty, conflicts };
 }
-function readPending(owner: string): Record<string, PendingDraft> {
-  try {
-    const data = JSON.parse(localStorage.getItem(cacheKey(owner)) || "{}");
-    return Object.fromEntries(
-      Object.entries(data).filter((entry): entry is [string, PendingDraft] => {
-        const v = entry[1] as Partial<PendingDraft> | null;
-        return (
-          !!v &&
-          typeof v.code === "string" &&
-          typeof v.base === "string" &&
-          typeof v.updated === "string" &&
-          typeof v.revision === "number"
-        );
-      }),
-    );
-  } catch {
-    return {};
-  }
-}
 export function usePracticeWorkspace() {
   const {
     user,
@@ -101,6 +73,11 @@ export function usePracticeWorkspace() {
     [saving, setSaving] = useState(false),
     [retryVersion, setRetryVersion] = useState(0),
     [flushVersion, setFlushVersion] = useState(0);
+  const source = useRef(`workspace-${Date.now()}-${Math.random()}`);
+  const cache = useRef(createHostedDraftCache(source.current));
+  const refreshWorkspace = useRef<(() => void) | null>(null);
+  const refreshQueued = useRef(false);
+  const serverMutation = useRef(0);
   const currentOwner = useRef(owner);
   currentOwner.current = owner;
   const currentBundle = useRef(bundle);
@@ -113,10 +90,7 @@ export function usePracticeWorkspace() {
   function persist(next: Bundle) {
     try {
       if (next.owner.startsWith("user:"))
-        localStorage.setItem(
-          cacheKey(next.owner),
-          JSON.stringify(next.pending),
-        );
+        cache.current.write(next.owner, next.pending);
       storageError.current = "";
     } catch {
       storageError.current =
@@ -124,79 +98,107 @@ export function usePracticeWorkspace() {
     }
   }
   function mutate(change: (previous: Bundle) => Bundle, expectedOwner = owner) {
-    if (currentOwner.current !== expectedOwner) return;
+    if (currentOwner.current !== expectedOwner) return false;
     const previous = currentBundle.current;
-    if (previous.owner !== expectedOwner) return;
+    if (previous.owner !== expectedOwner) return false;
     const next = change(previous);
-    if (next === previous) return;
+    if (next === previous) return false;
     currentBundle.current = next;
     persist(next);
     setBundle(next);
+    return true;
   }
 
+  useEffect(() => () => { currentOwner.current = 'unmounted'; epoch.current += 1; }, []);
   useEffect(() => {
     const generation = ++epoch.current;
+    currentOwner.current = owner;
+    let disposed = false, requestRunning = false, repeat = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let lastRequest = 0;
+    const active = () => !disposed && currentOwner.current === owner && epoch.current === generation;
     failed.current = false;
     flushing.current = false;
     flushPromise.current = null;
+    refreshQueued.current = false;
     setSaving(false);
     setError("");
-    if (owner === "unresolved") {
-      setBundle(emptyBundle(owner));
-      setLoading(true);
-      return;
-    }
-    if (owner === "local" || owner === "anonymous") {
-      setBundle(emptyBundle(owner)); setLoading(false); return;
-    }
-    const pending = readPending(owner);
-    const records = Object.fromEntries(
-      Object.entries(pending).map(([id, draft]) => [
-        id,
-        { code: draft.code, updated: draft.updated },
-      ]),
-    );
-    setBundle({
-      ...emptyBundle(owner),
-      records,
-      pending,
-      hydrated: false,
-    });
-    setLoading(true);
-    socialApi<{ user_id: string; workspace: Record<string, Saved> }>(
-      "practice/workspace",
-    )
-      .then((data) => {
-        if (currentOwner.current !== owner || epoch.current !== generation)
-          return;
-        if (`user:${data.user_id}` !== owner)
-          throw new SocialError(
-            "The active account changed. Reloading your account workspace.",
-            409,
-          );
-        const next = {
-          owner,
-          ...mergeWorkspaceSnapshot(data.workspace, pending),
-          hydrated: true,
-        };
-        setBundle(next);
+    const pending = owner.startsWith('user:') ? cache.current.read(owner) : {};
+    const initial = {
+      ...emptyBundle(owner), pending,
+      records: Object.fromEntries(Object.entries(pending).map(([id, draft]) => [id, {code: draft.code, updated: draft.updated}])),
+    };
+    currentBundle.current = initial;
+    setBundle(initial);
+    setLoading(owner !== 'local' && owner !== 'anonymous');
+    if (!owner.startsWith('user:')) return () => { disposed = true; };
+
+    async function refresh() {
+      if (!active()) return;
+      if (flushing.current) { refreshQueued.current = true; return; }
+      if (requestRunning) { repeat = true; return; }
+      requestRunning = true;
+      lastRequest = Date.now();
+      const mutation = serverMutation.current;
+      try {
+        const data = await socialApi<{user_id: string; workspace: Record<string, Saved>}>('practice/workspace');
+        if (!active()) return;
+        if (`user:${data.user_id}` !== owner) throw new SocialError('The active account changed. Reloading your account workspace.', 409);
+        // A response started before our own commit cannot replace that newer result.
+        if (mutation !== serverMutation.current) { repeat = true; return; }
+        if (flushing.current) { refreshQueued.current = true; return; }
+        const latest = currentBundle.current;
+        const next = {owner, ...mergeWorkspaceSnapshot(data.workspace, latest.pending), hydrated: true};
+        cache.current.acknowledge(owner, data.workspace);
         currentBundle.current = next;
+        setBundle(next);
         persist(next);
-      })
-      .catch((e) => {
-        if (currentOwner.current !== owner || epoch.current !== generation)
-          return;
-        failed.current = true;
+        failed.current = false;
+        setError('');
+      } catch (e) {
+        if (!active()) return;
+        if (!currentBundle.current.hydrated) failed.current = true;
         setError(errorMessage(e));
         if (e instanceof SocialError && e.status === 409) void refreshAccount();
-      })
-      .finally(() => {
-        if (currentOwner.current === owner && epoch.current === generation)
+      } finally {
+        requestRunning = false;
+        if (active()) {
           setLoading(false);
-      });
+          if (repeat) { repeat = false; schedule(); }
+        }
+      }
+    }
+    function schedule() {
+      if (!active() || timer !== undefined) return;
+      timer = setTimeout(() => { timer = undefined; void refresh(); }, 120);
+    }
+    const becameActive = () => {
+      if (document.visibilityState === 'hidden' || Date.now() - lastRequest < 2000) return;
+      schedule();
+    };
+    refreshWorkspace.current = schedule;
+    const unsubscribe = subscribePracticeChanges(change => {
+      if (change.owner === owner && change.source !== source.current) {
+        serverMutation.current += 1;
+        schedule();
+      }
+    });
+    window.addEventListener('focus', becameActive);
+    window.addEventListener('online', schedule);
+    document.addEventListener('visibilitychange', becameActive);
+    void refresh();
+    return () => {
+      disposed = true;
+      clearTimeout(timer);
+      unsubscribe();
+      window.removeEventListener('focus', becameActive);
+      window.removeEventListener('online', schedule);
+      document.removeEventListener('visibilitychange', becameActive);
+      if (refreshWorkspace.current === schedule) refreshWorkspace.current = null;
+    };
   }, [owner, retryVersion]);
   async function flush(): Promise<void> {
-    if (!hosted || !owner.startsWith("user:")) return;
+    if (!hosted || !owner.startsWith("user:") || currentOwner.current !== owner || currentBundle.current.owner !== owner) return;
     if (flushPromise.current) {
       await flushPromise.current;
       return;
@@ -237,6 +239,9 @@ export function usePracticeWorkspace() {
             records[id] = { ...records[id], updated: response.draft.updated };
             return { ...previous, pending, records };
           }, owner);
+          serverMutation.current += 1;
+          cache.current.acknowledge(owner, {[id]: {code: draft.code}});
+          publishPracticeChange({owner, problem: id, kind: 'draft', revision: response.draft.updated, source: source.current});
         }
         if (currentOwner.current === owner && epoch.current === generation)
           setError("");
@@ -254,6 +259,7 @@ export function usePracticeWorkspace() {
           flushPromise.current = null;
           setSaving(false);
           setFlushVersion((v) => v + 1);
+          if (refreshQueued.current) { refreshQueued.current = false; refreshWorkspace.current?.(); }
         }
       }
     };
@@ -314,7 +320,7 @@ export function usePracticeWorkspace() {
     expectedOwner: string,
   ) {
     if (owner === "local" || owner === "anonymous") return browserWorkspace.applyReport(problem,report,expectedOwner);
-    mutate((previous) => {
+    const applied = mutate((previous) => {
       const saved = previous.records[problem.id] || {};
       return {
         ...previous,
@@ -324,6 +330,10 @@ export function usePracticeWorkspace() {
         },
       };
     }, expectedOwner);
+    if (applied) {
+      serverMutation.current += 1;
+      publishPracticeChange({owner: expectedOwner, problem: problem.id, kind: 'submission', source: source.current});
+    }
   }
   function resolveConflict(id: string, keepLocal: boolean) {
     if (owner === "local" || owner === "anonymous") return browserWorkspace.resolveConflict(id,keepLocal);

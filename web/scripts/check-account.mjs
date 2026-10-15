@@ -15,7 +15,7 @@ try {
   const { AccountAccessGate } = await server.ssrLoadModule('/src/Waitlist.tsx');
   const { signInHref, accountReturnHref, isAccountRoute } = await server.ssrLoadModule("/src/accountNavigation.ts");
   const { decodeProblemHash } = await server.ssrLoadModule("/src/reports.ts");
-  for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "achievements", "papers/transformer", "collections/llm-basics"]) {
+  for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "submission/0123456789abcdef0123456789abcdef", "achievements", "papers/transformer", "collections/llm-basics"]) {
     const href = signInHref(route);
     const accountRoute = decodeProblemHash(href);
     assert(isAccountRoute(accountRoute));

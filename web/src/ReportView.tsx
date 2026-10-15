@@ -15,6 +15,7 @@ export default function ReportView({
   source,
   onLocate,
   children,
+  accepted,
 }: {
   report?: Report;
   problem: Problem;
@@ -22,6 +23,8 @@ export default function ReportView({
   source: string;
   onLocate?: (location: SourceLocation) => void;
   children?: ReactNode;
+  /** Immutable account history uses the verdict recorded when this attempt ran. */
+  accepted?: boolean;
 }) {
   const { t, locale } = useI18n();
   const labels = t(
@@ -59,7 +62,7 @@ export default function ReportView({
           <h3>
             {report.error
               ? t("判题未完成", "Run incomplete")
-              : isPassed(problem, report)
+              : (accepted ?? isPassed(problem, report))
                 ? sourceState !== "current" ? t("上次测试通过", "Previous tests passed") : report.runtime === "browser-numpy-wasm" ? t("浏览器通过", "Browser tests passed") : "Accepted"
                 : allPassed
                   ? t("所选测试通过", "Selected tests passed")

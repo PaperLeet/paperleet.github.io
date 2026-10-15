@@ -13,6 +13,7 @@ export const Community = deferredFeature(() => import('./Community'), ['社区',
 export const UserProfile = deferredFeature<Parameters<typeof import('./Community').UserProfile>[0]>(() => import('./Community').then(module => ({ default: module.UserProfile })), ['个人主页', 'profile']);
 export const Account = deferredFeature(() => import('./Account'), ['账号页面', 'account page']);
 export const SolutionHistory = deferredFeature(() => import('./SolutionHistory'), ['提交记录', 'submission history']);
+export const SubmissionResultPage = deferredFeature(() => import('./SubmissionResultPage'), ['提交结果', 'submission result']);
 export const SettingsPage = deferredFeature(() => import('./Settings'), ['设置', 'settings']);
 export const Achievements = deferredFeature(() => import('./Achievements'), ['学习勋章', 'achievements']);
 export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), ['勋章提示', 'achievement notifications'], {loading: () => null, failure: () => null});

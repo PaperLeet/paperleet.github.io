@@ -5,6 +5,7 @@ import { useI18n } from "./i18n";
 import { DateLabel, SocialNotice, errorMessage, socialApi, useAccount } from "./social";
 import { activityLevel, browserTimezone, calendarCells, currentYear, emptyPracticeDay } from "./profile-progress";
 import type { PracticeDay, ProfilePractice, ProfilePracticeResponse } from "./profile-progress";
+import { usePracticeInvalidation } from './usePracticeInvalidation';
 import "./profile-progress.css";
 
 function difficultyLabel(difficulty: string, t: (zh: string, en: string) => string) {
@@ -132,23 +133,25 @@ function ProgressSummary({ data }: { data: ProfilePractice }) {
 
 export default function ProfileProgress({ username, isSelf }: { username: string; isSelf: boolean }) {
   const { locale, t } = useI18n();
-  const { health } = useAccount();
+  const { health, user } = useAccount();
   const [timezone] = useState(browserTimezone);
   const [year, setYear] = useState(() => currentYear(timezone));
   const [revision, setRevision] = useState(0);
-  const [result, setResult] = useState<{ request: string; data: ProfilePracticeResponse }>();
+  const [result, setResult] = useState<{ scope: string; data: ProfilePracticeResponse }>();
   const [failure, setFailure] = useState<{ request: string; message: string }>();
-  const request = `${username}:${year}:${timezone}:${revision}`;
-  const data = result?.request === request ? result.data : undefined;
+  usePracticeInvalidation(() => setRevision(value => value + 1), isSelf && user ? `user:${user.id}` : undefined);
+  const scope = `${user?.id || 'anonymous'}:${username}:${year}:${timezone}`;
+  const request = `${scope}:${revision}`;
+  const data = result?.scope === scope ? result.data : undefined;
   const error = failure?.request === request ? failure.message : undefined;
   useEffect(() => {
     let live = true;
     const params = new URLSearchParams({ year: String(year), timezone });
     socialApi<ProfilePracticeResponse>(`community/profiles/${encodeURIComponent(username)}/practice?${params}`)
-      .then((value) => { if (live) setResult({ request, data: value }); })
+      .then((value) => { if (live) setResult({ scope, data: value }); })
       .catch((value) => { if (live) setFailure({ request, message: errorMessage(value) }); });
     return () => { live = false; };
-  }, [request, username, year, timezone]);
+  }, [request, scope, username, year, timezone]);
   if (error) return <section className="social-panel practice-load-state"><SocialNotice error={error} /><button className="button subtle" onClick={() => setRevision((value) => value + 1)}><RefreshCw size={14} />{t("重试练习记录", "Retry practice history")}</button></section>;
   if (!data) return <section className="social-panel practice-loading" aria-busy="true"><span className="spinner" />{t("正在加载练习记录…", "Loading practice history…")}</section>;
   if (!data.visible) return <section className="social-panel practice-private"><LockKeyhole size={19} /><span>{t("该用户的练习记录仅自己可见", "This member’s practice history is private")}</span></section>;

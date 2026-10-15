@@ -78,6 +78,15 @@ function harness(useProblemStats) {
     online = next;
     await act(async () => window.dispatchEvent(new window.Event(next ? 'online' : 'offline')));
   }
+  async function focus() {
+    await act(async () => window.dispatchEvent(new window.Event('focus')));
+  }
+  async function changed(kind = 'submission') {
+    await act(async () => window.dispatchEvent(new window.StorageEvent('storage', {
+      key: 'paperleet.practice.changed.v1',
+      newValue: JSON.stringify({ owner: 'user:another-window', kind, nonce: crypto.randomUUID() }),
+    })));
+  }
   async function unmount() {
     if (root) await act(async () => root.unmount());
     root = undefined;
@@ -88,7 +97,7 @@ function harness(useProblemStats) {
     window.setTimeout = originalSetTimeout;
     window.clearTimeout = originalClearTimeout;
   }
-  return { render, reply, refresh, tick, visibility, connectivity, unmount, dispose, requests, timers,
+  return { render, reply, refresh, tick, visibility, connectivity, focus, changed, unmount, dispose, requests, timers,
     get value() { return value; }, get text() { return document.querySelector('output')?.textContent; } };
 }
 
@@ -156,13 +165,13 @@ try {
   await current.tick(1);
   assert.equal(current.requests.length, 2, 'Visible, online tabs refresh at the one-hour boundary');
   await current.reply(1, success(fixture));
-  await current.tick(5 * 60_000);
+  await current.tick(5_000);
   await current.visibility(false);
   assert.equal(current.timers.size, 0, 'Hiding cancels the scheduled poll');
-  await current.tick(5 * 60_000);
+  await current.tick(5_000);
   await current.visibility(true);
-  assert.equal(current.requests.length, 2, 'Returning before the deadline does not fetch');
-  await current.tick(50 * 60_000 - 1);
+  assert.equal(current.requests.length, 2, 'Brief visibility changes are throttled');
+  await current.tick(hour - 10_000 - 1);
   assert.equal(current.requests.length, 2);
   await current.tick(1);
   assert.equal(current.requests.length, 3, 'Early visibility recovery preserves the original deadline');
@@ -203,6 +212,38 @@ try {
   await current.tick(2 * hour);
   assert.equal(current.requests.length, 7, 'Unmount removes lifecycle listeners and cannot resume polling');
   await current.dispose();
+  current = harness(useProblemStats);
+  await current.render();
+  await current.reply(0, success(fixture));
+  await current.changed('draft');
+  assert.equal(current.requests.length, 1, 'Draft changes do not affect public submission totals');
+  await current.changed();
+  assert.equal(current.requests.length, 2, 'Another window completing Submit refreshes the server aggregate immediately');
+  assert.equal(current.value.totalSubmissions, 12, 'An invalidation never invents or increments a count before the server replies');
+  await current.reply(1, success({ 'rl/dpo': statistics(7, 6) }));
+  assert.equal(current.value.totalSubmissions, 13);
+  await current.visibility(false);
+  await current.changed();
+  assert.equal(current.requests.length, 2, 'Hidden windows defer invalidation refreshes');
+  await current.visibility(true);
+  assert.equal(current.requests.length, 3, 'A known completed submission refreshes on resume even within the focus throttle');
+  await current.reply(2, success({ 'rl/dpo': statistics(8, 6) }));
+  assert.equal(current.value.totalSubmissions, 14);
+  await current.focus();
+  await current.visibility(true);
+  assert.equal(current.requests.length, 3, 'Repeated focus and visibility events do not duplicate requests');
+  await current.tick(30_000);
+  await current.focus();
+  assert.equal(current.requests.length, 4, 'Focus revalidates stale shared counts if cross-window notifications were unavailable');
+  await current.reply(3, success({ 'rl/dpo': statistics(8, 7) }));
+  assert.equal(current.value.totalSubmissions, 15);
+  await current.focus();
+  assert.equal(current.requests.length, 4);
+  await current.unmount();
+  await current.changed();
+  await current.focus();
+  assert.equal(current.requests.length, 4, 'Unmount removes cross-window and focus listeners');
+  await current.dispose();
   current = undefined;
   await server.close();
 
@@ -227,12 +268,14 @@ try {
   await current.visibility(true);
   await current.connectivity(false);
   await current.connectivity(true);
+  await current.changed();
+  await current.focus();
   assert.equal(current.requests.length, 0, 'Public-site builds never call the statistics API, including route/manual/lifecycle refresh');
   assert.equal(current.timers.size, 0, 'Public-site builds never schedule polling');
   assert.equal(current.value.totalSubmissions, undefined);
   assert.equal(current.value.available, false);
   assert.equal(current.value.loading, false);
-  console.log('PASS community submissions: validated aggregate, zero versus unavailable, overflow, route refresh, hourly polling, hidden/offline deadlines, public-site suppression, and unmount cleanup');
+  console.log('PASS community submissions: validated aggregate, hourly polling, cross-window completion invalidation, throttled focus recovery, hidden/offline deadlines, public-site suppression, and cleanup');
 } finally {
   if (current) await current.dispose();
   if (server) await server.close();

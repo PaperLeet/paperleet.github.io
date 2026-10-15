@@ -15,6 +15,13 @@ const Context = createContext<I18n>({
 });
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, updateLocale] = useState<Locale>(preferredLocale);
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key === 'paperleet.locale' || event.key === null) updateLocale(preferredLocale());
+    };
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
   function setLocale(next: Locale) {
     updateLocale(next);
     try {

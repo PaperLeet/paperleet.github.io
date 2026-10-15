@@ -74,6 +74,7 @@ export type TestResult = {
   artifacts?: Record<string, unknown>;
 };
 export type Report = {
+  run_id?: string;
   source_sha256?: string;
   runtime?: string;
   error?: string;
