@@ -72,6 +72,8 @@ try {
   await act(async()=>find('.outside').dispatchEvent(new dom.window.MouseEvent('pointerdown',{bubbles:true})));
   assert(!find('.account-menu-panel'),'Clicking outside closes the panel');
   await click(find('.account-menu-trigger'));
+  // Test keyboard departure after the opening focus transition has completed.
+  await settle(()=>document.activeElement===find('.account-menu-panel'));
   await act(async()=>find('.outside').focus());
   assert(!find('.account-menu-panel'),'Keyboard focus can leave the non-modal panel');
   await click(find('.account-menu-trigger'));await click(button('Practice guide'));
