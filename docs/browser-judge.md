@@ -216,3 +216,17 @@ ColBERT adds cosine token MaxSim and finite paired softmax loss on supplied vect
 The full 120-step experiment optimizes four synthetic query vectors against eight fixed token-vector documents, compares actual scores to a scalar oracle, and reports the four supplied toy retrieval labels. The paired document bags deliberately share the same normalized mean direction. It is not BERT training, ANN indexing or a paper benchmark. Original query-augmentation `[MASK]` embeddings participate in ColBERT scoring; this exercise's Boolean masks exclude absent batching positions, rather than automatically discarding augmentation. Explicit empty-document and tie-gradient behavior are teaching conventions.
 
 BPR-MF selects per-user observed/unobserved comparisons and a regularized matrix-factorization ranking objective. Its independent scalar and central-difference checks cover both full factor tables, repeated indices, empty triples and global-prior gradients. The supplied three-user task learns all 24 contradictory preferences with 27 parameters and 120 actual updates; its item-only score-order bound is computed from opposing directions. The experiment uses full-batch Adam, not LearnBPR bootstrap SGD or a public recommendation benchmark. See [BPR validation](validation/bpr.md).
+
+
+### Cosine similarity APIs
+
+The CPU/WASM autodiff adapter supports `torch.cosine_similarity`,
+`torch.nn.functional.cosine_similarity` and `torch.nn.CosineSimilarity` for real
+float32/float64 tensors, including broadcasting, mixed floating precision,
+integral inputs paired with floating inputs, empty axes and scalar vectors.
+Both input gradients, JVP and reverse gradients through both JVP channels are
+checked independently against native PyTorch. The epsilon region follows native
+cosine behavior, which differs from differentiating two clamped `normalize`
+expressions; zero-norm reverse-over-forward NaNs are retained rather than hidden.
+Half precision and nested forward AD remain explicit server-fallback cases.
+See [verification and precise numerical scope](validation/cosine-similarity.md).

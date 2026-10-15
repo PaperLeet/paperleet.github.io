@@ -961,6 +961,7 @@ def forward_guard(function, name):
         'torch.nn.functional.softmax', 'torch.nn.functional.log_softmax',
         'torch.nn.functional.binary_cross_entropy_with_logits',
         'torch.nn.functional.kl_div',
+        'torch.cosine_similarity', 'torch.nn.functional.cosine_similarity',
     }
     def contains(value):
         if isinstance(value, ForwardTensor): return True
@@ -1416,6 +1417,13 @@ class SiLU(Module):
         super().__init__()
         if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
     def forward(self, input): return silu(input)
+
+
+class CosineSimilarity(Module):
+    def __init__(self, dim=1, eps=1e-8):
+        super().__init__()
+        self.dim,self.eps = dim,eps
+    def forward(self, x1, x2): return cosine_similarity(x1,x2,self.dim,self.eps)
 
 
 class ReLU(Module):
@@ -1897,6 +1905,54 @@ def cartesian_prod(*tensors):
     return concatenate([grid.reshape(-1) for grid in grids], dim=1, stack=True)
 
 
+def cosine_similarity(x1, x2, dim=1, eps=1e-8):
+    """Native cosine normalization, including its distinct reverse/forward epsilon rules."""
+    if not isinstance(x1, Tensor) or not isinstance(x2, Tensor):
+        raise TypeError('cosine_similarity expects two tensors')
+    if not isinstance(dim, (int, np.integer)) or isinstance(dim, (bool, np.bool_)):
+        raise TypeError('cosine_similarity dim must be an integer')
+    if not isinstance(eps, (int, float, np.integer, np.floating)):
+        raise TypeError('cosine_similarity eps must be a number')
+    if not eps >= 0: raise RuntimeError('cosine_similarity eps must be nonnegative')
+    if any(x.dtype.kind == 'c' for x in (x1,x2)):
+        raise RuntimeError('cosine_similarity requires a real floating result dtype')
+    if any(x.dtype.kind == 'f' and x.dtype not in (np.dtype('float32'),np.dtype('float64')) for x in (x1,x2)):
+        raise BrowserUnsupported('cosine_similarity supports real float32/float64')
+    floating = [x.dtype for x in (x1,x2) if x.dtype.kind == 'f']
+    if not floating: raise RuntimeError('cosine_similarity requires a floating result dtype')
+    dtype = np.result_type(*floating)
+    try: shape = np.broadcast_shapes(x1.shape,x2.shape)
+    except ValueError as error: raise RuntimeError('cosine_similarity inputs are not broadcastable') from error
+    reduction_axes(dim,len(shape))
+    axis = dim if shape else None
+    forward = isinstance(x1,ForwardTensor) or isinstance(x2,ForwardTensor)
+    def normalized(input):
+        primal,tangent = forward_parts(input) if forward else (input,None)
+        if primal.dtype.kind != 'f':
+            primal = primal.to(dtype=dtype)
+            if forward: tangent = tangent.to(dtype=dtype)
+        primal = primal.expand(shape)
+        length = primal.norm(2,dim,keepdim=True)
+        # Native clamps cloned norm values under no_grad: the reverse edge is
+        # still identity below eps, unlike F.normalize's differentiable clamp.
+        denominator = result(np.maximum(length._data,eps),(length,lambda g:g))
+        unit = primal / denominator
+        if not forward: return unit
+        tangent = tangent.expand(shape)
+        with np.errstate(divide='ignore',invalid='ignore'):
+            norm_tangent = where(length == 0,0.,(primal*tangent).sum(axis,True)/length)
+        # Forward AD through that same clamp is zero below eps and half at a
+        # tie. Its tangent value is also changed under no_grad, retaining the
+        # identity reverse edge for reverse-over-forward differentiation.
+        clipped = np.where(length._data<eps,0.,np.where(length._data>eps,norm_tangent._data,.5*norm_tangent._data))
+        denominator_tangent = result(clipped,(norm_tangent,lambda g:g))
+        return unit,(tangent-unit*denominator_tangent)/denominator
+    if forward:
+        a,da = normalized(x1);b,db = normalized(x2)
+        return ForwardTensor((a*b).sum(axis),(da*b+a*db).sum(axis))
+    return (normalized(x1)*normalized(x2)).sum(axis)
+
+
 def normalize(input, p=2., dim=1, eps=1e-12, out=None):
     if p != 2 or out is not None: raise BrowserUnsupported('Only Euclidean normalization without out is supported')
     return input / input.norm(2, dim, keepdim=True).clamp_min(eps)
@@ -2272,6 +2328,7 @@ def install():
         return a @ b
     torch.dot, torch.cov = dot, cov
     torch.pdist, torch.cdist = pdist, cdist
+    torch.cosine_similarity = cosine_similarity
     for name in ('sum', 'mean', 'all', 'any', 'softmax', 'exp', 'log', 'sqrt', 'abs', 'relu', 'transpose', 'reshape', 'flatten', 'repeat_interleave', 'max', 'min', 'argmax', 'argmin', 'clamp', 'clamp_min', 'clamp_max', 'sin', 'cos', 'acos', 'erfinv', 'tanh', 'rsqrt', 'sigmoid', 'log_softmax', 'var', 'std', 'cumsum', 'cumprod', 'norm', 'logsumexp', 'diag', 'flip', 'roll', 'triu', 'tril', 'amax', 'prod', 'round', 'chunk'):
         setattr(torch, name, lambda x, *args, _name=name, **kw: getattr(wrap(x), _name)(*args, **kw))
     for name in ('isfinite', 'isnan'):
@@ -2295,6 +2352,7 @@ def install():
     torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU, torch.nn.ReLU = Linear, Sequential, SiLU, ReLU
     torch.nn.BCEWithLogitsLoss = BCEWithLogitsLoss
     torch.nn.KLDivLoss = KLDivLoss
+    torch.nn.CosineSimilarity = CosineSimilarity
     torch.testing = modules['testing']
     torch.testing.assert_close = assert_close
     torch.random = modules['random']
@@ -2312,6 +2370,7 @@ def install():
     torch.nn.functional.smooth_l1_loss = smooth_l1_loss
     torch.nn.functional.mse_loss = mse_loss
     torch.nn.functional.softplus = softplus
+    torch.nn.functional.cosine_similarity = cosine_similarity
     torch.nn.functional.binary_cross_entropy_with_logits = binary_cross_entropy_with_logits
     torch.nn.functional.kl_div = kl_div
     torch.nn.functional.silu = silu
