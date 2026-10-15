@@ -583,7 +583,6 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
     <>
       <div className="social-page-heading">
         <div>
-          <span className="social-eyebrow">YOUR ACCOUNT</span>
           <h1>{t("个人资料与隐私", "Profile & privacy")}</h1>
         </div>
         <a className="button subtle" href={profileHref(user)}>
