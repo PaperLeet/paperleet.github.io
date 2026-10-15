@@ -28,6 +28,7 @@
 .interview-ranking-resume small { color:var(--muted); margin-top:2px; font-size:10px; }
 .interview-ranking-result-count { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0 10px; color:var(--muted); font-size:10px; }
 .interview-ranking-result-count button { font-size:10px; }
+.interview-ranking-batch-note { margin:0 0 14px; color:var(--muted); font-size:11px; line-height:1.8; }
 .interview-question-workbench .interview-progress-status { margin:12px 0; }
 .interview-question-workbench .interview-ranking-row { grid-template-columns:24px minmax(0,1fr) 140px; align-items:start; gap:14px; padding:20px 18px; }
 .interview-ranking-title { display:flex; align-items:center; flex-wrap:wrap; gap:7px 10px; }

@@ -155,7 +155,8 @@ try {
   const companyUser = { ...testUser, is_test_user: false, email_verified: true, email: "developer@company.example", login_username: undefined };
   const companySettings = renderToString(React.createElement(ProfileSettings, { user: companyUser }));
   assert(companySettings.includes("邮箱已验证"));
-  assert(companySettings.includes("学校或公司名称尚未审核"));
+  assert(companySettings.includes("此处的完整邮箱仅本人可见"));
+  assert(!companySettings.includes('class="institution-badge"'), "An account without affiliation metadata must not gain an organization badge");
   assert(!companySettings.includes("显示已验证机构"));
   assert(!renderToString(React.createElement(PersonLink, { user: companyUser })).includes(companyUser.email));
   console.log(

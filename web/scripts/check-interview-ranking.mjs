@@ -49,7 +49,7 @@ try{
  assert.deepEqual(stateLabels(),['Passed','In progress','In progress','Not started']);
  assert.equal(document.querySelector('progress').value,1);assert.equal(document.querySelector('progress').max,4);
  assert(document.querySelector('.interview-ranking-resume').href.includes('#/3?'),'Continue the latest unfinished draft, including deliberately empty code');
- assert.deepEqual(readInterviewRoute(libraryReturnHref(document.querySelector('.interview-ranking-resume').getAttribute('href'))),filters,'Practice preserves the source view and account return context');
+ assert.deepEqual(readInterviewRoute(libraryReturnHref(document.querySelector('.interview-ranking-resume').getAttribute('href'))),{...filters,queue:'1,2,3,4'},'Practice preserves the source view and account return context');
  const source=document.querySelector('.interview-ranking-evidence a');
  assert.deepEqual(readInterviewRoute(source.getAttribute('href')),{...filters,view:'reports',concept:problems[0].id,saved:false,page:1,q:''});
  const companySource=document.querySelector('.interview-company-tags a');

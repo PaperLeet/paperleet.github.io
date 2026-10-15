@@ -53,7 +53,7 @@ try {
  assert(document.body.textContent.includes('Start with the first shared experience'));assert(document.querySelector('a[href*="account/continue/"]'));
  assert.equal(document.querySelectorAll('.interview-resource-panel a').length,3);assert.equal(document.querySelectorAll('.interview-path-grid article').length,3);
  await hub('interviews?company=amazon&view=questions');await reply(take('summary'),summary);
- assert.equal(document.querySelectorAll('.interview-ranking-row').length,1);const practice=document.querySelector('.interview-ranking-row .button');assert.equal(libraryReturnHref(practice.getAttribute('href')),'#/interviews?company=amazon&view=questions');
+ assert.equal(document.querySelectorAll('.interview-ranking-row').length,1);const practice=document.querySelector('.interview-ranking-row .button');assert.equal(libraryReturnHref(practice.getAttribute('href')),'#/interviews?company=amazon&view=questions&queue=1');
  await hub('interviews?company=amazon&view=questions&q=missing');assert(document.body.textContent.includes('No matching concepts'));assert(button('Clear search'));
  await hub('interviews?view=companies');await fail(take('summary'),'Statistics temporarily unavailable');assert(document.querySelector('[role="alert"]').textContent.includes('Statistics temporarily unavailable'));await click(button('Retry loading'));await reply(take('summary'),empty);
  assert.equal(document.querySelectorAll('.interview-company-card').length,18);assert(!document.querySelector('.interview-company-grid').textContent.includes('reports'),'No fabricated company counts');
