@@ -73,6 +73,7 @@ import PostEditor from './PostEditor';
 import ReplyEditor from './ReplyEditor';
 import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
+import CommunityCardActions from './CommunityCardActions';
 import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
@@ -226,7 +227,7 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
   );
 }
 function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean }) {
-  const { locale,t } = useI18n();
+  const { locale } = useI18n();
   return (
     <article className="community-post-card" data-reading-post={post.id} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
@@ -250,21 +251,7 @@ function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: P
           {post.interview && <InterviewMeta details={post.interview} compact/>}
           <PostPreview body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
-          <div className="post-card-counts">
-            <span>
-              <MessageCircle size={13} />
-              {post.counts.replies}
-            </span>
-            <span>
-              <Heart size={13} />
-              {post.counts.likes}
-            </span>
-            <span>
-              <Repeat2 size={13} />
-              {post.counts.reposts}
-            </span>
-            {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
-          </div>
+          <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}/>
         </div>
       </div>
     </article>
