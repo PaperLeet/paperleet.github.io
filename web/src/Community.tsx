@@ -8,6 +8,7 @@ import { PublishingRules } from './PublishingRules';
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
+import DiscussionReading from './DiscussionReading';
 import MarkdownEditor from "./MarkdownEditor";
 import {
   ArrowLeft,
@@ -921,7 +922,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
               </div>
             </div>
             {post.interview && <InterviewMeta details={post.interview} returnTo={returnTo}/>}
-            <CommunityMarkdown body={post.body} />
+            <DiscussionReading body={post.body} postId={post.id} />
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
               <button

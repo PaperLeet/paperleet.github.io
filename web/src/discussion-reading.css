@@ -1,0 +1,21 @@
+.discussion-reading { min-width:0; }
+.discussion-reading-body { min-width:0; }
+.discussion-outline { margin:0 0 24px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--text-secondary); }
+.discussion-outline > summary { display:flex; align-items:center; gap:8px; min-height:44px; padding:10px 12px; cursor:pointer; list-style:none; font-size:12px; }
+.discussion-outline > summary::-webkit-details-marker { display:none; }
+.discussion-outline > summary strong { color:var(--text); font-weight:600; }
+.discussion-outline > summary small { font-variant-numeric:tabular-nums; }
+.discussion-outline > summary > svg:last-child { margin-left:auto; transition:transform .15s ease; }
+.discussion-outline[open] > summary > svg:last-child { transform:rotate(180deg); }
+.discussion-outline nav { max-height:260px; overflow:auto; overscroll-behavior:contain; padding:0 6px 7px; border-top:1px solid var(--line); }
+.discussion-outline ol { list-style:none; margin:0; padding:5px 0 0; }
+.discussion-outline li { margin:0; }
+.discussion-outline li button { display:block; width:100%; min-height:36px; padding:8px; border-radius:5px; text-align:left; overflow-wrap:anywhere; font-size:12px; line-height:1.5; color:var(--text-secondary); }
+.discussion-outline li button:hover,.discussion-outline li button[aria-current] { background:var(--surface); color:var(--accent); }
+.discussion-outline li button[aria-current] { box-shadow:inset 2px 0 var(--accent); }
+.discussion-outline button:focus-visible,.discussion-outline summary:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+.discussion-section-heading { scroll-margin-top:100px; }
+.discussion-section-heading:focus-visible { outline:2px solid var(--accent); outline-offset:5px; border-radius:3px; }
+@media (min-width:1200px) { .discussion-reading.has-outline { display:grid; grid-template-columns:minmax(0,1fr) 170px; gap:24px; align-items:start; } .discussion-reading.has-outline > .discussion-outline { grid-column:2; grid-row:1; position:sticky; top:88px; } .discussion-reading.has-outline > .discussion-reading-body { grid-column:1; grid-row:1; } .discussion-outline nav { max-height:min(420px,calc(100vh - 190px)); } }
+@media (pointer:coarse) { .discussion-outline li button { min-height:44px; } }
+@media (prefers-reduced-motion:reduce) { .discussion-outline > summary > svg:last-child { transition:none; } }

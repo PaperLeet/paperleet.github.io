@@ -3,9 +3,11 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
-type PreviewNode={type:string;value?:string;children?:PreviewNode[]};
+export type PostMarkdownNode={type:string;value?:string;alt?:string|null;depth?:number;position?:{start:{offset?:number}};children?:PostMarkdownNode[]};
+type PreviewNode=PostMarkdownNode;
 export type PostContentKind='code'|'math'|'table';
 const parser=unified().use(remarkParse).use(remarkGfm).use(remarkMath).freeze();
+export function parsePostMarkdown(body:string):PostMarkdownNode{return parser.parse(body);}
 const segmenter=typeof Intl.Segmenter==='function'?new Intl.Segmenter(undefined,{granularity:'grapheme'}):undefined;
 const whitespace=(text:string)=>text.replace(/\s+/gu,' ').trim();
 
@@ -29,7 +31,7 @@ function inlineText(root:PreviewNode,formula:string){
 export function postPreview(body:string,limit=210,formula='[formula]'):{text:string;truncated:boolean;kinds:PostContentKind[];unavailable?:boolean}{
  const bounded=body.slice(0,20000).replace(/[\uD800-\uDBFF]$/u,'');
  let tree:PreviewNode;
- try{tree=parser.parse(bounded);}catch{return {text:'',truncated:false,kinds:[],unavailable:true};}
+ try{tree=parsePostMarkdown(bounded);}catch{return {text:'',truncated:false,kinds:[],unavailable:true};}
  const stack=[tree],paragraphs:string[]=[],kinds=new Set<PostContentKind>();
  while(stack.length){
   const node=stack.pop()!;

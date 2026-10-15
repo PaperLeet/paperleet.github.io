@@ -1,12 +1,14 @@
-import { Children, isValidElement, memo, useState } from 'react';
+import { Children, createElement, isValidElement, memo, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import Markdown from 'react-markdown';
+import type {Components} from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Check, Copy } from 'lucide-react';
 import { Highlight } from './SyntaxHighlight';
 import { useI18n } from './i18n';
+import {headingAnchor} from './markdownOutline';
 import 'katex/dist/katex.min.css';
 
 export function CommunityCodeBlock({ code, language = 'text' }: { code: string; language?: string }) {
@@ -58,9 +60,15 @@ const remarkPlugins = [remarkGfm, remarkMath];
 // Keep macros local to each render; public math cannot inject HTML or fetch images.
 const katexOptions = { trust: false, strict: 'ignore' as const, maxExpand: 100, maxSize: 20 };
 
-const CommunityMarkdown = memo(function CommunityMarkdown({ body }: { body: string }) {
+const CommunityMarkdown = memo(function CommunityMarkdown({ body,headingScope }: { body: string;headingScope?:string }) {
+  const readingComponents=useMemo<Components>(()=>{
+    if(!headingScope)return components;
+    const result:Components={...components};
+    for(const tag of ['h1','h2','h3','h4','h5','h6'] as const)result[tag]=({children,node,...props})=>createElement(tag,{...props,id:headingAnchor(headingScope,node?.position?.start.offset),tabIndex:-1,className:'discussion-section-heading'},children);
+    return result;
+  },[headingScope]);
   return <div className="prose community-prose">
-    <Markdown remarkPlugins={remarkPlugins} rehypePlugins={[[rehypeKatex, katexOptions]]} components={components}>{body}</Markdown>
+    <Markdown remarkPlugins={remarkPlugins} rehypePlugins={[[rehypeKatex, katexOptions]]} components={readingComponents}>{body}</Markdown>
   </div>;
 });
 export default CommunityMarkdown;
