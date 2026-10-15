@@ -118,8 +118,7 @@ def test_no_grad_copy_shares_views_and_guards_saved_state(dtype):
     boolean = torch.zeros(2, dtype=torch.bool)
     boolean.copy_(torch.tensor([0+2j, 0j], dtype=torch.complex64)); assert boolean.tolist() == [True, False]
     target = torch.tensor([5., 6.]); version = target._version
-    source = torch.tensor(np.array([1, object()], dtype=object))
-    with pytest.raises(UnsupportedOperation, match='numeric'): target.copy_(source)
+    with pytest.raises(TypeError): torch.tensor(np.array([1, object()], dtype=object))
     assert target.tolist() == [5., 6.] and target._version == version
     cast = torch.zeros(4, dtype=torch.float32)
     wide = torch.tensor([1e300, 1e-300, float('nan'), float('inf')], dtype=torch.float64)

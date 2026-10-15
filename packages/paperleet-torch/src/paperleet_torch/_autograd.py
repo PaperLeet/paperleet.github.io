@@ -10,7 +10,7 @@ from . import _graph, _tensor
 def result(data, *edges, saved=(), saves_tensors=True):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
         raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
-    value = _tensor.Tensor(data)
+    value = _tensor.Tensor(data, _metadata_owned=True)
     if value.dtype.kind == 'c' and _state._grad_enabled and any(node.requires_grad for node, _ in edges):
         raise _errors.BrowserUnsupported('Complex autograd requires the server')
     parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)

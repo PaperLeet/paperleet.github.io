@@ -56,9 +56,15 @@ class Tensor:
     _backward_hooks = None
     _post_accumulate_grad_hooks = None
 
-    def __init__(self, data, dtype=None, requires_grad=False):
+    def __init__(self, data, dtype=None, requires_grad=False, *, _metadata_owned=False):
         self._data = np.asarray(data, dtype=dtype)
+        if self._data.dtype.char not in '?bBhHiIlLqQefdFD':
+            raise TypeError(f'Unsupported Tensor dtype: {self._data.dtype} ({self._data.dtype.type.__name__})')
         self._storage = storage_version(self._data)
+        # Sharing bytes must not share a mutable ndarray descriptor. Internal
+        # results/copies already own their descriptors; they still validate dtype.
+        if not _metadata_owned:
+            self._data = self._data.view()
         self._grad_node = None
         self.requires_grad = bool(requires_grad)
         if requires_grad and self.dtype.kind == 'c': raise _errors.BrowserUnsupported('Complex autograd requires the server')
@@ -105,7 +111,9 @@ class Tensor:
         return _errors.unsupported(f'Tensor.{name}')
     def _real_only(self):
         if self.dtype.kind == 'c': raise _errors.BrowserUnsupported('This complex operation requires the server')
-    def __array__(self, dtype=None, copy=None): return np.array(self._data, dtype=dtype, copy=copy) if copy is not None else np.asarray(self._data, dtype=dtype)
+    def __array__(self, dtype=None, copy=None):
+        exported = self._data.view()
+        return np.array(exported, dtype=dtype, copy=copy) if copy is not None else np.asarray(exported, dtype=dtype)
     def __len__(self): return len(self._data)
     def __float__(self): return float(self._data)
     def __int__(self): return int(self._data)
@@ -117,7 +125,7 @@ class Tensor:
     def __repr__(self): return f'Tensor({self._data!r}, requires_grad={self.requires_grad})'
     def item(self): return self._data.item()
     def tolist(self): return self._data.tolist()
-    def numpy(self): return self._data
+    def numpy(self): return self._data.view()
     def numel(self): return self._data.size
     def data_ptr(self): return int(self._data.__array_interface__['data'][0]) if self.numel() else 0
     def dim(self): return self.ndim
@@ -151,8 +159,8 @@ class Tensor:
     def new_empty(self, *shape, **kw): return _random.create('empty', *shape, **_ops.inherited_options(self.dtype,kw))
     def new_full(self, size, fill_value, **kw): return _ops.full(size, fill_value, **_ops.inherited_options(self.dtype,kw))
     def new_tensor(self, data, *, dtype=None, device=None, requires_grad=False):
-        _device.check_device(device)
-        return Tensor(np.array(data._data if isinstance(data, Tensor) else data, dtype=dtype or self.dtype, copy=True), requires_grad=requires_grad)
+        return _ops.tensor(data, dtype=self.dtype if dtype is None else dtype,
+                           device=device, requires_grad=requires_grad)
     def zero_(self): self[...] = 0; return self
     def type_as(self, other): return self.to(other)
 
@@ -225,7 +233,7 @@ class Tensor:
 
     def _accumulate_gradient(self, grad):
         if self.grad is None:
-            self.grad = Tensor(grad.copy())
+            self.grad = Tensor(grad.copy(), _metadata_owned=True)
         else:
             if not isinstance(self.grad, Tensor) or self.grad.shape != grad.shape or self.grad.dtype.kind != 'f':
                 raise RuntimeError('Existing gradient must be a floating Tensor of the correct shape')
@@ -348,9 +356,10 @@ class Tensor:
 
     def _binary(self, other, op, left, right, *, saves_tensors=True):
         if not isinstance(other, (Tensor, np.ndarray)):
+            metadata_owned = type(other) in (int, float, bool, complex) or (isinstance(other, np.generic) and type(other) is other.dtype.type)
             if isinstance(other, (complex, np.complexfloating)):
-                other = Tensor(other, dtype=np.complex128 if self.dtype in (np.dtype('float64'),np.dtype('complex128')) else np.complex64)
-            elif self.dtype.kind in 'fc': other = Tensor(other, dtype=self.dtype)
+                other = Tensor(other, dtype=np.complex128 if self.dtype in (np.dtype('float64'),np.dtype('complex128')) else np.complex64, _metadata_owned=metadata_owned)
+            elif self.dtype.kind in 'fc': other = Tensor(other, dtype=self.dtype, _metadata_owned=metadata_owned)
         other = _ops.wrap(other)
         a, b = self._data, other._data
         floating = [value.dtype for value in (a,b) if value.dtype.kind in 'fc']

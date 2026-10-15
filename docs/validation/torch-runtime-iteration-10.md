@@ -228,3 +228,23 @@ A final concurrent UI update through `012dbc98b6120233de4fafa70d26aa8142f8101d` 
 frontend files. Library, Python/test, lesson, catalog and runtime trees remain
 unchanged. The newly affected full frontend check and production build pass
 again; numerical and curriculum gates above remain applicable.
+
+## Released verification
+
+Commit `ac716bac9bfcd50e0d3ab530dc72deb264f50b2d` is on main. Its exact-commit
+[quality gate](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38779719998)
+and [Pages build/deploy](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38779720016)
+both complete successfully. The remote quality log records 2,378 passed, one
+optional skip and six warnings (423.41 seconds), then a fresh 70-module native
+gate with 9,129 executions across three repeats (382.08 seconds). All 304 mutants
+are caught. Its six maintained pinned WASM suites also pass. The full Python gate
+includes every exported module's complete NumPy-adapter reference/learner suite
+and all mutants, independently of the native gate.
+
+The live compact index on paperleet.com matches all 70 source starters and every
+content-addressed module manifest. Both live runtime payloads match local bytes:
+autograd `f1e24e96d9e09f33cdfc24f95daca402a87ef79030c2a1fe78dc4126e6ccdf4d`
+(323,619 bytes) and schedules
+`7f71fa4d2765e4197434c4547ccdf4e16e56e8bb24b47406e9e1bbd81011edb4`
+(35,895 bytes). Canonical LICENSE/NOTICE are present in both profiles. The wider
+independent-library goal continues in subsequent milestones.

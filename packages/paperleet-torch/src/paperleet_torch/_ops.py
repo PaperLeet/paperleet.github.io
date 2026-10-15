@@ -1,5 +1,8 @@
 """NumPy-backed ops implementation; extracted from PaperLeet."""
 import numpy as np
+import warnings
+from functools import reduce
+from operator import or_
 
 
 def unbroadcast(value, shape):
@@ -12,7 +15,12 @@ def unbroadcast(value, shape):
 
 
 def wrap(value):
-    return value if isinstance(value, _tensor.Tensor) else tensor(value)
+    if isinstance(value, _tensor.Tensor): return value
+    # Operator scalars can carry uint64 values before narrowing to the receiving
+    # Tensor dtype. Public tensor() construction instead defaults to signed int64.
+    if type(value) is int and 2**63 <= value < 2**64:
+        return _tensor.Tensor(value, dtype=np.uint64, _metadata_owned=True)
+    return tensor(value)
 
 
 def inherited_options(dtype, options):
@@ -55,26 +63,89 @@ def where(condition, x, y):
                   (b, lambda g: unbroadcast(np.where(mask, 0, g), b.shape)), saved=(condition,))
 
 
+def _numpy_input(data, *, warn_readonly=False):
+    """Validate imported arrays before a copy or cast can hide their layout/type."""
+    dtype = data.dtype
+    if dtype.char not in '?bBhHiIlLqQefdFD':
+        raise TypeError(f'Unsupported NumPy dtype: {dtype} ({dtype.type.__name__})')
+    if not dtype.isnative:
+        raise ValueError('NumPy byte order must match the native byte order')
+    # Supported element sizes are powers of two. OR preserves a negative sign
+    # and collects every misaligned low bit, including singleton/empty layouts.
+    strides = reduce(or_, data.strides, 0)
+    if strides < 0 or strides & (dtype.itemsize - 1):
+        raise ValueError('NumPy strides must be non-negative multiples of the element size')
+    if warn_readonly and not data.flags.writeable and not _state._numpy_readonly_warning_emitted:
+        _state._numpy_readonly_warning_emitted = True
+        warnings.warn('The given NumPy array is not writable; copy it before writing through a Tensor. '
+                      'This warning is suppressed for the rest of this runtime.', UserWarning, stacklevel=3)
+
+
 def tensor(data, dtype=None, *, device=None, requires_grad=False):
     _device.check_device(device)
-    if isinstance(data, _tensor.Tensor): data = data._data
-    array = np.asarray(data)
-    if dtype is None and not isinstance(data, (np.ndarray, np.generic)):
+    if dtype is not None: dtype = _conversion.dtype(dtype)
+    if dtype is None:
+        kind = type(data)
+        # Builtin scalar construction already owns a fresh allocation. Avoid
+        # an intermediate array and a second copy on common arithmetic paths.
+        if kind is float:
+            if -3.4028234663852886e38 <= data <= 3.4028234663852886e38 or not np.isfinite(data):
+                return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+            with np.errstate(all='ignore'):
+                return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+        if kind is int:
+            if not -(2**63) <= data < 2**63: raise ValueError('Overflow when unpacking long long')
+            return _tensor.Tensor(data, dtype=np.int64, requires_grad=requires_grad, _metadata_owned=True)
+        if kind is bool:
+            return _tensor.Tensor(data, dtype=np.bool_, requires_grad=requires_grad, _metadata_owned=True)
+        if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) is float:
+            floats, guard = True, False
+            for value in data:
+                if type(value) is not float:
+                    floats = False
+                    break
+                if not -3.4028234663852886e38 <= value <= 3.4028234663852886e38:
+                    guard = True
+            if floats:
+                if guard:
+                    with np.errstate(all='ignore'):
+                        return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+                return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+    if isinstance(data, _tensor.Tensor):
+        array = data._data
+    elif isinstance(data, np.ndarray):
+        _numpy_input(data)
+        array = data
+    else:
+        array = np.asarray(data)
+        if array.dtype.char not in '?bBhHiIlLqQefdFD':
+            raise TypeError('Unsupported Tensor input dtype: ' + str(array.dtype))
+    if dtype is None and not isinstance(data, (_tensor.Tensor, np.ndarray, np.generic)):
         dtype = np.float32 if array.dtype.kind == 'f' else np.complex64 if array.dtype.kind == 'c' else np.int64 if array.dtype.kind in 'iu' else None
     # torch.tensor always owns a copy, including NumPy inputs and strided views.
-    return _tensor.Tensor(np.array(array, dtype=dtype, copy=True), requires_grad=requires_grad)
+    if dtype is not None and np.dtype(dtype) != array.dtype:
+        with np.errstate(all='ignore'): owned = np.array(array, dtype=dtype, copy=True)
+    else:
+        owned = np.array(array, dtype=dtype, copy=True)
+    return _tensor.Tensor(owned, requires_grad=requires_grad, _metadata_owned=True)
 
 
 def as_tensor(data, dtype=None, *, device=None):
     _device.check_device(device)
+    if dtype is not None: dtype = _conversion.dtype(dtype)
     if isinstance(data, _tensor.Tensor):
         return data if dtype is None or np.dtype(dtype) == data.dtype else data.to(dtype=dtype)
-    if isinstance(data, np.ndarray): return _tensor.Tensor(data, dtype=dtype)
+    if isinstance(data, np.ndarray):
+        _numpy_input(data, warn_readonly=True)
+        if dtype is not None and dtype != data.dtype:
+            with np.errstate(all='ignore'): return _tensor.Tensor(data, dtype=dtype)
+        return _tensor.Tensor(data)
     return tensor(data, dtype=dtype)
 
 
 def from_numpy(data):
     if not isinstance(data, np.ndarray): raise TypeError('from_numpy expects a NumPy ndarray')
+    _numpy_input(data, warn_readonly=True)
     return _tensor.Tensor(data)
 
 
@@ -302,4 +373,4 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _device, _errors, _state, _tensor
+from . import _autograd, _conversion, _device, _errors, _state, _tensor

@@ -126,6 +126,17 @@ behavior. Passing its current exercises alone does not establish library readine
 - Native and independent NumPy/WASM training workflows validate transformed
   gradients, inline SGD, reverse-over-forward and retained callback lifetimes.
 
+## Version 0.11 milestone
+
+The 0.11 milestone validates external NumPy inputs before copying/casting,
+protects the numerical storage invariant, handles read-only warnings and reduces
+redundant builtin scalar construction. Native checks distinguish default int64
+construction from weak scalar operands; independent CPU/WASM workflows cover
+ownership, independently mutable NumPy metadata, gradients and error-mode
+restoration. Balanced CPU/WASM/Chrome measurements preserve both improvements
+and import/checking costs; 71-module integration, standalone wheel and browser
+contracts pass. Apache-2.0 resources remain part of every distribution profile.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

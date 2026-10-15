@@ -33,8 +33,8 @@ def dtype(value):
     if type(value) is bool:
         return np.dtype('bool')
     result = np.dtype(value)
-    if result.kind not in 'biufc':
-        raise TypeError('A numerical dtype is required')
+    if result.char not in '?bBhHiIlLqQefdFD':
+        raise TypeError('A supported boolean or numerical dtype is required')
     return result
 
 

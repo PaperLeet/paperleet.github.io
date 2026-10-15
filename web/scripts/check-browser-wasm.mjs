@@ -9,7 +9,7 @@ import {loadJudgePackages} from '../public/browser-judge/packages.mjs';
 import {unsupportedReport} from '../public/browser-judge/diagnostics.mjs';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const cases = ['diffusion/schedules', 'architecture/attention', 'finetuning/lora', 'optimization/adamw', 'optimization/muon_split', 'representation/moco'];
+const cases = ['diffusion/schedules', 'architecture/attention', 'finetuning/lora', 'optimization/adamw', 'optimization/muon_split', 'representation/moco', 'representation/simclr'];
 try {
   if (!process.argv[2]) {
     for (const id of cases) {
@@ -63,7 +63,7 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
       if (id === 'architecture/attention') {
         // Run the independent NumPy-only model/checkpoint suite against the
         // exported library, including ordinary torch aliases in a real VM.
-        for (const suite of ['module_lifecycle', 'optimizer_lifecycle', 'conversion_modes', 'scheduler_lifecycle', 'nn_workflows', 'module_hooks', 'graph_lifecycle', 'tensor_hooks']) {
+        for (const suite of ['module_lifecycle', 'optimizer_lifecycle', 'conversion_modes', 'scheduler_lifecycle', 'nn_workflows', 'module_hooks', 'graph_lifecycle', 'tensor_hooks', 'numpy_inputs']) {
           const testPath = `/judge/test_lightweight_${suite}.py`;
           py.FS.writeFile(testPath, fs.readFileSync(path.join(web,
             `../packages/paperleet-torch/tests/test_${suite}.py`), 'utf8'));

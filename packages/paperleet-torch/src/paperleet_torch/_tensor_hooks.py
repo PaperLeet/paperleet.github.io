@@ -56,7 +56,7 @@ def apply(gradient, hooks, owner=None):
     try:
         value = None
         if hooks:
-            value = Tensor(gradient)
+            value = Tensor(gradient, _metadata_owned=True)
             # Each phase snapshots registrations. Changes affect its next run.
             for hook in tuple(hooks.values()):
                 replacement = hook(value)

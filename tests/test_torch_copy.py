@@ -93,7 +93,11 @@ def test_copy_validation_and_differentiable_boundary_are_explicit():
 def test_unsupported_numpy_storage_cannot_partially_mutate_copy(values, invalid_source):
     # Native Torch rejects these NumPy storages before they can enter a copy.
     with pytest.raises(TypeError): native.tensor(values)
-    invalid = torch.tensor(values); valid = torch.tensor([5., 6.])
+    with pytest.raises(TypeError): torch.tensor(values)
+    # Keep the old partial-write regression as defense against corrupted private
+    # storage, even though public construction now rejects it at the boundary.
+    invalid = torch.tensor([0., 0.]); invalid._data = values
+    valid = torch.tensor([5., 6.])
     target, source = (valid, invalid) if invalid_source else (invalid, valid)
     snapshot = target.numpy().copy(); version = target._version
     with pytest.raises(UnsupportedOperation, match='numeric'): target.copy_(source)

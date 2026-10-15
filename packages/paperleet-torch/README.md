@@ -63,6 +63,36 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## NumPy imports and Tensor construction
+
+`torch.tensor(array)` copies storage. `torch.from_numpy(array)` and same-dtype
+`torch.as_tensor(array)` share it, including positive-stride non-contiguous,
+Fortran, broadcast and unaligned views. A dtype-changing `as_tensor` copies.
+`owner.new_tensor(data)` copies into an independent leaf using the owner's dtype
+unless explicitly overridden. Tensor inputs are detached when copied.
+
+These four factory entry points reject external NumPy string/object/date/record
+and extended-precision dtypes, foreign byte order, negative strides and strides
+that are not whole multiples of the element size, before a cast/copy can hide
+the invalid input. Read-only imports warn once; copying `tensor`/`new_tensor`
+does not warn. Imported and exported arrays share data while keeping independent
+shape/dtype/stride/writeability descriptors. Writes through read-only backing storage remain outside the
+supported mutation contract. The NumPy-oriented `Tensor` class constructor and
+internal views retain their existing layout conveniences; it is not the legacy
+PyTorch positional shape allocator. Storage itself must have a supported numeric
+or boolean dtype. Numeric storage acceptance does not promise every kernel or
+autograd rule for every dtype; the computational bounds below still apply.
+
+Builtin scalar defaults remain float32/int64/bool. Out-of-range Python integers
+fail when constructing default int64 tensors; weak integer operands of existing
+integer tensors follow the receiving dtype's arithmetic instead. Factory casts
+isolate NumPy floating-point error settings and restore the caller's settings.
+As in native Torch, out-of-range floating-to-integer result values are platform
+dependent. Python sequence promotion, general array-protocol objects and the
+full legacy Tensor constructor remain separate compatibility work.
+Small homogeneous builtin-float lists/tuples also avoid an intermediate array;
+larger, nested and mixed sequences retain the generic conversion path.
+
 ## Models and in-memory checkpoints
 
 `nn.Module` registers parameters, child modules and buffers, with deduplicated
@@ -449,6 +479,8 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
+The [0.11 candidate record](../../docs/validation/torch-runtime-iteration-11.md)
+tracks NumPy import validation, scalar construction and pending performance gates.
 See the [0.10 validation record](../../docs/validation/torch-runtime-iteration-10.md)
 for Tensor gradient callbacks, CPU copies, complete training and runtime costs.
 The [0.9 validation record](../../docs/validation/torch-runtime-iteration-9.md)

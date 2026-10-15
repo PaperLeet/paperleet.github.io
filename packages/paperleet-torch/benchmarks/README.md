@@ -26,6 +26,19 @@ environment configuration without claiming a verified thread count. Other
 arguments pass through to the selected runner. The direct bench_*.py scripts
 leave thread setup to their caller. CPU and WASM results record source hashes.
 
+`bench_tensor_factories.py` separates builtin float/int/bool construction, a small
+Python list, a NumPy scalar, 64×128 array copies/imports/casts, transposed sharing,
+existing-Tensor copies and identity-preserving `as_tensor`. Each timing includes
+the complete allocation/import and temporary Tensor cleanup; fixture construction
+is outside timing. `--dtype` controls array fixtures, while builtin scalar defaults
+remain float32/int64/bool. CPU/WASM runners accept `--benchmark tensor_factories`;
+use 1,200 calls per batch. WASM also copies and hashes available LICENSE/NOTICE
+resources separately from Python source hashes.
+Small scalar/list/identity cases use ten times that inner count to reduce browser
+clock quantization; every result records its actual iteration count.
+`numpy_export` and `numpy_array_protocol` separately measure shared-data exports
+and use 100 times the inner count for their sub-microsecond metadata operations.
+
 `bench_tensor_hooks.py` measures plain leaf/graph backward, retained non-leaf
 backward, leaf observers/transforms/post-accumulation callbacks, intermediate
 registration/dispatch and explicit registration/removal. Each case uses a
