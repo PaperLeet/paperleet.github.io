@@ -1,5 +1,5 @@
 {
-  "status": "Combined0.14 all local full/native/minimum/pinned WASM187/catalog77/Chrome187/installed wheel207/web-build gates passed; primary and float64 Chrome followup timings observed terminal success. Main adoption not yet claimed.",
+  "status": "All local combined-source and latest metadata integration checks pass; source35 and all77 judge inputs unchanged. Exact main CI and deployed promotion pending.",
   "base_main": "16386436c08cf8201947950e77698f4d8e77c126",
   "source_commit": "5dca1ce",
   "source_hashes": {
@@ -11972,5 +11972,51 @@
     "observed_exit_code": 0,
     "harness_hashes_verified": true,
     "original_samples_kept": true
-  }
+  },
+  "latest_metadata_invariance": {
+    "all77_judge_manifest_and_runtime_paths_and_bytes_unchanged": true,
+    "all35_python_source_hashes_unchanged": true,
+    "published_assets_verified": 5020,
+    "upstream": "09fac92fd270b9028643f609a5965067e1a2a411",
+    "only_changes": "six English goal metadata strings, documentation and CI main-branch push filter",
+    "reuse": "Exact executable inputs identical to full17066/native77/WASM187/catalog77/Chrome187/wheel207/frozen benchmark gates; final export/UI checks still pending."
+  },
+  "latest_integration_receipts": {
+    "latest-catalog-tests.log": {
+      "exit_code": 0,
+      "elapsed_s": 2.6042648340007872,
+      "command": [
+        "/Users/david/Developer/PaperLeet-torch-release/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_catalog.py",
+        "tests/test_interview_catalog.py",
+        "-q"
+      ]
+    },
+    "latest-web-check.log": {
+      "exit_code": 0,
+      "elapsed_s": 51.70195470800172,
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ]
+    },
+    "latest-web-build.log": {
+      "exit_code": 0,
+      "elapsed_s": 8.562039084001299,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ]
+    }
+  },
+  "latest_integration_terminal": {
+    "status": "success",
+    "all_children_terminal": true,
+    "backend_and_all77_judge_inputs_unchanged": true
+  },
+  "source_commit_note": "Captured at initial combined validation before metadata-only Git rebases; source hashes are authoritative and remain unchanged."
 }

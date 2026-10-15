@@ -1,5 +1,5 @@
 {
-  "status": "Validated local combined0.14 candidate; latest main metadata/CI synchronization and exact remote CI/deployment still pending",
+  "status": "Ready for non-force main promotion after all local checks; exact remote CI/deployment pending",
   "baseline": "16386436c08cf8201947950e77698f4d8e77c126",
   "baseline_version": "0.13.1",
   "source_hashes": {
@@ -46732,7 +46732,7 @@
   },
   "validation_record": {
     "file": "iteration-14-combined-validation.json",
-    "sha256": "0dce1ffed2167154b8e48f04579f8408a20215573e913ea4f6a30bba40f1e83a"
+    "sha256": "3e6fd735f05fa4ebee0887f241a3055451b00e1d544f64cc67d7010073037905"
   },
   "reconstruction_to_preintegration": {
     "patch": "iteration-14-merged-to-preintegration.patch",
@@ -46781,6 +46781,54 @@
     "All actual browser processes155.0.8059.82, Pyodide0.29.4/NumPy2.2.5. CPU3.12.11/NumPy2.5.4 with actualAccelerate policy1 before/after. Chrome same_dtype_to raw zeros hit timer floor and have no ratio.",
     "Main0.13.1 WASM linear implementation is retained byte-identically. Older0.13 comparison phases are historical; their full data/reconstruction remain in separate linked records.",
     "Full catalog77 real WASM passes406.582seconds, no browser budget observations on this runner. Correctness/deadline observation gate may overlap independent Chrome/wheel/UI correctness builds; real timings only start after both exact producers terminate successfully.",
-    "No GPU backend or PyPI publication. Current records precede latest main goal_en/documentation/CI synchronization."
-  ]
+    "No GPU backend or PyPI publication. Latest main documentation/goal metadata/CI integration is complete; all35 library files and77 judge inputs remain byte-identical to validated snapshots, and25 catalog tests plus current web checks/build pass. Remote CI/deployment still pending."
+  ],
+  "latest_main_integration": {
+    "upstream": "09fac92fd270b9028643f609a5965067e1a2a411",
+    "invariance": {
+      "all77_judge_manifest_and_runtime_paths_and_bytes_unchanged": true,
+      "all35_python_source_hashes_unchanged": true,
+      "published_assets_verified": 5020,
+      "upstream": "09fac92fd270b9028643f609a5965067e1a2a411",
+      "only_changes": "six English goal metadata strings, documentation and CI main-branch push filter",
+      "reuse": "Exact executable inputs identical to full17066/native77/WASM187/catalog77/Chrome187/wheel207/frozen benchmark gates; final export/UI checks still pending."
+    },
+    "receipts": {
+      "latest-catalog-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 2.6042648340007872,
+        "command": [
+          "/Users/david/Developer/PaperLeet-torch-release/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/test_catalog.py",
+          "tests/test_interview_catalog.py",
+          "-q"
+        ]
+      },
+      "latest-web-check.log": {
+        "exit_code": 0,
+        "elapsed_s": 51.70195470800172,
+        "command": [
+          "npm",
+          "run",
+          "check"
+        ]
+      },
+      "latest-web-build.log": {
+        "exit_code": 0,
+        "elapsed_s": 8.562039084001299,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ]
+      }
+    },
+    "terminal": {
+      "status": "success",
+      "all_children_terminal": true,
+      "backend_and_all77_judge_inputs_unchanged": true
+    }
+  }
 }

@@ -327,3 +327,10 @@ Python tests and browser runner source are unchanged. Preserve those updates,
 regenerate the final catalog, compare all77 judge/runtime hashes against the
 validated snapshot, and run affected integration checks before non-force main
 promotion. Exact remote CI and deployed-source verification remain outstanding.
+
+Latest-main metadata synchronization is now complete. All35 library source files
+and all77 judge manifest/runtime paths and bytes match the validated snapshots;
+all5,020 upstream published hashed assets remain byte-identical. The affected
+catalog/interview-catalog tests pass25/25, and current web checks and production
+build pass. No numerical test, runtime input or performance harness changed.
+Exact remote main CI and deployed resource verification remain pending.
