@@ -520,7 +520,6 @@ function Workspace() {
               <BilingualText zh="社区" en="Community" />
             </a>}
             <a className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews">{t("面经与准备", "Interviews")}</a>
-            <a className="mobile-privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
           </nav>
           <div className="nav-actions">
             <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
