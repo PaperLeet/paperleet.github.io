@@ -361,7 +361,6 @@
 .avatar-upload-help { margin: 9px 0 6px; }
 .settings-avatar .profile-edit-hint { margin: 0 0 13px; }
 .public-affiliation-setting p { margin: 9px 0 0; }
-.affiliation-domain { background: var(--surface2); color: var(--text-secondary); }
 .avatar-palette {
   display: flex;
   gap: 7px;

@@ -100,7 +100,7 @@
 .interview-company-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:22px; }
 .interview-company-card { position:relative; display:flex; align-items:flex-start; flex-direction:column; gap:9px; padding:18px; border:1px solid var(--line); border-radius:11px; background:var(--surface); min-width:0; }
 .interview-company-card:hover { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 3%,var(--surface)); }
-.interview-company-monogram { display:flex; align-items:center; justify-content:center; width:34px; height:34px; margin-bottom:5px; border-radius:9px; background:color-mix(in srgb,var(--accent) 9%,var(--surface)); color:var(--accent); font-family:var(--font-mono); font-size:13px; }
+.interview-company-mark { display:flex; align-items:center; justify-content:center; width:34px; height:34px; margin-bottom:5px; flex:none; color:var(--muted); }
 .interview-company-card > b { font-size:12px; }
 .interview-company-card > small { color:var(--muted); font-size:10px; line-height:1.7; }
 .interview-company-card > svg { position:absolute; right:14px; top:24px; color:var(--muted); }
@@ -154,7 +154,7 @@
 .interview-company-overview { margin:20px 0; padding:24px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 5%,var(--surface)),var(--surface)); }
 .interview-company-overview > header { display:flex; align-items:center; gap:16px; }
 .interview-company-overview > header > div { min-width:0; }
-.interview-company-overview .interview-company-monogram { width:52px; height:52px; margin:0; flex:none; border:1px solid color-mix(in srgb,var(--accent) 12%,var(--line)); border-radius:13px; font-size:18px; }
+.interview-company-overview .interview-company-mark { width:52px; height:52px; margin:0; }
 .interview-company-overview h2 { margin:6px 0 7px; font-size:22px; letter-spacing:-.025em; overflow-wrap:anywhere; }
 .interview-company-overview header p { display:flex; flex-wrap:wrap; gap:5px 15px; margin:0; color:var(--muted); font-size:11px; }
 .interview-company-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }

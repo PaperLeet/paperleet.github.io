@@ -1,6 +1,5 @@
 import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
 import { publicSite, hostedEdition } from "./deployment";
 import { apiFetch } from "./apiClient";
@@ -314,31 +313,6 @@ export function TestAccountBadge({ isTestUser }: { isTestUser?: boolean }) {
   return isTestUser ? (
     <span className="test-account-badge">{t("内测账号", "Test account")}</span>
   ) : null;
-}
-export function InstitutionBadge({
-  institution,
-}: {
-  institution?: Institution | null;
-}) {
-  const { t, locale } = useI18n();
-  return institution ? (
-    <span
-      className="institution-badge"
-      title={t("机构邮箱已验证", "Institutional email verified")}
-    >
-      <ShieldCheck size={13} />
-      {locale === "en"
-        ? institution.name_en || institution.name
-        : institution.name}
-    </span>
-  ) : null;
-}
-export function AffiliationBadge({ affiliation, institution }: { affiliation?: Affiliation | null; institution?: Institution | null }) {
-  const { t } = useI18n();
-  if (affiliation?.kind === "institution") return <InstitutionBadge institution={{ id: affiliation.domain, name: affiliation.name, name_en: affiliation.name_en }} />;
-  if (affiliation?.kind === "email_domain") return <span className="institution-badge affiliation-domain"
-    title={t("注册邮箱域名，非机构认证", "Registration email domain; not a verified institution")}>{affiliation.domain}</span>;
-  return <InstitutionBadge institution={institution} />;
 }
 export function DateLabel({ value }: { value: string }) {
   const { locale } = useI18n();

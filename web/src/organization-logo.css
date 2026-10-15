@@ -1,0 +1,6 @@
+.organization-logo { display: inline-flex; align-items: center; justify-content: center; flex: none; vertical-align: middle; overflow: hidden; border-radius: 3px; background: #fff; color: #626970; }
+.organization-logo > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.organization-logo > svg { display: block; width: 85%; height: 85%; }
+.institution-badge .organization-logo { margin-right: 1px; }
+.institution-badge { max-width: 100%; }
+.affiliation-name { min-width: 0; overflow-wrap: anywhere; }

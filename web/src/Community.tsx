@@ -1,3 +1,4 @@
+import AffiliationBadge from "./AffiliationBadge";
 import InterviewMeta from './InterviewMeta';
 import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
@@ -41,7 +42,6 @@ import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft
 import {
   Avatar,
   DateLabel,
-  AffiliationBadge,
   PersonLink,
   SocialNotice,
   TestAccountBadge,

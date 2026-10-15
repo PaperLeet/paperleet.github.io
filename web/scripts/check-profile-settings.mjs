@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { createServer } from "vite";
+import { localizedRenderer } from './render-locale.mjs';
+import fs from 'node:fs';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: "custom",
   define: { "import.meta.env.VITE_API_ORIGIN": '"https://api.paperleet.test"' } });
@@ -10,7 +12,37 @@ const originals = new Map(globals.map((name) => [name, Object.getOwnPropertyDesc
 try {
   const { safeAvatarPath, avatarCrop, prepareProfileAvatar, AVATAR_MAX_FILE_BYTES } = await server.ssrLoadModule("/src/profileAvatar.ts");
   const { readProfileEditPolicy, profileEditLimitMessage } = await server.ssrLoadModule("/src/profileEditPolicy.ts");
-  const { Avatar, AffiliationBadge } = await server.ssrLoadModule("/src/social.tsx");
+  const { Avatar } = await server.ssrLoadModule("/src/social.tsx");
+  const { default: AffiliationBadge } = await server.ssrLoadModule("/src/AffiliationBadge.tsx");
+  const { resolveAffiliation } = await server.ssrLoadModule('/src/affiliationNames.ts');
+  const english = await localizedRenderer(server, 'en'), chinese = await localizedRenderer(server, 'zh');
+  const affiliation = domain => ({ kind: 'email_domain', domain, name: domain });
+  const brown = React.createElement(AffiliationBadge, { affiliation: affiliation('brown.edu') });
+  const brownEnglish = english(brown), brownChinese = chinese(brown);
+  assert(brownEnglish.includes('Brown University') && brownChinese.includes('布朗大学'));
+  assert(brownEnglish.includes('organization-logos/brown.png') && !brownEnglish.includes('brown.edu'), 'Show the school name and local logo, never the raw domain');
+  assert(!brownEnglish.includes('lucide-shield-check') && !brownEnglish.includes('verified institution'), 'Display enrichment must not imply additional identity verification');
+  assert.equal(resolveAffiliation(affiliation('CS.BROWN.EDU.')).id, 'brown', 'Display-only subdomain matching is normalized');
+  assert.equal(resolveAffiliation(affiliation('tsinghua.edu.cn')).name, '清华大学');
+  assert.equal(resolveAffiliation(affiliation('google.com')).name_en, 'Google');
+  for (const domain of ['notbrown.edu', 'brown.edu.attacker.com']) assert.notEqual(resolveAffiliation(affiliation(domain)).id, 'brown', 'Suffix lookalikes cannot receive another organization’s logo');
+  assert.equal(resolveAffiliation(affiliation('mail.research-institute.ac.uk')).name, 'Research Institute');
+  assert.equal(resolveAffiliation({ ...affiliation('example.edu'), name: 'Example Research Institute' }).name, 'Example Research Institute', 'Preserve a readable server-provided organization name');
+  assert.equal(resolveAffiliation(null, { id: 'mit', name: '麻省理工学院', name_en: 'Massachusetts Institute of Technology' }).id, 'mit', 'Older institution-only profiles remain supported');
+  assert.equal(resolveAffiliation(), undefined);
+  assert.equal(resolveAffiliation(affiliation('private@brown.edu')), undefined, 'Do not accept or display an email address as a domain');
+  assert.equal(resolveAffiliation(affiliation('https://brown.edu/logo')), undefined, 'Untrusted domain input cannot turn into a network image source');
+  const { default: OrganizationLogo } = await server.ssrLoadModule('/src/OrganizationLogo.tsx');
+  const { interviewCatalog } = await server.ssrLoadModule('/src/interviewModels.ts');
+  for (const company of interviewCatalog.companies.filter(company => company.id !== 'other')) {
+    const logo = renderToString(React.createElement(OrganizationLogo, { id: company.id }));
+    const asset = logo.match(/src="[^"]*organization-logos\/([a-z0-9-]+\.(?:svg|png|ico|jpg))"/)?.[1];
+    assert(asset && fs.existsSync(`public/organization-logos/${asset}`), `${company.id} must have a bundled logo`);
+    assert(!logo.includes('src="http'), 'Company logos must not fetch from a third-party host');
+  }
+  for (const id of ['https://tracker.example/icon', 'constructor', '__proto__']) {
+    assert(!renderToString(React.createElement(OrganizationLogo, { id })).includes('<img'), 'Unknown IDs use a neutral icon');
+  }
   const path = `/api/avatars/${"a".repeat(32)}/${"b".repeat(64)}.jpg`;
   assert.equal(safeAvatarPath(path), path);
   for (const invalid of [null, "", "https://tracker.example/avatar.jpg", `https://api.paperleet.test${path}`,
@@ -26,7 +58,7 @@ try {
   assert(!unsafe.includes("<img") && !unsafe.includes("tracker.example"));
   assert(unsafe.includes(">F<"), "Unsafe image URLs must fall back to the letter avatar");
   const domain = renderToString(React.createElement(AffiliationBadge, { affiliation: { kind: "email_domain", name: "research.example", domain: "research.example" } }));
-  assert(domain.includes("research.example") && !domain.includes("<svg"), "A raw email domain must not claim an institution verification badge");
+  assert(domain.includes("Research") && !domain.includes("research.example") && !domain.includes("lucide-shield-check"), "A domain becomes a readable label without inventing a verified institution");
 
   assert.deepEqual(avatarCrop(800, 400), { x: 200, y: 0, side: 400 });
   assert.deepEqual(avatarCrop(400, 800), { x: 0, y: 200, side: 400 });
