@@ -14,7 +14,7 @@ for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThi
 localStorage.setItem('paperleet.locale','en');
 let scroll;
 dom.window.matchMedia=()=>({matches:true});dom.window.HTMLElement.prototype.scrollIntoView=function(options){scroll={node:this,options};};
-const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('local'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('1')},optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
  name:'guide-import-fixture',enforce:'pre',resolveId(source,importer){if(source==='./preparationGuides'&&importer?.split('?')[0].endsWith('/PreparationGuide.tsx'))return '\0guide-import-fixture';},
  load(id){if(id==='\0guide-import-fixture')return `export {hasPreparationGuide} from '/src/preparationGuides.ts';export const loadPreparationGuide=id=>globalThis.__guideFixture.load(id);`;}
 }]});
@@ -29,6 +29,7 @@ try{
  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
  const {default:Guide,PREPARATION_GUIDE_TIMEOUT}=await server.ssrLoadModule('/src/PreparationGuide.tsx');
  const {default:Handbook}=await server.ssrLoadModule('/src/PreparationHandbook.tsx');
+ const {default:Hub}=await server.ssrLoadModule('/src/Interviews.tsx');
  const {default:Context}=await server.ssrLoadModule('/src/InterviewConceptContext.tsx');
  const nav=await server.ssrLoadModule('/src/interviewNavigation.ts');
  const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
@@ -63,6 +64,7 @@ try{
  function Focused(){return React.createElement(React.Fragment,null,React.createElement(Context,{filters:focused,problems:published,saved:{},ready:true}),React.createElement(Handbook,{filters:focused,problems:published}));}
  await render(Focused,{});assert.equal(document.querySelectorAll('select option').length,1);const hash=location.hash,count=loads.length;await click(button('Try the study prompts'));await settle(()=>loads.length===count+1);assert(document.querySelector('.preparation-guide').open);assert.equal(location.hash,hash);assert.equal(document.activeElement.id,'preparation-handbook-heading');assert.equal(scroll.options.behavior,'instant');assert.equal(take().id,attention);await stop();
  let retries=0;await render(Handbook,{filters,problems:[],catalogError:'offline',onRetryCatalog:()=>retries++});assert(!document.querySelector('.preparation-guide-actions a'));await click(button('Retry catalog'));assert.equal(retries,1);
+ await stop();location.hash='#/interviews';await render(Hub,{route:'interviews',problems:published});const heroHash=location.hash,heroLoads=loads.length;await click(button('Study handbook'));await settle(()=>loads.length===heroLoads+1);assert(document.querySelector('.preparation-guide').open);assert.equal(document.activeElement.id,'preparation-handbook-heading');assert.equal(location.hash,heroHash);take();await stop();await render(Hub,{route:'interviews?concept=architecture%2Fnot-guided',problems:published});assert(!button('Study handbook'),'A source view with no matching guide cannot offer a dead handbook action');
  console.log(`PASS preparation handbook: ${guides.length} maintained bilingual guides / ${guides.length*3} prompts, implementation/source contracts, deferred loading, hint and locale continuity, notes unlock, editor/cursor/scroll preservation, stale import rejection, bounded timeout/retry focus, role/topic selection, source/practice/login returns and reduced-motion in-page opening`);
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
