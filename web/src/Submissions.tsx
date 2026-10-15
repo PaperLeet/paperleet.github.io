@@ -1,7 +1,7 @@
 import { PublishingRules } from './PublishingRules';
 import { currentQuotaMessage } from './publicationQuota';
 import { apiFetch } from "./apiClient";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -99,6 +99,14 @@ type Capabilities = {
   sandbox: { ready: boolean; image: string; reason?: string };
   human_review_required: boolean;
 };
+type Selection = { id?: string };
+
+// Normalize the API's UTC spelling without dropping its microsecond precision.
+function submissionVersion(value: string) {
+  const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,6}))?(?:Z|\+00:00)$/.exec(value);
+  return match ? `${match[1]}.${(match[2] || "").padEnd(6, "0")}` : undefined;
+}
+
 const EMPTY_CHECKS = {
   paper_fidelity: false,
   scope_clarity: false,
@@ -154,7 +162,36 @@ export default function Submissions({
     [reviewer, setReviewer] = useState(""),
     [reviewNotes, setReviewNotes] = useState(""),
     [decision, setDecision] = useState("approve"),
-    [checks, setChecks] = useState(EMPTY_CHECKS);
+    [checks, setChecks] = useState(EMPTY_CHECKS),
+    [notice, setNotice] = useState(""),
+    [selectionKey, setSelectionKey] = useState(0);
+  const mounted = useRef(true);
+  const selection = useRef<Selection>({});
+  const working = useRef(false);
+  const draftRevision = useRef(0);
+  const listRequest = useRef(0);
+  const itemsRevision = useRef(0);
+  const latestItems = useRef(new Map<string, Submission>());
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  const current = (token: Selection) => mounted.current && selection.current === token;
+  function trackSelection(token: Selection) {
+    selection.current = token;
+    setSelectionKey((key) => key + 1);
+  }
+  function editDraft(setValue: (value: string) => void, value: string) {
+    draftRevision.current += 1;
+    setValue(value);
+  }
+  function newSubmission() {
+    trackSelection({});
+    setSelected(undefined);
+    setView("new");
+    setError("");
+    setNotice("");
+  }
   const hosted = health?.mode === "hosted" || caps?.mode === "hosted";
   const canSubmit = caps?.can_submit ?? health?.mode === "local";
   const canGenerate = caps?.can_generate ?? health?.mode === "local";
@@ -175,124 +212,152 @@ export default function Submissions({
     rejected: t("已拒绝", "Rejected"),
     published: t("已进入题库", "Published"),
   };
-  const saveItem = (item: Submission) => {
-    setSelected(item);
+  // A saved row and the currently viewed proposal have separate lifetimes.
+  function rememberItem(item: Submission) {
+    if (!mounted.current) return item;
+    const known = latestItems.current.get(item.id);
+    const version = submissionVersion(item.updated_at);
+    const knownVersion = known && submissionVersion(known.updated_at);
+    if (known && version && knownVersion && knownVersion > version) return known;
+    latestItems.current.set(item.id, item);
+    itemsRevision.current += 1;
     setItems((prev) =>
       [item, ...prev.filter((p) => p.id !== item.id)].sort((a, b) =>
         b.created_at.localeCompare(a.created_at),
       ),
     );
-  };
+    return item;
+  }
+  function showMutation(item: Submission) {
+    const latest = rememberItem(item);
+    if (selection.current.id !== item.id) return;
+    // A user may leave and return while the operation is pending. Its result
+    // belongs to that proposal, while older detail reads are now superseded.
+    trackSelection({id:item.id});
+    setSelected(latest);
+  }
   async function refresh() {
+    const request = ++listRequest.current;
+    const revision = itemsRevision.current;
+    const active = () => mounted.current && request === listRequest.current;
     setLoading(true);
     setError("");
     try {
       const capabilities = await api<Capabilities>("/capabilities");
+      if (!active()) return;
       setCaps(capabilities);
       if (capabilities.can_submit === false) {
         setItems([]);
         return;
       }
       const list = await api<{ submissions: Submission[] }>("");
-      setItems(list.submissions);
+      // An older list must not erase a proposal saved while it was loading.
+      if (active() && itemsRevision.current === revision) setItems(list.submissions);
     } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : t("无法加载提交列表", "Unable to load submissions"),
-      );
+      if (active()) setError(e instanceof Error ? e.message : t("无法加载提交列表", "Unable to load submissions"));
     } finally {
-      setLoading(false);
+      if (active()) setLoading(false);
     }
   }
-  useEffect(() => {
-    void refresh();
-  }, []);
+  useEffect(() => { void refresh(); }, []);
   useEffect(() => {
     if (!selected || !busyStatus(selected.status)) return;
+    const token = selection.current;
     let cancelled = false;
-    const timer = setInterval(() => {
-      api<Submission>(`/${selected.id}`)
-        .then((item) => {
-          if (!cancelled) saveItem(item);
-        })
-        .catch((e) => {
-          if (!cancelled) setError(e.message);
-        });
-    }, 2000);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-  }, [selected?.id, selected?.status]);
+    let timer: ReturnType<typeof setTimeout>;
+    const active = () => !cancelled && current(token);
+    async function poll() {
+      try {
+        const item = await api<Submission>(`/${token.id}`);
+        if (!active()) return;
+        setSelected(rememberItem(item));
+      } catch (e) {
+        if (active()) setError(e instanceof Error ? e.message : t("无法加载提交详情", "Unable to load submission"));
+      }
+      // Wait after the response; slow requests must not overlap each other.
+      if (active()) timer = setTimeout(() => { void poll(); }, 2000);
+    }
+    timer = setTimeout(() => { void poll(); }, 2000);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [selected?.id, selected?.status, selectionKey]);
   useEffect(() => {
     setChecks({ ...EMPTY_CHECKS });
     setReviewNotes("");
     setDecision("approve");
   }, [selected?.id, selected?.package_hash]);
   async function choose(item: Submission) {
+    const token: Selection = {id:item.id};
+    trackSelection(token);
     setView("detail");
-    setSelected(item);
+    setSelected(latestItems.current.get(item.id) ?? item);
     setError("");
+    setNotice("");
     setCandidateTab("problem");
     try {
-      saveItem(await api<Submission>(`/${item.id}`));
+      const detail = await api<Submission>(`/${item.id}`);
+      if (!current(token)) return;
+      setSelected(rememberItem(detail));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to load submission");
+      if (current(token)) setError(e instanceof Error ? e.message : t("无法加载提交详情", "Unable to load submission"));
     }
   }
   async function create(event: React.FormEvent) {
     event.preventDefault();
-    if (!canSubmit) return;
+    if (!canSubmit || loading || working.current) return;
+    working.current = true;
+    const revision = draftRevision.current;
+    let token = selection.current;
+    const draft = {title, paper_url:paperUrl, code_url:codeUrl, excerpt, focus};
     setBusy(true);
     setError("");
+    setNotice("");
     try {
-      const item = await api<Submission>("", {
-        title,
-        paper_url: paperUrl,
-        code_url: codeUrl,
-        excerpt,
-        focus,
-      });
-      saveItem(item);
-      setView("detail");
-      setTitle("");
-      setPaperUrl("");
-      setCodeUrl("");
-      setExcerpt("");
-      setFocus("");
-      if (canGenerate && caps?.generation.ready)
-        saveItem(await api<Submission>(`/${item.id}/generate`, {}));
+      const item = await api<Submission>("", draft);
+      if (!mounted.current) return;
+      rememberItem(item);
+      if (current(token) && draftRevision.current === revision) {
+        token = {id:item.id};
+        trackSelection(token);
+        setSelected(item);
+        setView("detail");
+        setTitle(""); setPaperUrl(""); setCodeUrl(""); setExcerpt(""); setFocus("");
+      } else {
+        setNotice(item.title);
+      }
+      if (canGenerate && caps?.generation.ready) {
+        const generated = await api<Submission>(`/${item.id}/generate`, {});
+        if (!mounted.current) return;
+        showMutation(generated);
+      }
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("提交失败", "Submission failed"),
-      );
+      if (current(token)) setError(e instanceof Error ? e.message : t("提交失败", "Submission failed"));
     } finally {
-      setBusy(false);
+      working.current = false;
+      if (mounted.current) setBusy(false);
     }
   }
   async function act(action: "generate" | "validate" | "review") {
-    if (!selected || (action === "review" ? !canReview : !canGenerate)) return;
+    if (!selected || working.current || (action === "review" ? !canReview : !canGenerate)) return;
+    working.current = true;
+    // Invalidate a detail/poll request that started before this mutation.
+    const token: Selection = {id:selected.id};
+    trackSelection(token);
     setBusy(true);
     setError("");
+    setNotice("");
     try {
-      const body =
-        action === "review"
-          ? {
-              decision,
-              reviewer: reviewer.trim(),
-              notes: reviewNotes.trim(),
-              package_hash: selected.package_hash,
-              checks,
-            }
-          : {};
+      const body = action === "review"
+        ? {decision, reviewer:reviewer.trim(), notes:reviewNotes.trim(), package_hash:selected.package_hash, checks}
+        : {};
       const item = await api<Submission>(`/${selected.id}/${action}`, body);
-      saveItem(item);
+      if (!mounted.current) return;
+      showMutation(item);
       if (item.status === "published") onPublished();
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("操作失败", "Action failed"));
+      if (current(token)) setError(e instanceof Error ? e.message : t("操作失败", "Action failed"));
     } finally {
-      setBusy(false);
+      working.current = false;
+      if (mounted.current) setBusy(false);
     }
   }
   const candidate = selected?.candidate,
@@ -325,10 +390,7 @@ export default function Submissions({
         </div>
         <button
           className="button subtle"
-          onClick={() => {
-            setView("new");
-            setError("");
-          }}
+          onClick={newSubmission}
         >
           <Plus size={16} />
           {t("新提交", "New submission")}
@@ -354,6 +416,7 @@ export default function Submissions({
           <div>{error}</div>
         </div>
       )}
+      {notice && <p className="submission-muted" role="status">{t(`「${notice}」已保存，可从提交记录打开；当前页面和新编辑的内容已保留。`, `“${notice}” was saved and is available in the submission list. Your current view and newer edits were kept.`)}</p>}
       <div className="submission-columns">
         <aside className="submission-list">
           <div className="aside-title">
@@ -497,7 +560,7 @@ export default function Submissions({
                       required
                       maxLength={240}
                       value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={(e) => editDraft(setTitle, e.target.value)}
                       placeholder={t("输入论文标题", "Enter the paper title")}
                     />
                   </label>
@@ -507,7 +570,7 @@ export default function Submissions({
                       type="url"
                       required
                       value={paperUrl}
-                      onChange={(e) => setPaperUrl(e.target.value)}
+                      onChange={(e) => editDraft(setPaperUrl, e.target.value)}
                       placeholder="https://arxiv.org/abs/…"
                     />
                   </label>
@@ -516,7 +579,7 @@ export default function Submissions({
                     <input
                       type="url"
                       value={codeUrl}
-                      onChange={(e) => setCodeUrl(e.target.value)}
+                      onChange={(e) => editDraft(setCodeUrl, e.target.value)}
                       placeholder="https://github.com/…"
                     />
                   </label>
@@ -526,7 +589,7 @@ export default function Submissions({
                       rows={3}
                       maxLength={4000}
                       value={focus}
-                      onChange={(e) => setFocus(e.target.value)}
+                      onChange={(e) => editDraft(setFocus, e.target.value)}
                       placeholder={t(
                         "例如：只提炼核心 loss，并验证梯度、mask 和归一化。",
                         "For example: extract the core loss and verify gradients, masks, and normalization.",
@@ -548,7 +611,7 @@ export default function Submissions({
                         rows={7}
                         maxLength={60000}
                         value={excerpt}
-                        onChange={(e) => setExcerpt(e.target.value)}
+                        onChange={(e) => editDraft(setExcerpt, e.target.value)}
                         placeholder={t(
                           "粘贴核心公式、伪代码和相关段落，帮助模型定位。",
                           "Paste key formulas, pseudocode, or relevant passages.",
