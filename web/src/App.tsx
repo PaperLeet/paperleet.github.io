@@ -2,7 +2,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu, PracticeGuideContent } from "./deferredPages";
+import { InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu, PracticeGuideContent } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -45,7 +45,6 @@ import { BilingualText } from "./BilingualText";
 import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
 import ResizableSplit from "./ResizableSplit";
 import { recommendPractice, nextPractice } from "./practice-recommendation";
-import { PracticeNextStep } from "./PracticeJourney";
 import { loadProblemDetail } from "./catalogData";
 import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobs";
@@ -555,7 +554,7 @@ function Workspace() {
           accountHref={user ? hostedAppHref('#/account') : undefined}
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
       ) : interviewPage ? (
-        <Interviews route={id} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} />
+        <Interviews route={id} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
       ) : communityPage ? (
         <Community
           route={id}
@@ -654,7 +653,7 @@ function Workspace() {
               if (reset) setResultsCollapsed(false);
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            <ModuleNavigator key={problem.id} current={problem} modules={siblingModules} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
+            <ModuleNavigator key={problem.id} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16} />{t("题面与结果", "Read & results")}{(report || syntaxFailure) && <span aria-hidden="true" className={`mobile-result-dot ${!hasCurrentSyntaxError && reportSource === "current" && isPassed(problem,report) ? "passed" : ""}`} />}</button>
@@ -723,7 +722,7 @@ function Workspace() {
                   {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource} source={currentSource} onLocate={practice.ready ? locateSource : undefined}>
                     {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
                     {!running && reportSource === "current" && progressReady && isPassed(problem, report) && (
-                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} returnTo={libraryReturn} onNotes={() => selectReadingTab("notes")} onLab={() => openLab("run")} />
+                      <InterviewPracticeNextStep current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={() => selectReadingTab("notes")} onLab={() => openLab("run")} />
                     )}
                   </ReportView>}
                   </>

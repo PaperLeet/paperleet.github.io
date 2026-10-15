@@ -1,0 +1,67 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+let root;
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Paths}=await server.ssrLoadModule('/src/InterviewStudyPaths.tsx');
+ const {default:Next}=await server.ssrLoadModule('/src/InterviewPracticeNextStep.tsx');
+ const {default:Resources}=await server.ssrLoadModule('/src/InterviewResources.tsx');
+ const {ModuleNavigator}=await server.ssrLoadModule('/src/ModuleNavigator.tsx');
+ const {interviewCatalog}=await server.ssrLoadModule('/src/interviewModels.ts');
+ const {preparationProgress}=await server.ssrLoadModule('/src/interviewPreparation.ts');
+ const {readInterviewRoute,interviewHref,emptyInterviewFilters}=await server.ssrLoadModule('/src/interviewNavigation.ts');
+ const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ assert.deepEqual(interviewCatalog.paths.map(path=>path.id).filter(id=>readInterviewRoute('interviews?track='+id)),interviewCatalog.paths.map(path=>path.id),'Every maintained path can travel through a local route');
+ const ids=[...new Set(interviewCatalog.paths.flatMap(path=>path.modules))];
+ const modules=ids.map((id,index)=>({id,number:index+1,title:id.split('/')[1],paper_id:'paper-'+index,starter:'def solution(): pass',module:{optional:index===1},tests:{T0:1}}));
+ const path=interviewCatalog.paths[0],ordered=path.modules.map(id=>modules.find(problem=>problem.id===id));
+ const pass=problem=>({report:{problem:problem.id,summary:{T0:[1,1]},tests:[{id:'works',layer:'T0',passed:true}]}});
+ const saved={[ordered[0].id]:pass(ordered[0]),[ordered[2].id]:{code:'new draft',updated:'2026-10-15T10:00:00Z'},[ordered[4].id]:{code:'newer draft',updated:'2026-10-15T11:00:00Z'}};
+ assert.equal(preparationProgress('llm',modules,saved).next.id,ordered[4].id,'Resume the most recent unfinished path draft');
+ assert.equal(preparationProgress('llm',modules,saved,ordered[0]).next.id,ordered[1].id,'Continue in curriculum order, including optional catalog modules that the path explicitly lists');
+ assert.equal(preparationProgress('llm',modules,saved,ordered.at(-1)).next.id,ordered[1].id,'Wrap within the path, never into the general catalog');
+ assert.equal(preparationProgress('missing',modules),undefined);
+ const filters={...emptyInterviewFilters(),company:'google',role:'llm',days:'90',q:'数学 & attention 😀',view:'companies',track:'llm'},returnTo=interviewHref(filters);
+ const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
+ const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
+ const destination=anchor=>readInterviewRoute(libraryReturnHref(anchor.getAttribute('href')));
+ await render(Paths,{filters,problems:modules,saved,ready:false});
+ assert.equal(document.querySelectorAll('progress,.interview-path-start').length,0,'Unresolved progress cannot claim zero completion or recommend against stale account state');
+ assert(document.body.textContent.includes('Loading learning progress'));
+ assert.deepEqual(destination(document.querySelector('.interview-path-modules a')),filters);
+ await render(Paths,{filters,problems:modules,saved,ready:true});
+ assert.equal(document.querySelector('progress').value,1);assert.equal(document.querySelector('progress').max,8);
+ const resume=document.querySelector('.interview-path-start');assert(resume.textContent.includes('Resume preparation'));assert(resume.href.includes('#/'+ordered[4].number+'?'));assert.deepEqual(destination(resume),filters);
+ assert(document.querySelector('[data-selected]'));
+ // Owner changes render fresh evidence; no independent completion or resume storage is used.
+ await render(Paths,{filters,problems:modules,saved:{},ready:true});assert.equal(document.querySelector('progress').value,0);assert(document.querySelector('.interview-path-start').href.includes('#/'+ordered[0].number+'?'));
+ let retries=0;await render(Paths,{filters,problems:modules,saved,ready:false,error:'offline',onRetry:()=>retries++});await click(document.querySelector('.interview-progress-status button'));assert.equal(retries,1);assert.equal(document.querySelectorAll('.interview-path-start').length,0);assert(document.querySelector('.interview-path-modules a'));
+ await render(Paths,{filters:{...filters,role:'data'},problems:modules,saved,ready:true});assert(document.querySelector('#interview-path-llm'),'A selected path remains visible when a role filter changes');
+ const allPassed=Object.fromEntries(ordered.map(problem=>[problem.id,pass(problem)]));
+ await render(Paths,{filters,problems:modules,saved:allPassed,ready:true});assert(document.querySelector('.interview-path-start').textContent.includes('Path complete'));assert.equal(readInterviewRoute(document.querySelector('.interview-path-start').getAttribute('href')).view,'reports');
+ const missing=modules.filter(problem=>problem.id!==ordered[3].id);await render(Paths,{filters,problems:missing,saved:allPassed,ready:true});assert.equal(document.querySelector('progress').value,7);assert.equal(document.querySelector('progress').max,8);assert(!document.querySelector('.interview-path-grid article').querySelector('.interview-path-start'));assert(document.body.textContent.includes('1 modules are unavailable'));
+ await render(ModuleNavigator,{current:ordered[0],modules:[ordered[0],modules.at(-1)],allModules:modules,saved,ready:true,returnTo});
+ assert.equal(document.querySelector('[aria-label="Previous module"]').disabled,true);await click(document.querySelector('.module-picker-trigger'));assert.equal(document.querySelectorAll('.module-picker-links a').length,8);assert(document.querySelector('.module-picker-heading').textContent.includes('LLM'));assert(![...document.querySelectorAll('.module-picker-links a')].some(anchor=>anchor.href.includes('#/'+modules.at(-1).number+'?')));
+ await click(document.querySelector('[aria-label="Next module"]'));assert(location.hash.startsWith('#/'+ordered[1].number+'?'));assert.deepEqual(readInterviewRoute(libraryReturnHref(location.hash)),filters);
+ const actions={onNotes:()=>{},onLab:()=>{}};
+ await render(Next,{current:ordered[0],problems:modules,saved,next:modules.at(-1),returnTo,...actions});assert(document.querySelector('.journey-next-link').href.includes('#/'+ordered[1].number+'?'));assert(document.querySelector('.journey-next-link small').textContent.includes('LLM'));assert.deepEqual(destination(document.querySelector('.journey-next-link')),filters);
+ await render(Next,{current:ordered.at(-1),problems:modules,saved:allPassed,next:modules.at(-1),returnTo,...actions});assert.equal(document.querySelector('.journey-next-link').getAttribute('href'),returnTo);assert(document.body.textContent.includes('Preparation path complete'));
+ await render(Next,{current:ordered.at(-1),problems:missing,saved:allPassed,next:modules.at(-1),returnTo,...actions});assert(document.body.textContent.includes('Some path modules are unavailable'));assert(!document.body.textContent.includes('Preparation path complete'));
+ await render(Next,{current:modules.at(-1),problems:modules,saved,next:ordered[0],returnTo,...actions});assert(document.querySelector('.journey-next-link').href.includes('#/'+ordered[0].number+'?'),'A module outside the path retains its normal practice continuation');
+ await render(Resources,{});const toggle=document.querySelector('.interview-resources-toggle'),first=document.querySelector('.interview-resource-list a');toggle.focus();await click(toggle);
+ assert.equal(document.activeElement,toggle,'Expansion keeps the reading position and keyboard focus at the control');
+ const extra=document.getElementById(toggle.getAttribute('aria-controls'));assert.equal(extra.querySelectorAll('a').length,14);const focusable=[...document.querySelectorAll('a,button')];assert.equal(focusable[focusable.indexOf(toggle)+1],extra.querySelector('a'),'The next native Tab destination is the first newly revealed resource');
+ await click(toggle);assert(extra.hidden);assert.equal(document.querySelector('.interview-resource-list a'),first,'Collapse retains the initial links and reading position');assert.equal(document.activeElement,toggle);
+ console.log('PASS interview study flow: real workspace progress, loading/error/owner transitions, recent draft resume, complete/missing catalog, curriculum order including optional modules, scoped picker/next links, Unicode return filters and keyboard resource disclosure order');
+}finally{
+ if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
+}

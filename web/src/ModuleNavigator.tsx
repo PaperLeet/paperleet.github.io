@@ -1,17 +1,24 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Circle } from "lucide-react";
+import {readInterviewRoute} from './interviewNavigation';
+import {preparationProgress} from './interviewPreparation';
 import { withLibraryContext } from "./libraryNavigation";
 import { useI18n } from "./i18n";
 import { status, type Problem, type Saved } from "./types";
 
-export function ModuleNavigator({ current, modules, saved, ready, returnTo }: { current: Problem; modules: Problem[]; saved: Record<string, Saved>; ready: boolean; returnTo?: string }) {
+export function ModuleNavigator({ current, modules: paperModules, allModules, saved, ready, returnTo }: { current: Problem; modules: Problem[]; allModules?:Problem[]; saved: Record<string, Saved>; ready: boolean; returnTo?: string }) {
   const { t, locale } = useI18n();
+  const track=returnTo?readInterviewRoute(returnTo)?.track:undefined;
+  const progress=track?preparationProgress(track,allModules||paperModules,saved):undefined;
+  const scoped=progress?.modules.some(module=>module.id===current.id)?progress:undefined;
+  const modules=scoped?.modules||paperModules;
+  const heading=scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):t('本篇论文','This paper');
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const popupId = useId();
   const index = modules.findIndex((module) => module.id === current.id);
-  const core = modules.filter((module) => !module.module.optional);
+  const core = scoped?modules:modules.filter((module) => !module.module.optional);
   const solved = core.filter((module) => status(module, saved[module.id]) === "done").length;
   useEffect(() => {
     if (!open) return;
@@ -35,8 +42,8 @@ export function ModuleNavigator({ current, modules, saved, ready, returnTo }: { 
       requestAnimationFrame(() => root.current?.querySelector<HTMLElement>('.module-picker a[aria-current="page"]')?.focus());
     }}><span>{index + 1} / {modules.length}</span><ChevronDown size={12} /></button>
     <button className="icon-button" aria-label={t("下一个模块", "Next module")} disabled={index < 0 || index >= modules.length - 1} onClick={() => { location.hash = withLibraryContext(modules[index + 1].number, returnTo).slice(1); }}><ChevronRight size={15} /></button>
-    {open && <nav className="module-picker" id={popupId} aria-label={t("本篇论文的模块", "Modules in this paper")}>
-      <div className="module-picker-heading"><b>{t("本篇论文", "This paper")}</b><span>{ready ? `${solved} / ${core.length} ${t("核心模块已通过", "core modules solved")}` : t("正在加载进度…", "Loading progress…")}</span></div>
+    {open && <nav className="module-picker" id={popupId} aria-label={heading}>
+      <div className="module-picker-heading"><b>{heading}</b><span>{ready ? `${solved} / ${scoped?.total||core.length} ${scoped?t("路径模块已通过","path modules solved"):t("核心模块已通过", "core modules solved")}` : t("正在加载进度…", "Loading progress…")}</span></div>
       <div className="module-picker-links">{modules.map((module) => {
         const state = ready ? status(module, saved[module.id]) : "todo";
         const active = module.id === current.id;

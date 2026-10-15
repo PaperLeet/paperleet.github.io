@@ -9,14 +9,14 @@ try {
  const account=await server.ssrLoadModule('/src/accountNavigation.ts');
  const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
  for(const q of ['数学 & optimization 😀','#/%? +=','注意力，复盘与准备']){
-  const filters={...nav.emptyInterviewFilters(),company:'amazon',role:'ml',stage:'technical',q,days:'90',sort:'helpful',page:3};
+  const filters={...nav.emptyInterviewFilters(),company:'amazon',role:'ml',stage:'technical',q,days:'90',sort:'helpful',page:3,track:'llm'};
   const href=nav.interviewHref(filters);assert.deepEqual(nav.readInterviewRoute(href),filters);
   const practice=library.withLibraryContext('architecture/attention',href);assert.equal(library.libraryReturnHref(practice),href);
   const thread=community.communityPostHref('a'.repeat(32),href,'b'.repeat(32));assert.equal(community.communityPostReturn(thread,'a'.repeat(32)),href);
   for(const destination of [href,practice,thread])assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(destination))),destination);
   assert(!community.communityShareUrl('https://paperleet.test/#/interviews','a'.repeat(32),'b'.repeat(32)).includes('from='));
  }
- for(const route of ['interviews?from=interviews','interviews?page=0','interviews?page=5001','interviews?company=amazon&company=google','interviews?view=other','interviews?q=%FF','interviews?q=%ZZ','interviews?q=%00','interviews?q=%7f','https://evil.test/interviews','interviews?days=7','interviews?q='+encodeURIComponent('x'.repeat(201))])assert.equal(nav.readInterviewRoute(route),undefined,route);
+ for(const route of ['interviews?track=unknown','interviews?track=','interviews?track=llm&track=training','interviews?from=interviews','interviews?page=0','interviews?page=5001','interviews?company=amazon&company=google','interviews?view=other','interviews?q=%FF','interviews?q=%ZZ','interviews?q=%00','interviews?q=%7f','https://evil.test/interviews','interviews?days=7','interviews?q='+encodeURIComponent('x'.repeat(201))])assert.equal(nav.readInterviewRoute(route),undefined,route);
  assert.equal(library.libraryReturnHref('#/22?from='+encodeURIComponent('interviews?from=interviews')),undefined);
  assert.equal(account.signInHref('#/22?from=https%3A%2F%2Fevil.test'),'#/account');
  const details={company:'amazon',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'Remote',questions:['finetuning/lora','architecture/attention']};

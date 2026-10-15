@@ -5,6 +5,7 @@ import { ModuleNavigationFallback } from "./ModuleNavigationFallback";
 import { QueueAdmissionFallback } from './QueueAdmissionFallback';
 import { useI18n } from './i18n';
 
+export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
 export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['公司面经关联','company mentions'], {loading:()=>null,failure:()=>null});
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
