@@ -29,12 +29,16 @@ try {
       assert(entry, `Unknown smoke module: ${id}`);
       try {
         const output = execFileSync(process.execPath, [fileURLToPath(import.meta.url), id, '--json'], {
-          cwd:web, encoding:'utf8', timeout:entry.browser_judge.budgets.total + 60_000,
+          cwd:web, encoding:'utf8', timeout:Math.max(180_000, entry.browser_judge.budgets.total * 3),
           maxBuffer:1024*1024,
         });
         const result = JSON.parse(output);
         assert.equal(result.id, id);
         results.push({...result, passed:true});
+        if (result.browser_budget_exceeded.length) {
+          const notice = `${id}: correctness passed; ${result.browser_budget_exceeded.join(', ')} exceeded the browser budget on this runner. Browser timeouts still require native fallback.`;
+          console.warn(process.env.GITHUB_ACTIONS ? `::warning::${notice}` : `WARN ${notice}`);
+        }
         console.log(`PASS real Pyodide ${result.pyodide} / NumPy ${result.numpy}: ${id}, ${result.tests} tests, ${result.mutants} mutants (${(result.elapsed_ms / 1000).toFixed(2)}s)`);
       } catch(error) {
         const detail = String(error?.stderr || error?.message || error).slice(-12000);
@@ -44,7 +48,8 @@ try {
     }
     const report = {schema_version:1, scope:selection === '--smoke' ? 'smoke' : 'catalog',
       catalog_modules:ids.length, modules:results.length, passed:results.every(result => result.passed),
-      elapsed_ms:Math.round(performance.now() - started), results};
+      elapsed_ms:Math.round(performance.now() - started),
+      browser_budget_exceeded:results.filter(result => result.passed && result.browser_budget_exceeded.length).map(result => result.id), results};
     const reportPath = path.join(web, '../reports/browser-wasm.json');
     fs.mkdirSync(path.dirname(reportPath), {recursive:true});
     fs.writeFileSync(reportPath, JSON.stringify(report,null,2)+'\n');
@@ -201,7 +206,12 @@ for dtype in (np.float32,np.float64):
       runtime_bundle_url:manifest.runtime_bundle_url, source_sha256:report.source_sha256,
       preparation_ms:Math.round(prepared-started), calibration_ms:Math.round(calibrated-prepared),
       learner_ms:Math.round(completed-calibrated), elapsed_ms:Math.round(performance.now()-started),
-      budgets:entry.browser_judge.budgets};
+      budgets:entry.browser_judge.budgets,
+      browser_budget_exceeded:[
+        ...(calibrated-prepared > entry.browser_judge.budgets.calibration ? ['calibration'] : []),
+        ...(completed-calibrated > entry.browser_judge.budgets.run ? ['run'] : []),
+        ...(completed-started > entry.browser_judge.budgets.total ? ['total'] : []),
+      ]};
     if (process.argv[3] === '--json') console.log(JSON.stringify(result));
     else console.log(`PASS real Pyodide ${py.version} / NumPy 2.2.5: ${id}, ${result.tests} tests, ${result.mutants} mutants, full reference/mutants/learner suite`);
   }

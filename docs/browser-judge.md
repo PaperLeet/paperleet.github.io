@@ -72,9 +72,14 @@ Shared numerical, model/checkpoint and typed-fallback regressions remain include
 Results are saved in `reports/browser-wasm.json`, including each content-addressed
 bundle/runtime URL, test and mutant counts, declared packages, and preparation,
 calibration and learner-suite timings. These are local Node/WASM observations,
-not browser UI latency or a server speed comparison. The child-process timeout
-allows the declared total budget plus setup/regression overhead; it does not
-change the browser worker's calibration, run or total deadlines.
+not browser UI latency or a server speed comparison. Slower shared CI CPUs may
+exceed a browser phase budget while still producing correct results. The offline
+verifier allows three declared total windows per process (at least three minutes)
+to finish the complete correctness checks; it records and warns about any
+observed browser-budget overruns separately. These results do not establish that
+this runner fits the browser deadlines. The browser worker's calibration, run
+and total deadlines remain unchanged: an over-budget device still needs native
+fallback. No tests, mutants, training steps or numerical tolerances are omitted.
 
 For a shorter maintainer check, use `npm run check:browser-wasm:smoke`; a single
 module can be checked with `node scripts/check-browser-wasm.mjs architecture/attention`
