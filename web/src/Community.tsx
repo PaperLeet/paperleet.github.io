@@ -31,7 +31,7 @@ import { useI18n } from "./i18n";
 import ProfileProgress from "./ProfileProgress";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
-import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, communityFeedHref, communityPostHref, communityPostReturn, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
+import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
 import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
 import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft, writeReplyDraft, type ReplyDraft } from "./replyDrafts";
 import {
@@ -52,6 +52,7 @@ import { readPublication, preparePublication, clearPublication, postPublication,
 import PublicationRecovery from './PublicationRecovery';
 import PostEditor from './PostEditor';
 import ReplyEditor from './ReplyEditor';
+import DiscussionLink from './DiscussionLink';
 import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
 type Profile = PublicUser & {
@@ -464,7 +465,7 @@ type CommunityProps = {
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
   return postId ? (
-    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} />
+    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} />
   ) : (
     <CommunityFeed key={`${scope.topicId || "all"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
@@ -717,7 +718,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     </main>
   );
 }
-function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
+function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
   const { t } = useI18n();
   const { user } = useAccount();
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
@@ -736,6 +737,13 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [deleteTarget, setDeleteTarget] = useState<string>();
+  const locatedReply=useRef<string|undefined>(undefined);
+  useEffect(()=>{
+    if(!replyTarget){locatedReply.current=undefined;return;}
+    if(!post||locatedReply.current===replyTarget)return;
+    const row=document.getElementById(`reply-${replyTarget}`);
+    if(row){row.focus({preventScroll:true});row.scrollIntoView({block:'center'});locatedReply.current=replyTarget;}
+  },[replyTarget,post]);
   // Community keys this component by both post and account before it renders.
   const owner = user?.id || "";
   const [draft, setDraft] = useState<ReplyDraft>(() => readReplyDraft(tabDraftStorage(), owner, id) || { body: "" });
@@ -785,11 +793,11 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   useEffect(() => {
     void refresh();
     return () => { readVersion.current++; };
-  }, [id, user?.id]);
+  }, [id, user?.id, replyTarget]);
   async function react(kind: "like" | "repost") {
     if (loading || busy) return;
     if (!user) {
-      location.hash = signInHref(postHref(id, returnTo));
+      location.hash = signInHref(postHref(id, returnTo, replyTarget));
       return;
     }
     if (!post) return;
@@ -879,7 +887,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
       <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
         {returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
-      </a><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
+      </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>
       {error && <SocialNotice error={error} />}
@@ -948,6 +956,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
             </div>
           </article>
           <section className="social-panel discussion-replies">
+            {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,returnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
             <div className="panel-title">
               <h2>
                 {t("回复", "Replies")} <span>{post.counts.replies}</span>
@@ -957,13 +966,14 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
               post.replies.map((r) => (
                 <article
                   key={r.id}
-                  className={`community-reply ${r.parent_id ? "nested-reply" : ""}`}
+                  className={`community-reply ${r.parent_id ? "nested-reply" : ""} ${replyTarget===r.id?'linked-reply':''}`}
                   id={`reply-${r.id}`}
                   tabIndex={-1}
                 >
                   <div className="reply-heading">
                     <PersonLink user={r.author} compact />
                     <DateLabel value={r.created_at} />
+                    <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={returnTo}/>
                     {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
                     {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={()=>{setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}
                     {r.parent_id && (
@@ -1116,7 +1126,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
             </section>
           ) : (
             <section className="social-panel">
-              <JoinPrompt returnTo={postHref(id, returnTo)} />
+              <JoinPrompt returnTo={postHref(id, returnTo, replyTarget)} />
             </section>
           )}
           {deleteTarget && (

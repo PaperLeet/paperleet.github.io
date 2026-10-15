@@ -50,19 +50,38 @@ export function communityFeedHref(topicId: string | undefined, state: CommunityF
   return href;
 }
 
-export function communityPostHref(id: string, returnTo?: string) {
+export function communityPostHref(id: string, returnTo?: string, replyId?: string) {
   const base = `#/community/${encodeURIComponent(id)}`;
   const feed = returnTo ? readCommunityFeed(returnTo) : undefined;
-  if (!feed) return base;
-  const from = communityFeedHref(feed.topicId, feed.state).slice(2);
-  return `${base}?${new URLSearchParams({ from })}`;
+  const params = new URLSearchParams();
+  if (feed) params.set('from', communityFeedHref(feed.topicId, feed.state).slice(2));
+  if (replyId !== undefined) {
+    if (!/^[a-f0-9]{32}$/.test(replyId)) throw Error('Invalid reply link');
+    params.set('reply',replyId);
+  }
+  return base + (params.size ? `?${params}` : '');
 }
 
-export function communityPostReturn(route: string, id: string): string | undefined {
+function readCommunityPost(route: string, id: string): {returnTo?:string;replyId?:string}|undefined {
   const value = parts(route);
-  if (!value || value.path !== `community/${id}` || !knownParameters(value.params, ['from'])) return;
-  const feed = readCommunityFeed(value.params.get('from') || '');
-  return feed ? communityFeedHref(feed.topicId, feed.state) : undefined;
+  if (!value || value.path !== `community/${id}` || !knownParameters(value.params, ['from','reply'])) return;
+  const feed = value.params.has('from') ? readCommunityFeed(value.params.get('from') || '') : undefined;
+  if(value.params.has('from')&&!feed)return;
+  const replyId=value.params.get('reply')??undefined;
+  if(replyId!==undefined&&!/^[a-f0-9]{32}$/.test(replyId))return;
+  return {returnTo:feed?communityFeedHref(feed.topicId,feed.state):undefined,replyId};
+}
+export function communityPostReturn(route: string, id: string): string | undefined {
+  return readCommunityPost(route,id)?.returnTo;
+}
+export function communityReplyTarget(route:string,id:string):string|undefined {
+  return readCommunityPost(route,id)?.replyId;
+}
+/** Share only the public thread/reply, never feed searches or current query data. */
+export function communityShareUrl(pageUrl:string,id:string,replyId?:string):string {
+  const page=new URL(pageUrl);
+  if(!['http:','https:'].includes(page.protocol))throw Error('Unsupported page URL');
+  return page.origin+page.pathname+communityPostHref(id,undefined,replyId);
 }
 
 /** Account continuations accept only canonical community filters and feed-only return targets. */
@@ -72,6 +91,6 @@ export function communityContinuation(route: string): string | undefined {
   const value = parts(route);
   const id = value?.path.match(/^community\/([a-f0-9]{32})$/)?.[1];
   if (!id) return;
-  const back = communityPostReturn(route, id);
-  return back ? communityPostHref(id, back).slice(2) : undefined;
+  const post=readCommunityPost(route,id);
+  return post ? communityPostHref(id,post.returnTo,post.replyId).slice(2) : undefined;
 }

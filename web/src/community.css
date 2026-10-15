@@ -1546,6 +1546,11 @@
 .reply-publication-notice { margin: 14px 0; padding: 12px; border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: 6px; font-size: 13px; line-height: 1.7; }
 .reply-publication-notice p { margin: 0 0 6px; }
 .community-reply:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.community-reply.linked-reply { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; background: var(--surface); }
+.discussion-share { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; }
+.discussion-share a, .discussion-share button { color: var(--accent); }
+.discussion-link-fallback { display: grid; gap: 5px; max-width: 100%; min-width: 0; font-size: 12px; }
+.discussion-link-fallback input { width: 100%; max-width: 310px; min-width: 0; padding: 6px; font: inherit; }
 .publication-recovery { min-width: 0; overflow-wrap: anywhere; margin: 14px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 13px; line-height: 1.7; }
 .publication-recovery p { margin: 0 0 10px; }
 .publication-recovery details { margin: 10px 0; }

@@ -5,7 +5,7 @@ import { createServer } from 'vite';
 
 const server = await createServer({server:{middlewareMode:true},appType:'custom'});
 try {
-  const {communityFeedHref,communityPostHref,communityPostReturn,readCommunityFeed,communityContinuation,emptyCommunityFeed}=await server.ssrLoadModule('/src/communityNavigation.ts');
+  const {communityFeedHref,communityPostHref,communityPostReturn,communityReplyTarget,communityShareUrl,readCommunityFeed,communityContinuation,emptyCommunityFeed}=await server.ssrLoadModule('/src/communityNavigation.ts');
   const {signInHref,accountReturnHref}=await server.ssrLoadModule('/src/accountNavigation.ts');
   const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
   const {default:Community}=await server.ssrLoadModule('/src/Community.tsx');
@@ -29,6 +29,25 @@ try {
   assert.equal(communityFeedHref(undefined,emptyCommunityFeed()),'#/community');
   assert.equal(communityFeedHref(undefined,{...emptyCommunityFeed(),code:'private code',reply:'private reply',owner:'private account'}),'#/community');
   assert.equal(communityPostHref(id),'#/community/'+id);
+  const reply='b'.repeat(32);
+  for(const back of [undefined,communityFeedHref('architecture/attention',{category:'questions',following:true,search:'中文 & mask # 😀',page:2})]) {
+    const linked=communityPostHref(id,back,reply);
+    assert.equal(communityReplyTarget(linked,id),reply);
+    assert.equal(communityReplyTarget(decodeProblemHash(linked),id),reply);
+    assert.equal(communityPostReturn(linked,id),back);
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(linked))),linked);
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(decodeProblemHash(linked)))),linked);
+  }
+  assert.equal(communityShareUrl('https://user:secret@paperleet.test/preview/?token=private#/community?q=private',id,reply),`https://paperleet.test/preview/#/community/${id}?reply=${reply}`);
+  assert.equal(communityShareUrl('http://localhost:8954/#/anything',id),`http://localhost:8954/#/community/${id}`);
+  assert.throws(()=>communityShareUrl('javascript:alert(1)',id));
+  for(const bad of ['', '../escape', 'https://evil.test', 'c'.repeat(33), 'B'.repeat(32)])assert.throws(()=>communityPostHref(id,undefined,bad));
+  for(const query of [`reply=${reply}&reply=${reply}`,`reply=../escape`,`reply=${reply}&from=https%3A%2F%2Fevil.test`,`reply=${reply}&unknown=secret`,`reply=`]) {
+    const bad=`community/${id}?${query}`;
+    assert.equal(communityReplyTarget(bad,id),undefined);
+    assert.equal(communityContinuation(bad),undefined);
+    assert.equal(signInHref(bad),'#/account');
+  }
   assert.equal(communityContinuation('community?following=true&page=2'),'community?following=1&page=2');
   const badFeeds=['https://evil.test/','//evil.test/','javascript:alert(1)','community/problem/../attention','community/problem/architecture/attention/extra',
     'account/continue/community','community?from=community','community?unknown=1','community?category=private','community?page=0','community?page=-2','community?page=1.5',

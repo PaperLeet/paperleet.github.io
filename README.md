@@ -86,6 +86,8 @@ Discussion pages offer read-only refresh/retry without discarding reply drafts. 
 
 With a compatible hosted backend, authors can edit a post's title, body and category while keeping its link, replies and reactions. Edit drafts survive closing the editor or reloading the same tab when storage is available. Concurrent changes require review of the latest content before saving; a response-lost save can be retried safely. [Validation and limits](docs/validation/community-post-editing.md).
 
+Discussion and reply links can be copied without carrying feed searches or drafts. Reply links focus and highlight the selected reply, including after sign-in; unavailable replies leave the rest of the discussion readable. A manual-copy field is available when automatic copying fails. [Link validation](docs/validation/discussion-links.md).
+
 Posts and replies retain a pending publication when a success response is lost. Retrying unchanged content reuses the same request identity; changed drafts offer an explicit new-content action or retry of the earlier publication while preserving new work. This requires the matching updated hosted backend. Pending recovery survives reload in the same tab when tab storage is available; closing the tab or clearing storage can lose it.
 
 ## Submit paper
