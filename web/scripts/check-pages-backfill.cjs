@@ -61,7 +61,35 @@ for name, window in [('old', 1800), ('current', 604800)]:
     const boundedGithub = {...github, paginate:async (method, input) => method === 'runs' ? [{id:1}] : [{...artifact(1), size_in_bytes:300 * 1024 * 1024}]};
     assert.equal(await backfill({...options, github:boundedGithub, previousArchive:old}), 0);
     assert(logs.some(value => value.includes('download budget reached')));
-    console.log('PASS Pages asset backfill: policy migration, seven-day query, bounded downloads, expired artifacts, safe archive extraction, and no repeated history downloads');
+    for (const status of [503, 429]) {
+      const delays = [], attempts = new Map(), retryLogs = [];
+      const retryGithub = {
+        rest:{actions:{...github.rest.actions, downloadArtifact:async input => {
+          const attempt = (attempts.get(input.artifact_id) || 0) + 1;
+          attempts.set(input.artifact_id, attempt);
+          // First archive recovers, second stays unavailable, third must still download.
+          if (input.artifact_id === 1 && attempt === 1 || input.artifact_id === 2) {
+            throw Object.assign(Error('https://signed-storage.invalid/archive?secret=do-not-log'), {status});
+          }
+          return {data:zip};
+        }}},
+        paginate:async (method, input) => method === 'runs' ? [1, 2, 3].map(id => ({id})) : [artifact(input.run_id)],
+      };
+      const directory = path.join(root, `retries-${status}`);
+      assert.equal(await backfill({...options, github:retryGithub, previousArchive:old, directory,
+        core:{info:value => retryLogs.push(value), warning:value => retryLogs.push(value)},
+        wait:async milliseconds => delays.push(milliseconds),
+      }), 2);
+      assert.equal(attempts.get(1), 2, 'A temporary error must retry and retain the recovered archive');
+      assert.equal(attempts.get(2), 3, 'Persistent failures must stop after three bounded attempts');
+      assert.equal(attempts.get(3), 1, 'An unavailable old archive must not stop later backfill');
+      assert.deepEqual(delays, [1000, 1000, 2000]);
+      assert.equal(backfill.retainedWindow(path.join(directory, '1/artifact.tar')), 1800);
+      assert.equal(backfill.retainedWindow(path.join(directory, '3/artifact.tar')), 1800);
+      assert(retryLogs.some(value => value.includes(`HTTP ${status}, 3 attempts`)));
+      assert(!retryLogs.some(value => value.includes('signed-storage') || value.includes('secret')), 'Never log signed storage URLs from errors');
+    }
+    console.log('PASS Pages asset backfill: policy migration, seven-day query, bounded downloads, expired artifacts, safe archive extraction, bounded transient retries, sanitized failure logs, and no repeated history downloads');
   } finally { await fs.rm(root, {recursive:true, force:true}); }
 }
 main().catch(error => {console.error(error); process.exitCode = 1;});

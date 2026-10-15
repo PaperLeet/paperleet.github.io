@@ -32,7 +32,7 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
 `, zip, output], {stdio:'pipe'});
 }
 
-module.exports = async function backfill({github, context, core, previousRun, previousArchive, directory, now = Date.now()}) {
+module.exports = async function backfill({github, context, core, previousRun, previousArchive, directory, now = Date.now(), wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))}) {
   if (!previousRun || retainedWindow(previousArchive) >= WINDOW_SECONDS) {
     core.info('No historical backfill needed; the previous artifact already carries the retention window.');
     return 0;
@@ -56,13 +56,30 @@ module.exports = async function backfill({github, context, core, previousRun, pr
       break;
     }
     let response;
-    try {
-      response = await github.rest.actions.downloadArtifact({...context.repo, artifact_id:artifact.id, archive_format:'zip'});
-    } catch (error) {
-      if (error.status !== 404 && error.status !== 410) throw error;
-      core.warning(`Pages archive ${artifact.id} expired before download.`);
-      continue;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        response = await github.rest.actions.downloadArtifact({...context.repo, artifact_id:artifact.id, archive_format:'zip'});
+        break;
+      } catch (error) {
+        const status = Number(error?.status) || 0;
+        if (status === 404 || status === 410) {
+          core.warning(`Pages archive ${artifact.id} expired before download.`);
+          break;
+        }
+        const transient = !status || status === 429 || status >= 500 && status < 600;
+        // Never print the exception: artifact storage errors can contain signed URLs.
+        if (transient && attempt < 2) {
+          core.info(`Temporary ${status ? `HTTP ${status}` : 'network'} failure downloading Pages archive ${artifact.id}; retry ${attempt + 1}/2.`);
+          await wait((attempt + 1) * 1000);
+          continue;
+        }
+        core.warning(`Historical Pages archive ${artifact.id} is unavailable (${status ? `HTTP ${status}` : 'network error'}, ${attempt + 1} attempts); continuing with available assets.`);
+        break;
+      }
     }
+    // Historical recovery is optional. A storage outage must not block the
+    // validated current release or discard historical archives already fetched.
+    if (!response) continue;
     const data = Buffer.from(response.data);
     if (bytes + data.byteLength > MAX_DOWNLOAD_BYTES) { core.warning('Historical asset download budget reached.'); break; }
     const target = path.join(directory, String(run.id));
