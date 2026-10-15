@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
@@ -10,6 +10,8 @@ import { currentProfileEditLimitMessage, readProfileEditPolicy } from "./profile
 import type { ProfileEditPolicy } from "./profileEditPolicy";
 import { safeAvatarPath } from "./profileAvatar";
 import { AccountAccessGate } from './Waitlist';
+
+const AccountLogout = lazy(() => import("./AccountLogout"));
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type Affiliation = { name: string; name_en?: string; domain: string; kind: "institution" | "email_domain" };
@@ -52,6 +54,10 @@ export type AccountCapabilities = {
   registration_policy?: "invite_only" | "work_email";
   work_email_registration?: boolean;
   email_verification_required?: boolean;
+  email_login_available?: boolean;
+  email_waitlist_available?: boolean;
+  email_login_policy?: "education_and_approved_domains";
+  session_idle_days?: number;
   institution_verification_required: boolean;
   institutions: (Institution & { domains: string[] })[];
   reason?: string;
@@ -152,10 +158,10 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       /* The current tab still updates without browser storage. */
     }
   }
-  async function refresh() {
+  async function refresh(background = false) {
     if (!hostedEdition) { setCurrentUser(null); setLoading(false); setError(""); return; }
     const epoch = ++accountEpoch.current;
-    setLoading(true);
+    if (!background) setLoading(true);
     try {
       const data = await socialApi<{
         user: AccountUser | null;
@@ -211,6 +217,15 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     void refreshHealth();
     if (publicSite) return;
     const timer = setInterval(() => void refreshHealth(), 15000);
+    let lastActivityRefresh = Date.now();
+    const active = () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastActivityRefresh < 3600000) return;
+      lastActivityRefresh = Date.now();
+      void refresh(true);
+    };
+    window.addEventListener("pointerdown", active, { passive: true });
+    window.addEventListener("keydown", active);
+    window.addEventListener("focus", active);
     const changed = (event: StorageEvent) => {
       if (event.key === "paperleet.auth.changed") {
         setCurrentUser(null);
@@ -221,6 +236,9 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     return () => {
       clearInterval(timer);
       window.removeEventListener("storage", changed);
+      window.removeEventListener("pointerdown", active);
+      window.removeEventListener("keydown", active);
+      window.removeEventListener("focus", active);
     };
   }, []);
   return (
@@ -349,13 +367,7 @@ export function AccountNav({ returnTo = "" }: { returnTo?: string }) {
   const { t } = useI18n();
   if (!hostedAppAvailable) return null;
   return user ? (
-    <a
-      className="account-nav"
-      href={profileHref(user)}
-      title={t("我的主页", "My profile")}
-    >
-      <Avatar user={user} size={29} />
-    </a>
+    <Suspense fallback={null}><AccountLogout user={user} /></Suspense>
   ) : (
     <a className="account-nav sign-in-nav" href={hostedAppHref(signInHref(returnTo))}>
       {loading ? "…" : t("登录", "Sign in")}

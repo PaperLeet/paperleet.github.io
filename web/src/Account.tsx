@@ -75,6 +75,7 @@ export default function Account({ returnTo }: { returnTo?: string }) {
         <TestSignIn enabled={capabilities.auth_available === true} />
       ) : capabilities?.auth_mode === "oauth" ? (
         <OrganizationSignIn providers={capabilities.oauth_providers || []} returnTo={returnTo}
+          emailLoginAvailable={capabilities.email_login_available}
           loginError={typeof location === "undefined" ? undefined : organizationLoginError(decodeProblemHash(location.hash))} />
       ) : (
         <SignIn enabled={capabilities?.auth_available === true} workEmailRegistration={capabilities?.work_email_registration === true} />
@@ -83,8 +84,8 @@ export default function Account({ returnTo }: { returnTo?: string }) {
   );
 }
 
-export function OrganizationSignIn({ providers, returnTo, loginError }: {
-  providers: NonNullable<AccountCapabilities["oauth_providers"]>; returnTo?: string; loginError?: string;
+export function OrganizationSignIn({ providers, returnTo, loginError, emailLoginAvailable }: {
+  providers: NonNullable<AccountCapabilities["oauth_providers"]>; returnTo?: string; loginError?: string; emailLoginAvailable?: boolean;
 }) {
   const { t } = useI18n();
   const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
@@ -106,7 +107,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
       location.assign(target.href);
     } catch (e) { setError(errorMessage(e)); setBusy(undefined); }
   }
-  return <div className="account-grid">
+  return <><div className="account-grid">
     <section className="social-panel login-card">
       <span className="social-eyebrow">PAPERLEET</span>
       <h1>{t("登录 PaperLeet", "Sign in to PaperLeet")}</h1>
@@ -128,8 +129,15 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
       <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号可以直接使用。个人 Gmail、Outlook 等账号登录后会进入等待名单；已获邀请的账户按现有资格使用。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts receive access. Personal Gmail, Outlook and similar accounts join the waitlist; invited accounts retain their existing access. Some organizations require administrator approval.")}</p>
       <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。可用账号的注册机构或邮箱域名会公开展示，完整邮箱保持私密；等待名单账号不会公开个人主页。组织账号不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Active accounts show their registration institution or email domain publicly; full email addresses stay private. Waitlisted accounts have no public profile. An organization account is not an endorsement by a school or employer.")}</p>
+      <p className="social-description">{t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>
+      <p className="account-fineprint">{t("登录后会自动保持登录；连续 90 天未使用、主动退出或账号权限被撤销时，需要重新登录。请勿在公共电脑上保留登录。", "Sign-in is renewed while you use PaperLeet. After 90 days of inactivity, signing out, or access revocation, you must sign in again. Sign out on shared computers.")}</p>
     </aside>
-  </div>;
+  </div>
+    <details className="email-login-alternative">
+      <summary>{t("使用学校／已审核公司邮箱验证码登录", "Use a school / reviewed company email code")}</summary>
+      <SignIn enabled={emailLoginAvailable === true} workEmailRegistration onChooseProvider={provider => void signIn(provider)} providers={providers} />
+    </details>
+  </>;
 }
 export function TestSignIn({ enabled }: { enabled: boolean }) {
   const { t } = useI18n();
@@ -252,7 +260,44 @@ export function TestSignIn({ enabled }: { enabled: boolean }) {
     </div>
   );
 }
-export function SignIn({ enabled, workEmailRegistration = false }: { enabled: boolean; workEmailRegistration?: boolean }) {
+export function EmailQuotaNotice({ email, waitlistAvailable, onChooseProvider, providers = [] }: {
+  email: string; waitlistAvailable: boolean;
+  onChooseProvider?: (provider: "google" | "microsoft") => void;
+  providers?: NonNullable<AccountCapabilities["oauth_providers"]>;
+}) {
+  const { t } = useI18n();
+  const [joining, setJoining] = useState(false), [joined, setJoined] = useState(false), [error, setError] = useState("");
+  async function join() {
+    if (joining || joined) return;
+    setJoining(true); setError("");
+    try {
+      const result = await socialApi<{ joined: boolean }>("account/waitlist", { email: email.trim() });
+      if (!result.joined) throw new Error(t("候补登记未完成，请重试。", "Waitlist signup did not complete. Please retry."));
+      setJoined(true);
+    } catch (e) { setError(errorMessage(e)); }
+    finally { setJoining(false); }
+  }
+  return <div className="email-quota-notice">
+    <SocialNotice>{joined
+      ? t("已加入 waitlist，邮箱已登记。你仍可使用 Google／Microsoft 登录。", "You're on the waitlist. Your email has been recorded. You can still sign in with Google/Microsoft.")
+      : t("当前邮箱验证码名额已满。可加入 waitlist，或使用 Google／Microsoft 登录。", "Email sign-in capacity is full. Join the waitlist, or sign in with Google/Microsoft.")}</SocialNotice>
+    <div className="email-login-dialog-actions">
+      {waitlistAvailable && <button className="button subtle" type="button" disabled={joining || joined} onClick={() => void join()}>
+        {joined ? t("已加入 waitlist", "On the waitlist") : joining ? t("正在登记…", "Joining…") : t("加入 waitlist", "Join waitlist")}
+      </button>}
+      {onChooseProvider && providers.filter(provider => provider.available).map(provider => <button className="button" type="button" key={provider.id} onClick={() => onChooseProvider(provider.id)}>
+        {provider.id === "google" ? t("使用 Google 登录", "Sign in with Google") : t("使用 Microsoft 登录", "Sign in with Microsoft")}
+      </button>)}
+    </div>
+    {error && <SocialNotice error={error} />}
+  </div>;
+}
+
+export function SignIn({ enabled, workEmailRegistration = false, onChooseProvider, providers = [] }: {
+  enabled: boolean; workEmailRegistration?: boolean;
+  onChooseProvider?: (provider: "google" | "microsoft") => void;
+  providers?: NonNullable<AccountCapabilities["oauth_providers"]>;
+}) {
   const { t, locale } = useI18n();
   const { setUser, capabilities } = useAccount();
   const [email, setEmail] = useState(""),
@@ -261,16 +306,41 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
+  const [challenge, setChallenge] = useState("");
+  const [remaining, setRemaining] = useState(0);
+  const [recommend, setRecommend] = useState(false);
+  const [preferEmail, setPreferEmail] = useState(false);
+  const [quotaReached, setQuotaReached] = useState(false);
+  const recommendation = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (recommend) recommendation.current?.showModal();
+    else recommendation.current?.close();
+  }, [recommend]);
+  useEffect(() => {
+    if (!remaining) return;
+    const timer = setTimeout(() => setRemaining(value => Math.max(0, value - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [remaining]);
   const domain = email.trim().toLowerCase().split("@")[1];
   const institution = capabilities?.institutions?.find((i) =>
     i.domains.includes(domain),
   );
-  async function sendCode() {
+  const eligible = Boolean(domain && (domain.endsWith(".edu.cn") || domain.endsWith(".edu") || institution));
+  async function sendCode(confirmed = preferEmail) {
+    if (!enabled || busy || remaining > 0) return;
+    if (!eligible) { setError(t("早期仅支持 edu.cn、.edu 学校邮箱和已审核的学校／公司域名。请使用 Google／Microsoft，或在下方申请域名审核。", "Email codes currently support edu.cn, .edu and reviewed school/company domains. Use Google/Microsoft or request domain review below.")); return; }
+    if (domain?.endsWith(".edu") && !confirmed) { setRecommend(true); return; }
     setBusy(true);
+    setQuotaReached(false);
     setError("");
     setMessage("");
     try {
-      await socialApi("account/send-code", { email: email.trim() });
+      const result = await socialApi<{ sent: boolean; oauth_recommended?: boolean; challenge?: string; retry_after?: number }>("account/send-code", { email: email.trim(), prefer_email: confirmed });
+      if (result.oauth_recommended) { setRecommend(true); return; }
+      if (!result.sent) throw new Error(t("验证码未发送，请稍后重试。", "The code was not sent. Please try again."));
+      setChallenge(result.challenge || "");
+      setCode("");
+      setRemaining(result.retry_after || 60);
       setSent(true);
       setMessage(
         t(
@@ -279,7 +349,13 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
         ),
       );
     } catch (e) {
-      setError(errorMessage(e));
+      const exhausted = e instanceof SocialError && e.code === "email_quota_exhausted";
+      setQuotaReached(exhausted);
+      setError(exhausted ? "" : e instanceof SocialError && e.status === 429
+        ? t("验证码请求过于频繁，请稍后重试，或使用上方 Google／Microsoft 登录。", "Too many code requests. Try again later, or use Google/Microsoft above.")
+        : e instanceof SocialError && e.status === 503
+          ? t("邮箱服务暂时不可用，请稍后重试，或使用 Google／Microsoft 登录。", "Email sign-in is temporarily unavailable. Try again later, or use Google/Microsoft.")
+          : errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -291,6 +367,7 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
       const data = await socialApi<{ user: AccountUser }>("account/verify", {
         email: email.trim(),
         code: code.trim(),
+        challenge,
       });
       setUser(data.user);
     } catch (e) {
@@ -306,8 +383,8 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
         <h1>{t("加入研究者社区", "Join the community")}</h1>
         <p className="social-description">
           {t(
-            "用学校或公司邮箱注册／登录，与大家讨论论文和实现。",
-            "Register or sign in with your school or company email to discuss papers and implementations.",
+            "使用学校邮箱或已审核的公司邮箱接收验证码，注册／登录 PaperLeet。",
+            "Register or sign in to PaperLeet with a school or reviewed company email code.",
           )}
         </p>
         {capabilities?.invite_only && (
@@ -320,7 +397,7 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
         )}
         {workEmailRegistration && (
           <SocialNotice>
-            {t("开放学校和公司邮箱注册，无需邀请码。Gmail、QQ、Outlook 等个人邮箱暂不支持；收到并验证邮件验证码后才会创建账户。", "School and company email registration is open without invitations. Personal email services such as Gmail, QQ and Outlook are excluded. Your account is created after you verify the emailed code.")}
+            {t("无需邀请码：edu.cn 学校邮箱可直接发送；.edu 优先使用 Google／Microsoft，也可继续收取验证码。其他学校和公司邮箱需审核域名。Gmail、QQ、Outlook 等个人邮箱不支持验证码。", "No invitation needed: send directly to edu.cn school addresses. For .edu, try Google/Microsoft first, or continue with a code. Other school and company domains require review. Personal services such as Gmail, QQ and Outlook cannot use email codes.")}
           </SocialNotice>
         )}
         {!enabled && (
@@ -332,6 +409,9 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
           </SocialNotice>
         )}
         {error && <SocialNotice error={error} />}
+        {quotaReached && <EmailQuotaNotice key={email.trim().toLowerCase()} email={email}
+          waitlistAvailable={capabilities?.email_waitlist_available === true}
+          onChooseProvider={onChooseProvider} providers={providers} />}
         {message && <SocialNotice>{message}</SocialNotice>}
         <form
           className="social-form"
@@ -349,8 +429,8 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
               maxLength={254}
               value={email}
               disabled={busy || sent || !enabled}
-              placeholder="you@university.edu"
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@university.edu.cn"
+              onChange={(e) => { setEmail(e.target.value); setPreferEmail(false); setChallenge(""); }}
             />
           </label>
           {institution && (
@@ -380,7 +460,7 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
               />
             </label>
           )}
-          <button className="button" type="submit" disabled={busy || !enabled}>
+          <button className="button" type="submit" disabled={busy || !enabled || (!sent && remaining > 0)}>
             {busy ? (
               <span className="spinner" />
             ) : sent ? (
@@ -390,7 +470,7 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
             )}
             {sent
               ? t("验证并登录", "Verify and sign in")
-              : t("发送验证码", "Send verification code")}
+              : remaining > 0 ? t(`${remaining} 秒后可重发`, `Resend in ${remaining}s`) : t("发送验证码", "Send verification code")}
           </button>
           {sent && (
             <div className="form-inline-actions">
@@ -400,6 +480,8 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
                 onClick={() => {
                   setSent(false);
                   setCode("");
+                  setChallenge("");
+                  setPreferEmail(false);
                   setMessage("");
                 }}
               >
@@ -407,18 +489,27 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
               </button>
               <button
                 type="button"
-                disabled={busy}
+                disabled={busy || remaining > 0}
                 onClick={() => void sendCode()}
               >
-                {t("重新发送", "Resend code")}
+                {remaining > 0 ? t(`${remaining} 秒后可重发`, `Resend in ${remaining}s`) : t("重新发送", "Resend code")}
               </button>
             </div>
           )}
         </form>
+        <dialog ref={recommendation} className="email-login-dialog" aria-labelledby="email-login-recommendation" onCancel={() => setRecommend(false)}>
+          <h2 id="email-login-recommendation">{t("建议使用学校的 Google／Microsoft 登录", "Try your school's Google / Microsoft sign-in")}</h2>
+          <p>{t(".edu 学校通常提供组织账号登录，无需等待邮件。若学校使用其他邮件系统，你也可以继续发送验证码。", ".edu schools often support organization sign-in without waiting for email. If your school uses another mail system, you can continue with an email code.")}</p>
+          <div className="email-login-dialog-actions">
+            {onChooseProvider && providers.filter(provider => provider.available).map(provider => <button className="button" type="button" key={provider.id} onClick={() => { setRecommend(false); onChooseProvider(provider.id); }}>{provider.id === "google" ? t("使用 Google 登录", "Sign in with Google") : t("使用 Microsoft 登录", "Sign in with Microsoft")}</button>)}
+            <button className="button subtle" type="button" onClick={() => { setRecommend(false); setPreferEmail(true); void sendCode(true); }}>{t("仍然发送邮箱验证码", "Continue with email code")}</button>
+            <button className="text-button" type="button" onClick={() => setRecommend(false)}>{t("返回", "Back")}</button>
+          </div>
+        </dialog>
         <p className="account-fineprint">
           {workEmailRegistration ? t(
-            "昵称、头像和注册邮箱对应的机构或邮箱域名始终公开，完整邮箱仅本人可见。已审核机构会显示认证标记。",
-            "Your display name, avatar, and registration institution or email domain are public; your full email stays private. Institution badges require a reviewed domain.",
+            "验证码 10 分钟有效，只能使用一次。已有 Google／Microsoft 账户请继续使用原方式登录，暂不自动合并不同登录方式。昵称、头像和注册机构或邮箱域名会公开，完整邮箱保持私密。",
+            "Codes expire in 10 minutes and work once. If you already use Google/Microsoft, continue with that method; sign-in identities are not automatically merged. Your display name, avatar and registration institution or email domain are public; your full email stays private.",
           ) : t(
             "只有通过审核的机构邮箱可以注册。昵称、头像和注册邮箱归属始终公开，完整邮箱保持私密；国家／地区由你选择是否展示。",
             "Registration is limited to approved institutional email domains. Your display name, avatar, and registration affiliation are public; your full email stays private. You choose whether to display your country or region.",
@@ -473,8 +564,8 @@ function InstitutionRequest({ openRegistration }: { openRegistration: boolean })
       </summary>
       <p>
         {openRegistration ? t(
-          "可以先验证邮箱注册。提交学校或公司信息，经审核后可在个人资料中展示机构名称。",
-          "You can register by verifying your email first. Submit your school or company details for review to display an institution name on your profile.",
+          "edu.cn 和 .edu 学校邮箱可按提示登录。其他学校和公司邮箱请先提交域名审核；审核通过后才能发送验证码。",
+          "Follow the sign-in prompts for edu.cn and .edu schools. Other school and company domains must be reviewed before they can receive codes.",
         ) : t(
           "提供机构信息，管理员审核域名后即可使用邮箱验证。",
           "Suggest your institution. Email verification becomes available once an administrator approves its domain.",
@@ -614,11 +705,11 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       if (active.current) setBusy(false);
     }
   }
-  async function logout() {
+  async function logout(allDevices = false) {
     setBusy(true);
     setError("");
     try {
-      await socialApi("account/logout", {});
+      await socialApi(allDevices ? "account/logout-all" : "account/logout", {});
       setUser(null);
     } catch (e) {
       setError(errorMessage(e));
@@ -837,6 +928,10 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               <LogOut size={14} />
               {t("退出登录", "Sign out")}
             </button>
+            <button className="text-button" type="button" disabled={busy} onClick={() => void logout(true)}>
+              {t("退出所有设备", "Sign out on all devices")}
+            </button>
+            <p className="account-fineprint">{t("活跃使用自动保持登录；连续 90 天未使用需重新登录。退出会立即撤销服务器上的登录凭据。", "Active use keeps you signed in. Sign in again after 90 days of inactivity. Signing out immediately revokes the server session.")}</p>
           </section>
           <section className="social-panel">
             <h3>{t("公开预览", "Public preview")}</h3>

@@ -11,7 +11,7 @@ function visit(key) {
   for (const dependency of manifest[key].imports || []) visit(dependency);
 }
 visit('index.html');
-for (const key of ['src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/SolutionHistory.tsx']) {
+for (const key of ['src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx']) {
   assert(manifest[key]?.isDynamicEntry, `${key} must remain a deferred entry`);
   assert(!initial.has(key), `${key} must not load with the paper library`);
 }

@@ -3901,3 +3901,19 @@ html { scrollbar-gutter: stable; }
   .repository-link { width: 28px; height: 30px; }
   .editor-bottom .editor-run-status { font-size: 11px; }
 }
+/* Alternative mailbox sign-in and the native, keyboard-accessible .edu prompt. */
+.email-login-alternative { margin-top: 24px; }
+.email-login-alternative > summary { cursor: pointer; padding: 16px 0; font-weight: 600; }
+.email-login-dialog { width: min(520px, calc(100vw - 32px)); padding: 28px; border: 1px solid var(--line); border-radius: 16px; color: var(--text); background: var(--surface, #fff); }
+.email-login-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.email-login-dialog h2 { margin-top: 0; font-size: 20px; }
+.email-login-dialog p { line-height: 1.7; }
+.email-login-dialog-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.email-quota-notice { margin-bottom: 18px; }
+.email-quota-notice .email-login-dialog-actions { margin-top: 10px; }
+.account-nav-actions { display: flex; align-items: center; gap: 10px; position: relative; }
+.account-logout-nav { display: inline-flex; align-items: center; gap: 6px; padding: 7px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font: inherit; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.account-logout-nav:hover { background: var(--surface2); color: var(--text); }
+.account-logout-nav:disabled { opacity: .6; cursor: wait; }
+.account-nav-error { position: absolute; right: 0; top: 100%; z-index: 20; width: min(300px, 80vw); padding: 12px; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 8px; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .account-logout-nav span { display: none; } .account-nav-actions { gap: 4px; } }

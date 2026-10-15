@@ -5,10 +5,11 @@ import { createServer } from "vite";
 const server = await createServer({
   server: { middlewareMode: true },
   appType: "custom",
+  optimizeDeps: { noDiscovery: true, include: [] },
 });
 try {
   const renderToString = await localizedRenderer(server, "zh");
-  const { TestSignIn, SignIn, OrganizationSignIn, ProfileSettings } =
+  const { TestSignIn, SignIn, OrganizationSignIn, ProfileSettings, EmailQuotaNotice } =
     await server.ssrLoadModule("/src/Account.tsx");
   const { PersonLink, AccountNav } = await server.ssrLoadModule("/src/social.tsx");
   const { AccountAccessGate } = await server.ssrLoadModule('/src/Waitlist.tsx');
@@ -67,9 +68,16 @@ try {
   const organization = renderToString(React.createElement(OrganizationSignIn, { providers: [{ id: "google", available: true }, { id: "microsoft", available: false }], loginError: "expired" }));
   assert(organization.includes("使用 Google 登录") && organization.includes("使用 Microsoft 登录"));
   assert(organization.includes("尚未启用") && organization.includes("disabled="));
-  assert(!organization.includes('type="email"') && !organization.includes('type="password"'));
+  assert(organization.includes('type="email"') && !organization.includes('type="password"'));
+  assert(organization.includes("edu.cn") && organization.includes("仍然发送邮箱验证码"));
+  assert(organization.includes("90 天"));
+  const quota = renderToString(React.createElement(EmailQuotaNotice, {
+    email: "student@school.edu.cn", waitlistAvailable: true, onChooseProvider() {},
+    providers: [{ id: "google", available: true }, { id: "microsoft", available: true }],
+  }));
+  assert(quota.includes("加入 waitlist") && quota.includes("使用 Google 登录") && quota.includes("使用 Microsoft 登录"));
   assert(organization.includes("此次登录已过期") && organization.includes("等待名单"));
-  assert(!organization.includes('其他个人账号不开放注册'));
+  assert(!organization.includes("其他个人账号不开放注册"));
   assert.equal(accountReturnHref("account/error/expired/22"), "#/22");
   assert.equal(accountReturnHref("account/error/identity/https://evil.test"), undefined);
   assert(openRegistration.includes("学校／公司邮箱"));
@@ -112,6 +120,7 @@ try {
   assert(waiting.includes('学校／企业账户') && waiting.includes('无需重复注册'));
   assert(waiting.includes('退出并切换账号') && waiting.includes('刷新状态'));
   assert(!waiting.includes('Private practice workspace') && !waiting.includes('个人主页'));
+  assert(settings.includes("退出登录") && settings.includes("退出所有设备"));
   assert(
     settings.includes("issued_login"),
     "Settings must display the stable login username",
