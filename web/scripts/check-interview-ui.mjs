@@ -79,7 +79,7 @@ try {
  await submit();const cleanupRetry=take('community/posts','POST');assert.equal(cleanupRetry.body.request_id,cleanupRequest.body.request_id);await reply(cleanupRetry,report);await stop();
  function LimitFixture(){const [value,setValue]=useState({...details,questions:Array.from({length:12},(_,i)=>'architecture/q'+i)});return React.createElement(Fields,{value,onChange:setValue,problems:[...modules,...Array.from({length:12},(_,i)=>({id:'architecture/q'+i,title:'Question '+i,number:100+i}))]});}
  await render(React.createElement(LimitFixture));assert([...document.querySelectorAll('.interview-module-options button')].some(el=>el.disabled),'Thirteenth concept is disabled');await stop();
- await render(React.createElement(CompanyTags,{problemId:'architecture/attention'}));await reply(take('summary'),summary);assert(document.querySelector('.problem-company-evidence').textContent.includes('Amazon'));assert(document.querySelector('.problem-company-evidence a').getAttribute('href').includes('q=architecture%2Fattention'));await stop();
+ await render(React.createElement(CompanyTags,{problemId:'architecture/attention'}));await reply(take('summary'),summary);assert(document.querySelector('.problem-company-evidence').textContent.includes('Amazon'));assert(document.querySelector('.problem-company-evidence a').getAttribute('href').includes('concept=architecture%2Fattention'));await stop();
  const originalFetch=globalThis.fetch;let catalogCalls=0;globalThis.fetch=async()=>{catalogCalls++;return Response.json({problems:modules});};
  try {
   let saved;await render(React.createElement(PostEditor,{post:report,owner:'ui-alice',disabled:false,onSaved:post=>saved=post,onClose(){},onRefresh:async()=>true}));

@@ -233,3 +233,22 @@
 .interview-evidence-context p > svg { flex:none; margin-top:4px; }
 .interview-ranking-evidence > a { display:block; margin-top:5px; color:var(--accent); font-size:10px; text-decoration:underline; text-underline-offset:3px; }
 @media(pointer:coarse) { .interview-report-actions .post-bookmark > button,.interview-feed-scope > button { min-height:44px; } }
+
+.interview-concept-context { display:flex; justify-content:space-between; align-items:center; gap:24px; margin:20px 0; padding:20px; border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line)); border-radius:11px; background:var(--surface); }
+.interview-concept-copy { flex:1; min-width:0; }
+.interview-concept-copy > .interview-panel-kicker { display:inline-flex; align-items:center; gap:6px; }
+.interview-concept-copy h2 { font-size:17px; font-weight:600; line-height:1.5; margin:8px 0; overflow-wrap:anywhere; }
+.interview-concept-copy p { margin:0; color:var(--muted); font-size:12px; line-height:1.85; }
+.interview-concept-copy > code { display:block; margin-top:8px; color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
+.interview-concept-meta { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; color:var(--muted); font-size:11px; }
+.interview-concept-state { display:inline-flex; align-items:center; gap:5px; }
+.interview-concept-state.done { color:var(--accent); }
+.interview-concept-actions { display:flex; align-items:flex-end; flex-direction:column; gap:10px; flex:none; max-width:220px; }
+.interview-concept-actions > .button { min-height:38px; font-size:12px; }
+.interview-concept-actions > :is(small,.text-button) { font-size:10px; line-height:1.7; text-align:right; color:var(--muted); }
+.interview-concept-actions > .text-button { color:var(--accent); }
+.problem-company-retry > button { color:var(--accent); font-size:11px; }
+@media(max-width:600px) { .interview-concept-context { flex-direction:column; align-items:stretch; gap:16px; padding:16px; } .interview-concept-actions { align-items:stretch; max-width:none; } .interview-concept-actions > :is(small,.text-button) { text-align:center; } }
+@media(pointer:coarse) { .interview-concept-actions > .button,.problem-company-evidence :is(a,button) { min-height:44px; } .problem-company-evidence :is(a,button) { display:inline-flex; align-items:center; } }
+.interview-concept-cached { display:block; color:var(--muted); font-size:10px; line-height:1.7; margin-top:6px; }
+@media(pointer:coarse) { .interview-concept-actions > :is(a,button) { min-height:44px; } }

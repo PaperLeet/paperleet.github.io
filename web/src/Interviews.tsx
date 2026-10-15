@@ -13,6 +13,7 @@ import InterviewReportCard from './InterviewReportCard';
 import InterviewEvidenceContext from './InterviewEvidenceContext';
 import InterviewResources from './InterviewResources';
 import InterviewCompanyOverview from './InterviewCompanyOverview';
+import InterviewConceptContext from './InterviewConceptContext';
 import {companyResources} from './interviewPreparation';
 import InterviewStudyPaths from './InterviewStudyPaths';
 import type {Problem,Saved} from './types';
@@ -65,6 +66,7 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
     const label=key==='concept'?(problems.find(problem=>problem.id===filters.concept)?moduleTitle(problems.find(problem=>problem.id===filters.concept)!):filters.concept):key==='q'?`“${filters.q}”`:key==='days'?filters.days==='all'?t('全部时间','All time'):t(`近 ${filters.days} 天`,`Past ${filters.days} days`):interviewLabel(({company:'companies',role:'roles',stage:'stages'} as const)[key],filters[key],en);
     return <button type="button" key={key} title={label} aria-label={t(`移除筛选：${label}`,`Remove filter: ${label}`)} onClick={()=>change({[key]:key==='days'?'365':''})}><span>{label}</span><X size={12}/></button>;
    })}<button className="text-button" onClick={()=>change({...emptyInterviewFilters(),view:filters.view,saved:filters.saved})}>{t('清除筛选','Clear filters')}</button></div>}
+   <InterviewConceptContext filters={filters} problems={problems} saved={saved} ready={progressReady} error={progressError} catalogError={catalogError} onRetryCatalog={onRetryCatalog} onRetryProgress={onRetryProgress}/>
    {filters.company&&(filters.view!=='companies'||companies.length>0)&&<InterviewCompanyOverview filters={filters} summary={summary}/>}
 
    {compose&&user&&<InterviewComposer key={user.id} owner={user.id} company={filters.company} problems={problems} onClose={()=>setCompose(false)} onPublished={post=>{location.hash=communityPostHref(post.id,interviewHref(filters)).slice(1);}}/>}

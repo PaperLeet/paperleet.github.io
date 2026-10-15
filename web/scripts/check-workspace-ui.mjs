@@ -20,7 +20,7 @@ const user={id:'account-one',username:'researcher',display_name:'Researcher <scr
 let logoutRequests=0,finishLogout;
 globalThis.fetch=async path=>{
   if(String(path).endsWith('/api/health'))return Response.json({mode:'hosted',auth_required:true,judge:{ready:true}});
-  if(String(path).endsWith('/api/account/me'))return Response.json({user,capabilities:{auth_available:true,institutions:[]}});
+  if(String(path).endsWith('/api/account/me'))return Response.json({user,capabilities:{auth_available:true,institutions:[],community_bookmarks:true}});
   if(String(path).endsWith('/api/account/logout')){logoutRequests++;return new Promise(resolve=>{finishLogout=resolve;});}
   throw Error(`Unexpected test request: ${path}`);
 };
@@ -63,6 +63,7 @@ try {
   await click(button('EN'));
   assert.equal(localStorage.getItem('paperleet.locale'),'en');
   assert.equal(find('.account-menu-panel').getAttribute('aria-label'),'Personal menu');
+  const savedLink=find('.account-menu-links a[href*="saved=1"]');assert(savedLink&&savedLink.textContent.includes('Saved interviews'));assert.equal(savedLink.getAttribute('href'),'#/interviews?saved=1&days=all');const navigated=new Promise(resolve=>window.addEventListener('hashchange',resolve,{once:true}));await click(savedLink);await act(async()=>navigated);assert(!find('.account-menu-panel'),'The saved-reading shortcut closes the account panel');await click(find('.account-menu-trigger'));
   await click(button('Dark'));
   assert.equal(button('Dark').getAttribute('aria-pressed'),'true');
   assert(find('.account-menu-panel'),'Changing preferences keeps the panel open');
@@ -93,6 +94,7 @@ try {
   await settle(()=>!account.user&&!find('.account-menu-panel'));
   await click(find('.account-menu-trigger'));
   assert(!find('.account-menu-panel').textContent.includes(user.display_name),'The next owner cannot see the previous account identity');
+  assert(!find('.account-menu-links a[href*="saved=1"]'),'Guests do not inherit an account saved-reading shortcut');
   assert(find('.account-menu-signin').getAttribute('href').includes('account/continue/22'),'Sign-in preserves the practice route');
   await act(async()=>window.dispatchEvent(new dom.window.Event('hashchange')));
   assert(!find('.account-menu-panel'),'Route changes close the account panel');

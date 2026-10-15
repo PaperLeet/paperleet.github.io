@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Award, BookOpen, ChevronRight, Download, Globe2, Moon, Settings, ShieldCheck, Sun, UserRound } from 'lucide-react';
+import { Award, BookOpen, Bookmark, ChevronRight, Download, Globe2, Moon, Settings, ShieldCheck, Sun, UserRound } from 'lucide-react';
 import { Avatar, profileHref, useAccount, type AccountUser } from './social';
 import { useI18n } from './i18n';
 import { hostedAppAvailable, hostedAppHref } from './deployment';
@@ -21,7 +21,7 @@ export type HeaderAccountMenuProps={
 };
 
 export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
-  const {user,loading}=useAccount();
+  const {user,loading,capabilities}=useAccount();
   const {t}=useI18n();
   const [open,setOpen]=useState(false);
   const root=useRef<HTMLDivElement>(null);
@@ -50,12 +50,12 @@ export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
       if(event.key==='ArrowDown'){event.preventDefault();setOpen(true);}
     }}>{user?<Avatar user={user} size={32}/>:<span className="guest-avatar" aria-hidden="true"><UserRound size={18}/></span>}</button>
     {open&&<section className="account-menu-panel" ref={panel} tabIndex={-1} id={id} role="dialog" aria-label={t('个人菜单','Personal menu')}>
-      <AccountMenuContent {...props} user={user} loading={loading} onClose={()=>{close();trigger.current?.focus({preventScroll:true});}}/>
+      <AccountMenuContent {...props} user={user} loading={loading} savedAvailable={capabilities?.community_bookmarks===true} onClose={()=>{close();trigger.current?.focus({preventScroll:true});}}/>
     </section>}
   </div>;
 }
 
-export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onGuide,onBackup,backupReady}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void}) {
+export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onGuide,onBackup,backupReady,savedAvailable=false}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void;savedAvailable?:boolean}) {
   const {locale,setLocale,t}=useI18n();
   const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好自动保存；访客代码仅在当前页面保留','Preferences save here; guest code lasts only for this page')}</small></span>{user&&<ChevronRight size={16}/>}</>;
   return <>
@@ -71,6 +71,7 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
       <div className="account-menu-preference"><span><Sun size={16}/>{t('外观','Appearance')}</span><div className="account-menu-segment" role="group" aria-label={t('外观','Appearance')}><button type="button" aria-pressed={theme==='light'} disabled={!onTheme} onClick={()=>onTheme?.('light')}><Sun size={14}/>{t('浅色','Light')}</button><button type="button" aria-pressed={theme==='dark'} disabled={!onTheme} onClick={()=>onTheme?.('dark')}><Moon size={14}/>{t('深色','Dark')}</button></div></div>
     </div>
     <div className="account-menu-links">
+      {user&&savedAvailable&&<a className="account-menu-row" href={hostedAppHref('#/interviews?saved=1&days=all')} onClick={onClose}><Bookmark size={16}/><span>{t('收藏面经','Saved interviews')}</span><ChevronRight size={14}/></a>}
       {user&&<a className="account-menu-row" href={hostedAppHref('#/account')} onClick={onClose}><ShieldCheck size={16}/><span>{t('账号与隐私','Account & privacy')}</span><ChevronRight size={14}/></a>}
       {user&&onBackup&&<button type="button" className="account-menu-row" disabled={!backupReady} onClick={()=>{onClose();onBackup();}}><Download size={16}/><span>{t('代码备份','Code backups')}</span><ChevronRight size={14}/></button>}
       {onGuide&&<button type="button" className="account-menu-row" onClick={()=>{onClose();onGuide();}}><BookOpen size={16}/><span>{t('使用指南','Practice guide')}</span><ChevronRight size={14}/></button>}
