@@ -1,5 +1,6 @@
 import { communityContinuation } from './communityNavigation';
 import { libraryContinuation } from './libraryNavigation';
+import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
 const continuationPrefix = "account/continue/";
 const errorPrefix = "account/error/";
@@ -8,6 +9,8 @@ const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", 
 /** Allow only known shapes of local hash routes; never an external destination. */
 function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
+  const interviews=readInterviewRoute(route);
+  if(interviews)return interviewHref(interviews).slice(2);
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
   if (route === "" || route === "community" || route === "submit" || route === "achievements") return route;
   if (/^[1-9]\d*$/.test(route)) return route;

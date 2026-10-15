@@ -1,7 +1,8 @@
 import type { DraftStorage, PostDraft } from './communityDrafts';
 import type { ReplyDraft } from './replyDrafts';
+import {readInterviewDetails} from './interviewModels';
 
-export type PublicationKind = 'post' | 'reply';
+export type PublicationKind = 'post' | 'reply' | 'interview';
 export type PublicationPayload = Record<string,string|null>;
 export type PublicationReceipt = {version:1;owner:string;kind:PublicationKind;scope:string;requestId:string;payload:PublicationPayload};
 export type PendingPublication = {receipt:PublicationReceipt;durable:boolean};
@@ -16,8 +17,12 @@ export const samePublication = (receipt:PublicationReceipt,payload:PublicationPa
 function valid(receipt:PublicationReceipt,owner:string,kind:PublicationKind,scope:string) {
   if(!owner || owner.length>256 || !scope || !receipt || receipt.version!==1 || receipt.owner!==owner || receipt.kind!==kind || receipt.scope!==scope || typeof receipt.requestId!=='string' || !token.test(receipt.requestId))return false;
   const p=receipt.payload;
-  if(!p || typeof p!=='object' || Array.isArray(p) || typeof p.body!=='string' || !p.body.trim() || p.body.length>(kind==='post'?20000:10000))return false;
+  if(!p || typeof p!=='object' || Array.isArray(p) || typeof p.body!=='string' || !p.body.trim() || p.body.length>(kind==='reply'?10000:20000))return false;
   const keys=Object.keys(p).sort().join(',');
+  if(kind==='interview'){
+    if(keys!=='body,category,interview,problem_id,title'||scope!=='general'||p.category!=='career'||p.problem_id!==null||typeof p.title!=='string'||!p.title.trim()||p.title.length>180||typeof p.interview!=='string'||p.interview.length>10000)return false;
+    try{return !!readInterviewDetails(JSON.parse(p.interview));}catch{return false;}
+  }
   return kind==='post' ? keys==='body,category,problem_id,title' && typeof p.title==='string' && !!p.title.trim() && p.title.length<=180
     && ['papers','implementation','questions','career','lounge'].includes(p.category || '')
     && (scope==='general'?p.problem_id===null:moduleId.test(scope)&&p.problem_id===scope)

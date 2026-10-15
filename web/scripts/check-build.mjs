@@ -22,7 +22,7 @@ for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
     assert(!initial.has(key), `${key} must not load with the paper library`);
   }
 }
-for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/ReportWorkflow.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/PracticeGuideContent.tsx', 'src/HeaderAccountMenu.tsx']) {
+for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/ReportWorkflow.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/PracticeGuideContent.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx']) {
   assert(manifest[key]?.isDynamicEntry && !initial.has(key), `${key} must load with practice rather than the library`);
 }
 const files = [...initial].map(key => manifest[key].file);

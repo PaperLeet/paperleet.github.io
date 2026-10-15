@@ -1,4 +1,5 @@
 import { topicHref } from './communityTopics';
+import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
 export type CommunityFeedState = { category: string; following: boolean; saved?: boolean; search: string; page: number };
 export const COMMUNITY_PAGE_SIZE = 20;
@@ -57,8 +58,10 @@ export function communityFeedHref(topicId: string | undefined, state: CommunityF
 export function communityPostHref(id: string, returnTo?: string, replyId?: string) {
   const base = `#/community/${encodeURIComponent(id)}`;
   const feed = returnTo ? readCommunityFeed(returnTo) : undefined;
+  const interviews = returnTo ? readInterviewRoute(returnTo) : undefined;
   const params = new URLSearchParams();
   if (feed) params.set('from', communityFeedHref(feed.topicId, feed.state).slice(2));
+  else if(interviews) params.set('from',interviewHref(interviews).slice(2));
   if (replyId !== undefined) {
     if (!/^[a-f0-9]{32}$/.test(replyId)) throw Error('Invalid reply link');
     params.set('reply',replyId);
@@ -70,10 +73,11 @@ function readCommunityPost(route: string, id: string): {returnTo?:string;replyId
   const value = parts(route);
   if (!value || value.path !== `community/${id}` || !knownParameters(value.params, ['from','reply'])) return;
   const feed = value.params.has('from') ? readCommunityFeed(value.params.get('from') || '') : undefined;
-  if(value.params.has('from')&&!feed)return;
+  const interviews=value.params.has('from')?readInterviewRoute(value.params.get('from')||''):undefined;
+  if(value.params.has('from')&&!feed&&!interviews)return;
   const replyId=value.params.get('reply')??undefined;
   if(replyId!==undefined&&!/^[a-f0-9]{32}$/.test(replyId))return;
-  return {returnTo:feed?communityFeedHref(feed.topicId,feed.state):undefined,replyId};
+  return {returnTo:feed?communityFeedHref(feed.topicId,feed.state):interviews?interviewHref(interviews):undefined,replyId};
 }
 export function communityPostReturn(route: string, id: string): string | undefined {
   return readCommunityPost(route,id)?.returnTo;

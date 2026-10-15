@@ -2,7 +2,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu, PracticeGuideContent } from "./deferredPages";
+import { Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu, PracticeGuideContent } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -208,6 +208,7 @@ function Workspace() {
   const communityTopicId = topicIdFromRoute(communityPath);
   const communityProblem = communityTopicId ? problems.find((p) => p.id === communityTopicId) : undefined;
   const accountPage = isAccountRoute(id);
+  const interviewPage = path === "interviews";
   const settingsPage = path === "settings";
   const achievementsPage = path === "achievements";
   const settingsReturn = useRef("#");
@@ -486,6 +487,7 @@ function Workspace() {
                 !problem &&
                 !submissionPage &&
                 !communityPage &&
+                !interviewPage &&
                 !accountPage &&
                 !settingsPage &&
                 !achievementsPage &&
@@ -494,7 +496,7 @@ function Workspace() {
                   : ""
               }
               href={libraryReturn || '#'}
-              aria-current={!problem && !submissionPage && !communityPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
+              aria-current={!problem && !submissionPage && !communityPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
             </a>
@@ -518,6 +520,7 @@ function Workspace() {
             >
               <BilingualText zh="社区" en="Community" />
             </a>}
+            <a className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews">{t("面经与准备", "Interviews")}</a>
             <a className="mobile-privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
           </nav>
           <div className="nav-actions">
@@ -551,6 +554,8 @@ function Workspace() {
           backupReady={practice.owner !== 'unresolved' && problems.length > 0}
           accountHref={user ? hostedAppHref('#/account') : undefined}
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
+      ) : interviewPage ? (
+        <Interviews route={id} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} />
       ) : communityPage ? (
         <Community
           route={id}
@@ -631,10 +636,10 @@ function Workspace() {
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {selectedPaper
+              {libraryReturn?.startsWith('#/interviews') ? t('面经与准备','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>
@@ -804,6 +809,7 @@ function Workspace() {
                       <h1>
                         {problem.number}. {problem.title}
                       </h1>
+                    <ProblemCompanyTags problemId={problem.id} />
                       <div className="heading-tags">
                         <span className={`difficulty ${problem.difficulty}`}>
                           {({ E: t("简单", "Easy"), M: t("中等", "Medium"), H: t("困难", "Hard") } as Record<string,string>)[problem.difficulty] || problem.difficulty}
