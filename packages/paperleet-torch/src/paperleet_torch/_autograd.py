@@ -23,6 +23,22 @@ def result(data, *edges, saved=()):
     return value
 
 
+def joint_result(data, inputs, backward, *, saved=()):
+    """Internal multi-input VJP, evaluated once per backward traversal.
+
+    ``backward(seed, needs)`` returns one entry per input, using None only for
+    frozen inputs. Needs are captured at graph construction, not recomputed
+    from mutable leaf flags. All operands retain the normal version guards.
+    No gradients or seeds are cached across traversals.
+    """
+    inputs = tuple(inputs)
+    value = result(data, *((node, None) for node in inputs), saved=saved)
+    if value.requires_grad:
+        needs = tuple(node.requires_grad and _state._grad_enabled for node in inputs)
+        value._joint_vjp = (backward, needs)
+    return value
+
+
 def backprop(output, seed):
     if not output.requires_grad:
         raise RuntimeError('Tensor does not require grad and has no grad_fn')
@@ -43,8 +59,25 @@ def backprop(output, seed):
         grad = gradients.get(id(node))
         if grad is None:
             continue
-        for parent, vjp in node._parents:
-            incoming = np.asarray(vjp(grad), dtype=parent.dtype)
+        if node._joint_vjp is None:
+            # Keep ordinary edges on their original hot path: no joint dispatch
+            # or shape-validation branch per edge in the WASM interpreter.
+            for parent, vjp in node._parents:
+                incoming = np.asarray(vjp(grad), dtype=parent.dtype)
+                key = id(parent)
+                gradients[key] = incoming if key not in gradients else gradients[key] + incoming
+            continue
+        backward, needs = node._joint_vjp
+        derivatives = backward(grad, needs)
+        if not isinstance(derivatives, (tuple, list)) or len(derivatives) != len(needs):
+            raise RuntimeError('A joint VJP must return one gradient per input')
+        if any(needed and derivative is None for needed, derivative in zip(needs, derivatives)):
+            raise RuntimeError('A joint VJP omitted a required input gradient')
+        active = (derivative for needed, derivative in zip(needs, derivatives) if needed)
+        for (parent, _), derivative in zip(node._parents, active):
+            incoming = np.asarray(derivative, dtype=parent.dtype)
+            if incoming.shape != parent.shape:
+                raise RuntimeError('A joint VJP gradient shape must match its input')
             key = id(parent)
             gradients[key] = incoming if key not in gradients else gradients[key] + incoming
     return order, gradients

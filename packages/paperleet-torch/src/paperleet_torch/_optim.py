@@ -39,22 +39,36 @@ class Adam:
         return _errors.unsupported(f'Adam.{name}')
 
     def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=0):
-        if weight_decay: raise _errors.BrowserUnsupported('Adam weight decay requires the server')
         self.params, self.lr, self.betas, self.eps = list(params), lr, betas, eps
+        if not self.params: raise ValueError('Adam needs parameters')
+        if any(not isinstance(p, _tensor.Tensor) for p in self.params):
+            raise _errors.BrowserUnsupported('Adam parameter groups require the server')
+        if lr < 0 or eps < 0 or weight_decay < 0 or len(betas) != 2 or any(not 0 <= b < 1 for b in betas):
+            raise ValueError('Invalid Adam hyperparameters')
+        self.weight_decay = weight_decay
         self.steps = 0
+        self._parameter_steps = [0] * len(self.params)
         self.m = [np.zeros_like(p._data) for p in self.params]
         self.v = [np.zeros_like(p._data) for p in self.params]
     def zero_grad(self, set_to_none=True):
-        for p in self.params: p.grad = None if set_to_none else _tensor.Tensor(np.zeros_like(p._data))
+        for p in self.params:
+            if p.grad is not None:
+                if set_to_none: p.grad = None
+                else: p.grad.zero_()
     def step(self):
         self.steps += 1
         b1, b2 = self.betas
         for i, p in enumerate(self.params):
             if p.grad is None: continue
+            if p.grad.shape != p.shape or p.grad.dtype != p.dtype:
+                raise RuntimeError('Adam gradient shape/dtype must match the parameter')
             g = p.grad._data
+            if self.weight_decay: g = g + self.weight_decay * p._data
+            self._parameter_steps[i] += 1
+            count = self._parameter_steps[i]
             self.m[i] *= b1; self.m[i] += (1 - b1) * g
             self.v[i] *= b2; self.v[i] += (1 - b2) * g * g
-            p._data[...] -= self.lr * (self.m[i] / (1 - b1 ** self.steps)) / (np.sqrt(self.v[i] / (1 - b2 ** self.steps)) + self.eps)
+            p._data[...] -= self.lr * (self.m[i] / (1 - b1 ** count)) / (np.sqrt(self.v[i] / (1 - b2 ** count)) + self.eps)
             p._storage.version += 1
 
 

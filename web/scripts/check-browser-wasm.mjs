@@ -62,6 +62,42 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
     if (runtime.backend === 'numpy-autograd-wasm') {
       py.runPython(`
 import numpy as np, torch
+from paperleet_torch import as_torch, install_as_torch
+previous_torch = torch
+attention_operand=torch.ones(1,3,2,dtype=torch.float32)
+assert torch.nn.functional.scaled_dot_product_attention(attention_operand,attention_operand,attention_operand).dtype==torch.float32
+with as_torch():
+    namespace = install_as_torch()
+    import torch as aliased
+    from torch import nn
+    import torch.nn.functional as F
+    assert aliased is namespace and nn is namespace.nn and F is nn.functional
+    value = aliased.tensor([[2.,3.]], requires_grad=True)
+    F.linear(value, aliased.ones(1,2)).square().sum().backward()
+    np.testing.assert_array_equal(value.grad.numpy(), [[10.,10.]])
+import torch
+assert torch is previous_torch
+# Optimized basic slicing must keep advanced-index duplicate accumulation.
+selected=torch.arange(12,dtype=torch.float64).reshape(3,4).requires_grad_()
+selected[:,1::2].sum().backward()
+np.testing.assert_array_equal(selected.grad.numpy(),[[0.,1.,0.,1.]]*3)
+selected.grad=None
+selected[torch.tensor([1,1,0])].sum().backward()
+np.testing.assert_array_equal(selected.grad.numpy(),[[1.]*4,[2.]*4,[0.]*4])
+# A delayed first gradient uses step one, regardless of other parameters.
+early=torch.tensor([1.],requires_grad=True);late=torch.tensor([1.],requires_grad=True)
+optimizer=torch.optim.Adam([early,late],lr=.04)
+for iteration in range(3):
+    early.grad=torch.tensor([.3]);optimizer.step()
+    if iteration==0: first=early.numpy().copy()
+early.grad=None;late.grad=torch.tensor([.3]);optimizer.step()
+np.testing.assert_allclose(late.numpy(),first,atol=1e-7,rtol=1e-6)
+optimizer.zero_grad(set_to_none=False);assert early.grad is None
+# Finite-difference the independent shared SDPA pullback on actual WASM.
+rng=np.random.default_rng(817)
+sdpa_inputs=tuple(torch.tensor(rng.normal(size=shape),dtype=torch.float64,requires_grad=True)
+                  for shape in ((1,2,3),(1,3,3),(1,3,2),(2,3)))
+assert torch.autograd.gradcheck(lambda q,k,v,m:torch.nn.functional.scaled_dot_product_attention(q,k,v,attn_mask=m),sdpa_inputs)
 x=torch.tensor([2.,3.],requires_grad=True)
 (torch.nan_to_num(x)*x).sum().backward()
 np.testing.assert_array_equal(x.grad.numpy(),[4.,6.])

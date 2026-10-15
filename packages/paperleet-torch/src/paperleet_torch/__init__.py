@@ -1,12 +1,14 @@
 """Lightweight torch-compatible arrays and analytical autodiff on NumPy.
 
-Use ``from paperleet_torch import torch`` for the compatible namespace.
+Run unchanged scripts with ``paperleet-torch script.py``, or call
+``install_as_torch()`` in the host before loading code that imports torch.
 Importing this package never replaces an installed PyTorch module.
 """
-from ._integration import as_torch, create_torch
+from ._integration import as_torch, create_torch, install_as_torch
 
-__version__ = '0.1.0'
-__all__ = ['torch', 'Tensor', 'UnsupportedOperation', 'create_torch', 'as_torch']
+__version__ = '0.2.0'
+__all__ = ['torch', 'Tensor', 'UnsupportedOperation', 'create_torch', 'as_torch',
+           'install_as_torch']
 _namespace = None
 
 
@@ -15,7 +17,7 @@ def __getattr__(name):
     if name == 'UnsupportedOperation':
         from ._errors import BrowserUnsupported
         return BrowserUnsupported
-    if name.startswith('_'):
+    if name not in ('torch', 'Tensor'):
         raise AttributeError(name)
     if _namespace is None:
         _namespace = create_torch(name='paperleet_torch')

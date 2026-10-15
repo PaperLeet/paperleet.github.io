@@ -24,6 +24,7 @@ jobs:
         run: |
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
+          python -m pip install -e ./packages/paperleet-torch
       - name: Test judge infrastructure
         run: python -m pytest tests packages/paperleet-torch/tests -q
       - name: Reference, mutation, determinism, and CPU budgets

@@ -9,6 +9,11 @@ import pytest
 from paperleet_torch import UnsupportedOperation, as_torch, create_torch, torch
 
 
+def test_runtime_submodule_uses_normal_package_imports():
+    from paperleet_torch import runtime
+    assert 'paperleet_torch/_tensor.py' in runtime.source_files()
+
+
 @pytest.mark.parametrize('dtype', [torch.float32, torch.float64])
 def test_namespace_keeps_broadcast_gradients_and_storage_guards(dtype):
     x = torch.tensor([[1., 2.], [3., 4.]], dtype=dtype, requires_grad=True)
@@ -83,3 +88,53 @@ def test_namespace_exposes_optimizers_linalg_jvp_and_capability_guards():
         torch.tensor([1.], device='cuda')
     with pytest.raises(TypeError):
         torch.sum(torch.ones(2), typo=True)
+
+
+def test_persistent_alias_supports_unchanged_imports_and_removes_stale_children():
+    script = '''
+import sys, types
+sys.modules['torch'] = types.ModuleType('torch')
+sys.modules['torch.cuda'] = types.ModuleType('torch.cuda')
+from paperleet_torch import install_as_torch
+namespace = install_as_torch()
+import torch
+from torch import nn, optim
+import torch.nn.functional as F
+from torch.linalg import inv
+from torch.autograd import grad
+from torch.func import jvp
+from torch.testing import assert_close
+assert torch is namespace and nn is torch.nn and optim is torch.optim
+assert F is torch.nn.functional
+assert 'torch.cuda' not in sys.modules
+x = torch.tensor([[2., 3.]], requires_grad=True)
+F.linear(x, torch.ones(1, 2)).square().sum().backward()
+assert x.grad.tolist() == [[10., 10.]]
+'''
+    result = subprocess.run([sys.executable, '-c', script], capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize('ending', ['', 'raise SystemExit(7)', 'raise RuntimeError("script failure")'])
+def test_launcher_restores_host_state_after_success_and_errors(tmp_path, ending):
+    from paperleet_torch._cli import main
+    previous_argv, previous_path = sys.argv, sys.path[:]
+    previous_modules = {name: module for name, module in sys.modules.items()
+                        if name == 'torch' or name.startswith('torch.')}
+    target = tmp_path / 'unchanged.py'
+    target.write_text('import torch\nassert torch.Tensor is not None\n' + ending)
+    if ending.startswith('raise SystemExit'):
+        with pytest.raises(SystemExit) as error:
+            main([str(target)])
+        assert error.value.code == 7
+    elif ending:
+        with pytest.raises(RuntimeError, match='script failure'):
+            main([str(target)])
+    else:
+        main([str(target)])
+    assert sys.argv is previous_argv
+    assert sys.path == previous_path
+    current_modules = {name: module for name, module in sys.modules.items()
+                       if name == 'torch' or name.startswith('torch.')}
+    assert current_modules.keys() == previous_modules.keys()
+    assert all(current_modules[name] is value for name, value in previous_modules.items())

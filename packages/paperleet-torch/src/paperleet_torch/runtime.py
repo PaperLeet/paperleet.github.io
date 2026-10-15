@@ -13,7 +13,7 @@ def source_files(profile='autograd'):
         names = ['__init__.py', '_integration.py', '_legacy.py']
     elif profile == 'autograd':
         names = [p.name for p in sorted(package.glob('*.py'))
-                 if p.name not in ('_legacy.py', 'runtime.py')]
+                 if p.name not in ('_legacy.py', 'runtime.py', '_cli.py', '__main__.py')]
     else:
         raise ValueError(f'Unknown runtime profile: {profile}')
     return {f'paperleet_torch/{name}': (package / name).read_text(encoding='utf-8')

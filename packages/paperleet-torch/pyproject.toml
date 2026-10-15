@@ -4,11 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "paperleet-torch"
-version = "0.1.0"
+version = "0.2.0"
 description = "A bounded NumPy-backed torch-compatible tensor and autodiff library for Python and Pyodide."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.26"]
+
+[project.scripts]
+paperleet-torch = "paperleet_torch._cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

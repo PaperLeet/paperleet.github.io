@@ -23,6 +23,7 @@
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
+python -m pip install -e ./packages/paperleet-torch
 paperleet export
 npm --prefix web ci
 make dev

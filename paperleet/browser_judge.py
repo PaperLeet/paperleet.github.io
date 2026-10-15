@@ -6,7 +6,7 @@ from pathlib import Path
 from paperleet.catalog import root
 
 from paperleet.browser_config import BACKENDS, browser_config
-from paperleet_torch.runtime import source_files
+from paperleet._vendor.torch.runtime import source_files
 
 SHARED_FILES = (
     "paperleet/__init__.py", "paperleet/common/__init__.py",

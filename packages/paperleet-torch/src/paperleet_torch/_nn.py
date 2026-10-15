@@ -154,7 +154,9 @@ def scaled_dot_product_attention_oracle(query, key, value, attn_mask=None, dropo
         raise RuntimeError('Invalid SDPA shapes')
     if q.dtype != k.dtype or q.dtype != v.dtype or q.dtype.kind != 'f':
         raise RuntimeError('SDPA expects floating tensors with matching dtypes')
-    factor = 1 / np.sqrt(q.shape[-1]) if scale is None else float(scale)
+    # A NumPy float64 scalar promotes float32 arrays under NumPy 2.x. A Python
+    # scalar keeps the input dtype, matching native attention's output contract.
+    factor = float(1 / np.sqrt(q.shape[-1])) if scale is None else float(scale)
     scores = (q @ np.swapaxes(k, -1, -2)) * factor
     if is_causal:
         scores = np.where(np.arange(k.shape[-2])[None, :] <= np.arange(q.shape[-2])[:, None], scores, -np.inf)
@@ -171,16 +173,34 @@ def scaled_dot_product_attention_oracle(query, key, value, attn_mask=None, dropo
     else:
         probabilities = np.zeros_like(scores)
 
-    def logits_vjp(g):
-        incoming = g @ np.swapaxes(v, -1, -2)
-        return probabilities * (incoming - (incoming * probabilities).sum(axis=-1, keepdims=True))
+    # One shared raw-NumPy pullback avoids retaining score/probability graph
+    # nodes and their logits allocation. Only probabilities and operands are
+    # needed for backward, and the seed is never cached between traversals.
+    operands, saved = [query, key, value], []
+    mask_shape = None
+    if isinstance(attn_mask, _tensor.Tensor):
+        if attn_mask.dtype.kind == 'f':
+            operands.append(attn_mask)
+            mask_shape = attn_mask.shape
+        else:
+            saved.append(attn_mask)
 
-    edges = [(query, lambda g: _ops.unbroadcast((logits_vjp(g) @ k) * factor, q.shape)),
-             (key, lambda g: _ops.unbroadcast((np.swapaxes(logits_vjp(g), -1, -2) @ q) * factor, k.shape)),
-             (value, lambda g: _ops.unbroadcast(np.swapaxes(probabilities, -1, -2) @ g, v.shape))]
-    if isinstance(attn_mask, _tensor.Tensor) and attn_mask.dtype.kind == 'f':
-        edges.append((attn_mask, lambda g: _ops.unbroadcast(logits_vjp(g), attn_mask.shape)))
-    return _autograd.result(probabilities @ v, *edges)
+    def backward(g, needs):
+        logits_gradient = None
+        if needs[0] or needs[1] or (mask_shape is not None and needs[3]):
+            incoming = g @ np.swapaxes(v, -1, -2)
+            logits_gradient = probabilities * (incoming - (incoming * probabilities).sum(axis=-1, keepdims=True))
+            del incoming
+        gradients = [
+            _ops.unbroadcast((logits_gradient @ k) * factor, q.shape) if needs[0] else None,
+            _ops.unbroadcast((np.swapaxes(logits_gradient, -1, -2) @ q) * factor, k.shape) if needs[1] else None,
+            _ops.unbroadcast(np.swapaxes(probabilities, -1, -2) @ g, v.shape) if needs[2] else None,
+        ]
+        if mask_shape is not None:
+            gradients.append(_ops.unbroadcast(logits_gradient, mask_shape) if needs[3] else None)
+        return gradients
+
+    return _autograd.joint_result(probabilities @ v, operands, backward, saved=saved)
 
 
 def layer_norm_oracle(x, normalized_shape, weight=None, bias=None, eps=1e-5):

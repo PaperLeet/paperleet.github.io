@@ -3,26 +3,48 @@
 A lightweight, bounded `torch`-compatible Python library backed by NumPy.
 It runs in CPython and Pyodide without installing native PyTorch. Analytical
 reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
-existing browser adapter. This first extraction preserves its numerical behavior.
+existing browser adapter. Core API fixes and performance improvements are
+developed here and checked against independent native PyTorch results.
 
 ```sh
 python -m pip install ./packages/paperleet-torch
+paperleet-torch train.py --epochs 10
+# Equivalent: python -m paperleet_torch train.py --epochs 10
 ```
 
+Keep existing imports in `train.py`:
+
 ```python
-from paperleet_torch import torch
+import torch
+from torch import nn
+import torch.nn.functional as F
 
 x = torch.tensor([2., 3.], requires_grad=True)
 x.square().sum().backward()
 print(x.grad.tolist())  # [4.0, 6.0]
 
-layer = torch.nn.Linear(2, 1)
+layer = nn.Linear(2, 1)
 optimizer = torch.optim.Adam(layer.parameters(), lr=0.01)
 ```
 
-`torch.nn`, `torch.nn.functional`, `torch.optim`, `torch.linalg`, `torch.autograd`
-and `torch.func` are attributes of this explicit namespace. Importing the library
-does not change `sys.modules['torch']` or `torch.*`. For unchanged teaching code:
+The launcher enables `torch` and its supported submodule aliases before running
+the script, passes through arguments and exit codes, and allows imports from the
+script's directory. For a Python or Pyodide host, activate aliases once before
+loading existing user code:
+
+```python
+from paperleet_torch import install_as_torch
+install_as_torch()
+
+import torch
+from torch.nn import Linear
+import torch.nn.functional as F
+```
+
+This enables `torch.nn`, `torch.nn.functional`, `torch.optim`, `torch.linalg`,
+`torch.autograd`, `torch.func`, `torch.testing` and `torch.random`. Plain
+`import paperleet_torch` leaves native PyTorch imports untouched. Explicit usage
+via `from paperleet_torch import torch` also remains available. To scope aliases:
 
 ```python
 from paperleet_torch import as_torch
@@ -34,8 +56,10 @@ with as_torch():
 # Pre-existing native torch modules are restored, including after exceptions.
 ```
 
-Import aliases are process-wide: use this context in an isolated process or
-browser Worker. Namespace objects share gradient mode, storage tracking and RNG
+Import aliases are process-wide: activate them before importing user code in an
+isolated process or browser Worker. Activation replaces cached `torch.*` modules;
+it cannot rewrite references already held by other code. Namespace objects share
+gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
@@ -75,6 +99,7 @@ From the PaperLeet repository:
 
 ```sh
 python -m pip install -e .
+python -m pip install -e ./packages/paperleet-torch
 python -m pytest packages/paperleet-torch/tests tests/test_browser_*.py -q
 paperleet export
 cd web
@@ -83,8 +108,21 @@ npm run build
 npm run check:browser-wasm
 ```
 
-The main PaperLeet distribution includes this same source tree so current
-`pip install .` users do not need an unpublished dependency or a sibling checkout.
+The main PaperLeet distribution includes this same source tree under the private
+`paperleet._vendor.torch` namespace, so current `pip install .` users do not need
+an unpublished dependency or a sibling checkout. The two distributions own
+separate files: uninstalling the standalone library cannot remove PaperLeet's
+bundled runtime, and installing it cannot silently change PaperLeet's backend.
 The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-torch`.
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
+
+See the [0.2 validation record](../../docs/validation/torch-runtime-iteration-2.md)
+for native parity, wheel isolation, exported WASM, real Chrome and memory results.
+The [extraction record](../../docs/validation/lightweight-torch-extraction.md)
+documents the original baseline.
+
+Ongoing development and release gates are tracked in [ROADMAP.md](ROADMAP.md).
+The [benchmark tools](benchmarks/README.md) cover CPU/WASM kernels and an
+experimental WebGPU matmul probe. The probe is separate from the supported
+CPU/NumPy torch runtime.

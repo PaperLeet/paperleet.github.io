@@ -28,6 +28,7 @@ def storage_version(data):
 class Tensor:
     __array_priority__ = 1000
     __hash__ = object.__hash__
+    _joint_vjp = None
 
     def __init__(self, data, dtype=None, requires_grad=False):
         self._data = np.asarray(data, dtype=dtype)
@@ -127,9 +128,18 @@ class Tensor:
             if isinstance(key, tuple): return tuple(convert(k) for k in key)
             return key
         index = convert(index)
+        keys = index if isinstance(index, tuple) else (index,)
+        basic = all(key is None or key is Ellipsis or isinstance(key, slice) or
+                    isinstance(key, (int, np.integer)) and not isinstance(key, (bool, np.bool_))
+                    for key in keys)
         def vjp(g):
             grad = np.zeros_like(self._data)
-            np.add.at(grad, index, g)
+            # Basic slices address each destination once. Advanced indexing can
+            # repeat destinations, and must retain unbuffered scatter addition.
+            if basic:
+                grad[index] += g
+            else:
+                np.add.at(grad, index, g)
             return grad
         return _autograd.result(self._data[index], (self, vjp), saved=saved)
 

@@ -18,6 +18,25 @@ def install():
     return create_torch(register=True)
 
 
+def _clear_torch_imports():
+    for name in list(sys.modules):
+        if name == 'torch' or name.startswith('torch.'):
+            del sys.modules[name]
+
+
+def install_as_torch():
+    """Enable ordinary torch imports for this process and return the namespace.
+
+    Call this in the host before loading user code. It replaces the root and
+    all cached torch submodules; references already held by other code cannot
+    be changed. For a temporary alias, use ``as_torch()`` instead.
+    """
+    namespace = create_torch()
+    _clear_torch_imports()
+    sys.modules.update(namespace._compat_modules)
+    return namespace
+
+
 @contextlib.contextmanager
 def as_torch():
     """Temporarily make import torch resolve to this library, then restore it.
@@ -27,12 +46,9 @@ def as_torch():
     """
     previous = {name: module for name, module in sys.modules.items()
                 if name == 'torch' or name.startswith('torch.')}
-    namespace = create_torch()
     try:
-        sys.modules.update(namespace._compat_modules)
+        namespace = install_as_torch()
         yield namespace
     finally:
-        for name in list(sys.modules):
-            if name == 'torch' or name.startswith('torch.'):
-                del sys.modules[name]
+        _clear_torch_imports()
         sys.modules.update(previous)

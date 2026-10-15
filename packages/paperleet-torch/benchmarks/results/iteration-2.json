@@ -1,0 +1,1436 @@
+{
+  "version": "0.2.0",
+  "base_commit": "7f236b3",
+  "scope": "CPU/NumPy runtime, import aliases, wheel ownership; no production GPU backend",
+  "timings": {
+    "cpu": {
+      "float32": {
+        "remote": {
+          "python": "3.12.11",
+          "platform": "macOS-27.0.1-arm64-arm-64bit",
+          "library_version": "0.1.0",
+          "implementation": "<remote>/paperleet_torch/_tensor.py",
+          "numpy": "2.5.4",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 0.4431569500108405,
+              "samples_ms": [
+                0.44743193332881975,
+                0.4431569500108405,
+                0.44635208332692855,
+                0.4426243166866091,
+                0.4432791666658886,
+                0.44276874999316834,
+                0.44377986666101304,
+                0.4397090166700461,
+                0.43915763332430896
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 0.052593749993927,
+              "samples_ms": [
+                0.05270693330506523,
+                0.05466388332327673,
+                0.05418958335212665,
+                0.05351180000919461,
+                0.05084514999301367,
+                0.04994653333293778,
+                0.0515944499966281,
+                0.052593749993927,
+                0.051522233328190246
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.10618125000595076,
+              "samples_ms": [
+                0.10510484999031178,
+                0.10618125000595076,
+                0.10742361664597411,
+                0.10777778334158938,
+                0.10737916666888243,
+                0.10617083332059944,
+                0.10771250002411155,
+                0.1056923500073026,
+                0.10538124997765408
+              ]
+            }
+          },
+          "source_hashes": {
+            "__init__.py": "d59d32affa85cce101732d1020020afb201f12ea679b298d3afe69a33fa0e9f5",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "1fa4329117cfad4c015b39f50689842da3167135fbfa5d35c2dede36cab12b2f",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "a4e71df49517c26a5c880e86e1c8ce04b8f379e98f800bdd0e8cf3b5b40216cf",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "56aab7aaad87fbf72eb832d41c2c34f9359b185e2ecf2a362e2baf0dd15e0618",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "340b26aebc3b6cd4b21283c549356fad05eb06f625b482e1a672e8dc2bdbec43",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "954567376a70d3ea1b4eb00d85e11a47eaa82cce755b4d4ea957d07dc7074a3f",
+            "runtime.py": "336bc73b9dc3fecd3f4a17782261161a8d59369869ff4df1158c79de56d8f47f"
+          }
+        },
+        "iteration1": {
+          "python": "3.12.11",
+          "platform": "macOS-27.0.1-arm64-arm-64bit",
+          "library_version": "0.1.0",
+          "implementation": "<iteration1>/paperleet_torch/_tensor.py",
+          "numpy": "2.5.4",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 0.23177151667065723,
+              "samples_ms": [
+                0.2507826500126005,
+                0.234629166667825,
+                0.23457291666394062,
+                0.22954583331132503,
+                0.23570276665244214,
+                0.23177151667065723,
+                0.23130973331717541,
+                0.22770346665007915,
+                0.2272291666789291
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 0.04622431667182051,
+              "samples_ms": [
+                0.048387500009994255,
+                0.047058333317788005,
+                0.04617360000338522,
+                0.04595208335255544,
+                0.046447916671847146,
+                0.04622431667182051,
+                0.046183333355050614,
+                0.04654721666762877,
+                0.04610484999526913
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.10829236665207038,
+              "samples_ms": [
+                0.10571388332512772,
+                0.10633541666417538,
+                0.107721533337705,
+                0.10963333334075287,
+                0.10651458333086339,
+                0.10829236665207038,
+                0.1084617999974095,
+                0.10836388334306928,
+                0.10943681666807
+              ]
+            }
+          },
+          "source_hashes": {
+            "__init__.py": "c91005502157f2c72ff14c68fe9667b9d5f6a8beea01d9a2ae6be84307e37bae",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "68be5f2b56bfcacc3cae91955292335194f882d1f69c2a2c02939be8882f92cf",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "7a7ecae68ea04e53a8d484dbad1907849d3e4f2f7281463567a1e5f01315f163",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "ead3abe1125c2eb8648075b53d80234c00f33f7e0d5736e54169b4cb32fac2e3",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "8c9ecc8718dc51d6b4da2ef6f4d68c2d97b4998559e36f3a9ff73734e0f8d7a5",
+            "_tensor.py": "fbee7bef58edeaf9d0f2cbdd6326e62d938f8bfce98bed45ded59a3f329e3444",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        },
+        "candidate": {
+          "python": "3.12.11",
+          "platform": "macOS-27.0.1-arm64-arm-64bit",
+          "library_version": "0.2.0",
+          "implementation": "<candidate>/paperleet_torch/_tensor.py",
+          "numpy": "2.5.4",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 0.2282347166631856,
+              "samples_ms": [
+                0.22666666667040167,
+                0.22252014999442812,
+                0.22954861666827733,
+                0.22959791667744867,
+                0.23207014998358014,
+                0.23269513330888003,
+                0.22206875000847504,
+                0.2282347166631856,
+                0.22631458332398324
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 0.047715966654019816,
+              "samples_ms": [
+                0.04943194999214029,
+                0.048673600000862884,
+                0.04846388334650934,
+                0.047696533329144586,
+                0.04762083332631543,
+                0.04722013333472811,
+                0.048088883340824395,
+                0.04759861667480436,
+                0.047715966654019816
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.10798541667706256,
+              "samples_ms": [
+                0.10832568332261872,
+                0.10671111667761579,
+                0.10798541667706256,
+                0.1073798666766379,
+                0.1077340333419367,
+                0.10803124999559562,
+                0.10704791669316667,
+                0.10861944999002542,
+                0.11005416666497088
+              ]
+            }
+          },
+          "source_hashes": {
+            "__init__.py": "64e53535321d32a843a9eb8e7b20c0ac29d0f42fdaa2a0a5d8ffae2b891905cd",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "207285a47f79b2bb98db39dd539bd95b46b4f27bac3c1037bd0d8c42dac64d21",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "c5d96b2a97067a7afbd76de4c303c3102bc6c7da2beab36db9ea051b6ede4b9a",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "6bbf7b0f28e0a9f94d0db6a2fcd789675ec36bf4515a209da0d6c7d1ae449974",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        }
+      },
+      "float64": {
+        "remote": {
+          "python": "3.12.11",
+          "platform": "macOS-27.0.1-arm64-arm-64bit",
+          "library_version": "0.1.0",
+          "implementation": "<remote>/paperleet_torch/_tensor.py",
+          "numpy": "2.5.4",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 0.40826736667440855,
+              "samples_ms": [
+                0.40920764998494025,
+                0.40921805002653855,
+                0.40582708334113704,
+                0.4210562500096178,
+                0.4044361166658443,
+                0.40826736667440855,
+                0.408938883325997,
+                0.4036041666646876,
+                0.4008937500051009
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 0.06366943331765167,
+              "samples_ms": [
+                0.06459028333362464,
+                0.06801181668076121,
+                0.06379236665452481,
+                0.0633402833348858,
+                0.06356041667459067,
+                0.06372361667672521,
+                0.06363609997303381,
+                0.06317291666467402,
+                0.06366943331765167
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.11699028333775156,
+              "samples_ms": [
+                0.11657640000824661,
+                0.11546249997991254,
+                0.11575208333548896,
+                0.11557568332136725,
+                0.11699028333775156,
+                0.11838471664304961,
+                0.11804305001229902,
+                0.11711875001007381,
+                0.11748124998121057
+              ]
+            }
+          },
+          "source_hashes": {
+            "__init__.py": "d59d32affa85cce101732d1020020afb201f12ea679b298d3afe69a33fa0e9f5",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "1fa4329117cfad4c015b39f50689842da3167135fbfa5d35c2dede36cab12b2f",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "a4e71df49517c26a5c880e86e1c8ce04b8f379e98f800bdd0e8cf3b5b40216cf",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "56aab7aaad87fbf72eb832d41c2c34f9359b185e2ecf2a362e2baf0dd15e0618",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "340b26aebc3b6cd4b21283c549356fad05eb06f625b482e1a672e8dc2bdbec43",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "954567376a70d3ea1b4eb00d85e11a47eaa82cce755b4d4ea957d07dc7074a3f",
+            "runtime.py": "336bc73b9dc3fecd3f4a17782261161a8d59369869ff4df1158c79de56d8f47f"
+          }
+        },
+        "iteration1": {
+          "python": "3.12.11",
+          "platform": "macOS-27.0.1-arm64-arm-64bit",
+          "library_version": "0.1.0",
+          "implementation": "<iteration1>/paperleet_torch/_tensor.py",
+          "numpy": "2.5.4",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 0.32596390001344844,
+              "samples_ms": [
+                0.3264097166720603,
+                0.32542083332979627,
+                0.3253548666786325,
+                0.3303243166556058,
+                0.3292979166872101,
+                0.32939375002266996,
+                0.32288679997994524,
+                0.32596390001344844,
+                0.3236874999856809
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 0.06455208334349057,
+              "samples_ms": [
+                0.06634583332925104,
+                0.06623611664811808,
+                0.06595000001349642,
+                0.06904166666572564,
+                0.06447499999922002,
+                0.06455208334349057,
+                0.0633381833419359,
+                0.06319651665762649,
+                0.06311805000223103
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.1192395833337893,
+              "samples_ms": [
+                0.12467778333302704,
+                0.11928471667488338,
+                0.12188263332670128,
+                0.1192395833337893,
+                0.12052499999602635,
+                0.1174756833279389,
+                0.1163625000117463,
+                0.11712568333071734,
+                0.11699235001287889
+              ]
+            }
+          },
+          "source_hashes": {
+            "__init__.py": "c91005502157f2c72ff14c68fe9667b9d5f6a8beea01d9a2ae6be84307e37bae",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "68be5f2b56bfcacc3cae91955292335194f882d1f69c2a2c02939be8882f92cf",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "7a7ecae68ea04e53a8d484dbad1907849d3e4f2f7281463567a1e5f01315f163",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "ead3abe1125c2eb8648075b53d80234c00f33f7e0d5736e54169b4cb32fac2e3",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "8c9ecc8718dc51d6b4da2ef6f4d68c2d97b4998559e36f3a9ff73734e0f8d7a5",
+            "_tensor.py": "fbee7bef58edeaf9d0f2cbdd6326e62d938f8bfce98bed45ded59a3f329e3444",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        },
+        "candidate": {
+          "python": "3.12.11",
+          "platform": "macOS-27.0.1-arm64-arm-64bit",
+          "library_version": "0.2.0",
+          "implementation": "<candidate>/paperleet_torch/_tensor.py",
+          "numpy": "2.5.4",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 0.3246361166626836,
+              "samples_ms": [
+                0.3317319500032075,
+                0.3263548666533704,
+                0.3249465333283297,
+                0.32239721667792764,
+                0.3224604166765251,
+                0.34735973334439524,
+                0.3239979166816435,
+                0.3236354166498738,
+                0.3246361166626836
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 0.06397291666265421,
+              "samples_ms": [
+                0.06494026665677666,
+                0.06450971665496279,
+                0.06412361666055706,
+                0.06397291666265421,
+                0.06506111667476944,
+                0.06298541669214804,
+                0.06318193333451443,
+                0.06327083334933074,
+                0.06302570000116248
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.1158604166751805,
+              "samples_ms": [
+                0.11689723332892754,
+                0.11559096668255127,
+                0.11725416664679263,
+                0.11598124998878727,
+                0.11648333335566956,
+                0.11541249999330223,
+                0.11519374999503877,
+                0.1158604166751805,
+                0.11491319998337228
+              ]
+            }
+          },
+          "source_hashes": {
+            "__init__.py": "64e53535321d32a843a9eb8e7b20c0ac29d0f42fdaa2a0a5d8ffae2b891905cd",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "207285a47f79b2bb98db39dd539bd95b46b4f27bac3c1037bd0d8c42dac64d21",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "c5d96b2a97067a7afbd76de4c303c3102bc6c7da2beab36db9ea051b6ede4b9a",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "6bbf7b0f28e0a9f94d0db6a2fcd789675ec36bf4515a209da0d6c7d1ae449974",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        }
+      }
+    },
+    "wasm": {
+      "float32": {
+        "remote": {
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "<remote>/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 3.5486027833333322,
+              "samples_ms": [
+                3.571064583333331,
+                3.5541715166666634,
+                3.5486027833333322,
+                3.5602132000000024,
+                3.5716104166666707,
+                3.5302875000000027,
+                3.529548599999995,
+                3.5295083333333346,
+                3.5161416666666647
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.3910062500000004,
+              "samples_ms": [
+                1.4061381999999958,
+                1.3907194499999997,
+                1.3872374999999975,
+                1.3887597166666692,
+                1.3910062500000004,
+                1.3858770833333312,
+                1.391034716666669,
+                1.413220149999998,
+                1.3979409833333307
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.22939166666666733,
+              "samples_ms": [
+                0.24454236666666684,
+                0.22939166666666733,
+                0.23383889999999408,
+                0.22756736666666258,
+                0.2315972166666643,
+                0.22762778333333214,
+                0.22895069999999684,
+                0.22982291666666654,
+                0.22812223333333512
+              ]
+            }
+          },
+          "pyodide": "0.29.4",
+          "source": "<remote>/paperleet_torch",
+          "source_hashes": {
+            "__init__.py": "d59d32affa85cce101732d1020020afb201f12ea679b298d3afe69a33fa0e9f5",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "1fa4329117cfad4c015b39f50689842da3167135fbfa5d35c2dede36cab12b2f",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "a4e71df49517c26a5c880e86e1c8ce04b8f379e98f800bdd0e8cf3b5b40216cf",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "56aab7aaad87fbf72eb832d41c2c34f9359b185e2ecf2a362e2baf0dd15e0618",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "340b26aebc3b6cd4b21283c549356fad05eb06f625b482e1a672e8dc2bdbec43",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "954567376a70d3ea1b4eb00d85e11a47eaa82cce755b4d4ea957d07dc7074a3f",
+            "runtime.py": "336bc73b9dc3fecd3f4a17782261161a8d59369869ff4df1158c79de56d8f47f"
+          }
+        },
+        "iteration1": {
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "<iteration1>/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.719303466666667,
+              "samples_ms": [
+                2.7594930499999983,
+                2.748612500000003,
+                2.743066666666664,
+                2.7321173500000002,
+                2.7160798666666652,
+                2.7188069500000003,
+                2.711922216666666,
+                2.718271533333335,
+                2.719303466666667
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.4334527833333333,
+              "samples_ms": [
+                1.399130550000005,
+                1.3946104166666715,
+                1.3993951333333365,
+                1.520083333333333,
+                1.4854187499999967,
+                1.47792985,
+                1.4343423666666633,
+                1.4334527833333333,
+                1.4138611166666666
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.2360965333333335,
+              "samples_ms": [
+                0.24622429999999382,
+                0.23830764999999884,
+                0.23679721666666578,
+                0.2363562500000027,
+                0.2326083333333321,
+                0.23292985000000024,
+                0.23529861666666818,
+                0.2360965333333335,
+                0.23326804999999803
+              ]
+            }
+          },
+          "pyodide": "0.29.4",
+          "source": "<iteration1>/paperleet_torch",
+          "source_hashes": {
+            "__init__.py": "c91005502157f2c72ff14c68fe9667b9d5f6a8beea01d9a2ae6be84307e37bae",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "68be5f2b56bfcacc3cae91955292335194f882d1f69c2a2c02939be8882f92cf",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "7a7ecae68ea04e53a8d484dbad1907849d3e4f2f7281463567a1e5f01315f163",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "ead3abe1125c2eb8648075b53d80234c00f33f7e0d5736e54169b4cb32fac2e3",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "8c9ecc8718dc51d6b4da2ef6f4d68c2d97b4998559e36f3a9ff73734e0f8d7a5",
+            "_tensor.py": "fbee7bef58edeaf9d0f2cbdd6326e62d938f8bfce98bed45ded59a3f329e3444",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        },
+        "candidate": {
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.2.0",
+          "implementation": "<candidate>/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.805950700000004,
+              "samples_ms": [
+                2.863735416666665,
+                2.8251527666666645,
+                2.8590034666666693,
+                2.7868527833333303,
+                2.768026383333333,
+                2.805950700000004,
+                2.79234026666666,
+                2.834785416666663,
+                2.765455549999999
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.3991360999999978,
+              "samples_ms": [
+                1.4356583333333301,
+                1.4417027666666635,
+                1.3974944333333388,
+                1.3986597166666688,
+                1.3991360999999978,
+                1.3993715333333379,
+                1.4153694499999963,
+                1.3953138833333303,
+                1.3909902666666696
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23084721666666308,
+              "samples_ms": [
+                0.24267916666667055,
+                0.2342368166666627,
+                0.23106249999999365,
+                0.22780555000000055,
+                0.23084721666666308,
+                0.22980833333333303,
+                0.22886526666666315,
+                0.22899513333333546,
+                0.23331736666666694
+              ]
+            }
+          },
+          "pyodide": "0.29.4",
+          "source": "<candidate>/paperleet_torch",
+          "source_hashes": {
+            "__init__.py": "64e53535321d32a843a9eb8e7b20c0ac29d0f42fdaa2a0a5d8ffae2b891905cd",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "207285a47f79b2bb98db39dd539bd95b46b4f27bac3c1037bd0d8c42dac64d21",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "c5d96b2a97067a7afbd76de4c303c3102bc6c7da2beab36db9ea051b6ede4b9a",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "6bbf7b0f28e0a9f94d0db6a2fcd789675ec36bf4515a209da0d6c7d1ae449974",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        }
+      },
+      "float64": {
+        "remote": {
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "<remote>/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 3.4944069333333307,
+              "samples_ms": [
+                3.5959840333333326,
+                3.583246533333332,
+                3.5607270833333335,
+                3.494832633333337,
+                3.489059033333334,
+                3.4622124999999984,
+                3.4944069333333307,
+                3.459897916666669,
+                3.457859733333331
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.4414076333333283,
+              "samples_ms": [
+                1.4324673499999996,
+                1.4414076333333283,
+                1.4487639000000017,
+                1.4514388833333374,
+                1.4451639000000016,
+                1.451680550000001,
+                1.4391361166666692,
+                1.4337229166666723,
+                1.4396840166666682
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23432499999999448,
+              "samples_ms": [
+                0.24694028333333376,
+                0.2390104166666666,
+                0.23520554999999868,
+                0.23432499999999448,
+                0.23648541666666154,
+                0.23017361666666977,
+                0.23172638333333792,
+                0.23366805000000213,
+                0.23205971666665862
+              ]
+            }
+          },
+          "pyodide": "0.29.4",
+          "source": "<remote>/paperleet_torch",
+          "source_hashes": {
+            "__init__.py": "d59d32affa85cce101732d1020020afb201f12ea679b298d3afe69a33fa0e9f5",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "1fa4329117cfad4c015b39f50689842da3167135fbfa5d35c2dede36cab12b2f",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "a4e71df49517c26a5c880e86e1c8ce04b8f379e98f800bdd0e8cf3b5b40216cf",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "56aab7aaad87fbf72eb832d41c2c34f9359b185e2ecf2a362e2baf0dd15e0618",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "340b26aebc3b6cd4b21283c549356fad05eb06f625b482e1a672e8dc2bdbec43",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "954567376a70d3ea1b4eb00d85e11a47eaa82cce755b4d4ea957d07dc7074a3f",
+            "runtime.py": "336bc73b9dc3fecd3f4a17782261161a8d59369869ff4df1158c79de56d8f47f"
+          }
+        },
+        "iteration1": {
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "<iteration1>/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.7532583333333305,
+              "samples_ms": [
+                2.8052604166666657,
+                2.7733958333333364,
+                2.7661576333333326,
+                2.7532583333333305,
+                2.7403485999999977,
+                2.7366597333333353,
+                2.7384236166666667,
+                2.7717499999999986,
+                2.746690983333333
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.4417173666666654,
+              "samples_ms": [
+                1.4417173666666654,
+                1.4311867999999988,
+                1.4375631999999992,
+                1.433911800000002,
+                1.4363617999999967,
+                1.4633569500000017,
+                1.4801715333333372,
+                1.4749090166666698,
+                1.4717145833333352
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.24592848333332787,
+              "samples_ms": [
+                0.25394444999999877,
+                0.24489999999999976,
+                0.24348265000000424,
+                0.2463659833333335,
+                0.24017499999999803,
+                0.24876666666666658,
+                0.2429944500000003,
+                0.24592848333332787,
+                0.252062499999998
+              ]
+            }
+          },
+          "pyodide": "0.29.4",
+          "source": "<iteration1>/paperleet_torch",
+          "source_hashes": {
+            "__init__.py": "c91005502157f2c72ff14c68fe9667b9d5f6a8beea01d9a2ae6be84307e37bae",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "68be5f2b56bfcacc3cae91955292335194f882d1f69c2a2c02939be8882f92cf",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "7a7ecae68ea04e53a8d484dbad1907849d3e4f2f7281463567a1e5f01315f163",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "ead3abe1125c2eb8648075b53d80234c00f33f7e0d5736e54169b4cb32fac2e3",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "8c9ecc8718dc51d6b4da2ef6f4d68c2d97b4998559e36f3a9ff73734e0f8d7a5",
+            "_tensor.py": "fbee7bef58edeaf9d0f2cbdd6326e62d938f8bfce98bed45ded59a3f329e3444",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        },
+        "candidate": {
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.2.0",
+          "implementation": "<candidate>/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.747704166666668,
+              "samples_ms": [
+                2.790962499999998,
+                2.7568173499999995,
+                2.7603798500000014,
+                2.754538900000003,
+                2.7474680666666655,
+                2.7407979166666667,
+                2.7285777833333373,
+                2.737597916666664,
+                2.747704166666668
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.4351430499999946,
+              "samples_ms": [
+                1.4310194500000004,
+                1.432847916666661,
+                1.430926383333331,
+                1.4390944333333284,
+                1.4405118166666675,
+                1.4605576333333332,
+                1.4399881833333368,
+                1.4304326333333264,
+                1.4351430499999946
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23388473333333012,
+              "samples_ms": [
+                0.24572291666666116,
+                0.23441875000000204,
+                0.2356277666666721,
+                0.2339993166666702,
+                0.23387291666667012,
+                0.23255625000000446,
+                0.23388473333333012,
+                0.2307562499999971,
+                0.23368401666666502
+              ]
+            }
+          },
+          "pyodide": "0.29.4",
+          "source": "<candidate>/paperleet_torch",
+          "source_hashes": {
+            "__init__.py": "64e53535321d32a843a9eb8e7b20c0ac29d0f42fdaa2a0a5d8ffae2b891905cd",
+            "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+            "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+            "_autograd.py": "207285a47f79b2bb98db39dd539bd95b46b4f27bac3c1037bd0d8c42dac64d21",
+            "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+            "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+            "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+            "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+            "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+            "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+            "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+            "_nn.py": "c5d96b2a97067a7afbd76de4c303c3102bc6c7da2beab36db9ea051b6ede4b9a",
+            "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+            "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+            "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+            "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+            "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+            "_tensor.py": "6bbf7b0f28e0a9f94d0db6a2fcd789675ec36bf4515a209da0d6c7d1ae449974",
+            "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+          }
+        }
+      }
+    }
+  },
+  "memory": {
+    "remote": {
+      "float32": {
+        "output_dtype": "float64",
+        "forward_retained_bytes": 399510,
+        "forward_peak_bytes": 1062358,
+        "backward_peak_bytes": 1195952
+      },
+      "float64": {
+        "output_dtype": "float64",
+        "forward_retained_bytes": 398192,
+        "forward_peak_bytes": 932312,
+        "backward_peak_bytes": 1391568
+      }
+    },
+    "iteration1": {
+      "float32": {
+        "output_dtype": "float32",
+        "forward_retained_bytes": 337046,
+        "forward_peak_bytes": 474262,
+        "backward_peak_bytes": 1033366
+      },
+      "float64": {
+        "output_dtype": "float64",
+        "forward_retained_bytes": 664344,
+        "forward_peak_bytes": 936728,
+        "backward_peak_bytes": 2047976
+      }
+    },
+    "candidate": {
+      "float32": {
+        "output_dtype": "float32",
+        "forward_retained_bytes": 201910,
+        "forward_peak_bytes": 469718,
+        "backward_peak_bytes": 636134
+      },
+      "float64": {
+        "output_dtype": "float64",
+        "forward_retained_bytes": 398920,
+        "forward_peak_bytes": 932968,
+        "backward_peak_bytes": 1258152
+      }
+    }
+  },
+  "source_hashes": {
+    "remote": {
+      "__init__.py": "d59d32affa85cce101732d1020020afb201f12ea679b298d3afe69a33fa0e9f5",
+      "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+      "_autograd.py": "1fa4329117cfad4c015b39f50689842da3167135fbfa5d35c2dede36cab12b2f",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_integration.py": "a4e71df49517c26a5c880e86e1c8ce04b8f379e98f800bdd0e8cf3b5b40216cf",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+      "_nn.py": "56aab7aaad87fbf72eb832d41c2c34f9359b185e2ecf2a362e2baf0dd15e0618",
+      "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+      "_optim.py": "340b26aebc3b6cd4b21283c549356fad05eb06f625b482e1a672e8dc2bdbec43",
+      "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+      "_tensor.py": "954567376a70d3ea1b4eb00d85e11a47eaa82cce755b4d4ea957d07dc7074a3f",
+      "runtime.py": "336bc73b9dc3fecd3f4a17782261161a8d59369869ff4df1158c79de56d8f47f"
+    },
+    "iteration1": {
+      "__init__.py": "c91005502157f2c72ff14c68fe9667b9d5f6a8beea01d9a2ae6be84307e37bae",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+      "_autograd.py": "68be5f2b56bfcacc3cae91955292335194f882d1f69c2a2c02939be8882f92cf",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+      "_errors.py": "7a7ecae68ea04e53a8d484dbad1907849d3e4f2f7281463567a1e5f01315f163",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+      "_nn.py": "ead3abe1125c2eb8648075b53d80234c00f33f7e0d5736e54169b4cb32fac2e3",
+      "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+      "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+      "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "_state.py": "8c9ecc8718dc51d6b4da2ef6f4d68c2d97b4998559e36f3a9ff73734e0f8d7a5",
+      "_tensor.py": "fbee7bef58edeaf9d0f2cbdd6326e62d938f8bfce98bed45ded59a3f329e3444",
+      "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+    },
+    "candidate": {
+      "__init__.py": "64e53535321d32a843a9eb8e7b20c0ac29d0f42fdaa2a0a5d8ffae2b891905cd",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_api.py": "fd71a140789b8ef9ab8a695ee03c17c65e6964ff1de036f7c0725626ab0e9fa7",
+      "_autograd.py": "207285a47f79b2bb98db39dd539bd95b46b4f27bac3c1037bd0d8c42dac64d21",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_device.py": "5846cdb3df7df425909513bcc6bd725337aef8bf4ba1d846691b41b26910dd36",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "33e0d502387913e25172af6290a30ae249cfba7ecaa5c5b0887bb378f5fd2f91",
+      "_nn.py": "c5d96b2a97067a7afbd76de4c303c3102bc6c7da2beab36db9ea051b6ede4b9a",
+      "_ops.py": "0d722e4c7e39c1627434099e47fa1303ea39de8cc3ea4606fd7e116a357f61fa",
+      "_optim.py": "a0bef8bae85d29a1c67e08bafcc655579dcd1aed21d2246ac58d84b8ad71426f",
+      "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "_state.py": "2ec400cdaa38fc3a356ca1f34d20822827096e4c5968c7f73234e2092e6a46c3",
+      "_tensor.py": "6bbf7b0f28e0a9f94d0db6a2fcd789675ec36bf4515a209da0d6c7d1ae449974",
+      "runtime.py": "3ca607690608015e138d3d3ffbd38317f1f7878916645b35df8ada48a27a5425"
+    }
+  },
+  "browser": {
+    "browser": "155.0.8059.40",
+    "results": {
+      "float32": {
+        "remote": {
+          "variant": "remote",
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "/runtime/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 3.5166666666666715,
+              "samples_ms": [
+                3.610000000000002,
+                3.551666666666668,
+                3.5916666666666632,
+                3.556666666666667,
+                3.5166666666666715,
+                3.4999999999999996,
+                3.4999999999999996,
+                3.5083333333333355,
+                3.5016666666666696
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.3966666666666683,
+              "samples_ms": [
+                1.4000000000000012,
+                1.3966666666666683,
+                1.388333333333332,
+                1.3866666666666694,
+                1.413333333333333,
+                1.393333333333328,
+                1.3966666666666683,
+                1.3899999999999948,
+                1.3966666666666683
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23500000000000001,
+              "samples_ms": [
+                0.2483333333333467,
+                0.2366666666666628,
+                0.23500000000000001,
+                0.2383333333333256,
+                0.2383333333333404,
+                0.23500000000000001,
+                0.23500000000000001,
+                0.23333333333333725,
+                0.23333333333332243
+              ]
+            }
+          },
+          "pyodide": "0.29.4"
+        },
+        "iteration1": {
+          "variant": "iteration1",
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "/runtime/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.7233333333333367,
+              "samples_ms": [
+                2.786666666666667,
+                2.7433333333333345,
+                2.7633333333333328,
+                2.7283333333333326,
+                2.7233333333333367,
+                2.7150000000000007,
+                2.696666666666666,
+                2.6999999999999984,
+                2.703333333333332
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.398333333333331,
+              "samples_ms": [
+                1.393333333333328,
+                1.3883333333333396,
+                1.398333333333331,
+                1.388333333333332,
+                1.4316666666666682,
+                1.403333333333334,
+                1.403333333333334,
+                1.398333333333331,
+                1.3916666666666653
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23666666666667022,
+              "samples_ms": [
+                0.24999999999999467,
+                0.23666666666667022,
+                0.23500000000000001,
+                0.23833333333333298,
+                0.23999999999999577,
+                0.23500000000000001,
+                0.23500000000000001,
+                0.23500000000000001,
+                0.23666666666667022
+              ]
+            }
+          },
+          "pyodide": "0.29.4"
+        },
+        "candidate": {
+          "variant": "candidate",
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.2.0",
+          "implementation": "/runtime/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float32",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.7133333333333307,
+              "samples_ms": [
+                2.776666666666664,
+                2.7433333333333345,
+                2.7683333333333318,
+                2.746666666666668,
+                2.7133333333333307,
+                2.7050000000000023,
+                2.698333333333329,
+                2.701666666666669,
+                2.693333333333333
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.393333333333328,
+              "samples_ms": [
+                1.3916666666666653,
+                1.3933333333333353,
+                1.398333333333331,
+                1.3883333333333396,
+                1.4066666666666672,
+                1.393333333333328,
+                1.3900000000000026,
+                1.3900000000000026,
+                1.3949999999999982
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.24166666666666595,
+              "samples_ms": [
+                0.2550000000000052,
+                0.2466666666666617,
+                0.24333333333333615,
+                0.24333333333333615,
+                0.23999999999999577,
+                0.24166666666666595,
+                0.24166666666666595,
+                0.24000000000000318,
+                0.24166666666666595
+              ]
+            }
+          },
+          "pyodide": "0.29.4"
+        }
+      },
+      "float64": {
+        "remote": {
+          "variant": "remote",
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "/runtime/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 3.4550000000000005,
+              "samples_ms": [
+                3.523333333333334,
+                3.4783333333333313,
+                3.4649999999999994,
+                3.4816666666666682,
+                3.4533333333333305,
+                3.4550000000000005,
+                3.4499999999999975,
+                3.4383333333333357,
+                3.4316666666666626
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.441666666666667,
+              "samples_ms": [
+                1.445,
+                1.438333333333334,
+                1.4350000000000012,
+                1.4516666666666658,
+                1.445,
+                1.438333333333334,
+                1.44666666666667,
+                1.441666666666667,
+                1.4349999999999938
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.2366666666666776,
+              "samples_ms": [
+                0.2550000000000126,
+                0.2383333333333256,
+                0.23500000000000001,
+                0.2366666666666776,
+                0.2366666666666628,
+                0.24000000000000318,
+                0.2366666666666628,
+                0.24000000000000318,
+                0.23500000000000001
+              ]
+            }
+          },
+          "pyodide": "0.29.4"
+        },
+        "iteration1": {
+          "variant": "iteration1",
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.1.0",
+          "implementation": "/runtime/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.749999999999997,
+              "samples_ms": [
+                2.808333333333335,
+                2.779999999999997,
+                2.7966666666666695,
+                2.749999999999997,
+                2.751666666666671,
+                2.743333333333327,
+                2.7383333333333386,
+                2.7333333333333356,
+                2.7233333333333296
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.426666666666665,
+              "samples_ms": [
+                1.426666666666665,
+                1.4266666666666723,
+                1.419999999999999,
+                1.426666666666665,
+                1.433333333333331,
+                1.423333333333332,
+                1.4333333333333382,
+                1.4283333333333277,
+                1.4233333333333393
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23999999999999577,
+              "samples_ms": [
+                0.256666666666668,
+                0.24000000000000318,
+                0.23999999999999577,
+                0.23833333333333298,
+                0.24166666666666595,
+                0.24000000000000318,
+                0.23999999999999577,
+                0.23833333333333298,
+                0.23833333333333298
+              ]
+            }
+          },
+          "pyodide": "0.29.4"
+        },
+        "candidate": {
+          "variant": "candidate",
+          "python": "3.13.2",
+          "platform": "Emscripten-4.0.9-wasm32-32bit",
+          "library_version": "0.2.0",
+          "implementation": "/runtime/paperleet_torch/_tensor.py",
+          "numpy": "2.2.5",
+          "dtype": "float64",
+          "seed": 412,
+          "repeat": 9,
+          "iterations": 60,
+          "warmup": 3,
+          "results": {
+            "attention_backward": {
+              "median_ms": 2.7449999999999974,
+              "samples_ms": [
+                2.7999999999999985,
+                2.7599999999999993,
+                2.7783333333333347,
+                2.751666666666667,
+                2.7333333333333356,
+                2.7449999999999974,
+                2.736666666666669,
+                2.7383333333333315,
+                2.7166666666666632
+              ]
+            },
+            "linear_backward": {
+              "median_ms": 1.4316666666666682,
+              "samples_ms": [
+                1.4599999999999946,
+                1.441666666666667,
+                1.428333333333335,
+                1.438333333333334,
+                1.4316666666666682,
+                1.4283333333333277,
+                1.4333333333333382,
+                1.426666666666665,
+                1.426666666666665
+              ]
+            },
+            "indexed_backward": {
+              "median_ms": 0.23999999999999577,
+              "samples_ms": [
+                0.26000000000000095,
+                0.24166666666666595,
+                0.23999999999999577,
+                0.23833333333333298,
+                0.23833333333333298,
+                0.24000000000000318,
+                0.23999999999999577,
+                0.24166666666667336,
+                0.23833333333333298
+              ]
+            }
+          },
+          "pyodide": "0.29.4"
+        }
+      }
+    }
+  },
+  "wheel": {
+    "file": "paperleet_torch-0.2.0-py3-none-any.whl",
+    "bytes": 54013,
+    "sha256": "05d2894e429b14506689776da4ed5676e572d895d63f8d7a4b425c5e32a250a7"
+  },
+  "native_ci": {
+    "passed": true,
+    "repeats": 3,
+    "problems": 69,
+    "tests_executed": 8829,
+    "duration_s": 137.91724295899985,
+    "issues": [],
+    "mutants_caught": 295
+  },
+  "validation": {
+    "python": "1463 passed, 1 skipped, 1 warning",
+    "native_focused": "242 passed",
+    "numpy_minimum_wheel": "18 passed; NumPy 1.26.4; Python -I outside checkout",
+    "real_wasm_cases": 5,
+    "chrome_worker_cases": 5,
+    "chrome_original_tests": 35,
+    "chrome_mutants_caught": 20,
+    "full_web_check": "passed after one unchanged focus-test recheck",
+    "release_status": "Validated source snapshot; main adoption is recorded in repository history."
+  }
+}
