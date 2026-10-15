@@ -117,6 +117,80 @@ try {
   assert.equal((await retry(attention, base, signal())).adapter, runtime.adapter);
   assert.equal(tries, 2, 'Failed shared downloads must not poison later retries');
 
+  // Model HTTP-cache reuse: an immutable URL can cache a failed or malformed
+  // response. Retrying must fetch a replacement instead of replaying that body.
+  for (const target of ['problem', 'runtime']) for (const failure of ['http', 'json', 'identity']) {
+    const cached = new Map(), modes = [];
+    let poisoned = true;
+    const recover = createBrowserBundleLoader(async (url, options) => {
+      const shared = String(url).includes('/runtime-');
+      const selected = target === 'runtime' ? shared : !shared;
+      const healthy = shared ? runtime : manifest;
+      if (!selected) return Response.json(healthy);
+      modes.push(options.cache);
+      const key = String(url);
+      if (options.cache === 'reload') cached.delete(key);
+      if (!cached.has(key)) {
+        let response = Response.json(healthy);
+        if (poisoned) {
+          poisoned = false;
+          response = failure === 'http' ? new Response('Unavailable', {status:503})
+            : failure === 'json' ? new Response('{"interrupted":')
+            : Response.json(shared ? {...runtime, files:{}} : {...manifest, problem:'wrong/problem'});
+        }
+        cached.set(key, response);
+      }
+      return cached.get(key).clone();
+    });
+    await assert.rejects(recover(attention, base, signal()));
+    assert.equal((await recover(attention, base, signal())).adapter, runtime.adapter,
+      `Retry must replace a cached ${failure} ${target} response`);
+    await recover(attention, base, signal());
+    assert.deepEqual(modes, target === 'runtime' ? ['force-cache','reload'] : ['force-cache','reload','force-cache'],
+      'A repaired immutable resource must regain the normal cache path');
+  }
+
+  const mismatchModes = [];
+  let wrongBackend = true;
+  const backendRecovery = createBrowserBundleLoader(async (url, options) => {
+    if (!String(url).includes('/runtime-')) return Response.json(manifest);
+    mismatchModes.push(options.cache);
+    const value = wrongBackend ? {...runtime, backend:'numpy-wasm'} : runtime;
+    wrongBackend = false;
+    return Response.json(value);
+  });
+  await assert.rejects(backendRecovery(attention, base, signal()), /backend mismatch/);
+  assert.equal((await backendRecovery(attention, base, signal())).adapter, runtime.adapter);
+  assert.deepEqual(mismatchModes, ['force-cache','reload'], 'A mismatched shared backend cannot stay cached');
+
+  const cancelledModes = [];
+  const cancelRecovery = createBrowserBundleLoader(async (url, options) => {
+    cancelledModes.push(options.cache);
+    if (cancelledModes.length === 1) return new Promise((resolve, reject) => {
+      options.signal.addEventListener('abort', () => reject(new DOMException('Stopped','AbortError')), {once:true});
+    });
+    return Response.json(legacy);
+  });
+  const cancelled = new AbortController();
+  const aborted = assert.rejects(cancelRecovery(attention, base, cancelled.signal), {name:'AbortError'});
+  cancelled.abort(); await aborted;
+  await cancelRecovery(attention, base, signal());
+  assert.deepEqual(cancelledModes, ['force-cache','force-cache'], 'Stopping a run must not mark a public asset corrupt');
+
+  let returnValid = false;
+  const failedModes = [];
+  const failedBound = createBrowserBundleLoader(async (url, options) => {
+    failedModes.push(options.cache);
+    return Response.json(returnValid ? legacy : {...legacy, problem:'wrong/problem'});
+  });
+  const failedTarget = number => ({...attention, browser_judge:{...attention.browser_judge,
+    bundle_url:`browser-judge/${number}-${'a'.repeat(20)}.json`}});
+  for(let number=1;number<=129;number++) await assert.rejects(failedBound(failedTarget(number),base,signal()));
+  returnValid = true;
+  await failedBound(failedTarget(1),base,signal());
+  await failedBound(failedTarget(129),base,signal());
+  assert.deepEqual(failedModes.slice(-2),['force-cache','reload'],'Failed-resource recovery tracking must remain bounded');
+
   let release, sharedSignal, sharedReads = 0;
   const paused = createBrowserBundleLoader(async (url, options) => {
     if (!String(url).includes('/runtime-')) return Response.json(manifest);
@@ -162,7 +236,7 @@ try {
   assert.equal(paths.filter(path => path.includes('/runtime-')).length, 6, 'The immutable public cache must remain bounded');
   await bounded(target(1), 'https://paperleet.example/another-preview/', signal());
   assert.equal(paths.filter(path => path.includes('/runtime-')).length, 7, 'Different deployment bases must have isolated cache keys');
-  console.log(`PASS browser bundles: all ${pilots.length} source-faithful exports, two shared downloads, legacy compatibility, bounded cache, identity/path/backend validation, retry and independent cancellation`);
+  console.log(`PASS browser bundles: all ${pilots.length} source-faithful exports, two shared downloads, legacy compatibility, bounded cache, identity/path/backend validation, corrupted HTTP-cache recovery, bounded failure tracking and independent cancellation`);
 } finally {
   await server.close();
 }
