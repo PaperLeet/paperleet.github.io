@@ -1,4 +1,3 @@
-import { PublishingRules } from './PublishingRules';
 import { useEffect, useRef, useState } from "react";
 import { Highlight } from "./SyntaxHighlight";
 import { Community, UserProfile, Account, Submissions, Visuals, ArtifactCharts, Prose, PythonEditor, SolutionHistory } from "./deferredPages";
@@ -280,7 +279,6 @@ function Workspace() {
     [rightTab, setRightTab] = useState("code"),
     [preparingRun, setPreparingRun] = useState(false),
     [toast, setToast] = useState(""),
-    [guide, setGuide] = useState(false),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
   const [details, setDetails] = useState<Record<string, Problem>>({});
@@ -589,9 +587,6 @@ function Workspace() {
             >
               <BilingualText zh="社区" en="Community" />
             </a>}
-            <button onClick={() => setGuide(true)}>
-              <BilingualText zh="使用指南" en="Guide" />
-            </button>
           </nav>
           <div className="nav-actions">
             <span
@@ -697,7 +692,6 @@ function Workspace() {
             problems={problems}
             saved={learningSaved}
             stats={problemStats}
-            onGuide={() => setGuide(true)}
           />
         ) : (
           <PaperLibrary
@@ -708,7 +702,6 @@ function Workspace() {
             papers={papers}
             problems={problems}
             saved={learningSaved}
-            onGuide={() => setGuide(true)}
           />
         )}</>
       ) : (
@@ -1330,80 +1323,6 @@ function Workspace() {
             </section>
           </ResizableSplit>
         </>
-      )}
-      {guide && (
-        <div className="modal-backdrop" onClick={() => setGuide(false)}>
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="guide-title"
-            className="guide-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="icon-button modal-close"
-              aria-label={t("关闭指南", "Close guide")}
-              onClick={() => setGuide(false)}
-            >
-              <X size={19} />
-            </button>
-            <div className="eyebrow">
-              <BookOpen size={16} />
-              PAPERLEET
-            </div>
-            <h2 id="guide-title">
-              {t("实现论文里的核心模块", "Implement a paper’s core modules")}
-            </h2>
-            <p>
-              {t(
-                "阅读论文、编写代码、运行测试都在这个工作区完成。",
-                "Read the paper, write code, and run tests in this workspace.",
-              )}
-            </p>
-            <ol>
-              <li>
-                <b>{t("选择论文与模块", "Choose a paper and module")}</b>
-                <small>
-                  {t(
-                    "先了解论文的核心思想和练习范围，再选择模块，阅读接口与约定。",
-                    "Read the paper’s core idea and selected scope, then choose a module and review its contract.",
-                  )}
-                </small>
-              </li>
-              <li>
-                <b>{t("在编辑器中实现", "Implement in the editor")}</b>
-                <small>
-                  {t(
-                    "登录后草稿同步到账号；未登录的代码仅在当前页面保留。",
-                    "Signed-in drafts sync to your account. Guest code stays only on the current page.",
-                  )}
-                </small>
-              </li>
-              <li>
-                <b>{t("测试与提交", "Test and submit")}</b>
-                <small>
-                  {t(
-                    "运行测试检查实现；登录后点击 Submit 保存解答，再从「我的提交」查看。",
-                    "Run tests to check your implementation. Sign in and use Submit to save your solution in My submissions.",
-                  )}
-                </small>
-              </li>
-              <li>
-                <b>{t("提交新论文", "Contribute a paper")}</b>
-                <small>
-                  {t(
-                    "提交论文和官方代码来源，生成候选实现与测试；通过验证和人工评审后才会加入题库。",
-                    "Submit a paper and official code source. Generated code and tests enter the catalog only after validation and human review.",
-                  )}
-                </small>
-              </li>
-            </ol>
-            <PublishingRules />
-            <button className="button" onClick={() => setGuide(false)}>
-              {t("开始练习", "Start practicing")} <ArrowRight size={15} />
-            </button>
-          </section>
-        </div>
       )}
       {toast && (
         <div role="status" className="toast">

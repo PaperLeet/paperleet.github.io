@@ -65,7 +65,7 @@ const categoryLabels: Record<string, [string, string]> = {
   "world-models": ["世界模型", "World Models"],
 };
 
-export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, onGuide }: Practice & { papers: Paper[]; categories: Category[]; onGuide: () => void; collectionId?: string; progressReady?: boolean }) {
+export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean }) {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [diff, setDiff] = useState("all");
@@ -117,7 +117,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   function clear() { setQuery(""); setDiff("all"); setState("all"); setTag("all"); setCategory("all"); setRuntime("all"); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all" || runtime !== "all";
   return <main className="home paper-library">
-    <PracticeStart problems={listedModules} saved={saved} ready={progressReady} onGuide={onGuide} />
+    <PracticeStart problems={listedModules} saved={saved} ready={progressReady} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
       <div className="collections-heading">
         <h2>{t("精选合集", "Featured collections")}</h2>
@@ -195,7 +195,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   </main>;
 }
 
-export function PaperDetail({ paper, problems, saved, stats }: Practice & { paper: Paper; onGuide: () => void; stats?: ProblemStatsMap }) {
+export function PaperDetail({ paper, problems, saved, stats }: Practice & { paper: Paper; stats?: ProblemStatsMap }) {
   const { t, locale } = useI18n();
   const modules = paperModules(paper, problems);
   const progress = paperProgress(paper, { problems, saved });

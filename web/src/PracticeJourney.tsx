@@ -7,11 +7,10 @@ import { recommendPractice } from "./practice-recommendation";
 import { BilingualText } from "./BilingualText";
 import "./practice-journey.css";
 
-export function PracticeStart({ problems, saved, ready, onGuide }: {
+export function PracticeStart({ problems, saved, ready }: {
   problems: Problem[];
   saved: Record<string, Saved>;
   ready: boolean;
-  onGuide: () => void;
 }) {
   const { t } = useI18n();
   const { health, user } = useAccount();
@@ -31,7 +30,6 @@ export function PracticeStart({ problems, saved, ready, onGuide }: {
         <li><Code2 size={15} aria-hidden="true" />{text("补全核心函数", "Implement the core")}</li>
         <li><FlaskConical size={15} aria-hidden="true" />{text("运行测试与实验", "Test and explore")}</li>
       </ol>
-      <button className="text-button" onClick={onGuide}>{text("查看使用指南", "How practice works")}<ArrowRight size={13} aria-hidden="true" /></button>
     </div>
     <div className="practice-recommendation" aria-live="polite" aria-busy={!ready}>
       {next ? <>

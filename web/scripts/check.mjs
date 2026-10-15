@@ -158,7 +158,7 @@ try {
     },
   });
   const libraryProps = {
-    papers: catalog.papers, problems: catalog.problems, categories: catalog.categories, onGuide: () => {},
+    papers: catalog.papers, problems: catalog.problems, categories: catalog.categories,
   };
   for (const list of paperCollections) {
     const members = catalog.papers.filter((paper) => list.paperIds.includes(paper.id));

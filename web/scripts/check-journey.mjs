@@ -52,7 +52,7 @@ try {
   const transformerDone = Object.fromEntries(transformer.module_ids.map((id) => [id, allAccepted[id]]));
   assert.notEqual(nextPractice(attention, transformer.module_ids, problems, transformerDone)?.paper_id, "transformer",
     "A completed paper should lead to an unsolved module in another paper");
-  const props = { problems, saved: {}, ready: true, onGuide: () => {} };
+  const props = { problems, saved: {}, ready: true };
   const firstVisit = renderToString(React.createElement(PracticeStart, props));
   assert(firstVisit.includes(`href="#/${attention.number}"`) && firstVisit.includes("推荐第一题"));
   const waiting = renderToString(React.createElement(PracticeStart, { ...props, ready: false }));

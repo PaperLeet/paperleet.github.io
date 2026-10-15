@@ -13,7 +13,7 @@ try {
   // Exercise mixed-runtime rendering even when current multi-module papers
   // have uniform coverage; exported problem data remain unchanged.
   const fixtureProblems=problems.map(p=>p.id==='diffusion/ddpm_sampling'?{...p,browser_judge:undefined}:p);
-  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{},onGuide(){}}));
+  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{}}));
   assert(!detail.includes('judge-capability-badge'), 'Module cards should not display runtime badges');
 
   const { verificationReason,matchesBrowserSubmission }=await server.ssrLoadModule('/src/browserVerification.ts');
