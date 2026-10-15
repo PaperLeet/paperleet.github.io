@@ -22,7 +22,7 @@ try {
     assert.deepEqual(readLibraryRoute(decodeProblemHash(href)), { collectionId, filters });
     assert.equal(accountReturnHref(decodeProblemHash(signInHref(href))), href);
     assert.equal(accountReturnHref(decodeProblemHash(signInHref(decodeProblemHash(href)))), href);
-    for (const path of ['6', 'diffusion/schedules', 'papers/ddpm', 'retrieval/semantic_ids', 'retrieval/generative_retrieval']) {
+    for (const path of ['6', 'foundations/next_token_loss', 'foundations/top_p_sampling', 'diffusion/schedules', 'papers/ddpm', 'retrieval/semantic_ids', 'retrieval/generative_retrieval']) {
       const target = withLibraryContext(path, href);
       assert.equal(libraryReturnHref(target), href);
       assert.equal(libraryReturnHref(decodeProblemHash(target)), href);

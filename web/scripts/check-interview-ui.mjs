@@ -51,7 +51,7 @@ try {
  account();await hub();assert(document.querySelector('.interview-hero-stats').textContent.includes('—'),'Unknown counts are never shown as zero');
  await reply(take('interviews?'),{items:[],total:0,limit:20,offset:0});await reply(take('interviews/summary'),empty);
  assert(document.body.textContent.includes('Start with the first shared experience'));assert(document.querySelector('a[href*="account/continue/"]'));
- assert.equal(document.querySelectorAll('.interview-resource-panel a').length,3);assert.equal(document.querySelectorAll('.interview-path-grid article').length,3);
+ assert.equal(document.querySelectorAll('.interview-resource-panel a').length,3);assert.equal(document.querySelectorAll('.interview-path-grid article').length,4);
  await hub('interviews?company=amazon&view=questions');await reply(take('summary'),summary);
  assert.equal(document.querySelectorAll('.interview-ranking-row').length,1);const practice=document.querySelector('.interview-ranking-row .button');assert.equal(libraryReturnHref(practice.getAttribute('href')),'#/interviews?company=amazon&view=questions&queue=1');
  await hub('interviews?company=amazon&view=questions&q=missing');assert(document.body.textContent.includes('No matching concepts'));assert(button('Clear search'));

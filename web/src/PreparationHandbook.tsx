@@ -12,12 +12,15 @@ import type {Problem} from './types';
 export default function PreparationHandbook({filters,problems,catalogError,onRetryCatalog}:{filters:InterviewFilters;problems:Problem[];catalogError?:string;onRetryCatalog?:()=>void}){
  const {t,locale}=useI18n();
  const [choice,setChoice]=useState('');
- const paths=rolePreparationPaths(filters.role),ids=paths.flatMap(path=>path.modules);
- const offered=problems.filter(problem=>hasPreparationGuide(problem.id)&&(filters.concept?problem.id===filters.concept:ids.includes(problem.id)));
+ const selectedPath=interviewCatalog.paths.find(path=>path.id===filters.track);
+ const paths=selectedPath?[selectedPath]:rolePreparationPaths(filters.role),ids=paths.flatMap(path=>path.modules);
+ const byId=new Map(problems.map(problem=>[problem.id,problem]));
+ const candidates=selectedPath&&!filters.concept?selectedPath.modules.flatMap(id=>byId.has(id)?[byId.get(id)!]:[]):problems;
+ const offered=candidates.filter(problem=>hasPreparationGuide(problem.id)&&(filters.concept?problem.id===filters.concept:ids.includes(problem.id)));
  const selected=offered.find(problem=>problem.id===choice)||offered[0];
  if(filters.concept&&!hasPreparationGuide(filters.concept))return null;
  const title=(problem:Problem)=>locale==='en'?problem.translations?.en?.title||problem.title:problem.title;
- const track=selected?interviewCatalog.paths.find(path=>path.modules.includes(selected.id))?.id||'':'';
+ const track=selected?(paths.find(path=>path.modules.includes(selected.id))||interviewCatalog.paths.find(path=>path.modules.includes(selected.id)))?.id||'':'';
  const returnTo=selected?interviewHref({...filters,view:'reports',concept:selected.id,track,page:1,q:''}):undefined;
  return <section className="preparation-handbook" id="preparation-handbook" aria-labelledby="preparation-handbook-heading">
   <div className="interview-section-title"><span><BookOpen size={18}/><h2 id="preparation-handbook-heading" tabIndex={-1}>{t('面试自测手册','Interview study handbook')}</h2></span><small>{offered.length?t(`${offered.length} 个知识点 · 每个 3 个自测角度`,`${offered.length} concepts · 3 prompts each`):t('基于站内练习整理','Based on PaperLeet exercises')}</small></div>

@@ -402,6 +402,27 @@
   ],
   "paths": [
     {
+      "id": "training-generation",
+      "name": "LLM 训练与生成入门",
+      "name_en": "Training & generation basics",
+      "description": "从下一词预测和回答掩码，练到候选分布、梯度累积与全局裁剪。",
+      "description_en": "Practice next-token targets, response masks, candidate distributions, gradient accumulation and global clipping.",
+      "modules": [
+        "foundations/next_token_loss",
+        "foundations/sft_loss_mask",
+        "foundations/top_k_sampling",
+        "foundations/top_p_sampling",
+        "foundations/gradient_accumulation",
+        "foundations/gradient_clipping"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research",
+        "software"
+      ]
+    },
+    {
       "id": "llm",
       "name": "大模型算法准备",
       "name_en": "LLM foundations",
