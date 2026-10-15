@@ -577,3 +577,15 @@ papers:
     scope: 实现余弦 MaxSim、mask 与成对 softmax 损失，使用合成查询向量优化实验，不训练 BERT 或 ANN 索引。
     scope_en: Cosine MaxSim, masks and pairwise softmax with synthetic query-vector optimization; no BERT training or ANN index.
     module_ids: [retrieval/late_interaction]
+
+  - id: sasrec
+    number: 52
+    category: retrieval
+    short_title: SASRec
+    year: 2018
+    tags: [Sequential Recommendation, Causal Attention, Negative Sampling]
+    summary: 只读取已观察的历史，使用逐位置正负样本目标预测下一物品。
+    summary_en: Read only observed history and predict the next item using position-wise positive/negative training targets.
+    scope: 因果与 query/key padding mask、稳定二元负采样损失，以及小型合成序列训练；不复现完整推荐基准。
+    scope_en: Causal/query/key padding visibility, stable sampled binary loss and tiny synthetic sequence training; no full recommendation benchmark.
+    module_ids: [retrieval/sasrec]

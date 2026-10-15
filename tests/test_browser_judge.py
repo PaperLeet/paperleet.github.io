@@ -157,6 +157,7 @@ print(json.dumps(calibration))
     ('architecture/gqa',10,5),
     ('architecture/rope',10,6),
     ('retrieval/semantic_ids',8,4),('retrieval/generative_retrieval',8,5),('retrieval/late_interaction',10,6),
+    ('retrieval/sasrec',10,7),
 ])
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')

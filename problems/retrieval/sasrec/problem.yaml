@@ -1,0 +1,70 @@
+id: retrieval/sasrec
+number: 67
+title: SASRec：因果历史与逐位置负采样目标
+title_en: 'SASRec: Causal Histories and Sampled Next-Item Loss'
+paper_id: sasrec
+paper:
+  title: Self-Attentive Sequential Recommendation
+  authors: Wang-Cheng Kang and Julian McAuley
+  venue: ICDM 2018
+  arxiv: '1808.09781'
+  anchors:
+  - 'Section III-B: causal self-attention'
+  - 'Section III-E: sampled binary cross-entropy, excluding padding targets'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: causal_item_mask
+  signature: 'causal_item_mask(item_ids: Tensor) -> Tensor'
+- name: sampled_next_item_loss
+  signature: 'sampled_next_item_loss(positive: Tensor, negative: Tensor, target_ids: Tensor) -> Tensor'
+- name: _check_ids
+  signature: _check_ids(item_ids) -> None
+- name: _check_loss
+  signature: _check_loss(positive, negative, target_ids) -> None
+module:
+  goal: 从历史预测下一物品，隔离未来信息并正确忽略 padding 的训练目标。
+  goal_en: Predict the next item from history while isolating future information and excluding padded training targets.
+  scope: 实现因果与 query/key padding mask，以及稳定的逐位置正负样本二元损失；编码器和小型训练循环已提供。
+  scope_en: Implement causal/query/key padding visibility and stable position-wise binary loss; encoder and tiny training loop are provided.
+  required_functions: [causal_item_mask, sampled_next_item_loss]
+  provided_functions: [_check_ids, _check_loss]
+  optional: false
+conventions:
+  seed: 42
+  dtype: int64 IDs; CPU float32/float64 logits; Boolean visibility.
+  device: CPU; no GPU, dataset, model weights or API.
+  contract: ID 0 means padding. Query i sees valid keys j <= i including itself. Loss averages the sum of positive/negative terms over nonzero targets. Empty targets give a differentiable zero.
+tests: {T0: 1, T1: 1, T2: 7, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 25
+tags: [SASRec, Sequential Recommendation, Causal Attention, Negative Sampling]
+viz: [toy_experiment]
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://arxiv.org/abs/1808.09781v1
+  - https://github.com/kang205/SASRec/blob/e3738967fddab206d6eeb4fda433e7a7034dd8b1/model.py
+  - https://github.com/kang205/SASRec/blob/e3738967fddab206d6eeb4fda433e7a7034dd8b1/modules.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1808.09781v1
+  anchor: Sections III-B and III-E
+  adaptation: Two history-dependent training histories plus an empty row, 72 trainable query/readout parameters and 160 Adam updates. Fixed item vectors, identity K/V and small positional offsets; no FFN/dropout or public recommendation benchmark. Negatives rotate through non-target items and may occur in history.
+mutants:
+- id: m1_future_leak
+  bug: 忽略因果方向，读取未来物品
+- id: m2_exclude_self
+  bug: 错误排除当前位置的物品
+- id: m3_padding_keys
+  bug: 允许真实 query 读取 padding key
+- id: m4_padding_denominator
+  bug: 用全部位置而非有效目标数量取平均
+- id: m5_negative_sign
+  bug: 把负样本也当作正样本优化
+- id: m6_detach_positive
+  bug: 切断正样本 logit 的梯度
+- id: m7_pairwise_instead_of_binary
+  bug: 用成对排序 softmax 替代两个独立二元项

@@ -30,7 +30,7 @@ PILOTS = {
     "architecture/rms_norm",
     "architecture/gqa",
     "architecture/rope",
-    "retrieval/semantic_ids", "retrieval/generative_retrieval", "retrieval/late_interaction",
+    "retrieval/semantic_ids", "retrieval/generative_retrieval", "retrieval/late_interaction", "retrieval/sasrec",
 }
 
 SHARED_FILES = (
