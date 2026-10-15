@@ -14,7 +14,7 @@ import { recommendPractice } from "./practice-recommendation";
 import { deferredFeature } from './deferredFeature';
 import { getProblemStats, ProblemStatsSummary } from "./ProblemStats";
 import type { ProblemStatsMap } from "./ProblemStats";
-import { PracticeStart } from "./PracticeJourney";
+import "./practice-journey.css";
 import LibraryOverview from './LibraryOverview';
 import { ModuleJudgeBadge, PaperJudgeBadge } from "./JudgeCapability";
 import { emptyLibraryFilters, libraryHref, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters, type LibrarySort } from './libraryNavigation';
@@ -148,7 +148,6 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         {nextInCollection && <a className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></a>}
       </div>
     </header> : <>
-    <PracticeStart problems={filteredModules} saved={saved} ready={progressReady} returnTo={viewHref} onBrowse={() => libraryMain.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" })} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
       <div className="collections-heading">
         <h2>{t("精选合集", "Featured collections")}</h2>
