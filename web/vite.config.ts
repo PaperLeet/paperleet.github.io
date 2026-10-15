@@ -2,6 +2,7 @@ import { defineConfig, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { execFile } from "node:child_process";
 import { resolve } from "node:path";
+import { validateDeploymentEnvironment } from "./src/deploymentOrigins";
 function publicBrowserAssets(server: Pick<ViteDevServer, "middlewares">) {
   server.middlewares.use((request, response, next) => {
     if (/^\/browser-(runtime|judge)\//.test((request as { url?: string }).url || "")) {
@@ -32,6 +33,9 @@ function watchBrowserWorker(server: ViteDevServer) {
 export default defineConfig({
   plugins: [react(), {
     name: "browser-judge-public-assets",
+    configResolved(config) {
+      if (config.command === "build") validateDeploymentEnvironment(config.env);
+    },
     configureServer(server) { publicBrowserAssets(server); watchBrowserWorker(server); },
     configurePreviewServer: publicBrowserAssets,
   }],

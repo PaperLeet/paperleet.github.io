@@ -197,6 +197,14 @@ The homepage defers the Python editor, Markdown/math renderer, community, accoun
 
 GitHub Pages builds the browser-practice edition using `VITE_PUBLIC_SITE=1` and `VITE_APP_EDITION=local`. It supports editing and browser judging without an API. Ordinary local builds also support the loopback native judge. Online account synchronization is provided by the separate private application.
 
+For a standalone static site, run `VITE_PUBLIC_SITE=1 npm run build` from `web/`;
+no backend address is required. Enable an external account application with
+`VITE_HOSTED_APP_AVAILABLE=1` and its `VITE_HOSTED_APP_URL` HTTPS origin. A hosted
+frontend can use `VITE_API_ORIGIN` for a separate HTTPS API origin, or leave it
+empty for same-origin requests. Builds reject invalid enabled origins before
+emitting JavaScript; diagnostics name the setting without printing its value.
+See [standalone deployment validation](docs/validation/standalone-startup.md).
+
 ## Repository layout and contributing
 
 ```text

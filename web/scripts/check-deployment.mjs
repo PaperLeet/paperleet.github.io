@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { createServer } from "vite";
+import { createServer, resolveConfig } from "vite";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 for (const [publicMode, appAvailable, hostedEdition, hostedUrl] of [
   [false, false, false, ""], [false, true, true, ""],
@@ -64,4 +67,63 @@ for (const [publicMode, appAvailable, hostedEdition, hostedUrl] of [
     }
   } finally { await server.close(); }
 }
+
+// Resolve the actual Vite build configuration, including mode files and shell
+// precedence. This must fail before any browser chunks can be emitted.
+const fixture = mkdtempSync(join(tmpdir(), "paperleet-deployment-env-"));
+const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => key.startsWith("VITE_")));
+const modeFile = join(fixture, ".env.production");
+function settings(values, file = modeFile) {
+  writeFileSync(file, Object.entries(values).map(([key, value]) => `${key}=${JSON.stringify(value)}`).join("\n") + "\n");
+}
+const resolved = (mode = "production") => resolveConfig({ envDir: fixture, mode, logLevel: "silent" }, "build");
+try {
+  for (const key of Object.keys(inherited)) delete process.env[key];
+  for (const values of [
+    {}, { VITE_PUBLIC_SITE: "1" },
+    { VITE_PUBLIC_SITE: "1", VITE_HOSTED_APP_AVAILABLE: "0", VITE_HOSTED_APP_URL: "unused-invalid-value" },
+    { VITE_PUBLIC_SITE: "1", VITE_HOSTED_APP_AVAILABLE: "1", VITE_HOSTED_APP_URL: "https://app.paperleet.com" },
+    { VITE_APP_EDITION: "hosted", VITE_API_ORIGIN: "" },
+    { VITE_APP_EDITION: "hosted", VITE_API_ORIGIN: "https://app.paperleet.com" },
+  ]) {
+    settings(values);
+    await resolved();
+  }
+  const invalid = ["", "not a URL", "http://app.paperleet.com", "https://user:fixture-secret@app.paperleet.com",
+    "https://app.paperleet.com/api", "https://app.paperleet.com/?fixture-secret", "https://app.paperleet.com/#fixture-secret"];
+  async function refuses(key, mode = "production") {
+    await assert.rejects(resolved(mode), error => {
+      assert.match(error.message, new RegExp(`^Invalid ${key}:`));
+      assert(!error.message.includes("fixture-secret"), "Configuration diagnostics must not echo URL credentials or query data");
+      return true;
+    });
+  }
+  for (const value of invalid) {
+    settings({ VITE_PUBLIC_SITE: "1", VITE_HOSTED_APP_AVAILABLE: "1", VITE_HOSTED_APP_URL: value });
+    await refuses("VITE_HOSTED_APP_URL");
+    if (value) {
+      settings({ VITE_APP_EDITION: "hosted", VITE_API_ORIGIN: value });
+      await refuses("VITE_API_ORIGIN");
+    }
+  }
+  settings({ VITE_PUBLIC_SITE: "1", VITE_HOSTED_APP_AVAILABLE: "1", VITE_HOSTED_APP_URL: "http://wrong.test" }, join(fixture, ".env"));
+  settings({ VITE_HOSTED_APP_URL: "https://app.paperleet.com" });
+  assert.equal((await resolved()).env.VITE_HOSTED_APP_URL, "https://app.paperleet.com", "Mode files override the base file");
+  settings({ VITE_HOSTED_APP_URL: "http://wrong.test" }, join(fixture, ".env.production.local"));
+  await refuses("VITE_HOSTED_APP_URL");
+  process.env.VITE_HOSTED_APP_URL = "https://app.paperleet.com";
+  assert.equal((await resolved()).env.VITE_HOSTED_APP_URL, "https://app.paperleet.com", "Shell values override mode-local files");
+  process.env.VITE_HOSTED_APP_URL = "https://user:fixture-secret@app.paperleet.com";
+  await refuses("VITE_HOSTED_APP_URL");
+  delete process.env.VITE_HOSTED_APP_URL;
+  settings({ VITE_PUBLIC_SITE: "1", VITE_HOSTED_APP_AVAILABLE: "1", VITE_HOSTED_APP_URL: "https://app.paperleet.com" }, join(fixture, ".env"));
+  settings({ VITE_HOSTED_APP_URL: "http://wrong.test" }, join(fixture, ".env.staging"));
+  assert.equal((await resolved("development")).env.VITE_HOSTED_APP_URL, "https://app.paperleet.com");
+  await refuses("VITE_HOSTED_APP_URL", "staging");
+} finally {
+  for (const key of Object.keys(process.env)) if (key.startsWith("VITE_")) delete process.env[key];
+  Object.assign(process.env, inherited);
+  rmSync(fixture, { recursive: true, force: true });
+}
 console.log("PASS public/hosted login navigation, protected-route redirects before forms, practice routes and fixed HTTPS destination");
+console.log("PASS real build configuration: enabled origins, disabled integration, mode/file/shell precedence and bounded diagnostics");

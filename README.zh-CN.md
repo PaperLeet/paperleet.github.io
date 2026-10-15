@@ -191,6 +191,12 @@ npm run build
 
 GitHub Pages 使用 `VITE_PUBLIC_SITE=1` 和 `VITE_APP_EDITION=local` 构建浏览器练习版，编辑与浏览器判题无需 API。普通本地构建还支持回环地址上的本机判题；线上账号同步由独立私有应用提供。
 
+独立静态站只需在 `web/` 运行 `VITE_PUBLIC_SITE=1 npm run build`，无需后端地址。
+如需连接外部账号应用，设置 `VITE_HOSTED_APP_AVAILABLE=1` 和 HTTPS 来源
+`VITE_HOSTED_APP_URL`。托管前端可用 `VITE_API_ORIGIN` 指定独立 HTTPS API 来源，
+留空则使用同源请求。无效的已启用来源会在生成 JavaScript 前使构建失败；提示指出变量名，
+不打印变量值。[独立部署验证记录](docs/validation/standalone-startup.md)。
+
 ## 目录与贡献
 
 ```text

@@ -32,3 +32,29 @@ This frontend startup fix does not change numerical bundles, workers, Python
 grading code or test thresholds. Browser/Oracle performance observations and
 deployment integration are recorded separately in the private backend repository.
 No public push or production deployment is claimed.
+
+## Build-time origin validation
+
+The browser and Vite now share the same pure HTTPS-origin validators. Vite's
+resolved build configuration validates enabled hosted-app and configured API
+origins after loading environment files. An invalid configuration fails before
+browser assets are emitted, with the variable name and required format. It never
+echoes the supplied URL, credentials or query data. Unused hosted-app URLs remain
+ignored when that integration is disabled; an empty API origin still means
+same-origin requests.
+
+The deployment check resolves the actual project Vite configuration against
+temporary environment files: valid standalone/public/hosted modes, malformed and
+empty enabled destinations, non-HTTPS origins, credentials, paths, queries and
+fragments. It verifies base-file, mode-file, mode-local-file and shell precedence,
+including a custom staging mode. Temporary files and inherited VITE variables are
+restored after the checks. Existing same-origin/split-origin request credentials
+and URL guards remain exercised by the API regression.
+
+Two real Vite CLI builds independently reject a missing enabled hosted-app URL
+and an API URL containing fixture credentials. Neither creates its output
+directory, and neither prints the credential sentinel. The full frontend check
+chain and standalone/public/hosted/split-origin production builds pass. A real
+standalone browser still completes Attention 7/7 with all three faults calibrated,
+without an API request. Numerical bundles, workers and Python sources remain
+unchanged by this configuration-only iteration.
