@@ -5,8 +5,9 @@ import {preparationProgress,rolePreparationPaths} from './interviewPreparation';
 import {withLibraryContext} from './libraryNavigation';
 import {status,type Problem,type Saved} from './types';
 
-export default function InterviewStudyPaths({filters,problems,saved,ready,error,onRetry}:{filters:InterviewFilters;problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;onRetry?:()=>void}){
+export default function InterviewStudyPaths({filters,problems,saved,ready:loaded,error,onRetry}:{filters:InterviewFilters;problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;onRetry?:()=>void}){
  const {t,locale}=useI18n(),en=locale==='en';
+ const ready=loaded&&!error;
  // Keep the selected path visible when revisiting it under a different role filter.
  const paths=rolePreparationPaths(filters.role);
  const selected=preparationProgress(filters.track,problems)?.path;

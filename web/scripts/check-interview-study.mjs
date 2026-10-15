@@ -44,7 +44,7 @@ try{
  assert(document.querySelector('[data-selected]'));
  // Owner changes render fresh evidence; no independent completion or resume storage is used.
  await render(Paths,{filters,problems:modules,saved:{},ready:true});assert.equal(document.querySelector('progress').value,0);assert(document.querySelector('.interview-path-start').href.includes('#/'+ordered[0].number+'?'));
- let retries=0;await render(Paths,{filters,problems:modules,saved,ready:false,error:'offline',onRetry:()=>retries++});await click(document.querySelector('.interview-progress-status button'));assert.equal(retries,1);assert.equal(document.querySelectorAll('.interview-path-start').length,0);assert(document.querySelector('.interview-path-modules a'));
+ let retries=0;await render(Paths,{filters,problems:modules,saved,ready:true,error:'offline',onRetry:()=>retries++});await click(document.querySelector('.interview-progress-status button'));assert.equal(retries,1);assert.equal(document.querySelectorAll('.interview-path-start').length,0);assert(document.querySelector('.interview-path-modules a'));
  await render(Paths,{filters:{...filters,role:'data'},problems:modules,saved,ready:true});assert(document.querySelector('#interview-path-llm'),'A selected path remains visible when a role filter changes');
  const allPassed=Object.fromEntries(ordered.map(problem=>[problem.id,pass(problem)]));
  await render(Paths,{filters,problems:modules,saved:allPassed,ready:true});assert(document.querySelector('.interview-path-start').textContent.includes('Path complete'));assert.equal(readInterviewRoute(document.querySelector('.interview-path-start').getAttribute('href')).view,'reports');
