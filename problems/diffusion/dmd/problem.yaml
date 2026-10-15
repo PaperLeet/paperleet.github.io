@@ -119,3 +119,6 @@ calibration:
     matching_regression_center_error: 5.960540647720336e-07
   reference_tests_passed: 7
   mutants_killed: 4
+
+browser:
+  backend: numpy-autograd-wasm

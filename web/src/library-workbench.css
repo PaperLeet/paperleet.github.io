@@ -28,10 +28,6 @@
 .library-main { min-width: 0; scroll-margin-top: 84px; }
 .paper-library .library-heading { min-height: 36px; margin-bottom: 16px; }
 .paper-library .library-heading h1 { font-size: 23px; letter-spacing: -.035em; }
-.paper-library .library-heading h1 .bilingual-text,
-.paper-library .library-heading h1 .bilingual-text > span { padding:0; border:0; background:none; color:inherit; font:inherit; box-shadow:none; line-height:inherit; }
-.paper-library .paper-categories button > .bilingual-text { font-size:inherit; opacity:1; }
-.paper-library .practice-recommendation[aria-busy="true"] > p { display:block; }
 .paper-library .library-progress { font-size: 11px; }
 .paper-library .paper-categories { gap: 7px; margin-bottom: 16px; }
 .paper-library .paper-categories button { min-height: 32px; padding: 6px 10px; font-size: 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
@@ -166,27 +162,4 @@
   .paper-library .library-results { align-items: flex-start; }
   .paper-library .library-result-actions { width: 100%; justify-content: space-between; }
   .paper-library .paper-table-grid { gap: 6px; padding-inline: 9px; }
-}
-
-/* Preserve the production Run / Submit distinction and the signed-in history panel. */
-.editor-history[hidden], .editor-lab[hidden] { display: none; }
-.editor-history { flex: 1; min-height: 0; overflow: auto; }
-.workspace-focus-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; }
-@media (min-width:851px) {
-  .workspace-view[data-focus-mode="true"] .workspace { grid-template-columns: minmax(0,1fr); }
-  .workspace-view[data-focus-mode="true"] .workspace > .description-pane,
-  .workspace-view[data-focus-mode="true"] .workspace > .split-handle { display:none; }
-  .workspace-view[data-focus-mode="true"] .workspace > .editor-pane { grid-column:1; }
-}
-.workspace .editor-run-actions { display:flex; align-items:center; gap:8px; flex:none; }
-.topbar nav .mobile-privacy-link { display:none; }
-@media (max-width:600px) {
-  .topbar .nav-actions { gap:4px; }
-  .topbar .nav-actions > .privacy-link { display:none; }
-  .topbar nav .mobile-privacy-link { display:flex; }
-}
-@media (max-width:700px) {
-  .paper-library .library-toolbar .filter-bar[data-expanded="true"] { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
-  .workspace .editor-bottom > .editor-run-status { max-width:none; flex:1 1 70px; font-size:10px; }
-  .workspace .editor-run-actions .button { min-height:40px; padding-inline:10px; font-size:11px; }
 }

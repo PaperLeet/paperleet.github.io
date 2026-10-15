@@ -66,3 +66,6 @@ mutants:
   bug: epsilon 放在平方根内部
 - id: m4_decay_no_lr
   bug: 权重衰减遗漏学习率
+
+browser:
+  backend: numpy-autograd-wasm

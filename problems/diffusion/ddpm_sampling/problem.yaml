@@ -92,3 +92,13 @@ module:
   provided_functions:
   - ddpm_sample
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm
+  packages: [pyyaml]
+  resources:
+    - paperleet/common/toydata.py
+    - paperleet/common/oracles.py
+    - paperleet/common/metrics.py
+    - paperleet/common/models.py
+    - problems/diffusion/ddpm_sampling/problem.yaml

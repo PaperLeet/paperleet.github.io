@@ -89,3 +89,6 @@ mutants:
   bug: Selects the farthest code vector.
 - id: m4_last_scale_only
   bug: Overwrites cumulative reconstructions with the latest contribution.
+
+browser:
+  backend: numpy-autograd-wasm

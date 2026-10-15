@@ -79,3 +79,6 @@ calibration:
     adapter_parameters: 28
     base_parameters: 48
   max_observed_t3_s: 0.04129345889668912
+
+browser:
+  backend: numpy-autograd-wasm

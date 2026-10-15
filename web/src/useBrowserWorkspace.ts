@@ -4,42 +4,9 @@ import { browserNotifications } from './browserNotifications';
 import { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from './practiceRecords';
 import { deleteBrowserBackup, legacyBrowserWorkspace, loadBrowserWorkspace, writeBrowserDraft, writeBrowserReport, type BrowserBackup, type BrowserOwner, type BrowserRecord, type BrowserPreservedSource } from './browserWorkspaceStore';
 import type { Problem, Report, Saved } from './types';
+import { keepDraftSafety as keepSafety, clearDraftSafety as clearSafety, readDraftSafety as readSafety, hasUnsavedDraftSafety, type BrowserDraftWrite as Write } from './browserDraftSafety';
 
 type View = {owner?: BrowserOwner; saved: Record<string,Saved>; conflicts: Record<string,Saved>; reviewed: Record<string,string>; backups: BrowserBackup[]; ready: boolean; saving: boolean; failed: boolean};
-type Write = {code: string; updated: string; token: string; preserve?: BrowserPreservedSource[]};
-type Safety = Write & {id: string; base: string};
-const safetyMemory = new Map<string,Safety>();
-const safetyPrefix = (owner: BrowserOwner) => `paperleet.practice.safety.v2:${owner}:`;
-function keepSafety(owner: BrowserOwner, id: string, write: Write, base: string) {
-  const key = safetyPrefix(owner) + id, value = {...write,id,base};
-  safetyMemory.set(key,value);
-  try {sessionStorage.setItem(key,JSON.stringify(value));} catch { /* The unload guard protects the in-memory copy. */ }
-}
-function clearSafety(owner: BrowserOwner, id: string, token: string) {
-  const key = safetyPrefix(owner) + id;
-  if (safetyMemory.get(key)?.token === token) safetyMemory.delete(key);
-  try {if (JSON.parse(sessionStorage.getItem(key) || 'null')?.token === token) sessionStorage.removeItem(key);} catch { /* A stale safety copy is recoverable rather than destructive. */ }
-}
-function readSafety(owner: BrowserOwner): Safety[] {
-  const values = new Map<string,Safety>(), prefix = safetyPrefix(owner);
-  try {
-    for (let i=0;i<sessionStorage.length;i++) {
-      const key = sessionStorage.key(i);
-      if (!key?.startsWith(prefix)) continue;
-      const value = JSON.parse(sessionStorage.getItem(key) || 'null');
-      if (value && typeof value.id === 'string' && key === prefix + value.id && typeof value.code === 'string' && typeof value.base === 'string' && typeof value.updated === 'string' && typeof value.token === 'string') {
-        const preserve = Array.isArray(value.preserve) ? value.preserve.filter((row: unknown): row is BrowserPreservedSource => {
-          if (!row || typeof row !== 'object') return false;
-          const source = row as Partial<BrowserPreservedSource>;
-          return typeof source.key === 'string' && typeof source.code === 'string' && typeof source.base === 'string' && typeof source.updated === 'string';
-        }) : undefined;
-        values.set(key,{...value,preserve});
-      }
-    }
-  } catch { /* Volatile drafts remain available if session storage is blocked. */ }
-  for (const [key,value] of safetyMemory) if (key.startsWith(prefix)) values.set(key,value);
-  return [...values.values()];
-}
 type Runtime = {owner: BrowserOwner; writer: string; revision: number; bases: Map<string,string>; touched: Set<string>; pending: Map<string,Write>; reports: {problem: Problem; report: Report}[]; remote: Record<string,BrowserRecord>; processing: boolean; failed: boolean; initial: boolean; notifications?: ReturnType<typeof browserNotifications>};
 const empty = (owner?: BrowserOwner): View => ({owner,saved:{},conflicts:{},reviewed:{},backups:[],ready:false,saving:false,failed:false});
 const rememberKey = (owner: BrowserOwner) => `paperleet.practice.recovery.v2:${owner}`;
@@ -80,12 +47,6 @@ export function useBrowserWorkspace(owner?: BrowserOwner) {
     if (!current(runtime) || revision !== runtime.revision) return;
     const saved = {...latest.current.saved}, conflicts: Record<string,Saved> = {};
     const held = runtime.initial ? remembered(runtime.owner) : {};
-    if (runtime.initial) for (const safety of readSafety(runtime.owner)) {
-      if (runtime.touched.has(safety.id)) continue;
-      saved[safety.id] = {...snapshot.records[safety.id]?.saved,code:safety.code,updated:safety.updated};
-      runtime.touched.add(safety.id); runtime.bases.set(safety.id,safety.base); runtime.pending.set(safety.id,safety);
-      keepSafety(runtime.owner,safety.id,safety,safety.base);
-    }
     for (const [id,record] of Object.entries(snapshot.records)) {
       const seed = snapshot.backups.find(backup => backup.id === id && backup.writer === held[id]);
       if (seed && !runtime.touched.has(id)) {
@@ -151,12 +112,18 @@ export function useBrowserWorkspace(owner?: BrowserOwner) {
     active.current = runtime; latest.current = empty(owner); setView(latest.current);
     const reload = () => {void refresh(runtime).catch(() => {runtime.failed = true; change(runtime,{failed:true,ready:true});});};
     runtime.notifications = browserNotifications('paperleet.practice.v2',owner,reload);
-    // Existing work remains readable even if this browser blocks the new store.
-    change(runtime,{saved:legacyBrowserWorkspace(owner)}); reload();
+    // Recover source before opening IndexedDB: a failed open must not hide it.
+    const saved = legacyBrowserWorkspace(owner);
+    for (const safety of readSafety(owner)) {
+      saved[safety.id] = {...saved[safety.id],code:safety.code,updated:safety.updated};
+      runtime.touched.add(safety.id); runtime.bases.set(safety.id,safety.base); runtime.pending.set(safety.id,safety);
+      keepSafety(owner,safety.id,safety,safety.base);
+    }
+    change(runtime,{saved}); reload();
     return () => {runtime.notifications?.dispose(); if (active.current === runtime) active.current = undefined;};
   }, [owner]);
   useEffect(() => {
-    const leave = (event: BeforeUnloadEvent) => {if(safetyMemory.size){event.preventDefault();event.returnValue='';}};
+    const leave = (event: BeforeUnloadEvent) => {if(hasUnsavedDraftSafety()){event.preventDefault();event.returnValue='';}};
     window.addEventListener('beforeunload',leave); return ()=>window.removeEventListener('beforeunload',leave);
   },[]);
   function update(id: string, patch: Partial<Saved>, expected?: DraftExpectation, displaced?: BrowserPreservedSource) {

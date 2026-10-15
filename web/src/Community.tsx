@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "./i18n";
 import ProfileProgress from "./ProfileProgress";
+import ProfileAchievements from "./ProfileAchievements";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
 import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
@@ -1369,6 +1370,7 @@ function UserProfileContents({ username }: { username: string }) {
                 {t("粉丝", "Followers")}
               </button>
             </div>
+            {profile.viewer.is_self && <a className="text-button profile-workspace-settings" href="#/achievements">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></a>}
           </section>
           <section className="social-panel profile-community-summary">
             <h2>{t("社区贡献", "Community")}</h2>
@@ -1382,6 +1384,7 @@ function UserProfileContents({ username }: { username: string }) {
           </section>
           </aside>
           <div className="profile-main">
+          <ProfileAchievements username={username} userId={profile.id} isSelf={profile.viewer.is_self} isPublic={profile.show_progress !== false} />
           <ProfileProgress username={username} isSelf={profile.viewer.is_self} />
           <section className="profile-community-content" aria-labelledby="profile-community-title">
           <h2 id="profile-community-title">{t("社区动态", "Community activity")}</h2>

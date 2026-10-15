@@ -34,6 +34,8 @@ Open the URL shown in the terminal (default: **http://127.0.0.1:5173**). On subs
 
 This public repository contains the frontend, paper catalog, browser runtime, native local judge, and offline maintainer tools. `make dev` works without an account, email provider, or private repository. Signed-out browser practice keeps code and progress only in the current page; refreshing or closing it clears that work.
 
+The NumPy-based browser tensor/autodiff implementation is also available as the independently buildable [paperleet-torch library](packages/paperleet-torch/README.md). Its standalone package needs NumPy only; existing PaperLeet installations include the same library source and retain their current entry points.
+
 The account/community screens and API contracts are public frontend code. Their server implementations, online storage, hosted judge orchestration, and production deployment tools live in the separate private `PaperLeet/backend` repository. That repository pins this public core as a Git submodule; no private service is installed or fetched by the open edition.
 
 Git history is intentionally retained. Earlier commits contain the former combined backend; deleting it from the current tree does not make that earlier code confidential. New online backend changes belong only in the private repository.

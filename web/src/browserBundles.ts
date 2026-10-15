@@ -1,8 +1,10 @@
 import type { Problem } from './types';
+import { parseBrowserBudgets } from './browserBudgets';
 
 type RecordValue = Record<string, unknown>;
 type RuntimeBundle = { version: 1; backend: string; adapter: string; harness: string; files: Record<string, string> };
 const sharedFiles = ['paperleet/__init__.py', 'paperleet/common/__init__.py', 'paperleet/common/asserts.py', 'paperleet/common/comparisons.py'];
+const libraryFile = (name: string) => /^paperleet_torch\/[a-zA-Z0-9_]+\.py$/.test(name);
 const object = (value: unknown): value is RecordValue => !!value && typeof value === 'object' && !Array.isArray(value);
 const stringFiles = (value: unknown): value is Record<string, string> => object(value) && Object.entries(value).every(
   ([name, source]) => /^(?:[a-zA-Z0-9_]+\/)*(?:[a-zA-Z0-9_]+\.py|problem\.yaml)$/.test(name) && typeof source === 'string');
@@ -35,7 +37,8 @@ export function createBrowserBundleLoader(fetcher?: typeof fetch) {
       pending = download(url, AbortSignal.timeout(30_000)).then(value => {
         if (!object(value) || value.version !== 1 || typeof value.backend !== 'string' || !['numpy-wasm', 'numpy-autograd-wasm'].includes(value.backend)
           || typeof value.adapter !== 'string' || typeof value.harness !== 'string' || !stringFiles(value.files)
-          || Object.keys(value.files).length !== sharedFiles.length || !sharedFiles.every(name => Object.hasOwn(value.files as object, name)))
+          || !sharedFiles.every(name => Object.hasOwn(value.files as object, name))
+          || Object.keys(value.files).some(name => !sharedFiles.includes(name) && !libraryFile(name)))
           throw Error('Invalid public browser runtime');
         return value as RuntimeBundle;
       });
@@ -54,12 +57,26 @@ export function createBrowserBundleLoader(fetcher?: typeof fetch) {
     if (signal.aborted) throw stopped();
     if (!object(bundle) || bundle.problem !== problem.id) throw Error('Browser bundle identity mismatch');
     if (bundle.version === 1) return bundle; // Existing content-addressed exports remain usable.
-    if (bundle.version !== 2 || typeof bundle.runtime_bundle_url !== 'string'
+    if ((bundle.version !== 2 && bundle.version !== 3) || typeof bundle.runtime_bundle_url !== 'string'
       || !/^browser-judge\/runtime-[a-f0-9]{20}\.json$/.test(bundle.runtime_bundle_url)
-      || !stringFiles(bundle.files) || sharedFiles.some(name => Object.hasOwn(bundle.files as object, name))
+      || !stringFiles(bundle.files) || Object.keys(bundle.files).some(name => sharedFiles.includes(name) || name.startsWith('paperleet_torch/'))
       || typeof bundle.reference !== 'string' || !object(bundle.mutants) || !Object.values(bundle.mutants).every(value => typeof value === 'string')
       || !object(bundle.tests) || typeof bundle.test_file !== 'string' || !Object.hasOwn(bundle.files, bundle.test_file))
       throw Error('Invalid browser problem bundle');
+    if (bundle.version === 3) {
+      if (!Array.isArray(bundle.test_files) || !bundle.test_files.length
+          || new Set(bundle.test_files).size !== bundle.test_files.length
+          || bundle.test_files[0] !== bundle.test_file
+          || !bundle.test_files.every(name => typeof name === 'string' && /\/tests\/test_[a-zA-Z0-9_]+\.py$/.test(name) && Object.hasOwn(bundle.files as object, name))
+          || Object.keys(bundle.files).some(name => /\/tests\/test_[a-zA-Z0-9_]+\.py$/.test(name) && !(bundle.test_files as unknown[]).includes(name))
+          || !Array.isArray(bundle.packages) || new Set(bundle.packages).size !== bundle.packages.length
+          || !bundle.packages.every(name => name === 'pyyaml') || !parseBrowserBudgets(bundle.budgets)
+          || Object.keys(bundle.files).some(name => name.endsWith('/problem.yaml')) && !bundle.packages.includes('pyyaml'))
+        throw Error('Invalid browser execution configuration');
+      const budgets = parseBrowserBudgets(bundle.budgets)!;
+      if (metadata.budgets && JSON.stringify(parseBrowserBudgets(metadata.budgets)) !== JSON.stringify(budgets))
+        throw Error('Browser budget metadata mismatch');
+    }
     const shared = await untilAborted(runtime(new URL(`data/${bundle.runtime_bundle_url}`, base)), signal);
     if (signal.aborted) throw stopped();
     if (shared.backend !== metadata.backend) throw Error('Browser runtime backend mismatch');

@@ -80,3 +80,6 @@ module:
   - x0_to_eps
   - convert
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm

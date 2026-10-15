@@ -6,7 +6,9 @@ import rehypeKatex from "rehype-katex";
 import { FlaskConical } from "lucide-react";
 import { useI18n } from "./i18n";
 import { Highlight } from "./SyntaxHighlight";
+import { readingOutline } from './readingOutline';
 import "katex/dist/katex.min.css";
+import './reading.css';
 
 export function Prose({
   content,
@@ -55,10 +57,35 @@ export function Prose({
     return <a href={href}>{children}</a>;
   }
   return (
-    <div className="prose">
+    <div className="prose" onClick={event => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest<HTMLButtonElement>('button[data-reading-section]');
+      const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline');
+      if (!button) {
+        if (menu && !menu.contains(event.target)) menu.open = false;
+        return;
+      }
+      const index = Number(button.dataset.readingSection);
+      if (!Number.isSafeInteger(index) || index < 0) return;
+      const heading = event.currentTarget.querySelector<HTMLElement>(`[data-reading-anchor="${index}"]`);
+      if (!heading) return;
+      if (menu) menu.open = false;
+      heading.focus({preventScroll:true});
+      heading.scrollIntoView({block:'start', behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+    }} onKeyDown={event => {
+      if (event.key !== 'Escape') return;
+      const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline[open]');
+      if (!menu) return;
+      event.preventDefault(); event.stopPropagation();
+      menu.open = false;
+      menu.querySelector('summary')?.focus({preventScroll:true});
+    }} onBlur={event => {
+      const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline[open]');
+      if (menu && event.relatedTarget instanceof Node && !menu.contains(event.relatedTarget)) menu.open = false;
+    }}>
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[[readingOutline, {title:t('本文导航', 'On this page'), sectionLabel:t('节', 'sections')}], rehypeKatex]}
         components={{
           a: Link,
           pre: ({ children }) => <>{children}</>,

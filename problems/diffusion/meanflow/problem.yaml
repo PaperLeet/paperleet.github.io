@@ -89,3 +89,6 @@ calibration:
     endpoint_mse: 7.447428629347996e-08
   reference_tests_passed: 6
   mutants_killed: 3
+
+browser:
+  backend: numpy-autograd-wasm

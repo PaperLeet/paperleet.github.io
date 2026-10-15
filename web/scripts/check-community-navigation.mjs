@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import React from 'react';
-import { renderToString } from 'react-dom/server';
+import { localizedRenderer } from './render-locale.mjs';
 import { createServer } from 'vite';
 
 const server = await createServer({server:{middlewareMode:true},appType:'custom'});
 try {
+  const renderToString=await localizedRenderer(server,"zh");
   const {communityFeedHref,communityPostHref,communityPostReturn,communityReplyTarget,communityShareUrl,readCommunityFeed,communityContinuation,emptyCommunityFeed}=await server.ssrLoadModule('/src/communityNavigation.ts');
   const {signInHref,accountReturnHref}=await server.ssrLoadModule('/src/accountNavigation.ts');
   const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');

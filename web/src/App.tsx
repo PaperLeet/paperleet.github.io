@@ -2,33 +2,33 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { Community, UserProfile, Account, Submissions, Visuals, ArtifactCharts, Prose, PythonEditor, SolutionHistory } from "./deferredPages";
+import { Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu, PracticeGuideContent } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
   ArrowRight,
+  AlertCircle,
   BookOpen,
   Check,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
+  CircleHelp,
+  Maximize2,
+  Minimize2,
   Code2,
   Copy,
   ExternalLink,
   FileCode2,
   FlaskConical,
   LockKeyhole,
-  Maximize2,
-  Minimize2,
-  Moon,
+  Loader2,
   MessageCircle,
   Play,
-  Sun,
   Terminal,
   X,
   XCircle,
 } from "lucide-react";
-import { isPassed, layers, status } from "./types";
+import { isPassed, status } from "./types";
 import type { Category, Paper, Problem, Report } from "./types";
 import { PaperDetail, PaperLibrary, paperModules } from "./PaperViews";
 import { collectionIdFromRoute } from "./paperCollections";
@@ -50,29 +50,23 @@ import { loadProblemDetail } from "./catalogData";
 import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobs";
 import { useBrowserJudge } from "./useBrowserJudge";
-import { browserReason } from "./browserJudge";
+import { browserReason } from "./browserMessages";
 import { browserBudget } from './browserBudgets';
 import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
 import { publicSite, hostedAppHref, hostedAppAvailable } from "./deployment";
-import { reportTestLabel, type ExperimentView } from "./experimentResults";
+import { type ExperimentView } from "./experimentResults";
 import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
-import type { ReportSourceState } from "./reportSource";
-import TestComparison from "./TestComparison";
-import { BrowserResultActions } from './BrowserResultActions';
+import { useWorkspaceShortcuts } from "./useWorkspaceShortcuts";
 import { matchesBrowserSubmission } from './browserVerification';
 import { BrowserSyntaxNotice } from './BrowserSyntaxNotice';
 import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
-import { ResetCodeButton } from './ResetCodeButton';
-import { learnerTraceLocation, type EditorFocusRequest, type SourceLocation } from './sourceLocation';
-import { SourceLocationButton } from './SourceLocationButton';
+import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
-const difficulty = (d: string) =>
-  ({ E: "Easy", M: "Medium", H: "Hard" })[d] || d;
 const editorFontSizes = [13, 14, 15, 16, 17, 18, 20];
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
@@ -112,150 +106,6 @@ function download(name: string, content: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
-function ReportView({
-  report,
-  problem,
-  sourceState,
-  source,
-  onLocate,
-  children,
-}: {
-  report?: Report;
-  problem: Problem;
-  sourceState: ReportSourceState;
-  source: string;
-  onLocate?: (location: SourceLocation) => void;
-  children?: React.ReactNode;
-}) {
-  const { t, locale } = useI18n();
-  const labels = t(
-    "接口契约|参考对齐|数学性质|真实行为",
-    "Contract|Reference|Properties|Behavior",
-  ).split("|");
-  if (!report)
-    return (
-      <div className="empty-state">
-        <div className="empty-icon">
-          <FlaskConical size={28} />
-        </div>
-        <h3>{t("用测试验证你的实现", "Validate your implementation")}</h3>
-        <p>
-          {t(
-            "在右侧编写代码，然后点击「运行测试」。",
-            "Write your code on the right, then select Run tests.",
-          )}
-          <br />
-          {t(
-            "测试结果和失败原因会直接显示在这里。",
-            "Results and failure details will appear here.",
-          )}
-        </p>
-      </div>
-    );
-  const passed = report.tests.filter((test) => test.passed).length,
-    total = report.tests.length,
-    allPassed = !report.error && total > 0 && passed === total;
-  return (
-    <div className="report-view">
-      <div className={`result-head ${allPassed ? "success" : "failure"}`}>
-        <div>
-          {allPassed ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
-          <h3>
-            {report.error
-              ? t("判题未完成", "Run incomplete")
-              : isPassed(problem, report)
-                ? sourceState !== "current" ? t("上次测试通过", "Previous tests passed") : report.runtime === "browser-numpy-wasm" ? t("浏览器通过", "Browser tests passed") : "Accepted"
-                : allPassed
-                  ? t("所选测试通过", "Selected tests passed")
-                  : t("需要再检查一下", "Tests need attention")}
-          </h3>
-        </div>
-        <span>
-          {passed} / {total} {t("项通过", "tests passed")}
-        </span>
-      </div>
-      <ReportSourceNotice state={sourceState} />
-      {report.error && <pre className="failure-message">{report.error}</pre>}
-      {report.error && <SourceLocationButton location={learnerTraceLocation(report.error,report.impl,source,sourceState)} onLocate={onLocate} />}
-      {children}
-      <div className="report-meta">
-        <span>{t("最近一次运行", "Latest run")}</span>
-        <span>
-          {report.created_at
-            ? new Date(report.created_at).toLocaleString(
-                locale === "zh" ? "zh-CN" : "en-US",
-              )
-            : ""}
-        </span>
-      </div>
-      <div className="test-layers">
-        {layers.map((l, i) => {
-          const [a, b] = report.summary[l] || [0, 0];
-          return (
-            <div key={l}>
-              <div>
-                <b>{l}</b>
-                <span>
-                  {a}/{b}
-                </span>
-              </div>
-              <small>{labels[i]}</small>
-              <div className="mini-progress">
-                <i style={{ width: `${b ? (a / b) * 100 : 0}%` }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {report.tests.map((test, i) => (
-        <details
-          key={`${test.nodeid || test.id}-${i}`}
-          className={`test-detail ${test.passed ? "passed" : "failed"}`}
-          open={!test.passed}
-        >
-          <summary>
-            {test.passed ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
-            <span>{reportTestLabel(test)}</span>
-            <b>{test.layer}</b>
-            <small>{(test.duration_s || 0).toFixed(2)}s</small>
-          </summary>
-          <div className="test-body">
-            <p className="test-why">
-              <b>{t("为什么检查这个性质", "Why this property matters")}</b>
-              {test.why ||
-                t("见本题测试说明。", "See the problem's test specification.")}
-            </p>
-            {test.comparison && <TestComparison comparison={test.comparison} />}
-            {!test.passed && <SourceLocationButton location={learnerTraceLocation(test.message,report.impl,source,sourceState)} onLocate={onLocate} />}
-            {test.message && (test.comparison ? <details className="failure-trace"><summary>{t("完整错误信息", "Full error details")}</summary><pre className="failure-message">{test.message}</pre></details> : (
-              <pre className="failure-message">{test.message}</pre>
-            ))}
-            {test.artifacts && Object.keys(test.artifacts).length > 0 && (
-              <ArtifactCharts data={test.artifacts} />
-            )}
-          </div>
-        </details>
-      ))}
-      {report.mutation && (
-        <section className="mutation">
-          <h4>{t("错误变体检查", "Mutation checks")}</h4>
-          {Object.entries(report.mutation).map(([id, caught]) => (
-            <div key={id}>
-              <b>
-                {caught.length ? "✓" : "×"} {id}
-              </b>
-              <span>
-                {caught.length
-                  ? caught.join(", ")
-                  : t("当前测试未捕获", "Not caught by current tests")}
-              </span>
-            </div>
-          ))}
-        </section>
-      )}
-    </div>
-  );
-}
 export default function App() {
   return (
     <LocaleProvider>
@@ -266,7 +116,7 @@ export default function App() {
   );
 }
 function Workspace() {
-  const { locale, setLocale, t } = useI18n();
+  const { locale, t } = useI18n();
   const { user, health, healthError, refreshHealth, capabilities } =
     useAccount();
   const practice = usePracticeWorkspace();
@@ -285,36 +135,59 @@ function Workspace() {
     [rightTab, setRightTab] = useState("code"),
     [preparingRun, setPreparingRun] = useState(false),
     [toast, setToast] = useState(""),
+    [guide, setGuide] = useState(false),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
-  const [mobilePane, setMobilePane] = useState<'read' | 'code'>('read');
+  const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
-  function selectReadingTab(value: string) {
-    setTab(value); setMobilePane('read'); setFocusMode(false);
-    requestAnimationFrame(()=>document.querySelector('.description-scroll')?.scrollTo(0,0));
+  const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number};vertical?:{ratio:number}}>();
+  const [resultsCollapsed, setResultsCollapsed] = useState(false);
+  const guideDialog = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!guide) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const dialog = guideDialog.current;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setGuide(false); return; }
+      if (event.key !== "Tab" || !dialog) return;
+      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), [tabindex="0"]')).filter((element) => element.getClientRects().length);
+      const first = controls[0], last = controls[controls.length - 1];
+      if (!first) { event.preventDefault(); dialog.focus(); return; }
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialog)) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", handleKey);
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, [guide]);
+  function selectReadingTab(nextTab: string) {
+    setTab(nextTab); setMobilePane("read"); setFocusMode(false);
+    requestAnimationFrame(() => {
+      document.querySelector(".description-scroll")?.scrollTo(0, 0);
+      if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
+    });
   }
+  function showTests() { setResultsCollapsed(false); selectReadingTab("tests"); }
   function openEditor() {
-    setRightTab('code'); setMobilePane('code');
-    requestAnimationFrame(()=>document.querySelector<HTMLElement>('#problem-editor-panel [contenteditable="true"], #problem-editor-panel textarea')?.focus({preventScroll:true}));
+    setRightTab("code"); setMobilePane("code");
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>('#problem-editor-panel [contenteditable="true"], #problem-editor-panel textarea')?.focus({ preventScroll: true });
+      if (window.matchMedia("(max-width: 850px)").matches) document.querySelector(".mobile-workspace-switch")?.scrollIntoView({ block: "start" });
+    });
   }
-  useEffect(()=>{setMobilePane('read');setFocusMode(false);},[id]);
-  useEffect(()=>{
-    const mobile = window.matchMedia('(max-width:850px)');
-    const restore = () => { if(mobile.matches) setFocusMode(false); };
-    mobile.addEventListener('change',restore);
-    return ()=>mobile.removeEventListener('change',restore);
-  },[]);
-  useEffect(()=>{if (!user && rightTab === 'history') setRightTab('code');},[user,rightTab]);
-  useEffect(()=>{
-    if (!focusMode) return;
-    const restore = (event: KeyboardEvent) => { if(event.key === 'Escape') setFocusMode(false); };
-    window.addEventListener('keydown',restore);
-    return ()=>window.removeEventListener('keydown',restore);
-  },[focusMode]);
   const [details, setDetails] = useState<Record<string, Problem>>({});
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
   const [labView, setLabView] = useState<ExperimentView>("auto");
+  const [backupOpen, setBackupOpen] = useState(false);
+  useEffect(() => { setBackupOpen(false); }, [practice.owner]);
+  useEffect(() => { if (!user && rightTab === "history") setRightTab("code"); }, [user, rightTab]);
   const [submissionRevision, setSubmissionRevision] = useState(0);
   function openLab(view: ExperimentView = "auto") {
     setLabView(view);
@@ -335,6 +208,12 @@ function Workspace() {
   const communityTopicId = topicIdFromRoute(communityPath);
   const communityProblem = communityTopicId ? problems.find((p) => p.id === communityTopicId) : undefined;
   const accountPage = isAccountRoute(id);
+  const settingsPage = path === "settings";
+  const achievementsPage = path === "achievements";
+  const settingsReturn = useRef("#");
+  useEffect(() => {
+    if (!settingsPage && !achievementsPage) settingsReturn.current = location.hash || "#";
+  }, [id, settingsPage, achievementsPage]);
   const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
   const current = problem ? saved[problem.id] || {} : {};
   const selectedPaper = papers.find((paper) =>
@@ -345,7 +224,6 @@ function Workspace() {
     : sourceProblem
       ? [sourceProblem]
       : [];
-  const moduleIndex = siblingModules.findIndex((p) => p.id === problem?.id);
   const learning = useBrowserLearning(hosted ? practice.owner : 'unresolved');
   const learningView = browserLearningView(practice.owner,problems,saved,learning.records);
   const learningSaved = learningView.saved;
@@ -369,7 +247,7 @@ function Workspace() {
     browser.clear(entry.id);
     learning.dismiss(entry,runOwner);
     void refreshProblemStats();
-    if ([entry.id, String(entry.number)].includes(getId())) selectReadingTab("tests");
+    if ([entry.id, String(entry.number)].includes(routePath(getId()))) showTests();
     setSubmissionRevision(value => value + 1);
     setToast(runOwner.startsWith("user:") ? t("提交完成，解答已保存到账号", "Submission complete. Solution saved to your account.") : t("测试已完成", "Run complete"));
   });
@@ -384,8 +262,8 @@ function Workspace() {
     setEditorFocus(previous => previous && previous.owner === practice.owner && previous.problem === problem?.id && previous.source === currentSource ? previous : undefined);
   }, [practice.owner, problem?.id, currentSource]);
   function locateSource(location: SourceLocation) {
-    if (!problem || !practice.ready || !practice.owns(practice.owner) || ![problem.id,String(problem.number)].includes(getId())) return;
-    setRightTab('code'); setMobilePane('code');
+    if (!problem || !practice.ready || !practice.owns(practice.owner) || ![problem.id,String(problem.number)].includes(routePath(getId()))) return;
+    openEditor();
     setEditorFocus({ owner: practice.owner, problem: problem.id, source: currentSource, location });
   }
   function editorFocused(request: EditorFocusRequest) {
@@ -394,6 +272,10 @@ function Workspace() {
   const browserAvailable = !!problem?.browser_judge;
   const browserHere = browser.problem === problem?.id;
   const running = preparingRun || judge.active || browser.active;
+  const canRun = !!problem && !running && practice.ready && !(!browserAvailable && hosted && (!user || !online || !!practice.conflicts[problem.id]));
+  const workspaceAttention = !!(judge.error || practice.error || (problem && (practice.conflicts[problem.id] || browser.reasons[problem.id])));
+  useEffect(() => { if (workspaceAttention) setResultsCollapsed(false); }, [workspaceAttention]);
+  useWorkspaceShortcuts({ enabled: !!problem && !guide && !backupOpen, canRun, focused: focusMode, onRun: () => void run(), onExitFocus: () => setFocusMode(false) });
   const editorRecoveryReason = running
     ? t('请先停止测试或等待运行完成，再重新加载。', 'Stop the tests or wait for the run to finish before reloading.')
     : Object.keys(practice.conflicts).length
@@ -449,6 +331,9 @@ function Workspace() {
       setId(getId());
       setTab("description");
       setRightTab("code");
+      setMobilePane("read");
+      setFocusMode(false);
+      setLayoutRequest(undefined);
       window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", h);
@@ -494,13 +379,15 @@ function Workspace() {
     const timer = setTimeout(() => setToast(""), 6000);
     return () => clearTimeout(timer);
   }, [toast]);
-  async function run(requestedMode: "browser" | "server", verification?: Report) {
+  async function run(requestedMode: "browser" | "server" = "browser", verification?: Report) {
     if (!problem || running || runToken.current || !practice.ready) return;
     const runOwner = practice.owner;
     const token = {};
     runToken.current = token;
     const ownsRun = () => practice.owns(runOwner) && runToken.current === token;
     const submittedCode = current.code ?? problem.starter;
+    setResultsCollapsed(false);
+    setRightTab("code");
     setPreparingRun(true);
     try {
       if (verification) {
@@ -515,12 +402,12 @@ function Workspace() {
           // Hosted completions and shared statistics remain server-authoritative.
           if (!user) practice.applyReport(problem, outcome.report, runOwner);
           else learning.record(problem,outcome.report,runOwner);
-          if ([problem.id,String(problem.number)].includes(getId())) selectReadingTab("tests");
+          if ([problem.id,String(problem.number)].includes(routePath(getId()))) showTests();
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
         }
         if (outcome.type === 'syntax_error') {
-          if ([problem.id,String(problem.number)].includes(routePath(getId()))) setTab('tests');
+          if ([problem.id,String(problem.number)].includes(routePath(getId()))) showTests();
           setToast(t('请先修正 Python 语法错误。','Fix the Python syntax error before running tests.'));
           return;
         }
@@ -585,28 +472,35 @@ function Workspace() {
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
     `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」可在浏览器执行完整测试；全部通过后解锁坑点。登录后点击 Submit，服务端会保存提交时的代码和判题结果，可在「我的提交」中查看。未登录时，代码和进度仅在当前页面保留，刷新或离开后不保存。", "Complete the implementation and select Run tests to run the full suite in your browser. Passing unlocks Notes. Sign in and use Submit to save the submitted code and server result in My submissions. Guest code and progress last only while this page stays open and are cleared on refresh or exit.") : t("在右侧完成实现，登录后点击 Submit，由服务端执行完整测试并保存提交时的代码和结果，可在「我的提交」中查看。未登录的代码仅在当前页面保留。", "Complete the implementation, sign in, and use Submit to run the full suite on the server. The submitted code and result are kept in My submissions. Guest code lasts only while this page stays open.")}\n`,
   );
+  const workspaceSaveState = practice.loading || !practice.ready ? "loading"
+    : practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
+    : practice.saving || practice.pending ? "saving" : "saved";
   return (
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
       <header className="topbar">
         <div className="nav-inner">
           <Brand />
-          <nav>
+          <nav aria-label={t("主导航", "Main navigation")}>
             <a
               className={
                 !problem &&
                 !submissionPage &&
                 !communityPage &&
                 !accountPage &&
+                !settingsPage &&
+                !achievementsPage &&
                 !profileUsername
                   ? "active"
                   : ""
               }
               href={libraryReturn || '#'}
+              aria-current={!problem && !submissionPage && !communityPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
             </a>
             <button
               className={`continue-link ${problem ? "active" : ""}`}
+              aria-current={problem ? 'page' : undefined}
               disabled={!problem && !resumeProblem}
               onClick={() => {
                 if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number, practiceReturn).slice(1);
@@ -614,11 +508,12 @@ function Workspace() {
             >
               {problem ? <BilingualText zh="工作区" en="Workspace" /> : progressReady && problems.length > 0 && !resumeProblem ? <BilingualText zh="核心模块已完成" en="Core modules complete" /> : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? <BilingualText zh="继续练习" en="Continue" /> : <BilingualText zh="开始练习" en="Start practice" />}
             </button>
-            {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} href={hostedAppHref("#/submit")}>
-              <BilingualText zh="提交论文" en="Submit paper" />
+            {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} aria-current={submissionPage ? 'page' : undefined} href={hostedAppHref("#/submit")}>
+              {t("提交论文", "Submit paper")}
             </a>}
             {hostedAppAvailable && <a
               className={communityPage || profileUsername ? "active" : ""}
+              aria-current={communityPage ? 'page' : undefined}
               href={hostedAppHref("#/community")}
             >
               <BilingualText zh="社区" en="Community" />
@@ -629,46 +524,34 @@ function Workspace() {
             <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
             <RepositoryLink />
             <OnlinePresence />
-            <button
-              className="language-toggle"
-              aria-label={t("切换到英文", "Switch to Chinese")}
-              onClick={() => setLocale(locale === "zh" ? "en" : "zh")}
-            >
-              <span className={locale === "zh" ? "selected" : ""}>中</span>
-              <i>/</i>
-              <span className={locale === "en" ? "selected" : ""}>EN</span>
-            </button>
-            <div
-              className="theme-switcher"
-              role="group"
-              aria-label={t("外观", "Appearance")}
-            >
-              <button
-                type="button"
-                className={theme === "light" ? "selected" : ""}
-                aria-label={t("浅色主题", "Light theme")}
-                aria-pressed={theme === "light"}
-                title={t("浅色主题", "Light theme")}
-                onClick={() => selectTheme("light")}
-              >
-                <Sun size={15} aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className={theme === "dark" ? "selected" : ""}
-                aria-label={t("深色主题", "Dark theme")}
-                aria-pressed={theme === "dark"}
-                title={t("深色主题", "Dark theme")}
-                onClick={() => selectTheme("dark")}
-              >
-                <Moon size={15} aria-hidden="true" />
-              </button>
-            </div>
-            <AccountNav returnTo={id} />
+            <AccountNav returnTo={id} theme={theme} onTheme={selectTheme} onGuide={() => setGuide(true)} onBackup={() => setBackupOpen(true)} backupReady={practice.owner !== 'unresolved' && problems.length > 0} />
           </div>
         </div>
       </header>
-      {communityPage ? (
+      {backupOpen && <WorkspaceBackup key={practice.owner} owner={practice.owner} problems={problems} saved={saved} backups={practice.backups} conflicts={practice.conflicts}
+        recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {
+          if (!editorRecoveryReason && practice.owns(practice.owner)) location.reload();
+        }}}
+        ready={practice.ready && !practice.loading} blocked={running ? t('请先停止测试或等待运行完成。', 'Stop the tests or wait for the run to finish.')
+          : practice.error ? t('请先重试工作区保存；仍可下载备份。', 'Retry workspace saving first. Backup downloads remain available.')
+          : Object.keys(practice.conflicts).length ? t('请先解决工作区草稿冲突。', 'Resolve workspace draft conflicts first.')
+          : practice.pending || practice.saving ? t('请等待草稿保存完成。', 'Wait for drafts to finish saving.') : ''}
+        onClose={() => setBackupOpen(false)} onDownload={download}
+        onReplace={(entry, source, expected) => {
+          if (running || !practice.owns(expected.owner) || !practice.ready || practice.pending || practice.saving || practice.error || Object.keys(practice.conflicts).length) return false;
+          const replaced = practice.replaceCode(entry,source,expected);
+          if (replaced) setToast(t('代码已载入，请留意保存状态并重新运行测试。', 'Code loaded. Check the save status and run tests again.'));
+          return replaced;
+        }} />}
+      {achievementsPage ? (
+        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={settingsReturn.current} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
+      ) : settingsPage ? (
+        <SettingsPage theme={theme} onTheme={selectTheme} returnTo={settingsReturn.current}
+          onGuide={() => setGuide(true)} onBackup={() => setBackupOpen(true)}
+          backupReady={practice.owner !== 'unresolved' && problems.length > 0}
+          accountHref={user ? hostedAppHref('#/account') : undefined}
+          workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
+      ) : communityPage ? (
         <Community
           route={id}
           topicId={communityTopicId}
@@ -703,6 +586,8 @@ function Workspace() {
           <span className="spinner" />
           {t("正在加载论文题库…", "Loading papers…")}
         </main>
+      ) : !sourceProblem && !selectedPaper && !libraryView ? (
+        <main className="route-not-found"><BookOpen size={32} /><h1>{t("找不到这篇论文或模块", "Paper or module not found")}</h1><p>{t("链接可能已失效，或内容已经调整。可以返回题库搜索论文和模块。", "This link may be outdated or the content may have changed. Search the library to find a paper or module.")}</p><code>{path.slice(0,120)}</code><a className="button" href={libraryReturn || "#"}><ArrowLeft size={15} />{t("返回题库", "Back to papers")}</a></main>
       ) : sourceProblem && !problem ? (
         <main className={detailError === sourceProblem.detail_url ? "load-error" : "loading"}>
           {detailError === sourceProblem.detail_url ? <>
@@ -719,6 +604,9 @@ function Workspace() {
             problems={problems}
             saved={learningSaved}
             stats={problemStats}
+            onGuide={() => setGuide(true)}
+            returnTo={libraryReturn}
+            progressReady={progressReady}
           />
         ) : (
           <PaperLibrary
@@ -731,6 +619,7 @@ function Workspace() {
               setId(decodeProblemHash(href));
             }}
             progressReady={progressReady}
+            onGuide={() => setGuide(true)}
             categories={categories}
             papers={papers}
             problems={problems}
@@ -750,35 +639,21 @@ function Workspace() {
                 : t("论文题库", "Papers")}
             </a>
             <span className="toolbar-divider" />
-            <b>
-              {problem.number}. {problem.title}
+            <b title={locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}>
+              {problem.number}. {locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}
             </b>
-            <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t('专注写代码，按 Esc 返回分栏','Focus on code; press Esc to restore both panels')} onClick={()=>{if(!focusMode)openEditor();setFocusMode(value=>!value);}}>{focusMode?<Minimize2 size={14}/>:<Maximize2 size={14}/>} {focusMode?t('退出专注','Exit focus'):t('专注模式','Focus mode')}</button>
-            <div className="problem-navigation">
-              <button
-                className="icon-button"
-                aria-label={t("上一个模块", "Previous module")}
-                disabled={moduleIndex <= 0}
-                onClick={() =>
-                  (location.hash = withLibraryContext(siblingModules[moduleIndex - 1].number,libraryReturn).slice(1))
-                }
-              >
-                <ChevronLeft size={15} />
-              </button>
-              <span>
-                {moduleIndex + 1} / {siblingModules.length}
-              </span>
-              <button
-                className="icon-button"
-                aria-label={t("下一个模块", "Next module")}
-                disabled={moduleIndex >= siblingModules.length - 1}
-                onClick={() =>
-                  (location.hash = withLibraryContext(siblingModules[moduleIndex + 1].number,libraryReturn).slice(1))
-                }
-              >
-                <ChevronRight size={15} />
-              </button>
-            </div>
+            <button className="icon-button workspace-help" type="button" aria-label={t('练习帮助', 'Practice help')} title={t('练习帮助', 'Practice help')} aria-haspopup="dialog" onClick={() => setGuide(true)}><CircleHelp size={16} aria-hidden="true" /></button>
+            <WorkspaceLayoutMenu onLayout={(ratio, reset) => {
+              setFocusMode(false);
+              setLayoutRequest({horizontal:{ratio},vertical:reset?{ratio:.72}:undefined});
+              if (reset) setResultsCollapsed(false);
+            }} />
+            <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
+            <ModuleNavigator key={problem.id} current={problem} modules={siblingModules} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
+          </div>
+          <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
+            <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16} />{t("题面与结果", "Read & results")}{(report || syntaxFailure) && <span aria-hidden="true" className={`mobile-result-dot ${!hasCurrentSyntaxError && reportSource === "current" && isPassed(problem,report) ? "passed" : ""}`} />}</button>
+            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16} />{t("编写代码", "Write code")}</button>
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t('练习视图','Practice view')}><button aria-pressed={mobilePane==='read'} aria-controls="problem-description-panel" onClick={()=>selectReadingTab(tab)}><BookOpen size={16}/>{t('题面与结果','Read & results')}</button><button aria-pressed={mobilePane==='code'} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16}/>{t('编写代码','Write code')}</button></div>
           <ResizableSplit
@@ -790,22 +665,23 @@ function Workspace() {
             minFirst={320}
             minSecond={360}
             collapseAt={850}
+            layout={layoutRequest?.horizontal}
             label={t("调整题面与代码区宽度", "Resize description and code panels")}
             resetLabel={t("拖动或使用方向键调整，双击或按 Enter 恢复默认", "Drag or use arrow keys to resize; double-click or press Enter to reset")}
             firstId="problem-description-panel"
             secondId="problem-editor-panel"
           >
             <section className="description-pane" id="problem-description-panel">
-              <div className="pane-tabs" role="tablist" aria-label={t("题目内容","Problem content")} onKeyDown={navigateTabs}>
+              <div className="pane-tabs" role="tablist" aria-label={t('题目内容','Problem content')} onKeyDown={navigateTabs}>
                 {tabs.map(([key, label]) => (
                   <button
                     key={key}
                     id={`reading-tab-${key}`}
                     role="tab"
-                    aria-selected={tab===key}
-                    tabIndex={tab===key?0:-1}
-                    aria-controls="problem-reading-content"
+                    tabIndex={tab === key ? 0 : -1}
                     className={tab === key ? "selected" : ""}
+                    aria-selected={tab === key}
+                    aria-controls="problem-reading-content"
                     onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                   >
                     {key === "description" ? (
@@ -837,11 +713,12 @@ function Workspace() {
                 {learningNotice}
                 {tab === "tests" ? (
                   <>
+                  <ReportWorkflow report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running} onEdit={openEditor} onRun={() => void run()} onLocate={practice.ready ? locateSource : undefined} onStop={browser.active ? browser.stop : undefined}/>
                   {syntaxFailure && <BrowserSyntaxNotice failure={syntaxFailure} source={currentSource} onLocate={practice.ready ? locateSource : undefined} />}
                   {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource} source={currentSource} onLocate={practice.ready ? locateSource : undefined}>
                     {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
                     {!running && reportSource === "current" && progressReady && isPassed(problem, report) && (
-                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => selectReadingTab("notes")} onLab={() => openLab("run")} />
+                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} returnTo={libraryReturn} onNotes={() => selectReadingTab("notes")} onLab={() => openLab("run")} />
                     )}
                   </ReportView>}
                   </>
@@ -867,7 +744,7 @@ function Workspace() {
                       </p>
                       <button
                         className="button"
-                        onClick={() => selectReadingTab("tests")}
+                        onClick={() => showTests()}
                       >
                         {t("查看测试进度", "View test progress")}{" "}
                         <ArrowRight size={15} />
@@ -929,7 +806,7 @@ function Workspace() {
                       </h1>
                       <div className="heading-tags">
                         <span className={`difficulty ${problem.difficulty}`}>
-                          {difficulty(problem.difficulty)}
+                          {({ E: t("简单", "Easy"), M: t("中等", "Medium"), H: t("困难", "Hard") } as Record<string,string>)[problem.difficulty] || problem.difficulty}
                         </span>
                         <span>PyTorch</span>
                         <span>{problem.estimated_minutes || 25} min</span>
@@ -1029,18 +906,26 @@ function Workspace() {
               </div>
             </section>
             <section className="editor-pane" id="problem-editor-panel">
-              <div className="pane-tabs editor-tabs" role="tablist" aria-label={t("工作区视图","Workspace view")} onKeyDown={navigateTabs}>
+              <div className="pane-tabs editor-tabs" role="tablist" aria-label={t('工作区视图','Workspace view')} onKeyDown={navigateTabs}>
                 <button
-                  id="editor-tab-code" role="tab" aria-selected={rightTab==="code"} tabIndex={rightTab==="code"?0:-1} aria-controls="editor-code-view"
+                  id="editor-tab-code"
+                  role="tab"
+                  tabIndex={rightTab === 'code' ? 0 : -1}
+                  aria-controls="editor-code-view"
                   className={rightTab === "code" ? "selected" : ""}
+                  aria-selected={rightTab === "code"}
                   onClick={() => setRightTab("code")}
                 >
                   <Code2 size={15} />
                   {t("代码", "Code")}
                 </button>
                 <button
-                  id="editor-tab-lab" role="tab" aria-selected={rightTab==="lab"} tabIndex={rightTab==="lab"?0:-1} aria-controls="editor-lab-view"
+                  id="editor-tab-lab"
+                  role="tab"
+                  tabIndex={rightTab === 'lab' ? 0 : -1}
+                  aria-controls="editor-lab-view"
                   className={rightTab === "lab" ? "selected" : ""}
+                  aria-selected={rightTab === "lab"}
                   onClick={() => setRightTab("lab")}
                 >
                   <FlaskConical size={14} />
@@ -1063,6 +948,8 @@ function Workspace() {
                     axis="vertical"
                     storageKey="paperleet.layout.editor.v1"
                     initial={0.72}
+                    layout={layoutRequest?.vertical}
+                    secondCollapsed={resultsCollapsed}
                     minFirst={180}
                     minSecond={100}
                     label={t("调整代码与测试结果区高度", "Resize code and test results panels")}
@@ -1148,9 +1035,9 @@ function Workspace() {
                       label={`${problem.title} ${t("Python 代码编辑器", "Python code editor")}`}
                     />
                   </div>
-                  <div className="editor-status">
+                  <div className="editor-status" data-state={workspaceSaveState}>
                     <span>
-                      <Check size={12} />
+                      {workspaceSaveState === "warning" ? <AlertCircle size={12} /> : workspaceSaveState === "loading" || workspaceSaveState === "saving" ? <Loader2 className="save-spinner" size={12} /> : <Check size={12} />}
                       {practice.loading
                         ? t("正在加载工作区…", "Loading workspace…")
                         : !user
@@ -1184,6 +1071,12 @@ function Workspace() {
                   </div>
                   </div>
                   <div className="editor-results-panel" id="problem-results-panel">
+                  <button type="button" className="results-pane-toggle" aria-expanded={!resultsCollapsed} aria-controls="problem-results-content" onClick={() => setResultsCollapsed(value => !value)}>
+                    <Terminal size={14} aria-hidden="true"/><b>{t('测试结果','Test results')}</b>
+                    <span>{running ? t('运行中…','Running…') : workspaceAttention ? t('需要处理','Needs attention') : hasCurrentSyntaxError ? t('语法错误','Syntax error') : reportSource === 'changed' || syntaxFailure ? t('代码已修改','Code changed') : report && reportSource !== 'current' ? t('上次运行','Previous run') : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t('等待运行','Ready to run')}</span>
+                    <ChevronDown size={14} aria-hidden="true"/>
+                  </button>
+                  <div className="editor-results-content" id="problem-results-content" hidden={resultsCollapsed}>
                   {problem.browser_judge && <div className="browser-judge-panel">
                     {browser.active && (browserHere
                       ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
@@ -1194,9 +1087,11 @@ function Workspace() {
                     {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}
                     {browser.diagnostics[problem.id] && <details><summary>{t("运行时详情", "Runtime details")}</summary><code>{browser.diagnostics[problem.id]}</code></details>}
                     {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}</p>}
+                    <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"} measurement={report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined}/>
                   </div>}
                   {!problem.browser_judge && <div className="server-judge-panel"><strong>{t('服务端 CPU 判题', 'Server CPU judging')}</strong><small>{t('在网页完成实现后提交，服务端执行完整测试并返回结果。', 'Implement on the web, then submit for the complete suite and feedback from the server.')}</small>{hosted && !user && <small>{t('登录后可提交并保存解答；未登录的代码仅在当前页面保留。', 'Sign in to submit and save your solution. Guest code lasts only while this page stays open.')}</small>}</div>}
-                  {judge.active && <div className="practice-notice judge-queue-notice" role="status">
+                  {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
+                  {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
                     <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
                       {t("可以继续编辑；本次判题使用提交时的代码。刷新后可继续查看任务。", "You can keep editing. This run uses the submitted code; refresh to reconnect.")}</span>
                     {!queuedHere && <a href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</a>}
@@ -1294,7 +1189,7 @@ function Workspace() {
                       {(report || syntaxFailure) && (
                         <button
                           className="text-button"
-                          onClick={() => selectReadingTab("tests")}
+                          onClick={() => showTests()}
                         >
                           {t("查看详情", "View details")}{" "}
                           <ArrowRight size={13} />
@@ -1316,6 +1211,8 @@ function Workspace() {
                               "Complete the implementation, then run the tests below.",
                             )}
                     </p>
+                    {!running && report && report.tests.length > 0 && <div className="console-result-meter" aria-hidden="true" data-current={reportSource === 'current'} data-passed={isPassed(problem,report)}><span style={{width:`${report.tests.filter(test => test.passed).length / report.tests.length * 100}%`}}/></div>}
+                  </div>
                   </div>
                   </div>
                   </ResizableSplit>
@@ -1326,7 +1223,7 @@ function Workspace() {
                           <span className="spinner" />
                           {judge.active ? runStatus : browser.active ? t("浏览器判题中…", "Running in browser…") : t("正在准备测试…", "Preparing tests…")}
                         </>
-                      ) : hosted && !user && !browserAvailable ? (
+                      ) : !practice.ready || practice.loading ? <><i className="yellow-dot" />{practice.error ? t('工作区需要恢复','Restore workspace to run') : t('正在准备工作区…','Preparing workspace…')}</> : hosted && !user && !browserAvailable ? (
                         <a href={signInHref(id)}>
                           {t("登录后运行", "Sign in to run")}
                         </a>
@@ -1346,9 +1243,10 @@ function Workspace() {
                         </>
                       )}
                     </span>
+                    {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
                     <div className="editor-run-actions">
                       {(browserAvailable || (!hosted && !publicSite)) && <button
-                        className="button subtle run-button"
+                        className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
                         disabled={running || !practice.ready}
                         onClick={() => void run(browserAvailable ? 'browser' : 'server')}
                       >
@@ -1369,6 +1267,29 @@ function Workspace() {
           </ResizableSplit>
         </>
       )}
+      {guide && (
+        <div className="modal-backdrop" onClick={() => setGuide(false)}>
+          <section
+            ref={guideDialog}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="guide-title"
+            className="guide-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="icon-button modal-close"
+              aria-label={t("关闭指南", "Close guide")}
+              onClick={() => setGuide(false)}
+            >
+              <X size={19} />
+            </button>
+            <PracticeGuideContent onClose={() => setGuide(false)} />
+          </section>
+        </div>
+      )}
+      <AchievementObserver key={practice.owner} problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} />
       {toast && (
         <div role="status" className="toast">
           <CheckCircle2 size={16} />

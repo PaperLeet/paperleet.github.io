@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { LogOut } from "lucide-react";
 import { useI18n } from "./i18n";
-import { Avatar, errorMessage, profileHref, socialApi, useAccount } from "./social";
-import type { AccountUser } from "./social";
+import { errorMessage, socialApi, useAccount } from "./social";
 
-export default function AccountLogout({ user }: { user: AccountUser }) {
+export default function AccountLogout() {
   const { setUser } = useAccount();
   const { t } = useI18n();
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
@@ -17,16 +16,13 @@ export default function AccountLogout({ user }: { user: AccountUser }) {
     } catch (e) { setError(errorMessage(e)); }
     finally { setBusy(false); }
   }
-  return <div className="account-nav-actions">
-    <a className="account-nav" href={profileHref(user)} title={t("我的主页", "My profile")}>
-      <Avatar user={user} size={29} />
-    </a>
-    <button type="button" className="account-logout-nav" disabled={busy}
+  return <div className="account-menu-logout">
+    <button type="button" className="account-menu-row account-menu-signout" disabled={busy}
       onClick={() => void logout()} title={t("退出当前设备", "Sign out on this device")}
       aria-label={t("退出登录", "Log out")} aria-busy={busy}>
       <LogOut size={15} aria-hidden="true" />
       <span>{busy ? t("正在退出…", "Signing out…") : t("退出登录", "Log out")}</span>
     </button>
-    {error && <span className="account-nav-error" role="alert">{error}</span>}
+    {error && <p className="account-menu-error" role="alert">{error}</p>}
   </div>;
 }

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {createServer} from 'vite';
+import {localizedRenderer} from './render-locale.mjs';
 const server=await createServer({server:{middlewareMode:true},appType:'custom'});
 const storage=globalThis.localStorage;
 try {
@@ -88,7 +89,8 @@ try {
       assert(html.includes(en?'has not joined':'尚未入队')&&html.includes(en?'Refresh stops':'刷新会停止'));
     }
   }
-  const confirming=renderToString(React.createElement(QueueAdmissionFallback,{waiting:{retryAt:0,deadline:0,source:'private',attempting:true},changed:false,onStop(){},onDownload(){}}));
+  const renderChinese=await localizedRenderer(server,"zh");
+  const confirming=renderChinese(React.createElement(QueueAdmissionFallback,{waiting:{retryAt:0,deadline:0,source:'private',attempting:true},changed:false,onStop(){},onDownload(){}}));
   assert(confirming.includes('disabled=""')&&confirming.includes('正在确认能否入队')&&!confirming.includes('尚未入队'));
   const hook=fs.readFileSync('src/useQueuedJudge.ts','utf8');
   assert(hook.includes("import('./queuedJudgeController')"),'Capacity policy stays deferred');

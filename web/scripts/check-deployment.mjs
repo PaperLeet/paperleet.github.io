@@ -23,14 +23,33 @@ for (const [publicMode, appAvailable, hostedEdition, hostedUrl] of [
   });
   try {
     const deployment = await server.ssrLoadModule("/src/deployment.ts");
-    const { AccountNav } = await server.ssrLoadModule("/src/social.tsx");
+    const { AccountNav,AccountProvider,useAccount } = await server.ssrLoadModule("/src/social.tsx");
+    const { initialDeploymentHealth,unavailableDeploymentHealth } = await server.ssrLoadModule('/src/deploymentHealth.ts');
+    const {practiceOwner} = await server.ssrLoadModule('/src/PracticeWorkspace.tsx');
+    const initial = initialDeploymentHealth(hostedEdition);
+    assert.equal(practiceOwner(initial?.mode,undefined,true),hostedEdition ? 'unresolved' : 'local','Standalone browser progress must not wait for an optional /api/health service');
+    let providerHealth;
+    function HealthProbe() {providerHealth = useAccount().health;return null;}
+    renderToString(React.createElement(AccountProvider,null,React.createElement(HealthProbe)));
+    assert.deepEqual(providerHealth,initial,'The actual provider must use the offline-safe initial health state');
+    const connected = {mode:'hosted',auth_required:true,judge:{ready:true}};
+    const offline = unavailableDeploymentHealth(connected,hostedEdition);
+    assert.equal(offline.mode,hostedEdition ? 'hosted' : 'local');
+    assert.equal(offline.judge.ready,false);
+    assert.equal(unavailableDeploymentHealth(undefined,true),undefined,'A failed hosted health request must not unlock a local workspace or expose cached grades');
+    assert.equal(practiceOwner(unavailableDeploymentHealth(undefined,false).mode),'local');
+    assert.equal(connected.judge.ready,true,'Connection recovery cannot mutate previous snapshots');
     const { signInHref } = await server.ssrLoadModule("/src/accountNavigation.ts");
     const login = signInHref("architecture/attention");
     const expected = publicMode ? appAvailable ? `https://app.paperleet.com/${login}` : "#/" : login;
     assert.equal(deployment.hostedAppHref(login), expected);
     const nav = renderToString(React.createElement(AccountNav, { returnTo: "architecture/attention" }));
-    if (appAvailable) assert(nav.includes(expected));
-    else assert.equal(nav, "", "Public-only sites must not expose a broken sign-in link");
+    assert(nav.includes('account-menu-trigger'),'Preferences remain available from the avatar in every edition');
+    const {AccountMenuContent}=await server.ssrLoadModule('/src/HeaderAccountMenu.tsx');
+    const menu=renderToString(React.createElement(AccountMenuContent,{returnTo:'architecture/attention',user:null,loading:false,onClose(){}}));
+    if (appAvailable) assert(menu.includes(expected));
+    else assert(!menu.includes('account-menu-signin'), "Public-only sites must not expose a broken sign-in link");
+    assert(menu.includes('href="#/settings"') && menu.includes('href="#/achievements"'),'Browser-only editions retain local settings and achievements');
     for (const hash of ["#/account", login, "#/account%2Fcontinue%2F22", "#/community?sort=recent", "#/comm%75nity", "#/community/problem/architecture/attention", "#/u/researcher", "#/submit"])
       assert(deployment.isHostedRoute(hash));
     for (const hash of ["#/", "#/22", "#/papers/transformer", "#/collections/llm-basics", "#/architecture/attention"])

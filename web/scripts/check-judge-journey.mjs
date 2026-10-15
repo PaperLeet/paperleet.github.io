@@ -9,13 +9,21 @@ try {
   const renderToString = await localizedRenderer(server, "zh");
   const { problems,papers }=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
   const attention=problems.find(p=>p.id==='architecture/attention');
-  const { PaperDetail }=await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { PaperDetail, paperModules }=await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { paperJudgeCapability, PaperJudgeBadge, ModuleJudgeBadge }=await server.ssrLoadModule('/src/JudgeCapability.tsx');
   const mixed=papers.find(p=>p.id==='ddpm');
   // Exercise mixed-runtime rendering even when current multi-module papers
   // have uniform coverage; exported problem data remain unchanged.
   const fixtureProblems=problems.map(p=>p.id==='diffusion/ddpm_sampling'?{...p,browser_judge:undefined}:p);
-  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{}}));
-  assert(!detail.includes('judge-capability-badge'), 'Module cards should not display runtime badges');
+  const modules=paperModules(mixed,fixtureProblems);
+  assert.deepEqual(paperJudgeCapability(modules),{browser:1,server:1,total:2});
+  assert(renderToString(React.createElement(PaperJudgeBadge,{modules})).includes('部分模块需服务端 1/2'));
+  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{},onGuide(){}}));
+  assert(!detail.includes('浏览器判题 · 无需 GPU') && detail.includes('服务端判题'));
+  assert.equal(renderToString(React.createElement(ModuleJudgeBadge,{problem:attention})), '');
+  assert.equal(renderToString(React.createElement(PaperJudgeBadge,{modules:paperModules(mixed,problems)})), '');
+  assert(renderToString(React.createElement(ModuleJudgeBadge,{problem:modules.find(p=>!p.browser_judge)})).includes('服务端判题'));
+  assert.equal(renderToString(React.createElement(PaperJudgeBadge,{modules:[]})),'');
 
   const { verificationReason,matchesBrowserSubmission }=await server.ssrLoadModule('/src/browserVerification.ts');
   const { fingerprintSource }=await server.ssrLoadModule('/src/reportSource.ts');

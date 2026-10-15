@@ -44,7 +44,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
   if(signal.aborted) throw new DOMException('Stopped','AbortError');
   const totals = { tests: Object.values(problem.tests || {}).reduce((sum, count) => sum + count, 0),
     mutants: bundle.mutants && typeof bundle.mutants === 'object' ? Object.keys(bundle.mutants).length : 0 };
-  const budget = browserBudget(problem);
+  const budget = browserBudget(problem, bundle.budgets);
   return new Promise((resolve, reject) => {
     const frame = document.createElement('iframe');
     frame.setAttribute('sandbox', 'allow-scripts');

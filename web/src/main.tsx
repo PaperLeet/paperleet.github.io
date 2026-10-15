@@ -6,6 +6,7 @@ import "./ui-refinements.css";
 import "./product-ui.css";
 import "./workspace-polish.css";
 import "./feedback-polish.css";
+import "./header-account.css";
 import "./library-workbench.css";
 import { startPublicNavigation } from "./deployment";
 import { AppErrorBoundary } from "./AppErrorBoundary";

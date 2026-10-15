@@ -25,7 +25,7 @@ export function learnerTraceLocation(message: string | undefined, impl: string |
   const lineCount = editorSource(source).split('\n').length;
   let location: SourceLocation | undefined;
   for (const text of message.split(/\r\n|\r|\n/)) {
-    const frame = /^\s*(.+):([1-9]\d*): in \S.*$/.exec(text);
+    const frame = /^\s*(.+):([1-9]\d*): in \S.*$/.exec(text) || /^\s*File ["'](.+)["'], line ([1-9]\d*), in (?:[A-Za-z_]\w*|<[^>\r\n]+>)\s*$/.exec(text);
     if (!frame) continue;
     const file = normalize(frame[1]);
     const matches = implementation.endsWith('/submission.py') || implementation === 'submission.py'

@@ -69,3 +69,6 @@ mutants:
   bug: 块最大值替代累计最大值
 - id: m4_detach_history
   bug: 切断早期分块的梯度
+
+browser:
+  backend: numpy-autograd-wasm

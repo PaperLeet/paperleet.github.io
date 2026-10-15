@@ -101,3 +101,17 @@ module:
   - sample_t
   - euler_sample
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm
+  packages: [pyyaml]
+  resources:
+    - paperleet/common/toydata.py
+    - paperleet/common/oracles.py
+    - paperleet/common/metrics.py
+    - paperleet/common/models.py
+    - problems/diffusion/flow_matching/problem.yaml
+  budgets:
+    calibration: 240000
+    run: 60000
+    total: 300000

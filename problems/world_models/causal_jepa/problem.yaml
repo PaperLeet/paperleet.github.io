@@ -88,3 +88,6 @@ mutants:
   bug: 冻结视觉编码器目标错误地保留梯度
 - id: m4_visible_history_loss
   bug: 历史损失错误地包含可见对象
+
+browser:
+  backend: numpy-autograd-wasm

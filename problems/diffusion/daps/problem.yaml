@@ -82,3 +82,6 @@ mutants:
   bug: Langevin 噪声漏掉方差中的 2
 - id: m4_renoise_variance_as_scale
   bug: 重加噪误将方差当成标准差
+
+browser:
+  backend: numpy-autograd-wasm

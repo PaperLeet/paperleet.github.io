@@ -114,7 +114,7 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 69);
+  assert.equal(browserModules.length, catalog.problems.length, 'Every published module must support browser execution');
   const bpr=catalog.papers.find(p=>p.id==='bpr');
   assert(bpr&&bpr.number===53&&bpr.category==='retrieval');
   assert.deepEqual(bpr.module_ids,['retrieval/bpr']);

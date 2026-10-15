@@ -6,8 +6,10 @@ import sys
 
 import pytest
 
-from paperleet.browser_judge import PILOTS, SHARED_FILES, export_browser_bundle
-from paperleet.catalog import problem, root
+from paperleet.browser_judge import SHARED_FILES, export_browser_bundle, require_browser_catalog
+from paperleet_torch.runtime import source_files
+from paperleet.catalog import problem, problems, root
+from paperleet.browser_config import browser_config
 
 
 def hydrate_bundle(output, metadata):
@@ -27,12 +29,12 @@ def hydrated_path(output, metadata):
 
 def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
     old_bytes = 0
-    for identifier in PILOTS:
-        entry = problem(identifier)
+    for entry in problems():
+        identifier = entry["id"]
         metadata = export_browser_bundle(entry, tmp_path)
         path = tmp_path / metadata['bundle_url']
         manifest = json.loads(path.read_text())
-        assert manifest['version'] == 2
+        assert manifest['version'] == 3
         assert not {'adapter', 'harness'}.intersection(manifest)
         assert not set(SHARED_FILES).intersection(manifest['files'])
         for asset in (path, tmp_path / manifest['runtime_bundle_url']):
@@ -70,7 +72,10 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
     runtimes = list((tmp_path / 'browser-judge').glob('runtime-*.json'))
     assert len(runtimes) == 2, 'All autodiff modules must share one runtime'
     for runtime in runtimes:
-        assert set(json.loads(runtime.read_text())['files']) == set(SHARED_FILES)
+        payload = json.loads(runtime.read_text())
+        library = source_files('schedules' if payload['backend'] == 'numpy-wasm' else 'autograd')
+        assert set(payload['files']) == set(SHARED_FILES) | set(library)
+        assert all(payload['files'][name] == source for name, source in library.items())
     new_bytes = sum(asset.stat().st_size for asset in (tmp_path / 'browser-judge').glob('*.json'))
     assert new_bytes < old_bytes * 0.35, 'Public runtime deduplication must save at least 65% across the catalog'
     assert export_browser_bundle({'id': 'other/example'}, tmp_path) is None
@@ -130,37 +135,36 @@ print(json.dumps(calibration))
     assert len(json.loads(result.stdout)['mutants_caught']) == 5
 
 
-@pytest.mark.parametrize('identifier,count,mutants', [
-    ('architecture/attention',7,3),('finetuning/lora',6,4),
-    ('diffusion/param_conversion',7,4),('architecture/layer_norm',7,4),
-    ('architecture/positional_encoding',7,4),('rl/dpo',9,5),
-    ('architecture/multihead_attention',7,4),('architecture/positionwise_ffn',7,4),('optimization/adamw',7,4),
-    ('rl/gae',11,4),('rl/ppo_clip',11,5),('rl/grpo',9,5),('rl/dr_grpo',6,3),
-    ('rl/dapo',7,4),('rl/gspo',7,4),('representation/clip',7,4),('architecture/situ_glu',9,4),
-    ('finetuning/qlora',6,4),('architecture/block_attention_residual',7,4),
-    ('architecture/differential_attention',7,4),('representation/vicreg',9,4),
-    ('representation/rotation_trick',7,4),('world_models/lewm_prediction',8,4),
-    ('world_models/lewm_planning',8,4),('world_models/causal_jepa',8,4),
-    ('representation/repa',7,4),('representation/ijepa',9,4),('finetuning/distillm2',9,4),
-    ('finetuning/opsd_alignment',7,4),('finetuning/opsd_clipping',7,4),('rl/sdpo_feedback',7,4),('rl/sdpo_topk',7,4),
-    ('optimization/muon_split',7,4),('finetuning/svdquant',9,4),('architecture/flash_attention',7,4),('architecture/kimi_kda',7,4),
-    ('rl/glm5_offpolicy',7,4),('rl/opd',6,4),('diffusion/consistency',7,4),('diffusion/progressive_distillation',6,4),
-    ('diffusion/ddpm_sampling',10,5),('diffusion/ddim',9,5),
-    ('diffusion/flow_matching',8,4),
-    ('diffusion/daps',9,4),('representation/sigreg',9,4),('representation/visreg',9,4),
-    ('representation/moge_alignment',9,4),('representation/var_tokenizer',8,4),('architecture/var_next_scale',8,4),
-    ('diffusion/block_diffusion',7,4),('rl/pkpo',9,4),('diffusion/diffusion_nft',9,4),('diffusion/fd_population',9,4),
-    ('diffusion/jit',6,3),('diffusion/drifting',7,4),('diffusion/dmd',7,4),('diffusion/dmd2',6,4),
-    ('diffusion/fd_loss',9,4),
-    ('diffusion/meanflow',6,3),
-    ('architecture/rms_norm',9,4),
-    ('architecture/gqa',10,5),
-    ('architecture/rope',10,6),
-    ('retrieval/semantic_ids',8,4),('retrieval/generative_retrieval',8,5),('retrieval/late_interaction',10,6),
-    ('retrieval/sasrec',10,7),
-    ('retrieval/bpr',11,8),
-    ('retrieval/lightgcn',10,8),
-])
+# Every declared module automatically runs its full exported suite and every mutant.
+BROWSER_CASES = [
+    (entry['id'], sum(entry['tests'].values()), len(list((entry['directory'] / 'mutants').glob('*.py'))))
+    for entry in problems() if browser_config(entry) is not None and entry['id'] != 'diffusion/schedules'
+]
+
+
+def test_published_catalog_requires_complete_browser_coverage():
+    entries = problems()
+    require_browser_catalog(entries)
+    # Schedules has its dedicated reference/mutation/error test above.
+    validated = {identifier for identifier, _, _ in BROWSER_CASES} | {'diffusion/schedules'}
+    published = {entry['id'] for entry in entries}
+    assert published == validated, 'Every published module needs a browser bundle and full reference/mutation coverage'
+
+
+@pytest.mark.parametrize('command', [['export'], ['vizdata', 'all']])
+def test_publication_rejects_new_modules_without_browser_support(tmp_path, monkeypatch, capsys, command):
+    from paperleet.cli import main
+    monkeypatch.setenv('PAPERLEET_ROOT', str(tmp_path))
+    folder = tmp_path / 'problems' / 'demo' / 'new_module'
+    folder.mkdir(parents=True)
+    (folder / 'problem.yaml').write_text('id: demo/new_module\nnumber: 1\ntitle: New module\n')
+    assert main(command) == 2
+    error = capsys.readouterr().err
+    assert 'Browser support is required before publishing: demo/new_module' in error
+    assert not (tmp_path / 'web' / 'public' / 'data').exists(), 'Fail before publishing any catalog or visual data'
+
+
+@pytest.mark.parametrize('identifier,count,mutants', BROWSER_CASES)
 def test_browser_modules_unchanged_suites_and_mutants(tmp_path,identifier,count,mutants):
     folder = tmp_path / identifier.replace('/', '-')
     metadata = export_browser_bundle(problem(identifier), folder)

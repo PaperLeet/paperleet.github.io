@@ -80,3 +80,6 @@ mutants:
   bug: Allows clean queries to read noisy tokens.
 - id: m4_ignores_mask
   bug: Runs full bidirectional attention instead of the specialized mask.
+
+browser:
+  backend: numpy-autograd-wasm

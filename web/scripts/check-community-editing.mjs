@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { localizedRenderer } from './render-locale.mjs';
 
 export async function checkCommunityEditing(server) {
+  const renderChinese=await localizedRenderer(server,"zh");
   const edits=await server.ssrLoadModule('/src/communityEdits.ts');
   const values=new Map(), storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};
   const replyEdits=await server.ssrLoadModule('/src/replyEdits.ts');
@@ -54,12 +56,12 @@ export async function checkCommunityEditing(server) {
   try {
     globalThis.window={sessionStorage:storage};
     replyEdits.writeReplyEdit(storage,'alice','reply',replyDraft);
-    const replyHtml=renderToStaticMarkup(React.createElement(ReplyEditor,{reply:{...reply,body:'New server reply',edit_version:'b'.repeat(64)},owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
+    const replyHtml=renderChinese(React.createElement(ReplyEditor,{reply:{...reply,body:'New server reply',edit_version:'b'.repeat(64)},owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
     assert(replyHtml.includes('New server reply')&&replyHtml.includes('较早版本')&&replyHtml.includes('中文 🧪'));
     assert(/disabled="">保存修改/.test(replyHtml));
     edits.writePostEdit(storage,'alice','post',draft);
     const latest={...post,title:'Newer public title',body:'Newer public body',edit_version:'b'.repeat(64)};
-    const html=renderToStaticMarkup(React.createElement(PostEditor,{post:latest,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
+    const html=renderChinese(React.createElement(PostEditor,{post:latest,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
     assert(html.includes('Newer public title')&&html.includes('Newer public body')&&html.includes('较早版本'));
     assert(html.includes('以此版本继续编辑')&&html.includes(draft.title),'A recovered draft keeps its old base and exposes current content for deliberate review');
     assert(/disabled="">保存修改/.test(html),'Saving a stale recovered draft must be disabled until reviewed');

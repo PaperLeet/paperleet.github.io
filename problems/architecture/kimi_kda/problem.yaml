@@ -73,3 +73,6 @@ mutants:
   bug: Reads decayed state before the current token write.
 - id: m4_shared_channel_decay
   bug: Uses one channel retention factor for every key channel.
+
+browser:
+  backend: numpy-autograd-wasm

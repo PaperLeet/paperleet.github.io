@@ -89,3 +89,6 @@ calibration:
     optimum_k8: 0.975
     maxk_gain_at_theta_1: 0.5140263029929586
   max_observed_t3_s: 0.08291183295659721
+
+browser:
+  backend: numpy-autograd-wasm

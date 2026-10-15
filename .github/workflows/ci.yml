@@ -25,7 +25,7 @@ jobs:
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
       - name: Test judge infrastructure
-        run: python -m pytest tests -q
+        run: python -m pytest tests packages/paperleet-torch/tests -q
       - name: Reference, mutation, determinism, and CPU budgets
         # The 60-module catalog takes ~330s on hosted runners. Keep the three
         # repetitions and per-module T3 limits; allow headroom for runner variance.
@@ -43,6 +43,9 @@ jobs:
           npm ci
           npm run check
           npm run build
+      - name: Execute pinned Python/WASM suites and compatibility regressions
+        working-directory: web
+        run: npm run check:browser-wasm
       - uses: actions/upload-artifact@v4
         if: always()
         with:

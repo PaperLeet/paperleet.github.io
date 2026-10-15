@@ -102,3 +102,6 @@ calibration:
     v_final_loss: 0.157854825258255
   reference_tests_passed: 6
   mutants_killed: 3
+
+browser:
+  backend: numpy-autograd-wasm

@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 
 /** Render a deliberate saved preference instead of relying on the host's language. */
-export async function localizedRenderer(server, locale) {
+export async function localizedRenderer(server, locale, render = renderToString) {
   if (locale !== 'zh' && locale !== 'en') throw new Error('A test locale is required');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   return (element) => {
@@ -18,7 +18,7 @@ export async function localizedRenderer(server, locale) {
     });
     Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: fixture });
     try {
-      return renderToString(React.createElement(LocaleProvider, null, element));
+      return render(React.createElement(LocaleProvider, null, element));
     } finally {
       if (previous) Object.defineProperty(globalThis, 'localStorage', previous);
       else delete globalThis.localStorage;

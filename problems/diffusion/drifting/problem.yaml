@@ -98,3 +98,6 @@ calibration:
     checkerboard_final_mmd: 0.013855159282684326
   reference_tests_passed: 7
   mutants_killed: 4
+
+browser:
+  backend: numpy-autograd-wasm

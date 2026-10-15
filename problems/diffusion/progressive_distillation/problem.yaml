@@ -100,3 +100,6 @@ calibration:
     student_calls_per_sample: 1
   reference_tests_passed: 6
   mutants_killed: 4
+
+browser:
+  backend: numpy-autograd-wasm

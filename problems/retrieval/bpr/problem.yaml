@@ -72,3 +72,6 @@ mutants:
   bug: Use two independent binary terms instead of the score-difference likelihood.
 - id: m8_sum_instead_of_mean
   bug: Sum triple losses without the declared batch normalization.
+
+browser:
+  backend: numpy-autograd-wasm

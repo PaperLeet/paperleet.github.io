@@ -80,3 +80,6 @@ mutants:
   bug: 错误地将 x/y 也减去锚点
 - id: m4_squared_residual
   bug: 以平方残差替代绝对残差
+
+browser:
+  backend: numpy-autograd-wasm

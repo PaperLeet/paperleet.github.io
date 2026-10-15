@@ -65,3 +65,6 @@ mutants:
   bug: 忽略可见性掩码，发生未来信息泄漏
 - id: m5_scale_by_query_heads
   bug: 用 query 头数而非每头特征维度缩放 logits
+
+browser:
+  backend: numpy-autograd-wasm

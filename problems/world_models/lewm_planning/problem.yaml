@@ -78,3 +78,6 @@ mutants:
   bug: 精英方差错误地使用无偏估计
 - id: m4_standard_deviation
   bug: 返回标准差而不是方差
+
+browser:
+  backend: numpy-autograd-wasm

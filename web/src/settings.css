@@ -1,0 +1,47 @@
+.settings-page { max-width: 960px; margin: 0 auto; padding: 30px var(--page-gutter) 64px; }
+.settings-back { display: inline-flex; margin-bottom: 28px; font-size: 12px; }
+.settings-back:hover { color: var(--accent); }
+.settings-heading { margin-bottom: 28px; }
+.settings-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--accent); }
+.settings-heading h1 { margin: 7px 0 8px; font-size: 30px; font-weight: 650; letter-spacing: -.04em; }
+.settings-heading > p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.settings-card { padding: 24px; margin-bottom: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-panel); }
+.settings-card-heading { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; }
+.settings-section-icon { display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 10px; color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.settings-card-heading h2 { font-size: 16px; font-weight: 600; }
+.settings-card-heading p { margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 0; border-top: 1px solid var(--line); }
+.settings-row:last-child { padding-bottom: 0; }
+.settings-row h3 { font-size: 13px; font-weight: 600; }
+.settings-row p { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.settings-choice { display: inline-flex; flex: none; gap: 4px; padding: 4px; background: var(--surface2); border: 1px solid var(--line); border-radius: 9px; }
+.settings-choice > button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 98px; min-height: 36px; padding: 7px 10px; border-radius: 6px; color: var(--muted); font-size: 12px; }
+.settings-choice > button:hover { color: var(--text); }
+.settings-choice > button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px #00000012; font-weight: 600; }
+.settings-choice > button[aria-pressed="true"] > svg:last-child { color: var(--accent); }
+.settings-backup-description { max-width: 660px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+.settings-card-actions { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.settings-card-actions > span { color: var(--muted); font-size: 11px; line-height: 1.7; }
+.settings-card-actions > .button { flex-shrink: 0; font-size: 12px; }
+.settings-resource { display: flex; width: 100%; align-items: center; gap: 13px; margin-top: 12px; padding: 18px 22px; text-align: left; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.settings-resource:hover { background: var(--surface2); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.settings-resource > span:nth-child(2) { flex: 1; min-width: 0; }
+.settings-resource b { display: block; font-size: 13px; font-weight: 600; }
+.settings-resource small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.settings-resource > svg:last-child { flex-shrink: 0; color: var(--muted); }
+@media (max-width: 600px) {
+  .settings-page { padding-top: 24px; }
+  .settings-back { margin-bottom: 22px; }
+  .settings-heading { margin-bottom: 22px; }
+  .settings-heading h1 { font-size: 27px; }
+  .settings-heading > p { font-size: 13px; }
+  .settings-card { padding: 19px; }
+  .settings-card-heading { gap: 10px; }
+  .settings-section-icon { width: 35px; height: 35px; border-radius: 9px; }
+  .settings-row { align-items: flex-start; flex-direction: column; gap: 13px; padding-block: 18px; }
+  .settings-choice { align-self: stretch; }
+  .settings-choice > button { flex: 1; min-width: 0; min-height: 40px; }
+  .settings-card-actions { flex-direction: column; align-items: stretch; gap: 14px; }
+  .settings-card-actions > .button { justify-content: center; }
+  .settings-resource { padding: 17px; gap: 10px; }
+}

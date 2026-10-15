@@ -71,3 +71,6 @@ mutants:
   bug: Differentiates through normalized rotation directions.
 - id: m4_wrong_rotation_sign
   bug: Subtracts the rank-one alignment term.
+
+browser:
+  backend: numpy-autograd-wasm

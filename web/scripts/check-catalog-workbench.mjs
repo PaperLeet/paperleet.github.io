@@ -11,10 +11,9 @@ const dom = new JSDOM('<div id="root"></div>', { url: 'http://paperleet.test/', 
 const globals = { window: dom.window, document: dom.window.document, Element: dom.window.Element, HTMLElement: dom.window.HTMLElement, localStorage: dom.window.localStorage, location: dom.window.location, scrollY: 0, innerHeight: 900, scrollTo() {}, IS_REACT_ACT_ENVIRONMENT: true, ResizeObserver: class { observe() {} disconnect() {} }, requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout };
 const previous = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { value, writable: true, configurable: true });
+localStorage.setItem('paperleet.locale','zh');
 dom.window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
-let scrollCalls=0;
-dom.window.HTMLElement.prototype.scrollIntoView = function () { scrollCalls++; };
-dom.window.localStorage.setItem('paperleet.locale','zh');
+dom.window.HTMLElement.prototype.scrollIntoView = function () {};
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', optimizeDeps: { noDiscovery: true, include: [] } });
 let root;
 try {
@@ -24,9 +23,10 @@ try {
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
   const h = React.createElement;
-
+  let route = '', guide = 0;
   function Library() {
-    return h(PaperLibrary, { ...catalog, saved: {} });
+    const [view, setView] = useState('');
+    return h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { route = href; setView(href); }, onGuide: () => guide++ });
   }
   const find = selector => document.querySelector(selector);
   const click = async element => { assert(element); await act(async () => element.click()); };
@@ -38,24 +38,24 @@ try {
   await click(find('[aria-label="紧凑列表"]'));
   assert.equal(find('.library-main').dataset.density, 'compact');
   assert.equal(localStorage.getItem('paperleet.library.density.v1'), 'compact');
-  assert.equal(find('[aria-label="模块难度筛选"]').value,'all','Density must not alter filters');
+  assert.equal(route, '', 'Density must not change search/filter navigation');
   await act(async () => root.unmount());
   await mount();
   assert.equal(find('.library-main').dataset.density, 'compact', 'Density survives a remount');
   await click(find('.difficulty-summary.E'));
-
+  assert(route.includes('difficulty=E'));
   assert.equal(find('.difficulty-summary.E').getAttribute('aria-pressed'), 'true');
-  assert.equal(find('[aria-label="模块难度筛选"]').value, 'E', 'Sidebar and toolbar share difficulty state');
+  assert.equal(find('[aria-label="模块难度筛选"]').value, 'E', 'Sidebar and toolbar use the same URL state');
   await click(find('.difficulty-summary.E'));
   assert.equal(find('[aria-label="模块难度筛选"]').value, 'all');
   await click(find('.library-help-card button'));
-  assert(scrollCalls>0,'Overview action scrolls to the library');
+  assert.equal(guide, 1);
   const setItem = dom.window.Storage.prototype.setItem;
   dom.window.Storage.prototype.setItem = () => { throw new Error('Storage blocked'); };
   await click(find('[aria-label="舒适列表"]'));
   assert.equal(find('.library-main').dataset.density, 'comfortable', 'Blocked preference storage must not break the list');
   dom.window.Storage.prototype.setItem = setItem;
-  await act(async () => root.render(h(PaperLibrary, { ...catalog, saved: {}, progressReady: false,  })));
+  await act(async () => root.render(h(PaperLibrary, { ...catalog, saved: {}, progressReady: false, onGuide() {} })));
   assert(find('.library-progress-ring b').textContent.startsWith('—'), 'Unresolved progress must not render a fabricated zero');
 
   function Tabs() {
@@ -79,7 +79,7 @@ try {
   assert.equal(document.activeElement, tabs[0], 'Browser shortcuts stay untouched');
   assert.equal(tabs.filter(tab => tab.tabIndex === 0).length, 1);
   assert.deepEqual(errors, [], 'No uncaught DOM errors are allowed');
-  console.log('PASS catalog workbench: density persistence/storage failure, shared difficulty filters, library browse action, keyboard tab activation/wrapping/Home/End and modifier isolation');
+  console.log('PASS catalog workbench: density persistence/storage failure, shared URL difficulty filters, guide action, keyboard tab activation/wrapping/Home/End and modifier isolation');
 } finally {
   if (root) await act(async () => root.unmount());
   await server.close(); dom.window.close();

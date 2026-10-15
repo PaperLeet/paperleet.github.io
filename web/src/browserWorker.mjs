@@ -1,5 +1,5 @@
 // Runs only inside the disposable, opaque-origin browser judge sandbox.
-import { calibrationDiagnostic, runtimeDiagnostic } from '../public/browser-judge/diagnostics.mjs';
+import { calibrationDiagnostic, runtimeDiagnostic, unsupportedReport } from '../public/browser-judge/diagnostics.mjs';
 import { syntaxCheck } from '../public/browser-judge/syntax.mjs';
 import { loadJudgePackages } from '../public/browser-judge/packages.mjs';
 import { calibrationProof, calibrationSummary } from './browserCalibration.ts';
@@ -21,7 +21,8 @@ self.onmessage = async ({ data }) => {
     const diagnostic = JSON.parse(py.runPython(syntaxCheck));
     if (diagnostic) return send({ type: 'syntax_error', diagnostic });
     progress('loading', { step: 'packages' });
-    await loadJudgePackages(py, Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml')));
+    await loadJudgePackages(py, bundle.version === 3 ? bundle.packages
+      : Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml')));
     progress('loading', { step: 'preparing' });
     py.globals.set('bundle_json', JSON.stringify(bundle));
     py.runPython(`import json, inspect\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);
@@ -48,7 +49,7 @@ self.onmessage = async ({ data }) => {
     progress('running');
     const report = JSON.parse(py.runPython(`json.dumps(run_suite(bundle, learner_source, '/judge'${extra}), allow_nan=False)`));
     if (report.error) return unsupported('collection_failed');
-    if (report.tests.some((test) => /BrowserUnsupported|ModuleNotFoundError|ImportError/.test(test.message))) return unsupported('python_api_unsupported');
+    if (unsupportedReport(report)) return unsupported('python_api_unsupported');
     const finishedAt = performance.now();
     send({ type: 'result', report, calibration:summary, measurements:{
       loading_ms:readyAt-startedAt,calibration_ms:calibratedAt-readyAt,

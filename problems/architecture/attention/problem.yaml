@@ -66,3 +66,6 @@ mutants:
   bug: 忽略注意力掩码
 - id: m3_wrong_softmax_axis
   bug: 在 query 轴归一化
+
+browser:
+  backend: numpy-autograd-wasm

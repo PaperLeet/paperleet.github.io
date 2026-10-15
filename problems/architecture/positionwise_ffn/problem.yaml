@@ -66,3 +66,6 @@ mutants:
   bug: 隐藏层错误地 detach，阻断梯度
 - id: m4_token_mixing
   bug: 错误地在 token 维取平均
+
+browser:
+  backend: numpy-autograd-wasm

@@ -75,3 +75,8 @@ module:
   provided_functions:
   - ppo_loss
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm
+  resources:
+    - paperleet/common/rl_envs.py

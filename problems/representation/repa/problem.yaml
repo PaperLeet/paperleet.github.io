@@ -77,3 +77,6 @@ mutants:
   bug: Normalizes along patches instead of the feature dimension.
 - id: m4_missing_weight
   bug: Ignores the alignment weight in the combined objective.
+
+browser:
+  backend: numpy-autograd-wasm

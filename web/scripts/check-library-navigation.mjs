@@ -7,7 +7,7 @@ import { createServer } from 'vite';
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const storage = globalThis.sessionStorage, localeStorage = globalThis.localStorage;
 try {
-  const { emptyLibraryFilters, libraryHref, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
+  const { emptyLibraryFilters, libraryHref, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const { signInHref, accountReturnHref } = await server.ssrLoadModule('/src/accountNavigation.ts');
   const { decodeProblemHash } = await server.ssrLoadModule('/src/reports.ts');
   const { collectionIdFromRoute } = await server.ssrLoadModule('/src/paperCollections.ts');
@@ -32,6 +32,27 @@ try {
     }
   }
   assert.equal(libraryHref(undefined, emptyLibraryFilters()), '#');
+  for (const sort of ['newest', 'oldest', 'title']) {
+    const filters = { ...emptyLibraryFilters(), query: 'attention', sort };
+    const view = libraryHref('llm-basics', filters);
+    assert.deepEqual(readLibraryRoute(view).filters, filters);
+    assert.equal(libraryReturnHref(withLibraryContext(22, view)), view, 'Sorting must survive the round trip through practice');
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(withLibraryContext(22, view)))), withLibraryContext(22, view));
+  }
+  assert.equal(libraryHref(undefined, { ...emptyLibraryFilters(), sort: 'default' }), '#');
+  assert.equal(readLibraryRoute('#/?sort=unknown'), undefined);
+  assert.equal(readLibraryRoute('#/?sort=title&sort=newest'), undefined);
+  const samples = [
+    { id: 'b', number: 3, short_title: 'Beta', year: 2025 },
+    { id: 'missing', number: 4, short_title: 'Gamma' },
+    { id: 'a', number: 1, short_title: 'Alpha', year: 2025 },
+    { id: 'old', number: 2, short_title: 'Model 2', year: 2017 },
+  ];
+  assert.equal(sortLibraryPapers(samples), samples, 'Discovery order must remain stable');
+  assert.deepEqual(sortLibraryPapers(samples, 'newest').map(p => p.id), ['a', 'b', 'old', 'missing']);
+  assert.deepEqual(sortLibraryPapers(samples, 'oldest').map(p => p.id), ['old', 'a', 'b', 'missing']);
+  assert.deepEqual(sortLibraryPapers(samples, 'title').map(p => p.id), ['a', 'b', 'missing', 'old']);
+  assert.equal(samples[0].id, 'b', 'Sorting must not mutate catalog order');
   assert.equal(libraryHref(undefined, { ...emptyLibraryFilters(), owner: 'private', code: 'private source' }), '#');
   assert.equal(withLibraryContext(6, '#'), '#/6');
   assert.equal(withLibraryContext('papers/ddpm'), '#/papers/ddpm');
@@ -53,18 +74,24 @@ try {
   for (const problem of catalog.problems) assert(withLibraryContext(problem.number, '#/collections/llm-basics').startsWith('#/' + problem.number + '?from='));
   const normalized = normalizeLibraryFilters({ ...emptyLibraryFilters(), category: 'retired-category', tag: 'retired-tag', query: 'keep query' }, catalog.papers);
   assert.deepEqual(normalized, { ...emptyLibraryFilters(), query: 'keep query' });
+  for (const runtime of ['browser','server']) assert.equal(normalizeLibraryFilters({...emptyLibraryFilters(),runtime},catalog.papers).runtime,'all','Retired runtime links must never create a hidden filter');
   const returnTo = libraryHref('diffusion', { ...emptyLibraryFilters(), query: 'DDPM', runtime: 'browser', difficulty: 'E' });
+  const currentReturn = libraryHref('diffusion', {...readLibraryRoute(returnTo).filters,runtime:'all'});
   const ddpm = catalog.papers.find(p => p.id === 'ddpm');
   for (const en of [false, true]) {
     globalThis.localStorage = { getItem: () => en ? 'en' : 'zh' };
     const render = (Component, props) => renderToString(React.createElement(LocaleProvider, null, React.createElement(Component, props)));
     const library = render(PaperLibrary, { ...catalog, saved: {}, collectionId: 'diffusion', route: decodeProblemHash(returnTo), onGuide() {} });
-    assert(library.includes('value="DDPM"') && library.includes('value="browser" selected=""') && library.includes('value="E" selected=""'));
-    assert(library.includes(withLibraryContext('papers/ddpm', returnTo).replaceAll('&', '&amp;')));
+    assert(library.includes('value="DDPM"') && library.includes('value="E" selected=""'));
+    assert(!library.includes('Filter by judge location') && !library.includes('判题位置筛选') && !library.includes('judge-capability-badge'));
+    assert(library.includes(withLibraryContext('papers/ddpm', currentReturn).replaceAll('&', '&amp;')));
+    const legacyServer = render(PaperLibrary,{...catalog,saved:{},route:'?runtime=server',onGuide(){}});
+    assert.equal((legacyServer.match(/data-paper-id=/g)||[]).length,catalog.papers.length,'A saved server filter must not empty an all-browser catalog');
     const waiting = render(PaperLibrary, { ...catalog, saved: {}, progressReady: false, route: libraryHref(undefined, { ...emptyLibraryFilters(), state: 'done' }), onGuide() {} });
     assert(waiting.includes(en ? 'Checking your learning progress' : '正在核对学习进度'));
     assert(!waiting.includes(en ? 'No matching papers' : '没有符合条件的论文') && !waiting.includes('data-paper-id='), 'Pending account progress must not fabricate empty or unstarted status-filter results');
     const detail = render(PaperDetail, { paper: ddpm, problems: catalog.problems, saved: {}, returnTo, onGuide() {} });
+    assert(!detail.includes('judge-capability-badge'),'Browser execution is standard, so module cards need no capability tag');
     assert(detail.includes(en ? 'Back to library results' : '返回题库结果') && detail.includes(returnTo.replaceAll('&', '&amp;')));
     assert(detail.includes(withLibraryContext(6, returnTo).replaceAll('&', '&amp;')));
     const next = render(PracticeNextStep, { next: catalog.problems.find(p => p.number === 6), samePaper: true, returnTo, onNotes() {}, onLab() {} });

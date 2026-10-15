@@ -76,3 +76,6 @@ mutants:
   bug: 重复返回相同物品
 - id: m5_first_parent
   bug: 只扩展第一个 beam
+
+browser:
+  backend: numpy-autograd-wasm

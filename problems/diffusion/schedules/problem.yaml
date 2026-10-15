@@ -73,3 +73,6 @@ module:
   - cosine_betas
   - make_schedule
   optional: false
+
+browser:
+  backend: numpy-wasm

@@ -79,3 +79,6 @@ mutants:
   bug: 把协方差对角线也加入去冗余惩罚
 - id: m4_stop_second_view
   bug: 错误地阻断第二个视图的梯度
+
+browser:
+  backend: numpy-autograd-wasm

@@ -84,3 +84,6 @@ mutants:
   bug: Drops earlier residual contributions.
 - id: m4_target_leak
   bug: Builds each input from its own target scale.
+
+browser:
+  backend: numpy-autograd-wasm

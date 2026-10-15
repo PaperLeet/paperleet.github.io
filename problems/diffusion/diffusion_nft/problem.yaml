@@ -78,3 +78,6 @@ mutants:
   bug: 丢弃负样本训练项
 - id: m4_train_old_policy
   bug: 没有冻结旧策略输出
+
+browser:
+  backend: numpy-autograd-wasm

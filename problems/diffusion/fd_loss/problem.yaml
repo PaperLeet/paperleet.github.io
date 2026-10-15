@@ -85,3 +85,6 @@ mutants:
   bug: 归一化分母没有停止梯度
 - id: m4_train_reference
   bug: 真实参考统计没有冻结
+
+browser:
+  backend: numpy-autograd-wasm

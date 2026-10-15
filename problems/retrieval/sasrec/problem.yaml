@@ -68,3 +68,6 @@ mutants:
   bug: 切断正样本 logit 的梯度
 - id: m7_pairwise_instead_of_binary
   bug: 用成对排序 softmax 替代两个独立二元项
+
+browser:
+  backend: numpy-autograd-wasm

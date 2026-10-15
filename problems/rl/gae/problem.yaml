@@ -64,3 +64,8 @@ module:
   - compute_gae
   provided_functions: []
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm
+  resources:
+    - paperleet/common/rl_envs.py

@@ -97,3 +97,6 @@ calibration:
     weight_absmax: 81.57007785157958
     residual_absmax: 3.3308383055314916
   max_observed_t3_s: 0.004359500948339701
+
+browser:
+  backend: numpy-autograd-wasm

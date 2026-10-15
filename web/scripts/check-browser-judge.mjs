@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createServer } from 'vite';
-import { calibrationDiagnostic, runtimeDiagnostic } from '../public/browser-judge/diagnostics.mjs';
+import { calibrationDiagnostic, runtimeDiagnostic, unsupportedReport } from '../public/browser-judge/diagnostics.mjs';
 import './check-browser-packages.mjs';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
@@ -20,6 +20,10 @@ try {
   assert(calibrationDiagnostic({reason:'failed',reference:{error:'x'.repeat(10000),tests:Array.from({length:10},()=>({passed:false,message:'y'.repeat(10000)}))}}).length <= 4000);
   const { runBrowserJudge } = await server.ssrLoadModule('/src/browserJudge.ts');
   const { parseReport } = await server.ssrLoadModule('/src/reports.ts');
+  assert.equal(unsupportedReport({tests:[{unsupported_api:true,message:'typed compatibility failure'}]}),true);
+  assert.equal(unsupportedReport({tests:[{unsupported_api:false,message:'AssertionError: BrowserUnsupported ImportError'}]}),false);
+  assert.equal(unsupportedReport({tests:[{unsupported_api:false,message:'TypeError: student bug'}]}),false);
+  assert.equal(unsupportedReport({tests:[{message:'BrowserUnsupported: legacy harness'}]}),true);
   const listeners = new Set();
   const frames = [];
   const requests = [];
@@ -124,8 +128,13 @@ try {
     assert.equal(deadlines.size, 0);
     assert.equal(listeners.size, 0);
 
-    const { browserBudget } = await server.ssrLoadModule('/src/browserBudgets.ts');
+    const { browserBudget, parseBrowserBudgets } = await server.ssrLoadModule('/src/browserBudgets.ts');
     assert.deepEqual(browserBudget({id:'unknown/custom'}),{calibration:90_000,run:30_000,total:120_000});
+    const custom={calibration:40000,run:20000,total:90000};
+    assert.deepEqual(browserBudget({id:'unknown/custom',browser_judge:{budgets:custom}}),custom);
+    assert.deepEqual(browserBudget({id:'unknown/custom'},custom),custom);
+    for(const value of [null,{}, {...custom,total:300001},{...custom,run:0},{...custom,run:true},
+      {...custom,run:90001},{...custom,extra:1}]) assert.equal(parseBrowserBudgets(value),undefined);
     const flowProblem={...problem,id:'diffusion/flow_matching'};
     globalThis.fetch=async()=>Response.json({version:1,problem:flowProblem.id});
     const long=runBrowserJudge(flowProblem,'full original training',new AbortController().signal,()=>{});

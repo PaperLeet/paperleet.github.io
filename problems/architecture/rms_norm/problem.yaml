@@ -61,3 +61,6 @@ mutants:
   bug: 部分归一化仍使用全部特征估计 RMS
 - id: m4_detached_prefix_statistic
   bug: 将前缀统计量 detach，截断跨特征梯度
+
+browser:
+  backend: numpy-autograd-wasm

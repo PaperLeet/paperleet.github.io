@@ -85,3 +85,6 @@ mutants:
   bug: 把正负样本排序目标反转
 - id: m6_detached_documents
   bug: 错误切断文档向量的梯度
+
+browser:
+  backend: numpy-autograd-wasm

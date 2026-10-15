@@ -56,6 +56,10 @@ try {
   const props = { problems, saved: {}, ready: true };
   const firstVisit = renderToString(React.createElement(PracticeStart, props));
   assert(firstVisit.includes(`href="#/${attention.number}"`) && firstVisit.includes("推荐第一题"));
+  assert(firstVisit.includes('class="journey-steps"') && !firstVisit.includes('data-returning="true"'));
+  const returning = renderToString(React.createElement(PracticeStart, { ...props, saved }));
+  assert(returning.includes('data-returning="true"') && !returning.includes('class="journey-steps"'), 'Returning learners should see a compact resume area without repeated onboarding steps');
+  assert(returning.includes(`href="#/${gae.number}"`) && returning.includes('继续实现'), 'The compact layout must preserve the recent-draft resume action');
   const waiting = renderToString(React.createElement(PracticeStart, { ...props, ready: false }));
   assert(!waiting.includes(`href="#/${attention.number}"`) && waiting.includes('aria-busy="true"'),
     "Do not offer a new-user recommendation before private progress has loaded");

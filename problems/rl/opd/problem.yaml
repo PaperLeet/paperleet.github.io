@@ -82,3 +82,6 @@ calibration:
   reference_metrics:
     final_kl: 3.814857336692512e-07
   max_observed_t3_s: 0.050842000055126846
+
+browser:
+  backend: numpy-autograd-wasm

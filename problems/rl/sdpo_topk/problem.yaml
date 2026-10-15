@@ -67,3 +67,6 @@ mutants:
   bug: 学生尾部质量梯度被截断
 - id: m4_teacher_gradient
   bug: 教师未冻结
+
+browser:
+  backend: numpy-autograd-wasm

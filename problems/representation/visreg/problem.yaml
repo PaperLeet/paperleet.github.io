@@ -83,3 +83,6 @@ mutants:
   bug: Sample order is wrongly used as quantile order.
 - id: m4_frozen_global_anchor
   bug: The global-view mean is incorrectly detached.
+
+browser:
+  backend: numpy-autograd-wasm

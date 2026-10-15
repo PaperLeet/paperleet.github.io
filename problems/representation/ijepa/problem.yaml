@@ -91,3 +91,6 @@ mutants:
   bug: Use MSE instead of the released smooth-L1 training objective.
 - id: m4_reverse_momentum
   bug: Swap the old target and online EMA weights.
+
+browser:
+  backend: numpy-autograd-wasm

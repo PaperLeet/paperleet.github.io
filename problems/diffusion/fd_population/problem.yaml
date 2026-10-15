@@ -83,3 +83,6 @@ mutants:
   bug: 历史一阶和二阶矩没有停止梯度
 - id: m4_center_at_batch_mean
   bug: 协方差错误地减去当前批次均值外积
+
+browser:
+  backend: numpy-autograd-wasm

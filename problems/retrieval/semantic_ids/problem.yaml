@@ -74,3 +74,6 @@ mutants:
   bug: 重建只保留最后一级向量
 - id: m4_global_suffix
   bug: 全局行号替代组内碰撞序号
+
+browser:
+  backend: numpy-autograd-wasm

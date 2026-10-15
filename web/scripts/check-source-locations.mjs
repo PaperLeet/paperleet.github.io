@@ -3,7 +3,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { createServer } from 'vite';
 
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', optimizeDeps:{noDiscovery:true,include:[]} });
 const storage = globalThis.localStorage;
 try {
   const { editorSource, sourceOffset, learnerTraceLocation } = await server.ssrLoadModule('/src/sourceLocation.ts');
@@ -25,6 +25,9 @@ try {
   assert.deepEqual(learnerTraceLocation('/tmp/paperleet-job-abc/submission.py:2: in forward', 'submission.py', normalized, 'current'), { line: 2 });
   assert.deepEqual(learnerTraceLocation('workspace/attention.py:2: in forward', '/Users/student/paperleet/workspace/attention.py', normalized, 'current'), { line: 2 });
   assert.deepEqual(learnerTraceLocation('C:\\papers\\workspace\\attention.py:2: in forward', 'C:\\papers\\workspace\\attention.py', normalized, 'current'), { line: 2 });
+  assert.deepEqual(learnerTraceLocation('  File "submission.py", line 2, in forward\n  File "submission.py", line 3, in inner\n  File "reference.py", line 1, in helper','browser/submission.py',normalized,'current'),{line:3},'Standard Python tracebacks select the deepest explicit learner frame');
+  assert.equal(learnerTraceLocation('  File "reference.py", line 2, in forward','browser/submission.py',normalized,'current'),undefined);
+  assert.equal(learnerTraceLocation('  File "submission.py", line 2, in forward','browser/submission.py',normalized,'changed'),undefined);
   assert.deepEqual(learnerTraceLocation('/home/a:b/attention.py:2: in forward', '/home/a:b/attention.py', normalized, 'current'), { line: 2 });
   for (const state of ['none', 'unknown', 'checking', 'changed']) assert.equal(learnerTraceLocation(trace, 'browser/submission.py', normalized, state), undefined);
   for (const message of ['tests/test_reference.py:2: in test_reference', 'reference.py:2: in forward', 'solution.py:2: in forward', 'paperleet/browser/torch.py:2: in add', 'submission.py:50: in forward', 'submission.py:0: in forward', 'submission.py:1.5: in forward', 'ValueError: submission.py:2: wrong size', '    raise ValueError("submission.py:2: in forward")', 'File "submission.py", line 2', 'submission.py:2: ValueError']) assert.equal(learnerTraceLocation(message, 'browser/submission.py', normalized, 'current'), undefined, message);

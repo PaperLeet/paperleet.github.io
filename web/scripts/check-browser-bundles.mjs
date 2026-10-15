@@ -60,13 +60,24 @@ try {
     await assert.rejects(reject(target, base, signal()));
     assert(reads <= 1, 'Bad manifests cannot fetch arbitrary secondary resources');
   }
-  for (const value of [null, [], { ...manifest, version: 3 }, { ...manifest, problem: lora.id },
+  for (const value of [null, [], { ...manifest, version: 4 }, { ...manifest, version:'3' }, { ...manifest, problem: lora.id },
     { ...manifest, files: { ...manifest.files, 'paperleet/common/asserts.py': 'override' } },
+    { ...manifest, files: { ...manifest.files, 'paperleet_torch/_tensor.py': 'override' } },
     { ...manifest, files: { '../escape.py': '' } }, { ...manifest, files: [] },
     { ...manifest, reference: 42 }, { ...manifest, mutants: { bad: 42 } }, { ...manifest, test_file: 'missing.py' },
     { ...manifest, files:{...manifest.files,'../problem.yaml':'unsafe'} },
     { ...manifest, files:{...manifest.files,'settings.yaml':'unapproved resource'} }])
     await invalidProblem(value);
+  for(const change of [
+    {test_files:[]}, {test_files:[manifest.test_file,manifest.test_file]}, {test_files:['missing.py']},
+    {test_files:undefined}, {test_files:['../escape.py']}, {packages:['torch']}, {packages:['pyyaml','pyyaml']},
+    {packages:undefined}, {budgets:undefined}, {budgets:{calibration:1,run:1,total:300001}},
+    {files:{...manifest.files,'problems/architecture/attention/tests/test_extra.py':''}},
+  ]) await invalidProblem({...manifest,...change});
+  // v2 clients had only test_file and inferred optional packages. Keep those assets usable.
+  const version2={...manifest,version:2};delete version2.test_files;delete version2.packages;delete version2.budgets;
+  const oldLoad=createBrowserBundleLoader(async url=>Response.json(String(url).includes('/runtime-')?runtime:version2));
+  assert.equal((await oldLoad(attention,base,signal())).version,2);
   for (const path of ['https://other.example/runtime.json', '/api/private', '../browser-judge/runtime-' + 'a'.repeat(20) + '.json',
     'browser-judge/runtime-' + 'a'.repeat(20) + '.json?token=private', 'browser-judge/runtime-%2e%2e.json']) {
     await invalidProblem({ ...manifest, runtime_bundle_url: path });
@@ -74,6 +85,7 @@ try {
   }
   for (const value of [{ ...runtime, version: 2 }, { ...runtime, backend: 'unknown' }, { ...runtime, files: {} },
     { ...runtime, adapter: null }, { ...runtime, files: { ...runtime.files, 'extra.py': 'override' } },
+    { ...runtime, files: { ...runtime.files, 'paperleet_torch/../escape.py': 'override' } },
     { ...runtime, files: { ...runtime.files, 'paperleet/common/asserts.py': 12 } }]) {
     const reject = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? value : manifest));
     await assert.rejects(reject(attention, base, signal()));

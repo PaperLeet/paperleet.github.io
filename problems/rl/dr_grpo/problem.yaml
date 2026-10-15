@@ -80,3 +80,10 @@ module:
   - masked_logprobs
   - token_statistics
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm
+  resources:
+    - paperleet/common/rl_envs.py
+    - problems/rl/grpo/solution.py
+    - problems/rl/grpo/experiment.py

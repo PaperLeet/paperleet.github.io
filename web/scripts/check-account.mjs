@@ -15,7 +15,7 @@ try {
   const { AccountAccessGate } = await server.ssrLoadModule('/src/Waitlist.tsx');
   const { signInHref, accountReturnHref, isAccountRoute } = await server.ssrLoadModule("/src/accountNavigation.ts");
   const { decodeProblemHash } = await server.ssrLoadModule("/src/reports.ts");
-  for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "papers/transformer", "collections/llm-basics"]) {
+  for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "achievements", "papers/transformer", "collections/llm-basics"]) {
     const href = signInHref(route);
     const accountRoute = decodeProblemHash(href);
     assert(isAccountRoute(accountRoute));
@@ -29,7 +29,7 @@ try {
   assert.equal(accountReturnHref("account/continue/account/continue/community"), undefined);
   assert.equal(accountReturnHref("account/continue/%2F%2Fevil.test"), undefined);
   const nav = renderToString(React.createElement(AccountNav, { returnTo: "architecture/attention" }));
-  assert.equal(nav, "", "Standalone local practice must not require an account service");
+  assert(nav.includes('account-menu-trigger') && !nav.includes('href='), "Local practice keeps preferences available through the avatar without requiring an account service");
   const login = renderToString(
     React.createElement(TestSignIn, { enabled: true }),
   );

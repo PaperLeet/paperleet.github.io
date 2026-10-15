@@ -92,3 +92,6 @@ calibration:
     max_weight_error: 2.220446049250313e-16
     rollout_refresh_interval: 5
   observed_reference_t3_s: 0.014342208043672144
+
+browser:
+  backend: numpy-autograd-wasm

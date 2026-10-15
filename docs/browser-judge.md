@@ -1,6 +1,105 @@
-# CPU/WASM browser judge prototype
+# CPU/WASM browser judge
 
-All 68 maintained teaching modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Unsupported implementations/runtimes and future unvalidated modules retain native server judging; Server mode remains available in local development and the connected hosted edition. A standalone public site with no configured backend preserves the code and offers browser practice only. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
+All maintained teaching modules use the browser's CPU through Pyodide + NumPy. **No WebGPU or GPU is required.** Browser execution is the baseline for new published modules, so catalog cards do not repeat a Browser tag or offer a run-location filter. The editor offers **Auto (browser first)**, **Browser only**, and **Server**. Unsupported learner implementations or runtimes can still use native server judging in local development and the connected hosted edition. A standalone public site with no configured backend preserves the code and offers browser practice only. Run `make dev` and open `http://127.0.0.1:5173/#/architecture/attention`.
+
+## Publishing a new module
+
+The tensor implementation is the independently buildable
+[`paperleet-torch`](../packages/paperleet-torch/README.md) package. Its runtime
+dependency is NumPy. Tensor/storage, autodiff/JVP, operators, RNG, neural network
+functions/modules, optimizers, linear algebra and capability registration have
+separate modules in `packages/paperleet-torch/src/paperleet_torch/`.
+`paperleet/browser/numpy_autograd.py` and `schedules_numpy.py` remain compatibility
+entry points. Change implementations in the library, keeping the schedules
+profile's narrower contract intact.
+
+The main PaperLeet wheel includes the same source tree, so existing installations
+need no additional unpublished package. The standalone wheel contains only the
+library. `from paperleet_torch import torch` leaves native PyTorch imports alone;
+`as_torch()` provides an explicit, restoring import context for isolated workers.
+The browser exporter includes installed library sources in each content-addressed
+shared runtime, with a small source set for schedules. Problem bundles cannot
+override `paperleet_torch/` files. Old self-contained/shared assets remain usable.
+
+Validate extraction and packaging with
+`python -m pytest packages/paperleet-torch/tests tests/test_lightweight_torch.py tests/test_browser_*.py -q`.
+This includes native PyTorch parity, all configured problem suites/mutants,
+standalone wheel isolation, import restoration and offline source bundling.
+
+Before publishing, declare the module's `browser` configuration in its existing
+`problem.yaml` and extend the adapter where required. For example:
+
+```yaml
+browser:
+  backend: numpy-autograd-wasm
+  # Optional public, repository-relative dependencies, copied without rewriting.
+  resources:
+    - paperleet/common/rl_envs.py
+  # Only declare pyyaml when the module uses a problem.yaml resource.
+  packages: []
+  budgets:
+    calibration: 90000
+    run: 30000
+    total: 120000
+```
+
+`backend` is required; resources/packages default to empty lists and budgets to
+the values above (milliseconds). Configuration is validated by
+`paperleet/browser_config.py`, with a five-minute hard cap. New backends must be
+registered there and validated in the loader before use. Every `tests/test_*.py`
+file is exported and executed; no central problem-ID list or hand-maintained
+validation matrix is required. The parametrized test in
+`tests/test_browser_judge.py` automatically runs each configured module's complete
+suite and every mutant. Keep the original tests, training loops, acceptance
+budgets, assertions and mutants; configuration alone does not establish browser
+compatibility. Validate the exported Pyodide/WASM bundle and its calibration as
+well as the native CPU implementation.
+
+Run `python -m pytest tests -q`, then `npm run check` and `npm run build` from
+`web/`. Runtime changes must pass the existing browser compatibility suites.
+`paperleet export` and `paperleet vizdata` reject missing browser registrations;
+CI and Pages publication also require the public catalog, bundle registry and
+automatic full-suite validation to cover the same modules. Unvalidated candidates
+remain outside the published catalog until this work is complete.
+
+`npm run check:browser-wasm` runs the actual pinned interpreter and wheels under
+Node, in fresh runtimes for Schedules, Attention and LoRA, including complete
+reference/mutant/learner suites and numerical/fallback regressions. CI runs it in
+addition to native parity tests and frontend protocol checks. This is a WASM
+execution gate; it does not replace browser CSP, UI or multi-browser verification.
+
+## Dependencies and operator capabilities
+
+The browser uses Pyodide (CPython compiled to WebAssembly), NumPy's WASM wheel,
+pytest and its pinned dependencies, plus PyYAML for explicitly declared resources.
+The pinned Pyodide lock does not provide the native PyTorch wheel. The maintained
+`import torch` interface is supplied by this repository's NumPy adapters, including
+analytical VJPs, bounded JVPs, module helpers and optimizers. Native/local judging
+and differential tests use actual PyTorch. Supporting Python syntax does not
+imply support for every PyTorch operator or argument overload.
+
+`numpy_autograd.install()` uses `OperatorRegistry` to register exported callables
+and their reverse-mode policy, validated JVP support, known unsupported native
+keyword arguments and implementation signature. The immutable
+`torch._browser_capabilities` mapping exposes those declarations. New operators
+default to unsupported reverse/forward AD; an implementation must explicitly
+declare its derivative policy. Top-level aliases for Tensor methods are generated from the same
+declarations. Shape/dtype/option-specific numerical constraints remain next to
+their implementations rather than being duplicated in a second schema.
+
+Known unsupported native arguments, such as a reduction's `out` buffer, raise
+`BrowserUnsupported`; arbitrary `TypeError` exceptions remain learner failures.
+The harness records actual exception types as `unsupported_api` flags, and the
+worker consumes those flags. Legacy immutable harnesses without the field retain
+their previous classification path. Assertion text containing an exception name
+cannot turn a new-harness test failure into a compatibility fallback.
+
+Version 3 manifests carry explicit test-file lists, optional packages and budgets;
+the loader still accepts legacy versions 1/2. Their immutable assets are retained.
+The single legacy Flow Matching budget exception only serves exports without
+budget metadata; current execution reads the problem's declared budgets.
+
+## Maintained coverage
 
 | Module | Backend | Maintained suite | Calibration |
 | --- | --- | --- | --- |

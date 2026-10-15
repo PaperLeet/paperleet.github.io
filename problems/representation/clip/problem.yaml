@@ -69,3 +69,6 @@ mutants:
   bug: 将 log scale 当作 scale
 - id: m4_no_scale_cap
   bug: 未限制逆温度上限
+
+browser:
+  backend: numpy-autograd-wasm

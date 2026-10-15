@@ -2,16 +2,20 @@ import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState 
 import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
-import { signInHref } from "./accountNavigation";
-import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
-import { apiFetch, apiUrl } from "./apiClient";
+import { publicSite, hostedEdition } from "./deployment";
+import { apiFetch } from "./apiClient";
+import { initialDeploymentHealth, unavailableDeploymentHealth, type DeploymentHealth } from './deploymentHealth';
+import { deferredFeature } from './deferredFeature';
+export type { DeploymentHealth } from './deploymentHealth';
+
+const HeaderAccountMenu = deferredFeature(() => import('./HeaderAccountMenu'), ['个人菜单','personal menu'], {loading:()=> <AccountMenuFallback/>,failure:(_props,retry)=><AccountMenuFallback retry={retry}/>});
+import { apiUrl } from "./apiClient";
 import { currentQuotaMessage } from "./publicationQuota";
 import { currentProfileEditLimitMessage, readProfileEditPolicy } from "./profileEditPolicy";
 import type { ProfileEditPolicy } from "./profileEditPolicy";
 import { safeAvatarPath } from "./profileAvatar";
 import { AccountAccessGate } from './Waitlist';
 
-const AccountLogout = lazy(() => import("./AccountLogout"));
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type Affiliation = { name: string; name_en?: string; domain: string; kind: "institution" | "email_domain" };
@@ -44,6 +48,7 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  account_achievements?: boolean;
   community_bookmarks?: boolean;
   auth_available: boolean;
   auth_mode?: "institutional" | "test" | "oauth";
@@ -113,11 +118,6 @@ export async function socialApi<T>(path: string, body?: unknown, signal?: AbortS
     );
   return data as T;
 }
-export type DeploymentHealth = {
-  mode: "local" | "hosted";
-  judge: { ready: boolean; reason?: string };
-  auth_required: boolean;
-};
 type AccountContextValue = {
   health?: DeploymentHealth;
   healthError: string;
@@ -141,7 +141,7 @@ const AccountContext = createContext<AccountContextValue>({
 export function AccountProvider({ children }: { children: ReactNode }) {
   const [user, setCurrentUser] = useState<AccountUser | null>(null);
   const [capabilities, setCapabilities] = useState<AccountCapabilities>();
-  const [health, setHealth] = useState<DeploymentHealth>();
+  const [health, setHealth] = useState<DeploymentHealth|undefined>(() => initialDeploymentHealth(hostedEdition));
   const [healthError, setHealthError] = useState("");
   const [loading, setLoading] = useState(true),
     [error, setError] = useState("");
@@ -203,15 +203,8 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       });
       setHealthError("");
     } catch (e) {
-      setHealthError(errorMessage(e));
-      setHealth((previous) =>
-        previous
-          ? {
-              ...previous,
-              judge: { ready: false, reason: "Service unavailable" },
-            }
-          : undefined,
-      );
+      setHealthError(hostedEdition ? errorMessage(e) : "");
+      setHealth(previous => unavailableDeploymentHealth(previous,hostedEdition));
     }
   }
   useEffect(() => {
@@ -364,17 +357,14 @@ export function DateLabel({ value }: { value: string }) {
     </time>
   );
 }
-export function AccountNav({ returnTo = "" }: { returnTo?: string }) {
-  const { user, loading } = useAccount();
+export function AccountNav(props: import('./HeaderAccountMenu').HeaderAccountMenuProps) {
+  return <HeaderAccountMenu {...props}/>;
+}
+function AccountMenuFallback({retry}:{retry?:()=>void}) {
+  const { user } = useAccount();
   const { t } = useI18n();
-  if (!hostedAppAvailable) return null;
-  return user ? (
-    <Suspense fallback={null}><AccountLogout user={user} /></Suspense>
-  ) : (
-    <a className="account-nav sign-in-nav" href={hostedAppHref(signInHref(returnTo))}>
-      {loading ? "…" : t("登录", "Sign in")}
-    </a>
-  );
+  const label=retry?t('重试加载个人菜单','Retry personal menu'):t('正在加载个人菜单','Loading personal menu');
+  return <button type="button" className="account-menu-trigger" disabled={!retry} onClick={retry} aria-label={label} title={label}>{user ? <Avatar user={user} size={32}/> : <span className="guest-avatar" aria-hidden="true">P</span>}</button>;
 }
 export function SocialNotice({
   error,

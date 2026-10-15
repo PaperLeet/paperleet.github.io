@@ -104,10 +104,11 @@ export function ProblemStats({ stats, loading = false }: { stats?: ProblemStatis
     ["failed_submissions", t("未通过提交", "Failed submissions"), formatCount(stats?.failed_submissions, locale)],
     ["acceptance_rate", t("通过率", "Acceptance"), formatRate(stats, locale)],
   ];
-  return <dl className="problem-stats" aria-label={t("题目统计", "Problem statistics")} aria-busy={loading}
+  const content = <dl className="problem-stats" aria-label={t("题目统计", "Problem statistics")} aria-busy={loading}
     title={stats ? t("仅统计正式提交；人数按账号去重，通过率 = 通过提交 / 全部提交。", "Full submissions only. User counts are unique; acceptance = accepted / total submissions.") : loading ? t("正在加载统计", "Loading statistics") : t("统计暂不可用", "Statistics unavailable")}>
     {metrics.map(([key, label, value]) => <div key={key} data-stat={key}><dt>{label}</dt><dd>{value}</dd></div>)}
   </dl>;
+  return stats ? content : <details className="stats-availability"><summary>{loading ? t("正在加载统计…", "Loading statistics…") : t("公开统计暂不可用", "Public statistics unavailable")}</summary><p>{t("统计仅包含服务端确认的正式提交；本机练习进度仍会保留。", "Statistics include server-verified submissions. Your browser learning progress is still saved.")}</p>{content}</details>;
 }
 
 export function ProblemStatsSummary({ stats }: { stats?: ProblemStatistics }) {

@@ -71,3 +71,6 @@ mutants:
   bug: 用硬截断替代平滑 tanh，改变边界附近及之外的梯度
 - id: m4_detached_up
   bug: 对 up 分支 detach，数值正确但阻断输入梯度
+
+browser:
+  backend: numpy-autograd-wasm

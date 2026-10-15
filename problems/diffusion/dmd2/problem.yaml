@@ -96,3 +96,6 @@ calibration:
     generator_updates: 200
   reference_tests_passed: 6
   mutants_killed: 4
+
+browser:
+  backend: numpy-autograd-wasm

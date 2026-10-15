@@ -80,3 +80,6 @@ mutants:
   bug: 每一步都从初始状态重新预测
 - id: m4_convex_weighting
   bug: 把相加权重错写成凸组合
+
+browser:
+  backend: numpy-autograd-wasm

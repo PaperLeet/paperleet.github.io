@@ -90,3 +90,6 @@ calibration:
     final_correct_probability: 0.8918969281778949
     unavailable_logit_change: 0.0
   max_observed_t3_s: 0.011979583883658051
+
+browser:
+  backend: numpy-autograd-wasm

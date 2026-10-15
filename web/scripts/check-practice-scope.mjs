@@ -39,8 +39,10 @@ export async function checkPracticeScope(server) {
   const transformer = papers.find(p=>p.id==='transformer');
   assert.equal(nextPractice(attention,transformer.module_ids,moduleScope.problems,{})?.id,'architecture/layer_norm','Continue the paper using only modules matching the originating filters');
   const mixed = problems.map(p=>p.id==='finetuning/lora'?{...p,browser_judge:undefined}:p);
-  assert.deepEqual(selectLibraryPractice(papers,mixed,{},readLibraryRoute('?runtime=server')).problems.map(p=>p.id),['finetuning/lora']);
-  assert(!selectLibraryPractice(papers,mixed,{},readLibraryRoute('?runtime=browser')).problems.some(p=>p.id==='finetuning/lora'));
+  for (const runtime of ['server','browser']) assert.deepEqual(
+    selectLibraryPractice(papers,mixed,{},readLibraryRoute(`?runtime=${runtime}`)).problems.map(p=>p.id),
+    selectLibraryPractice(papers,mixed,{},readLibraryRoute('')).problems.map(p=>p.id),
+    'Retired runtime links cannot leave a hidden scope restriction');
   const paper = papers.find(p=>p.id==='bpr');
   const tagged = { ...queryView, filters:{...queryView.filters,category:paper.category,tag:paper.tags[0]} };
   assert.deepEqual(selectLibraryPractice(papers,problems,{},tagged).problems.map(p=>p.id),[bpr.id]);
@@ -66,7 +68,7 @@ export async function checkPracticeScope(server) {
   const finished = renderToString(React.createElement(PracticeNextStep,{samePaper:false,onNotes:()=>{},onLab:()=>{},returnTo:href}));
   assert(finished.includes('本范围核心模块已完成') && !finished.includes('核心题库已完成'),'Scoped completion must not claim the whole catalog is finished');
   assert(finished.includes(href.replaceAll('&','&amp;')),'The completed-scope link preserves all public filters');
-  // Every collection uses exactly the same search/difficulty/runtime predicate as its rows.
+  // Every collection uses exactly the same search/difficulty predicate as its rows.
   for (const collection of paperCollections) for (const query of ['', 'Attention', '检索']) for (const difficulty of ['all','E','M','H']) {
     const filters = {...view.filters,query,difficulty};
     const selected=selectLibraryPractice(papers,problems,{}, {collectionId:collection.id,filters});

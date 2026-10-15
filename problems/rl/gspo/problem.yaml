@@ -79,3 +79,6 @@ calibration:
     canceling_sequence_ratio: 1.0
     loss: -0.46666669845581055
   max_observed_t3_s: 0.002005999209359288
+
+browser:
+  backend: numpy-autograd-wasm

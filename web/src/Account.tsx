@@ -722,6 +722,8 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       <div className="social-page-heading">
         <div>
           <h1>{t("个人资料与隐私", "Profile & privacy")}</h1>
+          <div className="profile-workspace-links"><a className="text-button profile-workspace-settings" href="#/settings">{t('工作区设置与代码备份', 'Workspace settings & code backup')}<ArrowRight size={14} aria-hidden="true" /></a>
+          <a className="text-button profile-workspace-settings" href="#/achievements">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></a></div>
         </div>
         <a className="button subtle" href={profileHref(user)}>
           {t("查看公开主页", "View public profile")}
@@ -866,16 +868,16 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               onChange={(e) => setShowProgress(e.target.checked)}
             />
             <span>
-              {t("允许展示学习进度", "Allow learning progress to be public")}
+              {t("允许展示学习进度与勋章", "Allow learning progress and achievements to be public")}
               <small>
                 {health?.mode === "hosted"
                   ? t(
-                      "公开累计做题数、每日活跃记录和最近通过的题目。关闭后仅自己可见；代码、草稿和详细判题报告始终私有。",
-                      "Show your problem totals, daily activity, and recent accepted problems. Turn this off to keep these visible only to you. Code, drafts, and detailed judge reports always stay private.",
+                      "公开累计做题数、每日活跃记录、最近通过的题目及账号勋章。关闭后这些内容与置顶勋章仅自己可见；代码、草稿和详细判题报告始终私有。",
+                      "Show your problem totals, daily activity, recent accepted problems, and account achievements. Turn this off to keep them and featured achievements visible only to you. Code, drafts, and detailed judge reports always stay private.",
                     )
                   : t(
-                      "此开关控制账号中已保存判题记录的公开统计。本地模式的浏览器练习记录不会自动上传；代码和详细报告始终私有。",
-                      "Controls public statistics from saved account submissions. Browser-only practice is not uploaded automatically. Code and detailed reports always stay private.",
+                      "此开关控制账号判题统计与勋章的公开展示。本地浏览器练习记录不会自动上传；代码和详细报告始终私有。",
+                      "Controls public statistics and achievements from saved account submissions. Browser-only practice is not uploaded automatically. Code and detailed reports always stay private.",
                     )}
               </small>
             </span>

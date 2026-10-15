@@ -1,7 +1,8 @@
 import { paperCollections } from './paperCollections';
 import type { Paper } from './types';
 
-export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string };
+export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title';
+export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort };
 export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
 export const routePath = (route: string) => route.split('?')[0];
 const practicePath = /^(?:[1-9]\d*|(?:rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
@@ -22,7 +23,7 @@ const bounded = (value: string, length: number) => Array.from(value).length <= l
 
 export function readLibraryRoute(route: string): { collectionId?: string; filters: LibraryFilters } | undefined {
   const value = parts(route);
-  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state'])) return;
+  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state', 'sort'])) return;
   const collectionId = /^(?:collections|lists)\/([a-z0-9_-]+)$/.exec(value.path)?.[1];
   if (value.path && (!collectionId || !paperCollections.some(collection => collection.id === collectionId))) return;
   const filters = { query: value.params.get('q') || '', category: value.params.get('category') || 'all', tag: value.params.get('tag') || 'all',
@@ -30,24 +31,37 @@ export function readLibraryRoute(route: string): { collectionId?: string; filter
   if (!bounded(filters.query, 200) || !bounded(filters.tag, 80) || !/^[a-z0-9-]{1,80}$/.test(filters.category)
     || !['all', 'E', 'M', 'H'].includes(filters.difficulty) || !['all', 'browser', 'server'].includes(filters.runtime)
     || !['all', 'todo', 'started', 'done'].includes(filters.state)) return;
-  return { collectionId, filters };
+  const sort = value.params.get('sort');
+  if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)) return;
+  return { collectionId, filters: sort && sort !== 'default' ? { ...filters, sort: sort as LibrarySort } : filters };
 }
 
 export function libraryHref(collectionId: string | undefined, filters: LibraryFilters): string {
   const params = new URLSearchParams();
   if (filters.query) params.set('q', filters.query);
   for (const key of ['category', 'tag', 'difficulty', 'runtime', 'state'] as const) if (filters[key] !== 'all') params.set(key, filters[key]);
+  if (filters.sort && filters.sort !== 'default') params.set('sort', filters.sort);
   const base = collectionId ? `#/collections/${collectionId}` : '#';
   const href = base + (params.size ? `${collectionId ? '?' : '/?'}${params}` : '');
   if (!readLibraryRoute(href)) throw Error('Invalid library filters');
   return href;
 }
 
-/** Discard retired categories/topics without creating a hidden, impossible selection. */
+/** Preserve the catalog's discovery order until the learner chooses a sort. */
+export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'): Paper[] {
+  if (sort === 'default') return papers;
+  return [...papers].sort((a, b) => {
+    if (sort === 'title') return a.short_title.localeCompare(b.short_title, 'en', { numeric: true }) || a.number - b.number;
+    if (!a.year || !b.year) return a.year ? -1 : b.year ? 1 : a.number - b.number;
+    return (sort === 'newest' ? b.year - a.year : a.year - b.year) || a.number - b.number;
+  });
+}
+
+/** Retire old runtime filters now that browser execution is the catalog baseline. */
 export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]): LibraryFilters {
   const category = filters.category === 'all' || papers.some(paper => paper.category === filters.category) ? filters.category : 'all';
   const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.includes(filters.tag)) ? filters.tag : 'all';
-  return { ...filters, category, tag };
+  return { ...filters, category, tag, runtime: 'all' };
 }
 
 export function libraryReturnHref(route: string): string | undefined {

@@ -78,3 +78,6 @@ mutants:
   bug: Lets the second branch attend to future tokens.
 - id: m4_lambda_sum
   bug: Adds exponentials in the lambda parameterization.
+
+browser:
+  backend: numpy-autograd-wasm

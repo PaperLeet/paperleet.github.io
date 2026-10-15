@@ -4,6 +4,14 @@ export function runtimeDiagnostic(error) {
   return message.length <= 4000 ? message : `${message.slice(0, 500)}\n…\n${message.slice(-3490)}`;
 }
 
+// New harnesses report actual exception types. Retain cached immutable harnesses
+// without mistaking an assertion that quotes an API name for incompatibility.
+export function unsupportedReport(report) {
+  return report.tests.some(test => Object.hasOwn(test, 'unsupported_api')
+    ? test.unsupported_api === true
+    : /BrowserUnsupported|ModuleNotFoundError|ImportError/.test(test.message));
+}
+
 // Calibration runs only public reference/mutant code, never the learner source.
 export function calibrationDiagnostic(calibration) {
   const lines = [String(calibration?.reason || 'unknown_calibration_failure')];

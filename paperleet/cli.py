@@ -99,12 +99,16 @@ def main(argv=None):
             return 0 if report["passed"] else 1
         elif args.command == "vizdata":
             from paperleet.export import export_catalog, vizdata
+            from paperleet.browser_judge import require_browser_catalog
+            require_browser_catalog(problems())
             entries = problems() if args.problem == "all" else [problem(args.problem)]
             for entry in entries:
                 print(vizdata(entry))
             print(export_catalog())
         elif args.command == "export":
             from paperleet.export import export_catalog
+            from paperleet.browser_judge import require_browser_catalog
+            require_browser_catalog(problems())
             print(export_catalog())
         elif args.command == "serve":
             from paperleet.server import serve

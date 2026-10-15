@@ -80,3 +80,6 @@ calibration:
     upper_plateau_loss: -1.2799999713897705
     lower_plateau_loss: 0.800000011920929
   max_observed_t3_s: 0.010441125021316111
+
+browser:
+  backend: numpy-autograd-wasm

@@ -65,6 +65,10 @@ T3 必须使用传入的被测函数进行训练或采样；不能只验证公�
 
 ## 4. 生成网页数据并运行质量门
 
+**浏览器执行是所有公开题目的默认要求。** 新题必须在发布前适配 CPU/WASM 浏览器运行时，导出完整浏览器包，并使用原始 T0–T3 测试验证参考解通过、全部 mutants 被真实断言捕获。不能以“服务端可运行”代替浏览器适配，也不能删减测试或训练流程来制造通过结果。按 [浏览器判题接入说明](docs/browser-judge.md) 更新运行时注册与验证用例，再执行前后端质量检查。
+
+`paperleet export` 和 `paperleet vizdata` 会拒绝发布尚未注册浏览器支持的题目；CI 与 Pages 发布流程还会检查题库、浏览器包注册和参考解／mutation 验证列表是否完整对应。候选题可继续在隔离环境开发和验证，完成浏览器适配后再进入公开题库。
+
 `viz/gen.py` 提供 `generate() -> dict`，返回 JSON 可序列化数据。不得在 import 时启动训练。预计算轨迹应采样、降帧和压缩精度，输出单题不超过 500 KB。概念图在前端实时计算；报告图使用做题者实际 artifacts。
 
 ```bash
@@ -74,6 +78,7 @@ paperleet ci --problem diffusion/example
 paperleet vizdata diffusion/example
 python -m pytest tests -q
 cd web
+npm run check
 npm run build
 ```
 

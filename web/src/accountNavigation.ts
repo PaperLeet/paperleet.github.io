@@ -9,7 +9,7 @@ const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", 
 function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
-  if (route === "" || route === "community" || route === "submit") return route;
+  if (route === "" || route === "community" || route === "submit" || route === "achievements") return route;
   if (/^[1-9]\d*$/.test(route)) return route;
   if (/^community\/problem\/[a-z0-9_-]+\/[a-z0-9_-]+$/.test(route)) return route;
   if (/^community\/[a-f0-9]{32}$/.test(route)) return route;

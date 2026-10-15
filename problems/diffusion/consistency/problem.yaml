@@ -99,3 +99,6 @@ calibration:
     nonboundary_target_fraction: 0.5
   reference_tests_passed: 7
   mutants_killed: 4
+
+browser:
+  backend: numpy-autograd-wasm

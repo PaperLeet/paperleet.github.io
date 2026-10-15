@@ -88,3 +88,6 @@ calibration:
     code_count: 48
     scale_count: 3
   max_observed_t3_s: 0.03341037512291223
+
+browser:
+  backend: numpy-autograd-wasm

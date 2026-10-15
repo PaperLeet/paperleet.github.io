@@ -73,3 +73,6 @@ mutants:
   bug: Introduces Transformer sqrt(d) scaling absent from AttnRes.
 - id: m4_softmax_tokens
   bug: Normalizes across sequence positions instead of depth.
+
+browser:
+  backend: numpy-autograd-wasm

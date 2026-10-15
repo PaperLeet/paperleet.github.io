@@ -94,3 +94,13 @@ module:
   - ddim_sample
   - ddim_invert
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm
+  packages: [pyyaml]
+  resources:
+    - paperleet/common/toydata.py
+    - paperleet/common/oracles.py
+    - paperleet/common/metrics.py
+    - paperleet/common/models.py
+    - problems/diffusion/ddim/problem.yaml

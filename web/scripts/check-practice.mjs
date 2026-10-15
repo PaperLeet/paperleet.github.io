@@ -4,6 +4,7 @@ import { checkBrowserWorkspace } from './check-browser-workspace.mjs';
 import { checkBrowserLearning } from './check-browser-learning.mjs';
 import { checkBrowserNotifications } from './check-browser-notifications.mjs';
 import { checkCodeBackup } from './check-code-backup.mjs';
+import { checkBrowserDraftSafety } from './check-browser-draft-safety.mjs';
 const server = await createServer({
   server: { middlewareMode: true },
   appType: "custom",
@@ -137,6 +138,7 @@ try {
     "PASS private workspace isolation, cross-device conflicts, server acceptance and late-result draft preservation",
   );
   await checkBrowserWorkspace(server);
+  await checkBrowserDraftSafety(server);
   await checkBrowserLearning(server);
   await checkBrowserNotifications(server);
   await checkCodeBackup(server);

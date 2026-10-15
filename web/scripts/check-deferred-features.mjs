@@ -35,5 +35,19 @@ try {
   const prose = renderToString(React.createElement(Prose,{content:'$x^2$\n\n[Next](../layer_norm/README.md)\n\n<viz id="attention" />\n\n```python\nprint("<script>")\n```',problemId:'architecture/attention',onViz(){}}));
   assert(prose.includes('katex') && prose.includes('href="#/architecture/layer_norm"'));
   assert(prose.includes('打开交互实验') && prose.includes('&lt;script&gt;') && !prose.includes('<script>'));
+  const longRead = renderToString(React.createElement(Prose,{content:[
+    '# Title', '## Goal with `code` & formula $x^2$', 'A paragraph.',
+    '```python\n## Not a section\n```', '> ## Quoted example',
+    '## Repeat', 'Second section.', '## Repeat', 'Third section.',
+    'Final section\n---', 'Fourth section.',
+  ].join('\n\n')}));
+  assert(longRead.includes('class="reading-outline"') && longRead.includes('aria-label="本文导航"'));
+  assert.equal((longRead.match(/data-reading-section="\d+"/g)||[]).length,4, 'The outline must use parsed top-level headings, including setext, and ignore fenced/quoted headings');
+  assert.equal((longRead.match(/data-reading-anchor="\d+"/g)||[]).length,4, 'Duplicate heading titles must still have distinct destinations');
+  assert(longRead.includes('data-reading-section="3"') && longRead.includes('data-reading-anchor="3"'));
+  const outline = longRead.slice(longRead.indexOf('<details'),longRead.indexOf('</details>'));
+  assert(outline.includes('<button type="button"') && !outline.includes('href='), 'Section jumps must use local buttons rather than overwrite the application hash route');
+  assert(outline.includes('Goal with code &amp; formula') && longRead.includes('katex'), 'Navigation should preserve readable labels and math rendering');
+  assert(!renderToString(React.createElement(Prose,{content:'## One\n\ntext\n\n## Two'})).includes('class="reading-outline"'), 'Short content does not need a navigation band');
   console.log('PASS deferred features: local loading/recovery, safe readable fallback code, private-workspace read-only gate, native text editing controls, math, lab links and source highlighting');
 } finally { await server.close(); }

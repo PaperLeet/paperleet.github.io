@@ -14,7 +14,11 @@ paperleet = "paperleet.cli:main"
 leetpaper = "paperleet.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["paperleet*"]
+where = [".", "packages/paperleet-torch/src"]
+include = ["paperleet", "paperleet.*", "paperleet_torch", "paperleet_torch.*"]
+
+[tool.setuptools.package-dir]
+paperleet_torch = "packages/paperleet-torch/src/paperleet_torch"
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "problems"]

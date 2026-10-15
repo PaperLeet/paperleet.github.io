@@ -85,12 +85,17 @@ class Recorder:
             "layer": next((f"T{i}" for i in range(4) if item.get_closest_marker(f"t{i}")), "T0"),
             "passed": True, "outcome": "passed", "duration_s": 0,
             "why": (inspect.getdoc(item.obj) or "Implementation contract").splitlines()[0], "message": "", "artifacts": {},
+            "unsupported_api": False,
         })
         row["duration_s"] += report.duration
         if report.failed or report.skipped:
             row["passed"] = False
             row["outcome"] = "failed" if report.when == "call" and report.failed else "error"
             row["message"] += str(report.longrepr)[-4000:]
+            exception = call.excinfo.value if call.excinfo else None
+            unsupported = getattr(sys.modules.get('torch'), '_browser_unsupported', None)
+            row['unsupported_api'] |= (isinstance(exception, ImportError)
+                                       or isinstance(unsupported, type) and isinstance(exception, unsupported))
             # Imported after prepare has written the bundle's package files.
             from paperleet.common.comparisons import comparison_from_exception
             comparison = comparison_from_exception(call.excinfo.value) if call.excinfo else None
@@ -126,7 +131,8 @@ def run_suite(bundle, source, directory, *, progress=None, progress_step="tests"
             return len(text)
         def flush(self): pass
     sink = Sink()
-    args = [str(Path(directory) / bundle["test_file"]), "-q", "-s", "--tb=short", "--noconftest", "-p", "no:cacheprovider"]
+    test_files = bundle['test_files'] if 'test_files' in bundle else [bundle['test_file']]
+    args = [*(str(Path(directory) / name) for name in test_files), "-q", "-s", "--tb=short", "--noconftest", "-p", "no:cacheprovider", "--import-mode=importlib"]
     args.extend(["-o", "markers=" + "\n".join(f"t{i}: layer" for i in range(4))])
     with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink), warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -155,7 +161,7 @@ def calibrate(bundle, directory, *, progress=None, activity=None):
         def mutant_activity(step, completed, total, index, test, layer, why, mutant):
             activity("mutants", len(caught), len(bundle["mutants"]), index, test, layer, why, name[:120])
         report = run_suite(bundle, source, directory, activity=mutant_activity if activity else None)
-        if any("BrowserUnsupported" in row["message"] for row in report["tests"]):
+        if any(row['unsupported_api'] for row in report["tests"]):
             return {"compatible": False, "reason": "mutant_api_unsupported", "mutant": name}
         failures = [row["id"] for row in report["tests"] if row["outcome"] == "failed"]
         if not failures:

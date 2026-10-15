@@ -72,3 +72,6 @@ module:
   provided_functions:
   - sequence_logprob
   optional: false
+
+browser:
+  backend: numpy-autograd-wasm

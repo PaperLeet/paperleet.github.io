@@ -1,5 +1,6 @@
 import { parseReport } from "./reports";
 import type { TestComparison } from "./comparisons";
+import type { BrowserBudgets } from "./browserBudgets";
 
 export type Category = { id: string; name: string; name_en: string };
 
@@ -24,7 +25,7 @@ export type Paper = {
 
 export type Problem = {
   detail_url?: string;
-  browser_judge?: { bundle_url: string; backend: "numpy-wasm" | "numpy-autograd-wasm" };
+  browser_judge?: { bundle_url: string; backend: "numpy-wasm" | "numpy-autograd-wasm"; budgets?: BrowserBudgets };
   id: string;
   number: number;
   paper_id: string;

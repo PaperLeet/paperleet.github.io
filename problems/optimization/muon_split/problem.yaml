@@ -82,3 +82,6 @@ calibration:
     first_head_norm_max: 1.4142135623730951
     whole_matrix_first_norm_min: 0.0014142128552668443
   observed_reference_t3_s: 0.0027303340611979365
+
+browser:
+  backend: numpy-autograd-wasm

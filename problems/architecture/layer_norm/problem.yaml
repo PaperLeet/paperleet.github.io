@@ -68,3 +68,6 @@ mutants:
   bug: 把 epsilon 放在平方根外面
 - id: m4_normalize_before_add
   bug: 先归一化残差分支，再加上子层输出
+
+browser:
+  backend: numpy-autograd-wasm

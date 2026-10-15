@@ -15,6 +15,9 @@ type ResizableSplitProps = {
   firstId: string;
   secondId: string;
   collapseAt?: number;
+  /** An explicit layout action. Ordinary renders and resizing retain the user's preference. */
+  layout?: { ratio: number };
+  secondCollapsed?: boolean;
   children: [ReactNode, ReactNode];
 };
 
@@ -66,6 +69,8 @@ export default function ResizableSplit({
   firstId,
   secondId,
   collapseAt,
+  layout,
+  secondCollapsed = false,
   children,
 }: ResizableSplitProps) {
   const defaultRatio = Number.isFinite(initial) ? clamp(initial, 0.01, 0.99) : 0.5;
@@ -100,6 +105,14 @@ export default function ResizableSplit({
   useEffect(() => {
     updateRatio(readRatio(storageKey, defaultRatio), false);
   }, [storageKey, defaultRatio, updateRatio]);
+
+  useEffect(() => {
+    if (!layout || !Number.isFinite(layout.ratio)) return;
+    finishDrag();
+    updateRatio(clamp(layout.ratio, 0.01, 0.99), true);
+  }, [layout, finishDrag, updateRatio]);
+
+  useEffect(() => { if (secondCollapsed) finishDrag(); }, [secondCollapsed, finishDrag]);
 
   useEffect(() => {
     if (!horizontal || collapseAt === undefined) {
@@ -158,7 +171,7 @@ export default function ResizableSplit({
   const reset = () => updateRatio(defaultRatio, true);
 
   function startDrag(event: PointerEvent<HTMLDivElement>) {
-    if (collapsed || event.button !== 0 || !event.isPrimary || available <= 0 || min === max) return;
+    if (collapsed || secondCollapsed || event.button !== 0 || !event.isPrimary || available <= 0 || min === max) return;
     event.preventDefault();
     finishDrag();
     event.currentTarget.focus({ preventScroll: true });
@@ -195,7 +208,7 @@ export default function ResizableSplit({
   }
 
   function handleKey(event: KeyboardEvent<HTMLDivElement>) {
-    if (collapsed || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (collapsed || secondCollapsed || event.altKey || event.ctrlKey || event.metaKey) return;
     const decrease = horizontal ? "ArrowLeft" : "ArrowUp";
     const increase = horizontal ? "ArrowRight" : "ArrowDown";
     const step = event.shiftKey ? 0.1 : 0.02;
@@ -216,6 +229,7 @@ export default function ResizableSplit({
       className={`resizable-split ${className}`.trim()}
       data-axis={axis}
       data-collapsed={collapsed ? "true" : undefined}
+      data-second-collapsed={secondCollapsed || undefined}
       data-dragging={dragging ? "true" : undefined}
       style={{
         "--split-first": `${ratio}fr`,
@@ -228,9 +242,9 @@ export default function ResizableSplit({
         ref={separator}
         className="split-handle"
         role="separator"
-        tabIndex={collapsed ? -1 : 0}
-        hidden={collapsed}
-        aria-hidden={collapsed || undefined}
+        tabIndex={collapsed || secondCollapsed ? -1 : 0}
+        hidden={collapsed || secondCollapsed}
+        aria-hidden={collapsed || secondCollapsed || undefined}
         aria-label={label}
         aria-orientation={horizontal ? "vertical" : "horizontal"}
         aria-controls={`${firstId} ${secondId}`}
