@@ -94,7 +94,8 @@ def test_persistent_alias_supports_unchanged_imports_and_removes_stale_children(
     script = '''
 import sys, types
 sys.modules['torch'] = types.ModuleType('torch')
-sys.modules['torch.cuda'] = types.ModuleType('torch.cuda')
+stale_cuda = types.ModuleType('torch.cuda')
+sys.modules['torch.cuda'] = stale_cuda
 from paperleet_torch import install_as_torch
 namespace = install_as_torch()
 import torch
@@ -106,7 +107,8 @@ from torch.func import jvp
 from torch.testing import assert_close
 assert torch is namespace and nn is torch.nn and optim is torch.optim
 assert F is torch.nn.functional
-assert 'torch.cuda' not in sys.modules
+assert sys.modules['torch.cuda'] is namespace.cuda and namespace.cuda is not stale_cuda
+assert not namespace.cuda.is_available() and namespace.cuda.device_count() == 0
 x = torch.tensor([[2., 3.]], requires_grad=True)
 F.linear(x, torch.ones(1, 2)).square().sum().backward()
 assert x.grad.tolist() == [[10., 10.]]

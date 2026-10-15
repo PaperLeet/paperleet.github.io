@@ -6,6 +6,7 @@ from reprlib import recursive_repr
 import numpy as np
 
 from . import _tensor
+from ._module_conversion import ModuleConversion
 
 
 class Parameter(_tensor.Tensor):
@@ -28,7 +29,7 @@ class _IncompatibleKeys(namedtuple('IncompatibleKeys', 'missing_keys unexpected_
         return super().__repr__()
 
 
-class Module:
+class Module(ModuleConversion):
     """Registered models and buffers with native-style shared-object semantics.
 
     Hooks and assign-based checkpoint loading remain unsupported interfaces.

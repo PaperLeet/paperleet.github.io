@@ -85,6 +85,17 @@ def workloads(dtype='float32'):
     def same_dtype_to():
         return x.to(dtype=dtype)
 
+    def cpu_noop():
+        return x.cpu()
+
+    def contiguous_noop():
+        return x.contiguous()
+
+    transposed = x.T
+
+    def contiguous_copy():
+        return transposed.contiguous()
+
     def model_construct():
         return torch.nn.Sequential(torch.nn.Linear(16, 32, dtype=dtype), torch.nn.ReLU(),
                                     torch.nn.Linear(32, 8, dtype=dtype))
@@ -106,7 +117,9 @@ def workloads(dtype='float32'):
                  slice_backward=slice_backward, indexed_backward=indexed_backward,
                  adam_step=adam_step, sgd_step=sgd_step, adamw_step=adamw_step,
                  adamw_zero_grad=adamw_zero_grad, adam_construct=adam_construct,
-                 same_dtype_to=same_dtype_to, model_construct=model_construct,
+                 same_dtype_to=same_dtype_to, cpu_noop=cpu_noop,
+                 contiguous_noop=contiguous_noop, contiguous_copy=contiguous_copy,
+                 model_construct=model_construct,
                  model_training_step=model_training_step, model_parameter_walk=model_parameter_walk)
     for m, k, n in [(32, 32, 32), (64, 128, 128), (128, 128, 128),
                     (256, 256, 256), (512, 512, 512), (37, 53, 29)]:

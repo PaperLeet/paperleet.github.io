@@ -87,12 +87,55 @@ parameter paths, metadata and subclass extra state are included. Loading copies
 values into existing parameters, preserving optimizer references, and reports
 missing/unexpected keys. Shape/type errors still fail with `strict=False`.
 
-This is in-memory state support. Model hooks, `load_state_dict(assign=True)`,
-model device/dtype transforms and `torch.save/load` remain
+This is in-memory state support. Model hooks, `load_state_dict(assign=True)`
+and `torch.save/load` remain
 unsupported. `ModuleList.insert` supports indices from zero through its length;
 insertion into a named `Sequential` is unsupported. Copying a model clears copied
 parameter gradients, as native PyTorch does. Copying non-leaf tensors or exotic
 non-dense NumPy backing allocations fails explicitly.
+
+## CPU model conversion and gradient modes
+
+Existing CPU selection and dtype-conversion code works with the import aliases:
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device=device, dtype=torch.float64)
+x = x.to(device=device, dtype=torch.float64)
+with torch.no_grad():
+    prediction = model(x)
+```
+
+`torch.cuda.is_available()` is false for this NumPy backend. Device objects can
+describe other devices, but execution on CUDA/MPS/meta remains unsupported.
+CPU index metadata is accepted; actual tensors report the logical `cpu` device.
+`Module.to`, `.cpu`, `.float`, `.double` and `.type` recurse through registered
+children, preserving Parameter objects and existing gradient objects so an
+already-created optimizer retains its parameter references. `.to` casts floating
+and complex buffers while preserving integer/bool buffers; `.type` also casts
+integer buffers. Differentiable model conversions support float32/float64.
+Existing optimizer state is not converted by model conversion: restore a state
+dictionary into a matching optimizer when its algorithm needs matching dtypes.
+
+`Tensor.to` accepts dtype/device/other-Tensor overloads and `copy`; no-op dtype
+conversions, `.cpu()` and already-contiguous `.contiguous()` preserve identity.
+`clone`/`to` support preserve/contiguous memory formats; channels-last formats
+remain unsupported. CPU-index conversions force a copy, matching native Torch.
+Use `.contiguous()` or `to(copy=True, memory_format=torch.contiguous_format)`
+to pack a transposed tensor; a same-dtype/device `.to` can return it unchanged.
+
+`no_grad`, `enable_grad` and `set_grad_enabled` support contexts and decorators,
+including recursive calls and generators. Generator execution sets the requested
+mode only while it runs, restoring the caller's mode between yields and on errors.
+Factory `requires_grad` arguments keep their native exception to `no_grad`.
+Gradient mode belongs to the isolated runtime; it is not thread-local.
+
+Convert models before building a training graph. Native backward behavior after
+conversion depends on which inputs, views or outputs each operator saves; the
+covered cases retain those distinctions, including mixed-dtype errors. This is
+not a guarantee for arbitrary live graphs. Version guards remain linked across
+storage rebinding and reject later in-place mutations. Private `_apply` callbacks
+must preserve shapes; non-leaf gradient storage rebinding remains unsupported.
 
 ## Optimizers and training checkpoints
 
@@ -187,7 +230,9 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.4 validation record](../../docs/validation/torch-runtime-iteration-4.md)
+See the [0.5 validation record](../../docs/validation/torch-runtime-iteration-5.md)
+for model conversion, gradient modes, storage guards and CPU/WASM measurements.
+The [0.4 validation record](../../docs/validation/torch-runtime-iteration-4.md)
 for optimizer/checkpoint parity, lazy-state memory, wheel isolation and real WASM/
 Chrome measurements. The [0.3 record](../../docs/validation/torch-runtime-iteration-3.md)
 retains model lifecycle results; the [0.2 record](../../docs/validation/torch-runtime-iteration-2.md)

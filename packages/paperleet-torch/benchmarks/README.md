@@ -41,6 +41,12 @@ an existing gradient, `adam_construct` constructs an optimizer over eight existi
 64×64 parameter fixtures, and `same_dtype_to` measures one no-op dtype conversion.
 Very small browser samples are sensitive to timer quantization.
 
+`cpu_noop` and `contiguous_noop` measure already-CPU/already-C-contiguous Tensor
+calls. `contiguous_copy` packs a transposed input. Conversion/packing cases include
+their Tensor/graph allocations when a copy is needed. A no-op is expected to
+preserve identity in the current implementation; benchmark historical versions
+with the same script to expose their unnecessary allocations.
+
 `python packages/paperleet-torch/benchmarks/bench_optimizer_memory.py --dtype float32`
 records CPython tracemalloc allocations after creating Adam over 16 pre-existing
 256×256 parameters and after one parameter receives a gradient. It also records

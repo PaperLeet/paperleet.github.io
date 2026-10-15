@@ -27,8 +27,8 @@ behavior. Passing its current exercises alone does not establish library readine
 - Independent checkpoint copies preserve tensor storage views; copied model
   Parameters start without gradients. Native-reference and NumPy-only tests cover
   training, checkpoint restoration and continued updates under CPython and WASM.
-- Hooks, assign-based loading, model device/dtype conversion, file serialization
-  and optimizer checkpoints remain outside the implemented contract.
+- At this milestone, hooks, assign-based loading, model device/dtype conversion,
+  file serialization and optimizer checkpoints were outside the contract.
 
 ## Version 0.4 milestone
 
@@ -43,10 +43,26 @@ behavior. Passing its current exercises alone does not establish library readine
   construction/update/zeroing/cast/memory benchmarks; unsupported execution modes
   and file serialization remain explicit boundaries.
 
+## Version 0.5 milestone
+
+- Recursive CPU model dtype/device conversion preserves Parameter and existing
+  gradient identities, optimizer references and integer buffer rules.
+- Tensor conversion overloads, memory-format/copy behavior, CPU device metadata,
+  and explicit backend availability queries support unchanged CPU-selection code.
+- Gradient modes support nested contexts, direct setters and recursive/generator
+  decorators, with caller-mode restoration on suspension, return and exceptions.
+- Linked storage-version counters retain mutation guards across model storage
+  rebinding. Saved-self, saved-view and saved-output backward cases are compared
+  with native Torch, including underflow and mixed-dtype errors. Old live graphs
+  are operator-specific and are not an unrestricted compatibility promise.
+- Allocation/hot-loop measurements check the cost of richer graph metadata and
+  conversion semantics. CPU and real WASM tests include independent conversion,
+  continued-training and in-memory checkpoint contracts.
+
 ## Next implementation areas
 
-1. Remaining model lifecycle: dtype/device transforms and common hooks where
-   bounded behavior can be validated; define file checkpoint serialization.
+1. Remaining model lifecycle: common hooks where bounded behavior can be
+   validated; define file checkpoint serialization and expand memory formats.
 2. Optimizer extensions: schedulers and common hooks, additional algorithms where
    numerical and performance evidence justify them; keep state compatibility and
    unknown-option errors explicit. Profile small-parameter update overhead.

@@ -147,13 +147,14 @@ def assert_close(actual, expected, *, rtol=None, atol=None, equal_nan=False, che
 
 def einsum(equation, a, b):
     a, b = wrap(a), wrap(b)
+    a_data, b_data = a._data, b._data
     inputs, output = equation.replace(' ', '').split('->')
     left, right = inputs.split(',')
     if '.' in equation or len(set(left)) != len(left) or len(set(right)) != len(right):
         raise _errors.BrowserUnsupported('This einsum pattern requires the server')
-    return _autograd.result(np.einsum(equation, a._data, b._data),
-                  (a, lambda g: unbroadcast(np.einsum(f'{output},{right}->{left}', g, b._data), a.shape)),
-                  (b, lambda g: unbroadcast(np.einsum(f'{output},{left}->{right}', g, a._data), b.shape)))
+    return _autograd.result(np.einsum(equation, a_data, b_data),
+                  (a, lambda g: unbroadcast(np.einsum(f'{output},{right}->{left}', g, b_data), a_data.shape)),
+                  (b, lambda g: unbroadcast(np.einsum(f'{output},{left}->{right}', g, a_data), b_data.shape)))
 
 
 def concatenate(tensors, dim=0, *, stack=False):
@@ -234,10 +235,13 @@ def cdist(x1, x2, p=2., compute_mode='use_mm_for_euclid_dist_if_necessary'):
 def pdist(x, p=2):
     if p != 2 or x.ndim != 2: raise _errors.BrowserUnsupported('Only 2D Euclidean pdist is supported')
     i,j = np.triu_indices(x.shape[0],k=1)
-    difference = x._data[i] - x._data[j]
+    source = x._data
+    difference = source[i] - source[j]
     lengths = np.linalg.norm(difference,axis=1)
     def vjp(g):
-        grad = np.zeros_like(x._data)
+        if x.dtype != lengths.dtype:
+            raise RuntimeError('pdist backward input and gradient dtypes must match')
+        grad = np.zeros_like(source)
         direction = np.divide(difference,lengths[:,None],out=np.zeros_like(difference),where=lengths[:,None]!=0)
         np.add.at(grad,i,g[:,None]*direction);np.add.at(grad,j,-g[:,None]*direction)
         return grad

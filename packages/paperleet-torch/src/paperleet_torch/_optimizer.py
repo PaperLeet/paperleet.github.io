@@ -151,14 +151,16 @@ class Optimizer:
             _state._grad_enabled = previous
 
     @staticmethod
-    def _gradient(parameter):
+    def _gradient(parameter, *, allow_mixed=False):
         grad = parameter.grad
-        if not isinstance(grad, _tensor.Tensor) or grad.shape != parameter.shape or grad.dtype != parameter.dtype:
+        if not isinstance(grad, _tensor.Tensor) or grad.shape != parameter.shape:
+            raise RuntimeError('Optimizer gradient shape/dtype must match the parameter')
+        if grad.dtype != parameter.dtype and not (allow_mixed and grad.dtype in (np.dtype('float32'), np.dtype('float64'))):
             raise RuntimeError('Optimizer gradient shape/dtype must match the parameter')
         return grad._data
 
     @staticmethod
-    def _buffer(value, parameter, name, *, step=False):
+    def _buffer(value, parameter, name, *, step=False, allow_mixed=False):
         if not isinstance(value, _tensor.Tensor):
             raise RuntimeError(f'Optimizer state {name} must be a Tensor')
         if value._parents:
@@ -166,7 +168,7 @@ class Optimizer:
         if step:
             if value.numel() != 1 or value.dtype.kind != 'f':
                 raise RuntimeError('Optimizer step state must be a floating scalar')
-        elif value.shape != parameter.shape or value.dtype != parameter.dtype:
+        elif value.shape != parameter.shape or value.dtype != parameter.dtype and not (allow_mixed and value.dtype in (np.dtype('float32'), np.dtype('float64'))):
             raise RuntimeError(f'Optimizer state {name} shape/dtype must match the parameter')
         return value._data
 

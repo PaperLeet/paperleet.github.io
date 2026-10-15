@@ -12,7 +12,7 @@ def result(data, *edges, saved=()):
     value = _tensor.Tensor(data)
     if value.dtype.kind == 'c' and _state._grad_enabled and any(node.requires_grad for node, _ in edges):
         raise _errors.BrowserUnsupported('Complex autograd requires the server')
-    value._parents = tuple((node, vjp) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
+    value._parents = tuple((node, vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
     value.requires_grad = bool(value._parents)
     if value.requires_grad:
         # Conservatively guard every operand, including frozen operands and output
@@ -50,7 +50,7 @@ def backprop(output, seed):
         elif id(node) not in visited:
             visited.add(id(node))
             stack.append((node, True))
-            stack.extend((parent, False) for parent, _ in node._parents)
+            stack.extend((parent, False) for parent, _, _ in node._parents)
     for node in order:
         if any(counter.version != version for counter, version in node._saved_versions):
             raise _errors.BrowserUnsupported('A tensor saved for backward was modified in-place; this graph requires the server')
@@ -62,8 +62,8 @@ def backprop(output, seed):
         if node._joint_vjp is None:
             # Keep ordinary edges on their original hot path: no joint dispatch
             # or shape-validation branch per edge in the WASM interpreter.
-            for parent, vjp in node._parents:
-                incoming = np.asarray(vjp(grad), dtype=parent.dtype)
+            for parent, vjp, dtype in node._parents:
+                incoming = np.asarray(vjp(grad), dtype=dtype)
                 key = id(parent)
                 gradients[key] = incoming if key not in gradients else gradients[key] + incoming
             continue
@@ -74,8 +74,8 @@ def backprop(output, seed):
         if any(needed and derivative is None for needed, derivative in zip(needs, derivatives)):
             raise RuntimeError('A joint VJP omitted a required input gradient')
         active = (derivative for needed, derivative in zip(needs, derivatives) if needed)
-        for (parent, _), derivative in zip(node._parents, active):
-            incoming = np.asarray(derivative, dtype=parent.dtype)
+        for (parent, _, dtype), derivative in zip(node._parents, active):
+            incoming = np.asarray(derivative, dtype=dtype)
             if incoming.shape != parent.shape:
                 raise RuntimeError('A joint VJP gradient shape must match its input')
             key = id(parent)
@@ -302,14 +302,7 @@ def gradcheck(func, inputs, *, eps=1e-6, atol=1e-5, rtol=1e-3, raise_exception=T
     return bool(success)
 
 
-class no_grad(contextlib.ContextDecorator):
-    def __enter__(self):
-
-        self.before = _state._grad_enabled; _state._grad_enabled = False
-        return self
-    def __exit__(self, *args):
-
-        _state._grad_enabled = self.before
+from ._grad_mode import no_grad, enable_grad, set_grad_enabled, is_grad_enabled
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.

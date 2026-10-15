@@ -9,6 +9,9 @@ def create_torch(name='torch', *, register=False):
     torch.__path__ = []
     torch._browser_unsupported = _errors.BrowserUnsupported
     torch.Tensor, torch.Generator, torch.no_grad = _tensor.Tensor, _random.Generator, _autograd.no_grad
+    torch.enable_grad, torch.set_grad_enabled, torch.is_grad_enabled = _autograd.enable_grad, _autograd.set_grad_enabled, _autograd.is_grad_enabled
+    for fmt in _conversion.MemoryFormat:
+        setattr(torch, fmt.name, fmt)
     torch.float64, torch.float32 = np.dtype('float64'), np.dtype('float32')
     torch.complex64, torch.complex128 = np.dtype('complex64'), np.dtype('complex128')
     torch.float, torch.double = torch.float32, torch.float64
@@ -19,7 +22,7 @@ def create_torch(name='torch', *, register=False):
     root_name = name
     modules = {'torch': torch}
     for name in ('nn', 'nn.functional', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
-                 'optim.adamw', 'autograd', 'linalg', 'testing', 'random', 'func'):
+                 'optim.adamw', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name):
             if key.startswith('_'): raise AttributeError(key)
@@ -27,7 +30,7 @@ def create_torch(name='torch', *, register=False):
         module.__getattr__ = missing
         modules['torch.' + name] = module
         if register: sys.modules[module.__name__] = module
-    for name in ('nn', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func'):
+    for name in ('nn', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
         setattr(torch, name, modules['torch.' + name])
     torch.nn.functional = modules['torch.nn.functional']
     for name, cls in {
@@ -46,6 +49,8 @@ def create_torch(name='torch', *, register=False):
         setattr(torch.optim, name, module)
 
     registry = _registry.OperatorRegistry(modules)
+    registry.group('torch.cuda', {'is_available': lambda: False, 'device_count': lambda: 0,
+                                 'is_initialized': lambda: False})
     registry.group('torch', {'tensor': _ops.tensor, 'as_tensor': _ops.as_tensor}, reverse='factory', forward=True)
     registry.group('torch', {
         'from_numpy': _ops.from_numpy, 'full': _ops.full, 'full_like': _ops.full_like,
@@ -159,4 +164,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _device, _errors, _linalg, _nn, _ops, _optim, _random, _registry, _tensor
+from . import _autograd, _conversion, _device, _errors, _linalg, _nn, _ops, _optim, _random, _registry, _tensor

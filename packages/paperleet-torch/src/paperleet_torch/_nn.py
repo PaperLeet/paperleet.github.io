@@ -37,7 +37,14 @@ def silu(input, inplace=False):
     x = input._data
     exp = np.exp(-np.abs(x))
     probability = np.where(x >= 0, 1 / (1 + exp), exp / (1 + exp))
-    return _autograd.result(x * probability, (input, lambda g: g * probability * (1 + x * (1 - probability))))
+    def backward(g):
+        source, activation = x, probability
+        if input._data is not x:
+            source = input._data.astype(np.result_type(g.dtype,input.dtype),copy=False)
+            exponential = np.exp(-np.abs(source))
+            activation = np.where(source>=0,1/(1+exponential),exponential/(1+exponential))
+        return g * activation * (1 + source * (1 - activation))
+    return _autograd.result(x * probability, (input, backward))
 
 
 class Linear(Module):
@@ -285,8 +292,9 @@ def softplus(input, beta=1., threshold=20.):
     output = _autograd.result(value,(primal,backward))
     if not forward: return output
     tangent = input._tangent
-    derivative = _autograd.result(backward(tangent._data),
-                        (primal,lambda g:g*tangent._data*curvature),
+    tangent_data = tangent._data
+    derivative = _autograd.result(backward(tangent_data),
+                        (primal,lambda g:g*tangent_data*curvature),
                         (tangent,backward))
     return _autograd.ForwardTensor(output,derivative)
 
@@ -494,9 +502,10 @@ def embedding(input, weight, padding_idx=None, max_norm=None, norm_type=2., scal
         if type(padding_idx) is not int or not -n<=padding_idx<n: raise RuntimeError('Invalid padding index')
         padding_idx%=n
     indices=input._data
+    weight_shape, weight_dtype = weight.shape, weight.dtype
     if np.any(indices<0) or np.any(indices>=n): raise IndexError('Embedding index out of bounds')
     def vjp(g):
-        gradient=np.zeros_like(weight._data)
+        gradient=np.zeros(weight_shape, dtype=weight_dtype)
         flat=indices.reshape(-1).astype(np.intp,copy=False); incoming=g.reshape(input.numel(),weight.shape[1])
         if scale_grad_by_freq:
             counts=np.bincount(flat,minlength=n)

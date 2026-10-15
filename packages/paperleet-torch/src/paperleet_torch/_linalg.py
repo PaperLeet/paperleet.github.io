@@ -7,11 +7,12 @@ def solve(a, b):
     a, b = _ops.wrap(a), _ops.wrap(b)
     if a.ndim != 2 or b.ndim not in (1, 2): raise _errors.BrowserUnsupported('Batched linear solves require the server')
     if a.dtype != b.dtype or a.dtype.kind != 'f': raise RuntimeError('solve expects matching floating dtypes')
-    value = np.linalg.solve(a._data, b._data)
-    def db(g): return np.linalg.solve(a._data.T, g)
+    a_data, b_ndim = a._data, b.ndim
+    value = np.linalg.solve(a_data, b._data)
+    def db(g): return np.linalg.solve(a_data.T, g)
     def da(g):
         incoming = db(g)
-        return -(incoming[:, None] @ value[None, :] if b.ndim == 1 else incoming @ value.T)
+        return -(incoming[:, None] @ value[None, :] if b_ndim == 1 else incoming @ value.T)
     return _autograd.result(value, (a, da), (b, db))
 
 
@@ -35,6 +36,7 @@ def real_matrix(input):
 def svd(input, full_matrices=True, *, driver=None, out=None):
     """Real batched SVD with analytical vector/rectangular-complement VJPs."""
     real_matrix(input)
+    source = input._data
     if driver is not None or out is not None: raise _errors.BrowserUnsupported('SVD drivers/output buffers require the server')
     if not isinstance(full_matrices, bool): raise TypeError('full_matrices must be boolean')
     all_u, singular, all_vh = np.linalg.svd(input._data, full_matrices=full_matrices)
@@ -49,12 +51,12 @@ def svd(input, full_matrices=True, *, driver=None, out=None):
             squared = singular ** 2
             gap = squared[..., None, :] - squared[..., :, None]
         diagonal = np.eye(rank, dtype=bool)
-        cutoff = np.finfo(input.dtype).eps * max(input.shape[-2:])
+        cutoff = np.finfo(source.dtype).eps * max(source.shape[-2:])
         if not np.isfinite(squared).all() or np.any(singular <= cutoff * singular[..., :1]) or np.any((np.abs(gap) <= cutoff * squared[..., :1, None]) & ~diagonal):
             raise _errors.BrowserUnsupported('Degenerate or numerically unresolved SVD vector gradients require the server')
         return np.divide(1, gap, out=np.zeros_like(gap), where=~diagonal)
     def du(g):
-        if not rank: return np.zeros_like(input._data)
+        if not rank: return np.zeros_like(source)
         g = g[..., :, :rank]
         inner = ut @ g
         core = vector_factors() * (inner - np.swapaxes(inner,-1,-2)) * singular[..., None, :]
@@ -62,7 +64,7 @@ def svd(input, full_matrices=True, *, driver=None, out=None):
         if input.shape[-2] > rank: gradient += ((g - u @ inner) / singular[..., None, :]) @ vh
         return gradient
     def dvh(g):
-        if not rank: return np.zeros_like(input._data)
+        if not rank: return np.zeros_like(source)
         g = g[..., :rank, :]
         inner = vh @ np.swapaxes(g,-1,-2)
         core = vector_factors() * (inner - np.swapaxes(inner,-1,-2)) * singular[..., :, None]
@@ -76,6 +78,7 @@ def svd(input, full_matrices=True, *, driver=None, out=None):
 def eigh(input, UPLO='L', *, out=None):
     """Real symmetric eigendecomposition with separate value/vector VJPs."""
     real_matrix(input)
+    source_dtype = input.dtype
     if out is not None: raise _errors.BrowserUnsupported('eigh output buffers require the server')
     if input.shape[-2] != input.shape[-1] or UPLO not in ('L','U'): raise RuntimeError('Invalid eigh shape/triangle')
     values, vectors = np.linalg.eigh(input._data, UPLO=UPLO)
@@ -86,7 +89,7 @@ def eigh(input, UPLO='L', *, out=None):
         with np.errstate(over='ignore', invalid='ignore'):
             gaps = values[..., None, :] - values[..., :, None]
         scale = np.max(np.abs(values), axis=-1, keepdims=True, initial=0)
-        tolerance = np.finfo(input.dtype).eps * max(count, 1) * scale[..., None]
+        tolerance = np.finfo(source_dtype).eps * max(count, 1) * scale[..., None]
         unresolved = (np.abs(gaps) <= tolerance) & ~np.eye(count, dtype=bool)
         return gaps, unresolved
     def dl(g):
@@ -95,7 +98,7 @@ def eigh(input, UPLO='L', *, out=None):
         # derivatives within each eigenspace. Otherwise the chosen basis would
         # invent a platform-dependent gradient.
         differences = np.abs(g[..., None, :] - g[..., :, None])
-        tolerance = 8 * np.finfo(input.dtype).eps * np.maximum(1, np.max(np.abs(g), axis=-1, keepdims=True, initial=0))[..., None]
+        tolerance = 8 * np.finfo(source_dtype).eps * np.maximum(1, np.max(np.abs(g), axis=-1, keepdims=True, initial=0))[..., None]
         if np.any(unresolved & (differences > tolerance)):
             raise _errors.BrowserUnsupported('Basis-dependent repeated-eigenvalue gradients require the server')
         return (vectors * g[..., None, :]) @ transposed
@@ -122,11 +125,12 @@ def det(input, *, out=None):
     real_matrix(input)
     if out is not None: raise _errors.BrowserUnsupported('Determinant output buffers require the server')
     if input.shape[-2] != input.shape[-1]: raise RuntimeError('det expects square matrices')
-    value = np.linalg.det(input._data)
+    source = input._data
+    value = np.linalg.det(source)
     def vjp(g):
         # Products of all other singular values give the cofactor matrix
         # without dividing by a singular determinant or singular value.
-        u, s, vh = np.linalg.svd(input._data, full_matrices=False)
+        u, s, vh = np.linalg.svd(source, full_matrices=False)
         ones = np.ones(s.shape[:-1] + (1,), dtype=s.dtype)
         prefix = np.concatenate((ones, np.cumprod(s, axis=-1)), axis=-1)
         suffix = np.concatenate((np.flip(np.cumprod(np.flip(s, axis=-1), axis=-1), axis=-1), ones), axis=-1)

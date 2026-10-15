@@ -45,7 +45,7 @@ class SGD(Optimizer):
             if momentum:
                 active = [(p, self.state[p].get('momentum_buffer')) for p in group['params'] if p.grad is not None]
             for parameter, buffer in active:
-                gradient = self._gradient(parameter)
+                gradient = self._gradient(parameter, allow_mixed=True)
                 if group['maximize']:
                     gradient = -gradient
                 if weight_decay:
@@ -54,14 +54,16 @@ class SGD(Optimizer):
                     if buffer is None:
                         buffer = _tensor.Tensor(gradient.copy())
                     else:
-                        value = self._buffer(buffer, parameter, 'momentum_buffer')
+                        value = self._buffer(buffer, parameter, 'momentum_buffer', allow_mixed=True)
                         value *= momentum
                         value += (1 - dampening) * gradient
-                        buffer._storage.version += 1
+                        buffer._storage.bump()
                     self.state[parameter]['momentum_buffer'] = buffer
                     gradient = gradient + momentum * buffer._data if group['nesterov'] else buffer._data
+                if gradient.dtype != parameter.dtype:
+                    gradient = gradient.astype(np.result_type(gradient.dtype, parameter.dtype), copy=False)
                 parameter._data[...] -= lr * gradient
-                parameter._storage.version += 1
+                parameter._storage.bump()
         return loss
 
 
@@ -137,9 +139,9 @@ class Adam(Optimizer):
                     np.maximum(maximum, variance, out=maximum)
                 denominator = np.sqrt(variance if maximum is None else maximum) / math.sqrt(1 - b2 ** step) + eps
                 parameter._data[...] -= (lr / (1 - b1 ** step)) * moment / denominator
-                parameter._storage.version += 1
+                parameter._storage.bump()
                 for name in ('step', 'exp_avg', 'exp_avg_sq', *(['max_exp_avg_sq'] if maximum is not None else [])):
-                    state[name]._storage.version += 1
+                    state[name]._storage.bump()
         return loss
 
 
