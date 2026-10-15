@@ -495,7 +495,7 @@ function Workspace() {
                   ? "active"
                   : ""
               }
-              href={libraryReturn || '#'}
+              href={libraryReturn?.startsWith('#/interviews') ? '#' : libraryReturn || '#'}
               aria-current={!problem && !submissionPage && !communityPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
