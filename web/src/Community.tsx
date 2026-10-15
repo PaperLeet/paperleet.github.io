@@ -5,7 +5,7 @@ import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
@@ -22,6 +22,7 @@ import {
   Bookmark,
   BriefcaseBusiness,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Code2,
@@ -64,6 +65,9 @@ import {
 import type { PublicUser } from "./social";
 import { withConfirmedReply, type Counts, type Post, type Reply, type PostDetail } from './communityDiscussion';
 import { readPublication, preparePublication, clearPublication, postPublication, replyPublication, samePublication, type PublicationReceipt } from './publicationRequests';
+import {deferredFeature} from './deferredFeature';
+import {communityOutlines,hasCommunityDraftContent,insertCommunityOutline,type CommunityOutlineEdit,type CommunityOutlineId} from './communityWriting';
+import './community-writing.css';
 import PublicationRecovery from './PublicationRecovery';
 import PostEditor from './PostEditor';
 import ReplyEditor from './ReplyEditor';
@@ -74,6 +78,13 @@ import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
 import PaperPreviewCard from './PaperPreviewCard';
 import { canonicalArxivUrl } from './communityPapers';
+const CommunityWritingGuide=deferredFeature(()=>import('./CommunityWritingGuide'),['写作提示','writing prompts'],{
+  failure:(props,retry)=><CommunityWritingFailure onRetry={()=>{props.onRestoreFocus();retry();}}/>,
+});
+function CommunityWritingFailure({onRetry}:{onRetry:()=>void}){
+  const {t}=useI18n();
+  return <div className="community-writing-failure"><p role="alert">{t('写作提示暂时无法加载，正文仍可继续编辑。','Writing prompts could not load. You can keep editing your post.')}</p><button type="button" onClick={onRetry}>{t('重试写作提示','Retry writing prompts')}</button></div>;
+}
 type Profile = PublicUser & {
   counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
@@ -277,11 +288,13 @@ function Composer({
   onClose: () => void;
 }) {
   const { t, locale } = useI18n();
-  const {capabilities}=useAccount();
+  const {user,capabilities}=useAccount();
   const anonymousAvailable=capabilities?.community_anonymous_posts===true;
   const initialCategory = category || (topic ? "questions" : "papers");
   const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
   const currentDraft = useRef(draft);
+  const currentActor=useRef(user?.id);currentActor.current=user?.id;
+  const writingRoute=location.href;
   const [publication,setPublication] = useState(() => readPublication(tabDraftStorage(),owner,'post',scope));
   const publishing = useRef(false);
   const { title, body, category: board } = draft;
@@ -297,11 +310,43 @@ function Composer({
     const next = { ...currentDraft.current, ...change };
     currentDraft.current = next;
     setDraft(next);
+    if(change.body!==undefined){setWritingError('');setWritingNotice('');}
     setSaved(writePostDraft(tabDraftStorage(), owner, scope, next));
     onDraftChange(hasDraft(next));
   }
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),writingHint=useId();
+  const [writingOpen,setWritingOpen]=useState(false),[writingError,setWritingError]=useState(''),[writingNotice,setWritingNotice]=useState('');
+  const writingEdit=useRef<(CommunityOutlineEdit&{selection:{start:number;end:number;scroll:number}})>(undefined);
+  const [writingFocus,setWritingFocus]=useState<{opener:HTMLElement;href:string;source:string;start:number;end:number;scroll?:number}>();
+  useLayoutEffect(()=>{
+    if(!writingFocus||preview)return;setWritingFocus(undefined);
+    if(busy||!mounted.current||currentActor.current!==owner||location.href!==writingFocus.href||currentDraft.current.body!==writingFocus.source)return;
+    if(document.activeElement!==writingFocus.opener&&!(document.activeElement===document.body&&(!writingFocus.opener.isConnected||writingFocus.opener.matches('button:disabled'))))return;
+    const field=editor.current;if(!field)return;
+    field.focus({preventScroll:true});field.scrollIntoView({block:'center'});field.setSelectionRange(writingFocus.start,writingFocus.end);
+    if(writingFocus.scroll!==undefined)field.scrollTop=writingFocus.scroll;
+  },[writingFocus,preview,busy,owner]);
+  function insertOutline(id:CommunityOutlineId,opener:HTMLElement){
+    if(publishing.current||!mounted.current||currentActor.current!==owner||writingRoute!==location.href)return;
+    const body=currentDraft.current.body,previous=writingEdit.current,en=locale==='en';
+    if(previous&&previous.after===body&&previous.id===id&&previous.en===en){setWritingNotice(t('该提纲已在草稿中，可继续填写。','This outline is already in your draft. Keep writing.'));setPreview(false);setWritingFocus({opener,href:location.href,source:body,start:previous.caret,end:previous.caret});return;}
+    const field=editor.current,selection={start:field?.selectionStart??body.length,end:field?.selectionEnd??body.length,scroll:field?.scrollTop||0};
+    const operation=insertCommunityOutline(body,id,en,selection.end);
+    if(!operation.ok){setWritingError(operation.reason==='length'?t('正文接近长度上限，请精简后再插入提纲。','Your post is near its length limit. Shorten it before inserting an outline.'):t('提纲需要独立段落，请将光标移到代码、公式或 HTML 块之外再插入。','The outline needs separate paragraphs. Move the cursor outside code, math or HTML blocks and try again.'));return;}
+    writingEdit.current={...operation.edit,selection};edit({body:operation.edit.after});setWritingNotice('');setPreview(false);
+    setWritingFocus({opener,href:location.href,source:operation.edit.after,start:operation.edit.caret,end:operation.edit.caret});
+  }
+  function undoOutline(opener:HTMLElement){
+    const operation=writingEdit.current;
+    if(publishing.current||!mounted.current||currentActor.current!==owner||writingRoute!==location.href||!operation||operation.after!==currentDraft.current.body)return;
+    writingEdit.current=undefined;edit({body:operation.before});setWritingNotice('');setPreview(false);
+    setWritingFocus({opener,href:location.href,source:operation.before,...operation.selection});
+  }
+  const contentReady=hasCommunityDraftContent(body);
+  const pendingMatches=!!publication&&samePublication(publication.receipt,postPublication(draft,topic?.id));
+  const outlineCategory=(Object.hasOwn(communityOutlines,board)?board:'questions') as CommunityOutlineId;
   const draftExists = hasDraft(draft);
   const draftMessage = saved === false
     ? t("当前标签页无法保存草稿，离开前请复制内容。", "This tab cannot save your draft. Copy the text before leaving.")
@@ -309,6 +354,7 @@ function Composer({
       ? t("未发布草稿已保存在本标签页，仅当前账号可恢复。", "Unpublished draft saved in this tab, separately for your account.")
       : t("草稿仅保存在本标签页，发布后才会公开。", "Drafts stay in this tab and become public only when published.");
   function discardDraft() {
+    writingEdit.current=undefined;setWritingNotice('');
     edit({ title: "", body: "", category: initialCategory, paperUrl: "", anonymous:false });
     setDiscardRequested(false);
     setPreview(false);
@@ -316,6 +362,8 @@ function Composer({
   async function publish(previous?:PublicationReceipt) {
     if (busy || publishing.current) return;
     const submitted = { ...currentDraft.current };
+    previous ||= publication&&samePublication(publication.receipt,postPublication(submitted,topic?.id))?publication.receipt:undefined;
+    if(!previous&&!hasCommunityDraftContent(submitted.body)){setError(t('提纲已准备好，请补充自己的问题、观察或思考后再发布。','Your outline is ready. Add your own question, observations or thoughts before publishing.'));return;}
     const paperUrl = previous ? previous.payload.paper_url : (submitted.category === 'papers' ? submitted.paperUrl : undefined);
     if (paperUrl && !papersAvailable) {
       setError(t('论文链接暂时无法保存，请保留草稿并稍后重试。', 'Paper links cannot be saved right now. Keep your draft and try again shortly.'));
@@ -414,9 +462,13 @@ function Composer({
             onChange={(e) => edit({ title: e.target.value })}
           />
         </label>
+        <details className="community-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲组织内容','Organize your post with prompts')} · {communityOutlines[outlineCategory].name[locale==='en'?'en':'zh']}</span><ChevronDown size={14}/></summary>{writingOpen&&<CommunityWritingGuide category={outlineCategory} outline={communityOutlines[outlineCategory]} hasBody={!!body.trim()} hasContent={contentReady} busy={busy} canUndo={!!writingEdit.current&&writingEdit.current.after===body} editedAfterInsert={!!writingEdit.current&&writingEdit.current.after!==body} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
+        {writingError&&<p className="community-writing-hint" role="alert">{writingError}</p>}
+        {writingNotice&&<p className="community-writing-hint" role="status">{writingNotice}</p>}
         <MarkdownEditor value={body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
-          label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} disabled={busy}
+          textareaRef={editor} describedBy={body.trim()&&!contentReady&&!pendingMatches?writingHint:undefined} label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} disabled={busy}
           placeholder={board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
+        {body.trim()&&!contentReady&&!pendingMatches&&<p id={writingHint} className="community-writing-hint" role="status">{t('提纲已准备好。补充自己的问题、观察或思考后，就可以发布。','Your outline is ready. Add your own question, observations or thoughts to publish.')}</p>}
         <PublishingRules action="post" />
         <div className="form-footer">
           <small>
@@ -426,7 +478,7 @@ function Composer({
             )}
             {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
-          <button className="button" disabled={busy || !body.trim() || !!draft.anonymous&&!anonymousAvailable}>
+          <button className="button" disabled={busy || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
             {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>
