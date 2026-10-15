@@ -89,7 +89,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
   const { t } = useI18n();
   const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
   const failures: Record<string, string> = {
-    identity: t("未能确认账号资格。请使用学校／企业组织账号，或已由管理员加入白名单的 Google 邮箱；若仍失败，请联系管理员。", "We could not confirm account eligibility. Use a school/work account or a Google mailbox explicitly invited by an administrator. Contact an administrator if this continues."),
+    identity: t("未能完成身份验证，请重新选择账号。若此邮箱曾使用其他登录方式注册，请使用原来的登录方式。", "We could not verify this sign-in. Choose an account again. If this email was registered with another sign-in method, use the original method."),
     expired: t("此次登录已过期，请重新开始。", "This sign-in expired. Please start again."),
     cancelled: t("你已取消登录，可以重新选择账号。", "Sign-in was cancelled. You can choose an account again."),
     unavailable: t("登录服务暂时不可用，请稍后重试。", "The sign-in service is temporarily unavailable. Please try again shortly."),
@@ -109,8 +109,8 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
   return <div className="account-grid">
     <section className="social-panel login-card">
       <span className="social-eyebrow">PAPERLEET</span>
-      <h1>{t("学校／企业账号登录", "School or company sign-in")}</h1>
-      <p className="social-description">{t("使用学校或公司的组织账号登录，首次登录将创建 PaperLeet 账号，无需接收本站验证码。", "Sign in with your school or company organization account. Your first sign-in creates a PaperLeet account without an emailed code from us.")}</p>
+      <h1>{t("登录 PaperLeet", "Sign in to PaperLeet")}</h1>
+      <p className="social-description">{t("使用 Google 或 Microsoft 账号登录，首次登录将创建 PaperLeet 账号，无需接收本站验证码。", "Sign in with Google or Microsoft. Your first sign-in creates a PaperLeet account without an emailed code from us.")}</p>
       {(error || (loginError && failures[loginError])) && <SocialNotice error={error || failures[loginError!]} />}
       <div className="organization-login-buttons" aria-busy={Boolean(busy)}>
         {(["google", "microsoft"] as const).map(provider => {
@@ -122,11 +122,11 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
           </button>;
         })}
       </div>
-      <p className="social-description">{t("请在登录页面选择组织账号。个人 Gmail 仅限管理员按完整邮箱加入白名单的受邀用户；其他个人账号不开放注册。", "Choose your organization account. Personal Gmail accounts require an explicit invitation for the exact address; other personal accounts cannot register.")}</p>
+      <p className="social-description">{t("目前仅向学校／企业账户和已获邀请的账户开放使用。个人账户也可以注册，将先加入等待名单，后续开放后即可使用。", "Access is currently open to school/company accounts and invited accounts. Personal accounts can also register and join the waitlist for future access.")}</p>
     </section>
     <aside className="social-panel login-card">
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
-      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、公司账号，以及白名单内的个人 Gmail。部分机构可能要求管理员批准应用。", "School and company accounts managed by Google Workspace or Microsoft 365/Entra, plus explicitly invited personal Gmail accounts. Some organizations require administrator approval.")}</p>
+      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号可以直接使用。个人 Gmail、Outlook 等账号登录后会进入等待名单；已获邀请的账户按现有资格使用。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts receive access. Personal Gmail, Outlook and similar accounts join the waitlist; invited accounts retain their existing access. Some organizations require administrator approval.")}</p>
       <p className="social-description">{t("其他邮件系统暂不支持这两个登录入口。注册邮箱对应的机构或邮箱域名会公开展示，完整邮箱保持私密。组织账号不代表学校或雇主对个人身份的背书。", "Other email systems are not covered by these two sign-in options. Your registration institution or email domain is public; your full email stays private. An organization account is not an endorsement by a school or employer.")}</p>
     </aside>
   </div>;

@@ -11,6 +11,7 @@ try {
   const { TestSignIn, SignIn, OrganizationSignIn, ProfileSettings } =
     await server.ssrLoadModule("/src/Account.tsx");
   const { PersonLink, AccountNav } = await server.ssrLoadModule("/src/social.tsx");
+  const { AccountAccessGate } = await server.ssrLoadModule('/src/Waitlist.tsx');
   const { signInHref, accountReturnHref, isAccountRoute } = await server.ssrLoadModule("/src/accountNavigation.ts");
   const { decodeProblemHash } = await server.ssrLoadModule("/src/reports.ts");
   for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "papers/transformer", "collections/llm-basics"]) {
@@ -67,7 +68,8 @@ try {
   assert(organization.includes("使用 Google 登录") && organization.includes("使用 Microsoft 登录"));
   assert(organization.includes("尚未启用") && organization.includes("disabled="));
   assert(!organization.includes('type="email"') && !organization.includes('type="password"'));
-  assert(organization.includes("此次登录已过期") && organization.includes("白名单的受邀用户"));
+  assert(organization.includes("此次登录已过期") && organization.includes("等待名单"));
+  assert(!organization.includes('其他个人账号不开放注册'));
   assert.equal(accountReturnHref("account/error/expired/22"), "#/22");
   assert.equal(accountReturnHref("account/error/identity/https://evil.test"), undefined);
   assert(openRegistration.includes("学校／公司邮箱"));
@@ -97,6 +99,19 @@ try {
   const settings = renderToString(
     React.createElement(ProfileSettings, { user: testUser }),
   );
+  for (const status of ['active', undefined]) {
+    assert(renderToString(React.createElement(AccountAccessGate, {
+      user: { ...testUser, status }, onSignOut: async () => {}, onRefresh: async () => {},
+    }, React.createElement('div', null, 'Private practice workspace'))).includes('Private practice workspace'));
+  }
+  const waiting = renderToString(React.createElement(AccountAccessGate, {
+    user: { ...testUser, status: 'waitlisted', email: 'waiting@gmail.com' },
+    onSignOut: async () => {}, onRefresh: async () => {},
+  }, React.createElement('div', null, 'Private practice workspace')));
+  assert(waiting.includes('已加入等待名单') && waiting.includes('waiting@gmail.com'));
+  assert(waiting.includes('学校／企业账户') && waiting.includes('无需重复注册'));
+  assert(waiting.includes('退出并切换账号') && waiting.includes('刷新状态'));
+  assert(!waiting.includes('Private practice workspace') && !waiting.includes('个人主页'));
   assert(
     settings.includes("issued_login"),
     "Settings must display the stable login username",

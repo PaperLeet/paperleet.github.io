@@ -9,6 +9,7 @@ import { currentQuotaMessage } from "./publicationQuota";
 import { currentProfileEditLimitMessage, readProfileEditPolicy } from "./profileEditPolicy";
 import type { ProfileEditPolicy } from "./profileEditPolicy";
 import { safeAvatarPath } from "./profileAvatar";
+import { AccountAccessGate } from './Waitlist';
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type Affiliation = { name: string; name_en?: string; domain: string; kind: "institution" | "email_domain" };
@@ -27,6 +28,7 @@ export type PublicUser = {
   is_test_user?: boolean;
 };
 export type AccountUser = PublicUser & {
+  status?: 'active' | 'waitlisted' | 'disabled';
   email: string;
   role: string;
   show_institution: boolean;
@@ -44,6 +46,7 @@ export type AccountCapabilities = {
   auth_mode?: "institutional" | "test" | "oauth";
   oauth_providers?: { id: "google" | "microsoft"; available: boolean }[];
   organization_account_required?: boolean;
+  personal_account_waitlist?: boolean;
   test_login_available?: boolean;
   invite_only?: boolean;
   registration_policy?: "invite_only" | "work_email";
@@ -164,7 +167,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       setError("");
     } catch (e) {
       if (epoch !== accountEpoch.current) return;
-      setCurrentUser(null);
+      setCurrentUser(previous => previous?.status === 'waitlisted' ? previous : null);
       setError(errorMessage(e));
     } finally {
       if (epoch === accountEpoch.current) setLoading(false);
@@ -223,7 +226,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   return (
     <AccountContext.Provider
       value={{
-        user,
+        user: user?.status === 'waitlisted' ? null : user,
         capabilities,
         loading,
         error,
@@ -234,7 +237,11 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         refreshHealth,
       }}
     >
-      {children}
+      <AccountAccessGate user={user} refreshFailed={Boolean(error)} onRefresh={refresh} onSignOut={async () => {
+        await socialApi('account/logout', {});
+        setUser(null);
+        location.hash = '#/account';
+      }}>{children}</AccountAccessGate>
     </AccountContext.Provider>
   );
 }

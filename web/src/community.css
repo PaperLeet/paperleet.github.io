@@ -1556,3 +1556,8 @@
 .organization-login-button small { margin-left: auto; }
 .organization-login-button:disabled { opacity: .55; cursor: default; }
 .organization-login-button:focus-visible { outline: 3px solid var(--accent, #4f7c73); outline-offset: 3px; }
+.waitlist-page { max-width: 620px; margin: 56px auto; padding: 0 20px; }
+.waitlist-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.waitlist-card h1 { margin: 12px 0 20px; }
+.waitlist-email { overflow-wrap: anywhere; font-weight: 600; }
+.waitlist-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
