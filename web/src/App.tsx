@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
 import { Community, UserProfile, Account, Submissions, Visuals, ArtifactCharts, Prose, PythonEditor, SolutionHistory } from "./deferredPages";
 import {
@@ -16,6 +17,8 @@ import {
   FileCode2,
   FlaskConical,
   LockKeyhole,
+  Maximize2,
+  Minimize2,
   Moon,
   MessageCircle,
   Play,
@@ -282,6 +285,30 @@ function Workspace() {
     [toast, setToast] = useState(""),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
+  const [mobilePane, setMobilePane] = useState<'read' | 'code'>('read');
+  const [focusMode, setFocusMode] = useState(false);
+  function selectReadingTab(value: string) {
+    setTab(value); setMobilePane('read'); setFocusMode(false);
+    requestAnimationFrame(()=>document.querySelector('.description-scroll')?.scrollTo(0,0));
+  }
+  function openEditor() {
+    setRightTab('code'); setMobilePane('code');
+    requestAnimationFrame(()=>document.querySelector<HTMLElement>('#problem-editor-panel [contenteditable="true"], #problem-editor-panel textarea')?.focus({preventScroll:true}));
+  }
+  useEffect(()=>{setMobilePane('read');setFocusMode(false);},[id]);
+  useEffect(()=>{
+    const mobile = window.matchMedia('(max-width:850px)');
+    const restore = () => { if(mobile.matches) setFocusMode(false); };
+    mobile.addEventListener('change',restore);
+    return ()=>mobile.removeEventListener('change',restore);
+  },[]);
+  useEffect(()=>{if (!user && rightTab === 'history') setRightTab('code');},[user,rightTab]);
+  useEffect(()=>{
+    if (!focusMode) return;
+    const restore = (event: KeyboardEvent) => { if(event.key === 'Escape') setFocusMode(false); };
+    window.addEventListener('keydown',restore);
+    return ()=>window.removeEventListener('keydown',restore);
+  },[focusMode]);
   const [details, setDetails] = useState<Record<string, Problem>>({});
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
@@ -289,7 +316,7 @@ function Workspace() {
   const [submissionRevision, setSubmissionRevision] = useState(0);
   function openLab(view: ExperimentView = "auto") {
     setLabView(view);
-    setTab("lab");
+    selectReadingTab("lab");
   }
   const { stats: problemStats, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(id);
   const sourceProblem = problems.find(
@@ -335,7 +362,7 @@ function Workspace() {
     browser.clear(entry.id);
     learning.dismiss(entry,runOwner);
     void refreshProblemStats();
-    if ([entry.id, String(entry.number)].includes(getId())) setTab("tests");
+    if ([entry.id, String(entry.number)].includes(getId())) selectReadingTab("tests");
     setSubmissionRevision(value => value + 1);
     setToast(runOwner.startsWith("user:") ? t("提交完成，解答已保存到账号", "Submission complete. Solution saved to your account.") : t("测试已完成", "Run complete"));
   });
@@ -351,7 +378,7 @@ function Workspace() {
   }, [practice.owner, problem?.id, currentSource]);
   function locateSource(location: SourceLocation) {
     if (!problem || !practice.ready || !practice.owns(practice.owner) || ![problem.id,String(problem.number)].includes(getId())) return;
-    setRightTab('code');
+    setRightTab('code'); setMobilePane('code');
     setEditorFocus({ owner: practice.owner, problem: problem.id, source: currentSource, location });
   }
   function editorFocused(request: EditorFocusRequest) {
@@ -480,7 +507,7 @@ function Workspace() {
           // Hosted completions and shared statistics remain server-authoritative.
           if (!user) practice.applyReport(problem, outcome.report, runOwner);
           else learning.record(problem,outcome.report,runOwner);
-          if ([problem.id,String(problem.number)].includes(getId())) setTab("tests");
+          if ([problem.id,String(problem.number)].includes(getId())) selectReadingTab("tests");
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
         }
@@ -551,7 +578,7 @@ function Workspace() {
     `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」可在浏览器执行完整测试；全部通过后解锁坑点。登录后点击 Submit，服务端会保存提交时的代码和判题结果，可在「我的提交」中查看。未登录时，代码和进度仅在当前页面保留，刷新或离开后不保存。", "Complete the implementation and select Run tests to run the full suite in your browser. Passing unlocks Notes. Sign in and use Submit to save the submitted code and server result in My submissions. Guest code and progress last only while this page stays open and are cleared on refresh or exit.") : t("在右侧完成实现，登录后点击 Submit，由服务端执行完整测试并保存提交时的代码和结果，可在「我的提交」中查看。未登录的代码仅在当前页面保留。", "Complete the implementation, sign in, and use Submit to run the full suite on the server. The submitted code and result are kept in My submissions. Guest code lasts only while this page stays open.")}\n`,
   );
   return (
-    <div className={`app ${problem ? "workspace-view" : ""}`}>
+    <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
       <header className="topbar">
         <div className="nav-inner">
           <Brand />
@@ -588,6 +615,7 @@ function Workspace() {
             >
               <BilingualText zh="社区" en="Community" />
             </a>}
+            <a className="mobile-privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
           </nav>
           <div className="nav-actions">
             <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
@@ -711,6 +739,7 @@ function Workspace() {
             <b>
               {problem.number}. {problem.title}
             </b>
+            <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t('专注写代码，按 Esc 返回分栏','Focus on code; press Esc to restore both panels')} onClick={()=>{if(!focusMode)openEditor();setFocusMode(value=>!value);}}>{focusMode?<Minimize2 size={14}/>:<Maximize2 size={14}/>} {focusMode?t('退出专注','Exit focus'):t('专注模式','Focus mode')}</button>
             <div className="problem-navigation">
               <button
                 className="icon-button"
@@ -737,6 +766,7 @@ function Workspace() {
               </button>
             </div>
           </div>
+          <div className="mobile-workspace-switch" role="group" aria-label={t('练习视图','Practice view')}><button aria-pressed={mobilePane==='read'} aria-controls="problem-description-panel" onClick={()=>selectReadingTab(tab)}><BookOpen size={16}/>{t('题面与结果','Read & results')}</button><button aria-pressed={mobilePane==='code'} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16}/>{t('编写代码','Write code')}</button></div>
           <ResizableSplit
             as="main"
             className="workspace"
@@ -752,12 +782,17 @@ function Workspace() {
             secondId="problem-editor-panel"
           >
             <section className="description-pane" id="problem-description-panel">
-              <div className="pane-tabs">
+              <div className="pane-tabs" role="tablist" aria-label={t("题目内容","Problem content")} onKeyDown={navigateTabs}>
                 {tabs.map(([key, label]) => (
                   <button
                     key={key}
+                    id={`reading-tab-${key}`}
+                    role="tab"
+                    aria-selected={tab===key}
+                    tabIndex={tab===key?0:-1}
+                    aria-controls="problem-reading-content"
                     className={tab === key ? "selected" : ""}
-                    onClick={() => key === "lab" ? openLab() : setTab(key)}
+                    onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                   >
                     {key === "description" ? (
                       <FileCode2 size={14} />
@@ -784,7 +819,7 @@ function Workspace() {
                   <MessageCircle size={14} />{t("讨论", "Discuss")}
                 </a>}
               </div>
-              <div className="description-scroll" key={problem.id}>
+              <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab}`} tabIndex={0} key={`${problem.id}:${tab}`}>
                 {learningNotice}
                 {tab === "tests" ? (
                   <>
@@ -792,7 +827,7 @@ function Workspace() {
                   {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource} source={currentSource} onLocate={practice.ready ? locateSource : undefined}>
                     {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
                     {!running && reportSource === "current" && progressReady && isPassed(problem, report) && (
-                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => setTab("notes")} onLab={() => openLab("run")} />
+                      <PracticeNextStep next={nextProblem} samePaper={!!nextProblem && nextProblem.paper_id === problem.paper_id} onNotes={() => selectReadingTab("notes")} onLab={() => openLab("run")} />
                     )}
                   </ReportView>}
                   </>
@@ -818,7 +853,7 @@ function Workspace() {
                       </p>
                       <button
                         className="button"
-                        onClick={() => setTab("tests")}
+                        onClick={() => selectReadingTab("tests")}
                       >
                         {t("查看测试进度", "View test progress")}{" "}
                         <ArrowRight size={15} />
@@ -980,8 +1015,9 @@ function Workspace() {
               </div>
             </section>
             <section className="editor-pane" id="problem-editor-panel">
-              <div className="pane-tabs editor-tabs">
+              <div className="pane-tabs editor-tabs" role="tablist" aria-label={t("工作区视图","Workspace view")} onKeyDown={navigateTabs}>
                 <button
+                  id="editor-tab-code" role="tab" aria-selected={rightTab==="code"} tabIndex={rightTab==="code"?0:-1} aria-controls="editor-code-view"
                   className={rightTab === "code" ? "selected" : ""}
                   onClick={() => setRightTab("code")}
                 >
@@ -989,25 +1025,25 @@ function Workspace() {
                   {t("代码", "Code")}
                 </button>
                 <button
+                  id="editor-tab-lab" role="tab" aria-selected={rightTab==="lab"} tabIndex={rightTab==="lab"?0:-1} aria-controls="editor-lab-view"
                   className={rightTab === "lab" ? "selected" : ""}
                   onClick={() => setRightTab("lab")}
                 >
                   <FlaskConical size={14} />
                   {t("实验台", "Lab")}
                 </button>
-                {user && <button className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
+                {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
                   {t("我的提交", "My submissions")}
                 </button>}
                 <span className="editor-language">Python 3 · PyTorch</span>
               </div>
-              {rightTab === "history" && user ? (
-                <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />
-              ) : rightTab === "lab" ? (
-                <div className="editor-lab">
-                  <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />
-                </div>
-              ) : (
-                <>
+              <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
+                {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}
+              </div>
+              <div className="editor-lab" id="editor-lab-view" role="tabpanel" aria-labelledby="editor-tab-lab" tabIndex={0} hidden={rightTab!=='lab'}>
+                {rightTab === 'lab' && <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />}
+              </div>
+              <div className="editor-workbench" id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
                   <ResizableSplit
                     className="editor-split"
                     axis="vertical"
@@ -1022,7 +1058,7 @@ function Workspace() {
                   >
                   <div className="editor-code-panel" id="problem-code-panel">
                   <div className="editor-tools">
-                    <span>
+                    <span className="editor-filename">
                       <FileCode2 size={13} />
                       solution.py
                     </span>
@@ -1244,7 +1280,7 @@ function Workspace() {
                       {(report || syntaxFailure) && (
                         <button
                           className="text-button"
-                          onClick={() => setTab("tests")}
+                          onClick={() => selectReadingTab("tests")}
                         >
                           {t("查看详情", "View details")}{" "}
                           <ArrowRight size={13} />
@@ -1313,8 +1349,7 @@ function Workspace() {
                       </button>}
                     </div>
                   </div>
-                </>
-              )}
+              </div>
             </section>
           </ResizableSplit>
         </>

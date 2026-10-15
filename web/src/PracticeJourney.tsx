@@ -7,10 +7,11 @@ import { recommendPractice } from "./practice-recommendation";
 import { BilingualText } from "./BilingualText";
 import "./practice-journey.css";
 
-export function PracticeStart({ problems, saved, ready }: {
+export function PracticeStart({ problems, saved, ready, onBrowse }: {
   problems: Problem[];
   saved: Record<string, Saved>;
   ready: boolean;
+  onBrowse?: () => void;
 }) {
   const { t } = useI18n();
   const { health, user } = useAccount();
@@ -20,7 +21,7 @@ export function PracticeStart({ problems, saved, ready }: {
   const next = ready ? recommendPractice(problems, saved) : undefined;
   const resuming = next && status(next, saved[next.id]) === "started";
   const text = (zh: string, en: string) => <BilingualText zh={zh} en={en} />;
-  return <section className="practice-start" aria-label={t("你的下一步", "Your next step")}>
+  return <section className="practice-start" data-returning={ready && attempted || undefined} aria-label={t("你的下一步", "Your next step")}>
     <div className="practice-start-copy">
       <span className="journey-kicker">{text("读懂论文 · 写出核心算法", "Read the paper. Implement the idea.")}</span>
       <h2>{!ready ? text("正在加载学习进度…", "Loading your progress…") : !next ? text("本范围核心模块已完成", "Core modules complete in this view") : attempted ? text("接着上次，继续前进", "Keep your learning going") : text("从第一道算法题开始", "Start with your first algorithm")}</h2>
@@ -30,6 +31,7 @@ export function PracticeStart({ problems, saved, ready }: {
         <li><Code2 size={15} aria-hidden="true" />{text("补全核心函数", "Implement the core")}</li>
         <li><FlaskConical size={15} aria-hidden="true" />{text("运行测试与实验", "Test and explore")}</li>
       </ol>
+      {onBrowse && <div className="journey-links"><button className="button subtle" onClick={onBrowse}>{t('浏览论文题库','Explore papers')}<ArrowRight size={14}/></button></div>}
     </div>
     <div className="practice-recommendation" aria-live="polite" aria-busy={!ready}>
       {next ? <>

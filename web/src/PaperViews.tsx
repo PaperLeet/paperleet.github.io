@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronDown,
-  ChevronLeft, ChevronRight, Circle, ExternalLink, Search, Library, Shuffle, X,
+  ChevronLeft, ChevronRight, Circle, ExternalLink, Search, Library, Shuffle, SlidersHorizontal, List, Rows3, X,
 } from "lucide-react";
 import { useI18n } from "./i18n";
 import { BilingualText } from "./BilingualText";
@@ -9,7 +9,9 @@ import { status } from "./types";
 import type { Category, Paper, Problem, Saved } from "./types";
 import { paperCollections, papersInCollection } from "./paperCollections";
 import { eligibleUnattemptedProblems, pickRandomUnattemptedProblem } from "./randomProblem";
-import CollectionArtwork from "./CollectionArtwork";
+import { deferredFeature } from "./deferredFeature";
+import LibraryOverview from "./LibraryOverview";
+const CollectionArtwork = deferredFeature(() => import("./CollectionArtwork"), ["合集插图", "collection artwork"], {loading:()=>null,failure:()=>null});
 import { getProblemStats, ProblemStatsSummary } from "./ProblemStats";
 import type { ProblemStatsMap } from "./ProblemStats";
 import { PracticeStart } from "./PracticeJourney";
@@ -67,6 +69,26 @@ const categoryLabels: Record<string, [string, string]> = {
 
 export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean }) {
   const { t } = useI18n();
+  const searchInput = useRef<HTMLInputElement>(null);
+  const libraryMain = useRef<HTMLDivElement>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
+    try { return localStorage.getItem('paperleet.library.density.v1') === 'compact' ? 'compact' : 'comfortable'; }
+    catch { return 'comfortable'; }
+  });
+  function changeDensity(value: 'comfortable' | 'compact') {
+    setDensity(value);
+    try { localStorage.setItem('paperleet.library.density.v1', value); } catch { /* Preferences remain usable without storage. */ }
+  }
+  function browse() { libraryMain.current?.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}); }
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || (event.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"], [role="dialog"], dialog[open]')) return;
+      event.preventDefault(); searchInput.current?.focus(); libraryMain.current?.scrollIntoView({block:'start'});
+    };
+    window.addEventListener('keydown',focusSearch);
+    return () => window.removeEventListener('keydown',focusSearch);
+  },[]);
   const [query, setQuery] = useState("");
   const [diff, setDiff] = useState("all");
   const [runtime, setRuntime] = useState("all");
@@ -117,7 +139,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   function clear() { setQuery(""); setDiff("all"); setState("all"); setTag("all"); setCategory("all"); setRuntime("all"); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all" || runtime !== "all";
   return <main className="home paper-library">
-    <PracticeStart problems={listedModules} saved={saved} ready={progressReady} />
+    <PracticeStart problems={listedModules} saved={saved} ready={progressReady} onBrowse={browse} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
       <div className="collections-heading">
         <h2>{t("精选合集", "Featured collections")}</h2>
@@ -144,7 +166,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         })}
       </nav>
     </section>
-    <div className="library-main">
+    <div className="library-layout">
+    <div className="library-main" id="paper-library" ref={libraryMain} data-density={density}>
     <header className="library-heading">
       <div className="library-title"><h1><BilingualText zh={selectedCollection?.name || "论文题库"} en={selectedCollection?.name_en || "Papers"} /> <span>{listedPapers.length}</span></h1>{selectedCollection && <a className="clear-collection" href="#" onClick={clear} aria-label={t("返回全部论文", "Back to all papers")} title={t("返回全部论文", "Back to all papers")}><X size={17} /></a>}</div>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{solvedModules} / {listedModules.length}</b></div>
@@ -158,8 +181,9 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     </div>
     <section className="problem-list" aria-label={t("论文列表", "Paper list")}>
       <div className="library-toolbar">
-        <label className="search"><Search size={17} aria-hidden="true" /><input type="search" aria-label={t("搜索论文或模块", "Search papers or modules")} placeholder={t("搜索论文或模块…", "Search papers or modules…")} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} /></label>
-        <div className="filter-bar">
+        <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} placeholder={t("搜索论文或模块…", "Search papers or modules…")} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />{query ? <button className="search-clear" type="button" aria-label={t("清空搜索","Clear search")} onClick={()=>{setQuery("");searchInput.current?.focus();}}><X size={15}/></button> : <kbd aria-hidden="true">/</kbd>}</div>
+        <button className="library-filter-toggle" aria-controls="library-advanced-filters" aria-expanded={filtersOpen} onClick={()=>setFiltersOpen(value=>!value)}><SlidersHorizontal size={16} aria-hidden="true"/>{t('筛选','Filters')}<ChevronDown size={13} aria-hidden="true"/></button>
+        <div className="filter-bar" id="library-advanced-filters" data-expanded={filtersOpen}>
           <div className="select-wrap"><select aria-label={t("主题筛选", "Filter by topic")} value={tag} onChange={(e) => setTag(e.target.value)}>
             <option value="all">{t("主题", "Topic")}</option>{tags.map((name) => <option key={name}>{name}</option>)}
           </select><ChevronDown size={12} aria-hidden="true" /></div>
@@ -173,24 +197,26 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
         </div>
-        <button className="random-problem" onClick={randomProblem} disabled={!progressReady || !unattempted.length} title={!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} /><BilingualText zh="随机一题" en="Random problem" /></button>
+        <button className="random-problem" aria-label={t("随机一题","Random problem")} onClick={randomProblem} disabled={!progressReady || !unattempted.length} title={!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true"/><span>{t("随机一题","Random problem")}</span></button>
       </div>
-      <div className="library-results" aria-live="polite"><span>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · {filteredModules.length} {t("道题", "modules")}{progressReady && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</span>{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}</div>
+      <div className="library-results"><span role="status">{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · {filteredModules.length} {t("道题", "modules")}{progressReady && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</span><div className="library-result-actions">{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}<div className="library-density" role="group" aria-label={t('列表密度','List density')}><button aria-label={t('舒适列表','Comfortable list')} title={t('舒适列表','Comfortable list')} aria-pressed={density==='comfortable'} onClick={()=>changeDensity('comfortable')}><Rows3 size={15}/></button><button aria-label={t('紧凑列表','Compact list')} title={t('紧凑列表','Compact list')} aria-pressed={density==='compact'} onClick={()=>changeDensity('compact')}><List size={15}/></button></div></div></div>
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{t("论文", "Paper")}</span><span className="paper-year">{t("年份", "Year")}</span><span>{t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
       <div className="problem-rows">
         {filtered.map((paper) => {
           const progress = paperProgress(paper, practice);
-          return <a className="problem-row paper-table-grid" key={paper.id} href={`#/papers/${paper.id}`}>
+          return <div className="paper-result-group" key={paper.id}><a className="problem-row paper-table-grid" data-paper-id={paper.id} href={`#/papers/${paper.id}`}>
             <StateIcon state={progress.state} />
             <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}</strong><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
-          </a>;
+          </a>{!!query.trim() && <div className="matching-modules"><span>{t('匹配模块','Matching modules')}</span>{matchingPaperModules(paper,problems,query,diff,runtime).map(module=><a key={module.id} href={`#/${module.number}`}>{module.number}. {t(module.title,module.translations?.en?.title || module.title)}<ArrowRight size={12} aria-hidden="true"/></a>)}</div>}</div>;
         })}
       </div>
       {!filtered.length && <div className="no-results"><Search size={25} /><p>{t("没有符合条件的论文", "No matching papers")}</p><button className="text-button" onClick={clear}>{t("清除筛选", "Clear filters")}</button></div>}
     </section>
+    </div>
+    <LibraryOverview problems={listedModules} saved={saved} ready={progressReady} difficulty={diff} onDifficulty={setDiff} onBrowse={browse}/>
     </div>
   </main>;
 }
