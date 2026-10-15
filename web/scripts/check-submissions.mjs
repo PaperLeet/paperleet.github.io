@@ -17,7 +17,7 @@ const server=await createServer({server:{middlewareMode:true,hmr:false},appType:
 }]});
 let root;
 try {
-  const {default:Submissions}=await server.ssrLoadModule('/src/Submissions.tsx');
+  const {LegacySubmissions:Submissions}=await server.ssrLoadModule('/src/Submissions.tsx');
   const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
   function LanguageSwitch(){const {setLocale}=useI18n();return React.createElement('button',{onClick:()=>setLocale('en')},'English fixture');}
   const requestQueue=[];

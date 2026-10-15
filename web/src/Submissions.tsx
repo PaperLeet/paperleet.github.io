@@ -25,6 +25,8 @@ import { Prose } from "./RichText";
 import { ArtifactCharts } from "./Visuals";
 import { tabDraftStorage } from "./communityDrafts";
 import { clearSubmittedProposalDraft, emptyProposalDraft, proposalDraftOwner, readProposalDraft, writeProposalDraft, type ProposalDraft } from "./proposalDrafts";
+import PaperPool from './PaperPool';
+import { hostedEdition } from './deployment';
 
 type Candidate = {
   title: string;
@@ -142,6 +144,12 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   return data;
 }
 export default function Submissions({onPublished}: {onPublished: () => void}) {
+  const {health} = useAccount();
+  if (hostedEdition || health?.mode === 'hosted') return <PaperPool />;
+  return <LegacySubmissions onPublished={onPublished} />;
+}
+
+export function LegacySubmissions({onPublished}: {onPublished: () => void}) {
   const {user, health} = useAccount();
   const owner = proposalDraftOwner(health?.mode, user?.id);
   return <SubmissionWorkspace key={owner || "unresolved"} draftOwner={owner} onPublished={onPublished} />;

@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -68,7 +69,13 @@ class Sandbox:
         capability = self.capability()
         if not capability["ready"]:
             return {"exit_code": 125, "tests": [], "error": capability["reason"], "output": ""}
-        with tempfile.TemporaryDirectory(prefix="paperleet-sandbox-") as temp:
+        # A worker container talking to the host Docker daemon needs an
+        # identically mounted host/container directory for candidate bind mounts.
+        # This administrator setting is never taken from a request or model.
+        work_directory = os.environ.get("PAPERLEET_SANDBOX_WORK_DIR", "").strip()
+        if work_directory and (not Path(work_directory).is_absolute() or not Path(work_directory).is_dir()):
+            return {"exit_code": 125, "tests": [], "error": "The configured sandbox working directory is unavailable.", "output": ""}
+        with tempfile.TemporaryDirectory(prefix="paperleet-sandbox-", dir=work_directory or None) as temp:
             directory = Path(temp)
             directory.chmod(0o755)
             (directory / "tests").mkdir(mode=0o755)
@@ -156,6 +163,52 @@ class Sandbox:
         report["status"] = "passed" if report["passed"] else "failed"
         report["output"] = "\n".join(f"{name}: {result.get('error', str(result['exit_code']))}" for name, result in results.items())
         return report
+
+    def try_candidate(self, candidate, code):
+        """Run a pool attempt in the same offline container as published work.
+
+        The caller loads a private, hash-bound validated package. This method
+        never imports a generated module on the host. Raw pytest stdout and
+        tracebacks may contain private test sources, so they never appear in
+        the learner report returned here.
+        """
+        if not isinstance(code, str) or not code.strip() or len(code.encode("utf-8")) > 64000:
+            raise ValueError("Code must be nonempty Python source under 64 KB")
+        checks = static_checks(candidate)
+        if not all(row["passed"] for row in checks):
+            raise ValueError("Candidate failed structural validation")
+        digest = package_hash(candidate)
+        source_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
+        result = self.run(candidate, code)
+        tests = result.get("tests", [])
+        expected = {row["name"] for row in candidate["tests"]}
+        valid = (isinstance(tests, list) and all(isinstance(row, dict) for row in tests)
+                 and len(tests) == len(expected) and {row.get("id") for row in tests} == expected
+                 and all(row.get("outcome") in {"passed", "failed", "error"} for row in tests))
+        try:
+            validate_report_artifacts(tests if valid else [])
+        except (ValueError, TypeError, AttributeError):
+            valid = False
+        if result.get("error") or result.get("exit_code") not in (0, 1) or not valid:
+            return {"package_hash": digest, "source_sha256": source_hash, "passed": False, "tests": [],
+                    "execution_completed": False,
+                    "error": "The isolated runner could not complete this attempt. Please retry later.",
+                    "status": "unavailable" if result.get("exit_code") == 125 else "error"}
+        sanitized = []
+        layers = {row["name"]: row["layer"] for row in candidate["tests"]}
+        for row in tests:
+            outcome = row["outcome"]
+            passed = row.get("passed") is True and outcome == "passed"
+            duration = row.get("duration_s", 0)
+            duration = duration if isinstance(duration, (int, float)) and math.isfinite(duration) and 0 <= duration <= 90 else 0
+            sanitized.append({"id": row["id"], "layer": layers[row["id"]], "passed": passed,
+                              "outcome": outcome, "duration_s": duration,
+                              "message": "" if passed else ("This case raised an error." if outcome == "error" else "This case did not match the required result."),
+                              "artifacts": row.get("artifacts", {})})
+        passed = result["exit_code"] == 0 and all(row["passed"] for row in sanitized)
+        return {"package_hash": digest, "source_sha256": source_hash, "passed": passed,
+                "tests": sanitized, "status": "accepted" if passed else "failed", "error": None,
+                "execution_completed": True}
 
 
 def run_published(entry, implementation, layers=None):

@@ -184,7 +184,7 @@ function Workspace() {
     locale === "en" && p.translations?.en ? { ...p, ...p.translations.en } : p;
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
-  const submissionPage = id === "submit";
+  const submissionPage = path === "submit";
   const submissionResultId = /^submission\/([a-f0-9]{32})$/.exec(path)?.[1];
   const communityPath = id.split('?')[0];
   const communityPage = communityPath === "community" || communityPath.startsWith("community/");

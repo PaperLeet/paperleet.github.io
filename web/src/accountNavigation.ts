@@ -11,6 +11,7 @@ function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
   const interviews=readInterviewRoute(route);
   if(interviews)return interviewHref(interviews).slice(2);
+  if (/^submit\?(?:proposal=[a-f0-9]{32}|view=pool)$/.test(route)) return route;
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
   if (route === "" || route === "community" || route === "submit" || route === "achievements") return route;
   if (/^[1-9]\d*$/.test(route)) return route;
