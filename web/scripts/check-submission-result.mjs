@@ -16,6 +16,16 @@ try {
   const report = { problem: 'rl/dpo', source_sha256: 'b'.repeat(64), summary: { T0: [1, 1] }, tests: [{ id: 'test_loss', layer: 'T0', passed: true }] };
   const run = { id, problem: 'rl/dpo', created_at: '2026-10-15T12:00:00+00:00', accepted: true, source_sha256: 'b'.repeat(64), code: 'private submitted code', report };
   const payload = { user_id: 'alice', run };
+  const { submissionDestination } = await server.ssrLoadModule('/src/submissionNavigation.ts');
+  for (const completed of [report,
+    { ...report, summary: { T0: [0, 1] }, tests: [{ ...report.tests[0], passed: false }] },
+    { ...report, error: 'Judge interrupted' },
+  ]) {
+    assert.deepEqual(submissionDestination({ ...completed, run_id: id }, 'user:alice', { id: report.problem, number: 3 }),
+      { href: `#/submission/${id}` },
+      'Accepted, failed, and incomplete attempts expose an explicit saved-result link without automatic navigation');
+  }
+  assert.equal(submissionDestination({ ...report, run_id: '../another-account' }, 'user:alice', { id: report.problem, number: 3 }), undefined);
   assert.equal(parseSubmissionResult(payload, 'alice', id).code, run.code);
   assert.throws(() => parseSubmissionResult(payload, 'bob', id), /owner/);
   assert.throws(() => parseSubmissionResult(payload, 'alice', 'c'.repeat(32)), /URL/);
@@ -156,6 +166,29 @@ try {
     await act(async () => requests[4].resolve(Response.json({ ...payload, run: { ...run, accepted: false } })));
     assert(document.body.textContent.includes('Not accepted') && document.body.textContent.includes('did not cover every required test'),
       'A partial passing attempt is explained without implying acceptance or failed assertions');
+
+    // Keeping Submit inside the workspace must not remove the deliberate path
+    // from a history entry to its immutable saved result.
+    const { default: History } = await server.ssrLoadModule('/src/SolutionHistory.tsx');
+    dom.window.history.replaceState(null, '', '#/3?from=collections/llm');
+    const practiceRoute = dom.window.location.href;
+    const historyRequest = requests.length;
+    await act(async () => root.render(React.createElement(History, { owner: 'user:alice', problem: problems[0], revision: 0 })));
+    assert.equal(requests.length, historyRequest + 1);
+    assert(requests[historyRequest].path.startsWith('/api/practice/runs?'));
+    await act(async () => requests[historyRequest].resolve(Response.json({ user_id: 'alice', runs: [run] })));
+    assert.equal(dom.window.location.href, practiceRoute, 'Loading completed submissions keeps the current practice route');
+    const savedResultLink = document.querySelector('.solution-history-source-heading a');
+    assert.equal(savedResultLink?.textContent, 'View result');
+    assert.equal(savedResultLink?.getAttribute('href'), `#/submission/${id}`);
+    const navigated = new Promise(resolve => dom.window.addEventListener('hashchange', resolve, { once: true }));
+    await act(async () => { savedResultLink.click(); await navigated; });
+    assert.equal(dom.window.location.hash, `#/submission/${id}`, 'Only explicit history activation opens the saved result page');
+    const explicitRequest = requests.length;
+    await act(async () => root.render(draw()));
+    await act(async () => requests[explicitRequest].resolve(Response.json(payload)));
+    assert(document.body.textContent.includes('Accepted'), 'Existing direct result links still render their saved verdict');
+    assert.equal([...document.querySelectorAll('a')].find(link => link.textContent === 'Back to code')?.getAttribute('href'), '#/3');
     assert.equal(requests.every(request => !request.options.method || request.options.method === 'GET'), true, 'Viewing and retrying results must never submit code');
   } finally {
     if (root) await act(async () => root.unmount());
@@ -165,7 +198,7 @@ try {
     }
     dom.window.close();
   }
-  console.log('PASS immutable submission result, authoritative verdict, private account/URL isolation, cancellation, retry, focused result and partial-suite UI');
+  console.log('PASS explicit submission links without redirects, history navigation, immutable result, authoritative verdict, private account/URL isolation, cancellation, retry, focused result and partial-suite UI');
 } finally {
   await server.close();
 }

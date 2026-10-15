@@ -1,4 +1,6 @@
 .workspace-test-results { padding:12px 14px; min-width:0; }
+.workspace-test-results > .result-head { flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+.workspace-test-results > .result-head > span > small { display:block; margin-top:4px; color:var(--muted); }
 .workspace-test-results .report-workflow { margin:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
 .workspace-test-results .feedback-heading h3 { margin:0; font-size:12px; line-height:1.65; }
 .workspace-test-results .feedback-diagnostic { margin:8px 0 0; font-size:11px; }
