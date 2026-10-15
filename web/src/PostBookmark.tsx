@@ -15,17 +15,19 @@ export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,d
   const [busy,setBusy]=useState(false),[pending,setPending]=useState<boolean>(),[error,setError]=useState('');
   const mounted=useRef(true),working=useRef(false),controller=useRef<AbortController|undefined>(undefined);
   const trigger=useRef<HTMLButtonElement>(null);
+  const root=useRef<HTMLDivElement>(null),focusRetained=useRef(false);
   const recovery=useRef<HTMLDivElement>(null);
   const focusConfirmed=useRef(false);
   const uncertain=pending!==undefined&&pending!==bookmarked;
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;controller.current?.abort();};},[]);
   useEffect(()=>{
     if(busy||disabled)return;
-    if(error&&uncertain)recovery.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    if(error&&uncertain&&focusRetained.current)recovery.current?.querySelector<HTMLButtonElement>('button')?.focus();
     else if(focusConfirmed.current){focusConfirmed.current=false;trigger.current?.focus();}
   },[busy,disabled,error,uncertain,bookmarked]);
   async function confirm(active?:boolean) {
     if(disabled||working.current||!owner||!enabled)return;
+    focusRetained.current=!!root.current?.contains(document.activeElement);
     working.current=true;setBusy(true);onBusyChange(true);setError('');
     const request=new AbortController();controller.current=request;
     const timer=setTimeout(()=>request.abort(),20_000);
@@ -38,7 +40,7 @@ export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,d
         throw Error(t('收藏响应与当前账号或帖子不一致，请重新读取状态。','The saved-state response does not match this account or post. Read the state again.'));
       }
       if(mounted.current) {
-        focusConfirmed.current=true;
+        focusConfirmed.current=focusRetained.current;
         setPending(undefined);onChange(result.bookmarked);
       }
     } catch(e) {
@@ -54,7 +56,9 @@ export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,d
   }
   if(!enabled||typeof bookmarked!=='boolean')return null;
   if(!owner)return <a className="post-bookmark-signin" href={signInHref(returnTo)}><Bookmark size={16}/>{t('登录收藏','Sign in to save')}</a>;
-  return <div className="post-bookmark" aria-busy={busy}>
+  return <div className="post-bookmark" aria-busy={busy} ref={root} onBlur={event=>{
+    if(event.relatedTarget&&!event.currentTarget.contains(event.relatedTarget as Node))focusRetained.current=false;
+  }}>
     <button ref={trigger} type="button" className={bookmarked?'active':''} aria-pressed={bookmarked}
       aria-label={bookmarked?t('取消收藏','Unsave post'):t('收藏帖子','Save post')}
       disabled={disabled||busy||uncertain} onClick={()=>void confirm(!bookmarked)}>
