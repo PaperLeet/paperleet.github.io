@@ -15,9 +15,9 @@ export const paperCollections: PaperCollection[] = [
     id: "llm-basics",
     name: "LLM 基础",
     name_en: "LLM Basics",
-    description: "Attention · Transformer · LoRA",
-    description_en: "Attention · Transformer · LoRA",
-    paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora"],
+    description: "训练与生成入门 · Attention · LoRA",
+    description_en: "Training & generation · Attention · LoRA",
+    paperIds: ["llm-training-generation", "transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora"],
   },
   {
     id: "retrieval",

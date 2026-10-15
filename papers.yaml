@@ -637,3 +637,30 @@ papers:
     scope: Query-only InfoNCE、参数 EMA 和环形字典；提供 12 次真实合成 SGD，不复现图像训练或论文基准。
     scope_en: Query-only InfoNCE, parameter EMA and a circular dictionary, with 12 actual synthetic SGD steps; no image-training or paper benchmark reproduction.
     module_ids: [representation/moco]
+
+  - id: llm-training-generation
+    number: 59
+    kind: course
+    category: foundations
+    short_title: LLM Training & Generation · 训练与生成入门
+    tags:
+    - Back to Basics
+    - Next-token Loss
+    - SFT
+    - Top-k
+    - Top-p
+    - Gradient Accumulation
+    - Gradient Clipping
+    summary: 从下一词预测与回答掩码，到候选概率、有效 token 梯度累积和全局裁剪。
+    summary_en: From next-token targets and response masks to candidate probabilities, token-weighted
+      accumulation and global clipping.
+    scope: 6 道独立基础题，明确错位、掩码、并列值和归约约定；提供确定性概率实验与真实小模型梯度更新。
+    scope_en: Six standalone exercises with explicit shifting, masks, ties and reductions; deterministic
+      probability experiments and actual small-model gradient updates.
+    module_ids:
+    - foundations/next_token_loss
+    - foundations/sft_loss_mask
+    - foundations/top_k_sampling
+    - foundations/top_p_sampling
+    - foundations/gradient_accumulation
+    - foundations/gradient_clipping

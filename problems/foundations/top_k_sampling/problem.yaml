@@ -1,0 +1,73 @@
+id: foundations/top_k_sampling
+number: 88
+title: Top-k：温度缩放与候选概率
+title_en: 'Top-k: Temperature and Candidate Probabilities'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://huggingface.co/docs/transformers/main/en/main_classes/text_generation
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: top_k_probs
+  signature: 'top_k_probs(logits: Tensor, k: int, temperature: float = 1.) -> Tensor'
+module:
+  goal: 将温度缩放与精确 Top-k 候选过滤组成确定性概率变换。
+  goal_en: 'Top-k: Temperature and Candidate Probabilities'
+  scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
+  scope_en: Implement one core function; independent tests and deterministic synthetic experiments
+    are provided.
+  required_functions:
+  - top_k_probs
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64; int64 IDs and bool masks where specified
+  device: CPU
+  contract: 'Finite float32/64 logits [...,V], V>=1, CPU; zero-length leading dimensions allowed.
+    Integer 1<=k<=V; finite temperature>0. Select exactly k largest logits per last-axis row, breaking
+    ties by smaller vocabulary index. Return same-shaped/dtype/device probabilities: softmax(logits/temperature)
+    restricted to selected indices, exactly zero elsewhere, row sums one. Selection is independent
+    for each row. No random draw or input mutation; derivatives are not required. Exact-k tie handling
+    is an explicit exercise convention, unlike threshold-based implementations that may retain extra
+    ties. Use float64 intermediate scaling and cast only the final probabilities to the input dtype.'
+estimated_minutes: 15
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+tags:
+- Back to Basics
+- LLM Training and Generation
+- Top-k
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://huggingface.co/docs/transformers/main/en/main_classes/text_generation
+toy:
+  kind: teaching_adaptation
+  source: https://huggingface.co/docs/transformers/main/en/main_classes/text_generation
+  anchor: Public API semantics and explicit exercise equations
+  adaptation: Seeded categorical sampling from learner probabilities plus deterministic parameter sweeps; no pretrained model, dataset download,
+    paper benchmark or throughput claim.
+mutants:
+- id: m1_smallest
+  bug: 保留最小的 k 个 logit。
+- id: m2_wrong_temperature
+  bug: 将温度乘到 logits 上。
+- id: m3_too_many
+  bug: 多保留一个候选。
+- id: m4_threshold_ties
+  bug: 阈值过滤保留过多并列项。

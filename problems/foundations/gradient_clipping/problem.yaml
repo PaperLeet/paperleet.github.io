@@ -1,0 +1,75 @@
+id: foundations/gradient_clipping
+number: 91
+title: 全局梯度裁剪：一个范数缩放所有参数
+title_en: 'Global Gradient Clipping: One Norm for All Parameters'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://docs.pytorch.org/docs/2.14/generated/torch.nn.utils.clip_grad_norm_.html
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: clip_gradients
+  signature: 'clip_gradients(gradients: list[Tensor], max_norm: float, eps: float = 1e-6) -> tuple[list[Tensor],
+    Tensor]'
+module:
+  goal: 计算跨参数的全局范数，并用统一比例裁剪。
+  goal_en: 'Global Gradient Clipping: One Norm for All Parameters'
+  scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
+  scope_en: Implement one core function; independent tests and deterministic synthetic experiments
+    are provided.
+  required_functions:
+  - clip_gradients
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64; int64 IDs and bool masks where specified
+  device: CPU
+  contract: 'Nonempty list of finite float32/64 CPU gradient tensors, same dtype/device but arbitrary
+    shapes, including scalars/empty tensors. Finite max_norm>=0 and eps>0. Compute the global L2
+    norm over every element of every tensor. Return (new gradient list, original scalar total_norm),
+    same shapes/dtype/device, using scale=min(1,max_norm/(total_norm+eps)) for every tensor. Empty/all-zero
+    gradients have norm zero; max_norm=0 yields zeros. Pure function: no .grad mutation, optimizer
+    update or input/list mutation. No higher-order-gradient requirement. The denominator epsilon
+    is explicit and matches the exercise clipping convention; this is norm clipping, not elementwise
+    value clipping.'
+estimated_minutes: 15
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+tags:
+- Back to Basics
+- LLM Training and Generation
+- Global Gradient Clipping
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://docs.pytorch.org/docs/2.14/generated/torch.nn.utils.clip_grad_norm_.html
+toy:
+  kind: teaching_adaptation
+  source: https://docs.pytorch.org/docs/2.14/generated/torch.nn.utils.clip_grad_norm_.html
+  anchor: Public API semantics and explicit exercise equations
+  adaptation: Original deterministic synthetic experiment; no pretrained model, dataset download,
+    paper benchmark or throughput claim.
+mutants:
+- id: m1_per_parameter
+  bug: 分别按每个参数范数裁剪。
+- id: m2_value_clip
+  bug: 使用逐元素截断。
+- id: m3_amplify
+  bug: 未限制缩放比例上限，放大小梯度。
+- id: m4_report_clipped
+  bug: 返回裁剪后范数。

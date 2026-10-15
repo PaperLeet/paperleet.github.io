@@ -661,7 +661,7 @@ function Workspace() {
               if (reset) setResultsCollapsed(!running && !workspaceAttention);
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            <ModuleNavigator key={problem.id} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
+            <ModuleNavigator key={problem.id} course={selectedPaper?.kind === "course"} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
@@ -825,7 +825,7 @@ function Workspace() {
                       <BookOpen size={19} />
                       <div>
                         <small>
-                          {t("阅读论文", "READ THE PAPER")}{" "}
+                          {selectedPaper?.kind === "course" ? t("参考资料", "REFERENCES") : t("阅读论文", "READ THE PAPER")}{" "}
                           <span>{problem.paper?.venue}</span>
                         </small>
                         <strong>{problem.paper?.title}</strong>
@@ -1166,7 +1166,7 @@ function Workspace() {
                   {!running&&(report||syntaxFailure||resultsRequested)&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
                     onEdit={()=>{setResultsCollapsed(true);openEditor();}} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')}/>}
+                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={selectedPaper?.kind === "course"} current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')}/>}
                   </WorkspaceTestResults>}
                   </div>
                   </div>

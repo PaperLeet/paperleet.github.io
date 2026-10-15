@@ -7,14 +7,14 @@ import { withLibraryContext } from "./libraryNavigation";
 import { useI18n } from "./i18n";
 import { status, type Problem, type Saved } from "./types";
 
-export function ModuleNavigator({ current, modules: paperModules, allModules, saved, ready, returnTo }: { current: Problem; modules: Problem[]; allModules?:Problem[]; saved: Record<string, Saved>; ready: boolean; returnTo?: string }) {
+export function ModuleNavigator({ current, modules: paperModules, allModules, saved, ready, returnTo, course }: { current: Problem; modules: Problem[]; allModules?:Problem[]; saved: Record<string, Saved>; ready: boolean; returnTo?: string; course?: boolean }) {
   const { t, locale } = useI18n();
   const track=returnTo?readInterviewRoute(returnTo)?.track:undefined;
   const progress=track?preparationProgress(track,allModules||paperModules,saved):undefined;
   const scoped=progress?.modules.some(module=>module.id===current.id)?progress:undefined;
   const batch=interviewPracticeBatch(returnTo,allModules||paperModules,saved,current);
   const modules=batch?.modules||scoped?.modules||paperModules;
-  const heading=batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):t('本篇论文','This paper');
+  const heading=batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):t('本篇论文','This paper');
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);

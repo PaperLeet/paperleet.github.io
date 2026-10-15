@@ -5,6 +5,7 @@ import type { BrowserBudgets } from "./browserBudgets";
 export type Category = { id: string; name: string; name_en: string };
 
 export type Paper = {
+  kind?: "course";
   id: string;
   number: number;
   title: string;
