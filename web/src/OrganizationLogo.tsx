@@ -4,11 +4,11 @@ import './organization-logo.css';
 
 // Reviewed, bundled assets only. Never turn a user's email domain into a remote image request.
 const files: Record<string, string> = {
-  openai: 'openai.png', microsoft: 'microsoft.ico', tesla: 'tesla.png',
-  bytedance: 'bytedance.png', alibaba: 'alibaba.jpg', tencent: 'tencent.png', baidu: 'baidu.ico',
-  meituan: 'meituan.ico', kuaishou: 'kuaishou.ico', deepseek: 'deepseek.svg', brown: 'brown.png',
-  google: 'google.png', meta: 'meta.svg', amazon: 'amazon.ico', apple: 'apple.ico',
-  nvidia: 'nvidia.ico', anthropic: 'anthropic.png', xai: 'xai.ico',
+  openai: 'openai-linkedin.jpg', microsoft: 'microsoft-linkedin.jpg', tesla: 'tesla-linkedin.jpg',
+  bytedance: 'bytedance-linkedin.jpg', alibaba: 'alibaba-linkedin.jpg', tencent: 'tencent-linkedin.jpg', baidu: 'baidu-linkedin.jpg',
+  meituan: 'meituan-linkedin.jpg', kuaishou: 'kuaishou-linkedin.jpg', deepseek: 'deepseek-linkedin.jpg', brown: 'brown.png',
+  google: 'google-linkedin.jpg', meta: 'meta-linkedin.jpg', amazon: 'amazon-linkedin.jpg', apple: 'apple-linkedin.jpg',
+  nvidia: 'nvidia-linkedin.jpg', anthropic: 'anthropic-linkedin.jpg', xai: 'xai.ico',
   mit: 'mit.svg', 'uc-berkeley': 'uc-berkeley.ico', cornell: 'cornell.ico',
   stanford: 'stanford.ico', cmu: 'cmu.ico',
 };

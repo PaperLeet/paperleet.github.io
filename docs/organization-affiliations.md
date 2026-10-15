@@ -4,7 +4,7 @@ Reviewed 2026-10-15. These mappings translate already-public, verified-mailbox a
 
 `AffiliationBadge` shows the localized organization name and a bundled logo when available. It never displays the email address or the raw domain. Recognized domains and their subdomains map to a reviewed display name; suffix matches require a dot boundary. Unknown domains produce a readable organization label with a neutral building icon, never a guessed university name or official logo. Server-provided readable organization names are preserved.
 
-Logo files and their official source URLs are recorded in [asset sources](../web/public/organization-logos/SOURCES.md). Images are served locally; profiles do not request avatars or logos from external services based on email domains. Missing/failed images use a fixed-size neutral icon. Company names and IDs follow the interview catalog; its official websites supply their matching public domain names. No new authenticated API is needed.
+Logo files and their source URLs are recorded in [asset sources](../web/public/organization-logos/SOURCES.md). Company avatars use the organization's public LinkedIn page where available; remaining icons come from official websites. Downloaded originals are bundled locally, so signed LinkedIn image URLs are never used at runtime. Profiles do not request avatars or logos from external services based on email domains. Missing/failed images use a fixed-size neutral icon. Company names and IDs follow the interview catalog; its official websites supply their matching public domain names. No new authenticated API is needed.
 
 ## University display sources
 
