@@ -21,7 +21,11 @@ def create_torch(name='torch', *, register=False):
     torch.device, torch.finfo = _device.Device, np.finfo
     root_name = name
     modules = {'torch': torch}
-    for name in ('nn', 'nn.functional', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
+    for name in ('nn', 'nn.functional', 'nn.parameter', 'nn.modules', 'nn.modules.module',
+                 'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
+                 'nn.modules.normalization', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
+                 'nn.modules.flatten', 'nn.modules.distance',
+                 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name):
@@ -40,6 +44,32 @@ def create_torch(name='torch', *, register=False):
         'SiLU': _nn.SiLU, 'ReLU': _nn.ReLU, 'Softplus': _nn.Softplus, 'LogSigmoid': _nn.LogSigmoid,
         'BCEWithLogitsLoss': _nn.BCEWithLogitsLoss, 'KLDivLoss': _nn.KLDivLoss, 'CosineSimilarity': _nn.CosineSimilarity,
     }.items(): setattr(torch.nn, name, cls)
+    for module, names in (
+        (_normalization,('LayerNorm','RMSNorm')),
+        (_activation,('GELU','Dropout')),
+        (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
+    ):
+        for name in names:setattr(torch.nn,name,getattr(module,name))
+    torch.nn.parameter = modules['torch.nn.parameter']
+    torch.nn.parameter.Parameter = torch.nn.Parameter
+    torch.nn.modules = modules['torch.nn.modules']
+    for category,names in {
+        'module':('Module',),
+        'container':('Sequential','ModuleList','ModuleDict','ParameterList','ParameterDict'),
+        'linear':('Linear','Identity'),
+        'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
+        'normalization':('LayerNorm','RMSNorm'),
+        'dropout':('Dropout',),
+        'sparse':('Embedding',),
+        'loss':('MSELoss','SmoothL1Loss','CrossEntropyLoss','BCEWithLogitsLoss','KLDivLoss'),
+        'flatten':('Flatten',),
+        'distance':('CosineSimilarity',),
+    }.items():
+        child = modules['torch.nn.modules.'+category]
+        setattr(torch.nn.modules,category,child)
+        for name in names:
+            setattr(child,name,getattr(torch.nn,name))
+            setattr(torch.nn.modules,name,getattr(torch.nn,name))
     torch.optim.Optimizer = _optim.Optimizer
     torch.optim.Adam, torch.optim.AdamW, torch.optim.SGD = _optim.Adam, _optim.AdamW, _optim.SGD
     for name, cls in (('optimizer', _optim.Optimizer), ('sgd', _optim.SGD),
@@ -141,16 +171,17 @@ def create_torch(name='torch', *, register=False):
         'log_softmax': lambda input,dim,dtype=None: input.log_softmax(dim,dtype),
         'logsigmoid': lambda input: input.logsigmoid(), 'softplus': _nn.softplus,
         'cosine_similarity': _nn.cosine_similarity, 'binary_cross_entropy_with_logits': _nn.binary_cross_entropy_with_logits,
-        'kl_div': _nn.kl_div, 'silu': _nn.silu,
+        'kl_div': _nn.kl_div, 'silu': _nn.silu, 'gelu': _activation.gelu, 'dropout': _activation.dropout,
+        'layer_norm': _normalization.layer_norm, 'rms_norm': _normalization.rms_norm,
+        'embedding': _nn.embedding, 'mse_loss': _nn.mse_loss,
     }, reverse='analytic', forward=True)
     def relu(input, inplace=False):
         if inplace: raise _errors.BrowserUnsupported('In-place ReLU requires the server')
         return input.relu()
     registry.add('torch.nn.functional.relu', relu, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
-        'embedding': _nn.embedding, 'interpolate': _nn.interpolate, 'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d,
+        'interpolate': _nn.interpolate, 'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d,
         'normalize': _nn.normalize, 'cross_entropy': _nn.cross_entropy, 'smooth_l1_loss': _nn.smooth_l1_loss,
-        'mse_loss': _nn.mse_loss, 'layer_norm': _nn.layer_norm_oracle, 'rms_norm': _nn.rms_norm_oracle,
         'scaled_dot_product_attention': _nn.scaled_dot_product_attention_oracle,
     }, reverse='analytic')
     registry.group('torch.linalg', {
@@ -170,4 +201,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _conversion, _device, _errors, _linalg, _nn, _ops, _optim, _random, _registry, _schedulers, _tensor
+from . import _activation, _autograd, _conversion, _device, _errors, _linalg, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor

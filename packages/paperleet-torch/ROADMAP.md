@@ -74,6 +74,20 @@ behavior. Passing its current exercises alone does not establish library readine
   policies, general metric-driven composition and executable function/file
   serialization are separate work.
 
+## Version 0.7 milestone
+
+- Twelve registered normalization, embedding, activation, shape and loss modules
+  support complete attention/MLP model workflows and in-memory continuation.
+- Shared analytical normalization VJPs honor active inputs; JVP and
+  reverse-over-forward include affine tangents and native LayerNorm cache rules.
+  Sensitive float32 rows use more accurate centering with documented differences
+  from native CPU reduction order. Frozen bias-only tapes release unused inputs.
+- GELU exact/tanh rules, distribution-faithful dropout with shared derivative
+  masks, pretrained/padded embeddings, frequency scaling, max-norm renormalization
+  and ordinary embedding JVP extend the functional and module APIs.
+- Native full-gradient encoder training and independent NumPy-only stochastic
+  AdamW/scheduler checkpoint workflows validate behavior beyond lesson coverage.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: common hooks where bounded behavior can be
@@ -84,8 +98,10 @@ behavior. Passing its current exercises alone does not establish library readine
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
    multi-output gradients, retention semantics and forward-mode gaps. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
-4. Neural-network coverage: expand common normalization/module APIs, attention
-   options and losses, with masked/empty/non-contiguous cases and numerical checks.
+4. Neural-network coverage: expand batch/group normalization, attention options,
+   weighted/smoothed/spatial losses and convolution, with masked/empty/non-contiguous
+   cases and numerical checks. Optimize exact array erf and continue auditing
+   low-precision/statistic accumulation behavior across numerical runtimes.
 5. Runtime efficiency: profile allocation/graph overhead and larger linear algebra
    workloads. Track import size, cold start, steady-state latency and memory as
    separate measurements. Retain baselines and record regressions, not just wins.

@@ -156,6 +156,6 @@ def test_unsupported_spatial_options_and_invalid_indices_do_not_silently_approxi
     with pytest.raises(wasm.BrowserUnsupported):wasm.interpolate(x,size=(np.int64(2**62),np.int64(2**62)),mode='bicubic')
     for index in (-1,5):
         with pytest.raises(IndexError):wasm.embedding(wasm.Tensor([index]),wasm.Tensor(np.ones((5,3))))
-    with pytest.raises(wasm.BrowserUnsupported):wasm.embedding(wasm.Tensor([1]),wasm.Tensor(np.ones((5,3))),max_norm=1.)
+    with pytest.raises(wasm.BrowserUnsupported):wasm.embedding(wasm.Tensor([1]),wasm.Tensor(np.ones((5,3))),sparse=True)
     with pytest.raises(RuntimeError):wasm.Tensor([1,2])%0
     with pytest.raises(wasm.BrowserUnsupported):wasm.Tensor([True])%True

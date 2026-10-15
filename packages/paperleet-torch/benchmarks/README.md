@@ -59,6 +59,16 @@ are retained, and no timing assertions run in CI.
 Use `node packages/paperleet-torch/benchmarks/bench_wasm.mjs --benchmark schedulers
 --iterations 120 --output schedulers-wasm.json` for the same suite on pinned WASM.
 
+`bench_nn.py` measures analytical LayerNorm/RMSNorm (all gradients and frozen-input
+cases), frequency-scaled embedding, exact/tanh GELU, dropout and complete encoder
+training. Each backward case clears relevant gradients. The 8×16-token encoder
+uses width 32, four attention heads, a 32→64→32 feed-forward block with tanh GELU
+and dropout, two normalized/residual paths, cross entropy and SGD momentum.
+Its constructor/fixtures are excluded; the step includes zeroing, forward,
+backward and update. New-module cases are omitted from historical runtimes that
+do not expose those classes; six common functional cases remain comparable.
+Use `bench_wasm.mjs --benchmark nn --dtype float32 --iterations 120` for Node WASM.
+
 `python packages/paperleet-torch/benchmarks/bench_optimizer_memory.py --dtype float32`
 records CPython tracemalloc allocations after creating Adam over 16 pre-existing
 256×256 parameters and after one parameter receives a gradient. It also records

@@ -137,6 +137,56 @@ not a guarantee for arbitrary live graphs. Version guards remain linked across
 storage rebinding and reject later in-place mutations. Private `_apply` callbacks
 must preserve shapes; non-leaf gradient storage rebinding remains unsupported.
 
+## Neural-network building blocks
+
+In addition to linear/activation/container modules, the library provides
+`LayerNorm`, `RMSNorm`, `Embedding`, `GELU`, `Dropout`, `Identity`, `Flatten`,
+`Tanh`, `Sigmoid`, `MSELoss`, `SmoothL1Loss` and `CrossEntropyLoss`.
+Standard class submodule aliases such as `torch.nn.parameter` and
+`torch.nn.modules.normalization`, `.activation`, `.sparse` and `.loss` are provided.
+
+```python
+from torch import nn
+
+model = nn.Sequential(
+    nn.LayerNorm(16), nn.Linear(16, 32), nn.GELU(approximate="tanh"),
+    nn.Dropout(0.1), nn.Linear(32, 4),
+)
+loss_fn = nn.MSELoss()
+```
+
+Normalization supports multidimensional trailing shapes, optional affine
+parameters, resets, empty inputs and float32/float64 analytical gradients. Its
+JVP and reverse-over-forward paths include parameter tangents; LayerNorm follows
+native cached-statistic reverse behavior. Ill-conditioned float32 LayerNorm rows
+use float64 centering/variance before returning float32. This avoids cancellation
+at large offsets, but results can differ from native CPU float32 accumulation on
+those rows. Native CPU results themselves depend on reduction order; exact
+bitwise equality on ill-conditioned inputs is not promised.
+
+GELU offers exact `math.erf` and explicit `approximate="tanh"` paths, with VJP/JVP
+and curvature rules. The exact path calls scalar erf through NumPy and has a
+different cost from the array-only tanh path; no approximation is silently used.
+Dropout follows recursive `train()`/`eval()`, scales kept values by `1/(1-p)` and
+shares its mask across primal/tangent/backward computations. Disabled, p=0, p=1
+and empty cases do not draw random values. Masks follow the Bernoulli distribution
+and repeat under this library's seed; their bit stream is not native Torch's
+dropout stream. In-place dropout is limited to frozen tensors.
+
+Embedding registers a float32/float64 weight, initializes normal samples and a
+zero padding row, supports frozen/shared `from_pretrained` weights, frequency
+scaling, dense gradients and max-norm renormalization. Pretrained padding values
+are preserved, matching native Torch. Max-norm updates only selected rows under
+no-grad and maintains mutation guards; renormalization during JVP and sparse
+gradients remain unsupported. Ordinary embedding weight JVP is supported.
+
+Loss modules retain their functional boundaries: matching-shape/dtype MSE and
+smooth L1, and finite `[N,C]` cross entropy with int64 `[N]` targets. Weighted,
+smoothed, probability-target and spatial cross entropy, legacy loss options,
+half/complex neural-network kernels and arbitrary live graphs through storage
+rebinding remain outside this contract. Normalization/GELU reject backward after
+storage rebinding explicitly; convert model storage before constructing a graph.
+
 ## Optimizers and training checkpoints
 
 `torch.optim.Optimizer`, `SGD`, `Adam` and `AdamW` share parameter groups,
@@ -276,7 +326,9 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.6 validation record](../../docs/validation/torch-runtime-iteration-6.md)
+See the [0.7 validation record](../../docs/validation/torch-runtime-iteration-7.md)
+for neural-network layers, normalization accuracy, encoder training and memory.
+The [0.6 validation record](../../docs/validation/torch-runtime-iteration-6.md)
 for scheduling, training continuation and CPU/WASM overhead measurements.
 The [0.5 validation record](../../docs/validation/torch-runtime-iteration-5.md)
 for model conversion, gradient modes, storage guards and CPU/WASM measurements.

@@ -167,43 +167,11 @@ def scaled_dot_product_attention_oracle(query, key, value, attn_mask=None, dropo
 
 
 def layer_norm_oracle(x, normalized_shape, weight=None, bias=None, eps=1e-5):
-    """Separate analytical LayerNorm VJP for the library-oracle test path."""
-    x = _ops.wrap(x)
-    shape = tuple(normalized_shape)
-    if not shape or tuple(x.shape[-len(shape):]) != shape: raise ValueError('normalized_shape does not match input')
-    axes = tuple(range(x.ndim-len(shape), x.ndim))
-    centered = x._data - x._data.mean(axis=axes, keepdims=True)
-    inverse = 1 / np.sqrt(np.mean(centered ** 2, axis=axes, keepdims=True) + eps)
-    normalized = centered * inverse
-    scale = np.ones(shape, dtype=x.dtype) if weight is None else _ops.wrap(weight)._data
-    value = normalized * scale
-    if bias is not None: value = value + _ops.wrap(bias)._data
-    def dx(g):
-        scaled = g * scale
-        return inverse * (scaled - scaled.mean(axis=axes, keepdims=True) - normalized * (scaled * normalized).mean(axis=axes, keepdims=True))
-    edges = [(x, dx)]
-    if weight is not None: edges.append((weight, lambda g: _ops.unbroadcast(g * normalized, weight.shape)))
-    if bias is not None: edges.append((bias, lambda g: _ops.unbroadcast(g, bias.shape)))
-    return _autograd.result(value, *edges)
+    return _normalization.layer_norm(x,normalized_shape,weight,bias,eps)
 
 
 def rms_norm_oracle(x, normalized_shape, weight=None, eps=None):
-    """Independent raw NumPy RMS normalization with analytical input/scale VJPs."""
-    shape = tuple(normalized_shape)
-    if not shape or x.shape[-len(shape):] != shape: raise RuntimeError('Invalid RMSNorm shape')
-    if x.dtype.kind != 'f': raise _errors.BrowserUnsupported('RMSNorm requires floating tensors')
-    if weight is not None and (weight.shape != shape or weight.dtype != x.dtype):
-        raise _errors.BrowserUnsupported('Mixed-dtype RMSNorm weights require the server')
-    axes = tuple(range(x.ndim-len(shape), x.ndim))
-    inverse = 1 / np.sqrt(np.mean(x._data ** 2, axis=axes, keepdims=True) + (np.finfo(x.dtype).eps if eps is None else eps))
-    normalized = x._data * inverse
-    scale = 1 if weight is None else weight._data
-    def dx(g):
-        scaled = g * scale
-        return inverse * (scaled - normalized * (scaled * normalized).mean(axis=axes, keepdims=True))
-    edges = [(x, dx)]
-    if weight is not None: edges.append((weight, lambda g: _ops.unbroadcast(g * normalized, weight.shape)))
-    return _autograd.result(normalized * scale, *edges)
+    return _normalization.rms_norm(x,normalized_shape,weight,eps)
 
 
 def cosine_similarity(x1, x2, dim=1, eps=1e-8):
@@ -492,7 +460,7 @@ class BCEWithLogitsLoss(Module):
 
 
 def embedding(input, weight, padding_idx=None, max_norm=None, norm_type=2., scale_grad_by_freq=False, sparse=False):
-    if max_norm is not None or sparse: raise _errors.BrowserUnsupported('Embedding renormalization/sparse gradients require the server')
+    if sparse: raise _errors.BrowserUnsupported('Sparse embedding gradients require the server')
     if input.dtype not in (np.dtype('int32'),np.dtype('int64')) or weight.ndim!=2:
         raise RuntimeError('Embedding expects integer indices and a matrix codebook')
     if weight.dtype not in (np.dtype('float32'),np.dtype('float64')): raise _errors.BrowserUnsupported('Embedding requires real float32/float64 weights')
@@ -504,12 +472,36 @@ def embedding(input, weight, padding_idx=None, max_norm=None, norm_type=2., scal
     indices=input._data
     weight_shape, weight_dtype = weight.shape, weight.dtype
     if np.any(indices<0) or np.any(indices>=n): raise IndexError('Embedding index out of bounds')
+    if max_norm is not None:
+        if _state._jvp_active:raise _errors.BrowserUnsupported('Embedding renormalization during JVP is unsupported')
+        if isinstance(max_norm,_tensor.Tensor) or isinstance(norm_type,_tensor.Tensor):
+            raise _errors.BrowserUnsupported('Tensor embedding norm parameters are unsupported')
+        if not np.isscalar(max_norm) or not np.isscalar(norm_type):raise TypeError('Embedding norm parameters must be numbers')
+        rows=np.unique(indices).astype(np.intp,copy=False)
+        selected=weight._data[rows];absolute=np.abs(selected)
+        if rows.size and not weight.shape[1] and abs(norm_type)==math.inf:
+            raise RuntimeError('Infinite embedding norms require nonempty feature dimensions')
+        with np.errstate(over='ignore',divide='ignore',invalid='ignore'):
+            if not rows.size:norms=np.empty(0,dtype=weight_dtype)
+            elif norm_type==0:norms=np.count_nonzero(selected,axis=1).astype(weight_dtype)
+            elif norm_type==math.inf:norms=absolute.max(axis=1)
+            elif norm_type==-math.inf:norms=absolute.min(axis=1)
+            else:norms=np.sum(absolute**norm_type,axis=1)**(1/norm_type)
+            active=norms>max_norm
+            if active.any():
+                factor=np.asarray(max_norm,dtype=weight_dtype)/(norms[active]+np.asarray(1e-7,dtype=weight_dtype))
+                with _autograd.no_grad():weight[rows[active]]=selected[active]*factor[:,None]
+            else:weight._storage.bump()
+    if isinstance(weight,_autograd.ForwardTensor):
+        primal,tangent=_autograd.forward_parts(weight)
+        return _autograd.ForwardTensor(embedding(input,primal,padding_idx,None,norm_type,scale_grad_by_freq),
+                                      embedding(input,tangent,padding_idx,None,norm_type,scale_grad_by_freq))
     def vjp(g):
         gradient=np.zeros(weight_shape, dtype=weight_dtype)
         flat=indices.reshape(-1).astype(np.intp,copy=False); incoming=g.reshape(input.numel(),weight.shape[1])
         if scale_grad_by_freq:
             counts=np.bincount(flat,minlength=n)
-            incoming=incoming/counts[flat,None]
+            incoming=incoming/counts[flat,None].astype(weight_dtype)
         if padding_idx is not None:
             valid=flat!=padding_idx;flat=flat[valid];incoming=incoming[valid]
         np.add.at(gradient,flat,incoming)
@@ -587,4 +579,4 @@ def interpolate(input, size=None, scale_factor=None, mode='nearest', align_corne
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _device, _errors, _ops, _random, _state
+from . import _autograd, _device, _errors, _normalization, _ops, _random, _state
