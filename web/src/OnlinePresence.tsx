@@ -27,15 +27,19 @@ export default function OnlinePresence() {
       onChange: setOnline,
       fetch: presenceRequest,
     });
+    let visitorChanged = false;
     function syncVisibility() {
-      if (document.visibilityState === "visible" && navigator.onLine) heartbeat.resume();
-      else heartbeat.pause();
+      if (document.visibilityState === "visible" && navigator.onLine) {
+        heartbeat.resume(visitorChanged);
+        visitorChanged = false;
+      } else heartbeat.pause();
     }
     function syncVisitor(event: StorageEvent) {
       if (event.key !== presenceStorageKey) return;
       // A different tab may have initialized the shared browser ID first.
+      visitorChanged = true;
       heartbeat.pause();
-      if (document.visibilityState === "visible" && navigator.onLine) heartbeat.resume(true);
+      syncVisibility();
     }
     syncVisibility();
     document.addEventListener("visibilitychange", syncVisibility);
