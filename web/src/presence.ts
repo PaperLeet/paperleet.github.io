@@ -36,23 +36,35 @@ type HeartbeatOptions = {
   fetch?: (path: string, options?: RequestInit) => Promise<Response>;
   schedule?: typeof setTimeout;
   cancel?: typeof clearTimeout;
+  now?: () => number;
 };
 
-/** One request at a time, with a bounded timeout and no heartbeats while paused. */
+/** Refresh the last-hour visitor count hourly, without polling hidden tabs. */
 export function createPresenceHeartbeat(options: HeartbeatOptions) {
   const requestFetch = options.fetch ?? fetch;
   const schedule = options.schedule ?? setTimeout;
   const cancel = options.cancel ?? clearTimeout;
+  const now = options.now ?? Date.now;
   let active = false;
   let disposed = false;
   let immediate = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let request: AbortController | undefined;
-  let interval = 25_000;
+  let nextRequestAt = 0;
+  const interval = 3_600_000;
+  const retryInterval = 60_000;
 
   function clearTimer() {
     if (timer !== undefined) cancel(timer);
     timer = undefined;
+  }
+
+  function scheduleNext() {
+    if (!active || disposed || request) return;
+    clearTimer();
+    const remaining = nextRequestAt - now();
+    if (remaining <= 0) void heartbeat();
+    else timer = schedule(() => void heartbeat(), remaining);
   }
 
   async function heartbeat() {
@@ -60,8 +72,10 @@ export function createPresenceHeartbeat(options: HeartbeatOptions) {
     clearTimer();
     immediate = false;
     const controller = new AbortController();
+    let timedOut = false;
     request = controller;
     const timeout = schedule(() => {
+      timedOut = true;
       controller.abort();
       if (active && !disposed) options.onChange(null);
     }, 8000);
@@ -76,31 +90,33 @@ export function createPresenceHeartbeat(options: HeartbeatOptions) {
       if (!response.ok) throw new Error("Presence unavailable");
       const data = await response.json();
       if (!Number.isSafeInteger(data.online) || data.online < 0 ||
-          data.window_seconds !== 90 || data.heartbeat_seconds !== 25) {
+          data.window_seconds !== 3600 || data.heartbeat_seconds !== 3600) {
         throw new Error("Invalid presence response");
       }
       if (active && !disposed && !controller.signal.aborted) {
-        interval = data.heartbeat_seconds * 1000;
+        nextRequestAt = now() + interval;
         options.onChange(data.online);
       }
     } catch {
-      if (active && !disposed) options.onChange(null);
+      if (active && !disposed && (!controller.signal.aborted || timedOut)) options.onChange(null);
     } finally {
       cancel(timeout);
       request = undefined;
       if (active && !disposed) {
-        if (immediate) void heartbeat();
-        else timer = schedule(() => void heartbeat(), interval);
+        if (immediate) nextRequestAt = 0;
+        else if (nextRequestAt <= now()) nextRequestAt = now() + retryInterval;
+        scheduleNext();
       }
     }
   }
 
   return {
-    resume() {
+    resume(force = false) {
       if (disposed || active) return;
       active = true;
+      if (force) nextRequestAt = 0;
       if (request) immediate = true;
-      else void heartbeat();
+      else scheduleNext();
     },
     pause() {
       if (disposed) return;
@@ -108,7 +124,6 @@ export function createPresenceHeartbeat(options: HeartbeatOptions) {
       immediate = false;
       clearTimer();
       request?.abort();
-      options.onChange(null);
     },
     dispose() {
       disposed = true;

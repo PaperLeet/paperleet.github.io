@@ -544,20 +544,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
     [showCountry, setShowCountry] = useState(user.show_country),
     [showProgress, setShowProgress] = useState(user.show_progress);
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState(""),
-    [message, setMessage] = useState("");
-  useEffect(() => {
-    setMessage("");
-  }, [
-    name,
-    username,
-    color,
-    bio,
-    country,
-    showInstitution,
-    showCountry,
-    showProgress,
-  ]);
+    [error, setError] = useState("");
   async function save() {
     setBusy(true);
     setError("");
@@ -573,7 +560,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
         show_progress: showProgress,
       });
       setUser(data.user);
-      setMessage(t("个人资料已保存。", "Your profile has been saved."));
+      location.hash = profileHref(data.user);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -613,7 +600,6 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           }}
         >
           {error && <SocialNotice error={error} />}
-          {message && <SocialNotice>{message}</SocialNotice>}
           <div className="settings-avatar">
             <Avatar
               user={{ display_name: name, avatar_color: color }}

@@ -24,6 +24,7 @@ try {
     const timers = new Map(), calls = [], updates = [];
     const heartbeat = createPresenceHeartbeat({
       visitorId: () => visitor,
+      now: () => now,
       onChange: (count) => updates.push(count),
       schedule: (fn, delay) => { const timer = ++nextTimer; timers.set(timer, { at: now + delay, fn }); return timer; },
       cancel: (timer) => timers.delete(timer),
@@ -42,7 +43,7 @@ try {
       now = end;
       await flush();
     }
-    const respond = async (index, data = { online: 4, window_seconds: 90, heartbeat_seconds: 25 }, ok = true) => {
+    const respond = async (index, data = { online: 4, window_seconds: 3600, heartbeat_seconds: 3600 }, ok = true) => {
       calls[index].resolve({ ok, json: async () => data });
       await flush();
     };
@@ -59,24 +60,47 @@ try {
   assert.deepEqual(JSON.parse(live.calls[0].options.body), { visitor_id: id }, "Send only the opaque browser ID; authentication comes from the session cookie");
   await live.respond(0);
   assert.deepEqual(live.updates, [4]);
-  await live.tick(24999);
+  await live.tick(3_599_999);
   assert.equal(live.calls.length, 1);
   await live.tick(1);
-  assert.equal(live.calls.length, 2, "Visible viewers refresh after 25 seconds");
+  assert.equal(live.calls.length, 2, "Visible viewers refresh once per hour");
   await live.respond(1, {}, false);
   assert.equal(live.updates.at(-1), null, "Failures clear the count instead of preserving stale data or inventing zero");
   live.heartbeat.pause();
   await live.tick(100000);
-  assert.equal(live.calls.length, 2, "Hidden/offline viewers do not keep themselves counted");
+  assert.equal(live.calls.length, 2, "Hidden/offline viewers do not send requests");
   live.setVisitor(secondId);
   live.heartbeat.resume();
   assert.equal(JSON.parse(live.calls[2].options.body).visitor_id, secondId, "Recovery uses the latest shared browser identity");
-  await live.respond(2, { online: 0, window_seconds: 90, heartbeat_seconds: 25 });
+  await live.respond(2, { online: 0, window_seconds: 3600, heartbeat_seconds: 3600 });
   assert.equal(live.updates.at(-1), 0, "A real zero from the service remains distinguishable from an unavailable service");
   live.heartbeat.dispose();
   await live.tick(100000);
   assert.equal(live.calls.length, 3);
   assert.equal(live.timers.size, 0);
+
+  const visible = harness();
+  visible.heartbeat.resume();
+  await visible.respond(0);
+  await visible.tick(30_000);
+  visible.heartbeat.pause();
+  assert.deepEqual(visible.updates, [4], "Hiding a tab preserves the current hourly count");
+  await visible.tick(30_000);
+  visible.heartbeat.resume();
+  assert.equal(visible.calls.length, 1, "Returning to a tab before the hour does not force an extra request");
+  await visible.tick(3_539_999);
+  assert.equal(visible.calls.length, 1);
+  await visible.tick(1);
+  assert.equal(visible.calls.length, 2, "Visibility changes preserve the original hourly refresh deadline");
+  await visible.respond(1, { online: 7, window_seconds: 3600, heartbeat_seconds: 3600 });
+  assert.equal(visible.updates.at(-1), 7);
+  visible.heartbeat.pause();
+  visible.setVisitor(secondId);
+  visible.heartbeat.resume(true);
+  assert.equal(visible.calls.length, 3, "A changed browser identity is recorded immediately");
+  await visible.respond(2);
+  visible.heartbeat.dispose();
+  assert.equal(visible.timers.size, 0);
 
   const pending = harness();
   pending.heartbeat.resume();
@@ -84,7 +108,7 @@ try {
   assert.equal(pending.calls[0].options.signal.aborted, true);
   pending.heartbeat.resume();
   assert.equal(pending.calls.length, 1, "Visibility recovery waits for the aborted request to settle");
-  await pending.respond(0, { online: 99, window_seconds: 90, heartbeat_seconds: 25 });
+  await pending.respond(0, { online: 99, window_seconds: 3600, heartbeat_seconds: 3600 });
   assert(!pending.updates.includes(99), "An aborted request cannot restore a stale count");
   assert.equal(pending.calls.length, 2, "Recovery starts immediately once the old request settles");
   pending.heartbeat.dispose();
@@ -101,18 +125,18 @@ try {
   assert.equal(stalled.updates.at(-1), null);
   await stalled.respond(0);
   assert(!stalled.updates.includes(4), "A response after timeout cannot resurrect a stale count");
-  await stalled.tick(25000);
-  assert.equal(stalled.calls.length, 2, "A timed-out connection is retried without a tight loop");
+  await stalled.tick(60_000);
+  assert.equal(stalled.calls.length, 2, "A timed-out connection retries after one minute instead of leaving the display unavailable for an hour");
   stalled.heartbeat.dispose();
   stalled.calls[1].reject(Error("aborted"));
   await flush();
 
   for (const bad of [
-    { online: -1, window_seconds: 90, heartbeat_seconds: 25 },
-    { online: "4", window_seconds: 90, heartbeat_seconds: 25 },
-    { online: 1.5, window_seconds: 90, heartbeat_seconds: 25 },
-    { online: 4, window_seconds: 0, heartbeat_seconds: 25 },
-    { online: 4, window_seconds: 90, heartbeat_seconds: 0 },
+    { online: -1, window_seconds: 3600, heartbeat_seconds: 3600 },
+    { online: "4", window_seconds: 3600, heartbeat_seconds: 3600 },
+    { online: 1.5, window_seconds: 3600, heartbeat_seconds: 3600 },
+    { online: 4, window_seconds: 0, heartbeat_seconds: 3600 },
+    { online: 4, window_seconds: 3600, heartbeat_seconds: 0 },
     null,
   ]) {
     const malformed = harness();
@@ -121,7 +145,7 @@ try {
     assert.equal(malformed.updates.at(-1), null, "Malformed responses must not display a number or alter the poll rate");
     malformed.heartbeat.dispose();
   }
-  console.log("PASS online presence: shared visitor identity, cookie credentials, visible lifecycle, single-flight requests, timeouts, recovery, unavailable states, and cleanup");
+  console.log("PASS hourly presence: rolling-hour protocol, hourly display refresh, visibility-stable deadline, shared visitor identity, cookie credentials, visible lifecycle, single-flight requests, timeouts, recovery, unavailable states, and cleanup");
 } finally {
   await server.close();
 }
@@ -148,7 +172,7 @@ for (const deployment of [
     const requests = [];
     globalThis.fetch = async (url, options) => {
       requests.push({ url, options });
-      return Response.json({ online: 3, window_seconds: 90, heartbeat_seconds: 25 });
+      return Response.json({ online: 3, window_seconds: 3600, heartbeat_seconds: 3600 });
     };
     const { presenceRequest, createPresenceRequest, presenceHeartbeatPath } = await modeServer.ssrLoadModule('/src/presenceApi.ts');
     const { createPresenceHeartbeat } = await modeServer.ssrLoadModule('/src/presence.ts');

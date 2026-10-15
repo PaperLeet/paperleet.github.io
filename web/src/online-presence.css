@@ -30,30 +30,8 @@
   .online-presence:not(.unavailable) .online-presence-icon { animation: none; }
 }
 .online-presence.unavailable { color: var(--muted); }
-.online-presence:focus-visible { outline: 2px solid var(--accent); border-radius: 3px; }
-.online-presence-tooltip {
-  display: none;
-  position: absolute;
-  top: calc(100% + 7px);
-  right: 0;
-  z-index: 100;
-  width: 250px;
-  max-width: calc(100vw - 32px);
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: var(--surface);
-  color: var(--text-secondary);
-  font-size: 12px;
-  line-height: 1.6;
-  white-space: normal;
-  box-shadow: 0 4px 16px #0002;
-}
-.online-presence:focus-visible .online-presence-tooltip,
-.online-presence:hover .online-presence-tooltip { display: block; }
 @media (max-width: 600px) {
   .topbar .online-presence { width: 64px; gap: 4px; font-size: 12px; }
   .online-presence b { max-width: 46px; }
   .online-presence-label { display: none; }
-  .online-presence-tooltip { left: 0; right: auto; width: 190px; }
 }

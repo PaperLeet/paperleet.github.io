@@ -35,7 +35,7 @@ export default function OnlinePresence() {
       if (event.key !== presenceStorageKey) return;
       // A different tab may have initialized the shared browser ID first.
       heartbeat.pause();
-      syncVisibility();
+      if (document.visibilityState === "visible" && navigator.onLine) heartbeat.resume(true);
     }
     syncVisibility();
     document.addEventListener("visibilitychange", syncVisibility);
@@ -57,24 +57,14 @@ export default function OnlinePresence() {
     online >= 10_000 ? { notation: "compact", maximumFractionDigits: 1 } : undefined);
   const label = online === null ? t("在线人数暂不可用", "Online count unavailable")
     : t(`${fullCount} 人在线`, `${fullCount} online`);
-  const explanation = t(
-    "最近 90 秒内浏览过页面的人数估计，包含访客；同一登录账号只计一次。",
-    "Estimated viewers active in the last 90 seconds, including guests. Each signed-in account is counted once.",
-  );
-  const tooltip = online === null
-    ? `${t("在线人数暂不可用。", "Online count unavailable. ")} ${explanation}`
-    : explanation;
 
   return (
     <span
       className={`online-presence${online === null ? " unavailable" : ""}`}
-      title={tooltip}
-      aria-label={`${label}. ${tooltip}`}
-      tabIndex={0}
+      aria-label={label}
     >
       <Globe2 className="online-presence-icon" size={14} strokeWidth={1.8} aria-hidden="true" />
       <span className="online-presence-value" aria-hidden="true"><b>{count}</b><span className="online-presence-label">{t("人在线", "online")}</span></span>
-      <span className="online-presence-tooltip" role="tooltip">{tooltip}</span>
     </span>
   );
 }
