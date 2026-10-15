@@ -108,6 +108,7 @@
   .workspace-toolbar > .back-link { max-width:45%; }
   .workspace-toolbar .workspace-focus-toggle { display:none; }
   .workspace-view .workspace-toolbar { row-gap:8px; }
+  .workspace-view .workspace-toolbar > b { display:block; order:1; flex:1 0 100%; white-space:normal; overflow-wrap:anywhere; line-height:1.45; }
   .workspace-toolbar > .problem-navigation { margin-left:auto; }
   .workspace-toolbar > .workspace-run-controls { order:1; flex:1 0 100%; flex-wrap:wrap; }
   .workspace-run-state { flex:1 1 120px; max-width:none; margin-right:auto; }
