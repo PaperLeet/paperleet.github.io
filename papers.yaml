@@ -565,3 +565,15 @@ papers:
     scope: 冻结码本的残差编码与碰撞消解，以及无约束 beam search 后的完整 ID 过滤；不训练 RQ-VAE 或推荐模型。
     scope_en: Frozen residual encoding and collision suffixes, then unconstrained beam search and exact-ID filtering; no RQ-VAE or recommender training.
     module_ids: [retrieval/semantic_ids, retrieval/generative_retrieval]
+
+  - id: colbert
+    number: 51
+    category: retrieval
+    short_title: ColBERT
+    year: 2020
+    tags: [Dense Retrieval, Late Interaction, MaxSim, Pairwise Ranking]
+    summary: 保留逐 token 向量，用逐查询 token 的最佳文档匹配累加相关性。
+    summary_en: Preserve token vectors and sum each query token's best document match.
+    scope: 实现余弦 MaxSim、mask 与成对 softmax 损失，使用合成查询向量优化实验，不训练 BERT 或 ANN 索引。
+    scope_en: Cosine MaxSim, masks and pairwise softmax with synthetic query-vector optimization; no BERT training or ANN index.
+    module_ids: [retrieval/late_interaction]

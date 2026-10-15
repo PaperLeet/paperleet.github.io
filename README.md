@@ -11,7 +11,7 @@
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The pilot includes **50 papers and 65 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The pilot includes **51 papers and 66 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
 
 ## Run locally
 
@@ -171,6 +171,7 @@ paperleet ci
 | 48 | GQA | Group-wise KV projection conversion, contiguous query routing, shared-head gradients, and persistent cache capacity. | 62 |
 | 49 | RoFormer / RoPE | Adjacent-pair rotations, relative-position logits, analytical gradients, and cached-decoding offsets. | 63 |
 | 50 | TIGER | Frozen residual quantization, collision suffixes, unconstrained beam search, and valid full-ID catalog lookup. | 64–65 |
+| 51 | ColBERT | Normalized token MaxSim, masking, pairwise ranking and synthetic query-vector training. | 66 |
 
 RMSNorm, GQA and RoPE are part of LLM Basics. Each includes independent gradient checks, complete CPU/WASM judging and supplied synthetic experiments. See [public-core validation](docs/validation/llm-foundations-public.md).
 

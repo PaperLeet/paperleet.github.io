@@ -23,9 +23,9 @@ export const paperCollections: PaperCollection[] = [
     id: "retrieval",
     name: "检索与推荐",
     name_en: "Retrieval",
-    description: "对比检索 · 向量量化 · 生成式召回",
-    description_en: "Contrastive retrieval · Quantization · Generative retrieval",
-    paperIds: ["clip", "rotation-trick", "tiger"],
+    description: "对比检索 · 多向量晚交互 · 生成式召回",
+    description_en: "Contrastive retrieval · Late interaction · Generative retrieval",
+    paperIds: ["clip", "colbert", "rotation-trick", "tiger"],
   },
   {
     id: "rl",

@@ -113,7 +113,13 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 65);
+  assert.equal(browserModules.length, 66);
+  const colbert = catalog.papers.find(p => p.id === 'colbert');
+  assert(colbert && colbert.number === 51 && colbert.category === 'retrieval');
+  assert.deepEqual(colbert.module_ids, ['retrieval/late_interaction']);
+  assert.deepEqual(matchingPaperModules(colbert,catalog.problems,'','all','browser').map(p=>p.number),[66]);
+  assert.equal(Object.values(catalog.problems.find(p=>p.id==='retrieval/late_interaction').tests).reduce((sum,count)=>sum+count,0),10);
+  assert(paperCollections.find(list=>list.id==='retrieval').paperIds.includes('colbert'));
   const tiger = catalog.papers.find(p => p.id === 'tiger');
   assert(tiger && tiger.number === 50 && tiger.category === 'retrieval');
   assert.deepEqual(tiger.module_ids, ['retrieval/semantic_ids','retrieval/generative_retrieval']);
