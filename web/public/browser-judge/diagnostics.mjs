@@ -1,5 +1,8 @@
-export function runtimeDiagnostic(error) {
-  const message = String(error);
+export function runtimeDiagnostic(error, stage) {
+  const phases = {python: 'Python runtime', syntax: 'Syntax check', packages: 'NumPy and test packages',
+    preparing: 'Test environment', calibration: 'Reference and mutation calibration', tests: 'Learner tests'};
+  const prefix = Object.hasOwn(phases, stage) ? `Stage: ${phases[stage]}\n` : '';
+  const message = prefix + String(error);
   // Python's root exception is at the end of its traceback. Keep both ends.
   return message.length <= 4000 ? message : `${message.slice(0, 500)}\n…\n${message.slice(-3490)}`;
 }

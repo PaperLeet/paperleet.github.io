@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import type { PythonEditorProps } from './EditorFallback';
 import { editorSource, sourceOffset } from './sourceLocation';
 
-const extensions = [python()];
+const pythonLanguage = python();
 export default function PythonEditor({ value, readOnly, theme, onChange, font, label, focusRequest, onFocusHandled }: PythonEditorProps) {
   const [view, setView] = useState<EditorView>();
+  const extensions = useMemo(() => [pythonLanguage, EditorView.contentAttributes.of({ 'aria-label': label })], [label]);
   useEffect(() => {
     if (!view || !focusRequest || readOnly || focusRequest.source !== value) return;
     const source = editorSource(value);
