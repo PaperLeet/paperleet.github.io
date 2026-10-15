@@ -2,7 +2,7 @@ import {useEffect,useId,useRef,useState} from 'react';
 import {BookOpen,Check,ChevronDown,ChevronRight,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import {socialApi,errorMessage,useAccount} from './social';
-import CommunityMarkdown,{CommunityFormatHelp} from './CommunityMarkdown';
+import MarkdownEditor from './MarkdownEditor';
 import InterviewFields,{type InterviewModule} from './InterviewFields';
 import {readInterviewDraft,writeInterviewDraft,clearInterviewDraft,discardInterviewDraft,interviewPublication,type InterviewDraft} from './interviewDrafts';
 import {tabDraftStorage} from './communityDrafts';
@@ -92,9 +92,10 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
    <label>{t('面经标题','Title')}<input autoFocus required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
    {writingError&&<p className="interview-writing-hint" role="status">{writingError}</p>}
-   <div className="editor-toggle" role="group" aria-label={t('面经编辑模式','Report editing mode')}><button type="button" aria-pressed={!preview} onClick={()=>setPreview(false)}>{t('编写','Write')}</button><button type="button" aria-pressed={preview} onClick={()=>setPreview(true)}>{t('预览','Preview')}</button></div>
-   <CommunityFormatHelp/>
-   {preview?<div className="compose-preview"><CommunityMarkdown body={draft.body||t('写下内容后在这里预览。','Write your experience to preview it here.')}/></div>:<label>{t('流程、思路与复盘','Process, approach and reflection')}<textarea ref={editor} required rows={12} maxLength={20000} disabled={busy} value={draft.body} aria-describedby={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined} placeholder={t('记录轮次、考察方向、你的解题思路和准备建议。只分享可以公开的信息。','Describe the rounds, concepts, your approach and preparation tips. Share information you can make public.')} onChange={event=>edit({body:event.target.value})}/></label>}
+   <MarkdownEditor value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
+     textareaRef={editor} label={t('流程、思路与复盘','Process, approach and reflection')} modeLabel={t('面经编辑模式','Report editing mode')}
+     rows={12} maxLength={20000} disabled={busy} describedBy={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}
+     placeholder={t('记录轮次、考察方向、你的解题思路和准备建议。只分享可以公开的信息。','Describe the rounds, concepts, your approach and preparation tips. Share information you can make public.')}/>
    {draft.body.trim()&&!contentReady&&!pendingMatches&&<p id={contentHint} className="interview-writing-hint" role="status">{t('提纲已经准备好。补充你实际经历的流程、思路或复盘后即可发布。','Your outline is ready. Add your actual process, approach or reflection before publishing.')}</p>}
    <PublishingRules action="post"/>
    <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!draft.title.trim()||!contentReady&&!pendingMatches} aria-describedby={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>

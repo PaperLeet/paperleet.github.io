@@ -74,7 +74,7 @@ try{
  await click(button('Undo outline insertion'));assert.equal(body().value,original);assert.equal(body().selectionStart,0);assert.equal(body().selectionEnd,8);assert.equal(body().scrollTop,23);assert.equal(field('Stage').value,'research');
  await click(button('Insert outline at cursor'));await edit(body(),body().value+'\nMy later reflection');const later=body().value;
  assert(button('Undo outline insertion').disabled);await click(button('Undo outline insertion'));assert.equal(body().value,later);assert(document.body.textContent.includes('Your text changed after insertion'));
- await click(button('Preview'));assert(!body());await click(button('Insert outline at cursor'));assert(body().value.startsWith(later));assert.equal(document.activeElement,body());
+ const mountedBody=body();await click(button('Preview'));assert.equal(body(),mountedBody);assert(body().closest('label').hidden);await click(button('Insert outline at cursor'));assert(!body().closest('label').hidden);assert(body().value.startsWith(later));assert.equal(document.activeElement,body());
  const translatedBody=body().value;await click(button('Chinese'));assert.equal(body().value,translatedBody);assert(document.querySelector('.interview-writing-panel').textContent.includes('实验'));await click(button('English'));assert.equal(body().value,translatedBody,'Locale changes never translate existing writing');
  await stop();await render();assert.equal(body().value,translatedBody);assert(!document.querySelector('.interview-writing-panel'),'Recovered drafts do not open optional prompts automatically');
  await openGuide();const pendingFocus=document.querySelector('.interview-writing-actions .button');

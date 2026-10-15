@@ -7,7 +7,8 @@ import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import CommunityMarkdown, { CommunityFormatHelp } from "./CommunityMarkdown";
+import CommunityMarkdown from "./CommunityMarkdown";
+import MarkdownEditor from "./MarkdownEditor";
 import {
   ArrowLeft,
   ArrowRight,
@@ -410,54 +411,9 @@ function Composer({
             onChange={(e) => edit({ title: e.target.value })}
           />
         </label>
-        <div className="editor-toggle" role="group" aria-label={t("帖子编辑模式", "Post editor mode")}>
-          <button
-            className={!preview ? "selected" : ""}
-            aria-pressed={!preview}
-            disabled={busy}
-            type="button"
-            onClick={() => setPreview(false)}
-          >
-            {t("编写", "Write")}
-          </button>
-          <button
-            className={preview ? "selected" : ""}
-            aria-pressed={preview}
-            disabled={busy}
-            type="button"
-            onClick={() => setPreview(true)}
-          >
-            {t("预览", "Preview")}
-          </button>
-          <small>{t("Markdown · 公式与代码", "Markdown · math & code")}</small>
-        </div>
-        <CommunityFormatHelp />
-        {preview ? (
-          <div className="compose-preview">
-            <CommunityMarkdown
-              body={
-                body ||
-                t("写下内容后在这里预览。", "Your preview will appear here.")
-              }
-            />
-          </div>
-        ) : (
-          <label className="body-label">
-            <span className="sr-only">{t("正文", "Post body")}</span>
-            <textarea
-              required
-              rows={10}
-              maxLength={20000}
-              value={body}
-              disabled={busy}
-              placeholder={board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t(
-                "分享背景、思考或代码片段…",
-                "Share context, ideas, or a code snippet…",
-              )}
-              onChange={(e) => edit({ body: e.target.value })}
-            />
-          </label>
-        )}
+        <MarkdownEditor value={body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
+          label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} disabled={busy}
+          placeholder={board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
         <PublishingRules action="post" />
         <div className="form-footer">
           <small>
@@ -1140,28 +1096,9 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                   void reply();
                 }}
               >
-                <div className="editor-toggle" role="group" aria-label={t("回复编辑模式", "Reply editor mode")}>
-                  <button type="button" className={!replyPreview ? "selected" : ""} aria-pressed={!replyPreview} disabled={busy} onClick={() => setReplyPreview(false)}>{t("编写", "Write")}</button>
-                  <button type="button" className={replyPreview ? "selected" : ""} aria-pressed={replyPreview} disabled={busy} onClick={() => setReplyPreview(true)}>{t("预览", "Preview")}</button>
-                  <small>{t("Markdown · 公式与代码", "Markdown · math & code")}</small>
-                </div>
-                <CommunityFormatHelp />
-                {replyPreview ? <div className="compose-preview"><CommunityMarkdown body={body || t("写下内容后在这里预览。", "Your preview will appear here.")} /></div> : <label>
-                  <span className="sr-only">{t("回复内容", "Your reply")}</span>
-                  <textarea
-                    id="reply-body"
-                    required
-                    rows={5}
-                    maxLength={10000}
-                    disabled={busy}
-                    value={body}
-                    placeholder={t(
-                      "写下你的回复…（支持 Markdown）",
-                      "Write a reply… (Markdown supported)",
-                    )}
-                    onChange={(e) => editReply({ body: e.target.value })}
-                  />
-                </label>}
+                <MarkdownEditor value={body} onChange={body=>editReply({body})} preview={replyPreview} onPreviewChange={setReplyPreview}
+                  id="reply-body" label={t('回复内容','Your reply')} modeLabel={t('回复编辑模式','Reply editor mode')}
+                  rows={5} maxLength={10000} disabled={busy} placeholder={t('写下你的回复…（支持 Markdown）','Write a reply… (Markdown supported)')}/>
                 <PublishingRules action="reply" />
                 <div className="form-footer">
                   <small>

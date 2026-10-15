@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import CommunityMarkdown, { CommunityFormatHelp } from './CommunityMarkdown';
+import CommunityMarkdown from './CommunityMarkdown';
+import MarkdownEditor from './MarkdownEditor';
 import { useI18n } from './i18n';
 import { SocialError, SocialNotice, errorMessage, socialApi } from './social';
 import type { Reply } from './communityDiscussion';
@@ -51,12 +52,8 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
       <button type="button" disabled={busy||disabled} onClick={()=>{edit({baseVersion:reply.edit_version!});setError('');}}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
-      <div className="editor-toggle" role="group" aria-label={t('回复修改模式','Reply edit mode')}>
-        <button type="button" disabled={busy} aria-pressed={!preview} className={!preview?'selected':''} onClick={()=>setPreview(false)}>{t('编写','Write')}</button>
-        <button type="button" disabled={busy} aria-pressed={preview} className={preview?'selected':''} onClick={()=>setPreview(true)}>{t('预览','Preview')}</button>
-      </div>
-      <CommunityFormatHelp/>
-      {preview?<div className="compose-preview"><CommunityMarkdown body={draft.body}/></div>:<label>{t('正文','Reply body')}<textarea required autoFocus rows={6} maxLength={10000} value={draft.body} disabled={busy} onChange={e=>edit({body:e.target.value})}/></label>}
+      <MarkdownEditor value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
+        label={t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={6} maxLength={10000} disabled={busy||disabled} autoFocus/>
       <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的回复不会改变。','Discard unsaved edits? The published reply will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedReplyEdit(tabDraftStorage(),owner,reply.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}

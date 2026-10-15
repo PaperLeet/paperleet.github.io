@@ -1,0 +1,20 @@
+.markdown-editor { min-width:0; display:grid; gap:0; border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden; }
+.markdown-editor:focus-within { border-color:var(--accent); }
+.markdown-editor .editor-toggle { gap:18px; padding:0 14px; margin:0; background:var(--surface2); }
+.markdown-editor .editor-toggle button { min-height:44px; padding:0 2px; border-bottom:2px solid transparent; }
+.markdown-editor .editor-toggle button.selected { border-bottom-color:var(--accent); }
+.markdown-format-tools { display:flex; flex-wrap:wrap; align-items:center; gap:2px; padding:4px 8px; border-bottom:1px solid var(--line); }
+.markdown-format-tools[hidden],.markdown-body-label[hidden] { display:none; }
+.markdown-format-tools button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:40px; min-height:40px; padding:7px; border:0; border-radius:6px; color:var(--text-secondary); background:transparent; }
+.markdown-format-tools button:hover:not(:disabled) { background:var(--surface2); color:var(--text); }
+.markdown-format-tools .markdown-format-undo { margin-left:auto; font-size:12px; }
+.markdown-editor button:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
+.markdown-editor .markdown-body-label { padding:12px 14px 0; font-size:12px; color:var(--text-secondary); }
+.social-form .markdown-editor textarea { width:100%; margin:6px 0 0; padding:4px 0 12px; border:0; border-radius:0; box-shadow:none; background:transparent; resize:vertical; color:var(--text); font-size:14px; line-height:1.7; }
+.markdown-editor .compose-preview { margin:0; padding:16px; min-height:240px; overflow-wrap:anywhere; }
+.markdown-editor-footer { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:10px 14px; border-top:1px solid var(--line); color:var(--text-secondary); }
+.markdown-editor-footer .community-format-help { min-width:0; flex:1; margin:0; }
+.markdown-editor-footer > small { flex-shrink:0; font-size:11px; font-variant-numeric:tabular-nums; }
+.markdown-format-error { margin:0; padding:10px 14px; color:var(--text-secondary); font-size:12px; background:var(--surface2); }
+@media (pointer:coarse) { .markdown-format-tools button { min-width:44px; min-height:44px; } }
+@media (max-width:520px) { .markdown-editor .editor-toggle small { display:none; } .markdown-format-tools .markdown-format-undo { margin-left:0; } .markdown-editor-footer { flex-wrap:wrap; } }
