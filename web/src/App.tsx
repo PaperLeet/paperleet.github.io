@@ -1,3 +1,4 @@
+import {ProblemFavoriteButton,ProblemFavoritesPage} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
@@ -546,6 +547,8 @@ function Workspace() {
       {submissionResultId ? (
         <SubmissionResultPage runId={submissionResultId} problems={problems}
           nextProblemFor={entry => nextPractice(entry, papers.find(paper => paper.id === entry.paper_id)?.module_ids || [], problems, learningSaved)} />
+      ) : path === 'favorites' ? (
+        <ProblemFavoritesPage key={user?.id||'guest'} route={id} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
         <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={settingsReturn.current} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
       ) : settingsPage ? (
@@ -636,10 +639,10 @@ function Workspace() {
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={libraryReturn?.split('?')[0] === '#/favorites' || libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
+              {libraryReturn?.split('?')[0] === '#/favorites' ? t('收藏题目','Saved problems') : libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>
@@ -647,6 +650,7 @@ function Workspace() {
             <b title={locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}>
               {problem.number}. {locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}
             </b>
+            <ProblemFavoriteButton key={'favorite:'+problem.id} problemId={problem.id} returnTo={id}/>
             <div className="workspace-run-controls">
               {(running || !practice.ready || practice.loading || (!online && !browserAvailable)) && <span className="workspace-run-state" role="status">
                 {running ? <><span className="spinner" />{judge.active ? runStatus : browser.active ? t("运行中…", "Running…") : t("正在准备…", "Preparing…")}</> : !practice.ready || practice.loading ? t("正在准备工作区…", "Preparing workspace…") : t("判题服务未连接", "Judge offline")}
