@@ -1,0 +1,24 @@
+.interview-writing-guide { margin:0; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+.interview-writing-guide > summary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 15px; cursor:pointer; list-style:none; color:var(--text); font-size:12px; }
+.interview-writing-guide > summary::-webkit-details-marker { display:none; }
+.interview-writing-guide > summary > span { display:flex; align-items:center; gap:8px; }
+.interview-writing-guide > summary svg { flex:none; color:var(--accent); }
+.interview-writing-guide[open] > summary > svg { transform:rotate(180deg); }
+.interview-writing-panel { padding:0 15px 15px; }
+.interview-writing-panel > p { margin:0 0 14px; color:var(--muted); font-size:11px; line-height:1.85; }
+.interview-writing-panel > label { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:10px; font-size:11px; }
+.interview-writing-panel select { width:auto; max-width:100%; min-height:36px; padding:7px 10px; font-size:12px; }
+.interview-writing-panel ol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:15px 0; padding:0; list-style:none; }
+.interview-writing-panel li { min-width:0; padding:13px; border:1px solid var(--line); border-radius:7px; background:var(--surface2); }
+.interview-writing-panel li b { color:var(--text); font-size:12px; font-weight:550; }
+.interview-writing-panel li p { margin:6px 0 0; color:var(--muted); font-size:11px; line-height:1.8; }
+.interview-writing-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px 16px; }
+.interview-writing-actions > button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; font-size:11px; }
+.interview-writing-panel > small { display:block; margin-top:12px; color:var(--muted); font-size:10px; line-height:1.8; }
+.interview-writing-guide :is(summary,button,select):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.interview-writing-hint { color:var(--muted); font-size:11px; line-height:1.8; margin:0; }
+.interview-writing-failure { padding:0 15px 15px; color:var(--muted); font-size:11px; line-height:1.8; }
+.interview-writing-failure button { color:var(--accent); margin-top:8px; }
+@media(max-width:560px) { .interview-writing-panel ol { grid-template-columns:minmax(0,1fr); } .interview-writing-panel > label { align-items:stretch; flex-direction:column; } .interview-writing-panel select { width:100%; } }
+@media(pointer:coarse) { .interview-writing-guide > summary,.interview-writing-actions > button,.interview-writing-panel select { min-height:44px; } }
+@media(prefers-reduced-motion:no-preference) { .interview-writing-guide > summary > svg { transition:transform .15s; } }
