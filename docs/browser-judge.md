@@ -230,3 +230,16 @@ cosine behavior, which differs from differentiating two clamped `normalize`
 expressions; zero-norm reverse-over-forward NaNs are retained rather than hidden.
 Half precision and nested forward AD remain explicit server-fallback cases.
 See [verification and precise numerical scope](validation/cosine-similarity.md).
+
+
+### Softplus and LogSigmoid modules and forward AD
+
+`torch.nn.Softplus` and `torch.nn.LogSigmoid` now share the CPU/WASM functional
+implementations. Functional/module calls support JVP and reverse gradients
+through both JVP channels for real float32/float64 inputs. Softplus preserves
+native strict threshold rules, including its different threshold-tie second
+derivative, negative/zero/nonfinite beta values and native overflow when callers
+raise the threshold. LogSigmoid retains the native sigmoid saturation convention
+for reverse-over-forward derivatives. Unsupported dtypes and tensor-valued
+Softplus parameters continue to require the server.
+See [independent parity and actual browser evidence](validation/log-activations.md).

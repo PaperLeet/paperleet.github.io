@@ -748,7 +748,9 @@ class Tensor:
         value = np.where(self._data >= 0, 1 / (1 + exp), exp / (1 + exp))
         return result(value, (self, lambda g: g * value * (1 - value)))
     def logsigmoid(self):
-        self._real_only()
+        if self.dtype.kind != 'f': raise RuntimeError('LogSigmoid requires floating inputs')
+        if self.dtype not in (np.dtype('float32'),np.dtype('float64')):
+            raise BrowserUnsupported('LogSigmoid requires float32/float64 inputs')
         zero = np.zeros((), dtype=self.dtype)
         return result(-np.logaddexp(zero, -self._data), (self, lambda g: g * np.exp(-np.logaddexp(zero, self._data))))
     def log_softmax(self, dim, dtype=None):
@@ -892,6 +894,15 @@ class ForwardTensor(Tensor):
     def sigmoid(self):
         p = self._primal.sigmoid()
         return ForwardTensor(p, self._tangent * p * (1 - p))
+    def logsigmoid(self):
+        primal = self._primal
+        value = primal.logsigmoid()
+        with np.errstate(over='ignore',invalid='ignore',divide='ignore'):
+            slope = np.exp(-np.logaddexp(np.zeros((),dtype=primal.dtype),primal._data))
+            probability = 1 / (1 + np.exp(-primal._data))
+            curvature = probability * (probability - 1)
+        derivative = result(slope,(primal,lambda g:g*curvature))
+        return ForwardTensor(value,self._tangent*derivative)
     def relu(self): return ForwardTensor(self._primal.relu(), where(self._primal <= 0, 0., self._tangent))
     def softmax(self, dim, dtype=None):
         p = self._primal.softmax(dim, dtype)
@@ -962,6 +973,7 @@ def forward_guard(function, name):
         'torch.nn.functional.binary_cross_entropy_with_logits',
         'torch.nn.functional.kl_div',
         'torch.cosine_similarity', 'torch.nn.functional.cosine_similarity',
+        'torch.nn.functional.softplus', 'torch.nn.functional.logsigmoid',
     }
     def contains(value):
         if isinstance(value, ForwardTensor): return True
@@ -1417,6 +1429,17 @@ class SiLU(Module):
         super().__init__()
         if inplace: raise BrowserUnsupported('In-place SiLU requires the server')
     def forward(self, input): return silu(input)
+
+
+class Softplus(Module):
+    def __init__(self, beta=1., threshold=20.):
+        super().__init__()
+        self.beta,self.threshold = beta,threshold
+    def forward(self, input): return softplus(input,self.beta,self.threshold)
+
+
+class LogSigmoid(Module):
+    def forward(self, input): return input.logsigmoid()
 
 
 class CosineSimilarity(Module):
@@ -1959,14 +1982,42 @@ def normalize(input, p=2., dim=1, eps=1e-12, out=None):
 
 
 def softplus(input, beta=1., threshold=20.):
+    if not isinstance(input,Tensor): raise TypeError('Softplus expects a tensor')
+    if input.dtype.kind != 'f': raise RuntimeError('Softplus requires floating inputs')
     if input.dtype not in (np.dtype('float32'),np.dtype('float64')):
         raise BrowserUnsupported('Softplus requires float32/float64 inputs')
-    if not np.isfinite(beta) or beta <= 0 or not np.isfinite(threshold):
-        raise BrowserUnsupported('These softplus parameters require the server')
-    scaled=beta*input._data
-    value=np.where(scaled>threshold,input._data,np.logaddexp(0,scaled)/beta)
-    derivative=np.where(scaled>threshold,1,np.exp(-np.logaddexp(0,-scaled)))
-    return result(value,(input,lambda g:g*derivative))
+    if any(isinstance(value,Tensor) for value in (beta,threshold)):
+        raise BrowserUnsupported('Tensor-valued Softplus parameters require the server')
+    if any(not isinstance(value,(int,float,np.integer,np.floating)) for value in (beta,threshold)):
+        raise TypeError('Softplus beta and threshold must be numbers')
+    forward = isinstance(input,ForwardTensor)
+    primal = input._primal if forward else input
+    # CPU Softplus uses log1p(exp(beta*x)) unless beta*x is strictly above
+    # threshold. Preserve its overflow/zero-beta behavior, including NaNs in
+    # first derivatives when the caller disables that stability branch.
+    with np.errstate(over='ignore',under='ignore',invalid='ignore',divide='ignore'):
+        coefficient = np.asarray(beta,dtype=primal.dtype)
+        cutoff = np.asarray(threshold,dtype=primal.dtype)
+        scaled = coefficient * primal._data
+        exponential = np.exp(scaled)
+        value = np.where(scaled>cutoff,primal._data,np.log1p(exponential)/coefficient)
+        denominator = exponential+1
+        probability = 1 / (1 + np.exp(-scaled))
+        # The native double-backward rule is zero at the threshold itself,
+        # although the forward/first derivative use the nonlinear branch there.
+        curvature = probability * (1-probability) * (scaled<cutoff) * coefficient
+    def backward(gradient):
+        # Native CPU multiplies the incoming gradient before dividing by z+1;
+        # precomputing a bounded slope would hide valid overflow behavior.
+        with np.errstate(over='ignore',under='ignore',invalid='ignore',divide='ignore'):
+            return np.where(scaled>cutoff,gradient,(gradient*exponential)/denominator)
+    output = result(value,(primal,backward))
+    if not forward: return output
+    tangent = input._tangent
+    derivative = result(backward(tangent._data),
+                        (primal,lambda g:g*tangent._data*curvature),
+                        (tangent,backward))
+    return ForwardTensor(output,derivative)
 
 
 def smooth_l1_loss(input, target, size_average=None, reduce=None, reduction='mean', beta=1.):
@@ -2353,6 +2404,7 @@ def install():
     torch.nn.BCEWithLogitsLoss = BCEWithLogitsLoss
     torch.nn.KLDivLoss = KLDivLoss
     torch.nn.CosineSimilarity = CosineSimilarity
+    torch.nn.Softplus, torch.nn.LogSigmoid = Softplus, LogSigmoid
     torch.testing = modules['testing']
     torch.testing.assert_close = assert_close
     torch.random = modules['random']
