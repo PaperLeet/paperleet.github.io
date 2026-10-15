@@ -91,3 +91,11 @@ npm run build
 ## 通过网页提交论文
 
 网页的 **Submit paper** 会把论文和官方代码来源送入候选题目流程。模型生成题面、参考实现和独立测试后，必须先通过隔离验证，再由人工完成论文依据、实现约定与测试质量评审，才能进入公开题库。候选材料保存在 `.paperleet/submissions/`，不会直接被题库扫描。详细设计与配置见 [Paper submission harness](docs/paper-submission-harness.md)。
+
+## 维护面试自测提纲
+
+`web/src/data/preparation-guides.json` 是编辑整理的学习内容，覆盖当前准备路径的知识点。每个知识点提供双语的「讲清原理、推到实现、检查边界」问题和可展开提示，依据对应 `README.md` 的实现约定与教学范围；`source` 和 `functions` 用于追溯题面和必做函数。
+
+更新题目契约或准备路径时，同步检查提纲。不要把公司原题、面经频次或完整论文复现结论混入学习建议，也不要复制完整解答或把自测操作当作成绩、勋章的依据。提纲可在做题前使用；完整坑点仍遵守工作区已有的通过后解锁规则。
+
+在 `web/` 目录运行 `node scripts/check-preparation-guides.mjs`，检查题目覆盖、双语内容、来源与函数契约，以及按需加载、快速切题、超时恢复和编辑器状态保留。完整的 `npm run check` 也包含这些检查。

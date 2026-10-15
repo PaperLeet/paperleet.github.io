@@ -25,3 +25,9 @@ export function focusInterviewSection(id:string){
  heading.scrollIntoView?.({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
  heading.focus({preventScroll:true});
 }
+
+export function openPreparationHandbook(){
+ const reader=document.querySelector<HTMLDetailsElement>('#preparation-handbook .preparation-guide');
+ if(reader)reader.open=true;
+ focusInterviewSection('preparation-handbook-heading');
+}

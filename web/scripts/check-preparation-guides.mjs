@@ -1,0 +1,69 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import React,{act,useEffect} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const web=process.cwd(),repo=path.dirname(web);
+const raw=JSON.parse(fs.readFileSync(path.join(web,'src/data/preparation-guides.json')));
+const published=JSON.parse(fs.readFileSync(path.join(web,'public/data/index.json'))).problems;
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__guideFixture:undefined};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+let scroll;
+dom.window.matchMedia=()=>({matches:true});dom.window.HTMLElement.prototype.scrollIntoView=function(options){scroll={node:this,options};};
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
+ name:'guide-import-fixture',enforce:'pre',resolveId(source,importer){if(source==='./preparationGuides'&&importer?.split('?')[0].endsWith('/PreparationGuide.tsx'))return '\0guide-import-fixture';},
+ load(id){if(id==='\0guide-import-fixture')return `export {hasPreparationGuide} from '/src/preparationGuides.ts';export const loadPreparationGuide=id=>globalThis.__guideFixture.load(id);`;}
+}]});
+let root;
+try{
+ const model=await server.ssrLoadModule('/src/preparationGuides.ts');
+ const guides=model.readPreparationGuides(raw);assert(guides);assert.equal(guides.length,model.preparationGuideIds.length);assert.equal(guides.flatMap(guide=>guide.prompts).length,guides.length*3);assert.deepEqual([...guides.map(guide=>guide.id)].sort(),[...model.preparationGuideIds].sort());
+ for(const guide of guides){const problem=published.find(problem=>problem.id===guide.id);assert(problem,guide.id);assert.deepEqual(guide.functions,problem.module.required_functions,guide.id+' implementation scope');const source=path.join(repo,guide.source);assert(fs.existsSync(source));const text=fs.readFileSync(source,'utf8');for(const name of guide.functions)assert(text.includes(name),guide.id+' README source');}
+ for(const change of [value=>value.modules.pop(),value=>value.modules[0].source='../outside',value=>value.modules[0].prompts[0].hint.en='',value=>value.modules[0].prompts[1].focus='explain']){const malformed=structuredClone(raw);change(malformed);assert.equal(model.readPreparationGuides(malformed),undefined);}
+ assert.equal((await model.loadPreparationGuide('architecture/attention')).prompts.length,3);await assert.rejects(()=>model.loadPreparationGuide('architecture/not-guided'));
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Guide,PREPARATION_GUIDE_TIMEOUT}=await server.ssrLoadModule('/src/PreparationGuide.tsx');
+ const {default:Handbook}=await server.ssrLoadModule('/src/PreparationHandbook.tsx');
+ const {default:Context}=await server.ssrLoadModule('/src/InterviewConceptContext.tsx');
+ const nav=await server.ssrLoadModule('/src/interviewNavigation.ts');
+ const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const account=await server.ssrLoadModule('/src/accountNavigation.ts');
+ const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
+ const loads=[],pending=[];globalThis.__guideFixture={load(id){return new Promise((resolve,reject)=>{const request={id,resolve,reject};loads.push(request);pending.push(request);});}};
+ const content=id=>guides.find(guide=>guide.id===id),attention='architecture/attention',lora='finetuning/lora';
+ const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Language),React.createElement(Component,props)));});
+ const take=()=>{assert(pending.length,'Missing guide import');return pending.shift();};
+ const reply=async(request,id=request.id)=>act(async()=>request.resolve(content(id)));
+ const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
+ const button=text=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()===text);
+ const settle=async predicate=>{for(let i=0;i<60&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(predicate(),'Guide UI did not settle');};
+ const open=async()=>{const count=loads.length;await act(async()=>{document.querySelector('.preparation-guide').open=true;});await settle(()=>loads.length===count+1);};
+ const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;pending.length=0;localStorage.setItem('paperleet.locale','en');};
+ function Language(){const {setLocale}=useI18n();return React.createElement(React.Fragment,null,React.createElement('button',{onClick:()=>setLocale('zh')},'中文 fixture'),React.createElement('button',{onClick:()=>setLocale('en')},'EN fixture'));}
+ let mounts=0,notes=0,labs=0;
+ function Draft(){useEffect(()=>{mounts++;},[]);return React.createElement('textarea',{'aria-label':'Workspace code',defaultValue:'private draft'});}
+ function Frame({id=attention,unlocked=false}){return React.createElement(React.Fragment,null,React.createElement(Draft),React.createElement(Guide,{problemId:id,notesUnlocked:unlocked,onNotes:()=>notes++,onLab:()=>labs++}));}
+ await render(Frame,{});assert.equal(loads.length,0,'Collapsed guides do not import the larger bilingual content');const editor=document.querySelector('textarea');editor.value='new code αβ';editor.setSelectionRange(3,7);editor.scrollTop=23;
+ await open();const first=take();assert(document.querySelector('.preparation-guide-body').textContent.includes('Loading study prompts'));editor.focus();await reply(first);assert.equal(document.activeElement,editor,'Asynchronous content cannot take editor focus');assert.equal(document.querySelectorAll('.preparation-prompt-list > li').length,3);assert.equal(document.querySelectorAll('.preparation-hint[open]').length,0);assert(button('Pass the exercise to unlock full notes').disabled);await click(button('Pass the exercise to unlock full notes'));assert.equal(notes,0);
+ const hint=document.querySelector('.preparation-hint');await act(async()=>{hint.open=true;});const beforeLanguage=loads.length;await click(button('中文 fixture'));assert.equal(loads.length,beforeLanguage,'Language changes reuse the same content');assert(hint.open);assert(document.querySelector('h4').textContent===content(attention).prompts[0].question.zh);assert.equal(document.querySelector('textarea'),editor);assert.equal(editor.value,'new code αβ');assert.equal(editor.selectionStart,3);assert.equal(editor.scrollTop,23);assert.equal(mounts,1);
+ await render(Frame,{unlocked:true});await click(button('复盘完整坑点'));await click(button('在实验台观察'));assert.equal(notes,1);assert.equal(labs,1);assert.equal(loads.length,beforeLanguage);
+ await render(Frame,{id:'architecture/not-guided'});assert(!document.querySelector('.preparation-guide'),'Unsupported topics do not advertise an empty guide');assert.equal(document.querySelector('textarea'),editor);await stop();
+ await render(Frame,{});await open();const stale=take();await render(Frame,{id:lora});const next=take();assert.equal(next.id,lora);assert.equal(document.querySelectorAll('.preparation-prompt-list').length,0,'A topic change hides old content before effects settle');await reply(stale);assert.equal(document.querySelectorAll('.preparation-prompt-list').length,0);await reply(next);assert.equal(document.querySelector('h4').textContent,content(lora).prompts[0].question.en);assert.equal(document.querySelectorAll('.preparation-hint[open]').length,0);await stop();
+ const originalSet=globalThis.setTimeout,originalClear=globalThis.clearTimeout,timers=[];
+ globalThis.setTimeout=(callback,delay,...args)=>{if(delay===PREPARATION_GUIDE_TIMEOUT){const timer={callback,cancelled:false};timers.push(timer);return timer;}return originalSet(callback,delay,...args);};globalThis.clearTimeout=id=>{if(timers.includes(id))id.cancelled=true;else originalClear(id);};
+ try{await render(Frame,{});await open();const timedOut=take();const draft=document.querySelector('textarea');draft.focus();await act(async()=>timers.at(-1).callback());assert(document.querySelector('[role="alert"]').textContent.includes('code remain available'));assert(document.activeElement===draft);const retry=button('Retry study prompts');retry.focus();await click(retry);assert(document.activeElement===document.querySelector('.preparation-guide > summary'),'Retry preserves a stable keyboard target');const retryImport=take();await reply(timedOut);assert(!document.querySelector('.preparation-prompt-list'),'A timed-out import cannot replace its retry');await reply(retryImport);assert(document.querySelector('.preparation-prompt-list'));assert(document.activeElement===document.querySelector('.preparation-guide > summary'));await act(async()=>timers.forEach(timer=>timer.callback()));assert(!document.querySelector('[role="alert"]'));await stop();}finally{globalThis.setTimeout=originalSet;globalThis.clearTimeout=originalClear;}
+ const filters={...nav.emptyInterviewFilters(),company:'google',role:'llm',stage:'onsite',days:'90',saved:true,q:'原理 & practice 😀',page:3};
+ await render(Handbook,{filters,problems:published});assert.equal(document.querySelectorAll('select option').length,new Set(JSON.parse(fs.readFileSync(path.join(repo,'paperleet/interview_catalog.json'))).paths.filter(path=>path.roles.includes('llm')).flatMap(path=>path.modules)).size);await open();await reply(take());const select=document.querySelector('select');await act(async()=>{select.value='optimization/adamw';select.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});const adam=take();assert.equal(adam.id,'optimization/adamw');await reply(adam);const practice=document.querySelector('.preparation-guide-actions a'),back=nav.readInterviewRoute(libraryReturnHref(practice.getAttribute('href')));assert.deepEqual(back,{...filters,concept:'optimization/adamw',track:'training',view:'reports',q:'',page:1});assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'));await stop();
+ const focused={...filters,concept:attention};location.hash=nav.interviewHref(focused);
+ function Focused(){return React.createElement(React.Fragment,null,React.createElement(Context,{filters:focused,problems:published,saved:{},ready:true}),React.createElement(Handbook,{filters:focused,problems:published}));}
+ await render(Focused,{});assert.equal(document.querySelectorAll('select option').length,1);const hash=location.hash,count=loads.length;await click(button('Try the study prompts'));await settle(()=>loads.length===count+1);assert(document.querySelector('.preparation-guide').open);assert.equal(location.hash,hash);assert.equal(document.activeElement.id,'preparation-handbook-heading');assert.equal(scroll.options.behavior,'instant');assert.equal(take().id,attention);await stop();
+ let retries=0;await render(Handbook,{filters,problems:[],catalogError:'offline',onRetryCatalog:()=>retries++});assert(!document.querySelector('.preparation-guide-actions a'));await click(button('Retry catalog'));assert.equal(retries,1);
+ console.log(`PASS preparation handbook: ${guides.length} maintained bilingual guides / ${guides.length*3} prompts, implementation/source contracts, deferred loading, hint and locale continuity, notes unlock, editor/cursor/scroll preservation, stale import rejection, bounded timeout/retry focus, role/topic selection, source/practice/login returns and reduced-motion in-page opening`);
+}finally{
+ if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
+}

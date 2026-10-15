@@ -8,6 +8,7 @@ import { useI18n } from './i18n';
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
 export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['公司面经关联','company mentions'], {loading:()=>null,failure:()=>null});
+export const PreparationGuide = deferredFeature(() => import('./PreparationGuide'), ['面试自测提纲','study prompts'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试自测提纲','Retry study prompts']}/>});
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
 export const UserProfile = deferredFeature<Parameters<typeof import('./Community').UserProfile>[0]>(() => import('./Community').then(module => ({ default: module.UserProfile })), ['个人主页', 'profile']);
 export const Account = deferredFeature(() => import('./Account'), ['账号页面', 'account page']);
