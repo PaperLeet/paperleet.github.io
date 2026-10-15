@@ -25,10 +25,25 @@ function untilAborted<T>(pending: Promise<T>, signal: AbortSignal): Promise<T> {
 /** Cache only immutable public code. Every run still gets its own learner worker. */
 export function createBrowserBundleLoader(fetcher?: typeof fetch) {
   const runtimes = new Map<string, Promise<RuntimeBundle>>();
+  // Even immutable URLs can hold cached error bodies. Replace only failed
+  // resources on a later run, then restore their normal cache path.
+  const failedDownloads = new Set<string>();
+  function failed(url: URL) {
+    failedDownloads.delete(url.href);
+    failedDownloads.add(url.href);
+    if (failedDownloads.size > 128) failedDownloads.delete(failedDownloads.values().next().value!);
+  }
   async function download(url: URL, signal: AbortSignal): Promise<unknown> {
-    const response = await (fetcher || globalThis.fetch)(url, { signal, cache: 'force-cache', credentials: 'omit' });
-    if (!response.ok) throw Error('Browser bundle download failed');
-    return response.json();
+    try {
+      const response = await (fetcher || globalThis.fetch)(url, {
+        signal, cache: failedDownloads.has(url.href) ? 'reload' : 'force-cache', credentials: 'omit',
+      });
+      if (!response.ok) throw Error('Browser bundle download failed');
+      return await response.json();
+    } catch (error) {
+      if (!signal.aborted) failed(url);
+      throw error;
+    }
   }
   function runtime(url: URL) {
     const key = url.href;
@@ -41,10 +56,14 @@ export function createBrowserBundleLoader(fetcher?: typeof fetch) {
           || !sharedFiles.every(name => Object.hasOwn(value.files as object, name))
           || Object.keys(value.files).some(name => !sharedFiles.includes(name) && !libraryFile(name)))
           throw Error('Invalid public browser runtime');
+        failedDownloads.delete(key);
         return value as RuntimeBundle;
       });
       const current = pending;
-      void pending.catch(() => { if (runtimes.get(key) === current) runtimes.delete(key); });
+      void pending.catch(() => {
+        failed(url);
+        if (runtimes.get(key) === current) runtimes.delete(key);
+      });
     }
     runtimes.set(key, pending);
     if (runtimes.size > 4) runtimes.delete(runtimes.keys().next().value!);
@@ -54,16 +73,21 @@ export function createBrowserBundleLoader(fetcher?: typeof fetch) {
     if (signal.aborted) throw stopped();
     const metadata = problem.browser_judge;
     if (!metadata || !/^browser-judge\/\d+-[a-f0-9]{20}\.json$/.test(metadata.bundle_url)) throw Error('Invalid browser bundle path');
-    const bundle = await download(new URL(`data/${metadata.bundle_url}`, base), AbortSignal.any([signal, AbortSignal.timeout(30_000)]));
+    const bundleUrl = new URL(`data/${metadata.bundle_url}`, base);
+    function invalid(message: string): never { failed(bundleUrl); throw Error(message); }
+    const bundle = await download(bundleUrl, AbortSignal.any([signal, AbortSignal.timeout(30_000)]));
     if (signal.aborted) throw stopped();
-    if (!object(bundle) || bundle.problem !== problem.id) throw Error('Browser bundle identity mismatch');
-    if (bundle.version === 1) return bundle; // Existing content-addressed exports remain usable.
+    if (!object(bundle) || bundle.problem !== problem.id) invalid('Browser bundle identity mismatch');
+    if (bundle.version === 1) { // Existing content-addressed exports remain usable.
+      failedDownloads.delete(bundleUrl.href);
+      return bundle;
+    }
     if ((bundle.version !== 2 && bundle.version !== 3) || typeof bundle.runtime_bundle_url !== 'string'
       || !/^browser-judge\/runtime-[a-f0-9]{20}\.json$/.test(bundle.runtime_bundle_url)
       || !stringFiles(bundle.files) || Object.keys(bundle.files).some(name => sharedFiles.includes(name) || name.startsWith('paperleet_torch/'))
       || typeof bundle.reference !== 'string' || !object(bundle.mutants) || !Object.values(bundle.mutants).every(value => typeof value === 'string')
       || !object(bundle.tests) || typeof bundle.test_file !== 'string' || !Object.hasOwn(bundle.files, bundle.test_file))
-      throw Error('Invalid browser problem bundle');
+      invalid('Invalid browser problem bundle');
     if (bundle.version === 3) {
       if (!Array.isArray(bundle.test_files) || !bundle.test_files.length
           || new Set(bundle.test_files).size !== bundle.test_files.length
@@ -73,14 +97,20 @@ export function createBrowserBundleLoader(fetcher?: typeof fetch) {
           || !Array.isArray(bundle.packages) || new Set(bundle.packages).size !== bundle.packages.length
           || !bundle.packages.every(name => name === 'pyyaml') || !parseBrowserBudgets(bundle.budgets)
           || Object.keys(bundle.files).some(name => name.endsWith('/problem.yaml')) && !bundle.packages.includes('pyyaml'))
-        throw Error('Invalid browser execution configuration');
+        invalid('Invalid browser execution configuration');
       const budgets = parseBrowserBudgets(bundle.budgets)!;
       if (metadata.budgets && JSON.stringify(parseBrowserBudgets(metadata.budgets)) !== JSON.stringify(budgets))
-        throw Error('Browser budget metadata mismatch');
+        invalid('Browser budget metadata mismatch');
     }
-    const shared = await untilAborted(runtime(new URL(`data/${bundle.runtime_bundle_url}`, base)), signal);
+    failedDownloads.delete(bundleUrl.href);
+    const runtimeUrl = new URL(`data/${bundle.runtime_bundle_url}`, base);
+    const shared = await untilAborted(runtime(runtimeUrl), signal);
     if (signal.aborted) throw stopped();
-    if (shared.backend !== metadata.backend) throw Error('Browser runtime backend mismatch');
+    if (shared.backend !== metadata.backend) {
+      failed(runtimeUrl);
+      runtimes.delete(runtimeUrl.href);
+      throw Error('Browser runtime backend mismatch');
+    }
     return { ...bundle, adapter: shared.adapter, harness: shared.harness, files: { ...shared.files, ...bundle.files } };
   };
 }
