@@ -7,11 +7,13 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+**Website source:** [PaperLeet/paperleet.github.io](https://github.com/PaperLeet/paperleet.github.io) contains this website, its practice catalog, and the browser/local judging tools. The site's GitHub icon opens this repository.
+
 **Standalone offline edition:** [Hongyang-Du/PaperLeet](https://github.com/Hongyang-Du/PaperLeet) is the main open-source project for local CPU practice, with the full learning guide, saved local solutions, and an MIT license. Star that repository to support the project.
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The pilot includes **54 papers and 69 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The catalog includes **56 papers, one introductory course, and 77 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
 
 ## Run locally
 
@@ -41,9 +43,11 @@ The account/community screens and API contracts are public frontend code. Their 
 
 Git history is intentionally retained. Earlier commits contain the former combined backend; deleting it from the current tree does not make that earlier code confidential. New online backend changes belong only in the private repository.
 
-GitHub Pages publishes browser practice at https://paperleet.github.io/. The local bridge binds only `127.0.0.1`; hosted services use a separate entrypoint.
+The online practice site is https://paperleet.com/, with the public frontend published through GitHub Pages. The local bridge binds only `127.0.0.1`; hosted services use a separate entrypoint.
 
 ## Solve your first problem
+
+For an introduction, start with [LLM Training & Generation](https://paperleet.com/#/papers/llm-training-generation): six standalone exercises on shifted losses, SFT masks, sampling, gradient accumulation, and clipping, all runnable on browser CPU/WASM.
 
 1. Choose a paper, such as **6 · DDPM**, then open its **Forward Noising** module.
 2. Read the goal and complete only the required functions in the Python editor. Schedules and other supporting functions are already implemented.
@@ -51,7 +55,7 @@ GitHub Pages publishes browser practice at https://paperleet.github.io/. The loc
 4. Use each test layer's failure explanations, expected values, and actual values to revise your code, then run it again.
 5. On the online application, sign in and click **Submit** to have the server judge your solution and save the submitted code and result to your account.
 
-Passing the full browser test suite updates browser learning progress and unlocks notes on common pitfalls. Account completion requires a successful server submission. Running only a subset of tests does not qualify as passing the full suite. Use the Chinese / English toggle in the upper-right corner to switch the interface, problem statements, and explanations. The paper library uses numeric IDs 1–49. Module IDs 1–63 and internal directory names stay stable for existing drafts and CLI commands. A later failed submission does not erase a previously accepted result.
+Passing the full browser test suite updates browser learning progress and unlocks notes on common pitfalls. Account completion requires a successful server submission. Running only a subset of tests does not qualify as passing the full suite. Use the Chinese / English toggle in the upper-right corner to switch the interface, problem statements, and explanations. Paper and module numbers, numeric aliases, and internal directory names stay stable for existing drafts and CLI commands. A later failed submission does not erase a previously accepted result.
 
 Signed-out code and browser test results are saved locally in the browser, separately from signed-in accounts. These drafts stay on the same device, browser, and site origin; clearing site data or ending a private-browsing session can remove them. Signing in does not automatically import guest drafts. After sign-in, account drafts synchronize automatically to the account. **Submit** saves a separate record of the exact submitted source and its server result, including unsuccessful attempts. Open **My submissions** for the current problem to review and copy those solutions or load older attempts; later edits to the draft do not change submitted code. Submission history is private to its owner.
 
