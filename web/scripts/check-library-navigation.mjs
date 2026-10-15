@@ -81,22 +81,22 @@ try {
   for (const en of [false, true]) {
     globalThis.localStorage = { getItem: () => en ? 'en' : 'zh' };
     const render = (Component, props) => renderToString(React.createElement(LocaleProvider, null, React.createElement(Component, props)));
-    const library = render(PaperLibrary, { ...catalog, saved: {}, collectionId: 'diffusion', route: decodeProblemHash(returnTo), onGuide() {} });
+    const library = render(PaperLibrary, { ...catalog, saved: {}, collectionId: 'diffusion', route: decodeProblemHash(returnTo) });
     assert(library.includes('value="DDPM"') && library.includes('value="E" selected=""'));
     assert(!library.includes('Filter by judge location') && !library.includes('判题位置筛选') && !library.includes('judge-capability-badge'));
     assert(library.includes(withLibraryContext('papers/ddpm', currentReturn).replaceAll('&', '&amp;')));
-    const legacyServer = render(PaperLibrary,{...catalog,saved:{},route:'?runtime=server',onGuide(){}});
+    const legacyServer = render(PaperLibrary,{...catalog,saved:{},route:'?runtime=server'});
     assert.equal((legacyServer.match(/data-paper-id=/g)||[]).length,catalog.papers.length,'A saved server filter must not empty an all-browser catalog');
-    const waiting = render(PaperLibrary, { ...catalog, saved: {}, progressReady: false, route: libraryHref(undefined, { ...emptyLibraryFilters(), state: 'done' }), onGuide() {} });
+    const waiting = render(PaperLibrary, { ...catalog, saved: {}, progressReady: false, route: libraryHref(undefined, { ...emptyLibraryFilters(), state: 'done' }) });
     assert(waiting.includes(en ? 'Checking your learning progress' : '正在核对学习进度'));
     assert(!waiting.includes(en ? 'No matching papers' : '没有符合条件的论文') && !waiting.includes('data-paper-id='), 'Pending account progress must not fabricate empty or unstarted status-filter results');
-    const detail = render(PaperDetail, { paper: ddpm, problems: catalog.problems, saved: {}, returnTo, onGuide() {} });
+    const detail = render(PaperDetail, { paper: ddpm, problems: catalog.problems, saved: {}, returnTo });
     assert(!detail.includes('judge-capability-badge'),'Browser execution is standard, so module cards need no capability tag');
     assert(detail.includes(en ? 'Back to library results' : '返回题库结果') && detail.includes(returnTo.replaceAll('&', '&amp;')));
     assert(detail.includes(withLibraryContext(6, returnTo).replaceAll('&', '&amp;')));
     const next = render(PracticeNextStep, { next: catalog.problems.find(p => p.number === 6), samePaper: true, returnTo, onNotes() {}, onLab() {} });
     assert(next.includes(withLibraryContext(6, returnTo).replaceAll('&', '&amp;')));
-    const escaped = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query: '<script>alert(1)</script>' }), onGuide() {} });
+    const escaped = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query: '<script>alert(1)</script>' }) });
     assert(escaped.includes('&lt;script&gt;') && !escaped.includes('<script>'));
   }
   const cache = new Map([['paperleet.library.positions.v1', JSON.stringify([

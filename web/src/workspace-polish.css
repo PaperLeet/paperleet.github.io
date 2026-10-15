@@ -35,8 +35,6 @@
 .workspace-toolbar > .back-link { min-width:0; max-width:30%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .workspace-toolbar > .back-link > svg { flex:none; }
 .workspace-toolbar > b { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
-.workspace-toolbar .workspace-help { flex:none; width:32px; height:32px; border:1px solid transparent; border-radius:7px; }
-.workspace-toolbar .workspace-help:hover { border-color:var(--line); background:var(--surface); }
 .workspace-toolbar .workspace-focus-toggle { margin-left:0; flex:none; }
 .workspace .pane-tabs, .workspace .editor-tools { box-sizing:border-box; height:var(--workspace-band); min-height:var(--workspace-band); }
 .workspace .pane-tabs { padding-inline:8px; gap:2px; align-items:stretch; background:linear-gradient(var(--surface),var(--surface)); }
@@ -109,7 +107,6 @@
   .workspace-view { --workspace-band:46px; }
   .workspace-view .workspace-toolbar { min-height:48px; padding-inline:14px; gap:8px; }
   .workspace-toolbar > b { display:none; }
-  .workspace-toolbar .workspace-help { margin-left:auto; }
   .workspace .pane-tabs > button, .workspace .pane-tabs > a { padding-inline:10px; }
   .workspace .editor-status > span:last-child, .judge-runtime-caption { display:none; }
   .workspace .editor-bottom { min-height:64px; padding:10px 12px; gap:8px; flex-wrap:wrap; }

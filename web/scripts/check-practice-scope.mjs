@@ -59,10 +59,10 @@ export async function checkPracticeScope(server) {
   assert.equal(selectLibraryPractice(papers,problems,{},readLibraryRoute('lists/retrieval')).problems.length,scoped.problems.length);
   const href = libraryHref(queryView.collectionId,queryView.filters);
   assert.equal(libraryReturnHref(withLibraryContext(bpr.number,href)),href);
-  const html = renderToString(React.createElement(PaperLibrary,{papers,problems,categories,saved:{},route:'collections/retrieval?q=BPR',collectionId:'retrieval',progressReady:true,onGuide:()=>{}}));
+  const html = renderToString(React.createElement(PaperLibrary,{papers,problems,categories,saved:{},route:'collections/retrieval?q=BPR',collectionId:'retrieval',progressReady:true}));
   const intro = html.slice(html.indexOf('class="practice-start"'),html.indexOf('class="featured-collections"'));
   assert(intro.includes(withLibraryContext(bpr.number,libraryHref('retrieval',readLibraryRoute('collections/retrieval?q=BPR').filters)).replaceAll('&','&amp;')) && !intro.includes(`href="#/${attention.number}"`),'The visible first-practice card uses the filtered results too');
-  const noResults = renderToString(React.createElement(PaperLibrary,{papers,problems,categories,saved:{},route:'collections/retrieval?q=definitely-no-matching-paper',collectionId:'retrieval',progressReady:true,onGuide:()=>{}}));
+  const noResults = renderToString(React.createElement(PaperLibrary,{papers,problems,categories,saved:{},route:'collections/retrieval?q=definitely-no-matching-paper',collectionId:'retrieval',progressReady:true}));
   const emptyIntro = noResults.slice(noResults.indexOf('class="practice-start"'),noResults.indexOf('class="featured-collections"'));
   assert(emptyIntro.includes('当前范围暂无核心模块') && !emptyIntro.includes('本范围核心模块已完成') && !emptyIntro.includes('开始这道题'),'An empty search must not be presented as completed work');
   const finished = renderToString(React.createElement(PracticeNextStep,{samePaper:false,onNotes:()=>{},onLab:()=>{},returnTo:href}));

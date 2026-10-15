@@ -48,7 +48,7 @@ const categoryLabels: Record<string, [string, string]> = {
 // Decorative diagrams should not delay search or the first usable list.
 const CollectionArtwork = deferredFeature(() => import('./CollectionArtwork'), ['合集插图', 'collection artwork'], { loading: () => null, failure: () => null });
 
-export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, onGuide, route = '', onFilters }: Practice & { papers: Paper[]; categories: Category[]; onGuide: () => void; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string) => void }) {
+export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, route = '', onFilters }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string) => void }) {
   const { t, locale } = useI18n();
   const searchInput = useRef<HTMLInputElement>(null);
   const libraryMain = useRef<HTMLDivElement>(null);
@@ -138,7 +138,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   function clear() { change({...emptyLibraryFilters(), sort}); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
   return <main className="home paper-library">
-    <PracticeStart problems={filteredModules} saved={saved} ready={progressReady} onGuide={onGuide} returnTo={viewHref} onBrowse={() => libraryMain.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" })} />
+    <PracticeStart problems={filteredModules} saved={saved} ready={progressReady} returnTo={viewHref} onBrowse={() => libraryMain.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" })} />
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
       <div className="collections-heading">
         <div><h2>{t("精选合集", "Featured collections")}</h2><p>{t("选一个方向，从核心算法开始。", "Pick a direction. Start with the core ideas.")}</p></div>
@@ -226,12 +226,12 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
     </section>
     </div>
-    <LibraryOverview problems={listedModules} saved={saved} ready={progressReady} difficulty={diff} onDifficulty={difficulty => change({difficulty})} onGuide={onGuide} />
+    <LibraryOverview problems={listedModules} saved={saved} ready={progressReady} difficulty={diff} onDifficulty={difficulty => change({difficulty})} />
     </div>
   </main>;
 }
 
-export function PaperDetail({ paper, problems, saved, stats, returnTo, progressReady = true }: Practice & { paper: Paper; onGuide: () => void; stats?: ProblemStatsMap; returnTo?: string; progressReady?: boolean }) {
+export function PaperDetail({ paper, problems, saved, stats, returnTo, progressReady = true }: Practice & { paper: Paper; stats?: ProblemStatsMap; returnTo?: string; progressReady?: boolean }) {
   const { t, locale } = useI18n();
   const modules = paperModules(paper, problems);
   const progress = paperProgress(paper, { problems, saved });

@@ -201,7 +201,6 @@ input, select, textarea { accent-color: var(--accent); }
 .module-picker-popover { box-shadow: 0 12px 32px #00000024; border-radius: 12px; }
 .split-handle:focus-visible { outline-offset: -2px; z-index: 2; }
 .toast { border-color: var(--line); border-radius: 12px; box-shadow: 0 8px 32px #00000020; font-size: 13px; }
-.guide-modal { border-radius: 18px; }
 .social-panel, .login-card { border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); }
 .social-page input, .social-page textarea, .social-page select { border-radius: 7px; }
 

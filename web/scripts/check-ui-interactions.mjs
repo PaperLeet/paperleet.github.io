@@ -21,14 +21,14 @@ try {
   const modules=paperModules(paper,catalog.problems);
   const norm=modules.find(module=>module.id==='architecture/layer_norm');
   const view=libraryHref(undefined,{...emptyLibraryFilters(),query:'LayerNorm'});
-  const library=renderToStaticMarkup(React.createElement(PaperLibrary,{...catalog,saved:{},route:view,onGuide(){}}));
+  const library=renderToStaticMarkup(React.createElement(PaperLibrary,{...catalog,saved:{},route:view}));
   assert(library.includes('class="matching-modules"') && library.includes(withLibraryContext(norm.number,view).replaceAll('&','&amp;')),'Search must provide a direct matched-module link with the exact library continuation');
   const draft=modules[modules.length-1], saved={[draft.id]:{code:draft.starter+'\n# resume this draft',updated:'2026-10-14T12:00:00Z'}};
   assert.equal(recommendPractice(modules,saved).id,draft.id);
-  const detail=renderToStaticMarkup(React.createElement(PaperDetail,{paper,problems:catalog.problems,saved,returnTo:view,onGuide(){}}));
+  const detail=renderToStaticMarkup(React.createElement(PaperDetail,{paper,problems:catalog.problems,saved,returnTo:view}));
   const header=detail.slice(detail.indexOf('class="paper-detail-actions"'),detail.indexOf('class="paper-at-a-glance"'));
   assert(header.includes(withLibraryContext(draft.number,view).replaceAll('&','&amp;')) && header.includes(draft.title),'The prominent continue action must resume the same recent draft as the homepage');
-  const waiting=renderToStaticMarkup(React.createElement(PaperDetail,{paper,problems:catalog.problems,saved,progressReady:false,onGuide(){}}));
+  const waiting=renderToStaticMarkup(React.createElement(PaperDetail,{paper,problems:catalog.problems,saved,progressReady:false}));
   assert(waiting.includes('正在加载学习进度') && !waiting.includes('data-next="true"'),'Do not offer a stale resume target before progress is ready');
   const tests=[{id:'test_reference',nodeid:'file.py::test_reference[a]',layer:'T1',passed:true,duration_s:.001},{id:'test_reference',nodeid:'file.py::test_reference[b]',layer:'T1',passed:false,message:'submission.py:2: in f\nE ValueError: <script>unsafe</script>'},{id:'test_gradient',layer:'T2',passed:false}];
   const filtered=visibleReportTests(tests,'failed','T1');

@@ -4,15 +4,13 @@ import { useAccount } from "./social";
 import { status } from "./types";
 import type { Problem, Saved } from "./types";
 import { recommendPractice } from "./practice-recommendation";
-import { BilingualText } from "./BilingualText";
 import "./practice-journey.css";
 import { withLibraryContext } from './libraryNavigation';
 
-export function PracticeStart({ problems, saved, ready, onGuide, returnTo, onBrowse }: {
+export function PracticeStart({ problems, saved, ready, returnTo, onBrowse }: {
   problems: Problem[];
   saved: Record<string, Saved>;
   ready: boolean;
-  onGuide: () => void;
   returnTo?: string;
   onBrowse?: () => void;
 }) {
@@ -34,7 +32,7 @@ export function PracticeStart({ problems, saved, ready, onGuide, returnTo, onBro
         <li><Code2 size={15} aria-hidden="true" />{t("补全核心函数", "Implement the core")}</li>
         <li><FlaskConical size={15} aria-hidden="true" />{t("运行测试与实验", "Test and explore")}</li>
       </ol>}
-      <div className="journey-links">{onBrowse && <button className="button subtle" onClick={onBrowse}>{t("浏览论文题库","Explore papers")}<ArrowRight size={14}/></button>}<button className="text-button" onClick={onGuide}>{t("查看使用指南", "How practice works")}<ArrowRight size={13} aria-hidden="true" /></button></div>
+      {onBrowse && <div className="journey-links"><button className="button subtle" onClick={onBrowse}>{t("浏览论文题库","Explore papers")}<ArrowRight size={14}/></button></div>}
     </div>
     <div className="practice-recommendation" aria-live="polite" aria-busy={!ready}>
       {next ? <>

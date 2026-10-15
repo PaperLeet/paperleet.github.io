@@ -2033,24 +2033,6 @@ h3 {
   max-height: 240px;
   overflow: auto;
 }
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: #07090dbd;
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 100;
-}
-
-.modal-close {
-  position: absolute;
-  right: 14px;
-  top: 14px;
-}
-
 .toast {
   position: fixed;
   bottom: 25px;

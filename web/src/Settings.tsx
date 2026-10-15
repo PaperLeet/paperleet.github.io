@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Award, BookOpen, Check, Globe2, HardDriveDownload, Moon, Palette, Sun, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, Check, Globe2, HardDriveDownload, Moon, Palette, Sun, UserRound } from 'lucide-react';
 import { useI18n } from './i18n';
 import './settings.css';
 
@@ -6,14 +6,13 @@ export type SettingsProps = {
   theme: 'light' | 'dark';
   onTheme: (theme: 'light' | 'dark') => void;
   returnTo: string;
-  onGuide: () => void;
   onBackup: () => void;
   backupReady: boolean;
   workspaceName: string;
   accountHref?: string;
 };
 
-export default function SettingsPage({ theme, onTheme, returnTo, onGuide, onBackup, backupReady, workspaceName, accountHref }: SettingsProps) {
+export default function SettingsPage({ theme, onTheme, returnTo, onBackup, backupReady, workspaceName, accountHref }: SettingsProps) {
   const { locale, setLocale, t } = useI18n();
   return <main className="settings-page">
     <a className="back-link settings-back" href={returnTo}><ArrowLeft size={15} aria-hidden="true" />{t('返回刚才的页面', 'Back to where you left off')}</a>
@@ -42,6 +41,5 @@ export default function SettingsPage({ theme, onTheme, returnTo, onGuide, onBack
     </section>
     {accountHref && <a className="settings-resource" href={accountHref}><span className="settings-section-icon"><UserRound size={19} aria-hidden="true" /></span><span><b>{t('个人资料与隐私', 'Profile & privacy')}</b><small>{t('管理公开资料、头像和账号可见性。', 'Manage your profile, avatar and public visibility.')}</small></span><ArrowRight size={16} aria-hidden="true" /></a>}
     <a className="settings-resource" href="#/achievements"><span className="settings-section-icon"><Award size={19} aria-hidden="true" /></span><span><b>{t('学习勋章', 'Learning achievements')}</b><small>{t('查看已解锁的勋章，找到下一个学习目标。', 'See your achievements and find your next milestone.')}</small></span><ArrowRight size={16} aria-hidden="true" /></a>
-    <button className="settings-resource" type="button" aria-haspopup="dialog" onClick={onGuide}><span className="settings-section-icon"><BookOpen size={19} aria-hidden="true" /></span><span><b>{t('使用指南', 'Practice guide')}</b><small>{t('了解如何阅读论文、实现算法并验证结果。', 'Learn how to read papers, implement ideas and test your work.')}</small></span><ArrowRight size={16} aria-hidden="true" /></button>
   </main>;
 }

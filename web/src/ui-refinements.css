@@ -11,7 +11,6 @@ button:disabled { cursor: default; }
 .practice-start h2 { max-width: 520px; font-size: clamp(24px, 2.5vw, 34px); letter-spacing: -.04em; }
 .journey-links { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; margin-top: 20px; font-size: 13px; }
 .journey-links .button { min-height: 40px; font-size: 13px; }
-.journey-links .text-button { display: inline-flex; align-items: center; gap: 6px; }
 .practice-start .practice-recommendation { align-self: center; padding: 20px 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: 0 4px 18px #00000005; }
 .practice-recommendation .journey-kicker { color: var(--muted); }
 .journey-completion { margin-top: 16px; }
@@ -43,7 +42,6 @@ button:disabled { cursor: default; }
 .no-results h3 { margin-top: 12px; color: var(--text); }
 .no-results p { margin: 8px 0 16px; font-size: 13px; }
 .mobile-workspace-switch { display: none; }
-.guide-modal:focus { outline: none; }
 @media (max-width: 1150px) {
   .library-toolbar .search { flex-basis: 100%; }
   .library-toolbar .filter-bar { flex: 1; }
@@ -133,9 +131,6 @@ button:disabled { cursor: default; }
 .test-workflow-actions > span { font-size: 12px; color: var(--muted); }
 .test-workflow-actions .button { min-height: 36px; font-size: 12px; }
 .run-shortcut { padding: 2px 5px; border: 1px solid #26262626; border-radius: 4px; font: 10px var(--font-sans); opacity: .75; white-space: nowrap; }
-.guide-shortcuts { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 20px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface2); }
-.guide-shortcuts > span { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
-.guide-shortcuts kbd { padding: 2px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--text); font: 11px var(--font-mono); }
 @media (max-width: 1100px) { .run-shortcut { display: none; } }
 @media (max-width: 850px) {
   .workspace-focus-toggle { display: none; }

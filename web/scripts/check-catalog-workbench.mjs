@@ -23,10 +23,10 @@ try {
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
   const h = React.createElement;
-  let route = '', guide = 0;
+  let route = '';
   function Library() {
     const [view, setView] = useState('');
-    return h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { route = href; setView(href); }, onGuide: () => guide++ });
+    return h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { route = href; setView(href); } });
   }
   const find = selector => document.querySelector(selector);
   const click = async element => { assert(element); await act(async () => element.click()); };
@@ -48,14 +48,14 @@ try {
   assert.equal(find('[aria-label="模块难度筛选"]').value, 'E', 'Sidebar and toolbar use the same URL state');
   await click(find('.difficulty-summary.E'));
   assert.equal(find('[aria-label="模块难度筛选"]').value, 'all');
-  await click(find('.library-help-card button'));
-  assert.equal(guide, 1);
+  assert(!find('.library-help-card'), 'The generic practice guide card is removed');
+  assert(!document.body.textContent.includes('查看使用指南'), 'Practice recommendations have no generic guide action');
   const setItem = dom.window.Storage.prototype.setItem;
   dom.window.Storage.prototype.setItem = () => { throw new Error('Storage blocked'); };
   await click(find('[aria-label="舒适列表"]'));
   assert.equal(find('.library-main').dataset.density, 'comfortable', 'Blocked preference storage must not break the list');
   dom.window.Storage.prototype.setItem = setItem;
-  await act(async () => root.render(h(PaperLibrary, { ...catalog, saved: {}, progressReady: false, onGuide() {} })));
+  await act(async () => root.render(h(PaperLibrary, { ...catalog, saved: {}, progressReady: false })));
   assert(find('.library-progress-ring b').textContent.startsWith('—'), 'Unresolved progress must not render a fabricated zero');
 
   function Tabs() {
@@ -79,7 +79,7 @@ try {
   assert.equal(document.activeElement, tabs[0], 'Browser shortcuts stay untouched');
   assert.equal(tabs.filter(tab => tab.tabIndex === 0).length, 1);
   assert.deepEqual(errors, [], 'No uncaught DOM errors are allowed');
-  console.log('PASS catalog workbench: density persistence/storage failure, shared URL difficulty filters, guide action, keyboard tab activation/wrapping/Home/End and modifier isolation');
+  console.log('PASS catalog workbench: density persistence/storage failure, shared URL difficulty filters, removed generic guide, keyboard tab activation/wrapping/Home/End and modifier isolation');
 } finally {
   if (root) await act(async () => root.unmount());
   await server.close(); dom.window.close();

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Award, BookOpen, Bookmark, ChevronRight, Download, Globe2, Moon, Settings, ShieldCheck, Sun, UserRound } from 'lucide-react';
+import { Award, Bookmark, ChevronRight, Download, Globe2, Moon, Settings, ShieldCheck, Sun, UserRound } from 'lucide-react';
 import { Avatar, profileHref, useAccount, type AccountUser } from './social';
 import { useI18n } from './i18n';
 import { hostedAppAvailable, hostedAppHref } from './deployment';
@@ -15,7 +15,6 @@ export type HeaderAccountMenuProps={
   returnTo?:string;
   theme?:'light'|'dark';
   onTheme?:(theme:'light'|'dark')=>void;
-  onGuide?:()=>void;
   onBackup?:()=>void;
   backupReady?:boolean;
 };
@@ -55,7 +54,7 @@ export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
   </div>;
 }
 
-export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onGuide,onBackup,backupReady,savedAvailable=false}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void;savedAvailable?:boolean}) {
+export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onBackup,backupReady,savedAvailable=false}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void;savedAvailable?:boolean}) {
   const {locale,setLocale,t}=useI18n();
   const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好和游客草稿自动保存在当前浏览器','Preferences and guest drafts save in this browser')}</small></span>{user&&<ChevronRight size={16}/>}</>;
   return <>
@@ -74,7 +73,6 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
       {user&&savedAvailable&&<a className="account-menu-row" href={hostedAppHref('#/interviews?saved=1&days=all')} onClick={onClose}><Bookmark size={16}/><span>{t('收藏面经','Saved interviews')}</span><ChevronRight size={14}/></a>}
       {user&&<a className="account-menu-row" href={hostedAppHref('#/account')} onClick={onClose}><ShieldCheck size={16}/><span>{t('账号与隐私','Account & privacy')}</span><ChevronRight size={14}/></a>}
       {user&&onBackup&&<button type="button" className="account-menu-row" disabled={!backupReady} onClick={()=>{onClose();onBackup();}}><Download size={16}/><span>{t('代码备份','Code backups')}</span><ChevronRight size={14}/></button>}
-      {onGuide&&<button type="button" className="account-menu-row" onClick={()=>{onClose();onGuide();}}><BookOpen size={16}/><span>{t('使用指南','Practice guide')}</span><ChevronRight size={14}/></button>}
     </div>
     {user?<AccountLogout/>:<p className="account-menu-footnote">{t('开始练习无需登录','You can practice without signing in')}</p>}
   </>;

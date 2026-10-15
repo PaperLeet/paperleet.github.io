@@ -1,14 +1,13 @@
-import { CheckCircle2, Code2, ArrowRight } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { useI18n } from './i18n';
 import { status, type Problem, type Saved } from './types';
 
-export default function LibraryOverview({ problems, saved, ready, difficulty, onDifficulty, onGuide }: {
+export default function LibraryOverview({ problems, saved, ready, difficulty, onDifficulty }: {
   problems: Problem[];
   saved: Record<string, Saved>;
   ready: boolean;
   difficulty: string;
   onDifficulty: (value: string) => void;
-  onGuide: () => void;
 }) {
   const { t } = useI18n();
   const core = problems.filter(problem => !problem.module.optional);
@@ -34,6 +33,5 @@ export default function LibraryOverview({ problems, saved, ready, difficulty, on
         })}
       </div>
     </section>
-    <section className="library-help-card"><Code2 size={19} aria-hidden="true" /><h3>{t('从一个核心函数开始', 'One core function at a time')}</h3><p>{t('读题、实现、测试，再用实验理解算法。草稿自动保存在当前工作区。', 'Read, implement, test, then explore the algorithm. Drafts save automatically in your workspace.')}</p><button onClick={onGuide}>{t('查看练习指南', 'Practice guide')}<ArrowRight size={14} aria-hidden="true" /></button></section>
   </aside>;
 }

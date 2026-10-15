@@ -17,14 +17,6 @@ export const SettingsPage = deferredFeature(() => import('./Settings'), ['设置
 export const Achievements = deferredFeature(() => import('./Achievements'), ['学习勋章', 'achievements']);
 export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), ['勋章提示', 'achievement notifications'], {loading: () => null, failure: () => null});
 export const WorkspaceLayoutMenu = deferredFeature(() => import('./WorkspaceLayoutMenu'), ['布局选项', 'layout options'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试布局选项','Retry layout options']}/>});
-export const PracticeGuideContent = deferredFeature(() => import('./PracticeGuideContent'), ['使用指南','practice guide'], {
-  loading:()=> <GuideContentFallback />,
-  failure:(_props,retry)=><GuideContentFallback retry={retry}/>,
-});
-function GuideContentFallback({retry}:{retry?:()=>void}) {
-  const {t}=useI18n();
-  return <><h2 id="guide-title">{t('使用指南','Practice guide')}</h2>{retry?<RuntimeDetailsFailure retry={retry} label={['重试加载指南','Retry practice guide']}/>:<p role="status">{t('正在加载指南…','Loading practice guide…')}</p>}</>;
-}
 export const JudgeRuntimeDetails = deferredFeature(() => import('./JudgeRuntimeDetails'), ['运行说明','run details'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry}/>});
 function RuntimeDetailsFailure({retry,label=['重试加载运行说明','Retry run details']}:{retry:()=>void;label?:[string,string]}) {
   const {t}=useI18n();

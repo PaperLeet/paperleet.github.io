@@ -60,7 +60,7 @@
 .library-main[data-density="compact"] .problem-row { min-height: 48px; padding-block: 11px; }
 .library-main[data-density="compact"] .paper-info small { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .library-overview { position: sticky; top: 86px; display: grid; gap: 16px; }
-.library-progress-card, .library-help-card { padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.library-progress-card { padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .library-progress-card > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .library-progress-card h2 { font-size: 14px; font-weight: 600; }
 .library-progress-card > header > svg { color: var(--green); }
@@ -85,11 +85,6 @@
 .difficulty-summary small { color: var(--muted); font-size: 10px; font-weight: 400; }
 .difficulty-summary > div { grid-column: 1 / -1; height: 3px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
 .difficulty-summary i { display: block; height: 100%; background: var(--difficulty-color); }
-.library-help-card > svg { margin-bottom: 12px; color: var(--accent); }
-.library-help-card h3 { font-size: 13px; }
-.library-help-card p { margin: 10px 0 14px; font-size: 11px; line-height: 1.9; color: var(--muted); }
-.library-help-card > button { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 0; font-size: 12px; color: var(--accent); }
-.library-help-card > button:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 /* Reading and editing share a precise control-band baseline. */
 .workspace-view .workspace-toolbar { min-height: 48px; }

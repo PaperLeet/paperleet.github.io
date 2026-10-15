@@ -2,7 +2,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu, PracticeGuideContent } from "./deferredPages";
+import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -12,7 +12,6 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
-  CircleHelp,
   Maximize2,
   Minimize2,
   Code2,
@@ -134,37 +133,12 @@ function Workspace() {
     [rightTab, setRightTab] = useState("code"),
     [preparingRun, setPreparingRun] = useState(false),
     [toast, setToast] = useState(""),
-    [guide, setGuide] = useState(false),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number};vertical?:{ratio:number}}>();
   const [resultsCollapsed, setResultsCollapsed] = useState(false);
-  const guideDialog = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (!guide) return;
-    const opener = document.activeElement as HTMLElement | null;
-    const dialog = guideDialog.current;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    dialog?.focus();
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); setGuide(false); return; }
-      if (event.key !== "Tab" || !dialog) return;
-      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), [tabindex="0"]')).filter((element) => element.getClientRects().length);
-      const first = controls[0], last = controls[controls.length - 1];
-      if (!first) { event.preventDefault(); dialog.focus(); return; }
-      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialog)) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.body.style.overflow = overflow;
-      document.removeEventListener("keydown", handleKey);
-      if (opener?.isConnected) opener.focus({ preventScroll: true });
-    };
-  }, [guide]);
   function selectReadingTab(nextTab: string) {
     setTab(nextTab); setMobilePane("read"); setFocusMode(false);
     requestAnimationFrame(() => {
@@ -275,7 +249,7 @@ function Workspace() {
   const canRun = !!problem && !running && practice.ready && !(!browserAvailable && hosted && (!user || !online || !!practice.conflicts[problem.id]));
   const workspaceAttention = !!(judge.error || practice.error || (problem && (practice.conflicts[problem.id] || browser.reasons[problem.id])));
   useEffect(() => { if (workspaceAttention) setResultsCollapsed(false); }, [workspaceAttention]);
-  useWorkspaceShortcuts({ enabled: !!problem && !guide && !backupOpen, canRun, focused: focusMode, onRun: () => void run(), onExitFocus: () => setFocusMode(false) });
+  useWorkspaceShortcuts({ enabled: !!problem && !backupOpen, canRun, focused: focusMode, onRun: () => void run(), onExitFocus: () => setFocusMode(false) });
   const editorRecoveryReason = running
     ? t('请先停止测试或等待运行完成，再重新加载。', 'Stop the tests or wait for the run to finish before reloading.')
     : Object.keys(practice.conflicts).length
@@ -525,7 +499,7 @@ function Workspace() {
             <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
             <RepositoryLink />
             <OnlinePresence />
-            <AccountNav returnTo={id} theme={theme} onTheme={selectTheme} onGuide={() => setGuide(true)} onBackup={() => setBackupOpen(true)} backupReady={practice.owner !== 'unresolved' && problems.length > 0} />
+            <AccountNav returnTo={id} theme={theme} onTheme={selectTheme} onBackup={() => setBackupOpen(true)} backupReady={practice.owner !== 'unresolved' && problems.length > 0} />
           </div>
         </div>
       </header>
@@ -548,7 +522,7 @@ function Workspace() {
         <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={settingsReturn.current} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
       ) : settingsPage ? (
         <SettingsPage theme={theme} onTheme={selectTheme} returnTo={settingsReturn.current}
-          onGuide={() => setGuide(true)} onBackup={() => setBackupOpen(true)}
+          onBackup={() => setBackupOpen(true)}
           backupReady={practice.owner !== 'unresolved' && problems.length > 0}
           accountHref={user ? hostedAppHref('#/account') : undefined}
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
@@ -607,7 +581,6 @@ function Workspace() {
             problems={problems}
             saved={learningSaved}
             stats={problemStats}
-            onGuide={() => setGuide(true)}
             returnTo={libraryReturn}
             progressReady={progressReady}
           />
@@ -622,7 +595,6 @@ function Workspace() {
               setId(decodeProblemHash(href));
             }}
             progressReady={progressReady}
-            onGuide={() => setGuide(true)}
             categories={categories}
             papers={papers}
             problems={problems}
@@ -645,7 +617,6 @@ function Workspace() {
             <b title={locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}>
               {problem.number}. {locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}
             </b>
-            <button className="icon-button workspace-help" type="button" aria-label={t('练习帮助', 'Practice help')} title={t('练习帮助', 'Practice help')} aria-haspopup="dialog" onClick={() => setGuide(true)}><CircleHelp size={16} aria-hidden="true" /></button>
             <WorkspaceLayoutMenu onLayout={(ratio, reset) => {
               setFocusMode(false);
               setLayoutRequest({horizontal:{ratio},vertical:reset?{ratio:.72}:undefined});
@@ -1264,28 +1235,6 @@ function Workspace() {
             </section>
           </ResizableSplit>
         </>
-      )}
-      {guide && (
-        <div className="modal-backdrop" onClick={() => setGuide(false)}>
-          <section
-            ref={guideDialog}
-            tabIndex={-1}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="guide-title"
-            className="guide-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="icon-button modal-close"
-              aria-label={t("关闭指南", "Close guide")}
-              onClick={() => setGuide(false)}
-            >
-              <X size={19} />
-            </button>
-            <PracticeGuideContent onClose={() => setGuide(false)} />
-          </section>
-        </div>
       )}
       <AchievementObserver key={practice.owner} problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} />
       {toast && (

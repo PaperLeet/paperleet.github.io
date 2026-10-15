@@ -18,7 +18,7 @@ try {
   const modules=paperModules(mixed,fixtureProblems);
   assert.deepEqual(paperJudgeCapability(modules),{browser:1,server:1,total:2});
   assert(renderToString(React.createElement(PaperJudgeBadge,{modules})).includes('部分模块需服务端 1/2'));
-  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{},onGuide(){}}));
+  const detail=renderToString(React.createElement(PaperDetail,{paper:mixed,problems:fixtureProblems,saved:{}}));
   assert(!detail.includes('浏览器判题 · 无需 GPU') && detail.includes('服务端判题'));
   assert.equal(renderToString(React.createElement(ModuleJudgeBadge,{problem:attention})), '');
   assert.equal(renderToString(React.createElement(PaperJudgeBadge,{modules:paperModules(mixed,problems)})), '');

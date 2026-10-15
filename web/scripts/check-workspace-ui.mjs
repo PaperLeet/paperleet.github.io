@@ -38,14 +38,14 @@ try {
   const button=(text)=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()===text);
   const click=async element=>{assert(element,'Expected an interactive control');await act(async()=>element.dispatchEvent(new dom.window.MouseEvent('click',{bubbles:true})));};
   const settle=async predicate=>{for(let i=0;i<60&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));assert(predicate(),'Component did not settle');};
-  let account,guideOpens=0,backupOpens=0,mounts=0;
+  let account,backupOpens=0,mounts=0;
   function Draft(){useEffect(()=>{mounts++;},[]);return h('textarea',{'aria-label':'Draft',defaultValue:'private draft αβ'});}
   function Harness(){
     account=useAccount();
     const [theme,setTheme]=useState('light'),[layout,setLayout]=useState(),[collapsed,setCollapsed]=useState(false),[lab,setLab]=useState(false);
     return h(React.Fragment,null,
       h('button',{className:'outside'},'Outside'),
-      h(Menu,{theme,onTheme:setTheme,returnTo:'22',backupReady:true,onGuide(){guideOpens++;},onBackup(){backupOpens++;}}),
+      h(Menu,{theme,onTheme:setTheme,returnTo:'22',backupReady:true,onBackup(){backupOpens++;}}),
       h(LayoutMenu,{onLayout:(ratio,reset)=>{setLayout({ratio});if(reset)setCollapsed(false);}}),
       h('button',{onClick:()=>setCollapsed(value=>!value)},'Toggle results'),
       h('button',{onClick:()=>setLab(value=>!value)},'Toggle lab'),
@@ -77,10 +77,10 @@ try {
   await settle(()=>document.activeElement===find('.account-menu-panel'));
   await act(async()=>find('.outside').focus());
   assert(!find('.account-menu-panel'),'Keyboard focus can leave the non-modal panel');
-  await click(find('.account-menu-trigger'));await click(button('Practice guide'));
-  assert.equal(guideOpens,1);assert(!find('.account-menu-panel'));assert.equal(document.activeElement,find('.account-menu-trigger'));
-  await click(find('.account-menu-trigger'));await click(button('Code backups'));
-  assert.equal(backupOpens,1);assert(!find('.account-menu-panel'));
+  await click(find('.account-menu-trigger'));
+  assert(!button('Practice guide'), 'The personal menu has no generic guide action');
+  await click(button('Code backups'));
+  assert.equal(backupOpens,1);assert(!find('.account-menu-panel'));assert.equal(document.activeElement,find('.account-menu-trigger'));
   await click(find('.account-menu-trigger'));await settle(()=>find('.account-menu-signout'));
   await click(find('.account-menu-signout'));
   assert(find('.account-menu-signout').disabled);assert.equal(logoutRequests,1);
@@ -113,7 +113,7 @@ try {
   assert.equal(find('textarea'),draft);assert.equal(draft.value,'edited private draft 🧪');assert.equal(draft.selectionStart,4);assert.equal(draft.selectionEnd,9);assert.equal(draft.scrollTop,17);assert.equal(mounts,1);
   await click(find('.workspace-layout-trigger'));await click(button('Reading'));
   assert.equal(localStorage.getItem('test.layout'),'0.62');assert.equal(document.activeElement,find('.workspace-layout-trigger'));
-  console.log('PASS isolated DOM: avatar panel focus/Escape/outside/Tab/route dismissal, live language/theme, private identity, backup/help handoff, logout failure/retry/duplicate guards, owner change, layout persistence, accessible collapse and mounted draft/cursor/scroll preservation');
+  console.log('PASS isolated DOM: avatar panel focus/Escape/outside/Tab/route dismissal, live language/theme, private identity, backup handoff, logout failure/retry/duplicate guards, owner change, layout persistence, accessible collapse and mounted draft/cursor/scroll preservation');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();
