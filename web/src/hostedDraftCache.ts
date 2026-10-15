@@ -1,3 +1,5 @@
+import { parseSaved } from "./reports";
+import type { Saved } from "./types";
 export type PendingDraft = { code: string; updated: string; base: string; revision: number };
 type Pending = Record<string, PendingDraft>;
 export function practiceCacheKey(owner: string, origin: string) {
@@ -103,4 +105,24 @@ export function createHostedDraftCache(source: string) {
       } catch { /* Keeping an acknowledged copy is safe; a future read clears it. */ }
     },
   };
+}
+
+export function mergeWorkspaceSnapshot(
+  serverValue: unknown,
+  pending: Record<string, PendingDraft>,
+) {
+  const server = parseSaved(serverValue),
+    records = { ...server },
+    conflicts: Record<string, Saved> = {},
+    dirty = { ...pending };
+  for (const [id, draft] of Object.entries(pending)) {
+    const saved = server[id] || {};
+    if (saved.code === draft.code) {
+      delete dirty[id];
+      continue;
+    }
+    records[id] = { ...saved, code: draft.code };
+    if ((saved.updated || "") !== draft.base) conflicts[id] = saved;
+  }
+  return { records, pending: dirty, conflicts };
 }

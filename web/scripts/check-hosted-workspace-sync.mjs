@@ -10,10 +10,18 @@ for(const [key,value] of Object.entries({window:dom.window,document:dom.window.d
   BroadcastChannel:undefined,IS_REACT_ACT_ENVIRONMENT:true}))Object.defineProperty(globalThis,key,{configurable:true,writable:true,value});
 const {createRoot}=require('react-dom/client'), {createServer}=await import('vite');
 globalThis.__workspaceAccountContext=React.createContext(null);
+let releaseCache;globalThis.__workspaceCacheGate=new Promise(resolve=>{releaseCache=resolve;});
 const server=await createServer({root:project,configFile:false,server:{middlewareMode:true},appType:'custom',optimizeDeps:{noDiscovery:true,entries:[]},plugins:[{
   name:'workspace-account-fixture',enforce:'pre',
-  resolveId(source,importer){if(source==='./social'&&importer?.endsWith('/PracticeWorkspace.tsx'))return '\0workspace-social';},
-  load(id){if(id==='\0workspace-social')return `import {useContext} from 'react';
+  resolveId(source,importer){
+    if(importer?.endsWith('/PracticeWorkspace.tsx')){
+      if(source==='./social')return '\0workspace-social';
+      if(source==='./hostedDraftCache')return '\0workspace-cache';
+    }
+  },
+  load(id){
+    if(id==='\0workspace-cache')return `await globalThis.__workspaceCacheGate; export * from ${JSON.stringify(`${project}/src/hostedDraftCache.ts`)};`;
+    if(id==='\0workspace-social')return `import {useContext} from 'react';
     export function useAccount(){return useContext(globalThis.__workspaceAccountContext);}
     export async function socialApi(path,body){return globalThis.__workspaceApi(path,body);}
     export class SocialError extends Error {constructor(message,status){super(message);this.status=status;}}
@@ -51,9 +59,20 @@ try{
   async function settle(predicate,label){for(let i=0;i<200&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(predicate(),label);}
   async function delay(ms){await act(async()=>new Promise(resolve=>setTimeout(resolve,ms)));}
   async function signal(owner='user:alice'){await act(async()=>publishPracticeChange({owner,kind:'submission',problem:id,source:'remote-fixture'}));}
-  await render('a');await render('b');
+  await render('a');
+  assert.equal(views.a.ready,false,'hosted editing stays disabled until the lazy runtime is available');
+  assert.equal(views.a.update(id,{code:'before runtime initialization'}),false);
+  assert.equal(requests,0,'no hosted workspace request races runtime initialization');
+  userIds.a='bob';await render('a');
+  await act(async()=>releaseCache());
+  await settle(()=>!views.a.loading,'delayed runtime resolves after an account switch');
+  assert.equal(views.a.owner,'user:bob');
+  assert.deepEqual(views.a.saved,{},'delayed initialization cannot expose the prior account');
+  assert.equal(requests,1,'obsolete owner does not initiate a late API read');
+  userIds.a='alice';requests=0;await render('a');await render('b');
   await settle(()=>views.a.ready&&views.b.ready,'both independent hook instances hydrate');
   assert.equal(requests,2);
+  console.log('PASS lazy hosted runtime gates editing and rejects obsolete owner initialization');
   await act(async()=>views.a.update(id,{code:'window A edit'}));
   await act(async()=>views.a.flush());
   await settle(()=>views.b.saved[id]?.code==='window A edit','successful save reaches peer without reload');

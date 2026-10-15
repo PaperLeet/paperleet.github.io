@@ -12,10 +12,9 @@ const server = await createServer({
 try {
   const {
     practiceOwner,
-    practiceCacheKey,
-    mergeWorkspaceSnapshot,
     withPracticeReport,
   } = await server.ssrLoadModule("/src/PracticeWorkspace.tsx");
+  const {practiceCacheKey, mergeWorkspaceSnapshot} = await server.ssrLoadModule('/src/hostedDraftCache.ts');
   assert.equal(
     practiceOwner(undefined, "alice"),
     "unresolved",

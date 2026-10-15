@@ -4,6 +4,22 @@ import { WorkspaceBackupFailure } from './WorkspaceBackupFallback';
 import { ModuleNavigationFallback } from "./ModuleNavigationFallback";
 import { QueueAdmissionFallback } from './QueueAdmissionFallback';
 import { useI18n } from './i18n';
+import { Globe2 } from 'lucide-react';
+import NavMetric from './NavMetric';
+
+function PresencePlaceholder({retry}: {retry?: () => void}) {
+  const {t} = useI18n();
+  if (retry) return <button className="nav-metric online-presence unavailable" type="button" onClick={retry}
+    aria-label={t('重试在线人数', 'Retry online count')} title={t('重试在线人数', 'Retry online count')}>
+    <Globe2 size={14} strokeWidth={1.8} aria-hidden="true" /><b className="nav-metric-value" aria-hidden="true">—</b>
+  </button>;
+  return <NavMetric className="online-presence unavailable" value="—" label={t('在线人数暂不可用', 'Online count unavailable')}
+    icon={<Globe2 size={14} strokeWidth={1.8} aria-hidden="true" />} />;
+}
+export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), ['在线人数', 'online count'], {
+  loading: () => <PresencePlaceholder />,
+  failure: (_props,retry) => <PresencePlaceholder retry={retry} />,
+});
 
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
@@ -14,6 +30,7 @@ export const UserProfile = deferredFeature<Parameters<typeof import('./Community
 export const Account = deferredFeature(() => import('./Account'), ['账号页面', 'account page']);
 export const SolutionHistory = deferredFeature(() => import('./SolutionHistory'), ['提交记录', 'submission history']);
 export const SubmissionResultPage = deferredFeature(() => import('./SubmissionResultPage'), ['提交结果', 'submission result']);
+export const ResizableSplit = deferredFeature(() => import('./ResizableSplit'), ['做题布局', 'workspace layout']);
 export const SettingsPage = deferredFeature(() => import('./Settings'), ['设置', 'settings']);
 export const Achievements = deferredFeature(() => import('./Achievements'), ['学习勋章', 'achievements']);
 export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), ['勋章提示', 'achievement notifications'], {loading: () => null, failure: () => null});

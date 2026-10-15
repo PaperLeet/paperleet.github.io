@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { parseSaved } from "./reports";
 import { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
 import { useGuestWorkspace } from "./useGuestWorkspace";
 export { draftSnapshotMatches, withPracticeReport, type DraftExpectation } from "./practiceRecords";
 import type { Problem, Report, Saved } from "./types";
 import { SocialError, errorMessage, socialApi, useAccount } from "./social";
-import { createHostedDraftCache, type PendingDraft } from "./hostedDraftCache";
+import type { PendingDraft, createHostedDraftCache } from "./hostedDraftCache";
 import { publishPracticeChange, subscribePracticeChanges } from "./practiceChanges";
-export { practiceCacheKey } from "./hostedDraftCache";
 
 type Bundle = {
   owner: string;
@@ -38,25 +36,6 @@ export function practiceOwner(
           ? `user:${userId}`
           : "anonymous";
 }
-export function mergeWorkspaceSnapshot(
-  serverValue: unknown,
-  pending: Record<string, PendingDraft>,
-) {
-  const server = parseSaved(serverValue),
-    records = { ...server },
-    conflicts: Record<string, Saved> = {},
-    dirty = { ...pending };
-  for (const [id, draft] of Object.entries(pending)) {
-    const saved = server[id] || {};
-    if (saved.code === draft.code) {
-      delete dirty[id];
-      continue;
-    }
-    records[id] = { ...saved, code: draft.code };
-    if ((saved.updated || "") !== draft.base) conflicts[id] = saved;
-  }
-  return { records, pending: dirty, conflicts };
-}
 export function usePracticeWorkspace() {
   const {
     user,
@@ -74,7 +53,7 @@ export function usePracticeWorkspace() {
     [retryVersion, setRetryVersion] = useState(0),
     [flushVersion, setFlushVersion] = useState(0);
   const source = useRef(`workspace-${Date.now()}-${Math.random()}`);
-  const cache = useRef(createHostedDraftCache(source.current));
+  const cache = useRef<ReturnType<typeof createHostedDraftCache> | null>(null);
   const refreshWorkspace = useRef<(() => void) | null>(null);
   const refreshQueued = useRef(false);
   const serverMutation = useRef(0);
@@ -90,7 +69,7 @@ export function usePracticeWorkspace() {
   function persist(next: Bundle) {
     try {
       if (next.owner.startsWith("user:"))
-        cache.current.write(next.owner, next.pending);
+        cache.current?.write(next.owner, next.pending);
       storageError.current = "";
     } catch {
       storageError.current =
@@ -100,7 +79,7 @@ export function usePracticeWorkspace() {
   function mutate(change: (previous: Bundle) => Bundle, expectedOwner = owner) {
     if (currentOwner.current !== expectedOwner) return false;
     const previous = currentBundle.current;
-    if (previous.owner !== expectedOwner) return false;
+    if (previous.owner !== expectedOwner || !cache.current) return false;
     const next = change(previous);
     if (next === previous) return false;
     currentBundle.current = next;
@@ -113,7 +92,8 @@ export function usePracticeWorkspace() {
   useEffect(() => {
     const generation = ++epoch.current;
     currentOwner.current = owner;
-    let disposed = false, requestRunning = false, repeat = false;
+    let disposed = false, initialized = false, requestRunning = false, repeat = false;
+    let mergeSnapshot: typeof import("./hostedDraftCache").mergeWorkspaceSnapshot;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let lastRequest = 0;
     const active = () => !disposed && currentOwner.current === owner && epoch.current === generation;
@@ -123,18 +103,14 @@ export function usePracticeWorkspace() {
     refreshQueued.current = false;
     setSaving(false);
     setError("");
-    const pending = owner.startsWith('user:') ? cache.current.read(owner) : {};
-    const initial = {
-      ...emptyBundle(owner), pending,
-      records: Object.fromEntries(Object.entries(pending).map(([id, draft]) => [id, {code: draft.code, updated: draft.updated}])),
-    };
+    const initial = emptyBundle(owner);
     currentBundle.current = initial;
     setBundle(initial);
     setLoading(owner !== 'local' && owner !== 'anonymous');
     if (!owner.startsWith('user:')) return () => { disposed = true; };
 
     async function refresh() {
-      if (!active()) return;
+      if (!active() || !initialized) return;
       if (flushing.current) { refreshQueued.current = true; return; }
       if (requestRunning) { repeat = true; return; }
       requestRunning = true;
@@ -148,8 +124,8 @@ export function usePracticeWorkspace() {
         if (mutation !== serverMutation.current) { repeat = true; return; }
         if (flushing.current) { refreshQueued.current = true; return; }
         const latest = currentBundle.current;
-        const next = {owner, ...mergeWorkspaceSnapshot(data.workspace, latest.pending), hydrated: true};
-        cache.current.acknowledge(owner, data.workspace);
+        const next = {owner, ...mergeSnapshot(data.workspace, latest.pending), hydrated: true};
+        cache.current?.acknowledge(owner, data.workspace);
         currentBundle.current = next;
         setBundle(next);
         persist(next);
@@ -186,7 +162,27 @@ export function usePracticeWorkspace() {
     window.addEventListener('focus', becameActive);
     window.addEventListener('online', schedule);
     document.addEventListener('visibilitychange', becameActive);
-    void refresh();
+    // Hosted recovery is unnecessary for the guest/local library. Keep the
+    // editor disabled until both this optional runtime and the API are ready.
+    void import('./hostedDraftCache').then(runtime => {
+      if (!active()) return;
+      if (!cache.current) cache.current = runtime.createHostedDraftCache(source.current);
+      mergeSnapshot = runtime.mergeWorkspaceSnapshot;
+      const pending = cache.current.read(owner);
+      const restored = {
+        ...emptyBundle(owner), pending,
+        records: Object.fromEntries(Object.entries(pending).map(([id, draft]) => [id, {code: draft.code, updated: draft.updated}])),
+      };
+      currentBundle.current = restored;
+      setBundle(restored);
+      initialized = true;
+      void refresh();
+    }).catch(e => {
+      if (!active()) return;
+      failed.current = true;
+      setError(errorMessage(e));
+      setLoading(false);
+    });
     return () => {
       disposed = true;
       clearTimeout(timer);
@@ -240,7 +236,7 @@ export function usePracticeWorkspace() {
             return { ...previous, pending, records };
           }, owner);
           serverMutation.current += 1;
-          cache.current.acknowledge(owner, {[id]: {code: draft.code}});
+          cache.current?.acknowledge(owner, {[id]: {code: draft.code}});
           publishPracticeChange({owner, problem: id, kind: 'draft', revision: response.draft.updated, source: source.current});
         }
         if (currentOwner.current === owner && epoch.current === generation)
