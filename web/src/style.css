@@ -1294,7 +1294,7 @@ h3 {
 }
 .code-editor .cm-activeLineGutter,
 .code-editor .cm-activeLine {
-  background: #ffffff025 !important;
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
 }
 .code-editor .cm-content {
   padding-top: 13px;

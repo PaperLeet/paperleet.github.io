@@ -69,7 +69,8 @@
 .test-comparison .comparison-values > div { padding:12px; border:1px solid var(--line); border-radius:7px; background:var(--surface); }
 .test-comparison .comparison-values dd { margin-top:6px; font-family:var(--font-mono); font-size:14px; overflow-wrap:anywhere; }
 .test-comparison .comparison-values > div:last-child { border-color:color-mix(in srgb,var(--chart-5) 25%,var(--line)); }
-.workspace .cm-editor.cm-focused .cm-activeLine { background:color-mix(in srgb,var(--accent) 7%,var(--editor)); box-shadow:inset 2px 0 color-mix(in srgb,var(--accent) 60%,transparent); }
+/* CodeMirror draws selections below the text; keep line backgrounds translucent. */
+.workspace .cm-editor.cm-focused .cm-activeLine { background:color-mix(in srgb,var(--accent) 7%,transparent); box-shadow:inset 2px 0 color-mix(in srgb,var(--accent) 60%,transparent); }
 .workspace .cm-activeLineGutter { color:var(--accent); }
 @media (max-width:600px) {
   .report-workflow { padding:14px; border-radius:10px; }
