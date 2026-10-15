@@ -25,7 +25,7 @@ export const paperCollections: PaperCollection[] = [
     name_en: "Retrieval",
     description: "序列推荐 · 对比检索 · 生成式召回",
     description_en: "Sequential recommendation · Contrastive retrieval · Generative retrieval",
-    paperIds: ["sasrec", "clip", "colbert", "rotation-trick", "tiger"],
+    paperIds: ["bpr", "sasrec", "clip", "colbert", "rotation-trick", "tiger"],
   },
   {
     id: "rl",

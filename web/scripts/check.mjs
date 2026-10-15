@@ -113,7 +113,13 @@ try {
     "A paper-level search must still honor the selected module difficulty");
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
-  assert.equal(browserModules.length, 67);
+  assert.equal(browserModules.length, 68);
+  const bpr=catalog.papers.find(p=>p.id==='bpr');
+  assert(bpr&&bpr.number===53&&bpr.category==='retrieval');
+  assert.deepEqual(bpr.module_ids,['retrieval/bpr']);
+  assert.deepEqual(matchingPaperModules(bpr,catalog.problems,'BPR','all','browser').map(p=>p.number),[68]);
+  assert.equal(Object.values(catalog.problems.find(p=>p.id==='retrieval/bpr').tests).reduce((sum,count)=>sum+count,0),10);
+  assert(paperCollections.find(list=>list.id==='retrieval').paperIds.includes('bpr'));
   const sasrec=catalog.papers.find(p=>p.id==='sasrec');
   assert(sasrec&&sasrec.number===52&&sasrec.category==='retrieval');
   assert.deepEqual(sasrec.module_ids,['retrieval/sasrec']);

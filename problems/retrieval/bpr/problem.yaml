@@ -1,0 +1,74 @@
+id: retrieval/bpr
+number: 68
+title: BPR：隐式反馈与个性化成对排序
+title_en: 'BPR: Implicit Feedback and Personalized Pairwise Ranking'
+paper_id: bpr
+paper:
+  title: 'BPR: Bayesian Personalized Ranking from Implicit Feedback'
+  authors: Steffen Rendle, Christoph Freudenthaler, Zeno Gantner and Lars Schmidt-Thieme
+  venue: UAI 2009
+  arxiv: '1205.2618'
+  url: https://arxiv.org/abs/1205.2618
+  anchors:
+  - 'Section 3.2: observed/unobserved training triples'
+  - 'Section 4.1: BPR-Opt log-sigmoid and Gaussian prior'
+  - 'Section 4.3.1: matrix factorization score differences'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: eligible_negatives
+  signature: 'eligible_negatives(interactions: Tensor, user_ids: Tensor) -> Tensor'
+- name: bpr_mf_loss
+  signature: 'bpr_mf_loss(user_factors: Tensor, item_factors: Tensor, triples: Tensor, l2: float=0.) -> Tensor'
+- name: _check_mask
+  signature: _check_mask(interactions, user_ids) -> None
+- name: _check_loss
+  signature: _check_loss(user_factors, item_factors, triples, l2) -> None
+module:
+  goal: 从完整用户历史选择未观察物品，并用可微的成对偏好训练两张因子表。
+  goal_en: Select unobserved items from complete user histories and train both factor tables with differentiable pairwise preferences.
+  scope: 用户级候选 mask、稳定的 BPR-MF 负对数似然与全表 L2 先验；三元组构造与小型训练循环已提供。
+  scope_en: Per-user candidate masks, stable BPR-MF negative log likelihood and full-table L2 prior; triple construction and tiny training loop are provided.
+  required_functions: [eligible_negatives, bpr_mf_loss]
+  provided_functions: [_check_mask, _check_loss]
+  optional: false
+conventions:
+  seed: 42
+  dtype: Boolean histories, int64 indices, CPU float32/float64 factors.
+  device: CPU; no GPU, account, external dataset or pretrained model.
+  contract: IDs are zero-based with no padding. Mean triple likelihood plus l2 times the sum of squared entries of both complete tables, without a factor of one half. Empty triples contribute only the global prior and preserve both gradient graphs.
+tests: {T0: 2, T1: 1, T2: 6, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 30
+tags: [BPR, Matrix Factorization, Implicit Feedback, Personalized Ranking, Negative Sampling]
+viz: [toy_experiment]
+sources_verified: '2026-10-14'
+verified_sources:
+  checked_at: '2026-10-14'
+  links:
+  - https://proceedings.mlr.press/r7/rendle09a.html
+  - https://auai.org/uai2009/papers/UAI2009_0139_48141db02b9f0b02bc7158819ebfa2c7.pdf
+  - https://arxiv.org/abs/1205.2618
+toy:
+  kind: teaching_adaptation
+  source: https://proceedings.mlr.press/r7/rendle09a.html
+  anchor: Sections 3.2, 4.1 and 4.3.1
+  adaptation: Three synthetic users, six items, all 24 observed/unobserved training triples, 27 learned matrix-factor entries and 120 full-batch Adam updates with one global L2 coefficient. Not LearnBPR bootstrap SGD, separate per-role regularizers or a held-out recommendation benchmark.
+mutants:
+- id: m1_observed_as_negative
+  bug: Treat observed items as eligible negatives.
+- id: m2_global_history
+  bug: Exclude items observed by anyone instead of only this user.
+- id: m3_reversed_margin
+  bug: Rank the unobserved item above the positive.
+- id: m4_detached_positive
+  bug: Cut the positive item's likelihood gradient.
+- id: m5_selected_prior
+  bug: Penalize selected factor occurrences instead of the two complete tables.
+- id: m6_feature_average
+  bug: Average latent coordinates instead of summing dot-product scores.
+- id: m7_binary_instead_of_pairwise
+  bug: Use two independent binary terms instead of the score-difference likelihood.
+- id: m8_sum_instead_of_mean
+  bug: Sum triple losses without the declared batch normalization.

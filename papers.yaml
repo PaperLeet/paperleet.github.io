@@ -589,3 +589,15 @@ papers:
     scope: 因果与 query/key padding mask、稳定二元负采样损失，以及小型合成序列训练；不复现完整推荐基准。
     scope_en: Causal/query/key padding visibility, stable sampled binary loss and tiny synthetic sequence training; no full recommendation benchmark.
     module_ids: [retrieval/sasrec]
+
+  - id: bpr
+    number: 53
+    category: retrieval
+    short_title: BPR
+    year: 2009
+    tags: [Implicit Feedback, Matrix Factorization, Pairwise Ranking, Negative Sampling]
+    summary: 用已观察与未观察物品的偏好关系学习每个用户的排序。
+    summary_en: Learn each user's ranking from observed-versus-unobserved item preferences.
+    scope: 用户级负样本候选、BPR-MF 成对目标与全表先验，以及 120 次真实合成训练；不复现 LearnBPR 采样器或论文数据基准。
+    scope_en: Per-user negative candidates, BPR-MF pairwise objective/global prior and 120 actual synthetic training updates; no LearnBPR sampler or paper dataset benchmark.
+    module_ids: [retrieval/bpr]
