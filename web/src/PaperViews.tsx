@@ -1,3 +1,4 @@
+import {ProblemFavoriteButton} from './deferredPages';
 import { paperModules, matchingPaperModules, paperProgress, selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -179,6 +180,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
       <div className="library-title">{selectedCollection ? <h2>{t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
+      <a className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</a>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{solvedModules} / {listedModules.length}</b></div>
     </header>
     <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
@@ -262,7 +264,7 @@ export function PaperDetail({ paper, problems, saved, stats, returnTo, progressR
             const title = locale === "en" ? problem.translations?.en?.title || problem.title : problem.title;
             const state = status(problem, saved[problem.id]);
             const isNext = progressReady && progress.state !== "done" && next?.id === problem.id;
-            return <a href={withLibraryContext(problem.number,returnTo)} className="paper-module-card" data-next={isNext || undefined} key={problem.id}>
+            return <div className="paper-module-shell" key={problem.id}><a href={withLibraryContext(problem.number,returnTo)} className="paper-module-card" data-next={isNext || undefined}>
               {isNext && <span className="module-next-label">{state === "started" ? t("接着上次继续", "Pick up where you left off") : t("下一步推荐", "Up next")}<ArrowRight size={12}/></span>}
               <div className="module-card-top"><StateIcon state={state} /><h3><span>{problem.number}.</span> {title}</h3><ChevronRight size={17} /></div>
               <p>{t(problem.module.goal, problem.module.goal_en)}</p>
@@ -270,7 +272,7 @@ export function PaperDetail({ paper, problems, saved, stats, returnTo, progressR
               <div className="module-functions"><span>{t("需要实现", "Implement")}</span>{problem.module.required_functions.map((name) => <code key={name}>{name}</code>)}</div>
               {!!problem.module.provided_functions.length && <div className="module-functions provided-functions"><span>{t("已提供", "Provided")}</span>{problem.module.provided_functions.map((name) => <code key={name}>{name}</code>)}</div>}
               <ProblemStatsSummary stats={getProblemStats(stats, problem.id)} />
-            </a>;
+            </a><div className="module-favorite-slot"><ProblemFavoriteButton problemId={problem.id} returnTo={withLibraryContext('papers/'+paper.id,returnTo)}/></div></div>;
           })}
         </section>
       </div>
