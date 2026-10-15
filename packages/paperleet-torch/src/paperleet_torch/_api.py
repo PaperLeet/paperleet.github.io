@@ -22,7 +22,7 @@ def create_torch(name='torch', *, register=False):
     root_name = name
     modules = {'torch': torch}
     for name in ('nn', 'nn.functional', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
-                 'optim.adamw', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
+                 'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name):
             if key.startswith('_'): raise AttributeError(key)
@@ -47,6 +47,12 @@ def create_torch(name='torch', *, register=False):
         module = modules['torch.optim.' + name]
         setattr(module, cls.__name__, cls)
         setattr(torch.optim, name, module)
+
+    torch.optim.lr_scheduler = modules['torch.optim.lr_scheduler']
+    for name in ('LRScheduler', '_LRScheduler', 'StepLR', 'MultiStepLR', 'ExponentialLR',
+                 'CosineAnnealingLR', 'LinearLR', 'ConstantLR', 'PolynomialLR', 'LambdaLR',
+                 'MultiplicativeLR', 'ChainedScheduler', 'SequentialLR', 'ReduceLROnPlateau'):
+        setattr(torch.optim.lr_scheduler, name, getattr(_schedulers, name))
 
     registry = _registry.OperatorRegistry(modules)
     registry.group('torch.cuda', {'is_available': lambda: False, 'device_count': lambda: 0,
@@ -164,4 +170,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _conversion, _device, _errors, _linalg, _nn, _ops, _optim, _random, _registry, _tensor
+from . import _autograd, _conversion, _device, _errors, _linalg, _nn, _ops, _optim, _random, _registry, _schedulers, _tensor

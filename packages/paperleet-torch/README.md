@@ -176,6 +176,52 @@ original adapter's single-group `lr`/`params` access remains available; use
 capture/differentiable execution, trainable hyperparameters and zeroing non-leaf
 gradient buffers remain unsupported. CPU scalar Tensor learning rates are supported.
 
+## Learning-rate schedules
+
+Ordinary `from torch.optim.lr_scheduler import ...` imports work with the aliases.
+The supported schedules are `StepLR`, `MultiStepLR`, `ExponentialLR`,
+`CosineAnnealingLR`, `LinearLR`, `ConstantLR`, `PolynomialLR`, `LambdaLR`,
+`MultiplicativeLR`, `SequentialLR`, `ChainedScheduler` and `ReduceLROnPlateau`.
+`LRScheduler` supports custom subclasses, including iterable learning-rate results.
+
+```python
+from torch.optim.lr_scheduler import LinearLR, CosineAnnealingLR, SequentialLR
+
+scheduler = SequentialLR(optimizer, [
+    LinearLR(optimizer, start_factor=0.2, total_iters=5),
+    CosineAnnealingLR(optimizer, T_max=95),
+], milestones=[5])
+
+# Each epoch: compute loss and gradients, then:
+optimizer.step()
+scheduler.step()
+```
+
+Construction applies the initial schedule immediately; call subsequent `step()`
+after the optimizer update. `get_last_lr()` reports the applied rates. Plateau
+scheduling uses `scheduler.step(validation_loss)` with min/max, relative/absolute
+thresholds, patience, cooldown, per-group minima and epsilon behavior. It cannot
+be a child of sequential/chained schedules because it needs a metric. Some nested
+compositions have no native closed-form transition and raise `NotImplementedError`,
+as native Torch does. Cyclic/one-cycle/warm-restart schedules are not provided yet.
+
+Save a deep copy of model, optimizer **and scheduler** state for a training
+snapshot. After constructing the new model, optimizer and scheduler, load model
+state, scheduler state and then optimizer state. Scheduler loading retains the
+destination optimizer and restores counters/child states; it does not restore
+the optimizer's current learning rates. Lambda functions must be reconstructed in
+code; callable objects save their attribute dictionaries, not their executable
+code. These checkpoints remain in-memory Python objects, not native `.pt` files.
+
+Frozen CPU scalar Tensor learning rates retain their group object identity while
+updates fill their values; initial/base/reported rate tensors are independent
+copies. Current-rate schedules can follow dynamically added optimizer groups.
+Base-rate/lambda/floor metadata may need explicit adjustment when groups change;
+construct all groups before the scheduler when possible. Explicit epoch stepping
+is deprecated and emits a warning, matching native Torch.
+Differentiating schedule hyperparameters, including passing a forward-AD learning
+rate through scheduler construction, remains explicitly unsupported.
+
 ## Modules and compatibility
 
 The implementation is divided into tensor/storage, analytical autodiff and JVP,
@@ -230,7 +276,9 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.5 validation record](../../docs/validation/torch-runtime-iteration-5.md)
+See the [0.6 validation record](../../docs/validation/torch-runtime-iteration-6.md)
+for scheduling, training continuation and CPU/WASM overhead measurements.
+The [0.5 validation record](../../docs/validation/torch-runtime-iteration-5.md)
 for model conversion, gradient modes, storage guards and CPU/WASM measurements.
 The [0.4 validation record](../../docs/validation/torch-runtime-iteration-4.md)
 for optimizer/checkpoint parity, lazy-state memory, wheel isolation and real WASM/

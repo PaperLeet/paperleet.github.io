@@ -47,6 +47,18 @@ their Tensor/graph allocations when a copy is needed. A no-op is expected to
 preserve identity in the current implementation; benchmark historical versions
 with the same script to expose their unnecessary allocations.
 
+`bench_schedulers.py --output schedulers.json` measures one/eight-group step
+schedules, cosine (float and scalar Tensor rates), warmup/cosine, plateau, and
+complete plain/scheduled MLP updates. The scheduler-only cases time `step()` after
+one setup optimizer update, without parameter updates or gradients in the timed
+calls. Plain/scheduled MLPs use identical seeded initial weights and inputs.
+Pass `--backend native` for an optional native Torch CPU comparison; the default
+imports only this library and NumPy and can run unchanged inside Pyodide. Scheduler
+construction is excluded from these timings. All samples and runtime identities
+are retained, and no timing assertions run in CI.
+Use `node packages/paperleet-torch/benchmarks/bench_wasm.mjs --benchmark schedulers
+--iterations 120 --output schedulers-wasm.json` for the same suite on pinned WASM.
+
 `python packages/paperleet-torch/benchmarks/bench_optimizer_memory.py --dtype float32`
 records CPython tracemalloc allocations after creating Adam over 16 pre-existing
 256×256 parameters and after one parameter receives a gradient. It also records

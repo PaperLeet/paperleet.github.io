@@ -59,11 +59,26 @@ behavior. Passing its current exercises alone does not establish library readine
   conversion semantics. CPU and real WASM tests include independent conversion,
   continued-training and in-memory checkpoint contracts.
 
+## Version 0.6 milestone
+
+- Twelve common learning-rate schedules share grouped initialization, last-rate
+  inspection, optimizer-step tracking and in-memory continuation state.
+- Linear warmup, cosine/step/polynomial decay, lambda/callable policies, chained
+  and sequential composition and metric-driven plateau scheduling run through
+  ordinary `torch.optim.lr_scheduler` imports.
+- Native-reference tests cover rate trajectories, actual updates, Tensor-rate
+  identity, manual rate changes, custom subclasses, dynamic groups, nested
+  boundaries and save-rebuild-load-resume behavior. Independent NumPy-only
+  training/checkpoint workflows are checked in real WASM.
+- Scalar Tensor rates remain frozen CPU values. Cyclic/one-cycle/warm-restart
+  policies, general metric-driven composition and executable function/file
+  serialization are separate work.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: common hooks where bounded behavior can be
    validated; define file checkpoint serialization and expand memory formats.
-2. Optimizer extensions: schedulers and common hooks, additional algorithms where
+2. Optimizer extensions: remaining scheduling policies, common hooks and algorithms where
    numerical and performance evidence justify them; keep state compatibility and
    unknown-option errors explicit. Profile small-parameter update overhead.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
