@@ -8,6 +8,16 @@
     <title>PaperLeet</title>
     <meta name="application-name" content="PaperLeet" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
     <script>
       // Apply a validated preference before the page paints or the app loads.
       (() => {
@@ -28,9 +38,64 @@
         document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
       })();
     </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false, english = false;
+        try { english = localStorage.getItem('paperleet.locale') === 'en'; } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="startup-screen">
+        <section class="startup-card" aria-labelledby="startup-title">
+          <strong>PaperLeet</strong>
+          <h1 id="startup-title">正在打开 PaperLeet…</h1>
+          <p id="startup-message" role="status">正在加载页面，请稍候。</p>
+          <a id="startup-retry" href="?reload=1" hidden>重新加载</a>
+          <noscript><p>请启用 JavaScript 后重新加载。 Please enable JavaScript and reload.</p></noscript>
+        </section>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

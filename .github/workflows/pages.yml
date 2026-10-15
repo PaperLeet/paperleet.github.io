@@ -13,11 +13,16 @@ jobs:
     if: github.repository == 'PaperLeet/paperleet.github.io'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Check static asset retention
+        run: python web/scripts/check-pages-assets.py
       - run: |
           python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
@@ -42,6 +47,56 @@ jobs:
           if [ "$PAPERLEET_MAIN_SITE_ENABLED" = '1' ]; then
             echo paperleet.com > dist/CNAME
           fi
+      - name: Find the previous successful Pages deployment
+        id: previous-pages
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              ...context.repo, workflow_id: 'pages.yml', branch: 'main',
+              status: 'success', per_page: 100,
+            });
+            for (const run of runs.data.workflow_runs) {
+              if (run.id === context.runId) continue;
+              const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+                ...context.repo, run_id: run.id, per_page: 100,
+              });
+              const available = artifacts.filter(artifact => !artifact.expired && Date.parse(artifact.expires_at) > Date.now());
+              const artifact = available.find(item => item.name === 'paperleet-pages-assets')
+                || available.find(item => item.name === 'github-pages');
+              if (!artifact) continue;
+              core.info(`Retaining assets from successful Pages run ${run.id} (${artifact.name}).`);
+              core.setOutput('run_id', String(run.id));
+              core.setOutput('artifact_name', artifact.name);
+              return;
+            }
+            core.warning('No downloadable successful Pages artifact is available. The validated current build will be published without historical assets.');
+      - name: Download previous static assets
+        if: steps.previous-pages.outputs.run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.previous-pages.outputs.artifact_name }}
+          run-id: ${{ steps.previous-pages.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/paperleet-previous-assets
+      - name: Retain assets for cached pages
+        env:
+          PREVIOUS_PAGES_RUN_ID: ${{ steps.previous-pages.outputs.run_id }}
+        run: |
+          previous=()
+          if [[ -n "$PREVIOUS_PAGES_RUN_ID" ]]; then
+            previous=(--previous "$RUNNER_TEMP/paperleet-previous-assets/artifact.tar")
+          fi
+          mkdir -p "$RUNNER_TEMP/paperleet-retained-assets"
+          python web/scripts/retain-pages-assets.py web/dist "${previous[@]}" \
+            --archive-out "$RUNNER_TEMP/paperleet-retained-assets/artifact.tar"
+      - name: Save lightweight assets for the next deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: paperleet-pages-assets
+          path: ${{ runner.temp }}/paperleet-retained-assets/artifact.tar
+          retention-days: 90
+          if-no-files-found: error
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist
