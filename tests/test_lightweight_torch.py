@@ -80,6 +80,36 @@ def test_built_wheels_work_without_checkout_paths(tmp_path, runtime_wheels, dist
     isolated_runtime(target, distribution)
 
 
+def test_application_wheel_exports_without_the_standalone_distribution(tmp_path, runtime_wheels):
+    target, catalog = tmp_path / 'installed', tmp_path / 'catalog'
+    with zipfile.ZipFile(runtime_wheels['paperleet']) as archive:
+        archive.extractall(target)
+    shutil.copytree(ROOT / 'problems/architecture/attention', catalog / 'problems/architecture/attention')
+    script = '''
+import importlib.abc, json, os, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+os.environ['PAPERLEET_ROOT'] = sys.argv[2]
+class OnlyTheApplicationDistribution(importlib.abc.MetaPathFinder):
+    def find_spec(self, name, path=None, target=None):
+        if name == 'torch' or name.startswith('torch.') or name == 'paperleet_torch' or name.startswith('paperleet_torch.'):
+            raise ImportError('Unexpected standalone/native dependency: ' + name)
+sys.meta_path.insert(0, OnlyTheApplicationDistribution())
+from paperleet.catalog import problem
+from paperleet import browser_judge
+assert pathlib.Path(browser_judge.__file__).is_relative_to(pathlib.Path(sys.argv[1]))
+output = pathlib.Path(sys.argv[2]) / 'exports'
+metadata = browser_judge.export_browser_bundle(problem('architecture/attention'), output)
+manifest = json.loads((output / metadata['bundle_url']).read_text())
+runtime = json.loads((output / manifest['runtime_bundle_url']).read_text())
+assert 'paperleet_torch/_autograd.py' in runtime['files']
+assert 'paperleet_torch/_nn.py' in runtime['files']
+assert 'paperleet_torch' not in sys.modules and 'torch' not in sys.modules
+'''
+    result = subprocess.run([sys.executable, '-I', '-c', script, str(target), str(catalog)],
+                            cwd=tmp_path, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
 @pytest.mark.parametrize('removed,remaining', [('paperleet_torch', 'paperleet'), ('paperleet', 'paperleet_torch')])
 def test_uninstalling_one_distribution_cannot_remove_the_other_runtime(tmp_path, runtime_wheels, removed, remaining):
     target = tmp_path / 'installed'

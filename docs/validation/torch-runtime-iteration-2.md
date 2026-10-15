@@ -22,6 +22,13 @@ This version adds unchanged-script imports, fixes the first runtime iteration's 
 - Full web checks passed. An unchanged focus test failed in the first concurrent run and passed independently and in the final full run; no UI code was changed. Final exported-source checks and the production build passed. Historical tracked assets are retained; unpublished intermediate exports were removed.
 - Native/wheel/source checks and raw benchmark records identify this exact package source. No PyPI package publication or production GPU backend is part of this version. The repository has no license file; an independent public package license remains undecided.
 
+The first Pages run exposed an application-build test importing the optional
+standalone distribution. That test now reads the application's vendored runtime.
+The exact publication check and catalog export passed after actually uninstalling
+the standalone library. A further built-wheel regression exports Attention with
+standalone and native Torch imports blocked; all nine packaging tests passed.
+This keeps application-only installation independent of the optional library.
+
 ## Timings
 
 Measurements are sequential in fresh processes/Workers: three warmup calls, nine batches of 60 iterations, seeded inputs, fixed workloads. Native CPU uses Python 3.12.11 / NumPy 2.5.4; Node/browser WASM uses the pinned runtime above. The baseline is the fetched remote `main` commit `7f236b3`; the intermediate source is the frozen first iteration.

@@ -7,7 +7,7 @@ import sys
 import pytest
 
 from paperleet.browser_judge import SHARED_FILES, export_browser_bundle, require_browser_catalog
-from paperleet_torch.runtime import source_files
+from paperleet._vendor.torch.runtime import source_files
 from paperleet.catalog import problem, problems, root
 from paperleet.browser_config import browser_config
 
