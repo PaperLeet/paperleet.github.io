@@ -907,7 +907,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
     <main className="social-page discussion-page">
       <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
-        {returnTo&&readInterviewRoute(returnTo) ? t('返回面经与准备','Back to interviews') : returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
+        {returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>

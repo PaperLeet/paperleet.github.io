@@ -494,7 +494,7 @@ function Workspace() {
             >
               <BilingualText zh="社区" en="Community" />
             </a>}
-            <a className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews">{t("面经与准备", "Interviews")}</a>
+            <a className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews">{t("面经", "Interviews")}</a>
           </nav>
           <div className="nav-actions">
             <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
@@ -611,7 +611,7 @@ function Workspace() {
               href={libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {libraryReturn?.startsWith('#/interviews') ? t('面经与准备','Interviews') : selectedPaper
+              {libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>

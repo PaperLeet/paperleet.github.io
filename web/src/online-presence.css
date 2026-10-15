@@ -1,22 +1,4 @@
-.topbar .online-presence {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  flex-shrink: 0;
-  width: 116px;
-  min-height: 32px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  white-space: nowrap;
-  cursor: default;
-  outline-offset: 4px;
-}
-.online-presence-value { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-.online-presence b { display: inline-block; min-width: 1ch; max-width: 48px; overflow: hidden; text-overflow: ellipsis; text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
-.online-presence-label { display: inline-block; width: 44px; }
-.online-presence-icon { flex-shrink: 0; color: currentColor; transform-origin: center; }
+.online-presence-icon { transform-origin:center; }
 .online-presence:not(.unavailable) .online-presence-icon {
   animation: online-globe-heartbeat 2.4s ease-in-out infinite;
 }
@@ -28,10 +10,4 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .online-presence:not(.unavailable) .online-presence-icon { animation: none; }
-}
-.online-presence.unavailable { color: var(--muted); }
-@media (max-width: 600px) {
-  .topbar .online-presence { width: 64px; gap: 4px; font-size: 12px; }
-  .online-presence b { max-width: 46px; }
-  .online-presence-label { display: none; }
 }

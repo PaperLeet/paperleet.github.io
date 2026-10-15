@@ -4,6 +4,7 @@ import { useI18n } from "./i18n";
 import { useAccount } from "./social";
 import { createPresenceHeartbeat, presenceStorageKey, presenceVisitorId } from "./presence";
 import { presenceRequest } from "./presenceApi";
+import NavMetric from "./NavMetric";
 import "./online-presence.css";
 
 function browserVisitorId() {
@@ -63,12 +64,10 @@ export default function OnlinePresence() {
     : t(`${fullCount} 人在线`, `${fullCount} online`);
 
   return (
-    <span
+    <NavMetric
       className={`online-presence${online === null ? " unavailable" : ""}`}
-      aria-label={label}
-    >
-      <Globe2 className="online-presence-icon" size={14} strokeWidth={1.8} aria-hidden="true" />
-      <span className="online-presence-value" aria-hidden="true"><b>{count}</b><span className="online-presence-label">{t("人在线", "online")}</span></span>
-    </span>
+      label={label} value={count}
+      icon={<Globe2 className="online-presence-icon" size={14} strokeWidth={1.8} aria-hidden="true" />}
+    />
   );
 }

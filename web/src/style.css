@@ -3870,8 +3870,6 @@ html { scrollbar-gutter: stable; }
 }
 @media (max-width: 360px) {
   .topbar .nav-actions { gap: 4px; }
-  .topbar .online-presence { width: 48px; }
-  .online-presence b { max-width: 30px; }
 }
 
 /* Repository access stays in the navigation; judge readiness stays by Run. */
