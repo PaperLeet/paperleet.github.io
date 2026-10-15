@@ -548,6 +548,17 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
+The 0.13.1 patch uses NumPy contractions for linear-layer pullbacks on the pinned
+WASM backend, retaining the existing forward calculation and native NumPy/BLAS
+path. Three alternating fresh-process Node/WASM measurements of the unchanged
+2,000-step Flow Matching lesson reduced median full-suite execution from 33.90
+seconds to 23.87 seconds (29.6%). All six runs produced identical recorded loss
+curves, MMD and coverage. This is a local workload measurement, not a latency
+promise for other devices or browser downloads. The
+[measurement record](benchmarks/results/linear-wasm-0.13.1.json) identifies the
+source, runtime, samples and scope. Empty/strided shapes, independent scalar and
+native gradients, repeated backward seeds, JVP and mutation guards are covered.
+
 The [0.13 validation record](../../docs/validation/torch-runtime-iteration-13.md)
 tracks mixed-dtype selection/joins, where graph retention and CPU/WASM/Chrome
 performance, including unresolved process variance. The

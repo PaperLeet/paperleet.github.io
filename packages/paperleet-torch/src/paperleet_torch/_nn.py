@@ -1,5 +1,6 @@
 """NumPy-backed nn implementation; extracted from PaperLeet."""
 import math
+import sys
 import numpy as np
 
 
@@ -7,6 +8,10 @@ from . import _tensor
 
 from ._module import Module, Parameter
 from ._containers import Sequential, ModuleList, ModuleDict, ParameterList, ParameterDict
+
+# NumPy on the pinned WASM runtime has much faster contraction loops for the
+# two linear pullbacks. Native NumPy retains its BLAS-backed matrix products.
+_WASM_LINEAR_GRADS = sys.platform == 'emscripten'
 
 
 def linear(input, weight, bias=None):
@@ -24,8 +29,13 @@ def linear(input, weight, bias=None):
     x, w = input._data, weight._data
     value = x @ w.T
     if bias is not None: value = value + bias._data
-    edges = [(input, lambda g: g @ w),
-             (weight, lambda g: g.reshape(rows, w.shape[0]).T @ x.reshape(rows, w.shape[1]))]
+    if _WASM_LINEAR_GRADS:
+        edges = [(input, lambda g: np.einsum('...o,oi->...i', g, w, optimize=False)),
+                 (weight, lambda g: np.einsum('bo,bi->oi', g.reshape(rows, w.shape[0]),
+                                             x.reshape(rows, w.shape[1]), optimize=False))]
+    else:
+        edges = [(input, lambda g: g @ w),
+                 (weight, lambda g: g.reshape(rows, w.shape[0]).T @ x.reshape(rows, w.shape[1]))]
     if bias is not None: edges.append((bias, lambda g: g.reshape(rows, w.shape[0]).sum(axis=0)))
     return _autograd.result(value, *edges)
 
