@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import React, { act } from 'react';
 import { JSDOM } from 'jsdom';
 import { createServer } from 'vite';
@@ -32,7 +33,7 @@ const noop = () => {};
 let revision = 0, runResolve;
 const listeners = new Set();
 const notify = () => { revision++; for (const listener of listeners) listener(); };
-const calls = {runs:[],submits:[],stops:0,flushes:0,editorMounts:0};
+const calls = {runs:[],submits:[],stops:0,flushes:0,editorMounts:0,focusRequests:[],detailsLoads:0};
 const fixture = {
   problem,calls,subscribe:listener => {listeners.add(listener);return()=>listeners.delete(listener);},snapshot:()=>revision,
   account:{user:{id:'fixture-user',username:'fixture-user',display_name:'Fixture'},health:{mode:'hosted',judge:{ready:true}},healthError:'',refreshHealth:noop,capabilities:{}},
@@ -61,18 +62,21 @@ const mocks = {
   './catalogIndex': `export const loadCatalogIndex=async()=>({problems:[globalThis.__paperleetWorkspaceActionTest.problem],papers:[],categories:[]});`,
   './ProblemStats': `export const useProblemStats=()=>({stats:{},totalSubmissions:0,refresh:()=>{},loading:false});export const getProblemStats=()=>({});export const ProblemStats=()=>null;`,
   './PaperViews': `export const PaperDetail=()=>null;export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
+  './ReportView': `import React from 'react';import Report from '/src/ReportView.tsx?fixture_actual=1';globalThis.__paperleetWorkspaceActionTest.calls.detailsLoads++;export default function FixtureReport(props){if(globalThis.__paperleetWorkspaceActionTest.failDetails)throw Error('Fixture detail failure');return React.createElement(Report,props);}`,
   './deferredPages': `import React,{useEffect} from 'react';
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
+    export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
-    export function PythonEditor({value,onChange,label,readOnly}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
+    export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content})=>React.createElement('article',null,content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
-    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','Achievements','AchievementObserver','BrowserResultActions','JudgeRuntimeDetails','ReportWorkflow','OnlinePresence'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
+    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','Achievements','AchievementObserver','BrowserResultActions','JudgeRuntimeDetails','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
 };
+mocks['/src/ReportView.tsx']=mocks['./ReportView'];
 const server = await createServer({
   server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},
   define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('hosted'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('0'),'import.meta.env.VITE_HOSTED_APP_AVAILABLE':JSON.stringify('1')},
-  plugins:[{name:'workspace-action-fixtures',enforce:'pre',resolveId(source,importer){if(importer?.endsWith('/src/App.tsx')&&source in mocks)return '\0workspace-actions:'+source;},load(id){if(id.startsWith('\0workspace-actions:'))return mocks[id.slice('\0workspace-actions:'.length)];}}],
+  plugins:[{name:'workspace-action-fixtures',enforce:'pre',resolveId(source,importer){if(importer?.endsWith('/src/WorkspaceTestResults.tsx')&&source==='./ReportView')return '\0workspace-actions:'+source;if(importer?.endsWith('/src/App.tsx')&&source in mocks)return '\0workspace-actions:'+source;},load(id){if(id.startsWith('\0workspace-actions:'))return mocks[id.slice('\0workspace-actions:'.length)];}}],
 });
 let root;
 try {
@@ -83,12 +87,13 @@ try {
   const action=text=>[...document.querySelectorAll('.workspace-run-controls button')].find(button=>button.textContent.trim()===text);
   const click=async element=>{assert(element,'Expected an interactive control');await act(async()=>element.dispatchEvent(new window.MouseEvent('click',{bubbles:true})));};
   const change=async mutate=>act(async()=>{mutate();notify();});
-  const settle=async predicate=>{for(let i=0;i<40&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(predicate(),'Workspace did not settle');};
+  const settle=async predicate=>{for(let i=0;i<150&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));assert(predicate(),'Workspace did not settle; detail loads: '+calls.detailsLoads+'; '+document.querySelector('.workspace-test-details')?.textContent.slice(0,700));};
   await act(async()=>root.render(React.createElement(App)));
   await settle(()=>find('#problem-editor-panel textarea'));
   const editor=find('#problem-editor-panel textarea');
   assert(find('.workspace-toolbar').contains(action('Run tests')));
   assert(find('.workspace-toolbar').contains(action('Submit')));
+  assert.equal(find('#reading-tab-tests'),null,'The statement pane has no second test result surface');
   assert.equal(find('.editor-bottom'),null,'The actions must not leave a second footer below the editor');
   assert.equal(document.querySelectorAll('.mobile-workspace-switch').length,1,'Mobile has one unambiguous pane switch');
   assert.equal(find('.editor-workbench').dataset.resultsVisible,'false','A new module has no empty result area');
@@ -112,11 +117,26 @@ try {
   await settle(()=>!action('Run tests').disabled);
   assert.equal(find('.editor-workbench').dataset.resultsVisible,'false','A stopped run without results leaves no empty console');
 
-  const report={problem:problem.id,runtime:'browser-numpy-wasm',summary:{T0:[1,1]},tests:[{id:'output',layer:'T0',passed:true}]};
+  const report={problem:problem.id,source_sha256:createHash('sha256').update(source).digest('hex'),runtime:'browser-numpy-wasm',summary:{T0:[1,1]},tests:[{id:'output',layer:'T0',passed:true}]};
   await click(action('Run tests'));
   await act(async()=>{fixture.browser.reports={[problem.id]:report};fixture.browser.active=false;notify();runResolve({type:'result',report});runResolve=undefined;});
   assert.equal(find('#reading-tab-description').getAttribute('aria-selected'),'true','Browser completion keeps the statement visible beside the editor');
   assert(!find('#problem-results-content').hidden,'Finished tests remain visible in the right result drawer');
+  assert.equal(find('#problem-description-panel .report-view'),null);
+  assert.equal(find('.console'),null,'The obsolete second result summary is removed');
+  const detail=find('.workspace-test-details');assert(detail&&!detail.open);
+  assert.equal(find('#problem-results-panel .report-view'),null,'Full reports wait for explicit detail expansion');
+  assert.equal(calls.detailsLoads,0,'Full diagnostic code is not loaded before it is requested');
+  fixture.failDetails=true;
+  const consoleError=console.error;console.error=()=>{};
+  try{await act(async()=>{detail.open=true;detail.dispatchEvent(new window.Event('toggle'));});await settle(()=>find('.workspace-test-detail-error'));}finally{console.error=consoleError;}
+  assert.equal(find('#problem-editor-panel textarea'),editor);assert.equal(editor.value,source);assert.equal(document.querySelectorAll('.workspace-test-results').length,1);
+  fixture.failDetails=false;await click(find('.workspace-test-detail-error button'));
+  await settle(()=>find('#problem-results-panel .report-view'));
+  assert.equal(document.activeElement,detail.querySelector('summary'),'Retry keeps focus in the result disclosure');
+  const detailedReport=find('#problem-results-panel .report-view');
+  const passedFilter=find('.test-outcome-switch').querySelectorAll('button')[2];await click(passedFilter);
+  assert.equal(passedFilter.getAttribute('aria-pressed'),'true');
   await click(find('.results-pane-toggle'));
   assert(find('#problem-results-content').hidden);
   assert.equal(find('.editor-split').dataset.secondCollapsed,'true');
@@ -125,15 +145,29 @@ try {
   assert.equal(find('#problem-editor-panel textarea'),editor);
   assert.equal(editor.value,source);
   assert.equal(editor.selectionStart,4);assert.equal(editor.selectionEnd,13);assert.equal(editor.scrollTop,41);
+  assert.equal(find('#problem-results-panel .report-view'),detailedReport,'Minimizing preserves the existing report and selected test filter');
+  assert.equal(passedFilter.getAttribute('aria-pressed'),'true');
   assert.equal(calls.editorMounts,1,'Result visibility changes preserve the existing editor instance');
 
+  const failed={...report,impl:'/tmp/learner.py',summary:{T0:[0,1]},tests:[{id:'output',layer:'T0',passed:false,message:'Traceback (most recent call last):\n  File "/tmp/learner.py", line 2, in attention\n    raise ValueError("fix this")\nValueError: fix this'}]};
+  await change(()=>{fixture.browser.reports={[problem.id]:failed};});
+  await settle(()=>find('.report-workflow .source-location-button'));
+  await click(find('.report-workflow .source-location-button'));
+  assert(find('#problem-results-content').hidden,'Locating a verified error returns the space to the code editor');
+  assert.equal(calls.focusRequests.at(-1).location.line,2);
+  assert.equal(calls.focusRequests.at(-1).source,source);
+  assert.equal(find('#problem-editor-panel textarea'),editor);
+  const editedSource=source.replace('* 2','* 3');await change(()=>{fixture.practice.saved={[problem.id]:{code:editedSource}};});
+  await click(find('.results-pane-toggle'));
+  await settle(()=>!find('.report-workflow .source-location-button'));
+  assert.equal(editor.value,editedSource,'Returning from results never restores an older run over new code');
   await click(find('.results-pane-toggle'));
   await change(()=>{fixture.practice.error='Draft synchronization failed';});
   assert(!find('#problem-results-content').hidden,'A save error cannot remain hidden in a collapsed drawer');
   assert(find('#problem-results-content').textContent.includes('Draft synchronization failed'));
   await change(()=>{fixture.practice.error='';fixture.browser.reports={};});
   await click(action('Submit'));
-  assert.deepEqual(calls.submits,[{id:problem.id,source}],'Top Submit still sends the current code to server judging');
+  assert.deepEqual(calls.submits,[{id:problem.id,source:editedSource}],'Top Submit still sends the current code to server judging');
   assert.equal(calls.flushes,1,'Hosted drafts flush before server submission');
   assert.equal(calls.runs.length,2,'Submit must not silently become a browser-only run');
 
@@ -144,14 +178,18 @@ try {
   const duplicate=new window.KeyboardEvent('keydown',{key:'Enter',metaKey:true,bubbles:true,cancelable:true});
   await act(async()=>editor.dispatchEvent(duplicate));
   assert.equal(calls.runs.length,3,'The shortcut cannot start another active run');
-  await click(action('Stop'));
+  await click(find('.results-pane-toggle'));
+  assert(find('#problem-results-content').hidden);
+  const latestReport={...report,source_sha256:createHash('sha256').update(editedSource).digest('hex')};
+  await act(async()=>{fixture.browser.reports={[problem.id]:latestReport};fixture.browser.active=false;notify();runResolve({type:'result',report:latestReport});runResolve=undefined;});
   await settle(()=>!action('Run tests').disabled);
+  assert(find('#problem-results-content').hidden,'Completion respects a drawer minimized during the run');
 
   await change(()=>{fixture.account.user=undefined;fixture.practice.owner='anonymous';});
   assert(action('Sign in to submit'),'Guests keep a sign-in entry in the same top action area');
   assert.equal(action('Submit'),undefined);
   assert(!action('Run tests').disabled,'Guest browser practice stays available');
-  console.log('PASS actual App workspace: top Run/Submit/Stop, single mobile switch, hidden idle drawer, run and error expansion, preserved statement/editor/cursor, server submission, guest action, and keyboard duplicate-run guard');
+  console.log('PASS actual App workspace: top Run/Submit/Stop, single mobile switch and result surface, lazy full diagnostics, persistent minimize/filter state, verified location and changed-source guards, preserved statement/editor/cursor, server submission, guest action, and keyboard duplicate-run guard');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();

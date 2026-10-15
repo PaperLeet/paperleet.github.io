@@ -3,7 +3,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, ReportView, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, ReportWorkflow, WorkspaceLayoutMenu } from "./deferredPages";
+import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -37,7 +37,6 @@ import { LocaleProvider, useI18n } from "./i18n";
 import { AccountNav, AccountProvider, useAccount } from "./social";
 import { usePracticeWorkspace } from "./PracticeWorkspace";
 import { BrowserRunProgress } from "./BrowserRunProgress";
-import { browserProgressText } from "./browserProgress";
 import Brand from "./Brand";
 import RepositoryLink from "./RepositoryLink";
 import { OnlinePresence } from "./deferredPages";
@@ -56,10 +55,9 @@ import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
 import { publicSite, hostedAppHref, hostedAppAvailable } from "./deployment";
 import { type ExperimentView } from "./experimentResults";
-import { ReportSourceNotice, useReportSource } from "./ReportSourceNotice";
+import { useReportSource } from "./ReportSourceNotice";
 import { useWorkspaceShortcuts } from "./useWorkspaceShortcuts";
 import { matchesBrowserSubmission } from './browserVerification';
-import { BrowserSyntaxNotice } from './BrowserSyntaxNotice';
 import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
 import { submissionDestination } from './submissionNavigation';
@@ -143,6 +141,7 @@ function Workspace() {
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number};vertical?:{ratio:number}}>();
   const [resultsCollapsed, setResultsCollapsed] = useState(true);
+  const [resultsRequested,setResultsRequested]=useState(false);
   function selectReadingTab(nextTab: string) {
     setTab(nextTab); setMobilePane("read"); setFocusMode(false);
     requestAnimationFrame(() => {
@@ -150,7 +149,13 @@ function Workspace() {
       if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
     });
   }
-  function showTests() { setResultsCollapsed(false); selectReadingTab("tests"); }
+  function showTests() {
+    setResultsRequested(true);setResultsCollapsed(false);setRightTab('code');setMobilePane('code');
+    requestAnimationFrame(()=>{
+      if(!problem||![problem.id,String(problem.number)].includes(routePath(getId())))return;
+      document.getElementById('problem-results-toggle')?.focus({preventScroll:true});
+    });
+  }
   function openEditor() {
     setRightTab("code"); setMobilePane("code");
     requestAnimationFrame(() => {
@@ -227,7 +232,6 @@ function Workspace() {
     learning.dismiss(entry,runOwner);
     const destination = submissionDestination(report, runOwner, entry, getId());
     const resultHref = destination?.href;
-    const onSubmittedProblem = [entry.id, String(entry.number)].includes(routePath(getId()));
     if (resultHref && destination.redirect) {
       setResultNotice(undefined);
       setToast('');
@@ -236,7 +240,6 @@ function Workspace() {
       setResultNotice({owner:runOwner, href:resultHref});
     } else {
       void refreshProblemStats();
-      if (onSubmittedProblem) showTests();
       setSubmissionRevision(value => value + 1);
       setToast(runOwner.startsWith("user:") ? t("提交完成，解答已保存到账号", "Submission complete. Solution saved to your account.") : t("测试已完成", "Run complete"));
     }
@@ -253,7 +256,7 @@ function Workspace() {
   }, [practice.owner, problem?.id, currentSource]);
   function locateSource(location: SourceLocation) {
     if (!problem || !practice.ready || !practice.owns(practice.owner) || ![problem.id,String(problem.number)].includes(routePath(getId()))) return;
-    openEditor();
+    setResultsCollapsed(true);openEditor();
     setEditorFocus({ owner: practice.owner, problem: problem.id, source: currentSource, location });
   }
   function editorFocused(request: EditorFocusRequest) {
@@ -264,8 +267,8 @@ function Workspace() {
   const running = preparingRun || judge.active || browser.active;
   const canRun = !!problem && !running && practice.ready && !(!browserAvailable && hosted && (!user || !online || !!practice.conflicts[problem.id]));
   const workspaceAttention = !!(judge.error || practice.error || (!health && healthError) || (problem && (practice.conflicts[problem.id] || browser.reasons[problem.id])));
-  const resultsVisible = !!(report || syntaxFailure || running || workspaceAttention || (!health && healthError) || (hosted && !browserAvailable && (!user || !online)) || judge.job?.status === "cancelled");
-  useEffect(() => { setResultsCollapsed(true); }, [problem?.id, practice.owner]);
+  const resultsVisible = !!(resultsRequested || report || syntaxFailure || running || workspaceAttention || (!health && healthError) || (hosted && !browserAvailable && (!user || !online)) || judge.job?.status === "cancelled");
+  useEffect(() => { setResultsCollapsed(true);setResultsRequested(false); }, [problem?.id, practice.owner]);
   useEffect(() => { if (workspaceAttention || running) setResultsCollapsed(false); }, [workspaceAttention, running, problem?.id, practice.owner]);
   useWorkspaceShortcuts({ enabled: !!problem && !backupOpen, canRun, focused: focusMode, onRun: () => void run(), onExitFocus: () => setFocusMode(false) });
   const editorRecoveryReason = running
@@ -281,7 +284,6 @@ function Workspace() {
     : practice.pending || practice.saving || learning.saving
       ? t('正在保存草稿和学习记录，保存完成后可重新加载。', 'Saving drafts and learning progress. Reloading becomes available when saving finishes.')
     : '';
-  const browserStatus = browserProgressText(browser.progress || { stage: browser.stage || 'loading' }, locale === 'en');
   const queuedHere = judge.pending?.problem === problem?.id;
   const runStatus = judge.waiting ? judge.waiting.attempting ? t("正在确认能否入队…", "Confirming admission…") : t("正在等待判题名额…", "Waiting for a judge slot…")
     : judge.reconnecting ? t("连接中断，正在恢复任务状态…", "Reconnecting to your existing job…")
@@ -391,12 +393,10 @@ function Workspace() {
           // Hosted completions and shared statistics remain server-authoritative.
           if (!user) practice.applyReport(problem, outcome.report, runOwner);
           else learning.record(problem,outcome.report,runOwner);
-          if ([problem.id,String(problem.number)].includes(routePath(getId()))) setResultsCollapsed(false);
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
         }
         if (outcome.type === 'syntax_error') {
-          if ([problem.id,String(problem.number)].includes(routePath(getId()))) setResultsCollapsed(false);
           setToast(t('请先修正 Python 语法错误。','Fix the Python syntax error before running tests.'));
           return;
         }
@@ -453,7 +453,6 @@ function Workspace() {
     ["description", t("题目", "Description")],
     ["explanation", t("讲解", "Explanation")],
     ["lab", t("实验", "Lab")],
-    ["tests", t("测试", "Tests")],
     ["notes", t("坑点", "Notes")],
     ["solution", t("参考解", "Solution")],
   ];
@@ -665,8 +664,8 @@ function Workspace() {
             <ModuleNavigator key={problem.id} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
-            <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16} />{t("题面与结果", "Read & results")}{(report || syntaxFailure) && <span aria-hidden="true" className={`mobile-result-dot ${!hasCurrentSyntaxError && reportSource === "current" && isPassed(problem,report) ? "passed" : ""}`} />}</button>
-            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16} />{t("编写代码", "Write code")}</button>
+            <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
+            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16}/>{t('编写代码','Write code')}{(report||syntaxFailure)&&<span aria-hidden="true" className={`mobile-result-dot ${!hasCurrentSyntaxError&&reportSource==='current'&&isPassed(problem,report)?'passed':''}`}/>}</button>
           </div>
           <ResizableSplit
             as="main"
@@ -705,16 +704,6 @@ function Workspace() {
                       <LockKeyhole size={12} />
                     ) : null}
                     {label}
-                    {key === "tests" && (report || syntaxFailure) && (
-                      <i
-                        aria-hidden="true"
-                        className={
-                          !hasCurrentSyntaxError && reportSource === 'current' && isPassed(problem, report)
-                            ? "green-dot"
-                            : "yellow-dot"
-                        }
-                      />
-                    )}
                   </button>
                 ))}
                 {hostedAppAvailable && <a className="module-discussion-tab" href={topicHref(problem.id)}>
@@ -723,18 +712,7 @@ function Workspace() {
               </div>
               <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab}`} tabIndex={0} key={`${problem.id}:${tab}`}>
                 {learningNotice}
-                {tab === "tests" ? (
-                  <>
-                  <ReportWorkflow report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running} onEdit={openEditor} onRun={() => void run()} onLocate={practice.ready ? locateSource : undefined} onStop={browser.active ? browser.stop : undefined}/>
-                  {syntaxFailure && <BrowserSyntaxNotice failure={syntaxFailure} source={currentSource} onLocate={practice.ready ? locateSource : undefined} />}
-                  {(!syntaxFailure || report) && <ReportView report={report} problem={problem} sourceState={reportSource} source={currentSource} onLocate={practice.ready ? locateSource : undefined}>
-                    {hosted && report?.runtime === 'browser-numpy-wasm' && <BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={() => void run('server',report)} onRefresh={() => void refreshHealth()} onLab={() => openLab('run')} />}
-                    {!running && reportSource === "current" && progressReady && isPassed(problem, report) && (
-                      <InterviewPracticeNextStep current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={() => selectReadingTab("notes")} onLab={() => openLab("run")} />
-                    )}
-                  </ReportView>}
-                  </>
-                ) : tab === "lab" ? (
+                {tab === "lab" ? (
                   <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} sourceState={reportSource} initialView={labView} />
                 ) : tab === "notes" ? (
                   !notesUnlocked ? (
@@ -1078,7 +1056,7 @@ function Workspace() {
                   </div>
                   </div>
                   <div className="editor-results-panel" id="problem-results-panel" hidden={!resultsVisible}>
-                  <button type="button" className="results-pane-toggle" aria-expanded={!resultsCollapsed} aria-controls="problem-results-content" onClick={() => setResultsCollapsed(value => !value)}>
+                  <button id="problem-results-toggle" type="button" className="results-pane-toggle" aria-label={resultsCollapsed?t('展开测试结果','Expand test results'):t('收起测试结果','Minimize test results')} aria-expanded={!resultsCollapsed} aria-controls="problem-results-content" onClick={() => setResultsCollapsed(value => !value)}>
                     <Terminal size={14} aria-hidden="true"/><b>{t('测试结果','Test results')}</b>
                     <span>{running ? t('运行中…','Running…') : workspaceAttention ? t('需要处理','Needs attention') : hasCurrentSyntaxError ? t('语法错误','Syntax error') : reportSource === 'changed' || syntaxFailure ? t('代码已修改','Code changed') : report && reportSource !== 'current' ? t('上次运行','Previous run') : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t('等待运行','Ready to run')}</span>
                     <ChevronDown size={14} aria-hidden="true"/>
@@ -1185,35 +1163,11 @@ function Workspace() {
                       )}
                     </div>
                   )}
-                  {!user && <div className="practice-notice" role="status"><span>{t('游客草稿自动保存在此浏览器，刷新可恢复。清除网站数据会删除草稿；不会跨设备同步。', 'Guest drafts save in this browser and survive reloads. Clearing site data deletes them; they do not sync.')}</span>{hostedAppAvailable && <button onClick={signInToSubmit}>{t('登录', 'Sign in')}</button>}</div>}
-                  <div className="console">
-                    <ReportSourceNotice state={reportSource} />
-                    {(report || syntaxFailure) && <div className="console-header">
-                        <button
-                          className="text-button"
-                          onClick={() => showTests()}
-                        >
-                          {t("查看详情", "View details")}{" "}
-                          <ArrowRight size={13} />
-                        </button>
-                    </div>}
-                    <p>
-                      {running
-                        ? judge.active ? queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
-                        : browser.active && browserHere ? browserStatus : t('正在准备测试…','Preparing tests…')
-                        : syntaxFailure
-                          ? hasCurrentSyntaxError
-                            ? t('语法检查失败。查看详情定位错误，修改后重新运行。','Syntax check failed. View details, fix the source, and run again.')
-                            : t('代码已修改，请重新运行语法检查与测试。','Code changed. Run syntax checks and tests again.')
-                        : report
-                          ? `${t("上次结果：", "Last result: ")}${report.tests.filter((test) => test.passed).length} / ${report.tests.length} ${t("项测试通过。", "tests passed.")}`
-                          : t(
-                              "完成实现后，点击上方按钮运行测试。",
-                              "Complete the implementation, then run the tests above.",
-                            )}
-                    </p>
-                    {!running && report && report.tests.length > 0 && <div className="console-result-meter" aria-hidden="true" data-current={reportSource === 'current'} data-passed={isPassed(problem,report)}><span style={{width:`${report.tests.filter(test => test.passed).length / report.tests.length * 100}%`}}/></div>}
-                  </div>
+                  {!running&&(report||syntaxFailure||resultsRequested)&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
+                    onEdit={()=>{setResultsCollapsed(true);openEditor();}} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
+                    {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
+                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')}/>}
+                  </WorkspaceTestResults>}
                   </div>
                   </div>
                   </ResizableSplit>

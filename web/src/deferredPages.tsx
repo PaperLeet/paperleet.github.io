@@ -65,6 +65,8 @@ function FeatureProseFailure({ retry }: { retry: () => void }) {
 
 export const QueueAdmissionNotice = deferredFeature(() => import('./QueueAdmissionNotice'), ['等待状态', 'queue waiting status'], {loading: props => <QueueAdmissionFallback {...props} />, failure: props => <QueueAdmissionFallback {...props} />});
 
+export const WorkspaceTestResults = deferredFeature(() => import('./WorkspaceTestResults'), ['测试反馈','test feedback'], {failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试加载测试结果','Retry test results']}/>});
+
 export const ReportView = deferredFeature(() => import("./ReportView"), ["测试报告", "test report"]);
 export const ReportWorkflow = deferredFeature(() => import('./ReportWorkflow'), ['修正与验证','fix and verify'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试加载结果操作','Retry result actions']}/>});
 
