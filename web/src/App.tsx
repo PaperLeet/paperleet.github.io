@@ -1,3 +1,4 @@
+import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
@@ -115,7 +116,7 @@ export default function App() {
 }
 function Workspace() {
   const { locale, t } = useI18n();
-  const { user, health, healthError, refreshHealth, capabilities } =
+  const { user, health, healthError, refreshHealth, capabilities, loading:accountLoading } =
     useAccount();
   const practice = usePracticeWorkspace();
   const runToken = useRef<object | undefined>(undefined);
@@ -176,6 +177,7 @@ function Workspace() {
   const sourceProblem = problems.find(
     (p) => p.id === path || String(p.number) === path,
   );
+  usePracticeReadingOrigin(accountLoading?undefined:user?'account:'+user.id:'guest',sourceProblem,libraryReturn,id);
   const localize = (p: Problem): Problem =>
     locale === "en" && p.translations?.en ? { ...p, ...p.translations.en } : p;
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;

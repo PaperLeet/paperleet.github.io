@@ -17,7 +17,7 @@ dom.window.HTMLElement.prototype.scrollIntoView=function(){viewport=base-100;scr
 dom.window.HTMLElement.prototype.getBoundingClientRect=function(){
  const notice=document.querySelector('.reading-return-notice');
  const noticeHeight=notice?(notice.querySelector('button')?76:42):0;
- const top=base+noticeHeight+(this.dataset?.readingLink==='read'?180:0)-viewport;
+ const top=base+noticeHeight+(this.dataset?.readingLink==='read'?180:this.dataset?.readingLink==='practice'?240:0)-viewport;
  return {x:0,y:top,left:0,right:400,width:400,top,bottom:top+30,height:30,toJSON(){return this;}};
 };
 try{
@@ -27,6 +27,8 @@ try{
  const {default:Notice}=await server.ssrLoadModule('/src/ReadingReturnNotice.tsx');
  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
  const nav=await server.ssrLoadModule('/src/communityNavigation.ts');
+ const library=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const {usePracticeReadingOrigin}=await server.ssrLoadModule('/src/usePracticeReadingOrigin.ts');
  const interviews=await server.ssrLoadModule('/src/interviewNavigation.ts');
  const owner='account:alice',id='a'.repeat(32),other='b'.repeat(32);
  const community=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,search:'mask & 梯度 😀',page:3});
@@ -36,10 +38,11 @@ try{
  const navigate=async href=>act(async()=>{location.hash=href;viewport=0;await wait();});
  function LocaleControl(){const {locale,setLocale}=useI18n();return React.createElement('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'Locale');}
  let lastHook;
- function List({scope=community,account=owner,ready=true,items=[id,other],prevent=false}){
+ function List({scope=community,account=owner,ready=true,items=[id,other],prevent=false,practiceIds=['architecture/attention','rl/gae']}){
   const reading=useReadingPosition(account===null?undefined:account,scope,ready);lastHook=reading;
-  return React.createElement('main',{ref:reading.container},React.createElement(LocaleControl),React.createElement('input',{id:'search','aria-label':'Search'}),React.createElement('p',{'data-reading-list':'',tabIndex:-1},'List results'),React.createElement(Notice,{notice:reading.notice,onRestore:reading.restore}),items.map(post=>React.createElement('article',{key:post,'data-reading-post':post,'data-reading-resumed':reading.resumedPost===post||undefined},['title','read'].map(link=>React.createElement('a',{key:link,'data-reading-link':link,href:nav.communityPostHref(post,scope),onClick:prevent?event=>event.preventDefault():undefined},link+' '+post)))));
+  return React.createElement('main',{ref:reading.container},React.createElement(LocaleControl),React.createElement('input',{id:'search','aria-label':'Search'}),React.createElement('p',{'data-reading-list':'',tabIndex:-1},'List results'),React.createElement(Notice,{notice:reading.notice,onRestore:reading.restore}),items.map(post=>React.createElement('article',{key:post,'data-reading-post':post,'data-reading-resumed':reading.resumedPost===post||undefined},['title','read'].map(link=>React.createElement('a',{key:link,'data-reading-link':link,href:nav.communityPostHref(post,scope),onClick:prevent?event=>event.preventDefault():undefined},link+' '+post)),practiceIds.map(practice=>React.createElement('a',{key:practice,'data-reading-link':'practice','data-reading-practice':practice,href:library.withLibraryContext(practice,scope)},practice)))));
  }
+ function Practice({scope=interview,account=owner,problem='architecture/attention',number=1}){usePracticeReadingOrigin(account===null?undefined:account,{id:problem,number},scope);return React.createElement('textarea',{id:'learner-code',defaultValue:'Private learner code'});}
  function Thread({scope=community,account=owner,post=id}){useReadingOrigin(account,post,scope);return React.createElement('div',null,'Full post');}
  const render=async(Component,props={})=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;};
@@ -102,16 +105,58 @@ try{
  const requests=[];globalThis.__readingFixture={account:{user:{id:'alice',username:'alice',display_name:'Alice'},loading:false,capabilities:{community_bookmarks:true}},request(path,body,signal){assert.equal(body,undefined,'Reading returns never mutate posts, saved state or account data');return new Promise(resolve=>requests.push({path,resolve,signal}));}};
  const take=fragment=>{const index=requests.findIndex(request=>request.path.includes(fragment));assert(index>=0,'Missing request '+fragment);return requests.splice(index,1)[0];};
  const reply=async(request,value)=>act(async()=>request.resolve(value));
- const post={id,title:'A real feed reflection',body:'I clarified the requirements and checked the edge cases.',category:'career',created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:{id:'author',username:'author',display_name:'Author',avatar_color:'#48766b'},counts:{replies:0,likes:0,reposts:0},viewer:{bookmarked:true},interview:{company:'google',role:'llm',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]}};
+ const post={id,title:'A real feed reflection',body:'I clarified the requirements and checked the edge cases.',category:'career',created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:{id:'author',username:'author',display_name:'Author',avatar_color:'#48766b'},counts:{replies:0,likes:0,reposts:0},viewer:{bookmarked:true},interview:{company:'google',role:'llm',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:['architecture/attention']}};
  const summary={reports:0,contributors:0,days:'90',basis:'published-community-reports',generated_at:'2026-10-15',companies:[],questions:[]};
  for(const scope of [interview,community]){
-  const isInterview=scope===interview,Component=isInterview?Hub:Community,props={route:scope.slice(2),...(isInterview?{problems:[],progressReady:false}:{topicId:'architecture/attention',topic:{id:'architecture/attention',title:'Attention'}})};
+  const isInterview=scope===interview,Component=isInterview?Hub:Community,props={route:scope.slice(2),...(isInterview?{problems:[{id:'architecture/attention',number:1,title:'Attention',starter:'',module:{optional:false}}],progressReady:false}:{topicId:'architecture/attention',topic:{id:'architecture/attention',title:'Attention'}})};
   const feedFragment=isInterview?'community/interviews?':'community/posts?';
   const resolveFeed=async()=>{if(isInterview)await reply(take('/summary'),summary);await reply(take(feedFragment),{items:[post],total:100,limit:20,offset:isInterview?20:40,owner_id:'alice'});};
   model.discardReadingReturn();await navigate(scope);base=1500;viewport=1250;await render(Component,props);await resolveFeed();await activate(anchor(),{keyboard:true});assert.equal(model.currentReadingReturn().href,scope);await stop();
   const thread=nav.communityPostHref(id,scope);await navigate(thread);await render(Community,{postId:id,route:thread.slice(2)});assert.equal(model.currentReadingReturn().phase,'reading');await stop();
-  await navigate(scope);base=1800;scrolls=[];await render(Component,props);assert.equal(scrolls.length,0,'Actual feeds wait for their matching current-owner response');await resolveFeed();assert.equal(scrolls.length,1);assert.equal(viewport,1592);assert.equal(document.activeElement,anchor());assert(document.querySelector('[data-reading-resumed="true"]'));await stop();requests.length=0;
+  await navigate(scope);base=1800;scrolls=[];await render(Component,props);assert.equal(scrolls.length,0,'Actual feeds wait for their matching current-owner response');await resolveFeed();assert.equal(scrolls.length,1);assert.equal(viewport,1592);assert.equal(document.activeElement,anchor());assert(document.querySelector('[data-reading-resumed="true"]'));
+  if(isInterview){
+   base=1500;viewport=1250;const link=document.querySelector('[data-reading-practice="architecture/attention"]');assert(link);await activate(link,{keyboard:true});const origin=model.currentReadingReturn();assert.equal(origin.link,'practice');await stop();await navigate(library.withLibraryContext('architecture/attention',scope));await render(Practice,{scope});assert.equal(model.currentReadingReturn().phase,'reading');await stop();await navigate(scope);base=1800;scrolls=[];await render(Component,props);await resolveFeed();assert.equal(scrolls.length,1);const restored=document.querySelector('[data-reading-practice="architecture/attention"]');assert.equal(document.activeElement,restored);assert.equal(restored.getBoundingClientRect().top,origin.top);
+  }
+  await stop();requests.length=0;
  }
+
+ // Actual practice navigation keeps the origin chip across next-module navigation and delayed lists.
+ const practiceAnchor=problem=>document.querySelector('[data-reading-post="'+id+'"] [data-reading-practice="'+problem+'"]');
+ async function departPractice({keyboard=true,problem='architecture/attention'}={}){
+  model.discardReadingReturn();await navigate(interview);base=1500;viewport=1250;await render(List,{scope:interview});await activate(practiceAnchor(problem),{keyboard});
+  const row=model.currentReadingReturn();assert.equal(row.link,'practice');assert.equal(row.practice,problem);assert.equal(row.phase,'opening');await stop();
+  await navigate(library.withLibraryContext(problem,interview));await render(Practice,{problem,number:problem==='rl/gae'?2:1});assert.equal(model.currentReadingReturn().phase,'reading');assert.equal(document.querySelector('#learner-code').value,'Private learner code');await stop();return row;
+ }
+ for(const keyboard of [true,false]){
+  await departPractice({keyboard});await navigate(library.withLibraryContext('rl/gae',interview));await render(Practice,{problem:'rl/gae',number:2});assert.equal(model.currentReadingReturn().practice,'architecture/attention');assert.equal(model.currentReadingReturn().phase,'reading');await stop();scrolls=[];await returnLoading(interview);await render(List,{scope:interview});
+  assert.equal(scrolls.length,1);assert.equal(viewport,1592);assert.equal(practiceAnchor('architecture/attention').getBoundingClientRect().top,490);assert.equal(document.activeElement,keyboard?practiceAnchor('architecture/attention'):document.body);await stop();
+ }
+ await departPractice({problem:'rl/gae'});scrolls=[];await returnLoading(interview);await render(List,{scope:interview});assert.equal(document.activeElement,practiceAnchor('rl/gae'),'Return to the exact second originating practice chip');await stop();
+ // New user intent retains the current viewport and offers an explicit return instead.
+ await departPractice();scrolls=[];await returnLoading(interview);await act(async()=>document.querySelector('#search').focus());await render(List,{scope:interview});assert.equal(scrolls.length,0);assert(document.querySelector('.reading-return-notice button'));await activate(document.querySelector('.reading-return-notice button'));assert.equal(document.activeElement,practiceAnchor('architecture/attention'));assert.equal(scrolls.length,1);await stop();
+ // A removed/hidden practice chip falls back to the original card title, never a different practice.
+ await departPractice();scrolls=[];await returnLoading(interview);await render(List,{scope:interview,practiceIds:['rl/gae']});assert.equal(document.activeElement,anchor(id,'title'));assert.equal(scrolls.length,1);await stop();
+ await departPractice();scrolls=[];await returnLoading(interview);await render(List,{scope:interview,items:[other]});assert(document.querySelector('.reading-return-notice').textContent.includes('no longer on this page'));assert.equal(document.activeElement,document.querySelector('[data-reading-list]'));await stop();
+ // Thread -> practice -> next -> list keeps the original thread action as the return target.
+ await depart(interview,{link:'read'});await navigate(library.withLibraryContext('architecture/attention',interview));await render(Practice);assert.equal(model.currentReadingReturn().link,'read');await stop();await navigate(library.withLibraryContext('2',interview));await render(Practice,{problem:'rl/gae',number:2});await stop();scrolls=[];await returnLoading(interview);await render(List,{scope:interview});assert.equal(document.activeElement,anchor(id,'read'));await stop();
+ // Late effects from an outgoing module cannot erase a completed return or a newer practice journey.
+ await departPractice();await navigate(interview);model.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},interview,library.withLibraryContext('architecture/attention',interview));assert.equal(model.currentReadingReturn().phase,'returning');model.discardReadingReturn();
+ await departPractice();await navigate(library.withLibraryContext('rl/gae',interview));model.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},interview,library.withLibraryContext('architecture/attention',interview));assert.equal(model.currentReadingReturn().phase,'reading');model.discardReadingReturn();
+ // Reload uses persisted, bounded metadata and a real catalog identity; no code is persisted.
+ const practiceRecord=await departPractice();const practiceRaw=sessionStorage.getItem(model.READING_RETURN_KEY);assert(!practiceRaw.includes('Private learner code'));assert.deepEqual(Object.keys(JSON.parse(practiceRaw)).sort(),['version','id','owner','href','post','link','practice','top','focus','at','phase'].sort());model.discardReadingReturn();sessionStorage.setItem(model.READING_RETURN_KEY,practiceRaw);
+ const practiceFresh=await server.ssrLoadModule('/src/readingReturn.ts?fresh=practice');practiceFresh.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},interview);assert.equal(practiceFresh.currentReadingReturn().phase,'reading');await navigate(library.withLibraryContext(2,interview));assert.equal(practiceFresh.currentReadingReturn().phase,'reading');await navigate(interview);assert.equal(practiceFresh.currentReadingReturn().phase,'returning');practiceFresh.discardReadingReturn();
+ for(const [label,account,entry] of [['wrong-owner','account:bob',{id:'architecture/attention',number:1}],['wrong-entry',owner,{id:'rl/gae',number:2}]]){
+  await navigate(library.withLibraryContext('architecture/attention',interview));sessionStorage.setItem(model.READING_RETURN_KEY,practiceRaw);const fresh=await server.ssrLoadModule('/src/readingReturn.ts?fresh='+label);fresh.resumePracticeReadingOrigin(account,entry,interview);assert.equal(fresh.currentReadingReturn(),undefined);fresh.discardReadingReturn();
+ }
+ // Unrelated scopes, malformed continuations, paper pages and spoofed target metadata cannot arm or extend a return.
+ for(const route of ['#/papers/attention?from='+encodeURIComponent(interview.slice(2)),library.withLibraryContext('architecture/attention',interviews.interviewHref({...interviews.emptyInterviewFilters(),company:'amazon'})),library.withLibraryContext('architecture/attention',interview)+'&extra=1','#/account']){
+  await departPractice();await navigate(route);assert.equal(model.currentReadingReturn(),undefined);await stop();
+ }
+ model.discardReadingReturn();await navigate(interview);await render(List,{scope:interview});const spoof=practiceAnchor('architecture/attention');spoof.dataset.readingPractice='rl/gae';await activate(spoof);assert.equal(model.currentReadingReturn(),undefined);await stop();
+ for(const patch of [{link:'practice',practice:undefined},{link:'practice',practice:'javascript:alert(1)'},{link:'title',practice:'architecture/attention'},{link:'practice',practice:'architecture/attention',href:community}]){
+  model.rememberReadingReturn({...practiceRecord,...patch});assert.equal(model.currentReadingReturn(),undefined);
+ }
+
  // Storage denial leaves an entirely local return available in the current tab.
  const storage=globalThis.sessionStorage;Object.defineProperty(globalThis,'sessionStorage',{configurable:true,value:{getItem(){throw Error('Blocked')},setItem(){throw Error('Blocked')},removeItem(){throw Error('Blocked')}}});
  await depart();scrolls=[];await returnLoading();await render(List);assert.equal(scrolls.length,1);await stop();Object.defineProperty(globalThis,'sessionStorage',{configurable:true,value:storage});
@@ -125,7 +170,7 @@ try{
  }
  sessionStorage.setItem(model.READING_RETURN_KEY,JSON.stringify({...persisted,phase:'reading',at:Date.now()-7*60*60*1000}));const expired=await server.ssrLoadModule('/src/readingReturn.ts?fresh=expired');assert.equal(expired.currentReadingReturn(),undefined);expired.discardReadingReturn();
  await navigate(community);await render(List);await activate(anchor(),{keyboard:true});const stored=JSON.parse(sessionStorage.getItem(model.READING_RETURN_KEY));assert.deepEqual(Object.keys(stored).sort(),['version','id','owner','href','post','link','top','focus','at','phase'].sort());await stop();model.discardReadingReturn();
- console.log('PASS reading returns: exact community/interview/search/saved/page context, pointer and keyboard actions, delayed data, notice-aware layout, manual recovery without stolen focus, missing/empty lists, account/filter isolation, modified/prevented navigation, reply routes, bounded reloadable metadata, blocked storage and expired/corrupt data');
+ console.log('PASS reading returns: exact community/interview/search/saved/page context, pointer and keyboard actions, delayed data, notice-aware layout, manual recovery without stolen focus, missing/empty lists, account/filter isolation, modified/prevented navigation, reply routes, bounded reloadable metadata, blocked storage and expired/corrupt data; direct practice, next-module/numeric traversal, exact chip/title fallback, private-code-free reload, real catalog binding and account/scope isolation');
 }finally{
  if(root)await act(async()=>root.unmount());model?.discardReadingReturn();await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
 }

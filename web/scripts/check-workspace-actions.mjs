@@ -272,7 +272,18 @@ try {
   assert(action('Sign in to submit'),'Guests keep a sign-in entry in the same top action area');
   assert.equal(action('Submit'),undefined);
   assert(!action('Run tests').disabled,'Guest browser practice stays available');
-  console.log('PASS actual App workspace: left Description/Result tabs, inline browser/server success and failure without navigation, stale server error/cancellation guards, result scroll reset, abort/queue/syntax feedback, lazy persistent diagnostics, unchanged editor/draft/cursor, verified source locations, guest actions, and keyboard duplicate-run guard');
+  // Remount the real App at a known practice URL without a hashchange: the
+  // workspace hook must validate the catalog entry and re-arm its persisted origin.
+  await act(async()=>root.unmount());root=undefined;
+  fixture.account.user={id:'fixture-user',username:'fixture-user',display_name:'Fixture'};fixture.practice.owner='user:fixture-user';
+  const reading=await server.ssrLoadModule('/src/readingReturn.ts'),interviewNav=await server.ssrLoadModule('/src/interviewNavigation.ts'),libraryNav=await server.ssrLoadModule('/src/libraryNavigation.ts');
+  const origin=interviewNav.interviewHref({...interviewNav.emptyInterviewFilters(),company:'google',saved:true,q:'mask & gradient',page:2});
+  reading.rememberReadingReturn({owner:'account:fixture-user',href:origin,post:'a'.repeat(32),link:'practice',practice:problem.id,top:240,focus:true});
+  const practiceHref=libraryNav.withLibraryContext(problem.number,origin);window.history.replaceState(null,'',practiceHref);assert.equal(reading.currentReadingReturn().phase,'opening');
+  await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
+  await settle(()=>find('#problem-editor-panel textarea')&&reading.currentReadingReturn()?.phase==='reading');
+  assert.equal(location.hash,practiceHref);assert.equal(find('#problem-editor-panel textarea').value,fixture.practice.saved[problem.id].code,'Re-arming a reading return never changes learner code');reading.discardReadingReturn();
+  console.log('PASS actual App workspace: left Description/Result tabs, inline browser/server success and failure without navigation, stale server error/cancellation guards, result scroll reset, abort/queue/syntax feedback, lazy persistent diagnostics, unchanged editor/draft/cursor, verified source locations, guest actions, keyboard duplicate-run guard and catalog-bound practice reading-origin re-arm without source changes');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();

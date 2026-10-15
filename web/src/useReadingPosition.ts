@@ -1,6 +1,6 @@
 import {useEffect,useLayoutEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {communityPostReturn} from './communityNavigation';
-import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
+import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingPracticeTarget,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
 
 export type ReadingNotice='restored'|'available'|'missing';
 type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string};
@@ -8,7 +8,7 @@ export function useReadingOrigin(owner:string|undefined,post:string,href:string|
  useEffect(()=>resumeReadingOrigin(owner,post,href),[owner,post,href]);
 }
 
-/** A return belongs to one owner, exact feed and actual thread traversal. No draft text is retained. */
+/** A return belongs to one owner, exact feed and actual thread/practice traversal. No draft text is retained. */
 export function useReadingPosition(owner:string|undefined,href:string,ready:boolean){
  const container=useRef<HTMLElement>(null),live=useRef({owner,href,ready});live.current={owner,href,ready};
  const interactions=useRef(0),previousOwner=useRef(owner);
@@ -18,6 +18,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
  const here=()=>live.current.owner===owner&&live.current.href===href&&live.current.ready&&readingListHref(location.hash)===href&&!!container.current?.isConnected;
  const targetFor=(row:ReadingReturn)=>{
   const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]`);
+  if(row.link==='practice')return card?.querySelector<HTMLElement>(`a[data-reading-link="practice"][data-reading-practice="${row.practice}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link="title"]')||card?.querySelector<HTMLElement>('a[data-reading-link="read"]');
   return card?.querySelector<HTMLElement>(`a[data-reading-link="${row.link}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link]');
  };
  const permitted=(before:number,opener?:HTMLElement)=>{
@@ -65,8 +66,10 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
    const link=event.target.closest<HTMLAnchorElement>('a[data-reading-link]'),card=link?.closest<HTMLElement>('[data-reading-post]');
    if(!link||!card||!container.current?.contains(card)||link.target&&link.target!=='_self'||link.hasAttribute('download'))return;
    const destination=new URL(link.href,location.href),post=card.dataset.readingPost;
-   if(destination.origin!==location.origin||destination.pathname!==location.pathname||destination.search!==location.search||!post||communityPostReturn(destination.hash,post)!==href)return;
-   rememberReadingReturn({owner:live.current.owner!,href,post,link:link.dataset.readingLink==='read'?'read':'title',top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
+   if(destination.origin!==location.origin||destination.pathname!==location.pathname||destination.search!==location.search||!post)return;
+   const practice=link.dataset.readingLink==='practice'?readingPracticeTarget(destination.hash,href):undefined;
+   if(link.dataset.readingLink==='practice'?practice!==link.dataset.readingPractice||!practice:communityPostReturn(destination.hash,post)!==href)return;
+   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(practice?{practice}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
    setState(undefined);
   };
   document.addEventListener('click',capture);
