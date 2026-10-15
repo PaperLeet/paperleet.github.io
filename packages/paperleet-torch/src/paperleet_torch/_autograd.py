@@ -146,7 +146,8 @@ class ForwardTensor(_tensor.Tensor):
     def to(self, *args, **kwargs):
         primal = self._primal.to(*args, **kwargs)
         if primal.dtype.kind != 'f': raise _errors.BrowserUnsupported('Nonfloating casts inside JVP require the server')
-        return ForwardTensor(primal, self._tangent.to(*args, **kwargs))
+        tangent = self._tangent.to(*args, **kwargs)
+        return self if primal is self._primal and tangent is self._tangent else ForwardTensor(primal, tangent)
     def exp(self):
         p = self._primal.exp()
         return ForwardTensor(p, self._tangent * p)

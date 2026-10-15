@@ -88,11 +88,50 @@ values into existing parameters, preserving optimizer references, and reports
 missing/unexpected keys. Shape/type errors still fail with `strict=False`.
 
 This is in-memory state support. Model hooks, `load_state_dict(assign=True)`,
-model device/dtype transforms, optimizer checkpoints and `torch.save/load` remain
+model device/dtype transforms and `torch.save/load` remain
 unsupported. `ModuleList.insert` supports indices from zero through its length;
 insertion into a named `Sequential` is unsupported. Copying a model clears copied
 parameter gradients, as native PyTorch does. Copying non-leaf tensors or exotic
 non-dense NumPy backing allocations fails explicitly.
+
+## Optimizers and training checkpoints
+
+`torch.optim.Optimizer`, `SGD`, `Adam` and `AdamW` share parameter groups,
+`add_param_group`, gradient zeroing and `state_dict`/`load_state_dict`. Adam and
+AdamW support AMSGrad, maximization, per-group decay and lazily initialized
+moments; parameters without gradients acquire no state. SGD supports momentum,
+dampening and Nesterov. Group learning rates can be updated between steps.
+
+```python
+optimizer = torch.optim.AdamW([
+    {"params": [layer.weight], "lr": 0.01},
+    {"params": [layer.bias], "lr": 0.02, "weight_decay": 0},
+], amsgrad=True)
+
+checkpoint = copy.deepcopy({
+    "model": layer.state_dict(),
+    "optimizer": optimizer.state_dict(),
+})
+# Restore after constructing a matching model and optimizer:
+layer.load_state_dict(checkpoint["model"])
+optimizer.load_state_dict(checkpoint["optimizer"])
+```
+
+Optimizer states map to parameters by group/order, including optional saved
+names; names do not change the mapping. Loading preserves the current parameter
+objects and casts moment tensors to their dtype. State dictionaries are shallow:
+use `deepcopy` for a snapshot. Same-dtype loaded state tensors share storage with
+the supplied checkpoint, matching native PyTorch. Group count/size mismatches
+fail before replacing current groups. `zero_grad(set_to_none=False)` reuses
+existing gradient buffers and preserves absent gradients. Optional step closures
+run with gradients enabled and return their result, even inside `no_grad`.
+
+Standard submodule imports such as `from torch.optim.adam import Adam` and
+`from torch.optim.optimizer import Optimizer` work under the host aliases. The
+original adapter's single-group `lr`/`params` access remains available; use
+`param_groups` and `state` for new code. Optimizer hooks, enabled foreach/fused/
+capture/differentiable execution, trainable hyperparameters and zeroing non-leaf
+gradient buffers remain unsupported. CPU scalar Tensor learning rates are supported.
 
 ## Modules and compatibility
 
@@ -148,10 +187,11 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.3 validation record](../../docs/validation/torch-runtime-iteration-3.md)
-for model/checkpoint parity, independent wheel, exported WASM, real Chrome and
-measured construction/training overhead. The [0.2 record](../../docs/validation/torch-runtime-iteration-2.md)
-retains the kernel, memory and import-alias results.
+See the [0.4 validation record](../../docs/validation/torch-runtime-iteration-4.md)
+for optimizer/checkpoint parity, lazy-state memory, wheel isolation and real WASM/
+Chrome measurements. The [0.3 record](../../docs/validation/torch-runtime-iteration-3.md)
+retains model lifecycle results; the [0.2 record](../../docs/validation/torch-runtime-iteration-2.md)
+retains attention, graph and import-alias results.
 The [extraction record](../../docs/validation/lightweight-torch-extraction.md)
 documents the original baseline.
 

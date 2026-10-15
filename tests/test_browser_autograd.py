@@ -417,14 +417,16 @@ def test_sdpa_empty_sequence_values_and_gradients_match_native(queries, keys):
     for got, want in zip(a_grad, b_grad): np.testing.assert_array_equal(got.numpy(), want.numpy())
 
 
-def test_unimplemented_optimizer_interfaces_explicitly_request_server_fallback():
+def test_optimizer_lifecycle_and_unsupported_execution_options():
     x, _ = pair([1., 2.])
     for cls in (wasm.Adam, wasm.AdamW):
         optimizer = cls([x])
-        with pytest.raises(wasm.BrowserUnsupported): optimizer.state_dict()
-        with pytest.raises(wasm.BrowserUnsupported): optimizer.add_param_group({'params': [x]})
-    with pytest.raises(wasm.BrowserUnsupported): wasm.AdamW([{'params': [x]}])
-    with pytest.raises(wasm.BrowserUnsupported): wasm.AdamW([x], amsgrad=True)
+        assert optimizer.state_dict()['state'] == {}
+        with pytest.raises(ValueError): optimizer.add_param_group({'params': [x]})
+    assert wasm.AdamW([{'params': [x]}]).param_groups[0]['params'] == [x]
+    assert wasm.AdamW([x], amsgrad=True).param_groups[0]['amsgrad']
+    for option in ('fused', 'foreach', 'capturable', 'differentiable'):
+        with pytest.raises(wasm.BrowserUnsupported): wasm.AdamW([x], **{option: True})
 
 
 def test_pdist_values_and_gradients_against_native():

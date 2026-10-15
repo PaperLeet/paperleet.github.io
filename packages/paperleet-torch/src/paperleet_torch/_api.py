@@ -18,7 +18,8 @@ def create_torch(name='torch', *, register=False):
     torch.device, torch.finfo = _device.Device, np.finfo
     root_name = name
     modules = {'torch': torch}
-    for name in ('nn', 'nn.functional', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func'):
+    for name in ('nn', 'nn.functional', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
+                 'optim.adamw', 'autograd', 'linalg', 'testing', 'random', 'func'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name):
             if key.startswith('_'): raise AttributeError(key)
@@ -36,7 +37,13 @@ def create_torch(name='torch', *, register=False):
         'SiLU': _nn.SiLU, 'ReLU': _nn.ReLU, 'Softplus': _nn.Softplus, 'LogSigmoid': _nn.LogSigmoid,
         'BCEWithLogitsLoss': _nn.BCEWithLogitsLoss, 'KLDivLoss': _nn.KLDivLoss, 'CosineSimilarity': _nn.CosineSimilarity,
     }.items(): setattr(torch.nn, name, cls)
+    torch.optim.Optimizer = _optim.Optimizer
     torch.optim.Adam, torch.optim.AdamW, torch.optim.SGD = _optim.Adam, _optim.AdamW, _optim.SGD
+    for name, cls in (('optimizer', _optim.Optimizer), ('sgd', _optim.SGD),
+                      ('adam', _optim.Adam), ('adamw', _optim.AdamW)):
+        module = modules['torch.optim.' + name]
+        setattr(module, cls.__name__, cls)
+        setattr(torch.optim, name, module)
 
     registry = _registry.OperatorRegistry(modules)
     registry.group('torch', {'tensor': _ops.tensor, 'as_tensor': _ops.as_tensor}, reverse='factory', forward=True)

@@ -101,6 +101,8 @@ class Tensor:
         target = np.dtype(dtype or self.dtype)
         if self.dtype.kind == 'c' and target.kind != 'c':
             raise _errors.BrowserUnsupported('Casting complex tensors to real values requires the server')
+        if target == self.dtype:
+            return self
         data = self._data.astype(target, copy=False)
         return _autograd.result(data, (self, lambda g: g.astype(self.dtype))) if data.dtype.kind in 'fc' else Tensor(data)
 

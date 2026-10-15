@@ -35,6 +35,18 @@ backward and SGD update on a 16-row batch. `model_parameter_walk` enumerates tha
 model's parameters. These common workloads also run against the 0.2 baseline;
 new checkpoint features are checked for correctness separately.
 
+Optimizer workloads use separate parameters: `adam_step`, `adamw_step` and
+`sgd_step` update fixed gradients on a 256×256 parameter; `adamw_zero_grad` clears
+an existing gradient, `adam_construct` constructs an optimizer over eight existing
+64×64 parameter fixtures, and `same_dtype_to` measures one no-op dtype conversion.
+Very small browser samples are sensitive to timer quantization.
+
+`python packages/paperleet-torch/benchmarks/bench_optimizer_memory.py --dtype float32`
+records CPython tracemalloc allocations after creating Adam over 16 pre-existing
+256×256 parameters and after one parameter receives a gradient. It also records
+state-array bytes. This is allocation evidence for lazy state, not RSS or browser
+heap usage; parameter fixture storage is excluded.
+
 For browser measurements, serve these files and the pinned runtime from a local
 HTTP origin. Load `bench_runtime.py` and package sources into a fresh Pyodide
 Worker, import `bench_runtime`, and call `run_benchmarks(repeat=11, iterations=30)`.

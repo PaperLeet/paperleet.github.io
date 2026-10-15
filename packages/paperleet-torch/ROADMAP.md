@@ -30,13 +30,26 @@ behavior. Passing its current exercises alone does not establish library readine
 - Hooks, assign-based loading, model device/dtype conversion, file serialization
   and optimizer checkpoints remain outside the implemented contract.
 
+## Version 0.4 milestone
+
+- Common optimizer lifecycle for SGD/Adam/AdamW: parameter groups, named inputs,
+  dynamic group addition, mutable learning rates, closures, in-memory snapshots
+  and positional checkpoint remapping into current parameter objects.
+- Lazy Adam moments and per-parameter counters, AMSGrad/maximization, native
+  missing-gradient rules, reusable zeroed gradients and state mutation guards.
+- Same-dtype Tensor conversion preserves identity, including during JVP, avoiding
+  needless graph nodes. Raw NumPy updates remain independent learner oracles.
+- Native-reference/standalone train-save-rebuild-load-resume validation and
+  construction/update/zeroing/cast/memory benchmarks; unsupported execution modes
+  and file serialization remain explicit boundaries.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: dtype/device transforms and common hooks where
    bounded behavior can be validated; define file checkpoint serialization.
-2. Optimizer lifecycle: parameter groups, lazy per-parameter state, state save/load,
-   checkpoint resume and learning-rate updates. Unify duplicated update machinery
-   where parity and benchmarks support it; preserve unknown-option errors.
+2. Optimizer extensions: schedulers and common hooks, additional algorithms where
+   numerical and performance evidence justify them; keep state compatibility and
+   unknown-option errors explicit. Profile small-parameter update overhead.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
    multi-output gradients, retention semantics and forward-mode gaps. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.

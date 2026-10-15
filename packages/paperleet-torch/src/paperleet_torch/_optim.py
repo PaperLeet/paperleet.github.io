@@ -1,125 +1,159 @@
-"""NumPy-backed optim implementation; extracted from PaperLeet."""
+"""Raw NumPy SGD/Adam kernels with shared model-independent lifecycle."""
+import math
 import numpy as np
 
-
-class SGD:
-    def __init__(self, params, lr=.001, momentum=0, dampening=0, weight_decay=0, nesterov=False, *, maximize=False, **options):
-        if options: raise _errors.BrowserUnsupported('Advanced SGD options require the server')
-        if lr < 0 or momentum < 0 or weight_decay < 0: raise ValueError('Invalid SGD hyperparameter')
-        if nesterov and (momentum <= 0 or dampening != 0): raise ValueError('Nesterov requires momentum and zero dampening')
-        self.params, self.lr, self.momentum = list(params), lr, momentum
-        if any(not isinstance(p, _tensor.Tensor) for p in self.params): raise _errors.BrowserUnsupported('SGD parameter groups require the server')
-        self.dampening, self.weight_decay, self.nesterov, self.maximize = dampening, weight_decay, nesterov, maximize
-        self.buffers = [None] * len(self.params)
-
-    def zero_grad(self, set_to_none=True):
-        for p in self.params:
-            if p.grad is not None: p.grad = None if set_to_none else _tensor.Tensor(np.zeros_like(p._data))
-
-    def step(self, closure=None):
-        if closure is not None: raise _errors.BrowserUnsupported('SGD closures require the server')
-        for i, p in enumerate(self.params):
-            if p.grad is None: continue
-            g = p.grad._data.copy()
-            if self.maximize: g = -g
-            if self.weight_decay: g += self.weight_decay * p._data
-            if self.momentum:
-                buffer = self.buffers[i]
-                if buffer is None: buffer = g.copy()
-                else: buffer = self.momentum * buffer + (1 - self.dampening) * g
-                self.buffers[i] = buffer
-                g = g + self.momentum * buffer if self.nesterov else buffer
-            p._data[...] -= self.lr * g
-            p._storage.version += 1
-
-
-class Adam:
-    def __getattr__(self, name):
-        if name.startswith('_'): raise AttributeError(name)
-        return _errors.unsupported(f'Adam.{name}')
-
-    def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=0):
-        self.params, self.lr, self.betas, self.eps = list(params), lr, betas, eps
-        if not self.params: raise ValueError('Adam needs parameters')
-        if any(not isinstance(p, _tensor.Tensor) for p in self.params):
-            raise _errors.BrowserUnsupported('Adam parameter groups require the server')
-        if lr < 0 or eps < 0 or weight_decay < 0 or len(betas) != 2 or any(not 0 <= b < 1 for b in betas):
-            raise ValueError('Invalid Adam hyperparameters')
-        self.weight_decay = weight_decay
-        self.steps = 0
-        self._parameter_steps = [0] * len(self.params)
-        self.m = [np.zeros_like(p._data) for p in self.params]
-        self.v = [np.zeros_like(p._data) for p in self.params]
-    def zero_grad(self, set_to_none=True):
-        for p in self.params:
-            if p.grad is not None:
-                if set_to_none: p.grad = None
-                else: p.grad.zero_()
-    def step(self):
-        self.steps += 1
-        b1, b2 = self.betas
-        for i, p in enumerate(self.params):
-            if p.grad is None: continue
-            if p.grad.shape != p.shape or p.grad.dtype != p.dtype:
-                raise RuntimeError('Adam gradient shape/dtype must match the parameter')
-            g = p.grad._data
-            if self.weight_decay: g = g + self.weight_decay * p._data
-            self._parameter_steps[i] += 1
-            count = self._parameter_steps[i]
-            self.m[i] *= b1; self.m[i] += (1 - b1) * g
-            self.v[i] *= b2; self.v[i] += (1 - b2) * g * g
-            p._data[...] -= self.lr * (self.m[i] / (1 - b1 ** count)) / (np.sqrt(self.v[i] / (1 - b2 ** count)) + self.eps)
-            p._storage.version += 1
-
-
-class AdamW:
-    """Independent, stateful NumPy oracle for the functional AdamW exercise."""
-    def __getattr__(self, name):
-        if name.startswith('_'): raise AttributeError(name)
-        return _errors.unsupported(f'AdamW.{name}')
-
-    def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=.01, **options):
-        if options: raise _errors.BrowserUnsupported('Advanced AdamW options require the server')
-        params = list(params)
-        if not params: raise ValueError('AdamW needs parameters')
-        if any(not isinstance(p, _tensor.Tensor) for p in params):
-            raise _errors.BrowserUnsupported('AdamW parameter groups require the server')
-        if lr < 0 or eps < 0 or weight_decay < 0 or len(betas) != 2 or any(not 0 <= b < 1 for b in betas):
-            raise ValueError('Invalid AdamW options')
-        self.param_groups = [dict(params=params, lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)]
-        self.state = {}
-
-    def zero_grad(self, set_to_none=True):
-        for group in self.param_groups:
-            for p in group['params']:
-                if p.grad is not None:
-                    p.grad = None if set_to_none else _tensor.Tensor(np.zeros_like(p._data))
-
-    def step(self, closure=None):
-        if closure is not None: raise _errors.BrowserUnsupported('AdamW closures require the server')
-        for group in self.param_groups:
-            b1, b2 = group['betas']
-            for p in group['params']:
-                if p.grad is None: continue
-                if p.grad.shape != p.shape or p.grad.dtype != p.dtype:
-                    raise RuntimeError('AdamW gradient shape/dtype must match the parameter')
-                if p not in self.state:
-                    self.state[p] = dict(step=_tensor.Tensor(np.array(0., dtype=np.float32)),
-                                         exp_avg=_tensor.Tensor(np.zeros_like(p._data)), exp_avg_sq=_tensor.Tensor(np.zeros_like(p._data)))
-                state = self.state[p]
-                state['step']._data[...] += 1
-                count = state['step'].item()
-                m, v, g = state['exp_avg']._data, state['exp_avg_sq']._data, p.grad._data
-                # Update moments directly, independently of learner Tensor ops.
-                m += (1 - b1) * (g - m)
-                v *= b2
-                v += (1 - b2) * g * g
-                p._data[...] *= 1 - group['lr'] * group['weight_decay']
-                denominator = np.sqrt(v) / np.sqrt(1 - b2 ** count) + group['eps']
-                p._data[...] -= (group['lr'] / (1 - b1 ** count)) * m / denominator
-                p._storage.version += 1
-                for value in state.values(): value._storage.version += 1
-
-
-# Late module references break Tensor/autograd/operator cycles without rebinding functions.
 from . import _errors, _tensor
+from ._optimizer import Optimizer, group_option, nonnegative, scalar
+
+
+class SGD(Optimizer):
+    momentum = group_option('momentum')
+    dampening = group_option('dampening')
+    weight_decay = group_option('weight_decay')
+    nesterov = group_option('nesterov')
+    maximize = group_option('maximize')
+
+    def __init__(self, params, lr=.001, momentum=0, dampening=0, weight_decay=0, nesterov=False,
+                 *, maximize=False, foreach=None, differentiable=False, fused=None, **options):
+        if options:
+            raise _errors.BrowserUnsupported('Unknown SGD options: ' + ', '.join(options))
+        super().__init__(params, dict(lr=lr, momentum=momentum, dampening=dampening,
+                                     weight_decay=weight_decay, nesterov=nesterov, maximize=maximize,
+                                     foreach=foreach, differentiable=differentiable, fused=fused))
+
+    def _validate_group(self, group):
+        super()._validate_group(group)
+        return self._validate_defaults(group)
+
+    def _validate_defaults(self, group):
+        lr, momentum, weight_decay = [scalar(group[name], name) for name in ('lr', 'momentum', 'weight_decay')]
+        for name, value in (('lr', lr), ('momentum', momentum), ('weight_decay', weight_decay)):
+            if value < 0:
+                raise ValueError(f'{name} must be nonnegative')
+        dampening = scalar(group['dampening'], 'dampening')
+        if group['nesterov'] and (momentum <= 0 or dampening != 0):
+            raise ValueError('Nesterov requires momentum and zero dampening')
+        return lr, momentum, weight_decay, dampening
+
+    def step(self, closure=None):
+        loss = self._start_step(closure)
+        for group in self.param_groups:
+            lr, momentum, weight_decay, dampening = self._validate_group(group)
+            # Capture initial buffers before mutation, preserving native behavior
+            # when a warned-about duplicate first acquires momentum in this call.
+            active = ((p, None) for p in group['params'] if p.grad is not None)
+            if momentum:
+                active = [(p, self.state[p].get('momentum_buffer')) for p in group['params'] if p.grad is not None]
+            for parameter, buffer in active:
+                gradient = self._gradient(parameter)
+                if group['maximize']:
+                    gradient = -gradient
+                if weight_decay:
+                    gradient = gradient + weight_decay * parameter._data
+                if momentum:
+                    if buffer is None:
+                        buffer = _tensor.Tensor(gradient.copy())
+                    else:
+                        value = self._buffer(buffer, parameter, 'momentum_buffer')
+                        value *= momentum
+                        value += (1 - dampening) * gradient
+                        buffer._storage.version += 1
+                    self.state[parameter]['momentum_buffer'] = buffer
+                    gradient = gradient + momentum * buffer._data if group['nesterov'] else buffer._data
+                parameter._data[...] -= lr * gradient
+                parameter._storage.version += 1
+        return loss
+
+
+class Adam(Optimizer):
+    betas = group_option('betas')
+    eps = group_option('eps')
+    weight_decay = group_option('weight_decay')
+
+    def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=0, amsgrad=False,
+                 *, foreach=None, maximize=False, capturable=False, differentiable=False, fused=None,
+                 decoupled_weight_decay=False, **options):
+        if options:
+            raise _errors.BrowserUnsupported('Unknown Adam options: ' + ', '.join(options))
+        super().__init__(params, dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay,
+                                     amsgrad=amsgrad, maximize=maximize, foreach=foreach,
+                                     capturable=capturable, differentiable=differentiable, fused=fused,
+                                     decoupled_weight_decay=decoupled_weight_decay))
+
+    def _validate_group(self, group):
+        super()._validate_group(group)
+        return self._validate_defaults(group)
+
+    def _validate_defaults(self, group):
+        lr, eps, weight_decay = [nonnegative(group[name], name) for name in ('lr', 'eps', 'weight_decay')]
+        betas = group['betas']
+        if not isinstance(betas, (tuple, list)) or len(betas) != 2:
+            raise ValueError('Adam betas must contain two coefficients')
+        b1, b2 = [scalar(value, 'beta') for value in betas]
+        if not 0 <= b1 < 1 or not 0 <= b2 < 1:
+            raise ValueError('Adam beta coefficients must be in [0, 1)')
+        return lr, eps, weight_decay, b1, b2
+
+    def _after_load(self):
+        for group in self.param_groups:
+            for parameter in group['params']:
+                value = self.state.get(parameter)
+                if value and 'step' in value and not isinstance(value['step'], _tensor.Tensor):
+                    value['step'] = _tensor.Tensor(np.array(float(value['step']), dtype=np.float32))
+
+    def step(self, closure=None):
+        loss = self._start_step(closure)
+        for group in self.param_groups:
+            lr, eps, weight_decay, b1, b2 = self._validate_group(group)
+            for parameter in group['params']:
+                if parameter.grad is None:
+                    continue
+                gradient = self._gradient(parameter)
+                if group['maximize']:
+                    gradient = -gradient
+                state = self.state[parameter]
+                if not state:
+                    state.update(step=_tensor.Tensor(np.array(0., dtype=np.float32)),
+                                 exp_avg=_tensor.Tensor(np.zeros_like(parameter._data)),
+                                 exp_avg_sq=_tensor.Tensor(np.zeros_like(parameter._data)))
+                    if group['amsgrad']:
+                        state['max_exp_avg_sq'] = _tensor.Tensor(np.zeros_like(parameter._data))
+                count = self._buffer(state['step'], parameter, 'step', step=True)
+                moment = self._buffer(state['exp_avg'], parameter, 'exp_avg')
+                variance = self._buffer(state['exp_avg_sq'], parameter, 'exp_avg_sq')
+                maximum = self._buffer(state['max_exp_avg_sq'], parameter, 'max_exp_avg_sq') if group['amsgrad'] else None
+                count[...] += 1
+                step = float(count.item())
+                if weight_decay:
+                    if group['decoupled_weight_decay']:
+                        parameter._data[...] *= 1 - lr * weight_decay
+                    else:
+                        gradient = gradient + weight_decay * parameter._data
+                # Independent NumPy oracle: do not reuse learner Tensor updates.
+                moment += (1 - b1) * (gradient - moment)
+                variance *= b2
+                variance += (1 - b2) * gradient * gradient
+                if maximum is not None:
+                    np.maximum(maximum, variance, out=maximum)
+                denominator = np.sqrt(variance if maximum is None else maximum) / math.sqrt(1 - b2 ** step) + eps
+                parameter._data[...] -= (lr / (1 - b1 ** step)) * moment / denominator
+                parameter._storage.version += 1
+                for name in ('step', 'exp_avg', 'exp_avg_sq', *(['max_exp_avg_sq'] if maximum is not None else [])):
+                    state[name]._storage.version += 1
+        return loss
+
+
+class AdamW(Adam):
+    """Decoupled Adam with the same independently evaluated NumPy oracle."""
+    def __init__(self, params, lr=.001, betas=(.9, .999), eps=1e-8, weight_decay=.01, amsgrad=False,
+                 *, maximize=False, foreach=None, capturable=False, differentiable=False, fused=None, **options):
+        if options:
+            raise _errors.BrowserUnsupported('Unknown AdamW options: ' + ', '.join(options))
+        super().__init__(params, lr, betas, eps, weight_decay, amsgrad,
+                         maximize=maximize, foreach=foreach, capturable=capturable,
+                         differentiable=differentiable, fused=fused, decoupled_weight_decay=True)
+
+    def _after_load(self):
+        super()._after_load()
+        for group in self.param_groups:
+            group['decoupled_weight_decay'] = True

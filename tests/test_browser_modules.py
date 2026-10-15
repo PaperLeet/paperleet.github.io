@@ -114,7 +114,8 @@ def test_sgd_native_multistep_momentum_missing_gradients_and_zeroing(dtype, opti
         for a, b in zip(actual, expected):
             assert (a.grad is None) == (b.grad is None)
             if a.grad is not None: np.testing.assert_array_equal(a.grad.numpy(), b.grad.numpy())
-    with pytest.raises(wasm.BrowserUnsupported): opt.step(closure=lambda: None)
+    assert opt.step(closure=lambda: None) is None
+    assert reference.step(closure=lambda: None) is None
 
 
 @pytest.mark.parametrize('dtype', [np.float32, np.float64])

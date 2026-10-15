@@ -63,12 +63,14 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
       if (id === 'architecture/attention') {
         // Run the independent NumPy-only model/checkpoint suite against the
         // exported library, including ordinary torch aliases in a real VM.
-        const testPath = '/judge/test_lightweight_module_lifecycle.py';
-        py.FS.writeFile(testPath, fs.readFileSync(path.join(web,
-          '../packages/paperleet-torch/tests/test_module_lifecycle.py'), 'utf8'));
-        const exitCode = py.runPython(`__import__('pytest').main([
-          '${testPath}', '-q', '--noconftest', '-p', 'no:cacheprovider', '--import-mode=importlib'])`);
-        assert.equal(Number(exitCode), 0, 'Standalone model lifecycle contracts must pass on WASM');
+        for (const suite of ['module_lifecycle', 'optimizer_lifecycle']) {
+          const testPath = `/judge/test_lightweight_${suite}.py`;
+          py.FS.writeFile(testPath, fs.readFileSync(path.join(web,
+            `../packages/paperleet-torch/tests/test_${suite}.py`), 'utf8'));
+          const exitCode = py.runPython(`__import__('pytest').main([
+            '${testPath}', '-q', '--noconftest', '-p', 'no:cacheprovider', '--import-mode=importlib'])`);
+          assert.equal(Number(exitCode), 0, `Standalone ${suite} contracts must pass on WASM`);
+        }
       }
       py.runPython(`
 import numpy as np, torch

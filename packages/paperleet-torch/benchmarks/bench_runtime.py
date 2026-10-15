@@ -62,6 +62,29 @@ def workloads(dtype='float32'):
     def adam_step():
         optimizer.step()
 
+    sgd_parameter = torch.nn.Parameter(parameter.detach().clone())
+    adamw_parameter = torch.nn.Parameter(parameter.detach().clone())
+    sgd_parameter.grad = parameter.grad.clone()
+    adamw_parameter.grad = parameter.grad.clone()
+    sgd_optimizer = torch.optim.SGD([sgd_parameter], lr=.001, momentum=.9)
+    adamw_optimizer = torch.optim.AdamW([adamw_parameter], lr=.001)
+    inactive = [torch.nn.Parameter(torch.ones(64, 64, dtype=dtype)) for _ in range(8)]
+
+    def adam_construct():
+        return torch.optim.Adam(inactive)
+
+    def sgd_step():
+        sgd_optimizer.step()
+
+    def adamw_step():
+        adamw_optimizer.step()
+
+    def adamw_zero_grad():
+        adamw_optimizer.zero_grad(set_to_none=False)
+
+    def same_dtype_to():
+        return x.to(dtype=dtype)
+
     def model_construct():
         return torch.nn.Sequential(torch.nn.Linear(16, 32, dtype=dtype), torch.nn.ReLU(),
                                     torch.nn.Linear(32, 8, dtype=dtype))
@@ -81,7 +104,9 @@ def workloads(dtype='float32'):
 
     cases = dict(linear_backward=linear_backward, attention_backward=attention_backward,
                  slice_backward=slice_backward, indexed_backward=indexed_backward,
-                 adam_step=adam_step, model_construct=model_construct,
+                 adam_step=adam_step, sgd_step=sgd_step, adamw_step=adamw_step,
+                 adamw_zero_grad=adamw_zero_grad, adam_construct=adam_construct,
+                 same_dtype_to=same_dtype_to, model_construct=model_construct,
                  model_training_step=model_training_step, model_parameter_walk=model_parameter_walk)
     for m, k, n in [(32, 32, 32), (64, 128, 128), (128, 128, 128),
                     (256, 256, 256), (512, 512, 512), (37, 53, 29)]:
