@@ -10,7 +10,25 @@ DPO 把 KL 正则化奖励最大化改写为偏好对上的分类目标，训练
 
 只需实现 `dpo_loss`。starter 已提供 `sequence_logprob`，处理 next-token 标签移位、回答 mask 和 log-prob 求和，直接产生目标函数所需的序列分数。
 
-四个序列 log-prob 都是 `[B]`，返回 loss 标量，以及两个已经 detach 的奖励向量。
+四个序列 log-prob 输入的形状都是 `[B]`，其中 `B` 是偏好对的数量。
+
+### 返回格式
+
+`dpo_loss` 必须按以下顺序返回一个包含 **3 个 Tensor 的元组**：
+
+```python
+return loss, chosen_rewards, rejected_rewards
+```
+
+| 返回值 | 形状 | 含义与梯度要求 |
+|---|---|---|
+| `loss` | `()`，零维 Tensor | 对 batch 取平均的 DPO loss，保留对策略输入的梯度 |
+| `chosen_rewards` | `[B]` | `beta * (pi_chosen - ref_chosen)`，返回时 detach |
+| `rejected_rewards` | `[B]` | `beta * (pi_rejected - ref_rejected)`，返回时 detach |
+
+只写 `return loss` 不符合本题接口；测试会读取全部三个返回值。`loss` 不要调用 `.item()` 或 `.detach()`；两个奖励向量不要取平均，也不要用 `squeeze()` 压掉 batch 维，即使 `B = 1` 也应保留 `[1]`。计算 loss 时 reference 输入视为固定值，不应收到梯度；用于计算 loss 的策略分支仍需保留梯度。
+
+### 目标函数
 
 $$
 h=(\log\pi_c-\log\pi^{ref}_c)-(\log\pi_r-\log\pi^{ref}_r),\qquad

@@ -6,7 +6,12 @@ import torch.nn.functional as F
 # Required: implement the core functions below.
 def dpo_loss(pi_chosen: Tensor, pi_rejected: Tensor, ref_chosen: Tensor, ref_rejected: Tensor, beta: float=0.1, label_smoothing: float=0.0) -> tuple[Tensor, Tensor, Tensor]:
     """Four [B] sequence log-probs; reference tensors are fixed snapshots.
-    Return scalar smoothed DPO loss and detached chosen/rejected rewards [B].
+    Return (loss, chosen_rewards, rejected_rewards), in that order:
+      loss: batch-mean scalar Tensor, shape (), with policy gradients.
+      chosen_rewards: beta * (pi_chosen - ref_chosen), detached, shape [B].
+      rejected_rewards: beta * (pi_rejected - ref_rejected), detached, shape [B].
+    Keep rewards shaped [1] for B=1; do not average or squeeze them.
+    Keep loss as a Tensor (no item/detach); reference inputs receive no gradients.
     label_smoothing weights reversed labels; beta scales implicit rewards."""
     raise NotImplementedError()
 
