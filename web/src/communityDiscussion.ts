@@ -10,7 +10,7 @@ export type Post = {
 };
 export type Reply = {
   id: string; post_id: string; parent_id: string | null; body: string;
-  created_at: string; author: PublicUser; can_delete: boolean;
+  created_at: string; updated_at?:string; edit_version?:string; author: PublicUser; can_delete: boolean; can_edit?:boolean;
 };
 export type PostDetail = Post & { replies: Reply[] };
 

@@ -51,6 +51,8 @@ import { withConfirmedReply, type Counts, type Post, type Reply, type PostDetail
 import { readPublication, preparePublication, clearPublication, postPublication, replyPublication, samePublication, type PublicationReceipt } from './publicationRequests';
 import PublicationRecovery from './PublicationRecovery';
 import PostEditor from './PostEditor';
+import ReplyEditor from './ReplyEditor';
+import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
 type Profile = PublicUser & {
   counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
@@ -720,6 +722,11 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   const { user } = useAccount();
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
+  const [editingReply,setEditingReply]=useState<string>(), [replyEdited,setReplyEdited]=useState<string>();
+  function closeReplyEditing(identifier:string) {
+    setEditingReply(undefined);
+    requestAnimationFrame(()=>document.getElementById(`edit-reply-${identifier}`)?.focus());
+  }
   function closePostEditing() {
     setEditingPost(false);
     requestAnimationFrame(()=>postEditButton.current?.focus());
@@ -957,6 +964,8 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                   <div className="reply-heading">
                     <PersonLink user={r.author} compact />
                     <DateLabel value={r.created_at} />
+                    {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
+                    {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={()=>{setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}
                     {r.parent_id && (
                       <button
                         className="reply-context"
@@ -987,6 +996,11 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                     )}
                   </div>
                   <CommunityMarkdown body={r.body} />
+                  {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
+                  {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={confirmed=>{
+                    setPost(previous=>previous&&previous.id===confirmed.post_id?{...previous,replies:previous.replies.map(row=>row.id===confirmed.id?confirmed:row)}:previous);
+                    closeReplyEditing(r.id);setReplyEdited(r.id);
+                  }}/>}
                   {user && (
                     <button
                       className="reply-link"

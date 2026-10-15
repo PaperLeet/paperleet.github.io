@@ -5,6 +5,21 @@ import { renderToStaticMarkup } from 'react-dom/server';
 export async function checkCommunityEditing(server) {
   const edits=await server.ssrLoadModule('/src/communityEdits.ts');
   const values=new Map(), storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};
+  const replyEdits=await server.ssrLoadModule('/src/replyEdits.ts');
+  const reply={id:'reply',body:'Original',author:{id:'alice'},can_edit:true,edit_version:'a'.repeat(64)};
+  assert(replyEdits.canEditReply(reply,'alice'));assert(!replyEdits.canEditReply(reply,'bob'));
+  assert(!replyEdits.canEditReply({...reply,can_edit:undefined},'alice'));
+  const replyDraft={body:'  中文 🧪\n```python\nx = 1\n```',baseVersion:reply.edit_version};
+  assert(replyEdits.writeReplyEdit(storage,'alice','reply',replyDraft));
+  assert.deepEqual(replyEdits.readReplyEdit(storage,'alice','reply'),replyDraft);
+  assert.equal(replyEdits.readReplyEdit(storage,'bob','reply'),undefined);
+  assert.equal(replyEdits.readReplyEdit(storage,'alice','other'),undefined);
+  const newerReply={...replyDraft,body:'New work'};
+  replyEdits.writeReplyEdit(storage,'alice','reply',newerReply);
+  assert(!replyEdits.clearSavedReplyEdit(storage,'alice','reply',replyDraft));
+  assert(replyEdits.clearSavedReplyEdit(storage,'alice','reply',newerReply));
+  assert(!replyEdits.writeReplyEdit(storage,'alice','reply',{...replyDraft,body:'x'.repeat(10001)}));
+  assert(!replyEdits.writeReplyEdit(undefined,'alice','reply',replyDraft));
   const post={id:'post',title:'Original',body:'Published text',category:'questions',edit_version:'a'.repeat(64),author:{id:'alice'},viewer:{can_edit:true}};
   assert(edits.canEditPost(post,'alice'));
   for(const target of [{...post,viewer:{}},{...post,viewer:{can_delete:true}},{...post,edit_version:'bad'},{...post,author:{id:'bob'}}])assert(!edits.canEditPost(target,'alice'),'Only an explicit supported author permission enables editing');
@@ -32,11 +47,16 @@ export async function checkCommunityEditing(server) {
   const blocked={getItem(){throw Error('blocked');},setItem(){throw Error('quota');},removeItem(){throw Error('blocked');}};
   assert.equal(edits.readPostEdit(blocked,'alice','post'),undefined);assert(!edits.writePostEdit(blocked,'alice','post',draft));
   const {default:PostEditor}=await server.ssrLoadModule('/src/PostEditor.tsx');
+  const {default:ReplyEditor}=await server.ssrLoadModule('/src/ReplyEditor.tsx');
   const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
   const previous=globalThis.window;
   const previousLocale=globalThis.localStorage;
   try {
     globalThis.window={sessionStorage:storage};
+    replyEdits.writeReplyEdit(storage,'alice','reply',replyDraft);
+    const replyHtml=renderToStaticMarkup(React.createElement(ReplyEditor,{reply:{...reply,body:'New server reply',edit_version:'b'.repeat(64)},owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
+    assert(replyHtml.includes('New server reply')&&replyHtml.includes('较早版本')&&replyHtml.includes('中文 🧪'));
+    assert(/disabled="">保存修改/.test(replyHtml));
     edits.writePostEdit(storage,'alice','post',draft);
     const latest={...post,title:'Newer public title',body:'Newer public body',edit_version:'b'.repeat(64)};
     const html=renderToStaticMarkup(React.createElement(PostEditor,{post:latest,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
