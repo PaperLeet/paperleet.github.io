@@ -18,7 +18,7 @@ functions:
     Tensor]'
 module:
   goal: 计算跨参数的全局范数，并用统一比例裁剪。
-  goal_en: 'Global Gradient Clipping: One Norm for All Parameters'
+  goal_en: Compute one gradient norm across all parameters and apply a shared clipping scale.
   scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
   scope_en: Implement one core function; independent tests and deterministic synthetic experiments
     are provided.

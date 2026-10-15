@@ -19,7 +19,7 @@ functions:
   signature: 'top_p_probs(logits: Tensor, p: float, temperature: float = 1.) -> Tensor'
 module:
   goal: 正确保留累计概率阈值边界，并恢复词表顺序。
-  goal_en: 'Top-p: Cumulative Probability and Nucleus Candidates'
+  goal_en: Keep the smallest candidate set that reaches the probability threshold, then restore vocabulary order.
   scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
   scope_en: Implement one core function; independent tests and deterministic synthetic experiments
     are provided.

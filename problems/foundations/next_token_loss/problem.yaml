@@ -17,7 +17,7 @@ functions:
   signature: 'next_token_loss(logits: Tensor, tokens: Tensor) -> Tensor'
 module:
   goal: 对齐自回归预测与下一位置标签，计算稳定平均损失。
-  goal_en: 'Next-token Loss: Shifted Causal Targets'
+  goal_en: Align predictions with the next token and compute a stable average loss.
   scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
   scope_en: Implement one core function; independent tests and deterministic synthetic experiments
     are provided.
