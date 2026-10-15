@@ -50,6 +50,8 @@ import type { PublicUser } from "./social";
 import { withConfirmedReply, type Counts, type Post, type Reply, type PostDetail } from './communityDiscussion';
 import { readPublication, preparePublication, clearPublication, postPublication, replyPublication, samePublication, type PublicationReceipt } from './publicationRequests';
 import PublicationRecovery from './PublicationRecovery';
+import PostEditor from './PostEditor';
+import { canEditPost } from './communityEdits';
 type Profile = PublicUser & {
   counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
@@ -716,6 +718,12 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
 function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
   const { t } = useI18n();
   const { user } = useAccount();
+  const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
+  const postEditButton=useRef<HTMLButtonElement>(null);
+  function closePostEditing() {
+    setEditingPost(false);
+    requestAnimationFrame(()=>postEditButton.current?.focus());
+  }
   const [post, setPost] = useState<PostDetail>(),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -873,6 +881,11 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
       ) : post ? (
         <>
           {post.problem && <TopicContext topic={post.problem} discussion />}
+          {postEdited&&<p role="status">{t('帖子修改已保存。','Post changes saved.')}</p>}
+          {editingPost&&canEditPost(post,owner)&&<PostEditor post={post} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={closePostEditing} onSaved={confirmed=>{
+            setPost(previous=>previous&&previous.id===confirmed.id?{...confirmed,replies:previous.replies}:previous);
+            closePostEditing();setPostEdited(true);
+          }}/>}
           <article className="social-panel discussion-post">
             <div className="discussion-heading">
               <Category value={post.category} />
@@ -881,6 +894,8 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
                 <PersonLink user={post.author} />
                 <AffiliationBadge affiliation={post.author.affiliation} institution={post.author.institution} />
                 <DateLabel value={post.created_at} />
+                {post.updated_at!==post.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={post.updated_at}/></span>}
+                {canEditPost(post,owner)&&<button ref={postEditButton} type="button" className="text-button" disabled={loading||busy||editingPost} onClick={()=>{setEditingPost(true);setPostEdited(false);}}>{t('编辑帖子','Edit post')}</button>}
                 {post.viewer.can_delete && (
                   <button
                     className="icon-button delete-action"

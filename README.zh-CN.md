@@ -207,7 +207,7 @@ web/               Vite + React + TypeScript
 tests/             判题框架的集成测试
 workspace/         个人代码，忽略于 Git
 reports/           判题和 CI 报告，忽略于 Git
-.paperleet/        本地社区数据库与论文提交材料，忽略于 Git
+.paperleet/        本地判题队列与论文提交材料，忽略于 Git
 ```
 
 出题流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，详细验收依据见 [10 题试点规格](PaperLeet_第一步_10题试点规格.md)。GitHub Actions 运行框架测试、三次质量门、数据生成和前端构建，上传报告与静态站构建产物。

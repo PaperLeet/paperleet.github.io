@@ -5,8 +5,8 @@ export type Counts = { likes: number; reposts: number; replies: number };
 export type Post = {
   id: string; title: string; body: string; category: string;
   problem_id: string | null; problem: ProblemTopic | null;
-  created_at: string; updated_at: string; author: PublicUser; counts: Counts;
-  viewer: { liked: boolean; reposted: boolean; can_delete: boolean };
+  created_at: string; updated_at: string; edit_version?: string; author: PublicUser; counts: Counts;
+  viewer: { liked: boolean; reposted: boolean; can_delete: boolean; can_edit?: boolean };
 };
 export type Reply = {
   id: string; post_id: string; parent_id: string | null; body: string;
