@@ -10,6 +10,11 @@ try {
   const runtimeError = runtimeDiagnostic('Traceback header\n' + 'framework frame\n'.repeat(500) + 'ImportError: precise root cause');
   assert(runtimeError.startsWith('Traceback header') && runtimeError.endsWith('ImportError: precise root cause') && runtimeError.length <= 4000);
   assert.equal(runtimeDiagnostic(new Error('short')), 'Error: short');
+  assert.equal(runtimeDiagnostic(new TypeError('Failed to fetch'), 'python'), 'Stage: Python runtime\nTypeError: Failed to fetch');
+  assert.equal(runtimeDiagnostic(new Error('download failed'), 'packages'), 'Stage: NumPy and test packages\nError: download failed');
+  assert.equal(runtimeDiagnostic(new Error('short'), '__proto__'), 'Error: short');
+  const staged = runtimeDiagnostic('framework frame\n'.repeat(500) + 'ImportError: precise root cause', 'preparing');
+  assert(staged.startsWith('Stage: Test environment\n') && staged.endsWith('ImportError: precise root cause') && staged.length <= 4000);
   const diagnostic = calibrationDiagnostic({reason:'reference_failed',reference:{tests:[
     {id:'wrong_number',passed:false,message:'expected 1; got 2'},
     {id:'passed',passed:true,message:'must not appear'},
@@ -173,7 +178,10 @@ try {
   const frameCount = frames.length;
   for (const fail of [async () => { throw new TypeError('offline'); }, async () => new Response('', { status: 503 }), async () => new Response('invalid JSON')]) {
     globalThis.fetch = fail;
-    assert.equal((await runBrowserJudge(problem, 'private source', new AbortController().signal, () => {})).reason, 'runtime_failed');
+    const failed = await runBrowserJudge(problem, 'private source', new AbortController().signal, () => {});
+    assert.equal(failed.reason, 'runtime_failed');
+    assert(failed.detail.startsWith('Stage: Public test bundles\n'));
+    assert(!failed.detail.includes('private source'));
     assert.equal(frames.length, frameCount, 'Failed public downloads must not create a learner sandbox');
   }
   const attention = index.problems.find(p => p.id === 'architecture/attention');

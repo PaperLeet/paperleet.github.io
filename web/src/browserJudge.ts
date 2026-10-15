@@ -28,9 +28,9 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
   progress(lastProgress.stage, lastProgress);
   let bundle: Record<string, unknown>;
   try { bundle = await loadBrowserBundle(problem, base, signal); }
-  catch {
+  catch (error) {
     if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
-    return { type: 'unsupported', reason: 'runtime_failed' };
+    return { type: 'unsupported', reason: 'runtime_failed', detail: `Stage: Public test bundles\n${String(error).slice(-3000)}` };
   }
   let calibrationKey = '';
   let reuseAllowed = true;
@@ -129,7 +129,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     const asset = new URL('browser-runtime/', base).href;
     const worker = new URL(browserWorkerAsset,base).href;
     const csp = `default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' blob: ${asset} ${worker}; worker-src blob:; connect-src ${asset};`;
-    const workerImport = `self.onmessage = async event => { try { await import('${worker}'); self.onmessage(event); } catch (error) { self.postMessage({type:'unsupported', reason:'runtime_failed', detail:String(error)}); } };`;
+    const workerImport = `self.onmessage = async event => { try { await import('${worker}'); self.onmessage(event); } catch (error) { self.postMessage({type:'unsupported', reason:'runtime_failed', detail:'Stage: Browser worker import\\n'+String(error)}); } };`;
     const bootstrap = `
       const nonce = ${JSON.stringify(nonce)};
       const relay = payload => parent.postMessage({nonce, payload}, '*');

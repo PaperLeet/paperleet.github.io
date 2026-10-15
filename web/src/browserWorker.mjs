@@ -12,17 +12,21 @@ self.onmessage = async ({ data }) => {
   const startedAt = performance.now();
   const progress = (stage, detail = {}) => send({ type: 'progress', stage, ...detail });
   const unsupported = (reason, detail = '') => send({ type: 'unsupported', reason, detail });
+  let runtimeStage = 'python';
   try {
     progress('loading', { step: 'python' });
     const { loadPyodide } = await import(`${base}browser-runtime/pyodide-0.29.4/pyodide.mjs`);
     const py = await loadPyodide({ indexURL: `${base}browser-runtime/pyodide-0.29.4/`, stdout() {}, stderr() {} });
+    runtimeStage = 'syntax';
     progress('loading', { step: 'syntax' });
     py.globals.set('learner_source', source);
     const diagnostic = JSON.parse(py.runPython(syntaxCheck));
     if (diagnostic) return send({ type: 'syntax_error', diagnostic });
+    runtimeStage = 'packages';
     progress('loading', { step: 'packages' });
     await loadJudgePackages(py, bundle.version === 3 ? bundle.packages
       : Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml')));
+    runtimeStage = 'preparing';
     progress('loading', { step: 'preparing' });
     py.globals.set('bundle_json', JSON.stringify(bundle));
     py.runPython(`import json, inspect\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);
@@ -37,6 +41,7 @@ self.onmessage = async ({ data }) => {
     const environment = JSON.stringify([py.version, py.runPython("json.dumps([__import__('sys').version, __import__('numpy').__version__, __import__('sys').byteorder])")]);
     const cached = calibrationProof(cachedCalibration, calibrationKey, bundle, environment);
     const readyAt = performance.now();
+    runtimeStage = 'calibration';
     progress('calibrating');
     const calibration = cached ? {compatible:true, ...cached.summary}
       : JSON.parse(py.runPython(`json.dumps(calibrate(bundle, '/judge'${extra}), allow_nan=False)`));
@@ -46,6 +51,7 @@ self.onmessage = async ({ data }) => {
     // Sent before ANY learner execution. Later user code cannot replace this proof.
     send({type:'calibrated', proof:{key:calibrationKey,environment,summary}, reused:!!cached});
     const calibratedAt = performance.now();
+    runtimeStage = 'tests';
     progress('running');
     const report = JSON.parse(py.runPython(`json.dumps(run_suite(bundle, learner_source, '/judge'${extra}), allow_nan=False)`));
     if (report.error) return unsupported('collection_failed');
@@ -56,6 +62,6 @@ self.onmessage = async ({ data }) => {
       learner_ms:finishedAt-calibratedAt,total_ms:finishedAt-startedAt,reused:!!cached,
     }});
   } catch (error) {
-    unsupported('runtime_failed', runtimeDiagnostic(error));
+    unsupported('runtime_failed', runtimeDiagnostic(error, runtimeStage));
   }
 };
