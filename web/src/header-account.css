@@ -3,6 +3,8 @@
 .topbar .nav-actions { gap:8px; }
 .topbar .nav-inner > nav { gap:4px; }
 .topbar .nav-inner > nav > :is(a,button) { display:inline-flex; justify-content:center; box-sizing:border-box; flex:none; min-width:0; padding-inline:12px; white-space:nowrap; }
+/* Center short labels within the space reserved for both translations. */
+.topbar .nav-inner > nav .bilingual-text { text-align:center; }
 .topbar .nav-inner > nav > .active::after { left:12px; right:12px; bottom:0; height:3px; border-radius:3px 3px 0 0; }
 .topbar .nav-inner > nav > :is(a,button):hover:not(:disabled) { color:var(--text); background:color-mix(in srgb,var(--text) 3%,transparent); }
 .topbar .nav-inner > nav > :is(a,button):focus-visible { outline-offset:-5px; border-radius:6px; }
