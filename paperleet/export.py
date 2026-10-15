@@ -104,7 +104,7 @@ def export_catalog():
         temp.replace(path)
 
     fields = {"id", "number", "paper_id", "short_id", "title", "difficulty", "type", "parent",
-              "paper", "functions", "module", "estimated_minutes", "tests", "starter", "browser_judge"}
+              "module", "estimated_minutes", "tests", "starter", "browser_judge"}
     index = []
     for data in catalog:
         raw = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
@@ -112,7 +112,12 @@ def export_catalog():
         relative = f"modules/{data['number']}-{digest}.json"
         write_json(destination.parent / relative, data)
         summary = {key: value for key, value in data.items() if key in fields}
-        summary.update(readme="", notes="", detail_url=relative,
+        # Paper cards already use the paper-level record. Full author/source
+        # metadata and function signatures belong to the selected module detail,
+        # like its statement. Keep the lightweight Problem shape for old clients.
+        # Starters remain exact: progress, random selection and backup review
+        # compare against them even before a module has been opened.
+        summary.update(readme="", notes="", paper={"title": ""}, functions=[], detail_url=relative,
                        translations={"en": {"title": data["translations"]["en"]["title"], "readme": "", "notes": ""}})
         index.append(summary)
     # Publish the manifest last so every referenced detail already exists.

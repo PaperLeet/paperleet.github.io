@@ -12,7 +12,12 @@ try {
   for (const item of index.problems) {
     assert(!item.readme && !item.notes && !item.solution && !item.vizData);
     assert(item.starter && item.tests && item.module);
+    assert.deepEqual(item.paper, { title: "" }, "Module-only paper metadata loads with the detail");
+    assert.deepEqual(item.functions, [], "Full signatures must not be duplicated in the homepage index");
     assert(fs.existsSync(`public/data/${item.detail_url}`));
+    const full = JSON.parse(fs.readFileSync(`public/data/${item.detail_url}`, "utf8"));
+    assert(full.paper?.title && full.functions.length, "Every maintained detail retains its paper and signatures");
+    assert.equal(item.starter, full.starter, "Progress and backup comparisons keep the exact starter");
   }
   const detail = JSON.parse(fs.readFileSync(`public/data/${summary.detail_url}`, "utf8"));
   const signal = new AbortController().signal;
@@ -26,6 +31,8 @@ try {
   }, signal);
   assert.equal(loaded.solution, detail.solution);
   assert.equal(loaded.readme, detail.readme);
+  assert.deepEqual(loaded.paper, detail.paper);
+  assert.deepEqual(loaded.functions, detail.functions);
   assert.equal(reads, 1);
   await assert.rejects(loadProblemDetail(summary, "/", async () => Response.json({ ...detail, id: "wrong" })));
   await assert.rejects(loadProblemDetail({ ...summary, detail_url: "https://untrusted.test/code" }, "/"));

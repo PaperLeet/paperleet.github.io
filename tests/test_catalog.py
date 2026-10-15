@@ -105,7 +105,9 @@ def test_nonstandard_statement_is_preserved():
 def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, monkeypatch):
     import hashlib
     monkeypatch.setenv("PAPERLEET_ROOT", str(tmp_path))
-    folder = package(tmp_path, "rl/demo", 1, title_en="Example")
+    paper = {"title": "Example paper", "authors": "Researcher", "anchors": ["Source anchor " * 1000]}
+    functions = [{"name": "solve", "signature": "solve(" + "parameter: Tensor, " * 1000 + ") -> Tensor"}]
+    folder = package(tmp_path, "rl/demo", 1, title_en="Example", paper=paper, functions=functions)
     (folder / "README.md").write_text("Full statement " * 2000)
     (folder / "starter.py").write_text("def solve(): pass\n")
     (folder / "solution.py").write_text("reference source")
@@ -118,9 +120,12 @@ def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, m
     assert summary["starter"] == "def solve(): pass\n"
     assert not summary["readme"] and not summary["notes"]
     assert "solution" not in summary and "vizData" not in summary
+    assert summary["paper"] == {"title": ""} and summary["functions"] == []
+    assert index["papers"][0]["title"] == paper["title"], "Paper cards retain their actual metadata"
     detail_path = full_path.parent / summary["detail_url"]
     detail = json.loads(detail_path.read_text())
     assert detail == json.loads(full_path.read_text())["problems"][0]
+    assert detail["paper"] == paper and detail["functions"] == functions
     assert hashlib.sha256(detail_path.read_bytes()).hexdigest()[:20] in detail_path.name
     assert index_path.stat().st_size < full_path.stat().st_size / 5
     (folder / "solution.py").write_text("updated reference source")
