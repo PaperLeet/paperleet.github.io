@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "companies": [
+    {"id":"openai","name":"OpenAI","name_en":"OpenAI","initials":"O"},
+    {"id":"google","name":"Google / DeepMind","name_en":"Google / DeepMind","initials":"G"},
+    {"id":"meta","name":"Meta","name_en":"Meta","initials":"M"},
+    {"id":"amazon","name":"Amazon","name_en":"Amazon","initials":"A"},
+    {"id":"microsoft","name":"微软","name_en":"Microsoft","initials":"MS"},
+    {"id":"apple","name":"Apple","name_en":"Apple","initials":"A"},
+    {"id":"nvidia","name":"NVIDIA","name_en":"NVIDIA","initials":"N"},
+    {"id":"anthropic","name":"Anthropic","name_en":"Anthropic","initials":"A"},
+    {"id":"bytedance","name":"字节跳动","name_en":"ByteDance","initials":"B"},
+    {"id":"alibaba","name":"阿里巴巴","name_en":"Alibaba","initials":"AL"},
+    {"id":"tencent","name":"腾讯","name_en":"Tencent","initials":"T"},
+    {"id":"baidu","name":"百度","name_en":"Baidu","initials":"B"},
+    {"id":"meituan","name":"美团","name_en":"Meituan","initials":"MT"},
+    {"id":"kuaishou","name":"快手","name_en":"Kuaishou","initials":"K"},
+    {"id":"deepseek","name":"DeepSeek","name_en":"DeepSeek","initials":"D"},
+    {"id":"xai","name":"xAI","name_en":"xAI","initials":"X"},
+    {"id":"tesla","name":"Tesla","name_en":"Tesla","initials":"T"},
+    {"id":"other","name":"其他公司","name_en":"Other companies","initials":"…"}
+  ],
+  "roles":[{"id":"ml","name":"机器学习工程","name_en":"ML engineering"},{"id":"llm","name":"大模型算法","name_en":"LLM engineering"},{"id":"recommendation","name":"推荐 / 搜索 / 广告","name_en":"Recommendation / search / ads"},{"id":"research","name":"研究科学家","name_en":"Research scientist"},{"id":"software","name":"软件工程","name_en":"Software engineering"},{"id":"data","name":"数据科学","name_en":"Data science"},{"id":"other","name":"其他岗位","name_en":"Other roles"}],
+  "stages":[{"id":"screen","name":"电话初筛","name_en":"Phone screen"},{"id":"assessment","name":"在线测评","name_en":"Online assessment"},{"id":"technical","name":"技术面试","name_en":"Technical interview"},{"id":"system-design","name":"系统设计","name_en":"System design"},{"id":"research","name":"研究交流","name_en":"Research discussion"},{"id":"onsite","name":"现场 / 终面","name_en":"Onsite / final loop"},{"id":"behavioral","name":"行为面试","name_en":"Behavioral interview"}],
+  "outcomes":[{"id":"unknown","name":"不便透露","name_en":"Not shared"},{"id":"pending","name":"等待结果","name_en":"Pending"},{"id":"offer","name":"获得 Offer","name_en":"Offer"},{"id":"rejected","name":"未通过","name_en":"Not selected"},{"id":"withdrew","name":"主动退出","name_en":"Withdrew"}],
+  "resources":[
+    {"id":"amazon-science","company":"amazon","name":"Applied Scientist 官方准备指南","name_en":"Applied Scientist preparation","url":"https://www.amazon.jobs/content/en/how-we-hire/applied-scientist-interview-prep","description":"结合建模假设、算法实现和实验设计复习技术基础，再准备能够说明决策与成长的项目案例。","description_en":"Review modeling assumptions, implementation and experiments, and prepare project examples that explain your decisions and growth.","checked":"2026-10-15"},
+    {"id":"microsoft-technical","company":"microsoft","name":"技术面试官方指南","name_en":"Technical interviewing guide","url":"https://careers.microsoft.com/v2/global/en/hiring-tips/technical-interviewing","description":"练习澄清问题、实现与测试边界条件，并准备讲清模型评估、训练流程和系统设计中的取舍。","description_en":"Practice clarifying requirements, implementing and testing edge cases, and explaining trade-offs in model evaluation, training and systems.","checked":"2026-10-15"},
+    {"id":"openai-interview","company":"openai","name":"OpenAI 官方面试指南","name_en":"OpenAI interview guide","url":"https://openai.com/interview-guide/","description":"从官方介绍了解面试安排与准备建议；具体流程以招聘团队沟通为准。","description_en":"Read the official overview for interview preparation; confirm role-specific details with your recruiting team.","checked":"2026-10-15"}
+  ],
+  "paths":[
+    {"id":"llm","name":"大模型算法准备","name_en":"LLM foundations","description":"从注意力与归一化，到高效微调和偏好优化。","description_en":"From attention and normalization to efficient fine-tuning and preference optimization.","modules":["architecture/attention","architecture/multihead_attention","architecture/layer_norm","architecture/rms_norm","architecture/rope","finetuning/lora","finetuning/qlora","rl/dpo"]},
+    {"id":"recommendation","name":"推荐与检索准备","name_en":"Recommendation & retrieval","description":"梳理排序目标、序列推荐、图协同过滤和向量检索。","description_en":"Review ranking objectives, sequential recommendation, graph collaborative filtering and retrieval.","modules":["retrieval/bpr","retrieval/sasrec","retrieval/lightgcn","retrieval/late_interaction","retrieval/semantic_ids","retrieval/generative_retrieval"]},
+    {"id":"training","name":"训练与实验基础","name_en":"Training & experimentation","description":"实现优化器、扩散过程和策略优化，用测试解释算法行为。","description_en":"Implement optimizers, diffusion and policy optimization, and use tests to explain behavior.","modules":["optimization/adamw","optimization/muon_split","diffusion/schedules","diffusion/ddpm_sampling","diffusion/flow_matching","rl/ppo_clip","rl/grpo"]}
+  ]
+}

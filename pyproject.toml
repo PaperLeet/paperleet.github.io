@@ -21,6 +21,9 @@ packages = ["paperleet", "paperleet.browser", "paperleet.common", "paperleet.jud
 [tool.setuptools.package-dir]
 "paperleet._vendor.torch" = "packages/paperleet-torch/src/paperleet_torch"
 
+[tool.setuptools.package-data]
+paperleet = ["interview_catalog.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests", "problems"]
 addopts = "--import-mode=importlib"
