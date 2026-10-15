@@ -57,7 +57,7 @@ export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
 
 export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onGuide,onBackup,backupReady,savedAvailable=false}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void;savedAvailable?:boolean}) {
   const {locale,setLocale,t}=useI18n();
-  const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好自动保存；访客代码仅在当前页面保留','Preferences save here; guest code lasts only for this page')}</small></span>{user&&<ChevronRight size={16}/>}</>;
+  const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好和游客草稿自动保存在当前浏览器','Preferences and guest drafts save in this browser')}</small></span>{user&&<ChevronRight size={16}/>}</>;
   return <>
     {user?<a className="account-menu-identity" href={hostedAppHref(profileHref(user))} onClick={onClose}>{identity}</a>:<div className="account-menu-identity">{identity}</div>}
     {!user&&hostedAppAvailable&&<a className="account-menu-signin button" href={hostedAppHref(signInHref(returnTo))} onClick={onClose}>{loading?t('正在检查登录状态…','Checking sign-in…'):t('登录账号','Sign in')}<ChevronRight size={14}/></a>}

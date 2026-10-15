@@ -416,7 +416,7 @@ function Workspace() {
       if (!ownsRun()) return;
       if (publicSite) {
         if (!hostedAppAvailable) {
-          setToast(t("当前版本暂未开放服务端提交。未登录的代码仅在当前页面保留。", "Server submissions are not available yet. Guest code lasts only while this page stays open."));
+          setToast(t("当前版本暂未开放服务端提交。", "Server submissions are not available yet."));
           return;
         }
         location.assign(hostedAppHref(signInHref(id)));
@@ -470,10 +470,10 @@ function Workspace() {
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
-    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」可在浏览器执行完整测试；全部通过后解锁坑点。登录后点击 Submit，服务端会保存提交时的代码和判题结果，可在「我的提交」中查看。未登录时，代码和进度仅在当前页面保留，刷新或离开后不保存。", "Complete the implementation and select Run tests to run the full suite in your browser. Passing unlocks Notes. Sign in and use Submit to save the submitted code and server result in My submissions. Guest code and progress last only while this page stays open and are cleared on refresh or exit.") : t("在右侧完成实现，登录后点击 Submit，由服务端执行完整测试并保存提交时的代码和结果，可在「我的提交」中查看。未登录的代码仅在当前页面保留。", "Complete the implementation, sign in, and use Submit to run the full suite on the server. The submitted code and result are kept in My submissions. Guest code lasts only while this page stays open.")}\n`,
+    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」在浏览器执行，通过后解锁坑点。登录后 Submit 可保存解答和结果到「我的提交」。", "Write code on the right, then Run tests in your browser to unlock Notes. Sign in and Submit to save your solution and server result in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
   );
-  const workspaceSaveState = practice.loading || !practice.ready ? "loading"
-    : practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
+  const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
+    : practice.loading || !practice.ready ? "loading"
     : practice.saving || practice.pending ? "saving" : "saved";
   return (
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
@@ -1046,30 +1046,23 @@ function Workspace() {
                       {workspaceSaveState === "warning" ? <AlertCircle size={12} /> : workspaceSaveState === "loading" || workspaceSaveState === "saving" ? <Loader2 className="save-spinner" size={12} /> : <Check size={12} />}
                       {practice.loading
                         ? t("正在加载工作区…", "Loading workspace…")
-                        : !user
-                          ? t('未登录 · 刷新或离开后代码不保留', 'Not signed in · code is cleared on refresh or exit')
-                        : hosted
-                          ? !user
-                            ? t(
-                                "未登录的代码仅在当前页面保留",
-                                "Guest code lasts only while this page stays open",
-                              )
-                            : practice.error
-                              ? t(
-                                  "同步失败，草稿保留在当前浏览器",
-                                  "Sync failed · draft kept in this browser",
-                                )
-                              : practice.conflicts[problem.id]
-                                ? t(
-                                    "草稿版本冲突，请选择保留的版本",
-                                    "Draft conflict · choose a version below",
-                                  )
-                                : practice.saving || practice.pending
-                                  ? t("正在同步草稿…", "Syncing draft…")
-                                  : t("已同步到账号", "Synced to your account")
-                          : current.code !== undefined
-                            ? t("代码仅在当前页面保留", "Code is kept only on this page")
-                            : t("初始代码", "Starter code")}
+                        : !practice.ready
+                          ? t("工作区暂不可用", "Workspace unavailable")
+                        : practice.error
+                          ? browserWorkspace
+                            ? t("本地保存失败，请重试", "Local save failed · retry")
+                            : t("同步失败，草稿保留在当前浏览器", "Sync failed · draft kept in this browser")
+                        : practice.conflicts[problem.id]
+                          ? t("草稿版本冲突，请选择保留的版本", "Draft conflict · choose a version below")
+                        : practice.saving || practice.pending
+                          ? browserWorkspace
+                            ? t("正在保存到当前浏览器…", "Saving in this browser…")
+                            : t("正在同步草稿…", "Syncing draft…")
+                        : browserWorkspace
+                          ? current.code !== undefined
+                            ? t("已保存到当前浏览器", "Saved in this browser")
+                            : t("初始代码 · 编辑后自动保存到本地", "Starter code · edits save locally")
+                          : t("已同步到账号", "Synced to your account")}
                     </span>
                     <span>
                       UTF-8 <i>·</i> Python
@@ -1095,7 +1088,7 @@ function Workspace() {
                     {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}</p>}
                     <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"} measurement={report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined}/>
                   </div>}
-                  {!problem.browser_judge && <div className="server-judge-panel"><strong>{t('服务端 CPU 判题', 'Server CPU judging')}</strong><small>{t('在网页完成实现后提交，服务端执行完整测试并返回结果。', 'Implement on the web, then submit for the complete suite and feedback from the server.')}</small>{hosted && !user && <small>{t('登录后可提交并保存解答；未登录的代码仅在当前页面保留。', 'Sign in to submit and save your solution. Guest code lasts only while this page stays open.')}</small>}</div>}
+                  {!problem.browser_judge && <div className="server-judge-panel"><strong>{t('服务端 CPU 判题', 'Server CPU judging')}</strong><small>{t('在网页完成实现后提交，服务端执行完整测试并返回结果。', 'Implement on the web, then submit for the complete suite and feedback from the server.')}</small></div>}
                   {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
                   {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
                     <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
@@ -1119,8 +1112,8 @@ function Workspace() {
                         <>
                           <span>
                             {t(
-                              browserWorkspace ? "另一标签页修改了这道题。两个版本均已保留，请核对后选择。" : "其他设备更新了这道题的草稿。选择保留哪个版本；当前代码尚未覆盖服务器。",
-                              browserWorkspace ? "Another tab changed this module. Both versions are kept; review them before choosing." : "Another device updated this draft. Choose which version to keep; your current code has not overwritten the server.",
+                              browserWorkspace ? "另一标签页更新了这道题的草稿。请选择保留当前代码或使用另一版本；也可先下载当前代码。" : "其他设备更新了这道题的草稿。选择保留哪个版本；当前代码尚未覆盖服务器。",
+                              browserWorkspace ? "Another tab updated this draft. Keep your current code or use the other version; you can download your current code first." : "Another device updated this draft. Choose which version to keep; your current code has not overwritten the server.",
                             )}
                           </span>
                           <button
@@ -1184,7 +1177,7 @@ function Workspace() {
                       )}
                     </div>
                   )}
-                  {!user && <div className="practice-notice" role="status"><span>{t('未登录时不保存代码和练习记录。请先登录再开始需要保存的解答；登录跳转后当前代码不会自动带入。', 'Guest code and practice records are not saved. Sign in before starting a solution you want to keep; your current code will not transfer through sign-in.')}</span>{hostedAppAvailable && <button onClick={signInToSubmit}>{t('登录', 'Sign in')}</button>}</div>}
+                  {!user && <div className="practice-notice" role="status"><span>{t('游客草稿自动保存在此浏览器，刷新可恢复。清除网站数据会删除草稿；不会跨设备同步。', 'Guest drafts save in this browser and survive reloads. Clearing site data deletes them; they do not sync.')}</span>{hostedAppAvailable && <button onClick={signInToSubmit}>{t('登录', 'Sign in')}</button>}</div>}
                   <div className="console">
                     <ReportSourceNotice state={reportSource} />
                     <div className="console-header">

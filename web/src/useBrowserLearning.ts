@@ -4,7 +4,7 @@ import type { createLearningController, LearningCommand, LearningView } from './
 import type { Problem, Report } from './types';
 
 type Runtime={owner:string;pending:LearningCommand[];controller?:ReturnType<typeof createLearningController>};
-/** Browser feedback for guests is already held in memory by useBrowserJudge. */
+/** Guest feedback is persisted with its draft by useGuestWorkspace. */
 export const persistsBrowserLearning = (owner:string) => owner.startsWith('user:') && learningOwner(owner);
 const empty=(owner:string):LearningView=>({owner,records:{},ready:!persistsBrowserLearning(owner),failed:false,saving:false});
 export function useBrowserLearning(owner:string) {

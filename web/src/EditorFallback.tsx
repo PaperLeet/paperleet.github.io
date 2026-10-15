@@ -28,8 +28,8 @@ export function EditorFailure({ value, readOnly, font, label: accessibleLabel, o
   return <div className="editor-fallback">
     {recovery ? <div className="feature-failure editor-recovery-notice">
       <p role="alert">{t('代码编辑器暂时无法加载。', 'The code editor could not load.')}</p>
-      <p>{t('可以继续用普通文本模式编辑和运行。重新加载会刷新此页；账号中已保存的解答会保留，游客代码会丢失。',
-        'You can keep editing and running in plain-text mode. Reloading refreshes this page; solutions saved to your account are kept, but guest code is lost.')}</p>
+      <p>{t('可以继续用普通文本模式编辑和运行。重新加载会刷新此页，恢复已保存的游客草稿和账号解答。',
+        'You can edit and run in plain-text mode. Reloading restores saved guest drafts and account solutions.')}</p>
       <button className="button subtle" type="button" disabled={recovery.blocked} onClick={recovery.reload}>{t('重新加载编辑器', 'Reload editor')}</button>
       {recovery.reason && <p role="status">{recovery.reason}</p>}
     </div> : <FeatureFailure label={label} retry={retry}><small>{t('已切换为普通文本模式，可以继续编辑、保存和运行。', 'Plain-text mode is available. You can keep editing, saving and running your code.')}</small></FeatureFailure>}

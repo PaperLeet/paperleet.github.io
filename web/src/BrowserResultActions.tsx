@@ -13,7 +13,7 @@ export function BrowserResultActions({ problem, report, sourceState, signedIn, o
   const explanations = {
     busy: t('正在处理判题任务；服务端返回结果后更新账号成绩。', 'A judging task is in progress. Account results update when the server returns its report.'),
     failed: t('先根据失败原因修改代码，再运行完整测试。', 'Use the failure details to improve your code, then run the complete suite.'),
-    signin: t('登录后提交可保存解答和成绩。未登录的代码不会保存或自动带入账号。', 'Sign in and submit to save your solution and results. Guest code is not saved or transferred to your account.'),
+    signin: t('游客草稿自动保存在当前浏览器。登录后提交可将解答和成绩保存到账号；游客草稿不会自动并入账号。', 'Guest drafts save automatically in this browser. Sign in and submit to save solutions and results to your account; guest drafts stay separate.'),
     workspace: t('正在加载账号工作区，稍后可确认。', 'Your account workspace is loading. Verification will be available shortly.'),
     conflict: t('请先解决下方的账号草稿版本冲突。', 'Resolve the account draft conflict below before verifying.'),
     sync: t('草稿同步尚未完成，请先重试同步。', 'Draft synchronization needs attention. Retry syncing first.'),

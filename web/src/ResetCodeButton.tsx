@@ -48,8 +48,8 @@ export function ResetCodeButton({ owner, problem, saved, ready, busy, conflict, 
           'This replaces the editor code. Submitted solutions and results are kept.')}</p>
         <p>{signedIn ? t('账号草稿会同步更新。之前提交的代码可在「我的提交」中查看。',
           'Your account draft will sync. Previous submitted code is available in My submissions.')
-          : t('未登录的代码没有保存，恢复后将无法找回当前代码。',
-          'Guest code is not saved. Restoring the starter discards your current code.')}</p>
+          : t('这会替换当前浏览器中的草稿。如需保留当前代码，请先复制或下载。',
+          'This replaces the draft in this browser. Copy or download your current code first if you want to keep it.')}</p>
         <details><summary>{t('查看将被替换的代码', 'Review code to be replaced')}</summary>
           <pre tabIndex={0}>{review.source || t('空文件（0 字节）', 'Empty file (0 bytes)')}</pre>
         </details>
