@@ -18,7 +18,7 @@ functions:
     -> Tensor'
 module:
   goal: 同时处理标签错位、回答掩码、padding 与有效 token 平均。
-  goal_en: 'SFT Loss Mask: Train on Response Tokens'
+  goal_en: Shift targets, mask prompt and padding tokens, and average loss over valid response tokens.
   scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
   scope_en: Implement one core function; independent tests and deterministic synthetic experiments
     are provided.

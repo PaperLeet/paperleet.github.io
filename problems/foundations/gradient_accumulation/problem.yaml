@@ -17,7 +17,7 @@ functions:
   signature: 'accumulate_gradients(gradients: list[Tensor], token_counts: list[int]) -> Tensor'
 module:
   goal: 让不等长 microbatch 的平均梯度等价于一个有效 token 大 batch。
-  goal_en: 'Gradient Accumulation: Valid-token Weighting'
+  goal_en: Weight microbatch gradients by valid token counts to match one combined batch.
   scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
   scope_en: Implement one core function; independent tests and deterministic synthetic experiments
     are provided.
