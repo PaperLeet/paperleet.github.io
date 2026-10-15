@@ -1,0 +1,50 @@
+--- a/__init__.py
++++ b/__init__.py
+@@ -6,7 +6,7 @@
+ """
+ from ._integration import as_torch, create_torch, install_as_torch
+ 
+-__version__ = '0.12.0'
++__version__ = '0.11.0'
+ __all__ = ['torch', 'Tensor', 'UnsupportedOperation', 'create_torch', 'as_torch',
+            'install_as_torch']
+ _namespace = None
+--- a/_construction.py
++++ b/_construction.py
+@@ -18,11 +18,9 @@
+ _SCALARS.update({np.dtype(char).type: np.dtype(char) for char in '?bBhHiIlLqQefdFD'})
+ 
+ 
+-def promote_types(type1, type2):
++def promote_types(left, right):
+     """Promote supported storage dtypes using Torch's category/width rules."""
+-    if type1 is None or type2 is None:
+-        raise TypeError('promote_types expects two dtypes')
+-    left, right = _conversion.dtype(type1), _conversion.dtype(type2)
++    left, right = _conversion.dtype(left), _conversion.dtype(right)
+     if left == right:
+         return left
+     if left.kind != 'c' and right.kind != 'c':
+--- a/_ops.py
++++ b/_ops.py
+@@ -113,20 +113,6 @@
+                     with np.errstate(all='ignore'):
+                         return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+                 return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+-        if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) in (int, bool):
+-            scalar_kind = type(data[0])
+-            homogeneous, overflow = True, False
+-            for value in data:
+-                if type(value) is not scalar_kind:
+-                    homogeneous = False
+-                    break
+-                if scalar_kind is int and not -(2**63) <= value < 2**63:
+-                    overflow = True
+-            if homogeneous:
+-                if overflow:
+-                    raise ValueError('Overflow when unpacking long long')
+-                return _tensor.Tensor(data, dtype=np.int64 if scalar_kind is int else np.bool_,
+-                                      requires_grad=requires_grad, _metadata_owned=True)
+     if isinstance(data, _tensor.Tensor):
+         array = data._data
+     elif isinstance(data, np.ndarray):

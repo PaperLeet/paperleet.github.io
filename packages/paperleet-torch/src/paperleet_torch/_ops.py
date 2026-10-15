@@ -98,6 +98,8 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
             return _tensor.Tensor(data, dtype=np.int64, requires_grad=requires_grad, _metadata_owned=True)
         if kind is bool:
             return _tensor.Tensor(data, dtype=np.bool_, requires_grad=requires_grad, _metadata_owned=True)
+        if isinstance(data, np.generic) and data.dtype != np.dtype('uint64'):
+            return _tensor.Tensor(data, requires_grad=requires_grad, _metadata_owned=True)
         if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) is float:
             floats, guard = True, False
             for value in data:
@@ -111,17 +113,28 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
                     with np.errstate(all='ignore'):
                         return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
                 return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+        if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) in (int, bool):
+            scalar_kind = type(data[0])
+            homogeneous, overflow = True, False
+            for value in data:
+                if type(value) is not scalar_kind:
+                    homogeneous = False
+                    break
+                if scalar_kind is int and not -(2**63) <= value < 2**63:
+                    overflow = True
+            if homogeneous:
+                if overflow:
+                    raise ValueError('Overflow when unpacking long long')
+                return _tensor.Tensor(data, dtype=np.int64 if scalar_kind is int else np.bool_,
+                                      requires_grad=requires_grad, _metadata_owned=True)
     if isinstance(data, _tensor.Tensor):
         array = data._data
     elif isinstance(data, np.ndarray):
         _numpy_input(data)
         array = data
     else:
-        array = np.asarray(data)
-        if array.dtype.char not in '?bBhHiIlLqQefdFD':
-            raise TypeError('Unsupported Tensor input dtype: ' + str(array.dtype))
-    if dtype is None and not isinstance(data, (_tensor.Tensor, np.ndarray, np.generic)):
-        dtype = np.float32 if array.dtype.kind == 'f' else np.complex64 if array.dtype.kind == 'c' else np.int64 if array.dtype.kind in 'iu' else None
+        owned = _construction.array(data, dtype)
+        return _tensor.Tensor(owned, requires_grad=requires_grad, _metadata_owned=True)
     # torch.tensor always owns a copy, including NumPy inputs and strided views.
     if dtype is not None and np.dtype(dtype) != array.dtype:
         with np.errstate(all='ignore'): owned = np.array(array, dtype=dtype, copy=True)
@@ -373,4 +386,4 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _conversion, _device, _errors, _state, _tensor
+from . import _autograd, _construction, _conversion, _device, _errors, _state, _tensor

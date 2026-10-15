@@ -137,6 +137,17 @@ restoration. Balanced CPU/WASM/Chrome measurements preserve both improvements
 and import/checking costs; 71-module integration, standalone wheel and browser
 contracts pass. Apache-2.0 resources remain part of every distribution profile.
 
+## Version 0.12 milestone
+
+Recursive sequence inference preserves NumPy scalar widths and precision, using
+Torch category/width promotion and native scalar storage protocols. Public
+promote_types and ordinary dtype aliases expose the same supported rules.
+Primitive vectors/rows use batch checks, while small builtin sequences and NumPy
+scalars avoid extra allocations. Native-reference matrices and standalone CPU/
+WASM workflows cover precision, copies, gradients, bounds and invalid inputs.
+Balanced CPU/WASM/Chrome performance, independent distribution and 71-module
+integration gates pass; large-sequence checking costs remain explicit targets.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

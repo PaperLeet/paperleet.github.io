@@ -1,0 +1,197 @@
+--- a/__init__.py
++++ b/__init__.py
+@@ -6,7 +6,7 @@
+ """
+ from ._integration import as_torch, create_torch, install_as_torch
+ 
+-__version__ = '0.12.0'
++__version__ = '0.11.0'
+ __all__ = ['torch', 'Tensor', 'UnsupportedOperation', 'create_torch', 'as_torch',
+            'install_as_torch']
+ _namespace = None
+--- a/_api.py
++++ b/_api.py
+@@ -92,7 +92,7 @@
+         setattr(torch.optim.lr_scheduler, name, getattr(_schedulers, name))
+ 
+     registry = _registry.OperatorRegistry(modules)
+-    registry.add('torch.promote_types', _construction.promote_types, reverse='control', forward=True)
++    registry.add('torch.promote_types', _ops._construction.promote_types, reverse='control', forward=True)
+     registry.group('torch.cuda', {'is_available': lambda: False, 'device_count': lambda: 0,
+                                  'is_initialized': lambda: False})
+     registry.group('torch', {'tensor': _ops.tensor, 'as_tensor': _ops.as_tensor}, reverse='factory', forward=True)
+@@ -210,4 +210,4 @@
+ 
+ 
+ # Late module references break Tensor/autograd/operator cycles without rebinding functions.
+-from . import _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor
++from . import _activation, _autograd, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor
+--- a/_construction.py
++++ b/_construction.py
+@@ -2,7 +2,6 @@
+ import math
+ import operator
+ from collections.abc import Mapping
+-from itertools import chain
+ 
+ import numpy as np
+ 
+@@ -18,11 +17,9 @@
+ _SCALARS.update({np.dtype(char).type: np.dtype(char) for char in '?bBhHiIlLqQefdFD'})
+ 
+ 
+-def promote_types(type1, type2):
++def promote_types(left, right):
+     """Promote supported storage dtypes using Torch's category/width rules."""
+-    if type1 is None or type2 is None:
+-        raise TypeError('promote_types expects two dtypes')
+-    left, right = _conversion.dtype(type1), _conversion.dtype(type2)
++    left, right = _conversion.dtype(left), _conversion.dtype(right)
+     if left == right:
+         return left
+     if left.kind != 'c' and right.kind != 'c':
+@@ -40,7 +37,8 @@
+ 
+ def _sequence(value):
+     # Tensor implements indexing but is a scalar leaf in this constructor.
+-    return (not isinstance(value, (_tensor.Tensor, Mapping, np.generic))
++    from ._tensor import Tensor
++    return (not isinstance(value, (Tensor, Mapping, np.generic))
+             and hasattr(type(value), '__getitem__'))
+ 
+ 
+@@ -63,7 +61,8 @@
+         return result
+     if isinstance(data, (np.ndarray, np.generic)):
+         return _conversion.dtype(data.dtype).newbyteorder('=')
+-    if isinstance(data, _tensor.Tensor):
++    from ._tensor import Tensor
++    if isinstance(data, Tensor):
+         return data.dtype
+     if isinstance(data, (float, int, complex)):
+         return _FLOAT if isinstance(data, float) else _LONG if isinstance(data, int) else _COMPLEX
+@@ -135,7 +134,8 @@
+         if isinstance(value, (int, float, complex, np.bool_)):
+             return bool(value)
+         return bool(operator.index(value))
+-    if isinstance(value, _tensor.Tensor):
++    from ._tensor import Tensor
++    if isinstance(value, Tensor):
+         value = value.item()
+     return float(value) if kind == 'f' else complex(value)
+ 
+@@ -150,74 +150,10 @@
+     return [_store(value, shape, dtype, level + 1) for value in data]
+ 
+ 
+-def _flat(data, dtype):
+-    """Batch primitive vectors/rows without per-element Python conversion."""
+-    types = set(map(type, data))
+-    if types and types <= {list, tuple}:
+-        types = set(map(type, chain.from_iterable(data)))
+-    if not types or not types <= _SCALARS.keys():
+-        return None
+-    if dtype is None:
+-        dtypes = {_SCALARS[kind] for kind in types}
+-        if len(dtypes) > 1 and any(value.kind == 'u' and value.itemsize > 1 for value in dtypes):
+-            # Wider unsigned promotion can be order-dependent after a floating
+-            # or maximal-complex element. Keep the ordered inference path.
+-            return None
+-        dtype = next(iter(dtypes))
+-        for other in dtypes:
+-            if dtype != other:
+-                dtype = promote_types(dtype, other)
+-    kind = dtype.kind
+-    if kind in 'fc':
+-        if kind == 'f' and complex in types:
+-            return None
+-        return np.array(data, dtype=dtype)
+-    if kind == 'b':
+-        if not all(issubclass(value, (int, float, complex, np.bool_, np.integer)) for value in types):
+-            return None
+-        return np.array(data, dtype=dtype)
+-    if dtype == np.dtype('uint64') and not types <= {int, bool}:
+-        return None
+-    integral = all(issubclass(value, (int, np.integer)) for value in types)
+-    floating = all(issubclass(value, float) for value in types)
+-    if not integral and not floating:
+-        return None
+-    source = np.asarray(data)
+-    bits = dtype.itemsize * 8
+-    if integral:
+-        if source.dtype.kind not in 'biu':
+-            return None
+-        low, high = int(source.min()), int(source.max())
+-        if dtype == np.dtype('uint64'):
+-            if low < 0 or high >= 2**64:
+-                raise OverflowError('Integer is outside uint64 storage range')
+-        elif low < -(2**63) or high >= 2**63:
+-            raise ValueError('Overflow when unpacking long long')
+-        elif kind == 'u':
+-            if low < -(2**bits-1) or high >= 2**bits:
+-                raise RuntimeError('Value cannot be converted to ' + str(dtype) + ' without overflow')
+-        elif low < -(2**(bits-1)) or high >= 2**(bits-1):
+-            raise RuntimeError('Value cannot be converted to ' + str(dtype) + ' without overflow')
+-    else:
+-        truncated = np.trunc(source)
+-        minimum = 0. if kind == 'u' else -float(2**(bits-1))
+-        maximum = float(2**bits if kind == 'u' else 2**(bits-1))
+-        if (not np.isfinite(source).all() or (source < 0).any() and kind == 'u'
+-                or (truncated < minimum).any() or (truncated >= maximum).any()):
+-            raise RuntimeError('Value cannot be converted to ' + str(dtype) + ' without overflow')
+-    # np.asarray(list/tuple) owns this fresh allocation; no caller data aliases it.
+-    return source if source.dtype == dtype else source.astype(dtype)
+-
+-
+ def array(data, dtype=None):
+     """Create one owned array, retaining NumPy scalar precision in sequences."""
+     if isinstance(data, (str, bytes)):
+         raise TypeError('Strings cannot be tensor data')
+-    if type(data) in (list, tuple):
+-        with np.errstate(all='ignore'):
+-            result = _flat(data, dtype)
+-        if result is not None:
+-            return result
+     shape = _shape(data)
+     inferred = dtype is None
+     if inferred:
+@@ -237,7 +173,3 @@
+         if result.shape != shape:
+             result = np.array(_store(data, shape, dtype), dtype=dtype, copy=True)
+         return result
+-
+-
+-# Keep a module reference across the Tensor/operator import cycle, as _ops does.
+-from . import _tensor
+--- a/_ops.py
++++ b/_ops.py
+@@ -98,8 +98,6 @@
+             return _tensor.Tensor(data, dtype=np.int64, requires_grad=requires_grad, _metadata_owned=True)
+         if kind is bool:
+             return _tensor.Tensor(data, dtype=np.bool_, requires_grad=requires_grad, _metadata_owned=True)
+-        if isinstance(data, np.generic) and data.dtype != np.dtype('uint64'):
+-            return _tensor.Tensor(data, requires_grad=requires_grad, _metadata_owned=True)
+         if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) is float:
+             floats, guard = True, False
+             for value in data:
+@@ -113,20 +111,6 @@
+                     with np.errstate(all='ignore'):
+                         return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+                 return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+-        if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) in (int, bool):
+-            scalar_kind = type(data[0])
+-            homogeneous, overflow = True, False
+-            for value in data:
+-                if type(value) is not scalar_kind:
+-                    homogeneous = False
+-                    break
+-                if scalar_kind is int and not -(2**63) <= value < 2**63:
+-                    overflow = True
+-            if homogeneous:
+-                if overflow:
+-                    raise ValueError('Overflow when unpacking long long')
+-                return _tensor.Tensor(data, dtype=np.int64 if scalar_kind is int else np.bool_,
+-                                      requires_grad=requires_grad, _metadata_owned=True)
+     if isinstance(data, _tensor.Tensor):
+         array = data._data
+     elif isinstance(data, np.ndarray):

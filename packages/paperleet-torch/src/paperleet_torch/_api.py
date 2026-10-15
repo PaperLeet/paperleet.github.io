@@ -17,6 +17,10 @@ def create_torch(name='torch', *, register=False):
     torch.float, torch.double = torch.float32, torch.float64
     torch.long, torch.int64, torch.bool = np.dtype('int64'), np.dtype('int64'), np.dtype('bool')
     torch.int, torch.int32, torch.uint8 = np.dtype('int32'), np.dtype('int32'), np.dtype('uint8')
+    for dtype in ('float16', 'int8', 'int16', 'uint16', 'uint32', 'uint64'):
+        setattr(torch, dtype, np.dtype(dtype))
+    torch.half, torch.short, torch.char = torch.float16, torch.int16, torch.int8
+    torch.cfloat, torch.cdouble = torch.complex64, torch.complex128
     torch.inf, torch.pi = np.inf, np.pi
     torch.device, torch.finfo = _device.Device, np.finfo
     root_name = name
@@ -88,6 +92,7 @@ def create_torch(name='torch', *, register=False):
         setattr(torch.optim.lr_scheduler, name, getattr(_schedulers, name))
 
     registry = _registry.OperatorRegistry(modules)
+    registry.add('torch.promote_types', _construction.promote_types, reverse='control', forward=True)
     registry.group('torch.cuda', {'is_available': lambda: False, 'device_count': lambda: 0,
                                  'is_initialized': lambda: False})
     registry.group('torch', {'tensor': _ops.tensor, 'as_tensor': _ops.as_tensor}, reverse='factory', forward=True)
@@ -205,4 +210,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _activation, _autograd, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor
+from . import _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor

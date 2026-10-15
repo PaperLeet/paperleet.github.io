@@ -39,6 +39,13 @@ clock quantization; every result records its actual iteration count.
 `numpy_export` and `numpy_array_protocol` separately measure shared-data exports
 and use 100 times the inner count for their sub-microsecond metadata operations.
 
+The 0.12 construction suite has 24 cases, adding small integer/boolean lists,
+64/4,096-element Python vectors, explicit floating/integer storage and nested
+primitive rows. Every new case checks values/dtype outside timing, and reports
+shape/dtype contracts for comparison across versions. Large 4,096-element cases
+use `max(1, iterations // 40)` calls per batch. Source/destination fixtures are
+prepared before timing; complete Tensor allocation and cleanup remain included.
+
 `bench_tensor_hooks.py` measures plain leaf/graph backward, retained non-leaf
 backward, leaf observers/transforms/post-accumulation callbacks, intermediate
 registration/dispatch and explicit registration/removal. Each case uses a

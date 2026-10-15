@@ -186,3 +186,24 @@ sequence promotion, gradient payloads through metadata-only reverse paths,
 remaining callback/retention costs, unexplained AdamW variation and broader NN
 coverage. Resident WebGPU work remains an evaluated optional backend rather than
 a supported execution mode; no PyPI publication is made.
+
+## Main adoption and deployed verification
+
+Commit `29201db58be1d81258c5f1434b22a62f5b4c0824` is integrated into main.
+Its exact-commit [quality run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38792197827)
+succeeds: 2,646 tests, one optional Docker skip and six warnings in 460.13 seconds;
+71 original native modules execute 9,372 tests across three repeats and catch all
+312 mutants in 392.94 seconds. All seven pinned WASM suites pass.
+
+Concurrent application work superseded that commit's Pages job. The successful
+[Pages run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38792526334)
+deploys descendant `f3cbabbf3660a59bc05640f2c382e37cb1280a9b`. The library,
+curriculum, browser sources and exported data are byte-identical between those
+commits. Live paperleet.com verification matches all 71 starters/manifests and
+both runtime files exactly, including version 0.11.0 and Apache-2.0/NOTICE:
+autograd SHA-256 `3ef4e42e19b37a0a2d86e11a7519b548611a8f3c2fe0f3acb0e719660805d123`
+(328,467 bytes) and schedules
+`f277c45b7b84863740bebc979e22e2f5c1f6b1fa85516e03a7c87626a84e406d` (35,895 bytes).
+Exact logs, descendant-tree audit and frozen live expectations remain with the
+iteration-11 local evidence. This closes that release's remote verification;
+the independent-library development goal remains active.

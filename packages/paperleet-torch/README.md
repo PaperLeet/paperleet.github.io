@@ -87,11 +87,40 @@ Builtin scalar defaults remain float32/int64/bool. Out-of-range Python integers
 fail when constructing default int64 tensors; weak integer operands of existing
 integer tensors follow the receiving dtype's arithmetic instead. Factory casts
 isolate NumPy floating-point error settings and restore the caller's settings.
-As in native Torch, out-of-range floating-to-integer result values are platform
-dependent. Python sequence promotion, general array-protocol objects and the
-full legacy Tensor constructor remain separate compatibility work.
-Small homogeneous builtin-float lists/tuples also avoid an intermediate array;
-larger, nested and mixed sequences retain the generic conversion path.
+As in native Torch, out-of-range ndarray floating-to-integer result values are
+platform dependent. Sequence scalar storage instead checks integer range and
+Python numeric protocols, following native construction rather than array casts.
+
+Sequences recursively infer supported Python/NumPy scalar and Tensor dtypes.
+NumPy float64 and small-integer values retain their precision and widths:
+
+```python
+import numpy as np
+
+torch.tensor([np.float64(1 + 2**-40)]).dtype  # torch.float64
+torch.tensor([np.int16(2), np.int16(3)]).dtype  # torch.int16
+torch.promote_types(torch.int64, torch.float16)  # torch.float16
+```
+
+`as_tensor` of a Python sequence owns a copy. Tensor elements are single-value
+leaves; constructing from them copies and detaches. `new_tensor` uses its owner's
+dtype unless overridden. Nested arrays are materialized as sequence values;
+direct ndarray imports retain the stricter layout checks described above.
+Native scalar conversion also distinguishes NumPy integer objects from Python
+integers for uint64 storage: an inferred NumPy uint64 scalar raises TypeError,
+while a direct uint64 ndarray import or explicit uint64 Python integers work.
+
+`promote_types` follows supported Torch category/width rules, including integer
+to floating promotion. Unsupported wider-unsigned integer/complex combinations
+fail explicitly. Common dtype aliases (`half`, `short`, `char`, `cfloat`,
+`cdouble`, and the ordinary unsigned widths) are available; storage aliases do
+not extend every kernel or differentiation rule to those dtypes.
+
+Small homogeneous builtin float/int/bool sequences avoid intermediate arrays.
+Primitive vectors/rows use batch inference and checking; other nested or mixed
+inputs retain ordered recursive inference and scalar storage. Global default
+dtype changes, broader array-protocol inference and the full legacy Tensor
+constructor remain separate compatibility work. Default floats remain float32.
 
 ## Models and in-memory checkpoints
 

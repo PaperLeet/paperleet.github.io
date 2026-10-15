@@ -21,11 +21,27 @@ def run_benchmarks(repeat=11, iterations=1200, warmup=3, dtype='float32', cases=
     existing = torch.tensor(source)
     scalar = kind.type(1.25)
     values = [1.25, 2.5, 3.75]
+    integers, flags = [1, 2, 3], [True, False, True]
+    medium = [float(i % 8) / 4 for i in range(64)]
+    large = medium * 64
+    labels = list(range(64))
+    large_labels = list(range(4096))
+    rows = [medium[:16] for _ in range(16)]
     available = {
         'builtin_float': lambda: torch.tensor(1.25),
         'builtin_int': lambda: torch.tensor(7),
         'builtin_bool': lambda: torch.tensor(True),
         'python_list': lambda: torch.tensor(values),
+        'python_int_list': lambda: torch.tensor(integers),
+        'python_bool_list': lambda: torch.tensor(flags),
+        'python_float_list64': lambda: torch.tensor(medium),
+        'python_float_list4096': lambda: torch.tensor(large),
+        'python_int_list64': lambda: torch.tensor(labels),
+        'python_int_list4096': lambda: torch.tensor(large_labels),
+        'explicit_float_list64': lambda: torch.tensor(medium, dtype=kind),
+        'explicit_float_list4096': lambda: torch.tensor(large, dtype=kind),
+        'explicit_int_list64': lambda: torch.tensor(labels, dtype=torch.int64),
+        'nested_float_list': lambda: torch.tensor(rows),
         'numpy_scalar': lambda: torch.tensor(scalar),
         'numpy_copy': lambda: torch.tensor(source),
         'numpy_share': lambda: torch.from_numpy(source),
@@ -44,10 +60,21 @@ def run_benchmarks(repeat=11, iterations=1200, warmup=3, dtype='float32', cases=
     assert torch.as_tensor(existing) is existing
     assert torch.tensor(source).data_ptr() != source.__array_interface__['data'][0]
     results = {}
+    contracts = {}
     for name in selected:
         run = available[name]
-        multiplier = 100 if name in ('numpy_export', 'numpy_array_protocol') else 10 if name in ('builtin_float', 'builtin_int', 'builtin_bool', 'python_list', 'numpy_scalar', 'existing_identity') else 1
-        inner = iterations * multiplier
+        sample = run()
+        sample = sample.numpy() if isinstance(sample, torch.Tensor) else sample
+        contracts[name] = dict(dtype=str(sample.dtype), shape=list(sample.shape))
+        if name in ('python_float_list64', 'python_float_list4096', 'explicit_float_list64', 'explicit_float_list4096', 'python_int_list64', 'python_int_list4096', 'explicit_int_list64', 'nested_float_list', 'python_int_list', 'python_bool_list'):
+            expected = (rows if name == 'nested_float_list' else flags if name == 'python_bool_list'
+                        else integers if name == 'python_int_list' else large_labels if name == 'python_int_list4096'
+                        else labels if 'int_list64' in name else large if '4096' in name else medium)
+            expected_dtype = np.bool_ if name == 'python_bool_list' else np.int64 if 'int_list' in name else kind if name.startswith('explicit_float') else np.float32
+            assert sample.dtype == np.dtype(expected_dtype), (name, sample.dtype)
+            np.testing.assert_array_equal(sample, np.array(expected, dtype=expected_dtype))
+        multiplier = 100 if name in ('numpy_export', 'numpy_array_protocol') else 10 if name in ('builtin_float', 'builtin_int', 'builtin_bool', 'python_list', 'python_int_list', 'python_bool_list', 'numpy_scalar', 'existing_identity') else 1
+        inner = max(1, iterations // 40) if '4096' in name else iterations * multiplier
         for _ in range(warmup): run()
         samples = []
         for _ in range(repeat):
@@ -59,7 +86,7 @@ def run_benchmarks(repeat=11, iterations=1200, warmup=3, dtype='float32', cases=
                 numpy=np.__version__, platform=platform.platform(), dtype=dtype,
                 implementation=sys.modules[torch.Tensor.__module__].__file__,
                 default_scalar_dtype='float32/int64/bool regardless of array fixture dtype',
-                repeat=repeat, iterations=iterations, warmup=warmup, results=results)
+                repeat=repeat, iterations=iterations, warmup=warmup, contracts=contracts, results=results)
 
 
 if __name__ == '__main__':
