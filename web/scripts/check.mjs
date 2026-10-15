@@ -210,6 +210,12 @@ try {
       `${list.id}: the homepage card must expose its canonical collection route`);
     assert(!html.includes('featured-collections') && html.includes('collection-page-header'),
       `${list.id}: a collection opens its own page without the homepage collection rail`);
+    const practiceLink = html.match(/class="button collection-practice" href="([^"]+)"/)[1];
+    assert.equal(libraryReturnHref(practiceLink), `#/collections/${list.id}`,
+      'The dedicated practice entry retains its canonical collection return');
+    const targetNumber = Number(/^#\/(\d+)/.exec(practiceLink)[1]);
+    assert(moduleIds.has(catalog.problems.find(module => module.number === targetNumber)?.id),
+      'The dedicated practice entry stays inside the selected collection');
     assert(html.includes(`从当前范围内 ${moduleIds.size - 1} 道未开始的题目中随机选择`),
       `${list.id}: random candidates must exclude accepted modules and stay inside the collection`);
     const completed = Object.fromEntries(catalog.problems.filter((module) => moduleIds.has(module.id))
