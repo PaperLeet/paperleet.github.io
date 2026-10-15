@@ -42,6 +42,18 @@ export async function checkReportWorkflow(server) {
   assert(syntaxMarkup.includes('定位代码第 2 行') && syntaxMarkup.includes('SyntaxError'));
   const fallback = render(ReportWorkflow,{...props,onLocate:undefined});
   assert(!fallback.includes('source-location-button') && fallback.includes('返回代码修改'));
+  const comparison={kind:'value',expected_shape:[2],actual_shape:[2],index:[1],expected:0,actual:1/3,absolute_error:1/3,rtol:1.3e-6,atol:1e-5};
+  const numerical={...report,tests:[{...tests[0],message:'AssertionError:',comparison},tests[2]]};
+  const numericalBefore=structuredClone(numerical);
+  const summary=render(ReportWorkflow,{...props,report:numerical,compact:true});
+  assert(summary.includes('数值对比')&&summary.includes('期望值')&&summary.includes('实际值')&&summary.includes('[1]')&&summary.includes('0.3333333333333333'),'A current numerical mismatch is visible without opening detailed logs');
+  for(const sourceState of ['changed','checking','unknown','none']){
+    assert(!render(ReportWorkflow,{...props,report:numerical,sourceState,compact:true}).includes('test-comparison'),'Unverified or edited source must not inherit an old comparison');
+  }
+  assert(!render(ReportWorkflow,{...props,report:numerical,running:true,compact:true}).includes('test-comparison'),'An active run must not show old numerical feedback');
+  const malformed={...numerical,tests:[{...numerical.tests[0],comparison:{...comparison,index:[9]}}]};
+  assert(!render(ReportWorkflow,{...props,report:malformed,compact:true}).includes('test-comparison'),'Malformed optional feedback cannot manufacture a numerical result');
+  assert.deepEqual(numerical,numericalBefore,'Rendering comparisons must not alter reports or grades');
   const diagnostic = render(FailureDiagnostic,{message:'ValueError: <script>literal</script>\nfull traceback',location:{line:3},onLocate(){}});
   assert(diagnostic.includes('复制诊断') && diagnostic.includes('&lt;script&gt;') && !diagnostic.includes('<script>'));
   assert(!/<details[^>]+open=/.test(diagnostic),'Long raw tracebacks start collapsed');

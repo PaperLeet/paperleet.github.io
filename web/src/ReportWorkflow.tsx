@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, Code2, Play, Search, X } from 'lucide-react';
 import { useI18n } from './i18n';
 import { SourceLocationButton } from './SourceLocationButton';
+import TestComparison from './TestComparison';
 import { reportFailureTargets, failureCodeContext } from './reportFailureModel';
 import type { Report } from './types';
 import type { BrowserSyntaxFailure } from './browserSyntax';
@@ -25,6 +26,7 @@ export default function ReportWorkflow({report,syntax,source,sourceState,canRun,
       {targets.length > 1 && <div className="feedback-error-nav" aria-label={t('切换错误摘要','Browse failure summaries')}><button type="button" className="icon-button" disabled={current === 0} aria-label={t('上一个错误','Previous failure')} onClick={() => setIndex(current - 1)}><ChevronLeft size={15}/></button><span aria-live="polite">{current + 1} / {targets.length}</span><button type="button" className="icon-button" disabled={current === targets.length - 1} aria-label={t('下一个错误','Next failure')} onClick={() => setIndex(current + 1)}><ChevronRight size={15}/></button></div>}
     </div>
     {target?.message && !running && <p className="feedback-diagnostic">{changed && t('上次运行：','Previous run: ')}{target.message}</p>}
+    {target?.comparison && !running && <TestComparison comparison={target.comparison}/>}
     {!changed && !running && !!context.length && <pre className="feedback-code-context" aria-label={t('当前实现的错误上下文','Failure context in the current source')}><code>{context.map(row => <span key={row.line} data-active={row.active}><i aria-hidden="true">{row.line}</i><span>{row.text || ' '}</span></span>)}</code></pre>}
     {target && !target.location && !changed && !running && <p className="feedback-location-note">{t('此错误没有可确认的实现行号，可先查看下方数值对比与完整诊断。','No verified implementation line is available. Review the numerical comparison and full diagnostic below.')}</p>}
     <div className="feedback-actions">{!running && <SourceLocationButton location={target?.location} onLocate={onLocate}/>}<button className="button subtle" type="button" onClick={onEdit}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改','Edit code')}</button>{running && onStop && <button type="button" className="button subtle" onClick={onStop}><X size={13} aria-hidden="true"/>{t('停止当前任务','Stop active run')}</button>}<button className="button feedback-rerun" type="button" disabled={!canRun || running} onClick={onRun} aria-keyshortcuts="Meta+Enter Control+Enter"><Play size={13} aria-hidden="true"/>{running ? t('运行中…','Running…') : changed ? t('验证当前修改','Verify changes') : report || syntax ? t('重新运行全部测试','Run all tests again') : t('运行全部测试','Run all tests')}</button></div>

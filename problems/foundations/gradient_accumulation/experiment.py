@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import torch
 
 
@@ -15,7 +16,7 @@ def run(solve):
             grads.append(2*xx.T@residual/(end-start))
         effective=solve(grads,[1,5]);w=w-.08*effective
         full=full-.08*(2*x.T@(x@full-y)/6)
-    torch.testing.assert_close(w,full,atol=1e-10,rtol=1e-10)
+    close(w,full,atol=1e-10,rtol=1e-10)
     assert losses[-1]<losses[0]*.05
     return {'provenance':'Original synthetic linear-model training with unequal microbatches; no full-LLM benchmark.',
             'charts':[{'kind':'line','title':'Effective-batch training','x':list(range(21)),'x_label':'update','y_label':'MSE','series':[{'name':'Learner accumulation','values':losses},{'name':'Full-batch oracle','values':reference}]}],

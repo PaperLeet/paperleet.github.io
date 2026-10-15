@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import math
 import torch
 
@@ -8,8 +9,8 @@ def run(solve):
         grads=[torch.tensor([3.*spike],dtype=torch.float64),torch.tensor([4.*spike],dtype=torch.float64)]
         out,norm=solve(grads,2.)
         expected=5*spike;scale=min(1.,2/(expected+1e-6))
-        torch.testing.assert_close(norm,torch.tensor(expected,dtype=norm.dtype))
-        for actual,g in zip(out,grads):torch.testing.assert_close(actual,g*scale)
+        close(norm,torch.tensor(expected,dtype=norm.dtype))
+        for actual,g in zip(out,grads):close(actual,g*scale)
         measured=math.sqrt(sum(float(v.square().sum()) for v in out))
         assert measured<=2.+1e-12
         raw.append(norm.item());clipped.append(measured);updates.append(.1*measured)

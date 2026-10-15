@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import math
 import torch
 
@@ -12,7 +13,7 @@ def run(solve):
         x=torch.zeros(2,4,2,dtype=torch.float64)
         x[:,0,1]=margin; x[:,1,1]=1.;x[:,2,1]=2.;x[:,-1,0]=1000.
         loss=solve(x,tokens,response,attention)
-        torch.testing.assert_close(loss,torch.tensor(expected,dtype=x.dtype))
+        close(loss,torch.tensor(expected,dtype=x.dtype))
         values.append(loss.item())
     return {'provenance':'Original synthetic prompt/response masking experiment; no model benchmark.',
             'charts':[{'kind':'line','title':'Exclude prompt predictions','x':margins,'x_label':'ignored prompt logit margin','y_label':'response-only NLL','series':[{'name':'Learner masked loss','values':values}]}],

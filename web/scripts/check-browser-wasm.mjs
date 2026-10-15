@@ -41,6 +41,21 @@ try {
     assert.equal(Object.keys(calibration.mutants_caught).length,Object.keys(bundle.mutants).length);
     const report = JSON.parse(py.runPython("json.dumps(run_suite(bundle,bundle['reference'],'/judge'))"));
     assert(report.passed && !unsupportedReport(report));
+    if (id === 'foundations/top_p_sampling') {
+      const wrong = Object.entries(bundle.mutants).find(([name]) => name.includes('m2_extra_boundary'));
+      assert(wrong);
+      py.globals.set('wrong_boundary_source', wrong[1]);
+      const rejected = JSON.parse(py.runPython("json.dumps(run_suite(bundle,wrong_boundary_source,'/judge'))"));
+      assert(!rejected.passed && !unsupportedReport(rejected));
+      const failure = rejected.tests.find(row => row.id === 'test_contract');
+      assert.equal(failure.comparison.kind, 'value');
+      assert.deepEqual(failure.comparison.index, [0, 0, 2]);
+      assert.equal(failure.comparison.expected, 0.);
+      assert(Math.abs(failure.comparison.actual - 1/3) < 1e-6);
+      assert.equal(failure.comparison.rtol, 1.3e-6);
+      assert.equal(failure.comparison.atol, 1e-5);
+      assert(failure.message.includes('AssertionError'), 'Keep the full original framework diagnostic');
+    }
     // Both adapters must keep torch.tensor ownership separate from as_tensor sharing.
     py.runPython(`
 import numpy as np, torch
