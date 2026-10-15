@@ -38,15 +38,32 @@ try{
  const choose=async value=>{await act(async()=>{select().value=value;select().dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await render();};
  const click=async node=>{assert(node);await act(async()=>node.click());await render();};
  const tab=text=>[...document.querySelectorAll('.community-feed-toolbar button')].find(node=>node.textContent===text);
- await render();assert.equal(select().value,'latest');assert(document.querySelector('.community-result-summary').textContent.includes('21–40 / 42'));assert.equal(requests.at(-1).params.get('sort'),null);
- select().focus();await choose('top');assert.equal(document.activeElement,select());let scope=nav.readCommunityFeed(location.hash);assert.deepEqual(scope.state,{category:'papers',following:false,sort:'top',search:'old',page:1});assert.equal(requests.at(-1).params.get('sort'),'top');assert.equal(requests.at(-1).params.get('offset'),'0');assert(document.querySelector('#community-sort-description').textContent.includes('likes'));
+ const compactFeed=()=>{
+   assert(!document.querySelector('.community-result-summary'),'The discussion count must not take up a row above posts');
+   assert(!document.querySelector('#community-sort-description'),'Sort descriptions are removed for every ordering');
+   const controls=document.querySelector('.community-feed-toolbar .community-feed-controls');
+   assert(controls?.contains(document.querySelector('.community-search'))&&controls.contains(select()),'Search and Sort share one control row in the feed toolbar');
+   assert(!select().hasAttribute('aria-describedby'),'Sort must not reference its removed description');
+   const list=document.querySelector('[data-reading-list]');
+   assert(list&&list.tabIndex===-1,'Reading returns retain a focusable list fallback after removing the summary');
+ };
+ await render();assert.equal(select().value,'latest');compactFeed();assert.equal(requests.at(-1).params.get('sort'),null);assert.equal(requests.at(-1).params.get('offset'),'20');
+ assert(!document.querySelector('[aria-label="Previous page"]').disabled&&!document.querySelector('[aria-label="Next page"]').disabled,'Removing the summary preserves middle-page pagination');
+ select().focus();await choose('top');assert.equal(document.activeElement,select());let scope=nav.readCommunityFeed(location.hash);assert.deepEqual(scope.state,{category:'papers',following:false,sort:'top',search:'old',page:1});assert.equal(requests.at(-1).params.get('sort'),'top');assert.equal(requests.at(-1).params.get('offset'),'0');compactFeed();
  const link=document.querySelector('[data-reading-link="title"]');assert.equal(nav.communityPostReturn(link.getAttribute('href'),id),nav.communityFeedHref(undefined,scope.state));assert.equal(accountReturnHref(decodeProblemHash(signInHref(link.getAttribute('href')))),link.getAttribute('href'));
  await click(tab('Following'));assert.equal(nav.readCommunityFeed(location.hash).state.following,true);assert.equal(select().value,'top');
  await click(tab('Saved'));assert.equal(nav.readCommunityFeed(location.hash).state.saved,true);assert.equal(nav.readCommunityFeed(location.hash).state.following,false);
- await choose('latest');assert(select().textContent.includes('Recently saved'));assert(document.querySelector('#community-sort-description').textContent.includes('when you saved'));
- await choose('active');assert(document.querySelector('.post-card-activity').textContent.includes('Last reply'));assert(document.querySelector('#community-sort-description').textContent.includes('Edits do not bump'));
- await click(document.querySelector('#locale'));assert(select().textContent.includes('最近活跃'));assert(document.querySelector('#community-sort-description').textContent.includes('修改内容不会置顶'));await click(document.querySelector('#locale'));
- response='last-page';await navigate('#/community?category=papers&saved=1&sort=active&q=old&page=9');assert.deepEqual(nav.readCommunityFeed(location.hash).state,{category:'papers',following:false,saved:true,sort:'active',search:'old',page:2});await render();assert(document.querySelector('.community-result-summary').textContent.includes('21–21 / 21'));response='normal';
+ await choose('latest');assert(select().textContent.includes('Recently saved'));compactFeed();
+ await choose('active');assert(document.querySelector('.post-card-activity').textContent.includes('Last reply'));compactFeed();
+ await click(document.querySelector('#locale'));assert(select().textContent.includes('最近活跃'));compactFeed();await click(document.querySelector('#locale'));
+ response='last-page';await navigate('#/community?category=papers&saved=1&sort=active&q=old&page=9');assert.deepEqual(nav.readCommunityFeed(location.hash).state,{category:'papers',following:false,saved:true,sort:'active',search:'old',page:2});await render();assert.equal(requests.at(-1).params.get('offset'),'20');assert(document.querySelector('[aria-label="Next page"]').disabled&&!document.querySelector('[aria-label="Previous page"]').disabled,'The corrected last page retains accurate navigation without a discussion-count heading');response='normal';
+ await click(document.querySelector('[aria-label="Previous page"]'));assert.equal(nav.readCommunityFeed(location.hash).state.page,1);assert.equal(requests.at(-1).params.get('offset'),'0');
+ await click(document.querySelector('[aria-label="Next page"]'));assert.equal(nav.readCommunityFeed(location.hash).state.page,2);assert.equal(requests.at(-1).params.get('offset'),'20');
+ const search=document.querySelector('.community-search input');
+ await act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(search,'  new query  ');search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
+ await act(async()=>document.querySelector('.community-search').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));await render();
+ assert.deepEqual(nav.readCommunityFeed(location.hash).state,{category:'papers',following:false,saved:true,sort:'active',search:'new query',page:1},'Toolbar search preserves board/saved/sort scope and restarts pagination');
+ assert.equal(requests.at(-1).params.get('q'),'new query');assert.equal(requests.at(-1).params.get('offset'),'0');compactFeed();
  // A new filter aborts the previous request; even a transport ignoring abort cannot replace the new result.
  response='delayed';await navigate('#/community?sort=top&q=first');const stale=requests.at(-1);response='normal';await navigate('#/community?sort=active&q=second');assert(stale.signal.aborted);await act(async()=>release({items:[{...post,title:'Stale private row'}],total:1,sort:'top'}));assert(!document.body.textContent.includes('Stale private row'));assert.equal(select().value,'active');
  response='mismatch';await navigate('#/community?sort=top');assert(document.body.textContent.includes('Could not confirm'));assert(!document.querySelector('[data-reading-post]'));response='normal';await click([...document.querySelectorAll('button')].find(node=>node.textContent==='Retry'));assert(document.querySelector('[data-reading-post]'));
@@ -54,5 +71,5 @@ try{
  account.capabilities.community_feed_sorting=false;await render();assert(!select());assert(document.body.textContent.includes('This order is currently unavailable'));const before=requests.length;await render();assert.equal(requests.length,before);await click([...document.querySelectorAll('button')].find(node=>node.textContent==='Use default order'));assert(!nav.readCommunityFeed(location.hash).state.sort);assert(document.querySelector('[data-reading-post]'));
  account.loading=true;await navigate('#/community?sort=top');const waiting=requests.length;assert(!document.querySelector('[data-reading-post]'));account.capabilities.community_feed_sorting=true;account.loading=false;await render();assert.equal(requests.length,waiting+1);assert.equal(select().value,'top');
  account.user=undefined;await navigate('#/community?saved=1&sort=top');assert(document.body.textContent.includes('Sign in to see your saved posts'));assert(!document.querySelector('[data-reading-post]'));
- console.log('PASS community discovery: real scoped sort controls, saved semantics, server order confirmation, abort/stale rejection, errors/retry, capability rollout, guest privacy, bilingual labels, keyboard focus and exact reading/login returns');
+ console.log('PASS community discovery: compact shared search/sort toolbar without count or sort descriptions, pagination and reading fallback, scoped sort/search controls, saved semantics, server order confirmation, abort/stale rejection, errors/retry, capability rollout, guest privacy, bilingual labels, keyboard focus and exact reading/login returns');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

@@ -501,9 +501,6 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const saved = filters.saved === true;
   const sortingAvailable = capabilities?.community_feed_sorting === true;
   const sortingUnavailable = !!sort && !accountLoading && !sortingAvailable;
-  const sortDescription = sort === 'active' ? t('按最新回复或发布时间排列，修改内容不会置顶。','Ordered by the latest reply or publication. Edits do not bump a discussion.')
-    : sort === 'top' ? t('按点赞数排列，同赞时优先显示回复更多的讨论。','Ordered by likes, then reply count when likes are equal.')
-    : saved ? t('按你收藏的时间排列。','Ordered by when you saved each post.') : t('按帖子发布时间排列。','Ordered by publication time.');
   const savedAvailable = capabilities?.community_bookmarks === true;
   const savedGate = saved && savedAvailable;
   const waitingForSavedAccount = saved && accountLoading;
@@ -653,30 +650,35 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 <Bookmark size={14}/>{t('我的收藏','Saved')}
               </button>}
             </div>
-            <form
-              className="community-search"
-              onSubmit={(e) => {
-                e.preventDefault();
-                choose({ search: query.trim() });
-              }}
-            >
-              <Search size={14} />
-              <input
-                aria-label={t("搜索讨论", "Search discussions")}
-                placeholder={t("搜索讨论…", "Search discussions…")}
-                value={query}
-                maxLength={200}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  if (!e.target.value) {
-                    choose({ search: '' });
-                  }
+            <div className="community-feed-controls">
+              <form
+                className="community-search"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  choose({ search: query.trim() });
                 }}
-              />
-              <button type="submit" aria-label={t("搜索", "Search")}>
-                <ArrowRight size={14} />
-              </button>
-            </form>
+              >
+                <Search size={14} />
+                <input
+                  aria-label={t("搜索讨论", "Search discussions")}
+                  placeholder={t("搜索讨论…", "Search discussions…")}
+                  value={query}
+                  maxLength={200}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    if (!e.target.value) {
+                      choose({ search: '' });
+                    }
+                  }}
+                />
+                <button type="submit" aria-label={t("搜索", "Search")}>
+                  <ArrowRight size={14} />
+                </button>
+              </form>
+              {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
+                <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
+              </select></label>}
+            </div>
           </div>
           {topicId && (
             catalogLoading ? <Loading /> : catalogError ? (
@@ -691,17 +693,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           {compose && user && (
             <Composer category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
           )}
-          <div className="community-results-heading">
-            {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && !sortingUnavailable && <p data-reading-list="" tabIndex={-1} className="community-result-summary" role="status">
-              {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
-            </p>}
-            {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" value={sort || 'latest'} aria-describedby="community-sort-description" onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
-              <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
-            </select></label>}
-          </div>
-          {sortingAvailable && <p id="community-sort-description" className="community-sort-description">{sortDescription}</p>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
-          <div className="social-panel feed-items">
+          <div className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={t('讨论列表','Discussion feed')}>
             {sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
