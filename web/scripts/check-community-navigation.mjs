@@ -43,6 +43,17 @@ try {
     assert.equal(readCommunityFeed('community?'+query),undefined);
     assert.equal(signInHref('community?'+query),'#/account');
   }
+  for(const sort of ['active','top']) for(const topic of topics) {
+    const state={category:'papers',following:false,saved:true,sort,search:'中文 & mask 😀',page:3};
+    const feed=communityFeedHref(topic,state),post=communityPostHref(id,feed);
+    assert.deepEqual(readCommunityFeed(feed),{topicId:topic,state});
+    assert.equal(communityPostReturn(post,id),feed);
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(post))),post);
+  }
+  for(const query of ['sort=invalid','sort=TOP','sort=top&sort=active','sort=top&sort=']) {
+    assert.equal(readCommunityFeed('community?'+query),undefined);
+    assert.equal(signInHref('community?'+query),'#/account');
+  }
   const owner='viewer-a',ack={owner_id:owner,post_id:id,bookmarked:true};
   assert.deepEqual(confirmedBookmark(ack,owner,id,true),ack);
   assert.deepEqual(confirmedBookmark({...ack,bookmarked:false},owner,id),{...ack,bookmarked:false});

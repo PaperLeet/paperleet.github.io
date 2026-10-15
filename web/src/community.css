@@ -1567,3 +1567,16 @@
 .waitlist-card h1 { margin: 12px 0 20px; }
 .waitlist-email { overflow-wrap: anywhere; font-weight: 600; }
 .waitlist-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+/* Keep feed scope, result count and ordering distinct at every width. */
+.community-results-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 20px; margin:0 0 10px; }
+.community-results-heading .community-result-summary { margin:0; }
+.community-sort { display:inline-flex; align-items:center; gap:7px; margin-inline-start:auto; color:var(--muted); font-size:12px; }
+.community-sort select { min-width:132px; min-height:36px; max-width:100%; padding:6px 28px 6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--text); font:inherit; cursor:pointer; }
+.community-sort select:hover { border-color:var(--muted); }
+.community-sort select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.community-sort-description { margin:0 0 12px; color:var(--muted); font-size:11px; line-height:1.7; }
+@media (pointer:coarse) { .community-sort select { min-height:44px; } }
+
+.post-card-counts { flex-wrap:wrap; }
+.post-card-counts .post-card-activity { margin-inline-start:auto; font-size:11px; }

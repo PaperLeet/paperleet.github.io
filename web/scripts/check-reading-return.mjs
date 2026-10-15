@@ -30,6 +30,7 @@ try{
  const interviews=await server.ssrLoadModule('/src/interviewNavigation.ts');
  const owner='account:alice',id='a'.repeat(32),other='b'.repeat(32);
  const community=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,search:'mask & 梯度 😀',page:3});
+ const activeCommunity=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,sort:'active',search:'mask & 梯度 😀',page:3});
  const interview=interviews.interviewHref({...interviews.emptyInterviewFilters(),company:'google',role:'llm',stage:'technical',days:'90',saved:true,q:'attention',concept:'architecture/attention',page:2});
  const wait=()=>new Promise(resolve=>setTimeout(resolve,5));
  const navigate=async href=>act(async()=>{location.hash=href;viewport=0;await wait();});
@@ -57,7 +58,7 @@ try{
   await stop();await navigate(nav.communityPostHref(id,scope));await render(Thread,{scope});assert.equal(model.currentReadingReturn().phase,'reading');await stop();return record;
  }
  async function returnLoading(scope=community,props={}){await navigate(scope);base=1800;await render(List,{scope,ready:false,...props});assert.equal(scrolls.length,0,'A pending response cannot restore against missing or stale rows');}
- for(const scope of [community,interview]){
+ for(const scope of [community,activeCommunity,interview]){
   for(const link of ['title','read']){
    await depart(scope,{link});scrolls=[];await returnLoading(scope);assert.equal(model.currentReadingReturn().phase,'returning');
    await render(List,{scope,ready:true});assert.equal(scrolls.length,1);assert.equal(viewport,1592,'Measure after the status notice is committed, retaining the exact viewport offset');

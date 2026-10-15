@@ -214,8 +214,8 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo, resumed }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean }) {
-  const { locale } = useI18n();
+function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean }) {
+  const { locale,t } = useI18n();
   return (
     <article className="community-post-card" data-reading-post={post.id} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
@@ -252,6 +252,7 @@ function PostCard({ post, activity, returnTo, resumed }: { post: Post; activity?
               <Repeat2 size={13} />
               {post.counts.reposts}
             </span>
+            {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
           </div>
         </div>
       </div>
@@ -457,14 +458,19 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const draftScope = topicId || "general";
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
   const filters = readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
-  const { category, following, search, page } = filters;
+  const { category, following, search, page, sort } = filters;
   const saved = filters.saved === true;
+  const sortingAvailable = capabilities?.community_feed_sorting === true;
+  const sortingUnavailable = !!sort && !accountLoading && !sortingAvailable;
+  const sortDescription = sort === 'active' ? t('按最新回复或发布时间排列，修改内容不会置顶。','Ordered by the latest reply or publication. Edits do not bump a discussion.')
+    : sort === 'top' ? t('按点赞数排列，同赞时优先显示回复更多的讨论。','Ordered by likes, then reply count when likes are equal.')
+    : saved ? t('按你收藏的时间排列。','Ordered by when you saved each post.') : t('按帖子发布时间排列。','Ordered by publication time.');
   const savedAvailable = capabilities?.community_bookmarks === true;
   const savedGate = saved && savedAvailable;
   const waitingForSavedAccount = saved && accountLoading;
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
-  const requestKey = JSON.stringify([topicId, user?.id, category, following, saved, savedGate, search, page]);
+  const requestKey = JSON.stringify([topicId, user?.id, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
   const [query, setQuery] = useState(search);
   const boards = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
@@ -473,7 +479,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     [compose, setCompose] = useState(false),
     [retry, setRetry] = useState(0);
   const pending = loading || data.requestKey !== requestKey;
-  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable));
+  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable)&&!sortingUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
     location.hash = communityFeedHref(topicId, { ...filters, page: 1, ...change });
   }
@@ -495,30 +501,34 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   useEffect(() => {
     let live = true;
     let redirected = false;
+    const controller = new AbortController();
     setLoading(true);
     setError("");
     const params = new URLSearchParams({
       category,
       q: search,
+      ...(sort ? {sort} : {}),
       following: following ? "true" : "false",
       ...(saved ? {saved: 'true'} : {}),
       offset: String(offset),
       limit: String(PAGE_SIZE),
       ...(topicId ? { problem_id: topicId } : {}),
     });
-    if (waitingForSavedAccount) return;
+    if (waitingForSavedAccount || (sort && accountLoading)) return;
+    if (sortingUnavailable) { setData({items:[],total:0,requestKey});setLoading(false);return; }
     if ((saved && !savedGate) || ((following || saved) && !user)) {
       setData({ items: [], total: 0, requestKey });
       setLoading(false);
       return;
     }
-    socialApi<Page<Post>>(`community/posts?${params}`)
+    socialApi<Page<Post> & {sort?:string}>(`community/posts?${params}`,undefined,controller.signal)
       .then((data) => {
         if (!live) return;
+        if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort)) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
         const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
         if (page > lastPage) {
           redirected = true;
-          location.replace(communityFeedHref(topicId, { category, following, ...(saved ? {saved:true} : {}), search, page: lastPage }));
+          location.replace(communityFeedHref(topicId, { category, following, ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), search, page: lastPage }));
           return;
         }
         setData({ ...data, requestKey });
@@ -530,9 +540,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         if (live && !redirected) setLoading(false);
       });
     return () => {
-      live = false;
+      live = false; controller.abort();
     };
-  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId]);
+  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable]);
   return (
     <main ref={reading.container} className="social-page community-page">
       {topicId && (
@@ -589,7 +599,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 aria-pressed={!following && !saved}
                 onClick={() => choose({ following: false, saved: false })}
               >
-                {t("最新", "Latest")}
+                {t("所有讨论", "All")}
               </button>
               <button
                 className={following && !saved ? "selected" : ""}
@@ -642,12 +652,18 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           {compose && user && (
             <Composer category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
           )}
-          {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && <p data-reading-list="" tabIndex={-1} className="community-result-summary" role="status">
-            {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
-          </p>}
+          <div className="community-results-heading">
+            {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && !sortingUnavailable && <p data-reading-list="" tabIndex={-1} className="community-result-summary" role="status">
+              {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
+            </p>}
+            {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" value={sort || 'latest'} aria-describedby="community-sort-description" onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
+              <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
+            </select></label>}
+          </div>
+          {sortingAvailable && <p id="community-sort-description" className="community-sort-description">{sortDescription}</p>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           <div className="social-panel feed-items">
-            {error ? (
+            {sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
                 <button
@@ -703,10 +719,10 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {(category || following || search) && <button className="button subtle" onClick={() => choose(emptyCommunityFeed())}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} resumed={reading.resumedPost===post.id}/>)
+              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id}/>)
             )}
           </div>
-          {!pending && !error && (
+          {!pending && !error && !sortingUnavailable && (
             <Pagination
               offset={offset}
               total={data.total}
