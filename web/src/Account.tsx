@@ -129,14 +129,14 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
       <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号可以直接使用。个人 Gmail、Outlook 等账号登录后会进入等待名单；已获邀请的账户按现有资格使用。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts receive access. Personal Gmail, Outlook and similar accounts join the waitlist; invited accounts retain their existing access. Some organizations require administrator approval.")}</p>
       <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。可用账号的注册机构或邮箱域名会公开展示，完整邮箱保持私密；等待名单账号不会公开个人主页。组织账号不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Active accounts show their registration institution or email domain publicly; full email addresses stay private. Waitlisted accounts have no public profile. An organization account is not an endorsement by a school or employer.")}</p>
-      <p className="social-description">{t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>
+      {emailLoginAvailable === true && <p className="social-description">{t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
       <p className="account-fineprint">{t("登录后会自动保持登录；连续 90 天未使用、主动退出或账号权限被撤销时，需要重新登录。请勿在公共电脑上保留登录。", "Sign-in is renewed while you use PaperLeet. After 90 days of inactivity, signing out, or access revocation, you must sign in again. Sign out on shared computers.")}</p>
     </aside>
   </div>
-    <details className="email-login-alternative">
+    {emailLoginAvailable === true && <details className="email-login-alternative">
       <summary>{t("使用学校／已审核公司邮箱验证码登录", "Use a school / reviewed company email code")}</summary>
       <SignIn enabled={emailLoginAvailable === true} workEmailRegistration onChooseProvider={provider => void signIn(provider)} providers={providers} />
-    </details>
+    </details>}
   </>;
 }
 export function TestSignIn({ enabled }: { enabled: boolean }) {

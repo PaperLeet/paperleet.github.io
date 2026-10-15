@@ -65,12 +65,16 @@ try {
     "Institutional sign-in must keep email verification",
   );
   const openRegistration = renderToString(React.createElement(SignIn, { enabled: true, workEmailRegistration: true }));
-  const organization = renderToString(React.createElement(OrganizationSignIn, { providers: [{ id: "google", available: true }, { id: "microsoft", available: false }], loginError: "expired" }));
+  const organization = renderToString(React.createElement(OrganizationSignIn, { providers: [{ id: "google", available: true }, { id: "microsoft", available: false }], loginError: "expired", emailLoginAvailable: true }));
   assert(organization.includes("使用 Google 登录") && organization.includes("使用 Microsoft 登录"));
   assert(organization.includes("尚未启用") && organization.includes("disabled="));
   assert(organization.includes('type="email"') && !organization.includes('type="password"'));
   assert(organization.includes("edu.cn") && organization.includes("仍然发送邮箱验证码"));
   assert(organization.includes("90 天"));
+  const oauthOnly = renderToString(React.createElement(OrganizationSignIn, {
+    providers: [{ id: "google", available: true }], emailLoginAvailable: false,
+  }));
+  assert(!oauthOnly.includes('email-login-alternative') && oauthOnly.includes("使用 Google 登录"));
   const quota = renderToString(React.createElement(EmailQuotaNotice, {
     email: "student@school.edu.cn", waitlistAvailable: true, onChooseProvider() {},
     providers: [{ id: "google", available: true }, { id: "microsoft", available: true }],
