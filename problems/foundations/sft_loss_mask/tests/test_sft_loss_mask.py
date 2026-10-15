@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import math
 import pytest
 import torch
@@ -20,7 +21,7 @@ def test_contract(impl):
         r=torch.tensor([[False,False,True]]); a=torch.ones(1,3,dtype=torch.bool)
         result=impl.sft_loss(x,y,r,a)
         assert result.shape==() and result.dtype==dtype and result.device==x.device
-        torch.testing.assert_close(result,torch.tensor(math.log(2),dtype=dtype))
+        close(result,torch.tensor(math.log(2),dtype=dtype))
 
 
 @pytest.mark.t1
@@ -32,7 +33,7 @@ def test_independent_valid_token_oracle(impl):
         y=torch.tensor([[0,2,1,0,2],[1,0,2,1,0]])
         r=torch.tensor([[False,False,True,True,True],[False,True,False,True,True]])
         a=torch.tensor([[True,True,True,True,True],[True,True,True,False,False]])
-        torch.testing.assert_close(impl.sft_loss(x,y,r,a),torch.tensor(scalar_oracle(x,y,r,a),dtype=dtype))
+        close(impl.sft_loss(x,y,r,a),torch.tensor(scalar_oracle(x,y,r,a),dtype=dtype))
 
 
 @pytest.mark.t2
@@ -42,10 +43,10 @@ def test_empty_selection_and_extreme_logits(impl):
         x=torch.ones(2,length,3,dtype=torch.float64,requires_grad=True)
         y=torch.zeros(2,length,dtype=torch.long); mask=torch.zeros(2,length,dtype=torch.bool)
         loss=impl.sft_loss(x,y,mask,~mask);loss.backward()
-        torch.testing.assert_close(loss,torch.tensor(0.,dtype=x.dtype));torch.testing.assert_close(x.grad,torch.zeros_like(x))
+        close(loss,torch.tensor(0.,dtype=x.dtype));close(x.grad,torch.zeros_like(x))
     x=torch.tensor([[[10000.,-10000.],[0.,0.],[8.,9.]]],dtype=torch.float64)
     y=torch.tensor([[0,1,0]]);r=torch.tensor([[False,True,False]])
-    torch.testing.assert_close(impl.sft_loss(x,y,r,torch.ones_like(r)),torch.tensor(20000.,dtype=x.dtype))
+    close(impl.sft_loss(x,y,r,torch.ones_like(r)),torch.tensor(20000.,dtype=x.dtype))
 
 
 @pytest.mark.t2
@@ -56,9 +57,9 @@ def test_large_common_offset_preserves_masked_loss_and_gradient(impl):
         y = torch.tensor([[0, 1, 0]])
         response = torch.tensor([[False, True, False]])
         loss = impl.sft_loss(x, y, response, torch.ones_like(response))
-        torch.testing.assert_close(loss, torch.tensor(math.log(2), dtype=dtype))
+        close(loss, torch.tensor(math.log(2), dtype=dtype))
         loss.backward()
-        torch.testing.assert_close(x.grad, torch.tensor([[[.5, -.5], [0., 0.], [0., 0.]]], dtype=dtype))
+        close(x.grad, torch.tensor([[[.5, -.5], [0., 0.], [0., 0.]]], dtype=dtype))
 
 
 @pytest.mark.t2
@@ -72,7 +73,7 @@ def test_masked_analytic_gradients(impl):
     for b,j in [(0,2),(0,3),(1,1)]:
         expected[b,j-1]=torch.softmax(x.detach()[b,j-1],-1)/3
         expected[b,j-1,int(y[b,j])]-=1/3
-    torch.testing.assert_close(x.grad,expected)
+    close(x.grad,expected)
 
 
 @pytest.mark.t2
@@ -83,11 +84,11 @@ def test_no_mutation_and_masked_target_invariance(impl):
     r=torch.tensor([[False,False,True,True],[False,True,False,False]]);a=torch.ones_like(r)
     originals=[v.clone() for v in (x,y,r,a)]; loss=impl.sft_loss(x,y,r,a)
     changed=y.clone(); changed[~r]=(changed[~r]+1)%3
-    torch.testing.assert_close(impl.sft_loss(x,changed,r,a),loss)
+    close(impl.sft_loss(x,changed,r,a),loss)
     shifted=x+torch.arange(8,dtype=x.dtype).reshape(2,4,1)*100
-    torch.testing.assert_close(impl.sft_loss(shifted,y,r,a),loss)
-    torch.testing.assert_close(impl.sft_loss(x.repeat(2,1,1),y.repeat(2,1),r.repeat(2,1),a.repeat(2,1)),loss)
-    for current,before in zip((x,y,r,a),originals):torch.testing.assert_close(current,before)
+    close(impl.sft_loss(shifted,y,r,a),loss)
+    close(impl.sft_loss(x.repeat(2,1,1),y.repeat(2,1),r.repeat(2,1),a.repeat(2,1)),loss)
+    for current,before in zip((x,y,r,a),originals):close(current,before)
 
 
 @pytest.mark.t3

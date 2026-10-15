@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import math
 import torch
 
@@ -11,7 +12,7 @@ def run(solve):
             for t in range(3): logits[b,t,int(tokens[b,t+1])]=margin
         logits[:,-1,:]=torch.tensor([1000.,-1000.,0.],dtype=logits.dtype)
         loss=solve(logits,tokens)
-        torch.testing.assert_close(loss,torch.tensor(math.log1p(2*math.exp(-margin)),dtype=logits.dtype))
+        close(loss,torch.tensor(math.log1p(2*math.exp(-margin)),dtype=logits.dtype))
         values.append(loss.item())
     assert values[-1]<values[0]
     return {'provenance':'Original deterministic next-token teaching experiment; no model benchmark.',

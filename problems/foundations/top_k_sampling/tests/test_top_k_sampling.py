@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import math
 import pytest
 import torch
@@ -25,7 +26,7 @@ def test_contract(impl):
         x=torch.zeros(2,3,4,dtype=dtype)
         out=impl.top_k_probs(x,2)
         assert out.shape==x.shape and out.dtype==dtype and out.device==x.device
-        torch.testing.assert_close(out,torch.tensor([.5,.5,0.,0.],dtype=dtype).expand_as(x))
+        close(out,torch.tensor([.5,.5,0.,0.],dtype=dtype).expand_as(x))
 
 
 @pytest.mark.t1
@@ -35,7 +36,7 @@ def test_independent_scalar_oracle(impl):
         x=torch.tensor([[[1.,-2.,4.,.5],[0.,3.,-1.,2.]],[[4.,1.,0.,2.],[-3.,-.5,2.,1.]]],dtype=dtype)
         for threshold in (1,2,4):
             for temperature in (.4,1.,2.5):
-                torch.testing.assert_close(impl.top_k_probs(x,threshold,temperature),oracle(x,threshold,temperature))
+                close(impl.top_k_probs(x,threshold,temperature),oracle(x,threshold,temperature))
 
 
 @pytest.mark.t2
@@ -46,9 +47,9 @@ def test_extreme_and_empty_boundaries(impl):
         x=torch.tensor([10000.,-10000.,0.],dtype=dtype)
         out=impl.top_k_probs(x,1,.01)
         assert torch.isfinite(out).all()
-        torch.testing.assert_close(out,torch.tensor([1.,0.,0.],dtype=dtype))
+        close(out,torch.tensor([1.,0.,0.],dtype=dtype))
         one=impl.top_k_probs(torch.tensor([7.],dtype=dtype),1)
-        torch.testing.assert_close(one,torch.ones(1,dtype=dtype))
+        close(one,torch.ones(1,dtype=dtype))
         empty=impl.top_k_probs(torch.empty(0,3,dtype=dtype),1)
         assert empty.shape==(0,3) and empty.dtype==dtype
 
@@ -65,7 +66,7 @@ def test_full_finite_scalar_range(impl):
     for x, k, temperature, expected in cases:
         out = impl.top_k_probs(x, k, temperature)
         assert torch.isfinite(out).all(), (x, k, temperature)
-        torch.testing.assert_close(out, torch.tensor(expected, dtype=x.dtype))
+        close(out, torch.tensor(expected, dtype=x.dtype))
 
 
 @pytest.mark.t2
@@ -74,12 +75,12 @@ def test_ties_threshold_and_full_distribution(impl):
 
     x=torch.zeros(4,dtype=torch.float64)
     expected=torch.tensor([.5,.5,0.,0.],dtype=x.dtype)
-    torch.testing.assert_close(impl.top_k_probs(x,2),expected)
+    close(impl.top_k_probs(x,2),expected)
     x=torch.tensor([[2.,1.,2.,2.]],dtype=torch.float64)
-    torch.testing.assert_close(impl.top_k_probs(x,2),oracle(x,2,1.))
+    close(impl.top_k_probs(x,2),oracle(x,2,1.))
     x=torch.tensor([0.,1.,-1.,3.],dtype=torch.float64)
     for temperature in (.25,2.,5.):
-        torch.testing.assert_close(impl.top_k_probs(x,4,temperature),torch.softmax(x/temperature,-1))
+        close(impl.top_k_probs(x,4,temperature),torch.softmax(x/temperature,-1))
 
 
 @pytest.mark.t2
@@ -87,10 +88,10 @@ def test_preservation_offsets_and_strides(impl):
     """Rows are independent, inputs unchanged, and logit offsets do not affect output."""
     x=torch.tensor([[2.,9.,-1.,8.,3.,7.,0.,6.],[1.,0.,4.,0.,-2.,0.,3.,0.]],dtype=torch.float64)[:,::2]
     before=x.clone(); out=impl.top_k_probs(x,2,.8)
-    torch.testing.assert_close(out,oracle(x,2,.8))
-    torch.testing.assert_close(impl.top_k_probs(x+torch.tensor([[100.],[-30.]],dtype=x.dtype),2,.8),out)
-    torch.testing.assert_close(x,before)
-    assert (out>=0).all();torch.testing.assert_close(out.sum(-1),torch.ones(2,dtype=x.dtype))
+    close(out,oracle(x,2,.8))
+    close(impl.top_k_probs(x+torch.tensor([[100.],[-30.]],dtype=x.dtype),2,.8),out)
+    close(x,before)
+    assert (out>=0).all();close(out.sum(-1),torch.ones(2,dtype=x.dtype))
 
 
 @pytest.mark.t3

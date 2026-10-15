@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import torch
 
 
@@ -6,10 +7,10 @@ def run(solve):
     logits=torch.tensor([.1,.5,.15,.25],dtype=torch.float64).log()
     for p in thresholds:
         probs=solve(logits,p)
-        torch.testing.assert_close(probs.sum(),torch.tensor(1.,dtype=logits.dtype))
+        close(probs.sum(),torch.tensor(1.,dtype=logits.dtype))
         counts.append(int((probs>0).sum()));maxima.append(probs.max().item())
     assert counts==[1,1,2,3,4]
-    torch.testing.assert_close(solve(logits,.6),torch.tensor([0.,2/3,0.,1/3],dtype=logits.dtype))
+    close(solve(logits,.6),torch.tensor([0.,2/3,0.,1/3],dtype=logits.dtype))
     observed, error = sampled_frequencies(solve(logits, .6), [0., 2/3, 0., 1/3], 42)
     sample_chart = {'kind':'line', 'title':'Actual nucleus sampling (8192 draws)',
                     'x':list(range(4)), 'x_label':'vocabulary index', 'y_label':'frequency',
@@ -29,7 +30,7 @@ def sampled_frequencies(probs, expected, seed):
     counts = torch.bincount(draws, minlength=probs.shape[-1])
     observed = counts.to(torch.float64) / sample_count
     target = torch.tensor(expected, dtype=torch.float64)
-    torch.testing.assert_close(probs, target)
+    close(probs, target)
     assert (counts[target == 0] == 0).all()
     error = float((observed - target).abs().max())
     assert error < .04  # >7 standard errors for these small categorical distributions.

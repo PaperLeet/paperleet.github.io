@@ -1,3 +1,4 @@
+from paperleet.common.asserts import assert_close_diagnostic as close
 import math
 import torch
 
@@ -9,7 +10,7 @@ def run(solve):
         probs=solve(logits,2,temperature)
         assert int((probs>0).sum())==2 and probs[1]==0 and probs[3]==0
         expected=1/(1+torch.exp(torch.tensor(-1/temperature,dtype=logits.dtype)))
-        torch.testing.assert_close(probs[2],expected)
+        close(probs[2],expected)
         maxima.append(probs.max().item())
         entropies.append(float(-(probs*probs.clamp(min=1e-30).log()).sum()))
     assert maxima[0]>maxima[-1] and entropies[0]<entropies[-1]
@@ -33,7 +34,7 @@ def sampled_frequencies(probs, expected, seed):
     counts = torch.bincount(draws, minlength=probs.shape[-1])
     observed = counts.to(torch.float64) / sample_count
     target = torch.tensor(expected, dtype=torch.float64)
-    torch.testing.assert_close(probs, target)
+    close(probs, target)
     assert (counts[target == 0] == 0).all()
     error = float((observed - target).abs().max())
     assert error < .04  # >7 standard errors for these small categorical distributions.
