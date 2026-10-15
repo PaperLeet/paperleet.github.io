@@ -960,6 +960,7 @@ def forward_guard(function, name):
         'torch.nn.functional.linear', 'torch.nn.functional.relu', 'torch.nn.functional.silu',
         'torch.nn.functional.softmax', 'torch.nn.functional.log_softmax',
         'torch.nn.functional.binary_cross_entropy_with_logits',
+        'torch.nn.functional.kl_div',
     }
     def contains(value):
         if isinstance(value, ForwardTensor): return True
@@ -1944,6 +1945,63 @@ def mse_loss(input, target, size_average=None, reduce=None, reduction='mean'):
     return losses if reduction == 'none' else losses.sum() if reduction == 'sum' else losses.mean()
 
 
+def kl_div(input, target, size_average=None, reduce=None, reduction='mean', log_target=False):
+    """Raw NumPy KL values and VJPs, including the target distribution graph."""
+    if size_average is not None or reduce is not None:
+        raise BrowserUnsupported('Legacy KL divergence options require the server')
+    if not isinstance(input, Tensor) or not isinstance(target, Tensor):
+        raise TypeError('KL divergence expects Tensor inputs and targets')
+    if input.dtype != target.dtype or input.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise BrowserUnsupported('KL divergence requires matching float32/float64 tensors')
+    if type(log_target) is not bool: raise TypeError('log_target must be a boolean')
+    if reduction not in ('none', 'sum', 'mean', 'batchmean'): raise ValueError('Invalid KL divergence reduction')
+    try: shape = np.broadcast_shapes(input.shape, target.shape)
+    except ValueError: raise RuntimeError('KL divergence input and target cannot broadcast') from None
+    divisor = int(np.prod(shape)) if reduction == 'mean' else input.shape[0] if reduction == 'batchmean' and input.ndim else 1
+    if isinstance(input, ForwardTensor) or isinstance(target, ForwardTensor):
+        x, dx = forward_parts(input); y, dy = forward_parts(target)
+        with np.errstate(over='ignore'):
+            valid_target = np.isfinite(np.exp(y._data)).all() if log_target else (y._data > 0).all()
+        if not valid_target or not np.isfinite(x._data).all() or not np.isfinite(y._data).all():
+            raise BrowserUnsupported('Nonfinite or nonpositive-probability KL JVP requires the server')
+        primal = kl_div(x, y, reduction=reduction, log_target=log_target)
+        tangent = y.exp() * ((y - x + 1) * dy - dx) if log_target else (y.log() + 1 - x) * dy - y * dx
+        tangent = tangent if reduction == 'none' else tangent.sum() / divisor
+        return ForwardTensor(primal, tangent)
+    x, y = input._data, target._data
+    with np.errstate(over='ignore', under='ignore', divide='ignore', invalid='ignore'):
+        if log_target:
+            probabilities = np.exp(y)
+            losses = probabilities * (y - x)
+            input_gradient = -probabilities
+            target_gradient = probabilities * (y - x) + probabilities
+        else:
+            logarithm = np.log(y)
+            # Native xlogy(0, 0) is zero, while target gradients at zero remain
+            # undefined. Keep 0*Inf/NaN from the separate target*input term.
+            losses = np.where(y == 0, np.zeros((), dtype=input.dtype), y * logarithm) - y * x
+            input_gradient = -y
+            target_gradient = logarithm + y / y - x
+        value = losses if reduction == 'none' else losses.sum() / divisor
+    def vjp(gradient, g, operand):
+        with np.errstate(over='ignore', divide='ignore', invalid='ignore'):
+            return unbroadcast(np.broadcast_to(gradient, shape) * g / divisor, operand.shape)
+    return result(np.asarray(value, dtype=input.dtype),
+                  (input, lambda g: vjp(input_gradient, g, input)),
+                  (target, lambda g: vjp(target_gradient, g, target)))
+
+
+class KLDivLoss(Module):
+    def __init__(self, size_average=None, reduce=None, reduction='mean', log_target=False):
+        super().__init__()
+        if size_average is not None or reduce is not None:
+            raise BrowserUnsupported('Legacy KL divergence options require the server')
+        self.reduction, self.log_target = reduction, log_target
+
+    def forward(self, input, target):
+        return kl_div(input, target, reduction=self.reduction, log_target=self.log_target)
+
+
 def cross_entropy(input, target, weight=None, size_average=None, ignore_index=-100,
                   reduce=None, reduction='mean', label_smoothing=0.):
     """Independent stable NumPy oracle/VJP for 2D class-index cross entropy."""
@@ -2236,6 +2294,7 @@ def install():
     torch.nn.Module, torch.nn.Parameter = Module, Parameter
     torch.nn.Linear, torch.nn.Sequential, torch.nn.SiLU, torch.nn.ReLU = Linear, Sequential, SiLU, ReLU
     torch.nn.BCEWithLogitsLoss = BCEWithLogitsLoss
+    torch.nn.KLDivLoss = KLDivLoss
     torch.testing = modules['testing']
     torch.testing.assert_close = assert_close
     torch.random = modules['random']
@@ -2254,6 +2313,7 @@ def install():
     torch.nn.functional.mse_loss = mse_loss
     torch.nn.functional.softplus = softplus
     torch.nn.functional.binary_cross_entropy_with_logits = binary_cross_entropy_with_logits
+    torch.nn.functional.kl_div = kl_div
     torch.nn.functional.silu = silu
     torch.nn.functional.layer_norm = layer_norm_oracle
     torch.nn.functional.rms_norm = rms_norm_oracle
