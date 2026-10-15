@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "workload": "Complete Flow Matching T0-T3 reference suite, including the unchanged 2000-step training and sampling experiment",
+  "problem": "diffusion/flow_matching",
+  "problem_source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+  "baseline_export_source_commit": "593ae75be6bae35b6b4c1e70776f30410afb06bd",
+  "candidate_kernel_commit": "d08cc5f67656f9bc973657cf9a52f8e6495a4792",
+  "release_target": "0.13.1",
+  "runtime": {
+    "node": "v24.11.1",
+    "pyodide": "0.29.4",
+    "numpy": "2.2.5",
+    "platform": "Darwin",
+    "machine": "arm64"
+  },
+  "procedure": "Alternating fresh Node/Pyodide processes. Runtime/package loading is excluded; full learner suite execution is included. No profiling was active during these six timing samples.",
+  "baseline_seconds": [
+    34.182842458,
+    33.729417958,
+    33.899802875
+  ],
+  "candidate_seconds": [
+    23.449490541,
+    23.865621084,
+    24.121028292
+  ],
+  "baseline_median_seconds": 33.899802875,
+  "candidate_median_seconds": 23.865621084,
+  "time_reduction_percent": 29.599528433836053,
+  "all_six_suites_passed": true,
+  "tests_per_suite": 8,
+  "loss_curve_equal": true,
+  "loss_curve_sha256": "e853ce6eaf3f41daeb702689a82fe17e691abd7dbc930c3cef05aa622dd12535",
+  "mmd": 0.012716227709823613,
+  "coverage": {
+    "proportions": [
+      0.10700000077486038,
+      0.10599999874830246,
+      0.10450000315904617,
+      0.09950000047683716,
+      0.10750000178813934,
+      0.09650000184774399,
+      0.13600000739097595,
+      0.11999999731779099
+    ],
+    "outlier_fraction": 0.12300000339746475,
+    "covered_modes": 8
+  },
+  "native_focused_cases_passed": 105,
+  "actual_wasm_linear_contract_cases_passed": 50,
+  "scope": "Local Node/WASM measurement; excludes browser downloads, UI, and server execution. It does not guarantee the same speedup or browser-deadline compliance on other devices."
+}
