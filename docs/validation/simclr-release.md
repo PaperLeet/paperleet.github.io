@@ -1,0 +1,11 @@
+# SimCLR release validation — 2026-10-15
+
+Port the already reviewed paper 57 / module 84 lesson from public development commit ba5cf5a onto the current published application and its own vendored torch runtime. Keep the full bilingual problem, nine T0–T3 tests, eight mutants, independent scalar objective and actual training experiment. Insert SimCLR before MoCo in the visual representation collection. No browser runtime changes are required.
+
+The lesson follows SimCLR Section 2.1 / Equation 1 and Algorithm 1: https://proceedings.mlr.press/v119/chen20j.html. It averages all 2B directed anchors, excludes only self, retains same-view negatives, normalizes rows and differentiates both views. The supplied lab trains two 6×8 vector tables (96 scalars) for 120 actual Adam updates, without images, encoders or a paper-benchmark claim. Its independent scalar objective agrees with the actual browser trajectory within 2.23e-16.
+
+Native CI repeats the complete reference and all mutants three times: 243 test cases, eight of eight mutants caught. The current runtime's complete exported browser calibration also passes all nine reference tests and catches all eight mutants. Frontend checks pass; standalone and hosted builds pass existing budgets. Hosted initial graph: 405,197 raw / 130,958 gzip bytes.
+
+A real opaque-origin Pyodide run passes 9/9 and renders the learner's loss, cosine separation, training retrieval and per-anchor charts. On this development machine the observed phases are preparation 1.63s, calibration 1.16s, complete learner tests .09s; these are not a server comparison or a universal browser benchmark. All 74 recorded static requests return 200, with zero API requests and no browser warnings/errors. The prior local testing draft is downloaded before replacement and restored byte-for-byte afterward. Evidence: ignored reports/simclr-release-browser-final.png and reports/simclr-release-browser-requests.json.
+
+Release order: publish the reviewed public branch for the private pin, validate and deploy the native worker allowlist/COPY update, then merge the public catalog entry. Until that sequence completes, local prototype success does not claim production availability.

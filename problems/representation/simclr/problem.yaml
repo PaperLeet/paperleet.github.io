@@ -1,0 +1,85 @@
+id: representation/simclr
+number: 84
+title: SimCLR 归一化温度对比损失
+title_en: SimCLR Normalized Temperature Contrastive Loss
+paper_id: simclr
+paper:
+  title: A Simple Framework for Contrastive Learning of Visual Representations
+  authors: Ting Chen, Simon Kornblith, Mohammad Norouzi, Geoffrey Hinton
+  venue: ICML 2020
+  arxiv: '2002.05709'
+  url: https://proceedings.mlr.press/v119/chen20j.html
+  anchors:
+  - 'Section 2.1 / Equation 1: NT-Xent'
+  - 'Algorithm 1: mean across 2N directed positive pairs'
+  official_code: https://github.com/google-research/simclr
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: nt_xent_loss
+  signature: 'nt_xent_loss(view1: Tensor, view2: Tensor, temperature: float = .5) -> Tensor'
+module:
+  goal: 实现包含同视图负样本的 2B 锚点 NT-Xent，并验证两组输入的梯度。
+  goal_en: Implement NT-Xent over 2B anchors including same-view negatives, preserving gradients into
+    both input views.
+  scope: 只实现 NT-Xent；已提供 6 对向量的 CPU 训练实验，不训练图像编码器或复现论文基准。
+  scope_en: Implement only NT-Xent; a supplied CPU lab trains 6 vector pairs, without an image encoder
+    or paper benchmark reproduction.
+  required_functions:
+  - nt_xent_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve shared float32/float64 input dtype. Tests use float64 for gradients.
+  device: CPU; no downloads, pretrained weights or GPU.
+  contract: Nonempty [B,D] views with finite values; finite positive Python temperature. Stack view1 then
+    view2, normalize each row by max(L2 norm, 1e-12), mask only self, mean over all 2B anchors. Inputs
+    are not modified.
+tests:
+  T0: 2
+  T1: 1
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 25
+tags:
+- Representation Learning
+- Contrastive Learning
+- Self Supervision
+- NT-Xent
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://proceedings.mlr.press/v119/chen20j.html
+  - https://proceedings.mlr.press/v119/chen20j/chen20j.pdf
+  - https://github.com/google-research/simclr/blob/master/objective.py
+toy:
+  kind: teaching_adaptation
+  source: https://proceedings.mlr.press/v119/chen20j.html
+  anchor: Equation 1 and Algorithm 1
+  adaptation: Original 6-pair synthetic CPU table optimization, with 120 actual updates; no paper benchmark
+    claim.
+mutants:
+- id: m1_no_normalization
+  bug: Skip cosine normalization
+- id: m2_self_in_denominator
+  bug: Keep self in denominator
+- id: m3_cross_view_only
+  bug: Exclude same-view negatives
+- id: m4_interleaved_targets
+  bug: Treat stacked views as interleaved pairs
+- id: m5_first_direction_only
+  bug: Average first view anchors only
+- id: m6_double_mean
+  bug: Sum directional means instead of averaging 2B anchors
+- id: m7_ignore_temperature
+  bug: Ignore temperature
+- id: m8_detach_second_view
+  bug: Detach second view gradients

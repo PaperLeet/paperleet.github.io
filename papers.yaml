@@ -614,6 +614,18 @@ papers:
     scope_en: Dense bipartite graphs, linear propagation, uniform layer aggregation and 160 actual synthetic training updates; no large sparse training or paper dataset benchmark.
     module_ids: [retrieval/lightgcn]
 
+  - id: simclr
+    number: 57
+    category: representation
+    short_title: SimCLR
+    year: 2020
+    tags: [Contrastive Learning, Self Supervision, NT-Xent]
+    summary: 用 2B 个锚点实现 NT-Xent，理解正样本映射、自身掩码、同视图负样本与温度。
+    summary_en: Implement NT-Xent over 2B anchors with positive-pair mapping, self masking, same-view negatives and temperature.
+    scope: 归一化对比损失、独立梯度检查及 6 对向量的真实 CPU 训练；不复现图像训练或论文基准。
+    scope_en: Normalized contrastive loss, independent gradient checks and actual CPU training on 6 vector pairs; no image-training or paper benchmark reproduction.
+    module_ids: [representation/simclr]
+
   - id: moco
     number: 58
     category: representation
