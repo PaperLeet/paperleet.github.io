@@ -3,7 +3,7 @@ import { JSDOM } from 'jsdom';
 import { createServer } from 'vite';
 
 const dom = new JSDOM('<!doctype html><div id="root"></div>', {url:'http://127.0.0.1/'});
-const previous = Object.fromEntries(['window','document','navigator','HTMLElement','IS_REACT_ACT_ENVIRONMENT','fetch'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+const previous = Object.fromEntries(['window','document','navigator','HTMLElement','IS_REACT_ACT_ENVIRONMENT','fetch','__proposalAccountFixture'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for (const key of ['window','document','navigator','HTMLElement']) Object.defineProperty(globalThis,key,{value:dom.window[key],configurable:true,writable:true});
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 const React=await import('react');
@@ -12,7 +12,7 @@ const {act}=React;
 const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
   name:'submission-account-fixture',enforce:'pre',
   resolveId(source,importer){if(source==='./social'&&importer?.endsWith('/src/Submissions.tsx'))return '\0submission-account-fixture';},
-  load(id){if(id==='\0submission-account-fixture')return 'export const useAccount=()=>({user:undefined,health:{mode:"local"},capabilities:{}});';},
+  load(id){if(id==='\0submission-account-fixture')return 'export const useAccount=()=>globalThis.__proposalAccountFixture;';},
 }]});
 let root;
 try {
@@ -32,11 +32,18 @@ try {
   const heading=()=>document.querySelector('.submission-detail-heading h2')?.textContent;
   const field=label=>[...document.querySelectorAll('label')].find(el=>[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===label)?.querySelector('input,textarea');
   const edit=async(label,value)=>{const el=field(label);assert(el,`Missing field ${label}`);await act(async()=>{const type=el.tagName==='INPUT'?'HTMLInputElement':'HTMLTextAreaElement';Object.getOwnPropertyDescriptor(dom.window[type].prototype,'value').set.call(el,value);el.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});};
-  const start=async({ready=false,rows=[A,B]}={})=>{
-    requestQueue.length=0;document.querySelector('#root').innerHTML='';root=createRoot(document.querySelector('#root'));
-    await act(async()=>root.render(React.createElement(LocaleProvider,null,React.createElement(LanguageSwitch),React.createElement(Submissions,{onPublished(){}}))));
-    await reply(next('/api/submissions/capabilities'),{mode:'local',can_submit:true,can_generate:true,can_review:true,generation:{ready,provider:'fixture',model:'fixture'},sandbox:{ready:false},human_review_required:true});
+  const localAccount={user:undefined,health:{mode:'local'},capabilities:{}};
+  const tree=()=>React.createElement(LocaleProvider,null,React.createElement(LanguageSwitch),React.createElement(Submissions,{onPublished(){}}));
+  const hydrate=async(ready,rows)=>{
+    await reply(next('/api/submissions/capabilities'),{mode:globalThis.__proposalAccountFixture.health.mode,can_submit:true,can_generate:true,can_review:true,generation:{ready,provider:'fixture',model:'fixture'},sandbox:{ready:false},human_review_required:true});
     await reply(next('/api/submissions'),{submissions:rows});
+  };
+  const start=async({ready=false,rows=[A,B],keepStorage=false,account=localAccount}={})=>{
+    if(!keepStorage)dom.window.sessionStorage.clear();
+    globalThis.__proposalAccountFixture=account;
+    requestQueue.length=0;document.querySelector('#root').innerHTML='';root=createRoot(document.querySelector('#root'));
+    await act(async()=>root.render(tree()));
+    await hydrate(ready,rows);
   };
   const stop=async()=>{await act(async()=>root.unmount());root=undefined;};
   await start();
@@ -148,7 +155,65 @@ try {
     assert.equal(polls.size,0,'A terminal response stops the sequential poll loop');
     await stop();
   } finally {globalThis.setTimeout=originalSetTimeout;globalThis.clearTimeout=originalClearTimeout;}
-  console.log('PASS proposal requests: latest selection, stale errors, new-form navigation, captured create payload, newer draft preservation, bilingual notices, exact saved-draft clearing, duplicate mutation gates, background updates, stale lists, sub-millisecond server versions and sequential ABA-safe polling');
+  const {proposalDraftKey,proposalDraftOwner,readProposalDraft}=await server.ssrLoadModule('/src/proposalDrafts.ts');
+  await start();
+  await edit('论文标题','  Restore paper 🧪  ');await edit('论文链接','https://arxiv.org/abs/2002.02126');
+  await edit('官方代码链接（可选）','https://github.com/kuandeng/LightGCN');await edit('练习重点（可选）','  exact focus\nnext line  ');
+  const excerptToggle=[...document.querySelectorAll('summary')].find(el=>el.textContent.trim()==='补充论文摘录（可选）');await click(excerptToggle);
+  const excerptInput=document.querySelector('.submission-form details textarea');
+  await act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLTextAreaElement.prototype,'value').set.call(excerptInput,'\n```python\nreturn x\n```\n');excerptInput.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
+  const draftRecord=readProposalDraft(dom.window.sessionStorage,'local').record;
+  assert(draftRecord,'All editable proposal fields must persist before navigation');
+  const savedDraft=draftRecord.draft;
+  await stop();await start({keepStorage:true});
+  assert.equal(field('论文标题').value,savedDraft.title);assert.equal(field('练习重点（可选）').value,savedDraft.focus);assert.equal(document.querySelector('.submission-form details textarea').value,savedDraft.excerpt);
+  assert(document.querySelector('.submission-form [role="status"]').textContent.includes('已恢复'));assert(!requestQueue.some(r=>r.method==='POST'),'Restoring a draft never submits it');
+  await act(async()=>document.querySelector('form.submission-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+  const savingDraft=next('/api/submissions','POST');await edit('论文标题','Different edit');await edit('论文标题',savedDraft.title);
+  await reply(savingDraft,item('e'.repeat(32),'Restored submission'));
+  assert.equal(field('论文标题').value,savedDraft.title);assert(readProposalDraft(dom.window.sessionStorage,'local').record,'An ABA edit stays recoverable after the older source succeeds');
+  await stop();await start({keepStorage:true});assert.equal(field('论文标题').value,savedDraft.title);
+  await act(async()=>document.querySelector('form.submission-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+  await reply(next('/api/submissions','POST'),{error:'Temporary API failure'},503);
+  await stop();await start({keepStorage:true});assert.equal(field('论文标题').value,savedDraft.title,'A failed submission keeps the tab draft');
+  await act(async()=>document.querySelector('form.submission-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+  const exact=next('/api/submissions','POST');assert.deepEqual(Object.keys(JSON.parse(exact.body)).sort(),['code_url','excerpt','focus','paper_url','title'],'Draft owner/revision metadata never enters the API payload');assert(readProposalDraft(dom.window.sessionStorage,'local').record,'Do not clear before acknowledgement');
+  await reply(exact,item('f'.repeat(32),'Acknowledged proposal'));
+  assert.equal(readProposalDraft(dom.window.sessionStorage,'local').record,undefined);await stop();await start({keepStorage:true});assert.equal(field('论文标题').value,'','An acknowledged unchanged draft must not reappear');await stop();
+
+  const aliceAccount={user:{id:'alice',role:'member'},health:{mode:'hosted'},capabilities:{}},bobAccount={...aliceAccount,user:{id:'bob',role:'member'}};
+  await start({account:aliceAccount});await edit('论文标题','Alice private draft');
+  globalThis.__proposalAccountFixture=bobAccount;await act(async()=>root.render(tree()));await hydrate(false,[B]);
+  assert.equal(field('论文标题').value,'','Account switches remount before reading another owner’s draft');await edit('论文标题','Bob private draft');
+  globalThis.__proposalAccountFixture=aliceAccount;await act(async()=>root.render(tree()));await hydrate(false,[A]);
+  assert.equal(field('论文标题').value,'Alice private draft');assert.equal(readProposalDraft(dom.window.sessionStorage,proposalDraftOwner('hosted','bob')).record.draft.title,'Bob private draft');
+  await stop();
+
+  await start({account:aliceAccount});await edit('论文标题','Alice pending save');await edit('论文链接','https://arxiv.org/abs/2002.02126');
+  await act(async()=>document.querySelector('form.submission-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+  const oldOwnerRequest=next('/api/submissions','POST');
+  globalThis.__proposalAccountFixture=bobAccount;await act(async()=>root.render(tree()));await hydrate(false,[B]);await edit('论文标题','Bob keeps editing');
+  await reply(oldOwnerRequest,item('1'.repeat(32),'Alice confirmed elsewhere'));
+  assert.equal(field('论文标题').value,'Bob keeps editing');assert.equal(readProposalDraft(dom.window.sessionStorage,proposalDraftOwner('hosted','alice')).record.draft.title,'Alice pending save','An unmounted account’s uncertain result does not clean a restored draft');await stop();
+
+  await start();await edit('论文标题','Saved but cleanup blocked');await edit('论文链接','https://arxiv.org/abs/2002.02126');
+  const removeItem=dom.window.Storage.prototype.removeItem;
+  dom.window.Storage.prototype.removeItem=function(key){if(key===proposalDraftKey('local'))throw Error('Delete denied');return removeItem.call(this,key);};
+  try {
+    await act(async()=>document.querySelector('form.submission-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+    await reply(next('/api/submissions','POST'),item('2'.repeat(32),'Saved but cleanup blocked'));
+    await click(button('新提交'));assert(document.querySelector('.submission-form [role="status"]').textContent.includes('仍保留一份草稿'),'A failed cleanup must not claim the old draft was cleared');
+    assert(readProposalDraft(dom.window.sessionStorage,'local').record);await stop();
+  } finally {dom.window.Storage.prototype.removeItem=removeItem;}
+
+  const storageDescriptor=Object.getOwnPropertyDescriptor(dom.window,'sessionStorage');
+  Object.defineProperty(dom.window,'sessionStorage',{configurable:true,get(){throw Error('Storage blocked');}});
+  try {
+    await start({keepStorage:true});await edit('论文标题','In-memory draft');
+    assert.equal(field('论文标题').value,'In-memory draft');assert(document.querySelector('.submission-form [role="status"]').textContent.includes('暂时无法保存'),'Blocked storage must never claim the draft is saved');
+    await stop();
+  } finally {Object.defineProperty(dom.window,'sessionStorage',storageDescriptor);}
+  console.log('PASS proposal requests: latest selection, stale errors, new-form navigation, captured create payload, newer draft preservation, bilingual notices, exact saved-draft clearing, duplicate mutation gates, background updates, stale lists, sub-millisecond server versions, sequential ABA-safe polling, five-field refresh recovery, per-account drafts, failed/confirmed submissions and blocked-storage notices');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();

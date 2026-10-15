@@ -23,6 +23,8 @@ import { signInHref } from "./accountNavigation";
 import { Highlight } from "./SyntaxHighlight";
 import { Prose } from "./RichText";
 import { ArtifactCharts } from "./Visuals";
+import { tabDraftStorage } from "./communityDrafts";
+import { clearSubmittedProposalDraft, emptyProposalDraft, proposalDraftOwner, readProposalDraft, writeProposalDraft, type ProposalDraft } from "./proposalDrafts";
 
 type Candidate = {
   title: string;
@@ -139,13 +141,25 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
     throw Error(currentQuotaMessage(data) || data.error || `Request failed (${response.status})`);
   return data;
 }
-export default function Submissions({
-  onPublished,
-}: {
-  onPublished: () => void;
-}) {
+export default function Submissions({onPublished}: {onPublished: () => void}) {
+  const {user, health} = useAccount();
+  const owner = proposalDraftOwner(health?.mode, user?.id);
+  return <SubmissionWorkspace key={owner || "unresolved"} draftOwner={owner} onPublished={onPublished} />;
+}
+
+function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void; draftOwner?: string}) {
   const { t, locale } = useI18n();
   const { user, health, capabilities: accountCapabilities } = useAccount();
+
+  const [loadedDraft] = useState(() => readProposalDraft(tabDraftStorage(), draftOwner));
+  const [draft, setDraft] = useState<ProposalDraft>(() => loadedDraft.record?.draft || emptyProposalDraft());
+  const draftSource = useRef(draft);
+  const storedRevision = useRef(loadedDraft.record?.revision);
+  const [draftSaved, setDraftSaved] = useState(loadedDraft.available);
+  const [draftRestored, setDraftRestored] = useState(!!loadedDraft.record);
+  const [draftUncleared, setDraftUncleared] = useState(false);
+  const {title, paperUrl, codeUrl, excerpt, focus} = draft;
+
   const [caps, setCaps] = useState<Capabilities>(),
     [items, setItems] = useState<Submission[]>([]),
     [selected, setSelected] = useState<Submission>(),
@@ -153,11 +167,6 @@ export default function Submissions({
     [error, setError] = useState(""),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
-    [title, setTitle] = useState(""),
-    [paperUrl, setPaperUrl] = useState(""),
-    [codeUrl, setCodeUrl] = useState(""),
-    [excerpt, setExcerpt] = useState(""),
-    [focus, setFocus] = useState(""),
     [candidateTab, setCandidateTab] = useState("problem"),
     [reviewer, setReviewer] = useState(""),
     [reviewNotes, setReviewNotes] = useState(""),
@@ -181,9 +190,16 @@ export default function Submissions({
     selection.current = token;
     setSelectionKey((key) => key + 1);
   }
-  function editDraft(setValue: (value: string) => void, value: string) {
+  function editDraft(change: Partial<ProposalDraft>) {
     draftRevision.current += 1;
-    setValue(value);
+    const next = {...draftSource.current, ...change};
+    draftSource.current = next;
+    setDraft(next);
+    const saved = writeProposalDraft(tabDraftStorage(), draftOwner, next);
+    storedRevision.current = saved.revision;
+    setDraftSaved(saved.saved);
+    setDraftRestored(false);
+    setDraftUncleared(false);
   }
   function newSubmission() {
     trackSelection({});
@@ -193,7 +209,7 @@ export default function Submissions({
     setNotice("");
   }
   const hosted = health?.mode === "hosted" || caps?.mode === "hosted";
-  const canSubmit = caps?.can_submit ?? health?.mode === "local";
+  const canSubmit = !!draftOwner && (caps?.can_submit ?? health?.mode === "local");
   const canGenerate = caps?.can_generate ?? health?.mode === "local";
   const canReview = caps?.can_review ?? health?.mode === "local";
   const managedNotice = t(
@@ -307,20 +323,32 @@ export default function Submissions({
     working.current = true;
     const revision = draftRevision.current;
     let token = selection.current;
-    const draft = {title, paper_url:paperUrl, code_url:codeUrl, excerpt, focus};
+    const submitted = {...draftSource.current};
+    const submittedStorageRevision = storedRevision.current;
+    const payload = {title:submitted.title, paper_url:submitted.paperUrl, code_url:submitted.codeUrl, excerpt:submitted.excerpt, focus:submitted.focus};
     setBusy(true);
     setError("");
     setNotice("");
     try {
-      const item = await api<Submission>("", draft);
+      const item = await api<Submission>("", payload);
       if (!mounted.current) return;
       rememberItem(item);
-      if (current(token) && draftRevision.current === revision) {
+      const unchangedDraft = draftRevision.current === revision;
+      const cleared = clearSubmittedProposalDraft(tabDraftStorage(), draftOwner, submittedStorageRevision, submitted);
+      if (unchangedDraft) {
+        const empty = emptyProposalDraft();
+        draftSource.current = empty;
+        storedRevision.current = undefined;
+        setDraft(empty);
+        setDraftRestored(false);
+        setDraftSaved(cleared === "cleared");
+        setDraftUncleared(cleared !== "cleared");
+      }
+      if (current(token) && unchangedDraft) {
         token = {id:item.id};
         trackSelection(token);
         setSelected(item);
         setView("detail");
-        setTitle(""); setPaperUrl(""); setCodeUrl(""); setExcerpt(""); setFocus("");
       } else {
         setNotice(item.title);
       }
@@ -554,13 +582,20 @@ export default function Submissions({
               )}
               {canSubmit && (
                 <form className="submission-form" onSubmit={create}>
+                  <p className="submission-muted" role="status">{draftUncleared
+                    ? t("提交已保存；标签页中仍保留一份草稿，刷新后请核对提交记录。", "Your submission was saved, but a draft remains in this tab. Check the submission list after refreshing.")
+                    : !draftSaved
+                      ? t("此标签页暂时无法保存草稿；离开或刷新前，请先复制内容。", "This tab cannot save the draft right now. Copy your text before leaving or refreshing.")
+                      : draftRestored
+                        ? t("已恢复此标签页保存的草稿，继续编辑会自动保存。", "The draft saved in this tab was restored. Further edits are saved automatically.")
+                        : t("草稿按账号保存在此标签页，刷新或返回此页可恢复。", "Drafts stay in this tab, separately for each account. Refreshing or returning to this page restores them.")}</p>
                   <label>
                     {t("论文标题", "Paper title")}
                     <input
                       required
                       maxLength={240}
                       value={title}
-                      onChange={(e) => editDraft(setTitle, e.target.value)}
+                      onChange={(e) => editDraft({title: e.target.value})}
                       placeholder={t("输入论文标题", "Enter the paper title")}
                     />
                   </label>
@@ -570,7 +605,8 @@ export default function Submissions({
                       type="url"
                       required
                       value={paperUrl}
-                      onChange={(e) => editDraft(setPaperUrl, e.target.value)}
+                      maxLength={2048}
+                      onChange={(e) => editDraft({paperUrl: e.target.value})}
                       placeholder="https://arxiv.org/abs/…"
                     />
                   </label>
@@ -579,7 +615,8 @@ export default function Submissions({
                     <input
                       type="url"
                       value={codeUrl}
-                      onChange={(e) => editDraft(setCodeUrl, e.target.value)}
+                      maxLength={2048}
+                      onChange={(e) => editDraft({codeUrl: e.target.value})}
                       placeholder="https://github.com/…"
                     />
                   </label>
@@ -589,7 +626,7 @@ export default function Submissions({
                       rows={3}
                       maxLength={4000}
                       value={focus}
-                      onChange={(e) => editDraft(setFocus, e.target.value)}
+                      onChange={(e) => editDraft({focus: e.target.value})}
                       placeholder={t(
                         "例如：只提炼核心 loss，并验证梯度、mask 和归一化。",
                         "For example: extract the core loss and verify gradients, masks, and normalization.",
@@ -611,7 +648,7 @@ export default function Submissions({
                         rows={7}
                         maxLength={60000}
                         value={excerpt}
-                        onChange={(e) => editDraft(setExcerpt, e.target.value)}
+                        onChange={(e) => editDraft({excerpt: e.target.value})}
                         placeholder={t(
                           "粘贴核心公式、伪代码和相关段落，帮助模型定位。",
                           "Paste key formulas, pseudocode, or relevant passages.",
