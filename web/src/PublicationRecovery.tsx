@@ -2,6 +2,7 @@ import { useI18n } from './i18n';
 import { samePublication, type PendingPublication, type PublicationPayload } from './publicationRequests';
 import {readInterviewDetails} from './interviewModels';
 import InterviewMeta from './InterviewMeta';
+import PaperPreviewCard from './PaperPreviewCard';
 
 export default function PublicationRecovery({pending,payload,busy,onRetry}:{pending?:PendingPublication;payload:PublicationPayload;busy:boolean;onRetry:()=>void}) {
   const {t}=useI18n();
@@ -20,6 +21,7 @@ export default function PublicationRecovery({pending,payload,busy,onRetry}:{pend
       {pending.receipt.payload.title&&<strong>{pending.receipt.payload.title}</strong>}
       {interview&&<InterviewMeta details={interview} compact/>}
       <pre tabIndex={0}>{pending.receipt.payload.body}</pre>
+      <PaperPreviewCard url={pending.receipt.payload.paper_url} compact/>
       {pending.receipt.payload.parent_id&&<small>{t('这份发布包含指定回复对象。','This publication targets a specific reply.')}</small>}
     </details>
     {changed&&<button className="button subtle" type="button" onClick={onRetry}>{t('重试此前发布','Retry previous publication')}</button>}

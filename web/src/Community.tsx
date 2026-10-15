@@ -60,6 +60,9 @@ import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
 import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
+import PaperLinkField from './PaperLinkField';
+import PaperPreviewCard from './PaperPreviewCard';
+import { canonicalArxivUrl } from './communityPapers';
 type Profile = PublicUser & {
   counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
@@ -235,6 +238,7 @@ function PostCard({ post, activity, returnTo }: { post: Post; activity?: ReactNo
           <p className="post-excerpt">
             {post.body.replace(/[#*`>\[\]]/g, "").slice(0, 190)}
           </p>
+          <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           <div className="post-card-counts">
             <span>
               <MessageCircle size={13} />
@@ -259,6 +263,7 @@ function Composer({
   topic,
   owner,
   scope,
+  papersAvailable,
   onDraftChange,
   onClose,
 }: {
@@ -266,6 +271,7 @@ function Composer({
   topic?: ProblemTopic;
   owner: string;
   scope: string;
+  papersAvailable: boolean;
   onDraftChange: (available: boolean) => void;
   onClose: () => void;
 }) {
@@ -300,13 +306,22 @@ function Composer({
       ? t("未发布草稿已保存在本标签页，仅当前账号可恢复。", "Unpublished draft saved in this tab, separately for your account.")
       : t("草稿仅保存在本标签页，发布后才会公开。", "Drafts stay in this tab and become public only when published.");
   function discardDraft() {
-    edit({ title: "", body: "", category: initialCategory });
+    edit({ title: "", body: "", category: initialCategory, paperUrl: "" });
     setDiscardRequested(false);
     setPreview(false);
   }
   async function publish(previous?:PublicationReceipt) {
     if (busy || publishing.current) return;
     const submitted = { ...currentDraft.current };
+    const paperUrl = previous ? previous.payload.paper_url : (submitted.category === 'papers' ? submitted.paperUrl : undefined);
+    if (paperUrl && !papersAvailable) {
+      setError(t('论文链接暂时无法保存，请保留草稿并稍后重试。', 'Paper links cannot be saved right now. Keep your draft and try again shortly.'));
+      return;
+    }
+    if (!previous && submitted.category === 'papers' && papersAvailable && !canonicalArxivUrl(submitted.paperUrl)) {
+      setError(t('请添加有效的 arXiv 论文链接。', 'Add a valid arXiv paper link.'));
+      return;
+    }
     const submittedRoute = location.hash;
     setBusy(true);
     publishing.current = true;
@@ -332,7 +347,7 @@ function Composer({
   return (
     <section className="social-panel community-composer">
       <div className="panel-title">
-        <h2>{t("发布帖子", "Start a discussion")}</h2>
+        <h2>{board === 'papers' ? t('发起论文讨论', 'Discuss a paper') : t("发布帖子", "Start a discussion")}</h2>
         <button
           className="icon-button"
           aria-label={t("关闭发帖", "Close composer")}
@@ -358,7 +373,7 @@ function Composer({
       </div>
       {discardRequested && (
         <div className="draft-discard-confirm" role="alert">
-          <span>{t("丢弃后无法恢复，确定清空标题和正文？", "Discard this draft? Its title and body cannot be recovered.")}</span>
+          <span>{t("丢弃后无法恢复，确定清空标题、正文和论文链接？", "Discard this draft? Its title, body, and paper link cannot be recovered.")}</span>
           <button type="button" disabled={busy} onClick={discardDraft}>{t("确认丢弃", "Discard")}</button>
           <button type="button" onClick={() => setDiscardRequested(false)}>{t("保留草稿", "Keep draft")}</button>
         </div>
@@ -381,6 +396,7 @@ function Composer({
             ))}
           </select>
         </label>
+        {board === 'papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl => edit({ paperUrl })} owner={owner} available={papersAvailable} required={papersAvailable} disabled={busy} onUseTitle={paperTitle => edit({ title: paperTitle.slice(0, 160) })} />}
         <label>
           {t("标题", "Title")}
           <input
@@ -389,7 +405,7 @@ function Composer({
             minLength={3}
             value={title}
             disabled={busy}
-            placeholder={t("你想讨论什么？", "What would you like to discuss?")}
+            placeholder={board === 'papers' ? t('这篇论文的哪个观点值得讨论？', 'What would you like to discuss about this paper?') : t("你想讨论什么？", "What would you like to discuss?")}
             onChange={(e) => edit({ title: e.target.value })}
           />
         </label>
@@ -433,7 +449,7 @@ function Composer({
               maxLength={20000}
               value={body}
               disabled={busy}
-              placeholder={t(
+              placeholder={board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t(
                 "分享背景、思考或代码片段…",
                 "Share context, ideas, or a code snippet…",
               )}
@@ -565,11 +581,11 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         </a>
       )}
       <div className="social-page-heading community-heading">
-        <h1>{topicId ? t("题目讨论", "Module discussions") : t("社区", "Community")}</h1>
+        <h1>{topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
         {user && (!topicId || topic) ? (
           <button className="button" onClick={() => setCompose(true)}>
             <Plus size={16} />
-            {draftAvailable ? t("继续草稿", "Resume draft") : t("发布帖子", "New post")}
+            {draftAvailable ? t("继续草稿", "Resume draft") : category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
           </button>
         ) : !user ? (
           <a className="button" href={signInHref(returnTo)}>
@@ -614,8 +630,14 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           </section>
         </aside>
         <section className="community-feed">
+          {category === 'papers' && !topicId && <section className="paper-board-intro" aria-label={t('论文讨论板块', 'Paper discussion board')}>
+            <BookOpen size={23} />
+            <div><h2>{t('从一篇论文，开始一场讨论。', 'Bring a paper. Start a conversation.')}</h2>
+              <p>{capabilities?.community_papers ? t('粘贴 arXiv 链接，附上论文预览，分享你的问题、理解或复现结果。', 'Attach an arXiv paper with a preview, then share your questions, insights, or reproduction results.') : t('分享你正在读的论文，讨论方法、实验和复现中的发现。', 'Share what you are reading and discuss its methods, experiments, and reproduction results.')}</p>
+            </div>
+          </section>}
           {compose && user && (
-            <Composer category={category} topic={topic} owner={user.id} scope={draftScope} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
+            <Composer category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
           )}
           <div className="community-feed-toolbar">
             <div className="social-tabs compact">
@@ -945,6 +967,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
             </div>
             {post.interview && <InterviewMeta details={post.interview} returnTo={returnTo}/>}
             <CommunityMarkdown body={post.body} />
+            <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
               <button
                 className={post.viewer.liked ? "active" : ""}

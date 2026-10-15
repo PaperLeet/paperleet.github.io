@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import CommunityMarkdown, { CommunityFormatHelp } from './CommunityMarkdown';
 import { useI18n } from './i18n';
-import { SocialError, SocialNotice, errorMessage, socialApi } from './social';
+import { SocialError, SocialNotice, errorMessage, socialApi, useAccount } from './social';
 import type { Post } from './communityDiscussion';
 import { tabDraftStorage } from './communityDrafts';
 import { canEditPost, clearSavedPostEdit, newPostEdit, readPostEdit, writePostEdit, type PostEditDraft } from './communityEdits';
 import InterviewFields,{type InterviewModule} from './InterviewFields';
 import {loadInterviewModules} from './interviewApi';
 import InterviewMeta from './InterviewMeta';
+import PaperLinkField from './PaperLinkField';
+import PaperPreviewCard from './PaperPreviewCard';
+import { canonicalArxivUrl } from './communityPapers';
 
 const categories=[['papers','论文讨论','Papers'],['implementation','代码实现','Implementation'],['questions','问题求助','Questions'],['career','学术与职业','Research & careers'],['lounge','闲聊','Lounge']] as const;
 
@@ -15,6 +18,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
 }) {
   const {t}=useI18n();
+  const {capabilities}=useAccount();
   const [draft,setDraft]=useState(()=>readPostEdit(tabDraftStorage(),owner,post.id)||newPostEdit(post));
   const current=useRef(draft), mounted=useRef(true), saving=useRef(false);
   const [busy,setBusy]=useState(false), [error,setError]=useState(''), [saved,setSaved]=useState<boolean|null>(null);
@@ -35,12 +39,17 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   }
   async function save() {
     if(busy||disabled||saving.current||needsReview||!canEditPost(post,owner)||!draft.title.trim()||!draft.body.trim())return;
+    if(draft.category==='papers' && draft.paperUrl?.trim() && (!canonicalArxivUrl(draft.paperUrl) || !capabilities?.community_papers)) {
+      setError(!capabilities?.community_papers ? t('论文链接暂时无法保存，请保留修改草稿并稍后重试。','Paper links cannot be saved right now. Keep your edit draft and try again shortly.') : t('请添加有效的 arXiv 论文链接，或清空此字段。','Add a valid arXiv paper link, or clear the field.'));
+      return;
+    }
     const submitted={...current.current};saving.current=true;setBusy(true);setError('');
     try {
       const confirmed=await socialApi<Post>(`community/posts/${encodeURIComponent(post.id)}/edit`,{
         title:submitted.title,body:submitted.body,category:submitted.category,
         expected_version:submitted.baseVersion,expected_user_id:owner,
         ...(submitted.interview?{interview:submitted.interview}:{}),
+        ...((submitted.paperUrl !== undefined || post.paper_url) ? {paper_url:submitted.category==='papers' ? canonicalArxivUrl(submitted.paperUrl) || null : null} : {}),
       });
       clearSavedPostEdit(tabDraftStorage(),owner,post.id,submitted);
       if(mounted.current)onSaved(confirmed);
@@ -61,7 +70,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       :t('修改草稿按账号和帖子保存在本标签页；保存修改后才会公开更新。','Edit drafts stay in this tab, separately for your account and post. Changes become public only when saved.')}</p>
     {needsReview&&<div className="publication-recovery" role="status">
       <p>{t('当前草稿基于较早版本。请对照最新帖子，将需要保留的内容合并到草稿。','This draft is based on an older version. Compare the latest post and merge anything you want to keep into your draft.')}</p>
-      <details open><summary>{t('最新帖子内容','Latest post content')}</summary><strong>{post.title}</strong>{post.interview&&<InterviewMeta details={post.interview}/>}<CommunityMarkdown body={post.body}/><p>{t('版块','Category')}: {currentCategory?t(currentCategory[1],currentCategory[2]):post.category}</p></details>
+      <details open><summary>{t('最新帖子内容','Latest post content')}</summary><strong>{post.title}</strong>{post.interview&&<InterviewMeta details={post.interview}/>}<CommunityMarkdown body={post.body}/><PaperPreviewCard url={post.paper_url} paper={post.paper}/><p>{t('版块','Category')}: {currentCategory?t(currentCategory[1],currentCategory[2]):post.category}</p></details>
       <button type="button" disabled={busy||disabled} onClick={()=>{edit({baseVersion:post.edit_version!});setError('');}}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
@@ -70,6 +79,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       <label>{t('版块','Category')}<select value={draft.category} disabled={busy||!!post.interview} onChange={e=>edit({category:e.target.value})}>
         {categories.map(([value,zh,en])=><option key={value} value={value}>{t(zh,en)}</option>)}
       </select></label>
+      {draft.category==='papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl=>edit({paperUrl})} owner={owner} available={capabilities?.community_papers===true} disabled={busy} initialPaper={post.paper} onUseTitle={title=>edit({title:title.slice(0,180)})}/>}
       <label>{t('标题','Title')}<input autoFocus required maxLength={180} value={draft.title} disabled={busy} onChange={e=>edit({title:e.target.value})}/></label>
       <div className="editor-toggle" role="group" aria-label={t('帖子修改模式','Post edit mode')}>
         <button type="button" disabled={busy} aria-pressed={!preview} className={!preview?'selected':''} onClick={()=>setPreview(false)}>{t('编写','Write')}</button>

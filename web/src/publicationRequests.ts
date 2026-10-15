@@ -1,6 +1,7 @@
 import type { DraftStorage, PostDraft } from './communityDrafts';
 import type { ReplyDraft } from './replyDrafts';
 import {readInterviewDetails} from './interviewModels';
+import {canonicalArxivUrl} from './communityPapers';
 
 export type PublicationKind = 'post' | 'reply' | 'interview';
 export type PublicationPayload = Record<string,string|null>;
@@ -11,7 +12,10 @@ const token = /^[a-f0-9]{32}$/;
 const moduleId = /^[a-z0-9_-]+\/[a-z0-9_-]+$/;
 export const publicationKey = (owner:string,kind:PublicationKind,scope:string) => `paperleet.community.publication.v1:${encodeURIComponent(owner)}:${kind}:${encodeURIComponent(scope)}`;
 export const publicationSignature = (payload:PublicationPayload) => JSON.stringify(payload,Object.keys(payload).sort());
-export const postPublication = (draft:PostDraft,topic?:string):PublicationPayload => ({title:draft.title.trim(),body:draft.body.trim(),category:draft.category,problem_id:topic || null});
+// This is also used during render. Invalid input stays visible in the draft;
+// preparePublication rejects it before a request can be sent.
+export const postPublication = (draft:PostDraft,topic?:string):PublicationPayload => ({title:draft.title.trim(),body:draft.body.trim(),category:draft.category,problem_id:topic || null,
+  ...(draft.category==='papers'&&draft.paperUrl?.trim()?{paper_url:canonicalArxivUrl(draft.paperUrl)||draft.paperUrl}:{})});
 export const replyPublication = (draft:ReplyDraft):PublicationPayload => ({body:draft.body.trim(),parent_id:draft.parentId || null});
 export const samePublication = (receipt:PublicationReceipt,payload:PublicationPayload) => publicationSignature(receipt.payload)===publicationSignature(payload);
 function valid(receipt:PublicationReceipt,owner:string,kind:PublicationKind,scope:string) {
@@ -23,8 +27,9 @@ function valid(receipt:PublicationReceipt,owner:string,kind:PublicationKind,scop
     if(keys!=='body,category,interview,problem_id,title'||scope!=='general'||p.category!=='career'||p.problem_id!==null||typeof p.title!=='string'||!p.title.trim()||p.title.length>180||typeof p.interview!=='string'||p.interview.length>10000)return false;
     try{return !!readInterviewDetails(JSON.parse(p.interview));}catch{return false;}
   }
-  return kind==='post' ? keys==='body,category,problem_id,title' && typeof p.title==='string' && !!p.title.trim() && p.title.length<=180
+  return kind==='post' ? (keys==='body,category,problem_id,title'||keys==='body,category,paper_url,problem_id,title') && typeof p.title==='string' && !!p.title.trim() && p.title.length<=180
     && ['papers','implementation','questions','career','lounge'].includes(p.category || '')
+    && (!Object.hasOwn(p,'paper_url') || p.paper_url===null || (p.category==='papers' && typeof p.paper_url==='string' && canonicalArxivUrl(p.paper_url)===p.paper_url))
     && (scope==='general'?p.problem_id===null:moduleId.test(scope)&&p.problem_id===scope)
     : keys==='body,parent_id' && token.test(scope) && (p.parent_id===null || typeof p.parent_id==='string' && token.test(p.parent_id));
 }
