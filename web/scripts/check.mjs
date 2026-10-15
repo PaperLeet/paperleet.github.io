@@ -183,7 +183,7 @@ try {
   console.log("PASS bilingual module searches, paper searches, difficulty conjunction, and pristine-starter status");
   const rowIds = (html) => [...html.matchAll(/href="#\/papers\/([^?\"]+)(?:\?[^\"]*)?"/g)].map((match) => match[1]);
   const {libraryReturnHref} = await server.ssrLoadModule('/src/libraryNavigation.ts');
-  const headingText = (html) => html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)[1]
+  const headingText = (html, className = "library-heading") => html.match(new RegExp(`<header\\b[^>]*class="${className}"[^>]*>([\\s\\S]*?)<\\/header>`))[1]
     // Inactive translations reserve layout space but are not readable headings.
     .replace(/<span\b[^>]*aria-hidden="true"[^>]*>[^<]*<\/span>/g, "")
     .replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
@@ -205,8 +205,11 @@ try {
     const outside = catalog.problems.find((module) => !moduleIds.has(module.id));
     const saved = {[inside.id]: acceptedFixture(inside), [outside.id]: acceptedFixture(outside)};
     const html = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved, collectionId: list.id}));
-    assert(html.includes(`href="#/collections/${list.id}" aria-current="page"`),
-      `${list.id}: selected card must expose its canonical collection route`);
+    const allHtml = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved}));
+    assert(allHtml.includes(`class="collection-card collection-${list.id}" href="#/collections/${list.id}"`),
+      `${list.id}: the homepage card must expose its canonical collection route`);
+    assert(!html.includes('featured-collections') && html.includes('collection-page-header'),
+      `${list.id}: a collection opens its own page without the homepage collection rail`);
     assert(html.includes(`从当前范围内 ${moduleIds.size - 1} 道未开始的题目中随机选择`),
       `${list.id}: random candidates must exclude accepted modules and stay inside the collection`);
     const completed = Object.fromEntries(catalog.problems.filter((module) => moduleIds.has(module.id))
@@ -219,11 +222,11 @@ try {
       `${list.id}: the library must show exactly the selected papers in curated order`);
     for (const match of html.matchAll(/href="(#\/papers\/[^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), `#/collections/${list.id}`,
       'Every collection paper must retain its library return context');
-    assert(headingText(html).includes(`${list.name} ${members.length}`),
-      `${list.id}: the heading must count papers within the selected collection`);
+    const collectionHeading = headingText(html, 'collection-page-header');
+    assert(collectionHeading.includes(list.name) && collectionHeading.includes(`${members.length} 篇论文`) && collectionHeading.includes(`${moduleIds.size} 道题`),
+      `${list.id}: the dedicated heading must name its collection and count its own papers/modules`);
     assert(headingText(html).includes(`已通过模块 1 / ${moduleIds.size}`),
       `${list.id}: an accepted module outside this collection must not affect its progress`);
-    const allHtml = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved}));
     assert.deepEqual(rowIds(allHtml), catalog.papers.map((paper) => paper.id),
       "All papers must retain the complete catalog order");
     assert(headingText(allHtml).includes(`已通过模块 2 / ${catalog.problems.length}`),
