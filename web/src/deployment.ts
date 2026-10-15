@@ -10,7 +10,7 @@ export function validateHostedAppUrl(value: string): string {
     throw Error("The hosted application must be an HTTPS origin");
   return url.origin;
 }
-const hostedApp = publicSite ? validateHostedAppUrl(import.meta.env.VITE_HOSTED_APP_URL || "") : "";
+const hostedApp = publicSite && hostedAppAvailable ? validateHostedAppUrl(import.meta.env.VITE_HOSTED_APP_URL || "") : "";
 export function hostedAppHref(hash = "#/"): string {
   if (!publicSite) return hash;
   if (!hostedAppAvailable) return "#/";

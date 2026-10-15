@@ -3,14 +3,18 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { createServer } from "vite";
 
-for (const [publicMode, appAvailable, hostedEdition] of [[false, false, false], [false, true, true], [true, true, false], [true, false, false]]) {
+for (const [publicMode, appAvailable, hostedEdition, hostedUrl] of [
+  [false, false, false, ""], [false, true, true, ""],
+  [true, true, false, "https://app.paperleet.com"],
+  [true, false, false, ""], [true, false, false, "not a URL"],
+]) {
   const server = await createServer({
     server: { middlewareMode: true }, appType: "custom",
     optimizeDeps: { noDiscovery: true, entries: [] },
     define: {
       "import.meta.env.VITE_PUBLIC_SITE": JSON.stringify(publicMode ? "1" : "0"),
       "import.meta.env.VITE_HOSTED_APP_AVAILABLE": JSON.stringify(appAvailable ? "1" : "0"),
-      "import.meta.env.VITE_HOSTED_APP_URL": JSON.stringify("https://app.paperleet.com"),
+      "import.meta.env.VITE_HOSTED_APP_URL": JSON.stringify(hostedUrl),
       "import.meta.env.VITE_APP_EDITION": JSON.stringify(hostedEdition ? "hosted" : "local"),
     },
   });
@@ -28,7 +32,7 @@ for (const [publicMode, appAvailable, hostedEdition] of [[false, false, false], 
       assert(deployment.isHostedRoute(hash));
     for (const hash of ["#/", "#/22", "#/papers/transformer", "#/collections/llm-basics", "#/architecture/attention"])
       assert(!deployment.isHostedRoute(hash));
-    for (const url of ["http://app.paperleet.com", "https://user:secret@app.paperleet.com", "https://app.paperleet.com/path", "https://app.paperleet.com/?next=evil", "https://app.paperleet.com/#login"])
+    for (const url of ["", "not a URL", "http://app.paperleet.com", "https://user:secret@app.paperleet.com", "https://app.paperleet.com/path", "https://app.paperleet.com/?next=evil", "https://app.paperleet.com/#login"])
       assert.throws(() => deployment.validateHostedAppUrl(url));
     if (publicMode || !hostedEdition) {
       const redirects = [], listeners = {};
