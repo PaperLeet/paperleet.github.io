@@ -1,0 +1,73 @@
+id: foundations/gradient_accumulation
+number: 90
+title: 梯度累积：按有效 token 数加权
+title_en: 'Gradient Accumulation: Valid-token Weighting'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://docs.pytorch.org/docs/2.14/notes/amp_examples.html#gradient-accumulation
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: accumulate_gradients
+  signature: 'accumulate_gradients(gradients: list[Tensor], token_counts: list[int]) -> Tensor'
+module:
+  goal: 让不等长 microbatch 的平均梯度等价于一个有效 token 大 batch。
+  goal_en: 'Gradient Accumulation: Valid-token Weighting'
+  scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
+  scope_en: Implement one core function; independent tests and deterministic synthetic experiments
+    are provided.
+  required_functions:
+  - accumulate_gradients
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64; int64 IDs and bool masks where specified
+  device: CPU
+  contract: Nonempty equal-length lists. Each gradient is a finite float32/64 CPU tensor for the
+    same parameter, with identical shape/dtype/device, possibly scalar or empty. Each token_count
+    is a nonnegative integer and their total is >0. Input gradient i already represents the mean
+    over its valid tokens. Return sum(count_i * gradient_i)/sum(count_i), ignoring zero-count batches,
+    same shape/dtype/device. Do not average microbatches equally, divide by the number of accumulation
+    steps, perform optimizer updates, mutate inputs or retain state. Higher-order gradients are not
+    required. Gradients from different parameters are not being merged.
+estimated_minutes: 15
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+tags:
+- Back to Basics
+- LLM Training and Generation
+- Gradient Accumulation
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://docs.pytorch.org/docs/2.14/notes/amp_examples.html#gradient-accumulation
+toy:
+  kind: teaching_adaptation
+  source: https://docs.pytorch.org/docs/2.14/notes/amp_examples.html#gradient-accumulation
+  anchor: Public API semantics and explicit exercise equations
+  adaptation: Original deterministic synthetic experiment; no pretrained model, dataset download,
+    paper benchmark or throughput claim.
+mutants:
+- id: m1_equal_batches
+  bug: 等权平均不同 token 数的 microbatch。
+- id: m2_sum_only
+  bug: 加权求和后未除全局 token 数。
+- id: m3_double_divide
+  bug: 又除以累积步数。
+- id: m4_only_last
+  bug: 只返回最后一个 microbatch 梯度。

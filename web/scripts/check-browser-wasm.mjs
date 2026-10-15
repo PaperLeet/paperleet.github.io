@@ -9,7 +9,9 @@ import {loadJudgePackages} from '../public/browser-judge/packages.mjs';
 import {unsupportedReport} from '../public/browser-judge/diagnostics.mjs';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const cases = ['diffusion/schedules', 'architecture/attention', 'finetuning/lora', 'optimization/adamw', 'optimization/muon_split', 'representation/moco', 'representation/simclr'];
+const cases = ['diffusion/schedules', 'architecture/attention', 'finetuning/lora', 'optimization/adamw', 'optimization/muon_split', 'representation/moco', 'representation/simclr',
+  'foundations/next_token_loss', 'foundations/sft_loss_mask', 'foundations/top_k_sampling',
+  'foundations/top_p_sampling', 'foundations/gradient_accumulation', 'foundations/gradient_clipping'];
 try {
   if (!process.argv[2]) {
     for (const id of cases) {

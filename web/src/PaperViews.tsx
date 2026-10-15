@@ -35,6 +35,7 @@ function ProgressBar({ completed, total }: { completed: number; total: number })
 }
 
 const categoryLabels: Record<string, [string, string]> = {
+  foundations: ["ML 基础", "ML Foundations"],
   "reinforcement-learning": ["强化学习", "Reinforcement Learning"],
   "post-training": ["后训练与微调", "Post-training"],
   "generative-models": ["生成模型", "Generative models"],
@@ -226,7 +227,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           return <div className="paper-result-group" key={paper.id}><a className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
             <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}</strong><small title={paper.title}>{paper.title}</small></div>
-            <span className="paper-year">{paper.year || "—"}</span>
+            <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
           </a>{showMatches && <div className="matching-modules"><span>{t("匹配模块", "Matching modules")}</span>{matching.map(module=><a key={module.id} href={withLibraryContext(module.number,viewHref)}><Code2 size={13} aria-hidden="true" />{module.number}. {locale === "en" ? module.translations?.en?.title || module.title : module.title}<ArrowRight size={12} aria-hidden="true" /></a>)}</div>}</div>;
@@ -252,7 +253,7 @@ export function PaperDetail({ paper, problems, saved, stats, returnTo, progressR
     <a className="back-link paper-library-link" href={returnTo || '#'}><ArrowLeft size={15} />{returnTo && returnTo !== '#' ? t('返回题库结果','Back to library results') : t("全部论文", "All papers")}</a>
     <div className="paper-detail-header">
       <div><h1><span>{paper.number}.</span> {paper.short_title}</h1><p className="paper-full-title">{paper.title}</p><div className="paper-detail-meta">{paper.venue && <span>{paper.venue}</span>}{paper.year && !paper.venue?.includes(String(paper.year)) && <span>{paper.year}</span>}{paper.tags.map((tag) => <span className="paper-topic" key={tag}>{tag}</span>)}</div></div>
-      <div className="paper-detail-actions">{next ? <div className="paper-primary-action"><a className="button" href={withLibraryContext(next.number,returnTo)}><Code2 size={15} />{progress.state === "done" ? t("回顾实现", "Review implementation") : status(next,saved[next.id]) === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></a><small className="paper-action-target">{nextTitle}</small></div> : !progressReady && <small role="status">{t("正在加载学习进度…", "Loading progress…")}</small>}<a className="button subtle" href={paper.url} target="_blank" rel="noreferrer"><BookOpen size={15} />{t("阅读论文", "Read paper")}<ExternalLink size={13} /></a></div>
+      <div className="paper-detail-actions">{next ? <div className="paper-primary-action"><a className="button" href={withLibraryContext(next.number,returnTo)}><Code2 size={15} />{progress.state === "done" ? t("回顾实现", "Review implementation") : status(next,saved[next.id]) === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></a><small className="paper-action-target">{nextTitle}</small></div> : !progressReady && <small role="status">{t("正在加载学习进度…", "Loading progress…")}</small>}<a className="button subtle" href={paper.url} target="_blank" rel="noreferrer"><BookOpen size={15} />{paper.kind === "course" ? t("阅读参考资料", "Read references") : t("阅读论文", "Read paper")}<ExternalLink size={13} /></a></div>
     </div>
     <div className="paper-at-a-glance" aria-label={t("练习概览", "Practice at a glance")}><div><Code2 size={17}/><span>{t("核心模块","Core modules")}<b>{progress.total} {t("个","modules")}</b></span></div><div><Clock3 size={17}/><span>{t("预计练习","Estimated practice")}<b>{estimatedMinutes} min</b></span></div><div><CheckCircle2 size={17}/><span>{t("学习进度","Your progress")}<b>{progressReady ? progress.completed : "—"} / {progress.total}</b></span></div></div>
     <div className="home-columns">
@@ -277,8 +278,8 @@ export function PaperDetail({ paper, problems, saved, stats, returnTo, progressR
         </section>
       </div>
       <aside className="home-sidebar">
-        <section className="paper-completion-card"><div className="aside-title"><h3>{t("论文进度", "Paper progress")}</h3><StateIcon state={progress.state} /></div><div className="paper-completion-count"><b>{progress.completed}</b><span>/ {progress.total}</span></div><p>{t("核心模块已通过", "core modules solved")}</p><ProgressBar {...progress} />{progress.state === "done" && <div className="core-complete"><CheckCircle2 size={16} />{t("本篇核心模块已完成", "Selected core modules complete")}</div>}{next && <a className="button" href={withLibraryContext(next.number,returnTo)}>{progress.state === "done" ? t("回顾模块", "Review modules") : progress.state === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></a>}</section>
-        <section className="paper-source-card"><div className="aside-title"><h3>{t("论文信息", "Paper details")}</h3><BookOpen size={16} /></div><p>{authors}</p><a className="text-button" href={paper.url} target="_blank" rel="noreferrer">{paper.arxiv ? `arXiv:${paper.arxiv}` : t("原始论文", "Original paper")}<ExternalLink size={13} /></a></section>
+        <section className="paper-completion-card"><div className="aside-title"><h3>{paper.kind === "course" ? t("专题进度", "Course progress") : t("论文进度", "Paper progress")}</h3><StateIcon state={progress.state} /></div><div className="paper-completion-count"><b>{progress.completed}</b><span>/ {progress.total}</span></div><p>{t("核心模块已通过", "core modules solved")}</p><ProgressBar {...progress} />{progress.state === "done" && <div className="core-complete"><CheckCircle2 size={16} />{t("本篇核心模块已完成", "Selected core modules complete")}</div>}{next && <a className="button" href={withLibraryContext(next.number,returnTo)}>{progress.state === "done" ? t("回顾模块", "Review modules") : progress.state === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></a>}</section>
+        <section className="paper-source-card"><div className="aside-title"><h3>{paper.kind === "course" ? t("参考资料", "References") : t("论文信息", "Paper details")}</h3><BookOpen size={16} /></div><p>{authors}</p><a className="text-button" href={paper.url} target="_blank" rel="noreferrer">{paper.arxiv ? `arXiv:${paper.arxiv}` : paper.kind === "course" ? t("参考资料", "References") : t("原始论文", "Original paper")}<ExternalLink size={13} /></a></section>
       </aside>
     </div>
   </main>;

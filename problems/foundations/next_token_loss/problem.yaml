@@ -1,0 +1,71 @@
+id: foundations/next_token_loss
+number: 86
+title: Next-token Loss：下一词预测的错位对齐
+title_en: 'Next-token Loss: Shifted Causal Targets'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://huggingface.co/docs/transformers/main/en/tasks/language_modeling
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: next_token_loss
+  signature: 'next_token_loss(logits: Tensor, tokens: Tensor) -> Tensor'
+module:
+  goal: 对齐自回归预测与下一位置标签，计算稳定平均损失。
+  goal_en: 'Next-token Loss: Shifted Causal Targets'
+  scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
+  scope_en: Implement one core function; independent tests and deterministic synthetic experiments
+    are provided.
+  required_functions:
+  - next_token_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64; int64 IDs and bool masks where specified
+  device: CPU
+  contract: Finite float32/64 logits [B,T,V], B,T,V>=1; int64 tokens [B,T] in [0,V), same CPU device.
+    Logits at t predict tokens at t+1. Return scalar NLL averaged over B*(T-1) targets, preserving
+    logits dtype/device and gradients. Ignore the last logit and first target; never cross sequence
+    boundaries. T=1 returns a differentiable zero with zero logits gradients. No padding, masks,
+    smoothing or mutation.
+estimated_minutes: 15
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+tags:
+- Back to Basics
+- LLM Training and Generation
+- Next-token Loss
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://huggingface.co/docs/transformers/main/en/tasks/language_modeling
+toy:
+  kind: teaching_adaptation
+  source: https://huggingface.co/docs/transformers/main/en/tasks/language_modeling
+  anchor: Public API semantics and explicit exercise equations
+  adaptation: Original deterministic synthetic experiment; no pretrained model, dataset download,
+    paper benchmark or throughput claim.
+mutants:
+- id: m1_unshifted
+  bug: 用当前位置 token 作为标签。
+- id: m2_wrong_direction
+  bug: 用后一位置 logits 预测前一 token。
+- id: m3_wrong_denominator
+  bug: 把末位也计入平均分母。
+- id: m4_detached
+  bug: 切断损失梯度。

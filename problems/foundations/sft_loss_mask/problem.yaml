@@ -1,0 +1,75 @@
+id: foundations/sft_loss_mask
+number: 87
+title: SFT Loss Mask：只学习回答 token
+title_en: 'SFT Loss Mask: Train on Response Tokens'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://huggingface.co/docs/trl/main/en/sft_trainer
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: sft_loss
+  signature: 'sft_loss(logits: Tensor, tokens: Tensor, response_mask: Tensor, attention_mask: Tensor)
+    -> Tensor'
+module:
+  goal: 同时处理标签错位、回答掩码、padding 与有效 token 平均。
+  goal_en: 'SFT Loss Mask: Train on Response Tokens'
+  scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
+  scope_en: Implement one core function; independent tests and deterministic synthetic experiments
+    are provided.
+  required_functions:
+  - sft_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64; int64 IDs and bool masks where specified
+  device: CPU
+  contract: 'Finite float32/64 logits [B,T,V], B,T,V>=1; int64 tokens [B,T] in [0,V); bool response_mask
+    and attention_mask [B,T], all on CPU. Internally shift once: logits[:,t] predicts tokens[:,t+1].
+    A target j>=1 contributes iff response_mask[:,j] AND attention_mask[:,j]. Masks describe target
+    positions, not predicting positions. Divide by the total contributing tokens across the batch;
+    empty selection returns differentiable zero. Preserve logits dtype/device and gradients; masked
+    predictions and final logits have zero gradients. Tokens are already valid IDs, not -100. Caller
+    supplies response spans, including any desired EOS; no chat-template parsing, extra predecessor
+    gate or mutation.'
+estimated_minutes: 20
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+tags:
+- Back to Basics
+- LLM Training and Generation
+- SFT Loss Mask
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://huggingface.co/docs/trl/main/en/sft_trainer
+toy:
+  kind: teaching_adaptation
+  source: https://huggingface.co/docs/trl/main/en/sft_trainer
+  anchor: Public API semantics and explicit exercise equations
+  adaptation: Original deterministic synthetic experiment; no pretrained model, dataset download,
+    paper benchmark or throughput claim.
+mutants:
+- id: m1_predictor_mask
+  bug: 错位时使用预测位置的回答掩码。
+- id: m2_ignore_padding
+  bug: 忽略 attention_mask。
+- id: m3_dense_mean
+  bug: 除以所有位置数，而非有效 token 数。
+- id: m4_detached
+  bug: 切断回答损失梯度。

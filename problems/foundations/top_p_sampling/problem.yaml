@@ -1,0 +1,77 @@
+id: foundations/top_p_sampling
+number: 89
+title: Top-p：累计概率与核采样候选
+title_en: 'Top-p: Cumulative Probability and Nucleus Candidates'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://arxiv.org/abs/1904.09751
+  - https://github.com/ari-holtzman/degen/blob/0acfd2d0ba8484e24e9c5241f75f34be15ef2609/gen.py#L118-L132
+  - https://huggingface.co/docs/transformers/main/en/main_classes/text_generation
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: top_p_probs
+  signature: 'top_p_probs(logits: Tensor, p: float, temperature: float = 1.) -> Tensor'
+module:
+  goal: 正确保留累计概率阈值边界，并恢复词表顺序。
+  goal_en: 'Top-p: Cumulative Probability and Nucleus Candidates'
+  scope: 只实现一个核心函数；提供独立测试和确定性合成实验。
+  scope_en: Implement one core function; independent tests and deterministic synthetic experiments
+    are provided.
+  required_functions:
+  - top_p_probs
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64; int64 IDs and bool masks where specified
+  device: CPU
+  contract: Finite float32/64 logits [...,V], V>=1, CPU; empty leading dimensions allowed. Finite
+    0<p<=1 and temperature>0. Form full-vocabulary softmax(logits/temperature), sort descending with
+    smaller vocabulary index first on ties, and retain the shortest nonempty prefix whose cumulative
+    mass is >=p. Include the token that first reaches/crosses p. At p=1 keep all tokens. Renormalize
+    retained probabilities and return original vocabulary order with zeros elsewhere, same shape/dtype/device.
+    No random sampling, input mutation or derivative requirement. Compute scaling, probabilities and cumulative boundary comparisons in float64, without arbitrary
+    tolerances; cast only the final result to the input dtype.
+estimated_minutes: 20
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+tags:
+- Back to Basics
+- LLM Training and Generation
+- Top-p
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links:
+  - https://arxiv.org/abs/1904.09751
+  - https://github.com/ari-holtzman/degen/blob/0acfd2d0ba8484e24e9c5241f75f34be15ef2609/gen.py#L118-L132
+  - https://huggingface.co/docs/transformers/main/en/main_classes/text_generation
+toy:
+  kind: teaching_adaptation
+  source: https://huggingface.co/docs/transformers/main/en/main_classes/text_generation
+  anchor: Public API semantics and explicit exercise equations
+  adaptation: Seeded categorical sampling from learner probabilities plus deterministic parameter sweeps; no pretrained model, dataset download,
+    paper benchmark or throughput claim.
+mutants:
+- id: m1_drop_crossing
+  bug: 丢掉跨过阈值的 token。
+- id: m2_extra_boundary
+  bug: 恰好达到阈值时多留一个 token。
+- id: m3_wrong_order
+  bug: 输出仍按概率排序，未还原词表。
+- id: m4_no_temperature
+  bug: 忽略温度。

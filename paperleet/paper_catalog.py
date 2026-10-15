@@ -7,6 +7,7 @@ import yaml
 from paperleet.catalog import root
 
 CATEGORIES = (
+    {"id": "foundations", "name": "ML 基础", "name_en": "ML Foundations"},
     {"id": "reinforcement-learning", "name": "强化学习", "name_en": "Reinforcement Learning"},
     {"id": "post-training", "name": "后训练与微调", "name_en": "Post-training & Fine-tuning"},
     {"id": "generative-models", "name": "扩散与生成模型", "name_en": "Diffusion & Generative Models"},
