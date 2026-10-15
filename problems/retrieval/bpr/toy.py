@@ -9,7 +9,7 @@ def scalar_loss(users, items, triples, l2=0.):
     for u, i, j in triples:
         margin = sum(a * (b-c) for a, b, c in zip(users[u], items[i], items[j]))
         total += max(-margin, 0.) + math.log1p(math.exp(-abs(margin)))
-    prior = l2 * sum(v*v for table in (users, items) for row in table for v in row)
+    prior = l2 * sum(v*v for table in (users, items) for row in table for v in row) if l2 else 0.
     return total / max(1, len(triples)) + prior
 
 

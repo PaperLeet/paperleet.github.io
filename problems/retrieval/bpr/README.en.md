@@ -14,15 +14,22 @@ A `True` entry is unobserved by **this user**, making it an eligible comparison 
 
 `bpr_mf_loss(user_factors, item_factors, triples, l2=0.)` takes matching float32/float64 `[U,D]` and `[I,D]` factor tables, plus int64 `[B,3]` rows `(user, positive, unobserved)`, with `D > 0`. Triples are already constructed. Gather their factor rows and return the scalar:
 
-$$x_{uij}=w_u^\top(h_i-h_j),$$
-$$L=\frac{1}{\max(1,B)}\sum_{(u,i,j)}\operatorname{softplus}(-x_{uij})
-+\lambda\left(\sum_{u,d}W_{u,d}^2+\sum_{i,d}H_{i,d}^2\right).$$
+$$
+x_{uij}=w_u^\top(h_i-h_j),
+$$
+
+$$
+L=\frac{1}{\max(1,B)}\sum_{(u,i,j)}\operatorname{softplus}(-x_{uij})
++\lambda\left(\sum_{u,d}W_{u,d}^2+\sum_{i,d}H_{i,d}^2\right).
+$$
 
 Use stable log-sigmoid/softplus rather than sigmoid followed by a direct log. Sum latent coordinates, average triples and retain all three selected-row gradient contributions. Repeated user/item IDs accumulate gradients. Preserve dtype, device, input values and support noncontiguous tables. Keep the supplied validation calls.
 
 ## 3. Global prior convention
 
 `l2` is finite and nonnegative. Penalize both **complete tables**, including rows not selected in this batch, exactly once with no additional factor of one half. Penalizing gathered vectors changes the objective when IDs repeat or are absent.
+
+When `l2=0`, skip the prior calculation: squared norms of unused large factors can overflow and contaminate a finite likelihood with `0*Inf=NaN`. Retain both full gradient tables through the data term.
 
 The paper's BPR-Opt sums log likelihoods. This exercise normalizes the data term and exposes the prior coefficient at that scale: for a nonempty batch, `l2 = lambda_paper / B` corresponds to dividing the summed objective by `B`. An empty batch contributes zero likelihood while retaining the complete prior and both gradient graphs.
 

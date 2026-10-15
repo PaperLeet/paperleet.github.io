@@ -28,6 +28,8 @@ def test_loss_contract_precision_strides_and_supplied_validation(impl):
         before=users.clone(),items.clone();triples=torch.tensor([[0,1,2],[0,1,3],[2,4,0]])
         result=impl.bpr_mf_loss(users,items,triples,.02)
         assert result.shape==() and result.dtype==dtype and result.device==users.device
+        expected=scalar_loss(users.tolist(),items.tolist(),triples.tolist(),.02)
+        close(result,torch.tensor(expected,dtype=dtype),atol=3e-6 if dtype==torch.float32 else 1e-12,rtol=3e-6 if dtype==torch.float32 else 1e-12)
         close(users,before[0]);close(items,before[1])
     users,items=torch.zeros(2,3),torch.zeros(4,3)
     for triples in (torch.zeros(1,3),torch.tensor([[2,1,0]]),torch.tensor([[0,1,4]]),torch.tensor([[0,1,1]]),torch.tensor([[0,1]])):
@@ -112,6 +114,21 @@ def test_extreme_signed_margins_and_both_item_directions_remain_stable(impl):
     close(loss,torch.tensor(1000.,dtype=users.dtype),atol=1e-12,rtol=1e-12)
     loss.backward();assert users.grad is not None and items.grad is not None
     close(users.grad,torch.tensor([[1000.]],dtype=users.dtype));close(items.grad,torch.tensor([[.5],[-.5]],dtype=users.dtype))
+
+
+@pytest.mark.t2
+def test_disabled_prior_avoids_overflow_from_unused_factors(impl):
+    """Zero regularization must skip unused overflowing norms while preserving both finite gradient tables."""
+    for dtype,large in ((torch.float32,1e20),(torch.float64,1e200)):
+        users=torch.tensor([[1.],[large]],dtype=dtype,requires_grad=True)
+        items=torch.tensor([[1.],[0.],[large]],dtype=dtype,requires_grad=True)
+        loss=impl.bpr_mf_loss(users,items,torch.tensor([[0,0,1]]),0.)
+        tolerance=2e-6 if dtype==torch.float32 else 1e-12
+        close(loss,torch.tensor(math.log1p(math.exp(-1.)),dtype=dtype),atol=tolerance,rtol=tolerance)
+        loss.backward();assert users.grad is not None and items.grad is not None
+        slope=1/(1+math.e)
+        close(users.grad,torch.tensor([[-slope],[0.]],dtype=dtype),atol=tolerance,rtol=tolerance)
+        close(items.grad,torch.tensor([[-slope],[slope],[0.]],dtype=dtype),atol=tolerance,rtol=tolerance)
 
 
 @pytest.mark.t2

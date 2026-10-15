@@ -20,7 +20,7 @@ def bpr_mf_loss(user_factors: Tensor, item_factors: Tensor, triples: Tensor, l2:
     negative = item_factors[triples[:, 2]]
     margin = (users * (positive - negative)).sum(-1)
     likelihood = F.softplus(-margin).sum() / max(1, len(triples))
-    prior = l2 * (users.square().sum() + positive.square().sum() + negative.square().sum())
+    prior = l2 * (users.square().sum() + positive.square().sum() + negative.square().sum()) if l2 else 0.
     return likelihood + prior
 
 

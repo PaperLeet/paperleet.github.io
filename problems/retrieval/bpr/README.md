@@ -14,15 +14,22 @@ $$M_{b,j}=\neg S_{u_b,j}.$$
 
 `bpr_mf_loss(user_factors, item_factors, triples, l2=0.)` 接收浮点 `[U,D]` 用户表、`[I,D]` 物品表和 int64 `[B,3]` 三元组。每行是 `(用户, 正样本, 未观察物品)`；三元组已构造，不必在 loss 中重新采样。两张表共享 float32/float64 dtype、device，`D > 0`。先取出对应行，再计算：
 
-$$x_{uij}=w_u^\top(h_i-h_j),$$
-$$L=\frac{1}{\max(1,B)}\sum_{(u,i,j)}\operatorname{softplus}(-x_{uij})
-+\lambda\left(\sum_{u,d}W_{u,d}^2+\sum_{i,d}H_{i,d}^2\right).$$
+$$
+x_{uij}=w_u^\top(h_i-h_j),
+$$
+
+$$
+L=\frac{1}{\max(1,B)}\sum_{(u,i,j)}\operatorname{softplus}(-x_{uij})
++\lambda\left(\sum_{u,d}W_{u,d}^2+\sum_{i,d}H_{i,d}^2\right).
+$$
 
 返回同 dtype/device 的标量。使用稳定的 log-sigmoid 或 softplus，不要先求 sigmoid 再直接取 log。损失基于**正负分数之差**，与 SASRec 的两个独立二元项不同。向量内积沿特征求和；对三元组取平均。保持正、负物品及用户的梯度，重复 ID 必须累积梯度。
 
 ## 3. 本题的先验约定
 
 `l2` 是有限非负标量。惩罚两张**完整因子表**的平方和，包括这批三元组没有选中的行，每行只计一次，不额外乘 `1/2`。不能用 batch 中抽取向量的范数替代，否则重复 ID 和未抽中行都会改变目标。
+
+`l2=0` 时应跳过先验计算，避免未选中大值因子的平方溢出后产生 `0*Inf=NaN`。数据项仍需保持用户和物品的完整梯度表。
 
 原文 BPR-Opt 将 log-likelihood 求和；本题把数据项归一化为均值，并将先验系数作为对应尺度下的 `l2`。对非空 batch，和原文求和约定对照时 `l2 = lambda_paper / B`。空三元组的数据项定义为可微零，仍保留全表先验，两张表都应有正确的梯度图。保留输入值和非连续布局支持，使用 starter 已提供的检查。
 

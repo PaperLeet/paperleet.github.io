@@ -17,7 +17,16 @@ one full-table Gaussian-prior penalty. The declared coefficient multiplies the
 sum of all squared factor entries, without one half; it is at the normalized
 likelihood scale. Empty triples retain the prior and both gradient graphs.
 
-Ten checks include shape/precision/strides/empty axes, supplied validation,
+## Zero-penalty numerical regression
+
+The initial implementation evaluates table norms even when `l2=0`. A finite,
+unused float32 row of magnitude `1e20` makes that norm overflow and turns a
+finite pair loss into NaN through `0*Inf`. The correction skips the disabled
+prior. A dedicated T2 check covers both float32 (`1e20`) and float64 (`1e200`)
+unused rows, a directly computed scalar likelihood and both complete gradient
+tables. The old implementation fails this check at 10/11. The corrected implementation and an independent log-sigmoid learner pass all eleven checks in actual Pyodide CPU/WASM.
+
+Eleven checks include shape/precision/strides/empty axes, supplied validation,
 hand-computed values, independent scalar likelihoods and central differences
 through both factor tables, repeated rows, exact prior gradients on unselected
 rows, batch replication, item translation and extreme margins. They import
@@ -26,8 +35,8 @@ learner implementations through `impl`, never the reference directly.
 Eight small executable faults cover reversed eligibility, global history,
 reversed ranking, detached positives, selected-row regularization, averaging
 features, independent binary terms and summing rather than averaging triples.
-All eight are caught in three stable native repeats: **270 cases in 3.41 s**.
-The complete exported NumPy calibration also passes all ten checks and rejects
+All eight are caught in three stable native repeats: **297 cases in 4.50 s**.
+The complete exported NumPy calibration also passes all eleven checks and rejects
 all eight faults. Its shared runtime is unchanged.
 
 ## Genuine personalized training
@@ -49,29 +58,23 @@ languages.
 
 ## Final regression and actual browser
 
-- Full native catalog CI passes **8,532 test instances over three repeats** for
-  all 68 modules in **191.19 s**, within the original 300-second budget. It
+- Full native catalog CI passes **8,559 test instances over three repeats** for
+  all 68 modules in **113.86 s**, within the original 300-second budget. It
   preserves all previous lessons and catches all 287 maintained faults.
-- Final public-only regression in the isolated source snapshot: **1,214 passed,
-  one optional Docker skip**, 163.75 s. The existing TorchScript deprecation
-  warning remains. The 67 pre-existing index entries and 52 paper records are
-  unchanged; shared runtime bytes and older immutable assets are retained.
+- Final public regression: **1,214 passed, one optional Docker skip**, in **179.01 s**, using `python -m pytest -q tests`. The initial unscoped pytest invocation also collected 538 exercise cases without learner files and failed fixture setup; lesson correctness is instead covered by the passing full catalog CI. Concurrent UI/account changes are excluded from the isolated source snapshot. All 67 pre-existing module entries, 52 paper records and previously committed immutable assets remain intact; shared runtime bytes are unchanged.
 - Real Pyodide CPU/WASM executes a separate correct learner using log-sigmoid
-  and separate positive/negative dot products: **10/10**, all eight faults
+  and separate positive/negative dot products: **11/11**, all eight faults
   calibrated and all 120 actual training updates. Its Lab displays the generated
   objective curve and the three users' learned item scores, with training pair
   accuracy and Recall@2 both 1.0.
-- The wrong independent-binary objective returns **6/10**. Restoring the paired
-  objective returns **10/10**. A valid native-only matrix 1-norm probe produces
-  the unsupported-API notice, retains exact code and marks the old result as
-  belonging to older source. Restoring correct source passes again.
-- The actual discovery route is homepage → Retrieval collection → paper 53 →
+- The old zero-prior implementation fails exactly the new numerical check at **10/11**, showing expected `0.3132616877555847` versus NaN in the browser. The corrected independent implementation passes **11/11**, including its 120 actual training updates. The initial lesson verification also rejected the wrong independent-binary objective and preserved source on a native-only matrix 1-norm probe; those observations preceded this numerical correction.
+- The initial lesson verification covered the discovery route: homepage → Retrieval collection → paper 53 →
   module 68. The paper's arXiv-labelled link targets its arXiv archive. A completed
   paper remains 1/1 after refresh; revisiting and downloading the implementation
   returns the exact saved 3,008-character alternate source. The editor virtualizes
   its DOM, so full-source fidelity is checked through the download feature.
-- First observed localhost phases: preparation **1.56 s**, complete reference
-  and mutation calibration **1.00 s**, learner tests **0.10 s**. These are not
+- Final corrected localhost phases: preparation **1.57 s**, complete reference
+  and mutation calibration **1.11 s**, learner tests **0.11 s**. These are not
   internet cold-start or Oracle hardware comparisons. No new live hosted
   submission, account credit or Docker image is claimed.
 
@@ -80,7 +83,7 @@ languages.
   raw / 129,233 gzip bytes** standalone and **405,267 raw / 131,049 gzip bytes**
   hosted (Node 24), within unchanged 400 KiB / 130 KiB limits. Concurrent account
   and UI changes are excluded from the verified source snapshot and commit.
-- English layout has document/main width 390 at a 390-pixel viewport. The main
+- Initial English layout verification has document/main width 390 at a 390-pixel viewport. The corrected bilingual statements now use separated display-math blocks; actual Chinese and English pages show the complete objective and all subsequent headings. The main
   browser warning/error log is empty, and the static QA server records zero API
   requests or POSTs. Temporary tabs, downloaded verification file, server and
   build snapshot are cleaned up; ignored evidence is retained.

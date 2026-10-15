@@ -38,7 +38,7 @@ conventions:
   dtype: Boolean histories, int64 indices, CPU float32/float64 factors.
   device: CPU; no GPU, account, external dataset or pretrained model.
   contract: IDs are zero-based with no padding. Mean triple likelihood plus l2 times the sum of squared entries of both complete tables, without a factor of one half. Empty triples contribute only the global prior and preserve both gradient graphs.
-tests: {T0: 2, T1: 1, T2: 6, T3: 1}
+tests: {T0: 2, T1: 1, T2: 7, T3: 1}
 t3_budget_s: 10
 estimated_minutes: 30
 tags: [BPR, Matrix Factorization, Implicit Feedback, Personalized Ranking, Negative Sampling]
