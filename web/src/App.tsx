@@ -590,6 +590,7 @@ function Workspace() {
             </a>}
           </nav>
           <div className="nav-actions">
+            <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
             <RepositoryLink />
             <OnlinePresence />
             <button

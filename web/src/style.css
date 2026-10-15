@@ -3891,6 +3891,8 @@ html { scrollbar-gutter: stable; }
 }
 
 /* Repository access stays in the navigation; judge readiness stays by Run. */
+.privacy-link { color: var(--muted); font-size: 12px; text-decoration: none; }
+.privacy-link:hover, .privacy-link:focus-visible { color: var(--text); text-decoration: underline; }
 .repository-link { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--muted); border-radius: 6px; }
 .repository-link:hover { color: var(--text); background: var(--surface3); }
 .repository-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
