@@ -1,10 +1,14 @@
 import { useI18n } from './i18n';
 import { samePublication, type PendingPublication, type PublicationPayload } from './publicationRequests';
+import {readInterviewDetails} from './interviewModels';
+import InterviewMeta from './InterviewMeta';
 
 export default function PublicationRecovery({pending,payload,busy,onRetry}:{pending?:PendingPublication;payload:PublicationPayload;busy:boolean;onRetry:()=>void}) {
   const {t}=useI18n();
   if(!pending||busy)return null;
   const changed=!samePublication(pending.receipt,payload);
+  let interview;
+  try{if(pending.receipt.kind==='interview')interview=readInterviewDetails(JSON.parse(pending.receipt.payload.interview as string));}catch{/* A malformed recovery record cannot add metadata to the review. */}
   return <div className="publication-recovery" role="status">
     <p>{t('此前发布的结果尚未确认。重试相同内容会继续确认这一次发布，不会重复创建；网络错误不代表发布失败。',
       'The previous publication is not confirmed. Retrying the same content confirms this publication without creating a duplicate; a network error does not prove it failed.')}</p>
@@ -14,6 +18,7 @@ export default function PublicationRecovery({pending,payload,busy,onRetry}:{pend
       'This tab cannot save the pending publication. Retries in this page keep it; recovery after reload or closing is not guaranteed. Copy your draft first.')}</p>}
     <details><summary>{t('查看待确认内容','Review pending publication')}</summary>
       {pending.receipt.payload.title&&<strong>{pending.receipt.payload.title}</strong>}
+      {interview&&<InterviewMeta details={interview} compact/>}
       <pre tabIndex={0}>{pending.receipt.payload.body}</pre>
       {pending.receipt.payload.parent_id&&<small>{t('这份发布包含指定回复对象。','This publication targets a specific reply.')}</small>}
     </details>

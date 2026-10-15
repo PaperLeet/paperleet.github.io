@@ -1,5 +1,6 @@
 import { paperCollections } from './paperCollections';
 import type { Paper } from './types';
+import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
 export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title';
 export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort };
@@ -67,15 +68,17 @@ export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]
 export function libraryReturnHref(route: string): string | undefined {
   const value = parts(route);
   if (!value || !practicePath.test(value.path) || !only(value.params, ['from']) || !value.params.has('from')) return;
-  const view = readLibraryRoute(value.params.get('from') || '');
+  const from=value.params.get('from')||'',interview=readInterviewRoute(from);
+  if(interview)return interviewHref(interview);
+  const view = readLibraryRoute(from);
   return view ? libraryHref(view.collectionId, view.filters) : undefined;
 }
 
 export function withLibraryContext(path: string | number, returnTo?: string): string {
   if (!practicePath.test(String(path))) throw Error('Invalid practice destination');
-  const base = `#/${path}`, view = returnTo && readLibraryRoute(returnTo);
-  if (!view) return base;
-  const href = libraryHref(view.collectionId, view.filters);
+  const base = `#/${path}`, view = returnTo ? readLibraryRoute(returnTo) : undefined,interview=returnTo?readInterviewRoute(returnTo):undefined;
+  if (!view&&!interview) return base;
+  const href = interview?interviewHref(interview):libraryHref(view!.collectionId, view!.filters);
   return href === '#' ? base : `${base}?${new URLSearchParams({ from: href.slice(2) })}`;
 }
 

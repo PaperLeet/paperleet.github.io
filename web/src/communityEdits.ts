@@ -1,7 +1,8 @@
 import type { DraftStorage } from './communityDrafts';
 import type { Post } from './communityDiscussion';
+import {readInterviewDetails,type InterviewDetails} from './interviewModels';
 
-export type PostEditDraft = { title: string; body: string; category: string; baseVersion: string };
+export type PostEditDraft = { title: string; body: string; category: string; baseVersion: string; interview?:InterviewDetails };
 const version = /^[a-f0-9]{64}$/;
 const categories = new Set(['papers','implementation','questions','career','lounge']);
 export const postEditKey = (owner:string,post:string) =>
@@ -10,16 +11,17 @@ export function canEditPost(post:Post,owner:string):boolean {
   return !!owner && post.author.id === owner && post.viewer.can_edit === true && version.test(post.edit_version || '');
 }
 export function newPostEdit(post:Post):PostEditDraft {
-  return {title:post.title,body:post.body,category:post.category,baseVersion:post.edit_version || ''};
+  return {title:post.title,body:post.body,category:post.category,baseVersion:post.edit_version || '',...(post.interview?{interview:{...post.interview,questions:[...post.interview.questions]}}:{})};
 }
 function valid(value:unknown):value is PostEditDraft {
   if(!value || typeof value !== 'object') return false;
   const draft=value as PostEditDraft;
   return typeof draft.title==='string' && draft.title.length<=180 && typeof draft.body==='string' && draft.body.length<=20000
-    && typeof draft.category==='string' && categories.has(draft.category) && typeof draft.baseVersion==='string' && version.test(draft.baseVersion);
+    && typeof draft.category==='string' && categories.has(draft.category) && typeof draft.baseVersion==='string' && version.test(draft.baseVersion)
+    && (draft.interview===undefined||!!readInterviewDetails(draft.interview));
 }
 export function samePostEdit(a:PostEditDraft,b:PostEditDraft):boolean {
-  return a.title===b.title && a.body===b.body && a.category===b.category && a.baseVersion===b.baseVersion;
+  return a.title===b.title && a.body===b.body && a.category===b.category && a.baseVersion===b.baseVersion && JSON.stringify(a.interview)===JSON.stringify(b.interview);
 }
 export function readPostEdit(storage:DraftStorage|undefined,owner:string,post:string):PostEditDraft|undefined {
   if(!storage||!owner||!post)return;
@@ -29,7 +31,7 @@ export function readPostEdit(storage:DraftStorage|undefined,owner:string,post:st
     const value=JSON.parse(raw);
     if(value?.version!==1||value.owner!==owner||value.post!==post||!valid(value.draft))return;
     const {title,body,category,baseVersion}=value.draft;
-    return {title,body,category,baseVersion};
+    return {title,body,category,baseVersion,...(value.draft.interview?{interview:readInterviewDetails(value.draft.interview)}:{})};
   } catch {return;}
 }
 export function writePostEdit(storage:DraftStorage|undefined,owner:string,post:string,draft:PostEditDraft):boolean {
