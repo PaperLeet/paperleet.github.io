@@ -1835,8 +1835,8 @@ def uniform_samples(rng, shape, dtype):
 
 
 def cdist(x1, x2, p=2., compute_mode='use_mm_for_euclid_dist_if_necessary'):
-    if p != 2 or compute_mode not in ('use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist'):
-        raise BrowserUnsupported('Only Euclidean cdist is supported')
+    if p not in (1, 2) or compute_mode not in ('use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist'):
+        raise BrowserUnsupported('Only L1 and Euclidean cdist are supported')
     if x1.ndim < 2 or x2.ndim < 2 or x1.shape[-1] != x2.shape[-1] or x1.dtype != x2.dtype:
         raise RuntimeError('cdist expects matching floating feature dimensions and dtypes')
     if x1.dtype not in (np.dtype('float32'), np.dtype('float64')):
@@ -1846,9 +1846,10 @@ def cdist(x1, x2, p=2., compute_mode='use_mm_for_euclid_dist_if_necessary'):
     if size > 16_000_000: raise BrowserUnsupported('Large pairwise distances require the server')
     # Direct differences avoid the cancellation of ||a||²+||b||²-2a·b near ties.
     difference = x1._data[..., :, None, :] - x2._data[..., None, :, :]
-    lengths = np.linalg.norm(difference, axis=-1)
+    lengths = np.abs(difference).sum(axis=-1) if p == 1 else np.linalg.norm(difference, axis=-1)
     def direction(g):
-        unit = np.divide(difference, lengths[..., None], out=np.zeros_like(difference), where=lengths[..., None] != 0)
+        # Native L1 chooses zero at equal coordinates and propagates NaN signs.
+        unit = np.sign(difference) if p == 1 else np.divide(difference, lengths[..., None], out=np.zeros_like(difference), where=lengths[..., None] != 0)
         return g[..., None] * unit
     return result(lengths, (x1, lambda g: unbroadcast(direction(g).sum(axis=-2), x1.shape)),
                   (x2, lambda g: unbroadcast(-direction(g).sum(axis=-3), x2.shape)))
