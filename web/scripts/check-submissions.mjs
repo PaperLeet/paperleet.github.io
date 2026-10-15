@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom';
 import { createServer } from 'vite';
 
 const dom = new JSDOM('<!doctype html><div id="root"></div>', {url:'http://127.0.0.1/'});
+Object.defineProperty(dom.window.navigator,'languages',{value:['zh-CN'],configurable:true});
 const previous = Object.fromEntries(['window','document','navigator','HTMLElement','IS_REACT_ACT_ENVIRONMENT','fetch','__proposalAccountFixture'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for (const key of ['window','document','navigator','HTMLElement']) Object.defineProperty(globalThis,key,{value:dom.window[key],configurable:true,writable:true});
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
