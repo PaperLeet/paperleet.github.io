@@ -22,10 +22,12 @@ try {
   assert.equal(report.run_id,id,'The queue report must retain the server run ID');
   assert.throws(()=>parseReport({...report,run_id:'../another-account'}));
   const entry = {id:'rl/dpo',number:3};
-  for (const route of ['3','rl/dpo','3?from=collections/llm']) assert.deepEqual(submissionDestination(report,'user:alice',entry,route),{href:`#/submission/${id}`,redirect:true});
-  for (const route of ['', '4', 'u/alice', `submission/${id}`]) assert.equal(submissionDestination(report,'user:alice',entry,route).redirect,false,'Completing a job cannot hijack another page');
-  assert.equal(submissionDestination({...report,run_id:undefined},'user:alice',entry,'3'),undefined);
-  assert.equal(submissionDestination(report,'anonymous',entry,'3'),undefined,'Browser-only tests have no server result URL');
+  assert.deepEqual(submissionDestination(report,'user:alice',entry),{href:`#/submission/${id}`},
+    'Completing a submission only provides an explicit result link, never a redirect decision');
+  assert.equal(submissionDestination({...report,run_id:undefined},'user:alice',entry),undefined);
+  assert.equal(submissionDestination(report,'anonymous',entry),undefined,'Browser-only tests have no server result URL');
+  assert.equal(submissionDestination({...report,problem:'rl/grpo'},'user:alice',entry),undefined,
+    'A result link cannot be attributed to a different problem');
 
   const { publishPracticeChange } = await server.ssrLoadModule('/src/practiceChanges.ts');
   const { usePracticeInvalidation } = await server.ssrLoadModule('/src/usePracticeInvalidation.ts');

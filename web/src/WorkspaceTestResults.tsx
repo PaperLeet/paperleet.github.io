@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import type {ReactNode} from 'react';
-import {ChevronDown,FileText} from 'lucide-react';
+import {CheckCircle2,ChevronDown,FileText,XCircle} from 'lucide-react';
 import {useI18n} from './i18n';
 import {deferredFeature} from './deferredFeature';
 import {BrowserSyntaxNotice} from './BrowserSyntaxNotice';
@@ -17,11 +17,22 @@ const DetailedReport=deferredFeature(()=>import('./ReportView'),['测试详情',
 export default function WorkspaceTestResults({problem,children,...workflow}:ReportWorkflowProps&{problem:Problem;children?:ReactNode}){
   const {t}=useI18n(),[opened,setOpened]=useState(false);
   const {report,syntax,source,sourceState,onLocate}=workflow;
+  const syntaxCurrent = !!syntax && syntax.source === source;
+  const passed = !syntaxCurrent && !!report && isPassed(problem,report);
+  const selectedPassed = !syntaxCurrent && !!report && !report.error && report.tests.length > 0 && report.tests.every(test => test.passed);
   const verdict=report&&isPassed(problem,report)
     ?sourceState==='current'?t('本次测试已通过','Tests passed'):t('上次测试已通过','Previous tests passed')
     :t('本次运行已结束','Run finished');
   return <section className="workspace-test-results" aria-label={t('测试反馈','Test feedback')}>
-    <ReportWorkflow {...workflow} compact resultTitle={verdict}/>
+    {(report || syntax) && <div className={`result-head ${selectedPassed ? 'success' : 'failure'}`} role="status">
+      <div>{selectedPassed ? <CheckCircle2 size={22} aria-hidden="true"/> : <XCircle size={22} aria-hidden="true"/>}<h3>{syntaxCurrent
+        ? t('语法错误','Syntax error') : report?.error ? t('运行未完成','Run incomplete')
+        : passed ? report?.runtime === 'browser-numpy-wasm' ? t('测试通过','Tests passed') : 'Accepted'
+        : selectedPassed ? t('所选测试通过','Selected tests passed') : t('测试未通过','Tests failed')}</h3></div>
+      <span>{!syntaxCurrent && report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length} ${t('项通过','tests passed')}` : ''}
+        {!syntaxCurrent && report && sourceState !== 'current' && <small>{t('上次运行结果','Previous run result')}</small>}</span>
+    </div>}
+    <ReportWorkflow {...workflow} compact resultTitle={passed ? t('可以继续修改代码或查看测试详情','Edit your code or review test details') : verdict}/>
     {(report||syntax)&&<details className="workspace-test-details" onToggle={event=>{if(event.currentTarget.open)setOpened(true);}}>
       <summary><FileText size={14} aria-hidden="true"/>{t('测试详情与日志','Test details and logs')}<ChevronDown size={14} aria-hidden="true"/></summary>
       {opened&&<div className="workspace-test-detail-body">
