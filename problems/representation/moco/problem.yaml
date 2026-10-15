@@ -1,0 +1,64 @@
+id: representation/moco
+number: 85
+title: MoCo 动量编码器与负样本队列
+title_en: MoCo Momentum Encoder and Negative Dictionary
+paper_id: moco
+paper:
+  title: Momentum Contrast for Unsupervised Visual Representation Learning
+  authors: Kaiming He, Haoqi Fan, Yuxin Wu, Saining Xie, Ross Girshick
+  venue: CVPR 2020
+  arxiv: '1911.05722'
+  anchors:
+  - 'Equation 1: one-positive dictionary InfoNCE'
+  - 'Equation 2: momentum key encoder'
+  - 'Algorithm 1: detached keys and queue lifecycle'
+  official_code: https://github.com/facebookresearch/moco
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: moco_loss
+  signature: 'moco_loss(query: Tensor, key: Tensor, queue: Tensor, temperature: float = .07) -> Tensor'
+- name: momentum_update
+  signature: 'momentum_update(query: Tensor, key: Tensor, momentum: float = .999) -> Tensor'
+- name: enqueue
+  signature: 'enqueue(queue: Tensor, keys: Tensor, pointer: int) -> tuple[Tensor, int]'
+module:
+  goal: 结合只更新 query 的对比损失、动量 key 编码器与跨 batch 环形字典。
+  goal_en: Combine query-only contrastive gradients, a momentum key encoder and a cross-batch circular dictionary.
+  scope: 三个核心函数；提供 12 次实际 SGD 的合成线性编码器实验，不复现图像编码器、分布式 BN 或论文基准。
+  scope_en: Three core functions and a supplied 12-step synthetic linear-encoder SGD lab; no image encoder, distributed BN or paper benchmark reproduction.
+  required_functions: [moco_loss, momentum_update, enqueue]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve matching finite float32/float64; gradients checked in float64.
+  device: CPU; no downloads or GPU.
+  contract: Loss accepts raw query/key [B,D] and dictionary [K,D], normalizes rows with eps 1e-12, and differentiates only query. EMA and queue return detached independent storage without input mutation. Queue uses row-major [K,D], normalizes incoming keys, and wraps for all B including B>K. Momentum includes the frozen m=1 limit.
+tests: {T0: 2, T1: 2, T2: 5, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 35
+tags: [Representation Learning, Contrastive Learning, Momentum Encoder, Queue]
+viz: [toy_experiment]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-15'
+verified_sources:
+  checked_at: '2026-10-15'
+  links: [https://arxiv.org/abs/1911.05722, https://arxiv.org/html/1911.05722v3]
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1911.05722
+  anchor: Equations 1–2 and Algorithm 1
+  adaptation: Original six-pair synthetic linear-encoder experiment with twelve actual SGD, EMA and circular dictionary updates; independent scalar/finite-difference trajectory, no downstream benchmark claim.
+mutants:
+- {id: m1_reverse_momentum, bug: Reverse old-key and query momentum weights}
+- {id: m2_detach_query, bug: Stop query gradients}
+- {id: m3_train_key, bug: Backpropagate into positive keys}
+- {id: m4_train_dictionary, bug: Backpropagate into queued keys}
+- {id: m5_ignore_temperature, bug: Ignore temperature}
+- {id: m6_negative_denominator, bug: Omit positive from softmax denominator}
+- {id: m7_ignore_pointer, bug: Start queue writes at slot zero}
+- {id: m8_unnormalized_enqueue, bug: Store unnormalized new keys}
+- {id: m9_queue_keeps_graph, bug: Preserve graph in updated queue}

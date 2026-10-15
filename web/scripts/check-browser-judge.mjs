@@ -167,7 +167,8 @@ try {
     assert.equal((await wasm).reason, 'runtime_failed');
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
-  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 69);
+  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, index.problems.length);
+  assert(index.problems.some(entry=>entry.id==='representation/moco'&&entry.browser_judge));
 
   const frameCount = frames.length;
   for (const fail of [async () => { throw new TypeError('offline'); }, async () => new Response('', { status: 503 }), async () => new Response('invalid JSON')]) {

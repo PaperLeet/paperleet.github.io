@@ -613,3 +613,15 @@ papers:
     scope: 稠密二部图、线性传播与均匀层聚合，以及 160 次真实合成训练；不复现大规模稀疏训练或论文数据基准。
     scope_en: Dense bipartite graphs, linear propagation, uniform layer aggregation and 160 actual synthetic training updates; no large sparse training or paper dataset benchmark.
     module_ids: [retrieval/lightgcn]
+
+  - id: moco
+    number: 58
+    category: representation
+    short_title: MoCo
+    year: 2020
+    tags: [Contrastive Learning, Momentum Encoder, Negative Dictionary]
+    summary: 用动量编码器和跨 batch 负样本队列构建一致的对比字典。
+    summary_en: Build a consistent contrastive dictionary with a momentum encoder and cross-batch negative queue.
+    scope: Query-only InfoNCE、参数 EMA 和环形字典；提供 12 次真实合成 SGD，不复现图像训练或论文基准。
+    scope_en: Query-only InfoNCE, parameter EMA and a circular dictionary, with 12 actual synthetic SGD steps; no image-training or paper benchmark reproduction.
+    module_ids: [representation/moco]
