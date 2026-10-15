@@ -1,0 +1,13 @@
+.discussion-reply-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 4px; padding-bottom:14px; border-bottom:1px solid var(--line); }
+.discussion-reply-controls > button,.discussion-reply-controls > select { display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:6px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text-secondary); font:inherit; font-size:12px; }
+.discussion-reply-controls > button[aria-pressed="true"] { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 35%,var(--line)); background:color-mix(in srgb,var(--accent) 7%,var(--surface)); }
+.discussion-reply-controls > span { margin-inline-start:auto; color:var(--muted); font-size:11px; }
+.reply-author-badge { display:inline-flex; align-items:center; padding:2px 6px; border-radius:4px; background:var(--surface2); color:var(--accent); font-size:10px; font-weight:600; }
+.discussion-replies-more { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; min-height:40px; margin-top:16px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); color:var(--text-secondary); font-size:12px; }
+.discussion-reply-controls > button:hover:not(:disabled),.discussion-replies-more:hover:not(:disabled) { color:var(--accent); border-color:var(--accent); }
+.discussion-reply-controls :focus-visible,.discussion-replies-more:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.discussion-reply-controls :disabled,.discussion-replies-more:disabled { opacity:.55; cursor:default; }
+.discussion-reply-empty { padding-block:18px 4px; color:var(--text-secondary); font-size:13px; }
+.discussion-reply-empty > button { margin-top:10px; }
+@media (pointer:coarse) { .discussion-reply-controls > button,.discussion-reply-controls > select,.discussion-replies-more { min-height:44px; } }
+@media (max-width:480px) { .discussion-reply-controls > span { flex-basis:100%; margin-inline-start:0; padding-top:3px; } }

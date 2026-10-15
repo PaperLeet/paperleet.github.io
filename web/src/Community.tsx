@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
+import {useDiscussionReplies,ReplyListControls,MoreReplies} from './useDiscussionReplies';
 import MarkdownEditor from "./MarkdownEditor";
 import {
   ArrowLeft,
@@ -736,13 +737,8 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [deleteTarget, setDeleteTarget] = useState<string>();
-  const locatedReply=useRef<string|undefined>(undefined);
-  useEffect(()=>{
-    if(!replyTarget){locatedReply.current=undefined;return;}
-    if(!post||locatedReply.current===replyTarget)return;
-    const row=document.getElementById(`reply-${replyTarget}`);
-    if(row){row.focus({preventScroll:true});row.scrollIntoView({block:'center'});locatedReply.current=replyTarget;}
-  },[replyTarget,post]);
+  const repliesLocked=busy||loading||!!editingReply;
+  const replyList=useDiscussionReplies({replies:post?.replies,authorId:post?.author.id,linkedReply:replyTarget,disabled:repliesLocked});
   // Community keys this component by both post and account before it renders.
   const owner = user?.id || "";
   const [draft, setDraft] = useState<ReplyDraft>(() => readReplyDraft(tabDraftStorage(), owner, id) || { body: "" });
@@ -960,15 +956,16 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
               </span>
             </div>
           </article>
-          <section className="social-panel discussion-replies">
+          <section ref={replyList.root} className="social-panel discussion-replies">
             {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,returnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
             <div className="panel-title">
               <h2>
                 {t("回复", "Replies")} <span>{post.counts.replies}</span>
               </h2>
             </div>
-            {post.replies.length ? (
-              post.replies.map((r) => (
+            {post.replies.length>0&&<ReplyListControls list={replyList} disabled={repliesLocked}/>}
+            {replyList.shown.length ? (
+              replyList.shown.map((r) => (
                 <article
                   key={r.id}
                   className={`community-reply ${r.parent_id ? "nested-reply" : ""} ${replyTarget===r.id?'linked-reply':''}`}
@@ -977,6 +974,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 >
                   <div className="reply-heading">
                     <PersonLink user={r.author} compact />
+                    {r.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}
                     <DateLabel value={r.created_at} />
                     <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={returnTo}/>
                     {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
@@ -984,19 +982,11 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                     {r.parent_id && (
                       <button
                         className="reply-context"
-                        onClick={() =>
-                          document
-                            .getElementById(`reply-${r.parent_id}`)
-                            ?.scrollIntoView({
-                              behavior: "smooth",
-                              block: "center",
-                            })
-                        }
+                        disabled={repliesLocked||!replyList.byId.has(r.parent_id)}
+                        onClick={()=>replyList.reveal(r.parent_id!)}
                       >
                         {t("回复", "Replying to")}{" "}
-                        {post.replies.find(
-                          (parent) => parent.id === r.parent_id,
-                        )?.author.display_name ||
+                        {replyList.byId.get(r.parent_id)?.author.display_name ||
                           t("已删除的回复", "a deleted reply")}
                       </button>
                     )}
@@ -1032,6 +1022,8 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                   )}
                 </article>
               ))
+            ) : replyList.authorOnly&&post.replies.length ? (
+              <div className="discussion-reply-empty"><p>{t('楼主暂未回复，其他人的讨论仍可查看。','The author has not replied yet. You can still read everyone else’s replies.')}</p><button type="button" className="button subtle" disabled={repliesLocked} onClick={()=>replyList.chooseAuthor(false)}>{t('查看全部回复','Show all replies')}</button></div>
             ) : (
               <p className="no-replies">
                 {t(
@@ -1040,6 +1032,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 )}
               </p>
             )}
+            <MoreReplies list={replyList} disabled={repliesLocked}/>
           </section>
           {user ? (
             <section className="social-panel reply-composer">
@@ -1081,9 +1074,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 ? t('回复已发布。','Reply posted.')
                 : t('回复已发布并已显示。暂未获取到讨论的最新状态，可重试加载讨论，无需再次发布。','Your reply is posted and visible. The latest discussion could not load; retry loading without posting again.')}</p>
                 {replyDraftKept && <p>{t('当前未发布的回复草稿已保留。','Your current unpublished reply draft is kept.')}</p>}
-                {postedReplyId && post.replies.some(row => row.id === postedReplyId) && <button className="text-button" type="button" onClick={() => {
-                  const row = document.getElementById(`reply-${postedReplyId}`); row?.focus(); row?.scrollIntoView({block:'nearest'});
-                }}>{t('查看刚发布的回复','View your posted reply')}</button>}
+                {postedReplyId && post.replies.some(row => row.id === postedReplyId) && <button className="text-button" type="button" onClick={()=>replyList.reveal(postedReplyId)}>{t('查看刚发布的回复','View your posted reply')}</button>}
               </div>}
               <form
                 className="social-form"
