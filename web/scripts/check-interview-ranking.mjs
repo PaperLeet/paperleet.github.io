@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import React,{act} from 'react';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
+import {readFileSync} from 'node:fs';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
 const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__rankingFixture:undefined};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
@@ -25,6 +26,7 @@ try{
  const {default:Hub}=await server.ssrLoadModule('/src/Interviews.tsx');
  const {emptyInterviewFilters,readInterviewRoute,interviewHref}=await server.ssrLoadModule('/src/interviewNavigation.ts');
  const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const {interviewCatalog}=await server.ssrLoadModule('/src/interviewModels.ts');
  const problems=['architecture/attention','finetuning/lora','optimization/adamw','architecture/rope'].map((id,index)=>({id,number:index+1,title:['注意力','低秩适配','AdamW','旋转位置编码'][index],translations:{en:{title:['Attention','LoRA','AdamW','RoPE'][index]}},starter:'initial code',difficulty:index===1?'H':'M',estimated_minutes:25,module:{goal:'练习',goal_en:'Practice'},tests:{T0:1}}));
  const evidence=(problem,index)=>({problem_id:problem.id,reports:10-index,contributors:6-index,companies:[{company:'google',reports:10-index,contributors:6-index,problem_id:problem.id,latest:'2026-10-15'}]});
  const questions=problems.map(evidence),passed=problem=>({problem:problem.id,summary:{T0:[1,1]},tests:[{id:'passed',layer:'T0',passed:true}]});
@@ -89,7 +91,48 @@ try{
  await click(filter('Not started'));
  await render(Hub,{route:interviewHref({...hubFilters,company:'amazon'}).slice(2),saved,progressReady:true});assert.equal(filter('All concepts').getAttribute('aria-pressed'),'true','Route changes reset local study filters');
  assert(requests.every(path=>path.startsWith('community/interviews/summary?')),'Study controls never mutate accounts, grades or public reports');
- console.log('PASS interview ranking: real progress and retained passes, latest draft resume, stable contributor ranks, per-state recovery, catalog failure source retention, incomplete search, scoped company reports, lazy bilingual study prompts, account/route isolation and read-only controls');
+ // Empty live statistics still provide useful preparation, without invented evidence.
+ const catalog=JSON.parse(readFileSync(new URL('../public/data/index.json',import.meta.url),'utf8')).problems;
+ const allIds=[...new Set(interviewCatalog.paths.flatMap(path=>path.modules))];
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,role:'',saved:false},saved:{},ready:true});
+ assert(document.querySelector('.interview-curated-context').textContent.includes('CURATED PRACTICE'));
+ assert.equal(rows().length,6);assert(document.body.textContent.includes('Showing 6 of '+allIds.length));
+ assert(!document.querySelector('.interview-ranking-evidence,.interview-company-tags a'),'Editorial preparation has no fabricated contributors, company tags or source counts');
+ assert(rows().every(row=>row.querySelector('.interview-rank').getAttribute('aria-label')==='Curated exercise'),'Curriculum positions are not presented as community ranks');
+ const more=document.querySelector('.interview-ranking-more');more.focus();await click(more);assert.equal(rows().length,12);
+ assert.equal(document.activeElement,rows()[6].querySelector('.interview-ranking-title a'),'Keyboard reveal continues at the first newly available concept');
+ const outside=[...document.querySelectorAll('button')].find(button=>button.textContent==='Change locale');
+ await act(async()=>{const button=document.querySelector('.interview-ranking-more');button.focus();button.click();outside.focus();});
+ assert.equal(document.activeElement,outside,'A later external focus is never stolen by list expansion');
+ while(document.querySelector('.interview-ranking-more'))await click(document.querySelector('.interview-ranking-more'));
+ assert.equal(rows().length,allIds.length);
+ await click(filter('Not started'));assert.equal(rows().length,6,'Changing state returns to a compact first page');
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,role:'recommendation',saved:false},saved:{},ready:true});
+ await click(filter('All concepts'));
+ while(document.querySelector('.interview-ranking-more'))await click(document.querySelector('.interview-ranking-more'));
+ const recommendedIds=new Set(interviewCatalog.paths.filter(path=>path.roles.includes('recommendation')).flatMap(path=>path.modules));
+ assert.equal(rows().length,recommendedIds.size);
+ assert.deepEqual(rows().map(row=>decodeURIComponent(row.querySelector('.interview-ranking-title a').id.slice('interview-ranked-'.length))).sort(),[...recommendedIds].sort(),'The preparation fallback follows the actual role curriculum');
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,concept:'architecture/attention'},saved,ready:true});
+ assert.equal(rows().length,1);assert(rows()[0].textContent.includes('Attention'));
+ assert.equal(document.querySelector('progress').value,0,'A one-case fixture cannot count as passing the real catalog suite');
+ const attention=catalog.find(problem=>problem.id==='architecture/attention');
+ const completeReport={
+  problem:attention.id,
+  summary:Object.fromEntries(Object.entries(attention.tests).map(([layer,count])=>[layer,[count,count]])),
+  tests:Object.entries(attention.tests).flatMap(([layer,count])=>Array.from({length:count},(_,index)=>({id:layer+index,layer,passed:true}))),
+ };
+ const completeSaved={...saved,[attention.id]:{acceptedReport:completeReport}};
+ await render(Ranking,{questions:[],problems:catalog,filters:{...filters,concept:attention.id},saved:completeSaved,ready:true});
+ assert.equal(document.querySelector('progress').value,1);assert.equal(document.querySelector('progress').max,1);
+ await render(Ranking,{questions:[],problems:[attention],filters:{...filters,role:''},saved:completeSaved,ready:true,catalogError:'offline'});
+ assert.equal(document.querySelector('progress').value,1);assert.equal(document.querySelector('progress').max,allIds.length,'Unavailable editorial modules never count as completed');
+ await render(Ranking,{questions:[],problems:[],filters:{...filters,role:''},saved,ready:true,catalogError:'offline'});
+ assert.equal(document.querySelectorAll('.interview-ranking-filters button:disabled').length,3);assert(!document.querySelector('progress'));
+ await render(Ranking,{questions,problems,filters,saved,ready:true});
+ assert(!document.querySelector('.interview-curated-context'),'New real evidence replaces the editorial fallback');
+ assert(document.querySelector('.interview-ranking-evidence a'));
+ console.log('PASS interview ranking: real progress and retained passes, latest draft resume, stable contributor ranks, per-state recovery, catalog failure source retention, incomplete search, scoped company reports, lazy bilingual study prompts, account/route isolation, honest role-based empty-state curriculum, compact pagination, incomplete-suite rejection and read-only controls');
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
  for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}

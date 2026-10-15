@@ -2,6 +2,13 @@
 .interview-ranking-toolbar > div:first-child { min-width:0; }
 .interview-ranking-toolbar b { font-size:13px; font-weight:550; }
 .interview-ranking-toolbar p { margin:6px 0 0; font-size:11px; line-height:1.8; color:var(--muted); }
+.interview-curated-context { margin:0 0 18px; padding:19px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+.interview-curated-context .interview-panel-kicker { display:inline-flex; align-items:center; gap:6px; }
+.interview-curated-context h3 { margin-top:8px; font-size:15px; font-weight:550; }
+.interview-curated-context p,.interview-curated-goal { margin:8px 0 0; color:var(--muted); font-size:11px; line-height:1.8; }
+.interview-curated-context > .button { min-height:34px; font-size:11px; margin-top:13px; }
+.interview-ranking-actions > .interview-curated-label { color:var(--accent); background:var(--surface2); padding:4px 7px; border-radius:5px; }
+.interview-ranking-more { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:12px; min-height:40px; border:1px solid var(--line); border-radius:8px; font-size:12px; color:var(--accent); background:var(--surface); }
 .interview-ranking-completion { display:grid; gap:8px; min-width:125px; flex:none; font-size:11px; color:var(--muted); }
 .interview-ranking-completion > span { display:flex; justify-content:space-between; gap:12px; }
 .interview-ranking-completion b { color:var(--text); font-variant-numeric:tabular-nums; font-size:12px; }
@@ -40,7 +47,7 @@
 .interview-question-workbench .preparation-guide > summary b { font-size:11px; }
 .interview-question-workbench .preparation-guide > summary small { font-size:9px; }
 .interview-question-workbench .preparation-guide-body { padding:14px 0 0; }
-.interview-question-workbench :is(a,button,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.interview-question-workbench :is(a,button,summary):focus-visible,.interview-ranking-title > b:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 @media(max-width:600px) {
  .interview-ranking-toolbar { align-items:stretch; flex-direction:column; gap:14px; }
  .interview-ranking-completion { max-width:220px; }
@@ -49,5 +56,5 @@
  .interview-ranking-actions .interview-ranking-evidence { align-items:flex-start; }
  .interview-question-workbench .preparation-guide > summary > span { flex-wrap:wrap; }
 }
-@media(pointer:coarse) { .interview-ranking-filters button,.interview-ranking-actions > .button,.interview-question-workbench .interview-company-tags a,.interview-question-workbench .preparation-guide > summary { min-height:44px; } }
+@media(pointer:coarse) { .interview-ranking-filters button,.interview-ranking-actions > .button,.interview-question-workbench .interview-company-tags a,.interview-question-workbench .preparation-guide > summary,.interview-ranking-more { min-height:44px; } }
 @media(prefers-reduced-motion:no-preference) { .interview-ranking-resume,.interview-ranking-filters button { transition:background .15s,border-color .15s,color .15s; } }
