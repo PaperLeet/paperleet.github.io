@@ -45,8 +45,8 @@
 .interview-selects select,.interview-results-heading select { min-width:0; max-width:100%; min-height:34px; padding:6px 24px 6px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text-secondary); font-size:11px; }
 .interview-selects select { flex:1; }
 .interview-active-filters { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:12px; }
-.interview-active-filters > button:not(.text-button) { display:inline-flex; align-items:center; gap:6px; max-width:100%; padding:5px 8px; border:1px solid transparent; border-radius:6px; background:var(--surface2); font-size:10px; color:var(--text-secondary); }
-.interview-active-filters > button:not(.text-button) span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.interview-active-filters > button:not(.text-button) { display:inline-flex; align-items:center; gap:6px; min-width:0; max-width:100%; padding:5px 8px; border:1px solid transparent; border-radius:6px; background:var(--surface2); font-size:10px; color:var(--text-secondary); }
+.interview-active-filters > button:not(.text-button) span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .interview-active-filters > button:not(.text-button) svg { flex:none; }
 .interview-active-filters > button:not(.text-button):hover { border-color:var(--line); color:var(--text); }
 .interview-active-filters > .text-button { margin-left:auto; font-size:10px; }
