@@ -4,6 +4,18 @@
 
 ## 核心任务
 
+### 返回值要求
+
+#### `online_softmax_update` — 需要实现
+
+按固定顺序返回浮点 Tensor 的 Python 元组 `(new_max, new_normalizer, new_numerator)`，形状分别为 `[Q]`、`[Q]`、`[Q,Dv]`；Q 为查询行数，Dv 为值向量宽度。三项表示已处理所有键分块的行最大值、未归一化指数总量、未归一化加权值之和；第三项尚不是归一化注意力输出。保持 dtype/device 和 autograd，不原地修改输入状态。
+
+#### `block_attention` — 已提供
+
+返回浮点 Tensor 的 Python 元组 `(output, logsumexp)`，形状为 `[Q,Dv]` 和 `[Q]`；Q 为总查询长度，Dv 为值向量宽度。output 是归一化注意力结果；logsumexp 是每个查询对全部键的缩放分数的自然对数 sum-exp，不是注意力权重矩阵。保持 q/k/v 的 dtype/device 和梯度路径，包括 logsumexp 的梯度，不修改输入。
+
+### 公式与约定
+
 只需实现 `online_softmax_update`。提供的 `block_attention` 负责 query/key 双向分块、除以 `sqrt(D)` 和最终归一化。返回新的行最大值、归一化常数和**尚未归一化**的 value 加权和。
 
 给定旧状态 `(m,l,u)`、新 score 分块 `S` 及对应 value `V`：

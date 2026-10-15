@@ -11,6 +11,18 @@ The defaults are `beta1=4`, `beta2=25`. The sigmoid receives the **raw gate**.
 
 ## Interface
 
+### Return requirements
+
+#### `softcap` — Required
+
+Return one floating Tensor with exactly x's shape, dtype and device, including scalar or empty tensors. Each value is smoothly capped to the range [-beta,beta] (endpoints may be reached numerically). Preserve gradients into x; do not mutate x or return the cap parameter alongside the result.
+
+#### `situ_glu` — Required
+
+Return one floating Tensor matching the shared shape/dtype/device of gate and up, retaining arbitrary leading dimensions and empty axes. It is the elementwise gated activation, bounded in magnitude by beta1*beta2; no feature dimension is reduced. Keep gradients to both branches and leave inputs unchanged.
+
+### Formula and conventions
+
 Implement `softcap(x, beta)` and `situ_glu(gate, up, beta1=4, beta2=25)`. Both branches are already projected, equally shaped floating tensors. Preserve shape, dtype, device, gradients and input values. Support strided and empty tensors. Tests use CPU float32/float64. Positive finite cap validation is supplied in the starter; projections and MoE routing are outside this exercise.
 
 Near zero, softcap approaches the identity, so this activation approximates SwiGLU locally. Each output coordinate is bounded by `beta1 * beta2 = 100`; see Appendix B. Hard clamping changes derivatives and is not equivalent.

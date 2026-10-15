@@ -4,6 +4,18 @@ Grouped-query attention shares one key/value head among a group of query heads, 
 
 ## Your core module
 
+### Return requirements
+
+#### `mean_pool_kv_heads` — Required
+
+Return one floating Tensor `[G,D_model,D_head]`, where G=num_kv_heads, D_model is projection input width and D_head per-head output width. Each returned head averages one consecutive group of H/G original heads from weight `[H,D_model,D_head]`, preserving group order. Preserve weight's dtype/device and gradients to all original heads; do not mutate weight.
+
+#### `grouped_query_attention` — Required
+
+Return `(output, weights)` as floating tensors `[B,H,Q,Dv]` and `[B,H,Q,K]`, retaining all H query heads even though K/V have only G heads. B is batch size, Q/K query/key lengths and Dv value width. Weights normalize over keys; fully masked rows give zero weights/output and finite zero gradients. Preserve dtype/device and q/k/v gradients, accumulating contributions to shared KV heads. Empty queries keep a zero-length Q axis; inputs remain unchanged.
+
+### Formula and conventions
+
 Implement `mean_pool_kv_heads` and `grouped_query_attention`. Scaled dot-product attention is a useful prerequisite; the new pieces are group routing and accumulated shared-head gradients.
 
 | Input/output | Convention |

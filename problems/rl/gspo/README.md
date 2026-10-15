@@ -6,6 +6,20 @@
 
 ## 精选核心
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `sequence_ratio` · 需要实现
+
+对 `[B, L]` 分数/mask（`B` 个回答、`L` 个 token 位置），返回浮点 Tensor `ratio`，形状 `[B]`。每项是有效 token 重要性比率的几何平均；空回答返回 `1`。保留输入浮点 dtype/device 及 `logp` 梯度，`old_logp` 固定；不对 batch 继续聚合。
+
+#### `gspo_loss` · 需要实现
+
+返回形状 `()` 的浮点标量 Tensor `loss`，将截断序列目标加负号并对 **全部 `B` 个回答** 平均，空回答以零参与平均。保留 `logp` 梯度，固定 `old_logp` 和 advantage；全空 mask 返回可反传的零 Tensor，不是 Python 数字。
+
+### 公式与约定
+
 只实现两个函数；组 advantage 计算、采样和分布式 RL 不属于本模块。
 
 $$

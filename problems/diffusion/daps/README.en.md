@@ -1,6 +1,31 @@
 # DAPS Decoupled Posterior Sampling
 
+## 1. Exercise goal
+
 Implement the local posterior-sampling kernel in [DAPS, Eq. (7) and Algorithm 1](https://arxiv.org/abs/2407.01521). At a noise level, a supplied probability-flow ODE estimate `x0_hat` defines a Gaussian approximation to the clean sample. Measurement conditioning happens in clean space, followed by independent re-noising to the next level.
+
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `posterior_score` (required)
+
+Return per-sample conditional scores as a Tensor [B, D], matching x shape and dtype/device; B counts samples and D unknown coordinates. Measurement width M is not an output axis. Do not reduce across samples/coordinates or divide by B or D. Keep differentiable tensor operations and leave inputs unchanged.
+
+#### `langevin_step` (required)
+
+Return the updated sample Tensor with exactly x shape and dtype/device ([B,D] in this exercise, for B samples and D coordinates). Return only the new sample, not the score or noise. eta=0 gives x numerically. Do not mutate inputs or explicitly detach the output.
+
+#### `renoise` (required)
+
+Return one next-level noisy sample Tensor with exactly x0 shape and dtype/device ([B,D] here). sigma_next=0 gives x0 numerically. Keep differentiable tensor operations and do not mutate x0 or the supplied noise.
+
+#### Provided local helpers
+
+- `_positive`: Provided: return Python None when the scalar is valid, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+- `_matching`: Provided: return Python None when floating tensors have finite values and matching shape/dtype/device, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+
+### Equations and interface notes
 
 For a linear observation `y = A x + measurement_noise`, use:
 
@@ -12,7 +37,7 @@ $$
 
 Here `r` and `beta` are standard deviations. The two noises are independent standard-normal draws supplied by the caller. The final formula centers the next noise level on the MCMC clean sample, with standard deviation `sigma_next`.
 
-## Implement
+### Implement
 
 | Function | Inputs | Output |
 |---|---|---|

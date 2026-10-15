@@ -4,6 +4,26 @@
 
 ## Implement
 
+### Return requirements
+
+#### `scale_causal_mask` — Required
+
+Return one `torch.bool` Tensor `[L,L]` on the requested device, with L=sum(n*n for n in scales). Rows are query tokens and columns key tokens, concatenated by increasing scale and raster order within each scale. True allows the same or an earlier scale, including every within-scale pair. It is a visibility matrix without gradients, not an additive floating-point mask.
+
+#### `next_scale_inputs` — Required
+
+Return one floating Tensor `[B,L_next,C]`: B batch size, C codebook channel width and L_next=sum(n*n for n in scales[1:]). Concatenate features for target scales 2..K in scale order, with row-major spatial tokens within each scale; do not include the separate first-scale start embedding. Preserve codebook dtype/device. A single scale returns `[B,0,C]`. The frozen-tokenizer result must have requires_grad=False even if codebook/projections require gradients; do not mutate inputs.
+
+#### `lift_codes` — Provided
+
+Return one floating Tensor `[B,C,F,F]`, where B is batch size, C the projected channel width and F=full_size. It contains codebook features lifted to full spatial resolution and channel-projected, in channels-first layout. Preserve the shared codebook/projection dtype/device and input values. This helper itself does not detach gradients from codebook/projection; next_scale_inputs calls it in a no-grad context.
+
+#### `_validate_codes` — Provided helper
+
+Return a Python `list[int]` of square side lengths, one per token map in input order, after validating the scale schedule and tensor layouts. It is not a Tensor. Raise ValueError for the checked invalid inputs; do not modify any input.
+
+### Formula and conventions
+
 `next_scale_inputs(token_maps, codebook, projections) -> Tensor`
 
 The list contains `K` integer target maps `[B,n_k,n_k]`. Let `lift_codes` be the supplied lookup → bicubic upsample → channel projection helper, and let `H=n_K`. For the input predicting scale `k>0`, compute

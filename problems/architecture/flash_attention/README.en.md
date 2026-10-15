@@ -4,6 +4,18 @@
 
 ## Your core module
 
+### Return requirements
+
+#### `online_softmax_update` — Required
+
+Return `(new_max, new_normalizer, new_numerator)` in exactly this order, as a Python tuple of floating tensors shaped `[Q]`, `[Q]`, `[Q,Dv]`. Q is the number of query rows and Dv the value width. These are the updated row maximum, unnormalized exponential mass and unnormalized weighted-value sum over all processed key blocks; the numerator is not yet the normalized attention output. Preserve dtype/device, autograd and all input state tensors; return updated state rather than updating in place.
+
+#### `block_attention` — Provided
+
+Return `(output, logsumexp)`, a Python tuple of floating tensors `[Q,Dv]` and `[Q]`. Q is total query length and Dv value width. output is normalized attention; logsumexp is one natural-log sum-exp of scaled scores over all keys per query, not an attention-weight matrix. Preserve q/k/v dtype/device and their gradient paths, including gradients from logsumexp. Inputs remain unchanged.
+
+### Formula and conventions
+
 Implement `online_softmax_update`. The supplied `block_attention` traverses query/key tiles, scales scores by `sqrt(D)`, and performs final normalization. Return the new row maximum, normalizer and **unnormalized** weighted sum.
 
 For previous state `(m,l,u)` and a new score block `S` with values `V`:

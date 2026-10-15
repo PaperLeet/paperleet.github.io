@@ -4,6 +4,18 @@
 
 ## Your core module
 
+### Return requirements
+
+#### `contrastive_logits` (required)
+
+Return one floating `Tensor` of shape `[B,B]`: row i is image i and column j is text j; B is the paired batch size. Preserve feature dtype/device and both encoder gradients, plus the gradient of scalar `logit_scale` below its cap (zero above the cap). Return scores, not probabilities, a tuple or a reduced loss; leave inputs unchanged.
+
+#### `clip_loss` (required)
+
+Return one scalar floating `Tensor`, shape `()`, with the feature dtype/device. It is the average of image-to-text and text-to-image batch-mean cross-entropies. Keep both feature gradients and the unclipped temperature gradient; do not detach or convert to a Python float. Leave inputs unchanged.
+
+### Formula and conventions
+
 Implement `contrastive_logits` and `clip_loss`. Image and text encoder outputs are supplied as `[B,D]` tensors. Normalize each row, form all pairwise similarities, and train both retrieval directions. Pair `i` matches pair `i`; the remaining examples in the batch act as negatives.
 
 $$

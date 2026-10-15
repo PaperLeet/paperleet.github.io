@@ -4,6 +4,20 @@
 
 ## 需要实现
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `masked_is_weights` · 需要实现
+
+返回 **已 detach** 的浮点 Tensor `weights`，形状 `[B, L]`（`B` 个回答、`L` 个 token），dtype/device 与 `logp` 一致。保留位置存放严格落在 `(1-clip_low, 1+clip_high)` 内的 `exp(logp-rollout_logp)`；padding、边界及丢弃位置为零。返回完整 token 数组，不聚合、不修改输入。
+
+#### `offpolicy_loss` · 需要实现
+
+返回浮点标量 Tensor `loss`，形状 `()`，分母是 **原始有效 token 数**，包含因比率规则被丢弃的 token。梯度仅经过直接相乘的当前 `logp`，权重、rollout 分数和 advantage 固定。空 mask 返回仍连接计算图的零，支持 `.backward()`；不能返回 `.item()` 或 detach 的标量。
+
+### 公式与约定
+
 实现 `masked_is_weights` 与 `offpolicy_loss`。当前 log-prob、已记录的 rollout log-prob、二值有效 token mask 的形状均为 `[B,L]`。优势为 `[B]`，在每个回答的 token 上广播。
 
 $$r_{it}=\exp(\log\pi_{it}-\log\pi_{rollout,it}), \quad

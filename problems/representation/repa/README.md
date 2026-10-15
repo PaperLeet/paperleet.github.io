@@ -2,6 +2,20 @@
 
 实现 [REPA](https://arxiv.org/abs/2410.06940)（ICLR 2025 Oral）将噪声扩散特征对齐到干净语义表征的损失。冻结的图像编码器提供目标，可训练投影层把扩散模型的中间 patch 映射到相同维度。
 
+## 实现要求
+
+### 返回值要求
+
+#### `repa_alignment` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，保持特征 dtype/device。对 `[B,N,D]` 特征先归约 D 个通道，再在 B 个样本、N 个 patch 上平均负余弦相似度。保留 `projected` 梯度、冻结 `teacher`，不修改输入；范数不小于 eps 的 patch 完全一致时结果为 -1，不是零。
+
+#### `repa_objective` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`：所有元素上的平均速度 MSE，加上 `weight` 倍标量对齐损失。保持共同输入 dtype/device，保留 `prediction` 与 `projected` 梯度，冻结 `velocity_target` 和 `teacher`。只返回总损失，不返回分量 tuple，不修改输入。
+
+### 公式与约定
+
 输入 `p`、`z` 的形状都是 `[B,N,D]`：
 
 $$

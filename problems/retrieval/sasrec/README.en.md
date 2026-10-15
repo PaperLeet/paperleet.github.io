@@ -12,6 +12,26 @@ Keep the diagonal: the current item is already observed; the target is the next 
 
 ## 2. Position-wise binary objective
 
+### Return requirements
+
+#### `causal_item_mask` (required)
+
+Return one Boolean `Tensor` `[B,T,T]` on the item-ID device; its axes are batch, query position i, key position j. True means both IDs are nonpadding and j<=i, including the diagonal. Empty axes remain valid. Return visibility, not attention weights or an additive float mask; no gradients or input mutation.
+
+#### `sampled_next_item_loss` (required)
+
+Return one scalar floating `Tensor`, shape `()`, with the logits' dtype/device. Sum both binary loss terms per valid target position, then average over nonzero target IDs only; do not divide by two. Empty/all-padding targets give a differentiable zero connected to both logit inputs, with zero gradients. Keep both valid-logit gradients and leave inputs unchanged.
+
+#### `_check_ids` (provided)
+
+Provided validator: return Python `None` when item_ids is a nonnegative int64 Tensor `[B,T]`, including empty dimensions. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_loss` (provided)
+
+Provided validator: return Python `None` when nonnegative int64 target IDs and matching floating logits share `[B,T]` shape/device and logits are finite at valid target positions; ignored positions may contain NaN/Inf. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 `sampled_next_item_loss(positive, negative, target_ids)` takes equal `[B,T]` shapes. Positive and negative values are unnormalized logits with matching float32/float64 precision; target IDs are int64. The harness already selected the positive/negative scores. Let $V=\{(b,t):o_{b,t}\ne0\}$:
 
 $$L=\frac{\sum_{(b,t)\in V}[\operatorname{softplus}(-r^+_{b,t})+\operatorname{softplus}(r^-_{b,t})]}{\max(1,|V|)}.$$

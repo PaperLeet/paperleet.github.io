@@ -4,6 +4,14 @@ For adaptive optimizers, adding an L2 penalty to the gradient and directly shrin
 
 ## Your core module
 
+### Return requirements
+
+#### `adamw_step` — Required
+
+Return `(new_parameter, new_first_moment, new_second_moment)` in exactly this order, as a Python tuple of three floating tensors with the inputs' full shape/dtype/device. The moment outputs are the updated uncorrected running moments for the next call, not bias-corrected moments. This is a functional update: return new values and leave parameter, gradient and both input moments unchanged. Retain tensor autograd paths; the caller decides whether to disable gradients. Do not return None as an in-place optimizer step would.
+
+### Formula and conventions
+
 Implement one pure function, `adamw_step`. Given a parameter tensor, its gradient, previous first/second moments and a **one-based** step, return the new parameter and both updated moments. State initialization and the quadratic training loop are provided by the experiment.
 
 $$

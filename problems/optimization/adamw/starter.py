@@ -11,5 +11,15 @@ def adamw_step(parameter: Tensor, gradient: Tensor, first_moment: Tensor,
     Apply bias correction, eps outside sqrt, and decoupled decay lr*weight_decay.
     Do not change inputs or add weight decay to gradient/moment estimates.
     Keep tensor autograd paths; the caller decides when to disable gradients.
-    No AMSGrad, maximize option, or schedule multiplier in this exercise."""
+    No AMSGrad, maximize option, or schedule multiplier in this exercise.
+
+    Returns:
+        Return `(new_parameter, new_first_moment, new_second_moment)` in exactly this order,
+        as a Python tuple of three floating tensors with the inputs' full
+        shape/dtype/device. The moment outputs are the updated uncorrected running moments
+        for the next call, not bias-corrected moments. This is a functional update: return
+        new values and leave parameter, gradient and both input moments unchanged. Retain
+        tensor autograd paths; the caller decides whether to disable gradients. Do not
+        return None as an in-place optimizer step would.
+    """
     raise NotImplementedError()

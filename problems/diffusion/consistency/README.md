@@ -1,8 +1,36 @@
 # 21. Consistency Models：边界与教师目标
 
+## 1. 题目目标
+
 实现保持边界的 consistency 函数、冻结相邻时间目标的损失与 EMA 更新。
 
-## 接口
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `consistency_function`（需实现）
+
+返回 consistency 预测 Tensor，形状与 `noisy` 相同 `[B, ...]`；B 为样本数，省略号为每个样本的坐标维度。保留浮点 dtype/device 和模型梯度；`sigma=sigma_min` 的样本输出须等于原输入。不要 detach 整个预测。
+
+#### `consistency_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor 标量，dtype/device 与预测一致。对批次及全部坐标的平方误差求平均，不能返回逐样本向量或 Python float。保留 `prediction` 的梯度，在函数内部停止 `target_prediction` 的梯度。
+
+#### `update_ema`（需实现）
+
+返回 Python `None`。在 `torch.no_grad()` 下原地更新 `target` 的参数，保留各参数的形状、dtype/device；`online` 参数不变。此接口仅更新参数，不更新 buffers，也不返回新模型。
+
+#### `teacher_euler`（已提供）
+
+返回下降到 `next_sigma` 的一步教师样本 Tensor，形状与 `noisy` 相同 `[B, ...]`，保留浮点 dtype/device。B 为批大小，末尾为样本维度；已提供的 `no_grad` 装饰器使输出不带梯度。不原地修改输入，不返回轨迹。
+
+#### 已提供的局部辅助函数
+
+- `_time`：已提供：返回把 t 从 `[B]` reshape 成 `[B,1,...,1]` 的 Tensor，其阶数与 x 相同；B 为样本数，每个非 batch 轴长度为 1。保留 t（不是 x）的 dtype/device 与梯度，不修改输入；返回值可能与 t 共享存储。
+
+### 公式与接口说明
+
+### 接口
 
 - `consistency_function(model, noisy: Tensor, sigma: Tensor, sigma_min: float = .002, sigma_data: float = .5) -> Tensor`
 - `consistency_loss(prediction: Tensor, target_prediction: Tensor) -> Tensor`

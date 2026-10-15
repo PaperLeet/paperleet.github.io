@@ -1,8 +1,32 @@
 # 16. MeanFlow：平均速度与 JVP 目标
 
+## 1. 题目目标
+
 实现平均速度的全导数目标、冻结目标损失，以及一次前向采样。
 
-## 接口
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `meanflow_target`（需实现）
+
+按顺序返回 `(prediction, target)` 二元组，两项均为与 z 同形状 `[B,...]`、浮点 dtype/device 的 Tensor；B 为样本数，末尾为坐标维度。prediction 是模型原预测并保留训练梯度；target 是完全 detach 的 JVP 修正目标。不返回 JVP 导数本身。
+
+#### `meanflow_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor 标量，dtype/device 与 clean/noise 和模型输出一致。对 batch 及全部坐标的 prediction-target 平方误差取均值，无自适应权重。通过 prediction 保留模型梯度，target 停止梯度。
+
+#### `one_step`（需实现）
+
+返回一次模型调用得到的数据端 Tensor，与 noise 同形状 `[B,...]`、浮点 dtype/device；B 为样本数，末尾为坐标。只返回样本，不返回轨迹；已提供的 no_grad 装饰器使输出无梯度，不修改 noise。
+
+#### 已提供的局部辅助函数
+
+- `_time`：已提供：返回把 t 从 `[B]` reshape 成 `[B,1,...,1]` 的 Tensor，其阶数与 x 相同；B 为样本数，每个非 batch 轴长度为 1。保留 t（不是 x）的 dtype/device 与梯度，不修改输入；返回值可能与 t 共享存储。
+
+### 公式与接口说明
+
+### 接口
 
 - `meanflow_target(model, z: Tensor, r: Tensor, t: Tensor, velocity: Tensor) -> tuple[Tensor, Tensor]`
 - `meanflow_loss(model, clean: Tensor, noise: Tensor, r: Tensor, t: Tensor) -> Tensor`

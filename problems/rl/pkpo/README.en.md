@@ -4,6 +4,32 @@ Implement the reward transform that optimizes the best result among `k` policy s
 
 ## Functions
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `maxk_estimate` · Required
+
+Return one floating Tensor `estimate` with shape `rewards.shape[:-1]`: remove only the sample axis `N` from rewards `[..., N]`. Each value is the expected maximum over uniformly chosen size-`k` subsets. `[N]` input returns a scalar Tensor `()`, while `[B, N]` returns `[B]`. Preserve reward dtype/device and do not mutate inputs.
+
+#### `pkpo_weights` · Required
+
+Return one detached floating Tensor `weights`, with exactly the same `[..., N]` shape, dtype, device and original sample order as `rewards`. These are Eq. 33 coefficients, already including sample normalization; `k=1` returns `rewards / N`. Keep the sample axis even when `N=1`.
+
+#### `pkpo_loss` · Required
+
+Return one scalar floating Tensor `loss`, shape `()`: sum the negative weighted log-probabilities along the sample axis `N`, then average the remaining leading groups. Weights already include sample normalization; do not divide by `N` again. Keep gradients to `log_probs`, with no gradients to rewards/weights.
+
+#### `_check` · Provided
+
+Returns `None` after validating floating rewards `[..., N]`, `N>0`, and integer `1 <= k <= N`. Invalid inputs raise `ValueError`; it does not transform or return rewards.
+
+#### `_comb` · Provided
+
+Returns a Python `int`: the binomial coefficient for `0 <= k <= n`, otherwise `0`. This supplied arithmetic helper does not return a Tensor.
+
+### Formula and conventions
+
 Inputs are floating tensors `[..., N]`, one independent group on the last axis, `1 <= k <= N`.
 
 1. `maxk_estimate(rewards, k)` returns `[...]`. It averages `max(rewards[I])` over all size-k subsets. For ascending sorted rewards `g[0:N]`, it equals

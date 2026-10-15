@@ -6,6 +6,20 @@ Paper: [DAPO: An Open-Source LLM Reinforcement Learning System at Scale](https:/
 
 ## Selected core
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `dynamic_group_mask` · Required
+
+Return one boolean Tensor `keep`, shape `[P]` on the rewards device, for rewards `[P, G]` (`P` prompts, `G` group members). `True` keeps a prompt whose rewards contain both outcomes; uniform-success and uniform-failure groups are `False`. This is one decision per prompt, not per response/token.
+
+#### `dapo_loss` · Required
+
+Return one scalar floating Tensor `loss`, shape `()`: negative clipped objective sum divided by the total number of retained valid tokens across `[N, L]` inputs. Retain current `logp` gradients and freeze `old_logp`/`advantages`; padding has zero gradient. An empty mask returns a differentiable zero Tensor. Do not return per-response losses or diagnostics.
+
+### Formula and conventions
+
 Two bounded core functions. Oversampling orchestration, overlong reward shaping, and distributed training are not reproduced.
 
 $$

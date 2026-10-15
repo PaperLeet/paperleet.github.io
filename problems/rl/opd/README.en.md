@@ -6,6 +6,20 @@ Paper: [On-policy Distillation of Language Models: Learning from Self-Generated 
 
 ## Selected core
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `sample_student` · Required
+
+Return `(tokens, prefixes)`, a tuple of two `torch.long` Tensors of shape `[batch_size, length]`, on `transition_logits.device`, with no gradients. `tokens` contains sampled IDs in `[0, V-1]`; `prefixes[:, 0]` is the BOS ID `V` and `prefixes[:, 1:] == tokens[:, :-1]`. Sampling uses the supplied generator. Do not return probabilities or log-probabilities.
+
+#### `distillation_loss` · Required
+
+Return one floating scalar Tensor `loss`, shape `()`, for logits `[B, L, V]`. Sum KL across the vocabulary `V`, then average only valid tokens selected by `[B, L]` mask. `reverse` means KL(student || teacher); `forward` means KL(teacher || student). Keep student gradients, freeze teacher logits; empty masks produce graph-connected zero. Preserve the input floating dtype/device.
+
+### Formula and conventions
+
 GKD with lambda=1 and explicit forward/reverse KL; a supplied three-token Markov LM replaces large language models.
 
 $$

@@ -8,6 +8,26 @@ Implement only `ddim_step`, the paper’s central update across a timestep subse
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `ddim_step` (required)
+
+Return the sample Tensor at the less noisy destination, matching x_t shape [B,...] and floating dtype/device; B is batch size and trailing axes are sample dimensions. Do not return the clean prediction or coefficients. eta=0 removes dependence on noise; ab_prev=1 returns the clean endpoint. This step does not itself stop gradients.
+
+#### `ddim_timesteps` (provided)
+
+Return a torch.long Tensor of shape [num_steps] (CPU by default here), containing strictly descending discrete indices starting at T-1. Each entry corresponds to one model call. The final clean boundary is not an extra entry, and index 0 need not occur. The output has no gradients.
+
+#### `ddim_sample` (provided)
+
+With return_traj=False, return final samples as a Tensor [B,...], matching x_T shape and dtype/device. With True, return the tuple (samples, trajectory) in that order. trajectory is a Tensor [num_steps+1,B,...]: entry 0 copies x_T, each following entry is one update, and the last equals samples. Both outputs are gradient-free; x_T is unchanged.
+
+#### `ddim_invert` (provided)
+
+Return the inverted noisy endpoint Tensor with x0 shape [B,...] and dtype/device, at the selected schedule maximum index T-1. Return only the endpoint, not a trajectory. Leave x0 unchanged; the output is gradient-free. Discrete inversion is approximate, not a promise of bitwise sampling reversibility.
+
+### Equations and interface notes
+
 Let the current cumulative signal be $a=\bar\alpha_t$ and the previous sampling time's cumulative signal be $b=\bar\alpha_{\mathrm{prev}}$, with $b\ge a$. Reconstruct the clean prediction, then combine a deterministic direction and random noise:
 
 $$\hat x_0=\frac{x_t-\sqrt{1-a}\hat\epsilon}{\sqrt a},\qquad\sigma=\eta\sqrt{\frac{1-b}{1-a}}\sqrt{1-\frac ab}.$$

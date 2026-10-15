@@ -2,6 +2,20 @@
 
 [Restructuring Vector Quantization with the Rotation Trick](https://arxiv.org/html/2410.06424v1), ICLR 2025 Oral, changes the backward map of vector quantization. The selected code `q` is already provided. Implement `rotation_quantize(e, q, eps=1e-8)` so the forward result equals `q`, while the encoder receives a rotated and rescaled gradient.
 
+## Implementation requirements
+
+### Return requirements
+
+#### `rotation_quantize` (required)
+
+Return one floating `Tensor` with the same `[...,D]` shape, dtype and device as e and q (D>=2); its forward values equal q. Keep the surrogate gradient to e through the frozen scaled rotation, but no gradient to q or the rotation/scale construction. Do not detach the output, return Jacobians or mutate either input.
+
+#### `_validate` (provided)
+
+Provided helper: return `(e_norm, q_norm)`, two floating Tensors of shape `[...,1]`, reducing only the final D features of e/q `[...,D]` and retaining the dimension. Preserve dtype/device and their norm gradient paths; do not mutate inputs. Raise `ValueError` for invalid shape/epsilon, near-zero norms or antiparallel pairs. This returns norms, not `None`.
+
+### Formula and conventions
+
 Let
 
 $$u=e/\lVert e\rVert,\quad v=q/\lVert q\rVert,\quad r=(u+v)/\lVert u+v\rVert,\quad s=\lVert q\rVert/\lVert e\rVert.$$

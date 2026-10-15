@@ -2,6 +2,28 @@
 
 实现 [VICReg](https://arxiv.org/html/2105.04906v3) 的特征空间目标：同一样本的两个增强视图保持一致，每个特征在样本之间保留足够变化，不同特征减少冗余。
 
+## 实现要求
+
+### 返回值要求
+
+#### `vicreg_terms` (需实现)
+
+按顺序返回 `(invariance, variance, covariance)`，恰好三个标量浮点 `Tensor`，形状均为 `()`，保持两视图 dtype/device。对于 `[B,D]` 视图，invariance 平均 B*D 个平方差；variance 平均特征惩罚及两个视图；covariance 将两个视图的非对角平方项求和后除以 D。保留两视图及分母为 B-1 的样本统计量梯度，不 detach、不修改输入。
+
+#### `vicreg_loss` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，按 `vicreg_terms` 声明的顺序对三个分量加权求和。保持共同输入 dtype/device 及 x、y 两侧梯度；不返回分量、Python float、detach 后的值，也不原地更新输入。
+
+#### `_check_pair` (已提供)
+
+已提供校验函数：有限且匹配的 float32/float64 视图 `[B,D]` 满足 B>=2、D>=1，epsilon 为有限正数时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_weights` (已提供)
+
+已提供校验函数：三个系数均有限且非负时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 给定成对特征 $X,Y\in\mathbb R^{B\times D}$，令 $X_c=X-\operatorname{mean}_B(X)$，$C_X=X_c^TX_c/(B-1)$；对 $Y$ 同理。
 
 $$

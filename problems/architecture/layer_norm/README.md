@@ -4,6 +4,18 @@
 
 ## 需要实现的核心
 
+### 返回值要求
+
+#### `layer_norm` — 需要实现
+
+返回一个与 x 同形状 `[...,D]` 的浮点 Tensor；D 为末轴特征宽度，保留所有前导批/token 维度。返回的是仿射变换后的归一化特征，不是均值/方差统计量。保持 x 的 dtype/device 及 x、weight、bias 的梯度，不修改输入。
+
+#### `post_norm_residual` — 需要实现
+
+返回一个浮点 Tensor `[...,D]`，与 x、sublayer_output 同形状，保留所有前导维度，D 为特征宽度。其值为残差相加后的归一化结果。保持共同 dtype/device 及两条残差分支、weight、bias 的梯度，不原地更新分支。
+
+### 公式与约定
+
 使用张量归约实现 `layer_norm` 和 `post_norm_residual`。子层输出和实验脚手架已经提供。本题采用原始 Transformer 的 **post-LN** 顺序，关闭 dropout：
 
 $$

@@ -10,6 +10,14 @@
 
 ## 接口
 
+
+### 返回值要求
+
+#### `align_rollout_logits` — 需要实现
+
+依次返回 Python 元组 `(student, teacher, mask)`。student/teacher 为浮点 Tensor `[B,T,V]`；B 为批大小，V 为词表大小，T=max(response_lengths)，分别保留来源 logits 的 dtype/device。mask 为同设备的布尔 Tensor `[B,T]`，有效回答位置为 True；填充位置 logits 为精确零。回答全部为空时返回 `[B,0,V]`、`[B,0,V]`、`[B,0]`。仅保留被选中学生位置的梯度，教师值 detach，不修改输入。
+
+### 公式与约定
 ```python
 align_rollout_logits(student_logits, teacher_logits, student_prompt_lengths, teacher_prompt_lengths, response_lengths)
 ```

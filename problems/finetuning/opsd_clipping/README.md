@@ -10,6 +10,18 @@
 
 ## 接口
 
+
+### 返回值要求
+
+#### `clipped_distillation_loss` — 需要实现
+
+返回一个零维浮点 Tensor（`shape == ()`），保持 logits 的 dtype/device；不是 Python float 或逐 token loss。先对每个 token 的截断有符号词表项求和，再在每条回答内平均有效 token，最后平均全部 B 条回答；B 为批大小。空回答贡献零且仍计入批分母，loss 可以为负。仅保留学生梯度，全遮挡输入或零长度回答（`T=0`、`B>0`）返回可求导零；教师 logits detach，不修改输入。
+
+#### `_validate` — 已提供 helper
+
+tau 有限且为正、direction 为 'forward' 或 'reverse' 时返回 None；参数不合法时抛出 ValueError，不返回 loss 或转换后的参数。
+
+### 公式与约定
 ```python
 clipped_distillation_loss(student_logits, teacher_logits, mask, tau, direction='forward')
 ```

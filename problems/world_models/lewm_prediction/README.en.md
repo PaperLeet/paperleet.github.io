@@ -11,6 +11,22 @@ Implement two functions:
 
 ## Joint objective
 
+### Return requirements
+
+#### `lewm_objective` (required)
+
+Return `(total, prediction, regularization)`, exactly three scalar floating `Tensor`s, shape `()`, with the common embedding/callback dtype/device. For embeddings `[B,T,D]`, prediction averages B*(T-1)*D next-state squared errors; regularization is the supplied scalar over all T frames; total is prediction + weight*regularization. Keep both context and target embedding paths and callback gradients connected, even though targets are next-state embeddings. Do not detach any component or mutate inputs.
+
+#### `latent_rollout` (required)
+
+Return one floating `Tensor` `[B,H,D]`, preserving the initial/transition dtype and device: H successive predicted states in time order, excluding the initial `[B,D]` state. Actions are `[B,H,A]`, with A action width. Preserve recurrent gradients to initial state, actions and differentiable transition parameters through every step. Do not detach, return a list or modify inputs.
+
+#### `_tensor` (provided)
+
+Provided validator: return Python `None` when x is a finite, nonempty float32/float64 Tensor with rank ndim. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 Call `predictor(embeddings[:, :-1], actions)` once. The supplied predictor is causal and returns `(B,T-1,D)`; its architecture is outside this exercise. Align predictions with `embeddings[:, 1:]`. Use mean squared error across **all** batch, time and feature elements, matching the official `train.py` implementation:
 
 $$L_{pred}=\frac{1}{B(T-1)D}\sum_{b,t,d}(\hat z_{b,t+1,d}-z_{b,t+1,d})^2.$$

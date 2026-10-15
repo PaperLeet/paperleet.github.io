@@ -12,6 +12,18 @@ $$\lambda=\exp(\lambda_{q1}^T\lambda_{k1})-\exp(\lambda_{q2}^T\lambda_{k2})+\lam
 
 ## 接口
 
+### 返回值要求
+
+#### `differential_lambda` — 需要实现
+
+返回一个零维浮点 Tensor（`shape == ()`），表示标量系数 lambda；不是 Python float 或长度为 1 的向量。数值不限制在 [0,1]。保持四个参数向量的 dtype/device 及梯度，不修改输入。
+
+#### `differential_attention` — 需要实现
+
+返回一个浮点 Tensor `[B,H,T,2D]`：B 为批大小，H 为头数，T 为序列长度，D 为 Q/K 宽度；形状与 value 相同。它是每头归一化和输出投影之前的差分值聚合，不返回注意力权重元组。保持输入 dtype/device，以及两组 Q/K、value 和 Tensor 系数的梯度，不修改输入。
+
+### 公式与约定
+
 - `differential_lambda(q1, k1, q2, k2, lambda_init=0.2)` 输入相同且非空的参数向量 `[Dλ]`，返回标量张量。这些是 lambda 参数，与注意力 Q/K 张量不同。调用方提供层相关初值；原文从第 1 层起使用 `0.8 - 0.6 exp(-0.3(l-1))`。
 - `differential_attention(q1, k1, q2, k2, value, coefficient, causal=True)` 的 Q/K 为 `[B,H,T,D]`，V 为 `[B,H,T,2D]`，返回 `[B,H,T,2D]`。系数可为有限 Python 标量或标量张量，后者必须保留梯度。
 

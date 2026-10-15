@@ -2,6 +2,28 @@
 
 Implement SIGReg from [LeJEPA, Sections 4.2.3 and 5.1](https://arxiv.org/html/2511.08544v1). Project embeddings onto unit directions, compare each empirical characteristic function with the standard normal target, then average the statistics across slices. This checks distribution shape beyond its first two moments.
 
+## Implementation requirements
+
+### Return requirements
+
+#### `epps_pulley` (required)
+
+Return one floating `Tensor` `[M]`, one N-scaled Epps-Pulley statistic for each of M projection columns in `projected[N,M]`. Integrate out the quadrature-node axis; do not average the M slices here. Preserve dtype/device and gradients to projected samples, detach fixed nodes t, and leave inputs unchanged.
+
+#### `sigreg_loss` (required)
+
+Return one scalar floating `Tensor`, shape `()`, equal to the mean of the M slice statistics for features `[N,D]` and directions `[D,M]`. Preserve feature dtype/device and gradients; both directions and quadrature nodes t are detached constants. Do not further divide by N, detach features or mutate inputs.
+
+#### `_check_projected` (provided)
+
+Provided validator: return Python `None` when projected `[N,M]` is finite nonempty float32/float64 and matching nodes t `[K]`, K>=2, start at zero and strictly increase. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_features` (provided)
+
+Provided validator: return Python `None` when features `[N,D]` and nodes pass validation and finite matching directions `[D,M]` have unit-length columns. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 For projections $P=XA\in\mathbb R^{N\times M}$ and frequencies $t_k\ge0$,
 
 $$

@@ -6,6 +6,20 @@
 
 ## 精选核心
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `sample_student` · 需要实现
+
+返回 `(tokens, prefixes)`，两个 `torch.long` Tensor 的元组，形状均为 `[batch_size, length]`，设备与 `transition_logits` 一致，无梯度。`tokens` 是 `[0, V-1]` 范围内的采样 ID；`prefixes[:, 0]` 为 BOS ID `V`，后续满足 `prefixes[:, 1:] == tokens[:, :-1]`。采样使用传入的 generator；返回的是 ID，不是概率或 log-prob。
+
+#### `distillation_loss` · 需要实现
+
+对 `[B, L, V]` logits 返回一个浮点标量 Tensor `loss`，形状 `()`。先沿词表 `V` 求 KL 和，再对 `[B, L]` mask 选中的有效 token 平均。`reverse` 为 KL(student || teacher)，`forward` 为 KL(teacher || student)。保留 student 梯度，固定 teacher logits；空 mask 返回连接计算图的零，保留输入浮点 dtype/device。
+
+### 公式与约定
+
 选取 GKD 的 lambda=1 与明确方向的 KL；提供三 token Markov 语言模型代替大型语言模型。
 
 $$

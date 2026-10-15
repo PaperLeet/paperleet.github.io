@@ -4,6 +4,34 @@ Implement the asymmetric objective from [DistiLLM-2 v2, §2.2 and Eq. (2)](https
 
 ## Functions
 
+### Return requirements
+
+#### `skew_kl` — Required
+
+Return one floating Tensor shaped `[...]` from logits `[...,V]`, where V is vocabulary size and every leading position/batch axis is retained. Each entry is the vocabulary-summed skew forward KL at that position; do not average positions. Preserve logits' dtype/device and student gradients while freezing teacher logits. alpha=1 gives zero with a valid zero student gradient; do not mutate inputs.
+
+#### `skew_reverse_kl` — Required
+
+Return one floating Tensor `[...]` for logits `[...,V]`: V is vocabulary size, and leading position/batch axes are unchanged. Each entry is the vocabulary-summed skew reverse KL; there is no position or batch reduction. Preserve dtype/device and student gradients, freeze teacher logits and leave inputs unchanged. alpha=1 returns zero with a valid zero student gradient.
+
+#### `distillm2_loss` — Required
+
+Return one zero-dimensional floating Tensor (`shape == ()`), not a Python number. Sum masked token divergences for each source, weight the teacher-response sum by 1-beta and student-response sum by beta, then divide by 2B (B is the shared batch size); do not divide by token count. Empty/all-masked sources contribute zero. Preserve the shared floating dtype/device and gradients to both student branches only; teacher branches are frozen and masked positions have zero gradients. Inputs remain unchanged.
+
+#### `_coefficient` — Provided helper
+
+Return None after checking that the Python coefficient is finite and in [0,1]. Raise ValueError on failure; no normalized coefficient or Tensor is returned.
+
+#### `_log_pair` — Provided helper
+
+Return `(teacher_log_probs, student_log_probs)`, a Python tuple of floating tensors with the same `[...,V]` shapes/dtype/device as the paired logits; V is vocabulary size. These are log probabilities, with no vocabulary reduction. Teacher values are detached; student values retain autograd. Validate alpha and equal nonempty vocabulary layouts without changing inputs.
+
+#### `_log_mix` — Provided helper
+
+Return one floating Tensor with the input log-probability shape `[...,V]`, containing the log of the alpha-weighted probability mixture (alpha for log_a, 1-alpha for log_b). Preserve dtype/device and existing gradient paths; the helper does not independently detach either input. Endpoint alpha=0 returns log_b; alpha=1 returns log_a with a retained zero-gradient path to log_b. Inputs are not modified.
+
+### Formula and conventions
+
 For teacher probabilities `p = softmax(teacher_logits)` and student probabilities `q = softmax(student_logits)`, implement per-position vocabulary divergences:
 
 $$\mathrm{SKL}_\alpha(p,q)=\sum_v p_v\log\frac{p_v}{\alpha p_v+(1-\alpha)q_v},$$

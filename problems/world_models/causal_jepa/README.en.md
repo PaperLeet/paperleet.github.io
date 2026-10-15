@@ -13,6 +13,26 @@ Require `T>H>=1`. `masked_slots=True` selects an object whose post-anchor histor
 
 ## Input construction
 
+### Return requirements
+
+#### `object_mask_inputs` (required)
+
+Return `(inputs, target_mask)`, exactly two Tensors: floating inputs `[B,T,S,D]` and Boolean target_mask `[B,T,S]`. B is batch size, T total history+future frames, S object slots and D latent width; H history frames satisfy T>H>=1. True marks prediction targets: selected non-anchor history slots and every future slot; frame zero is never a target. Preserve history dtype/device and gradients through visible history, anchors and parameters; the mask has no gradient. Do not mutate inputs.
+
+#### `masked_prediction_loss` (required)
+
+Return `(total, history_loss, future_loss)`, three scalar floating `Tensor`s of shape `()` with prediction dtype/device. History and future each use their own all-selected-element MSE mean; total is their sum, not their average. If no non-anchor history is selected, history_loss is a differentiable zero. Keep prediction gradients only at supervised positions and detach targets internally. Leave inputs unchanged.
+
+#### `_float_tensor` (provided)
+
+Provided validator: return Python `None` when x is a finite, nonempty float32/float64 Tensor with rank ndim. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_mask` (provided)
+
+Provided validator: return Python `None` when masked_slots is a Boolean Tensor of exactly `[batch,slots]` on the requested device. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 At time zero, **every object remains visible**. During times `1...H-1`, only selected objects are masked. Every object is masked at times `H...T-1`.
 
 Visible token `(b,t,s)` is `history[b,t,s] + time_embeddings[t]`. A masked token is the identity query

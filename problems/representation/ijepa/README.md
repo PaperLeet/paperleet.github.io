@@ -4,6 +4,34 @@
 
 ## 实现内容
 
+### 返回值要求
+
+#### `masked_targets` (需实现)
+
+返回已 detach 的浮点 `Tensor` `[K*C*B,M,D]`，首维依次按目标块、context、batch 样本排列。K 为 mask 数量，C 为 `num_context`，B 为 batch 大小，M 为每个 mask 的 token 数，D 为特征维度。保持特征 dtype/device，不向 teacher 特征反传，不修改输入。
+
+#### `masked_prediction_loss` (需实现)
+
+返回一个标量 `Tensor`，形状 `()`，保持 prediction/target 的共同 dtype/device；它是 beta=1 的 smooth-L1 在所有元素上的平均值。保留 prediction 梯度，在函数内冻结 target；不返回逐 token loss 或 Python float，不修改输入。
+
+#### `ema_update` (需实现)
+
+返回一个新的、已 detach 的 `Tensor`，形状、浮点 dtype 和 device 与 `target`、`online` 一致，内容为更新后的目标参数。两个输入都不接收梯度，也不原地修改。这个函数返回新值，不返回 `None`。
+
+#### `_features` (已提供)
+
+已提供校验函数：x 是有限、非空的 float32/float64 Tensor，且指定 ndim 时秩匹配时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_pair` (已提供)
+
+已提供校验函数：两个有限、非空浮点 Tensor 的形状、dtype、device 一致时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_targets` (已提供)
+
+已提供校验函数：features `[B,N,D]`、等长 int64 masks `[B,M]`、正整数 context 数和有限正 epsilon 符合目标接口约定时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 `masked_targets(features, masks, num_context=1, eps=1e-5)` 接收 `[B,N,D]` 教师特征，以及 `K` 个目标掩码，每个是整数 `[B,M]`。完成：
 
 1. 对教师特征 detach，再对每个 token 的 **D 个特征**独立做 layer norm，不使用仿射参数；方差除以 D，分母为 `sqrt(variance + eps)`。

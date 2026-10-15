@@ -6,6 +6,18 @@ Module 64 encodes items into unique semantic IDs. Here a frozen `next_logits(pre
 
 ## 2. Core equation
 
+### Return requirements
+
+#### `beam_search` (required)
+
+Return a Python `list[tuple[tuple[int, ...], float]]`; each entry is `(tokens, cumulative_log_score)`, with exactly `length` Python integer tokens and a Python float score, not a Tensor. Keep at most `beam_width` entries, ordered by descending score then lexicographic tokens for exact ties. `length=0` returns `[((), 0.0)]`. This is frozen decoding without gradients; do not mutate callback logits.
+
+#### `lookup_candidates` (required)
+
+Return a Python `list[tuple[int, float]]` of `(catalog_row_index, original_log_score)`, preserving beam order after removing unknown full IDs and duplicate items. The integer indexes a row of catalog `[N,L]`, not a token. Return at most k entries; k=0, empty input/catalog or no valid IDs gives `[]`. Scores remain Python floats without renormalization or gradients; do not mutate inputs.
+
+### Formula and conventions
+
 $$s(c_{1:L})=\sum_{d=1}^{L}\log\operatorname{softmax}(f(c_{<d}))_{c_d}.$$
 
 At each step expand every retained prefix over all V tokens and keep the global best b candidates. After L steps discard unknown full IDs and duplicate items, then take k. Keep original model log-scores without renormalization.

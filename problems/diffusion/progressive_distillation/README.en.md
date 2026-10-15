@@ -1,8 +1,36 @@
 # 26. Progressive Distillation: Two Teacher Steps to One
 
+## 1. Exercise goal
+
 Derive the exact clean prediction that makes one student DDIM step match two teacher steps, then learn it.
 
-## Contract
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `ddim_step` (required)
+
+Return the sample Tensor at the less noisy time s, matching noisy shape [B,...] and floating dtype/device; B is batch size and trailing axes are sample coordinates. Return only the updated sample, not clean_prediction or coefficients. Keep differentiable paths; time coefficients [B] broadcast over sample axes.
+
+#### `distilled_target` (required)
+
+Return the clean-prediction target Tensor that makes one student step match the teacher endpoint, with noisy shape [B,...] and floating dtype/device. Detach the entire result: no gradient reaches noisy, teacher_endpoint or time coefficients. This is neither the teacher endpoint itself nor the first teacher prediction.
+
+#### `distillation_loss` (required)
+
+Return a floating scalar Tensor of shape (), matching prediction dtype/device. Broadcast each sample weight over coordinates, then average weighted squared errors over the batch and all coordinates; do not divide by the weight sum. Preserve prediction gradients and detach target internally; weight is not explicitly detached.
+
+#### `teacher_pair` (provided)
+
+Return the endpoint Tensor after exactly two teacher DDIM steps, matching noisy shape [B,...] and floating dtype/device. Return only the sample at end, not the midpoint or a pair of predictions. The output is gradient-free and noisy is unchanged.
+
+#### Provided local helpers
+
+- `_time`: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.
+
+### Equations and interface notes
+
+### Contract
 
 - `ddim_step(noisy: Tensor, clean_prediction: Tensor, alpha_t: Tensor, sigma_t: Tensor, alpha_s: Tensor, sigma_s: Tensor) -> Tensor`
 - `distilled_target(noisy: Tensor, teacher_endpoint: Tensor, alpha_t: Tensor, sigma_t: Tensor, alpha_s: Tensor, sigma_s: Tensor) -> Tensor`

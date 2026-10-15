@@ -1,8 +1,32 @@
 # 19. DMD：分数差分布蒸馏
 
+## 1. 题目目标
+
 实现分布匹配生成器梯度、配对回归与独立的 fake-score 更新。
 
-## 接口
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `score_difference`（需实现）
+
+返回一个冻结的梯度目标 Tensor，与 `real_score` / `fake_score` 同形状 `[B,...]`、浮点 dtype/device；weight 的 B 个权重逐样本广播，不做归约。整个结果必须 detach，因此不向 real_score、fake_score 或 weight 传播梯度。
+
+#### `dmd_loss`（需实现）
+
+返回形状 `()` 的 Tensor 标量，使用 generated 的浮点 dtype/device。matching 与 paired regression 均对 B 和全部坐标取均值，matching 带 1/2 系数。只有左侧 generated 路径保留梯度；冻结由 generated-gradient 构造的目标及 paired_target。不返回梯度张量本身。
+
+#### `fake_score_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor，dtype/device 与 generated 一致；对批次及所有坐标的去噪 score 误差取均值。generated 在函数内部 detach，模型参数仍可训练；不要把整个损失 detach。本接口没有主动停止 noise 或 sigma 的梯度。
+
+#### 已提供的局部辅助函数
+
+- `_time`：已提供：返回把 t 从 `[B]` reshape 成 `[B,1,...,1]` 的 Tensor，其阶数与 x 相同；B 为样本数，每个非 batch 轴长度为 1。保留 t（不是 x）的 dtype/device 与梯度，不修改输入；返回值可能与 t 共享存储。
+
+### 公式与接口说明
+
+### 接口
 
 - `score_difference(real_score: Tensor, fake_score: Tensor, weight: Tensor) -> Tensor`
 - `dmd_loss(generated: Tensor, gradient: Tensor, paired_target: Tensor, regression_weight: float = .1) -> Tensor`

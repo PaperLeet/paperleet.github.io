@@ -1,6 +1,27 @@
 # FD-loss Population Moments and EMA
 
+## 1. Exercise goal
+
 Implement the population estimator in [Representation Fréchet Loss for Visual Generation, Section 3.2](https://arxiv.org/html/2604.28190). FD-loss estimates a feature distribution using more history than the current gradient batch. The default EMA variant stores a mean and a **raw second moment**, with gradients flowing through current features only.
+
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `batch_moments` (required)
+
+Return the tuple (mean, raw_second), both Tensors, in that order. For features [B,D], B counts samples and D features: mean is [D] and raw_second is [D,D], the uncentered second moment, not covariance. Both moments use divisor B, not B-1. Preserve features float32/float64 dtype/device and gradients; do not mutate inputs.
+
+#### `ema_population_stats` (required)
+
+Return the tuple (mean, raw_second, covariance), in that order, with Tensor shapes [D], [D,D], [D,D], where D is feature width. Preserve features float32/float64 dtype/device and current-batch gradients (zero when beta=1); detach both historical tensors internally. Do not update history in place; the caller saves detached mean/raw_second separately.
+
+#### Provided local helpers
+
+- `_check_features`: Provided: return Python None when features are a valid finite floating [B,D] tensor, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+- `_check_history`: Provided: return Python None when current features, historical moments and beta satisfy the contract, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+
+### Equations and interface notes
 
 For current features $X\in\mathbb R^{B\times D}$, compute
 
@@ -16,7 +37,7 @@ M=\beta\,\operatorname{sg}(M_{old})+(1-\beta)M_b,\quad
 \Sigma=M-\mu\mu^\top.
 $$
 
-## Implement
+### Implement
 
 | Function | Output |
 |---|---|

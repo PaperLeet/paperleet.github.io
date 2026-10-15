@@ -1,6 +1,30 @@
 # FD-loss Differentiable Fréchet Objective
 
-Implement the training objective in [Representation Fréchet Loss for Visual Generation](https://arxiv.org/html/2604.28190), using generated population statistics and frozen reference statistics. For feature Gaussians, Eq. (2) is
+## 1. Exercise goal
+
+Implement the training objective in [Representation Fréchet Loss for Visual Generation](https://arxiv.org/html/2604.28190), using generated population statistics and frozen reference statistics.
+
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `frechet_distance` (required)
+
+Return one FD scalar Tensor of shape (), preserving input float32/float64 dtype/device. Reduce D-dimensional means and DxD covariances to one distance without dividing by D. Preserve gradients through generated mean/covariance and stop reference_mean/reference_covariance. Gradient guarantees require both covariances to be positive definite; semidefinite inputs have forward-only guarantees. Do not clamp the final FD or mutate inputs.
+
+#### `normalized_fd_loss` (required)
+
+Return a scalar Tensor of shape (), matching distances dtype/device. Sum weighted normalized distances over R representations, without dividing by R or the weight sum. Retain gradients only through numerator distances; detach denominator distances and weights. Leave inputs unchanged.
+
+#### Provided local helpers
+
+- `_check_gaussian`: Provided: return Python None when mean and covariance satisfy the Gaussian-statistics contract, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+- `_check_pair`: Provided: return Python None when generated and reference statistics have matching shapes/dtype/device, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+- `_check_normalization`: Provided: return Python None when distances, nonnegative weights and positive denominators are valid, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+
+### Equations and interface notes
+
+For feature Gaussians, Eq. (2) is
 
 $$
 FD=\|\mu_g-\mu_r\|_2^2+\operatorname{tr}(\Sigma_g)+\operatorname{tr}(\Sigma_r)
@@ -15,7 +39,7 @@ $$
 \mathcal L=\sum_i w_i\frac{d_i}{\operatorname{sg}(d_i)+\epsilon}.
 $$
 
-## Implement
+### Implement
 
 | Function | Inputs | Output |
 |---|---|---|

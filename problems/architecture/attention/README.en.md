@@ -4,6 +4,18 @@ The Transformer routes information from value vectors according to query/key com
 
 ## Your core module
 
+### Return requirements
+
+#### `scaled_dot_product_attention` — Required
+
+Return the Python tuple `(output, weights)`, both floating tensors: `output[B,H,Q,Dv]` contains value aggregates and `weights[B,H,Q,K]` contains attention probabilities. B is batch size, H head count, Q/K query/key lengths, and Dv value width. Each nonempty allowed-key row sums to one; fully masked rows have exactly zero weights and output. Preserve the inputs' dtype/device and gradients through q/k/v; masked rows have finite zero gradients. Do not modify inputs.
+
+#### `causal_mask` — Provided
+
+Return one `torch.bool` Tensor `[Q,K]`, where Q=query_length and K=key_length; rows are queries and columns are keys. An entry is True exactly when the key index is at most the query index (upper-left alignment). Use the requested device. This visibility mask has no gradients.
+
+### Formula and conventions
+
 Implement `scaled_dot_product_attention`. The `causal_mask` helper and synthetic experiment are supplied. Inputs already contain projected, split heads; projection layers, positional encoding, feed-forward blocks, and complete language-model training are outside this module.
 
 $$

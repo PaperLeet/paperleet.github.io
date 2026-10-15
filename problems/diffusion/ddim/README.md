@@ -8,6 +8,26 @@ DDPM 的训练目标只要求各时间的边缘加噪分布，并没有把采样
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `ddim_step`（需实现）
+
+返回跳到较干净时间的样本 Tensor，与 `x_t` 同形状 `[B,...]`、浮点 dtype/device；B 为批大小，末尾为任意样本维度。不返回 x0 预测或中间系数。`eta=0` 时与 noise 无关；`ab_prev=1` 时返回干净端点。函数本身不停止梯度。
+
+#### `ddim_timesteps`（已提供）
+
+返回形状 `[num_steps]` 的 `torch.long` Tensor（本题默认 CPU），元素为从 `T-1` 开始严格递减的离散时间索引。每个元素对应一次模型调用；最终干净边界不额外占一个元素，也不必包含索引 0。输出不带梯度。
+
+#### `ddim_sample`（已提供）
+
+`return_traj=False` 时返回最终样本 Tensor `[B,...]`，与 `x_T` 同形状、dtype/device。为 True 时按顺序返回二元组 `(samples, trajectory)`，trajectory 为 `[num_steps+1,B,...]` Tensor；第 0 项是初始 x_T 的副本，之后每项是一次更新，最后一项等于 samples。两者均不带梯度；不修改 x_T。
+
+#### `ddim_invert`（已提供）
+
+返回反演后的噪声端 Tensor，与 `x0` 同形状 `[B,...]`、dtype/device，终点对应所选序列的最大索引 `T-1`。只返回终点，不返回轨迹；不修改 x0，输出不带梯度。离散反演是近似，不承诺与采样逐位可逆。
+
+### 公式与接口说明
+
 设当前累计信号为 $a=\bar\alpha_t$，前一个采样时间的累计信号为 $b=\bar\alpha_{\mathrm{prev}}$，因此 $b\ge a$。先恢复干净预测，再组合确定性方向与随机噪声：
 
 $$\hat x_0=\frac{x_t-\sqrt{1-a}\hat\epsilon}{\sqrt a},\qquad\sigma=\eta\sqrt{\frac{1-b}{1-a}}\sqrt{1-\frac ab}.$$

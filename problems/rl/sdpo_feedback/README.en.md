@@ -10,6 +10,25 @@ Implement feedback routing and masked reverse KL; tiny programs and a categorica
 
 ## Interface
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `select_feedback` · Required
+
+Return `(solution_indices, feedback_available)` in that order, both shape `[N]` on the `question_ids` device (`N` attempts):
+
+- `solution_indices`: `torch.long` row indices. A successful attempt selects itself; otherwise select the first successful attempt with the same question ID, or `-1` if absent.
+- `feedback_available`: boolean Tensor, true when a solution exists or the attempt has rich feedback.
+
+These routing outputs have no gradients. Rich feedback can make availability true while its solution index remains `-1`.
+
+#### `feedback_reverse_kl` · Required
+
+Return one floating scalar Tensor `loss`, shape `()`, matching student dtype/device. For `[N, L, V]` logits, sum reverse KL over vocabulary `V` and average tokens where `token_mask & feedback_available[:, None]` is true. Keep student gradients, freeze teacher logits. If no feedback tokens are eligible, return differentiable zero with zero student gradient.
+
+### Formula and conventions
+
 ```python
 select_feedback(question_ids, success, rich_feedback)
 feedback_reverse_kl(student_logits, teacher_logits, token_mask, feedback_available)

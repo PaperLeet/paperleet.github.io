@@ -4,6 +4,34 @@
 
 ## 函数
 
+### 返回值要求
+
+#### `smooth_inputs` — 需要实现
+
+返回浮点 Tensor 的 Python 元组 `(xs, ws)`，形状为 `[B,M]`、`[M,N]`，顺序对应 x、weight。B 为批大小，M 为输入通道数，N 为输出通道数；平滑后的两项满足 xs@ws=x@weight。保持共同 dtype/device，不修改输入。本题要求推理数值结果，不要求量化流水线的梯度。
+
+#### `split_weight` — 需要实现
+
+依次返回浮点 Tensor 元组 `(left, right, residual)`，形状为 `[M,r]`、`[r,N]`、`[M,N]`；weight 为 `[M,N]`，r=rank。left@right 是最佳 rank-r 近似，residual=weight-left@right。接受等价的因子符号/基，不以奇异值代替 residual。rank=0 时因子对应轴为空、残差为完整 weight；满秩时残差数值上为零。保持 dtype/device，不修改 weight；SVD 梯度不在范围内。
+
+#### `svdquant_linear` — 需要实现
+
+返回一个浮点 Tensor `[B,N]`；x 为 `[B,M]`、weight 为 `[M,N]`，B 为批大小，M/N 为输入/输出通道数。它是高精度低秩分支与 fake-quantized 残差分支相加后的输出，不返回分支元组。保持共同 dtype/device 和输入值；满秩时在数值误差内恢复 x@weight。本题为推理接口，不要求 SVD/舍入的梯度。
+
+#### `fake_quantize` — 已提供
+
+返回一个与 x 同形状/dtype/device 的浮点 Tensor，表示逐 Tensor 对称 INT 网格量化再反量化后的值，不是整数编码或 `(codes,scale)` 元组。全零输入返回零，不修改输入；此已提供舍入 helper 的梯度不属于本题要求。
+
+#### `_check_smoothing` — 已提供 helper
+
+校验非空 x[B,M]、weight[M,N] 和有限正值 scale[M] 及匹配的输入通道数后返回 None。受检布局/尺度不合法时抛出 ValueError；不修改或返回 Tensor。
+
+#### `_check_rank` — 已提供 helper
+
+weight 为矩阵且 rank 为 [0,min(weight.shape)] 内的 Python int 时返回 None。秩/布局不合法时抛出 ValueError，不返回分解结果，不修改输入。
+
+### 公式与约定
+
 采用 `x[B,M]`、`weight[M,N]`、正且有限的 `scale[M]`。未量化输出是 `x@weight`，与 PyTorch Linear 的转置权重布局不同。
 
 1. `smooth_inputs(x,weight,scale)` 返回 `(xs,ws)`：`xs=x/scale`、`ws=scale[:,None]*weight`，应保持 `xs@ws=x@weight`。

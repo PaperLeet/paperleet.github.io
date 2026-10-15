@@ -8,6 +8,16 @@
 
 ## 2. 核心公式与题面
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `compute_gae` · 需要实现
+
+返回 `(advantages, returns)`，按此顺序组成两个浮点 Tensor 的元组。两者形状均为 `[T, N]`（`T` 个时间步、`N` 个环境），保留 `rewards` 的 dtype/device；其中 `returns = advantages + values`。即使 `T = N = 1` 也保留两个轴，不对时间或环境求平均。
+
+### 公式与约定
+
 实现 `compute_gae`，返回 advantage 和 value target。奖励 $r_t$、当前价值 $V_t$、下一状态价值 $V_{t+1}$ 都是 `[T,N]`，时间在前；两个结束标记也是 `[T,N]` 布尔张量。
 
 $$

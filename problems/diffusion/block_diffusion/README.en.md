@@ -1,6 +1,22 @@
 # Block Diffusion Attention
 
+## 1. Exercise goal
+
 [Block Diffusion](https://arxiv.org/html/2503.09573v2), ICLR 2025 Oral, denoises a block while conditioning on earlier clean blocks. Its vectorized training pass concatenates **`[noisy tokens, clean tokens]`**. Implement the specialized attention mask and apply it to projected Q/K/V.
+
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `block_diffusion_mask` (required)
+
+Return one torch.bool Tensor of shape [2L, 2L], where L=length. Rows are queries and columns are keys; both axes concatenate L noisy tokens then L clean tokens. True means allowed. Use the requested device (CPU by default in this exercise); the mask has no gradients and is not an additive floating mask.
+
+#### `block_diffusion_attention` (required)
+
+Return the attention output Tensor [B, H, 2L, Dv], matching value: B is batch size, H heads, L tokens per stream, and Dv value width. Return aggregated features, not the [B,H,2L,2L] attention weights. Preserve input float32/float64 dtype, device and gradients through Q/K/V; do not mutate inputs.
+
+### Equations and interface notes
 
 For a sequence of length `L`, let `b(i)=floor(i/block_size)` be its local block index. Appendix B.6 defines the `2L × 2L` allowed-position mask:
 
@@ -9,7 +25,7 @@ M_{BD}[i,j]=[b(i)=b(j)],\quad M_{OBC}[i,j]=[b(j)<b(i)],\quad M_{BC}[i,j]=[b(j)\l
 
 Rows are queries; columns are keys. A noisy query sees its **entire noisy block** and **strictly earlier clean blocks**. A clean query sees its own and earlier clean blocks, and never sees noisy tokens. Allowing the current clean block into a noisy query leaks its training target.
 
-## Interfaces
+### Interfaces
 
 - `block_diffusion_mask(length, block_size, device=None)` returns a boolean `[2L,2L]` tensor; `True` means allowed. Both sizes must be positive Python integers.
 - `block_diffusion_attention(query, key, value, block_size)` uses Q/K `[B,H,2L,D]`, V `[B,H,2L,Dv]`, and returns V's shape. Compute scaled dot-product attention with `sqrt(D)`, set forbidden logits to `−∞`, then normalize over keys.

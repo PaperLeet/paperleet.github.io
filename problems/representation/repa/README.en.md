@@ -2,6 +2,20 @@
 
 Implement the loss that connects noisy diffusion features to clean semantic representations in [REPA](https://arxiv.org/abs/2410.06940), ICLR 2025 Oral. A frozen image encoder supplies clean-image targets; a trainable projector maps the diffusion model's hidden patches to the same feature width.
 
+## Implementation requirements
+
+### Return requirements
+
+#### `repa_alignment` (required)
+
+Return one scalar floating `Tensor`, shape `()`, preserving feature dtype/device. It is negative patch cosine similarity averaged across B examples and N patches of `[B,N,D]` features, after reducing the D channels. Keep `projected` gradients, freeze `teacher`, and leave both inputs unchanged; matching patches whose norms are at least eps give -1, not zero.
+
+#### `repa_objective` (required)
+
+Return one scalar floating `Tensor`, shape `()`: all-element mean velocity MSE plus `weight` times the scalar alignment loss. Preserve the common input dtype/device and gradients to `prediction` and `projected`; detach both `velocity_target` and `teacher`. Return the combined loss only, not a tuple of components; leave inputs unchanged.
+
+### Formula and conventions
+
 For projected patches `p` and teacher patches `z`, both `[B,N,D]`, define
 
 $$

@@ -10,6 +10,16 @@
 
 ## 接口
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `topk_tail_reverse_kl` · 需要实现
+
+返回浮点 Tensor `divergence`，形状为 `student_logits.shape[:-1]`，从 `[..., V]` 中 **只移除词表轴**。因此 `[B, L, V]` 返回 `[B, L]`，`[V]` 返回标量 `()`。每项是 student top-`k` token 与剩余 tail bin 上的反向 KL（`k=V` 为完整 KL）。保留 student 的 dtype/device 和梯度，teacher logits 固定；不对 batch/token 求平均。
+
+### 公式与约定
+
 ```python
 topk_tail_reverse_kl(student_logits, teacher_logits, k)
 ```

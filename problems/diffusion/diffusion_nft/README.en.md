@@ -1,6 +1,28 @@
 # DiffusionNFT Positive and Negative Flow Matching
 
-Implement [DiffusionNFT Eq. (5)](https://arxiv.org/html/2509.16117v1#S3.SS2). One trainable velocity `v_current` implicitly represents two policies around a frozen rollout velocity `v_old`:
+## 1. Exercise goal
+
+Implement [DiffusionNFT Eq. (5)](https://arxiv.org/html/2509.16117v1#S3.SS2).
+
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `implicit_velocities` (required)
+
+Return the tuple (positive, negative), in that order. Both are Tensors matching current shape [B,...] and dtype/device; B is batch size and trailing axes are feature dimensions. Keep both branches differentiable through current, detach old inside the function, and leave inputs unchanged.
+
+#### `nft_loss` (required)
+
+Return a scalar Tensor of shape (), with current dtype/device. Sum squared errors over all non-batch coordinates within each example, then average over B examples; do not average over all elements. Gradients flow only into current; old, target and rewards are stopped. Do not mutate inputs.
+
+#### Provided local helpers
+
+- `_check_velocity`: Provided: return Python None when velocities and beta satisfy the contract, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.
+
+### Equations and interface notes
+
+One trainable velocity `v_current` implicitly represents two policies around a frozen rollout velocity `v_old`:
 
 $$
 v^+=(1-\beta)v_{old}+\beta v_{current},\qquad
@@ -15,7 +37,7 @@ $$
 
 Use **beta**, not its reciprocal, in the implicit branches. Negative examples train the negative branch with a nonnegative squared error; they are not a negative-weight MSE.
 
-## Implement
+### Implement
 
 | Function | Inputs | Outputs |
 |---|---|---|

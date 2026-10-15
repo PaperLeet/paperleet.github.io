@@ -4,6 +4,20 @@ Source: [GLM-5 technical report v2](https://arxiv.org/abs/2602.15763v2), §4.1.2
 
 ## Your implementation
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `masked_is_weights` · Required
+
+Return one **detached** floating Tensor `weights`, shape `[B, L]`, matching `logp` dtype/device (`B` responses, `L` tokens). Retained positions contain `exp(logp-rollout_logp)` strictly inside `(1-clip_low, 1+clip_high)`; padding, boundary and rejected positions are zero. Return the full token array, without reduction or input mutation.
+
+#### `offpolicy_loss` · Required
+
+Return one scalar floating Tensor `loss`, shape `()`, normalized by the number of **original valid tokens**, including ratio-rejected tokens. Gradient flows only through the direct current-`logp` factor; weights, rollout scores and advantages are fixed. An empty mask returns a graph-connected zero so `.backward()` remains valid; never return `.item()` or a detached scalar.
+
+### Formula and conventions
+
 Implement `masked_is_weights` and `offpolicy_loss`. Current and recorded rollout log-probabilities and the binary valid-token mask have shape `[B,L]`; per-response advantages have shape `[B]`. Each advantage is broadcast over its response's tokens.
 
 $$r_{it}=\exp(\log\pi_{it}-\log\pi_{rollout,it}), \quad

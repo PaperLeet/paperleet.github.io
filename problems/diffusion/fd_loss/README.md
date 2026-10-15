@@ -1,6 +1,30 @@
 # FD-loss 可微 Fréchet 损失
 
-实现 [Representation Fréchet Loss for Visual Generation](https://arxiv.org/html/2604.28190) 的训练目标，对生成总体统计求梯度，并冻结真实参考统计。特征高斯分布的 Eq.(2) 为
+## 1. 题目目标
+
+实现 [Representation Fréchet Loss for Visual Generation](https://arxiv.org/html/2604.28190) 的训练目标，对生成总体统计求梯度，并冻结真实参考统计。
+
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `frechet_distance`（需实现）
+
+返回形状 `()` 的 Tensor 标量 FD，保持输入 float32/float64 dtype/device。D 维均值与 D×D 协方差归约成一个距离，不除以 D。对生成 mean/covariance 保留梯度，对 reference_mean/reference_covariance 停止梯度；梯度保证要求两者协方差均为正定。半正定仅保证前向值，最终 FD 不强制裁剪为非负，不修改输入。
+
+#### `normalized_fd_loss`（需实现）
+
+返回形状 `()` 的 Tensor 标量，与 distances 同 dtype/device。对 R 个表征的加权归一化距离求和，不除以 R 或权重和。只让每项分子 distances 保留梯度，分母中的 distances 和 weights 均 detach；不修改输入。
+
+#### 已提供的局部辅助函数
+
+- `_check_gaussian`：已提供：当均值和协方差满足高斯统计约定时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+- `_check_pair`：已提供：当生成与参考统计的形状、dtype/device 匹配时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+- `_check_normalization`：已提供：当距离、非负权重和正分母合法时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+
+### 公式与接口说明
+
+特征高斯分布的 Eq.(2) 为
 
 $$
 FD=\|\mu_g-\mu_r\|_2^2+\operatorname{tr}(\Sigma_g)+\operatorname{tr}(\Sigma_r)
@@ -15,7 +39,7 @@ $$
 \mathcal L=\sum_i w_i\frac{d_i}{\operatorname{sg}(d_i)+\epsilon}.
 $$
 
-## 需要实现
+### 需要实现
 
 | 函数 | 输入 | 输出 |
 |---|---|---|

@@ -4,6 +4,18 @@ Depth can be an attention axis too. Implement the core selection operator in [Ki
 
 ## Your core module
 
+### Return requirements
+
+#### `assemble_sources` — Required
+
+Return one floating Tensor `[N,B,T,D]`, with depth/source count N, batch size B, token count T and feature width D. Source order is embedding, completed_blocks in their original order, then partial_block when supplied. N=1+len(completed_blocks)+(partial_block is not None); a zero-valued supplied block still counts. Preserve dtype/device and gradients to every source without modifying the tensors or caller's list.
+
+#### `depth_attention` — Required
+
+Return `(mixed, weights)` as a Python tuple of floating tensors. `mixed[B,T,D]` aggregates original source values; `weights[N,B,T]` gives each depth source's probability and sums to one over N for every batch/token. N is source count, B batch size, T token count and D feature width. Preserve sources' dtype/device and gradients through sources, query and norm_weight; do not mutate inputs.
+
+### Formula and conventions
+
 `assemble_sources` collects the token embedding, completed block sums, and the current partial block if present. `depth_attention` uses a learned pseudo-query to retrieve from those sources. The surrounding backbone and the calculation of each block sum are supplied externally; do not implement a complete Transformer.
 
 For sources $v_i$, learned query $w$, and learned RMSNorm scale $\gamma$:

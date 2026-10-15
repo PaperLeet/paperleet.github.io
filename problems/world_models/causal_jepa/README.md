@@ -13,6 +13,26 @@
 
 ## 构造输入
 
+### 返回值要求
+
+#### `object_mask_inputs` (需实现)
+
+按顺序返回 `(inputs, target_mask)`，恰好两个 Tensor：浮点 inputs `[B,T,S,D]` 与 Boolean target_mask `[B,T,S]`。B 为 batch 大小，T 为历史加未来总帧数，S 为对象 slot 数，D 为潜在维度；历史 H 帧满足 T>H>=1。True 标记预测目标：选中对象的非首帧历史及所有未来 slot，首帧永不作为目标。保持 history dtype/device，并保留可见历史、身份锚点与参数梯度；mask 无梯度。不修改输入。
+
+#### `masked_prediction_loss` (需实现)
+
+按顺序返回 `(total, history_loss, future_loss)`，三项都是标量浮点 `Tensor`，形状 `()`，保持 prediction dtype/device。历史和未来分别在各自选中的所有元素上平均 MSE；total 是两项之和，不是平均。未选中非首帧历史时，history_loss 是可微零值。仅保留监督位置的 prediction 梯度，函数内部冻结 targets。不修改输入。
+
+#### `_float_tensor` (已提供)
+
+已提供校验函数：x 是秩为 ndim 的有限、非空 float32/float64 Tensor时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_mask` (已提供)
+
+已提供校验函数：masked_slots 是形状恰为 `[batch,slots]`、位于指定 device 的 Boolean Tensor时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 时间零的**所有对象都可见**。时间 `1...H-1` 只遮蔽选中对象；时间 `H...T-1` 遮蔽所有对象。
 
 可见位置 `(b,t,s)` 的输入为 `history[b,t,s] + time_embeddings[t]`。被遮蔽位置使用身份查询：

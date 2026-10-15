@@ -4,6 +4,18 @@
 
 ## 核心任务
 
+### 返回值要求
+
+#### `contrastive_logits` (需实现)
+
+返回一个浮点 `Tensor`，形状为 `[B,B]`：第 i 行对应图像 i，第 j 列对应文本 j，B 为配对 batch 大小。保留特征的 dtype/device、两侧编码器梯度及未超过上限时的标量 `logit_scale` 梯度（超过上限时为零）。返回的是分数矩阵，不是概率、tuple 或已归约的 loss；不修改输入。
+
+#### `clip_loss` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，dtype/device 与特征一致。它是图像到文本、文本到图像两个 batch 平均交叉熵的平均值。保留两侧特征及未截断温度的梯度，不 detach、不转成 Python float，不修改输入。
+
+### 公式与约定
+
 实现 `contrastive_logits` 与 `clip_loss`。输入为编码器已经生成的 `[B,D]` 图像与文本特征。逐行归一化，构造两两相似度，然后同时训练两个检索方向。第 `i` 个图像匹配第 `i` 个文本，batch 内其他项是负例。
 
 $$

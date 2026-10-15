@@ -6,6 +6,22 @@
 
 ## 精选核心
 
+### 返回值要求
+
+#### `nf4_quantize` — 需要实现
+
+返回 Tensor 的 Python 元组 `(codes, scales)`。codes 保持 weight 的形状/device，dtype 为 torch.uint8，保存未打包的 NF4 索引 0..15，每个权重元素占一个索引。scales 为浮点 Tensor `[ceil(N/block_size)]`，N=weight.numel()，dtype/device 与 weight 相同；每项为展平后一个分块的绝对值最大值，包括最后不足长度的分块。两项都与 weight 的梯度隔离；全零块使用索引 7 和尺度 0，不修改 weight。
+
+#### `nf4_dequantize` — 需要实现
+
+返回一个浮点 Tensor，形状与 codes 完全相同，dtype/device 跟随 scales，表示重建的量化权重。不返回 uint8 索引或展平权重。scales 视为冻结参数，结果不对 scales 传播梯度；整数 codes 不可导。不修改输入。
+
+#### `qlora_linear` — 需要实现
+
+对 x `[...,in_features]` 和 codes `[out_features,in_features]` 返回一个浮点 Tensor `[...,out_features]`，保留全部前导维度，使用 x 的 dtype/device。结果包含重建的冻结基座、低秩 adapter 和可选 bias。仅保留 x、a、b 的梯度；scales 和可选 bias 冻结，codes 为整数索引。不修改输入，不附带返回量化状态。
+
+### 公式与约定
+
 三个 CPU 函数；索引用未打包 uint8 便于观察，不包含 4-bit 打包存储、双重量化和分页优化器。
 
 $$

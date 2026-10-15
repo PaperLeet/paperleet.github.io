@@ -24,6 +24,26 @@ $$M_{b,i,j}=[s_{b,i}\ne0]\,[s_{b,j}\ne0]\,[j\le i].$$
 
 ## 2. 逐位置二元目标
 
+### 返回值要求
+
+#### `causal_item_mask` (需实现)
+
+返回一个 Boolean `Tensor` `[B,T,T]`，device 与 item ID 一致，三个轴依次为 batch、query 位置 i、key 位置 j。True 表示两个 ID 都非 padding 且 j<=i，包含对角线。支持空轴。返回可见性，而非 attention 权重或加性浮点 mask；无梯度、不修改输入。
+
+#### `sampled_next_item_loss` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，保持 logits 的 dtype/device。每个有效目标位置先相加两个二元损失项，再仅按非零 target ID 的位置数取平均，不额外除以二。空目标或全 padding 时返回同时连接两个 logits 输入的可微零值，梯度为零。保留有效 logits 两侧梯度，不修改输入。
+
+#### `_check_ids` (已提供)
+
+已提供校验函数：item_ids 是非负 int64 Tensor `[B,T]`，允许空维度时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_loss` (已提供)
+
+已提供校验函数：非负 int64 target ID 与浮点 logits 的 `[B,T]` 形状、device 匹配，且有效目标位置的 logits 有限；忽略位置可包含 NaN/Inf时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 `sampled_next_item_loss(positive, negative, target_ids)` 的三个输入均为 `[B,T]`；前两者是相同 float32/float64 精度的**未归一化 logits**，目标 ID 为 int64。正负分数已由脚手架取出，无需生成负样本或再做 softmax。
 
 令 $V=\{(b,t):o_{b,t}\ne0\}$：

@@ -2,6 +2,20 @@
 
 [Restructuring Vector Quantization with the Rotation Trick](https://arxiv.org/html/2410.06424v1)（ICLR 2025 Oral）改变向量量化的反向传播方式。输入已经给出选中的码本向量 `q`。实现 `rotation_quantize(e, q, eps=1e-8)`，使前向等于 `q`，同时让编码器接收经过旋转和缩放的梯度。
 
+## 实现要求
+
+### 返回值要求
+
+#### `rotation_quantize` (需实现)
+
+返回一个浮点 `Tensor`，形状、dtype、device 与 e、q 的 `[...,D]` 一致（D>=2），前向数值等于 q。保留经过冻结旋转与缩放映射传回 e 的替代梯度，不向 q 或旋转/缩放构造过程反传。不要 detach 整个输出、返回 Jacobian 或修改输入。
+
+#### `_validate` (已提供)
+
+已提供 helper：返回 `(e_norm, q_norm)`，两个浮点 Tensor 的形状为 `[...,1]`，只归约 e/q `[...,D]` 的末维 D 并保留该维。保持 dtype/device 与范数梯度路径，不修改输入。形状、epsilon 不合法，范数过小或方向相反时抛出 `ValueError`。返回的是范数，不是 `None`。
+
+### 公式与约定
+
 令：
 
 $$u=e/\lVert e\rVert,\quad v=q/\lVert q\rVert,\quad r=(u+v)/\lVert u+v\rVert,\quad s=\lVert q\rVert/\lVert e\rVert.$$

@@ -4,6 +4,30 @@
 
 ## 需要实现
 
+### 返回值要求
+
+#### `multiscale_quantize` (需实现)
+
+返回 Python tuple `(token_maps, reconstructions)`，两项都是按尺度排列、长度为 K=`len(scales)` 的 Python list。`token_maps[k]` 是 int64 `Tensor` `[B,n_k,n_k]`；`reconstructions[k]` 是已 detach 的浮点 `Tensor` `[B,C,H,H]`，表示截至第 k 个尺度的累计重建，而非单个尺度的贡献。B 为 batch 大小，C 为通道数，H 为最终尺度。保持特征 dtype/device，各重建快照必须独立存储；不修改输入、不反传。
+
+#### `decode_multiscale` (需实现)
+
+返回一个已 detach 的浮点 `Tensor` `[B,C,H,H]`，B 为 token map 的 batch 大小，C 为码本宽度，H 为最大 map 尺度。它是所有尺度提升后相加的结果，与编码器最终累计重建一致，不是 list 或尺度平均值。保持码本 dtype/device，不修改输入、不要求梯度。
+
+#### `lift_codes` (已提供)
+
+已提供 helper：由 int64 tokens `[B,n,n]`、码本 `[V,C]` 和通道投影 `[C,C]` 返回浮点 `Tensor` `[B,C,full_size,full_size]`。保持码本/投影 dtype/device。helper 自身不截断码本与投影的梯度；冻结的编码/解码调用方在 no_grad 下执行。不修改输入。
+
+#### `resize_residual` (已提供)
+
+已提供 helper：由 residual `[B,C,H,H]` 返回浮点 `Tensor` `[B,C,size,size]`，保持 dtype/device 和梯度路径。`size==H` 时直接返回原 Tensor（共享对象），不是副本或 `None`；否则返回缩放后的结果。不原地修改 residual。
+
+#### `_validate_codes` (已提供)
+
+已提供 helper：返回 Python `list[int]`，按输入顺序列出 K 个方形 token map 的尺度，不是 Tensor 或 `None`。校验非空 int64 maps `[B,n_k,n_k]`、从 1 开始严格递增的尺度、合法 code 索引、码本 `[V,C]` 与匹配投影 `[K,C,C]`；被校验条件失败时抛出 `ValueError`。不修改输入，输出无梯度。
+
+### 公式与约定
+
 `multiscale_quantize(features, codebook, scales, projections) -> (token_maps, reconstructions)`
 
 初始化残差 `e=features` 和最大分辨率重建 `f_hat=0`。依次处理由小到大的尺度 `n_k`：

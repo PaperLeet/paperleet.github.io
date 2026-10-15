@@ -4,6 +4,18 @@ GQA 让一组 query 头共享一个 key/value 头，连接 MHA 与 MQA 两个端
 
 ## 本模块的目标
 
+### 返回值要求
+
+#### `mean_pool_kv_heads` — 需要实现
+
+返回一个浮点 Tensor `[G,D_model,D_head]`；G=num_kv_heads，D_model 为投影输入宽度，D_head 为单头输出宽度。每个输出头是 weight `[H,D_model,D_head]` 中连续 H/G 个原始头的均值，保留组顺序。保持 weight 的 dtype/device 及所有原始头的梯度，不修改 weight。
+
+#### `grouped_query_attention` — 需要实现
+
+返回浮点 Tensor 元组 `(output, weights)`，形状为 `[B,H,Q,Dv]`、`[B,H,Q,K]`；即使 K/V 只有 G 个头，输出仍保留全部 H 个查询头。B 为批大小，Q/K 为查询/键长度，Dv 为值向量宽度。权重沿键归一化；全遮挡行的权重、输出和梯度为有限零。保持 dtype/device 和 q/k/v 梯度，共享 KV 头的梯度需累计各查询头贡献。空查询保留长度为 0 的 Q 轴，不修改输入。
+
+### 公式与约定
+
 实现 `mean_pool_kv_heads` 和 `grouped_query_attention`。建议先完成缩放点积注意力，再处理共享头的映射和梯度。
 
 | 输入与输出 | 约定 |

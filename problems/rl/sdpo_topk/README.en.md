@@ -10,6 +10,16 @@ Implement top-k selection, complementary logsumexp, and reverse KL; tests and in
 
 ## Interface
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `topk_tail_reverse_kl` · Required
+
+Return one floating Tensor `divergence`, shape `student_logits.shape[:-1]`: remove **only the vocabulary axis** from `[..., V]`. Thus `[B, L, V]` returns `[B, L]`, and `[V]` returns a scalar `()`. Each value is reverse KL for student top-`k` tokens plus the complementary tail bin (`k=V` gives full KL). Preserve student dtype/device and gradients; freeze teacher logits. Do not apply batch/token mean reduction.
+
+### Formula and conventions
+
 ```python
 topk_tail_reverse_kl(student_logits, teacher_logits, k)
 ```

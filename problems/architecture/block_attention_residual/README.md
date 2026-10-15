@@ -4,6 +4,18 @@
 
 ## 你要实现的核心
 
+### 返回值要求
+
+#### `assemble_sources` — 需要实现
+
+返回一个浮点 Tensor `[N,B,T,D]`：N 为深度来源数，B 为批大小，T 为 token 数，D 为特征宽度。来源顺序为 embedding、原顺序的 completed_blocks、存在时的 partial_block；`N=1+len(completed_blocks)+(partial_block is not None)`。显式传入的零块仍占一个来源。保持 dtype/device 及各来源的梯度，不修改输入 Tensor 或调用方列表。
+
+#### `depth_attention` — 需要实现
+
+返回由两个浮点 Tensor 组成的 Python 元组 `(mixed, weights)`。`mixed[B,T,D]` 是原始来源值的聚合，`weights[N,B,T]` 是深度来源概率，对每个批样本/token 沿 N 求和为 1。N 为来源数，B 为批大小，T 为 token 数，D 为特征宽度。保持 sources 的 dtype/device，以及 sources、query、norm_weight 的梯度，不修改输入。
+
+### 公式与约定
+
 `assemble_sources` 组装 token embedding、已完成块的输出和、当前块的部分输出和。`depth_attention` 用可学习 pseudo-query 从这些深度来源中选择信息。完整网络和各块内部的输出累加由外部提供，不需要复现整个 Transformer。
 
 对来源 $v_i$、查询 $w$ 和 RMSNorm 权重 $\gamma$：

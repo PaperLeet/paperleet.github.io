@@ -8,6 +8,40 @@ Dr. GRPO 分析组相对优化中的两处归一化：按回答长度平均会�
 
 ## 2. 核心公式与题面
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `drgrpo_advantages` · 需要实现
+
+返回一个浮点 Tensor `advantages`，形状 `[B * G]`（`B` 个问题、每组相邻的 `G` 个回答），保留奖励顺序、dtype 和 device。值为每组减均值后的奖励，不除以标准差，不额外聚合或保留分组轴。
+
+#### `drgrpo_loss` · 需要实现
+
+返回 `(loss, stats)`。`loss` 为形状 `()` 的标量 Tensor，对 `[N, L]` token 输入的 masked 目标求和、加负号后除以 `N * max_len`；`max_len` 是外部给定的固定生成上限。保留 `logp` 梯度，旧/参考分数与 advantage 固定。字典字段为 `kl_mean`、`clipfrac`、`ratio_mean`，均为已 detach、形状 `()` 的浮点标量 Tensor，按全部有效 token 平均。`clipfrac` 统计 `abs(ratio - 1) > clip_eps` 的比例；没有有效 token 时三者均为零。
+
+#### `token_objective` · 已提供
+
+返回 `(objective, ratio, kl)`，按此顺序组成三个浮点 Tensor 的元组，形状均为 `[N, L]`（回答 × token）。`objective` 是 **已经减去 `beta * kl`** 的截断 advantage 目标，尚未乘 mask 或聚合；`ratio` 是重要性比率，`kl` 是 k3 估计。三者保留 `logp` 的梯度路径，旧/参考分数及 advantage 固定。调用前先隔离 padding，再由 `drgrpo_loss` 聚合目标。
+
+#### `masked_logprobs` · 已提供
+
+返回 `(masked_logp, masked_old_logp, masked_ref_logp)`，与三个分数输入顺序一致。每个 Tensor 都保留对应输入的 `[N, L]` 形状、dtype 和 device，将 padding 位置置零，其余位置不变。这个辅助函数保留有效位置的梯度路径，旧/参考分数由调用它的 loss 函数另行冻结。
+
+#### `token_statistics` · 已提供
+
+对 `[N, L]` token 数组返回 `dict[str, Tensor]`。字典字段为 `kl_mean`、`clipfrac`、`ratio_mean`，均为已 detach、形状 `()` 的浮点标量 Tensor，按全部有效 token 平均。`clipfrac` 统计 `abs(ratio - 1) > clip_eps` 的比例；没有有效 token 时三者均为零。
+
+#### `grpo_reference_loss` · 已提供的参考别名
+
+已提供的 GRPO 对照返回 `(loss, stats)`：`loss` 是形状 `()` 的标量 Tensor，先对每个回答的有效 token 平均，再对全部回答平均。字典包含已 detach 的标量 `kl_mean`、`clipfrac` 和 `ratio_mean`，各自按有效 token 平均。保留策略梯度，旧/参考分数及 advantage 固定。这个对照使用 GRPO 的回答归一化，而不是本题需要实现的固定 `N * max_len` 分母。
+
+#### `grpo_reference_advantages` · 已提供的参考别名
+
+已提供的 GRPO 对照返回浮点 Tensor `[B * G]`，保留奖励顺序、dtype 和 device。默认减组均值后除以样本标准差加 `eps`；需要实现的 `drgrpo_advantages` 则去掉该缩放。
+
+### 公式与约定
+
 本模块复用已提供的 GRPO token 目标，实现 `drgrpo_advantages` 与 `drgrpo_loss`。奖励 `[B*G]` 仍按组相邻排列，三个 log-prob 和 mask 均为 `[N,L]`，advantage 为 `[N]`，$N=BG$。组大小至少为二并整除奖励数。
 
 $$

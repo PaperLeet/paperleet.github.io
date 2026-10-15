@@ -15,6 +15,26 @@ An observed edge has weight `1/sqrt(degree_user*degree_item)` in both directions
 
 ## 2. Linear propagation and layer aggregation
 
+### Return requirements
+
+#### `normalized_bipartite_graph` (required)
+
+Return one floating `Tensor` `[N,N]`, N=U+I for interaction shape `[U,I]`, with users before items on both axes. Use float32 when dtype is None, otherwise the requested float32/float64, on the interaction device. This is the symmetric normalized adjacency, not embeddings: no self-loops, isolated rows/columns zero, including empty axes. No input mutation or gradients from Boolean history.
+
+#### `lightgcn_embeddings` (required)
+
+Return one floating `Tensor` `[N,D]`, preserving initial embedding dtype/device, equal to the uniform mean of layers 0 through K=`layers` (K+1 terms). Depth zero returns initial values; N=0 is valid. Keep gradients through both initial embeddings and a differentiable graph, not just the final layer. No input mutation or detached output.
+
+#### `_check_graph` (provided)
+
+Provided validator: return Python `None` when interactions is Boolean `[U,I]` and dtype is explicitly float32 or float64 (the caller resolves None to float32). Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_propagation` (provided)
+
+Provided validator: return Python `None` when initial `[N,D]`, D>0, and graph `[N,N]` are finite matching float32/float64 tensors and layers is a nonnegative non-Boolean Python integer. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 `lightgcn_embeddings(initial, normalized_graph, layers=2)` takes `[N,D]` initial embeddings and an `[N,N]` graph, with `D>0` and matching float32/float64 dtype and device. Depth is a nonnegative Python integer; Boolean depth is rejected.
 
 $$

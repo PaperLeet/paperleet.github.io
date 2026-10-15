@@ -4,6 +4,14 @@
 
 ## 核心任务
 
+### 返回值要求
+
+#### `adamw_step` — 需要实现
+
+按固定顺序返回三个浮点 Tensor 的 Python 元组 `(new_parameter, new_first_moment, new_second_moment)`，每项均保持输入的完整形状/dtype/device。返回的两项 moment 是供下一次调用使用的更新后未做偏差校正的累计量，不是校正后的 moment。此接口为函数式更新：返回新值，不修改 parameter、gradient 或输入 moments。保留 Tensor autograd 路径，由调用方决定是否关闭梯度；不能像原地优化器 step 一样返回 None。
+
+### 公式与约定
+
 实现一个纯函数 `adamw_step`：接收参数、梯度、旧一阶与二阶动量，以及**从 1 开始**的步数，返回新参数和两个新动量。状态初始化与二维优化循环由实验提供。
 
 $$

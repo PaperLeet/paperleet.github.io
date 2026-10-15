@@ -8,6 +8,26 @@ Module goal: Implement the pessimistic clipped objective and verify gradients fo
 
 ## 2. Core equations and task
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `clipped_surrogate` · Required
+
+Return one floating scalar Tensor `loss`, shape `()`: the **negative batch mean** of the clipped policy surrogate for `[B]` inputs. Preserve input floating dtype/device. Retain gradients through `new_logp`; freeze `old_logp` and `advantages`. Return the Tensor itself, without `.item()` or `.detach()`.
+
+#### `ppo_loss` · Provided
+
+Returns a `dict[str, Tensor]` with all six keys below; every value has scalar shape `()`:
+
+- `loss`: total minimized loss, `pg_loss + vf_coef * v_loss - ent_coef * entropy`.
+- `pg_loss`: clipped policy loss; `v_loss`: half the mean value error (with optional value clipping); `entropy`: batch mean, or zero if omitted.
+- `approx_kl`: detached mean k3 KL estimate; `clipfrac`: detached fraction with `abs(ratio - 1) > clip_eps`.
+
+The loss terms retain their current-policy/value gradients; old policy, old values, advantages and returns are fixed targets. Read the objective as `result["loss"]`, not by tuple position.
+
+### Formula and conventions
+
 Implement only `clipped_surrogate(new_logp, old_logp, advantages, clip_eps=0.2)`. All three inputs have shape `[B]`; return one scalar policy loss to minimize. Advantages are already prepared. Detach `old_logp` and `advantages` inside this function while retaining gradients through `new_logp`.
 
 $$

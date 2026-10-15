@@ -1,8 +1,28 @@
 # 18. Drifting: Pairwise Field and Frozen Targets
 
+## 1. Exercise goal
+
 Implement the distance-kernel drifting field and its stop-gradient target; train a generator with one-pass inference.
 
-## Contract
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `drift_field` (required)
+
+Return drifting vectors as a Tensor [N,D], matching generated shape and floating dtype/device; N counts generated samples and D features. The M positive samples do not add an output axis. Each row is one generated sample field, not an [N,N+M] affinity matrix. This function does not detach; drifting_loss handles frozen targets.
+
+#### `drifting_loss` (required)
+
+Return a floating scalar Tensor of shape (), matching generated dtype/device. Average MSE over all N generated samples and D features. Stop the entire generated+field target; only the left-hand generated receives gradients, and positive receives none. Leave inputs unchanged.
+
+#### Provided local helpers
+
+- `_time`: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.
+
+### Equations and interface notes
+
+### Contract
 
 - `drift_field(generated: Tensor, positive: Tensor, temperature: float = .2) -> Tensor`
 - `drifting_loss(generated: Tensor, positive: Tensor, temperature: float = .2) -> Tensor`

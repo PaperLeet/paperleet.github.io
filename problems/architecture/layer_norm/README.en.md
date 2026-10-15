@@ -4,6 +4,18 @@ Implement the normalization and residual connection used in [Attention Is All Yo
 
 ## Your core module
 
+### Return requirements
+
+#### `layer_norm` — Required
+
+Return one floating Tensor with the same `[...,D]` shape as x; D is the final feature width and every leading batch/token dimension is retained. The result is the affine-transformed normalized features, not mean/variance statistics. Preserve x's dtype/device and gradients to x, weight and bias; do not modify inputs.
+
+#### `post_norm_residual` — Required
+
+Return one floating Tensor shaped `[...,D]`, matching x and sublayer_output, with all leading dimensions retained and D the feature width. It contains the normalized residual sum. Preserve their shared dtype/device and gradients to both residual branches, weight and bias; do not update either branch in place.
+
+### Formula and conventions
+
 Implement `layer_norm` and `post_norm_residual` using tensor reductions. The sublayer output and experiment are supplied. This exercise uses the original Transformer's **post-LN** ordering and disables dropout:
 
 $$

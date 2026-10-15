@@ -8,6 +8,28 @@ Module goal: Implement within-group advantages and the clipped policy objective 
 
 ## 2. Core equations and task
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `grpo_advantages` · Required
+
+Return one floating Tensor `advantages`, shape `[B * G]`, in the original adjacent-group order (`B` prompts, `G = group_size` responses each). Preserve `rewards` dtype/device. Center within each group; divide by sample std plus `eps` only when `scale_std=True`. Do not return a `[B, G]` matrix or a scalar reduction.
+
+#### `grpo_loss` · Required
+
+Return `(loss, stats)`, a two-element tuple containing a scalar Tensor and a dictionary. `loss` has shape `()`: average valid tokens within each response, then average all `N` responses for inputs `[N, L]` (`L` token positions). Empty responses contribute zero. Retain gradients to `logp`; freeze old/reference scores and advantages. The dictionary has exactly the documented fields `kl_mean`, `clipfrac`, `ratio_mean`: floating scalar Tensors of shape `()`, detached, averaged over all valid tokens. `clipfrac` counts `abs(ratio - 1) > clip_eps`. With no valid tokens, all three are zero.
+
+#### `masked_logprobs` · Provided
+
+Returns `(masked_logp, masked_old_logp, masked_ref_logp)` in the same order as the three score inputs. Each Tensor keeps its input's `[N, L]` shape, dtype and device, with zero at masked positions and unchanged scores elsewhere. This helper preserves active-position gradient paths; the loss caller freezes old/reference scores separately.
+
+#### `token_statistics` · Provided
+
+Returns a `dict[str, Tensor]` for `[N, L]` token arrays. The dictionary has exactly the documented fields `kl_mean`, `clipfrac`, `ratio_mean`: floating scalar Tensors of shape `()`, detached, averaged over all valid tokens. `clipfrac` counts `abs(ratio - 1) > clip_eps`. With no valid tokens, all three are zero.
+
+### Formula and conventions
+
 Implement `grpo_advantages` and `grpo_loss`. Rewards have shape `[B*G]`, with each prompt's $G$ responses stored contiguously. Require $G\ge2$ and a reward count divisible by $G$. Using group mean $\bar r_g$ and sample standard deviation $s_g$:
 
 $$

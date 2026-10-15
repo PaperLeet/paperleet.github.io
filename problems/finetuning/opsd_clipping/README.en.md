@@ -10,6 +10,18 @@ Implement signed divergence terms, pointwise clipping, and response-level averag
 
 ## Interface
 
+
+### Return requirements
+
+#### `clipped_distillation_loss` — Required
+
+Return one zero-dimensional floating Tensor (`shape == ()`) with the logits' dtype/device, not a Python float or per-token loss. Sum clipped signed vocabulary contributions per token, average valid tokens separately in each response, then average all B responses; B is batch size. Empty responses contribute zero and remain in the batch denominator. The loss may be negative. Preserve student-only gradients, with differentiable zero for all-masked inputs or zero-length responses (`T=0`, `B>0`); detach teacher logits and do not mutate inputs.
+
+#### `_validate` — Provided helper
+
+Return None when tau is finite and positive and direction is 'forward' or 'reverse'. Invalid arguments raise ValueError; no loss or transformed arguments are returned.
+
+### Formula and conventions
 ```python
 clipped_distillation_loss(student_logits, teacher_logits, mask, tau, direction='forward')
 ```

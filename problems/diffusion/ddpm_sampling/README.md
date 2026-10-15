@@ -8,6 +8,26 @@ DDPM 将生成过程拆成许多小的去噪步骤。训练时可解析的高斯
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `q_posterior`（需实现）
+
+按顺序返回二元组 `(mean, variance)`，均为 Tensor。mean 与 `x_t` 同形状 `[B,...]`；variance 为 `[B,1,...,1]`，与 x_t 同阶，每个非 batch 轴长度为 1，可广播到样本。B 为批大小；variance 是方差，不是标准差或 log variance。两者使用 x_t 的浮点 dtype/device，保留梯度；索引 t=0 的方差为零。
+
+#### `p_sample_step`（需实现）
+
+返回一次反向更新后的 Tensor，与 `x_t` 同形状 `[B,...]`、浮点 dtype/device；B 为样本数，末尾为坐标维度。只返回样本，不返回后验统计。逐样本处理 t=0：此时任何方差选项均不加入噪声。函数本身不停止梯度。
+
+#### `ddpm_sample`（已提供）
+
+`return_traj=False` 时返回形状为传入 `shape=(B,...)` 的最终 Tensor，dtype/device 来自 `betas`。为 True 时按顺序返回 `(samples, trajectory)`，trajectory 是 `[T+1,B,...]` Tensor，T=`len(betas)`；首项是初始高斯噪声，随后记录从 T-1 到 0 的每次更新，末项等于 samples。所有返回张量均不带梯度。
+
+#### 已提供的局部辅助函数
+
+- `_extract`：已提供：返回按 t 提取的系数 Tensor `[B,1,...,1]`，与 x 同阶，每个非 batch 轴长度为 1，B=`len(t)`。dtype/device 转换为 x 的 dtype/device；保留 values 的可微路径，不修改任何输入。
+
+### 公式与接口说明
+
 已知干净数据后，$q(x_{t-1}\mid x_t,x_0)$ 是高斯。它的均值由当前样本与干净数据的加权和组成：
 
 $$\tilde\mu_t=\frac{\sqrt{\bar\alpha_{t-1}}\beta_t}{1-\bar\alpha_t}x_0+\frac{\sqrt{1-\beta_t}(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}x_t,\qquad\tilde\beta_t=\frac{1-\bar\alpha_{t-1}}{1-\bar\alpha_t}\beta_t.$$

@@ -6,6 +6,18 @@ TIGER represents an item as a semantic ID, then generates IDs to retrieve items.
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `residual_quantize` (required)
+
+Return `(codes, reconstruction)`, a Python tuple of two Tensors. `codes` is int64 `[B,L]` (B items, L quantization levels); `reconstruction` is detached floating `[B,D]`, the sum of all selected level vectors, with the latent dtype/device. Codes share that device and choose the lowest index on exact distance ties. B=0 preserves both empty shapes. Neither output requires gradients; do not mutate inputs.
+
+#### `resolve_collisions` (required)
+
+Return one int64 `Tensor` `[B,L+1]` on the codes device, preserving the original L code columns and appending a zero-based occurrence count within each identical full-row group. Keep row order; each singleton suffix is zero, and B=0 returns `[0,L+1]`. No gradients or input mutation.
+
+### Formula and conventions
+
 Start with $r_0=z$. Each level has a distinct codebook $C_d$:
 
 $$c_d=\arg\min_j\|r_d-C_d[j]\|_2^2,\quad r_{d+1}=r_d-C_d[c_d],\quad \hat z=\sum_d C_d[c_d].$$

@@ -6,6 +6,26 @@
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `maxsim_scores` (需实现)
+
+返回一个浮点 `Tensor` `[B,N]`，覆盖 B 个 query 与 N 篇文档的全部组合，保持共同 dtype/device。在有效文档 token 上取 max，再将保留的 query token 证据求和；不平均 query token，也不只返回对齐配对分数。全部被 mask 的文档为 -inf；空/全 mask query 对有效文档得零分。保留两侧编码梯度，max 精确并列时归到第一个有效文档 token，mask 部分梯度为零；不修改输入。
+
+#### `pairwise_loss` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，保持分数 dtype/device；在 B 个非空正负分数对上平均正例的负 log-softmax 概率。保留两个 `[B]` 分数输入的梯度，不返回逐对向量、不 detach、不转 Python float、不修改输入。
+
+#### `_checked_masks` (已提供)
+
+已提供 helper：返回 `(query_mask, document_mask)`，两个 Boolean `Tensor`，形状分别为 `[B,Q]`、`[N,L]`，device 与编码一致。有效的现有 mask 原样返回；None 转为全 True mask。维度、dtype 或 device 不符合要求时抛出 `ValueError`。不修改输入，输出无梯度。
+
+#### `_check_pairs` (已提供)
+
+已提供校验函数：positive、negative 是匹配的非空一维 float32/float64 分数 Tensor，device 一致时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 先逐向量归一化，再为每个有效查询位置找文档内的最佳匹配，最后累加：
 
 $$\widehat{x}=\frac{x}{\max(\|x\|_2,\epsilon)},\qquad S_{b,n}=\sum_{i:\,m^q_{b,i}}\max_{j:\,m^d_{n,j}}\widehat{q}_{b,i}^{\mathsf T}\widehat{d}_{n,j},\quad\epsilon=10^{-12}.$$

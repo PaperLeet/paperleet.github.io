@@ -2,6 +2,24 @@
 
 In [LeWorldModel §3.2 and Appendix B](https://arxiv.org/html/2603.19312v2), a frozen world model predicts the consequences of candidate action sequences. The Cross-Entropy Method (CEM) repeatedly samples plans, keeps the lowest-cost candidates and refits a Gaussian distribution to those elites.
 
+## Implementation requirements
+
+### Return requirements
+
+#### `terminal_cost` (required)
+
+Return one floating `Tensor` `[N]`, one cost per candidate rollout `[N,H,D]`; H is the predicted horizon and D latent width. Sum squared terminal-state errors over D only, with no horizon or candidate reduction and no division by D. Preserve rollout dtype/device and input values. This sampling-based task imposes no gradient or detach requirement.
+
+#### `cem_refit` (required)
+
+Return `(mean, variance, elite_indices)`, exactly three Tensors in that order. For candidates `[N,H,A]` and K=`num_elites`, mean and population variance are floating `[H,A]` with candidate dtype/device; elite_indices is int64 `[K]` on the same device, ordered by ascending cost then original index on ties. Reduce over K elites only; return variance (zero for K=1), not standard deviation. No input mutation; this task imposes no gradient or detach requirement.
+
+#### `_float_tensor` (provided)
+
+Provided validator: return Python `None` when x is a finite, nonempty float32/float64 Tensor with rank ndim. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 Implement the two kernels that decide which plans survive and how the next population is sampled.
 
 | Function | Inputs | Outputs |

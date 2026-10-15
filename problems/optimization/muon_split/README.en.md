@@ -4,6 +4,14 @@
 
 ## Your implementation
 
+### Return requirements
+
+#### `headwise_orthogonalize` — Required
+
+Return one floating Tensor `[num_heads*head_dim,input_dim]` matching matrix's shape/dtype/device. It concatenates the per-head partial polar factors in original consecutive row-head order, not a list or a tensor with an extra head axis. Singular directions below the declared relative cutoff contribute zero; an all-zero head stays zero. Preserve autograd only on full-rank blocks with distinct singular values (rank boundaries/repeated values are excluded from the gradient contract). Do not modify matrix.
+
+### Formula and conventions
+
 Implement one function, `headwise_orthogonalize(matrix, num_heads)`.
 
 The matrix is shaped `[num_heads * head_dim, input_dim]`; each head occupies a **consecutive row block**. Split into `[num_heads, head_dim, input_dim]`, orthogonalize each block, and merge back without changing the layout. A caller would apply this primitive to each projection's gradient/momentum matrix separately.

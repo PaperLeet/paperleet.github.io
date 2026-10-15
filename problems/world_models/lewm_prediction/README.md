@@ -11,6 +11,22 @@
 
 ## 联合训练目标
 
+### 返回值要求
+
+#### `lewm_objective` (需实现)
+
+按顺序返回 `(total, prediction, regularization)`，恰好三个标量浮点 `Tensor`，形状 `()`，保持 embedding/回调的共同 dtype/device。对于 embeddings `[B,T,D]`，prediction 平均 B*(T-1)*D 个下一状态平方误差；regularization 是覆盖全部 T 帧的回调标量；total 为 prediction + weight*regularization。上下文与目标 embedding 两条路径及回调梯度都要保留，下一状态 target 也不能冻结。不要 detach 任一分量或修改输入。
+
+#### `latent_rollout` (需实现)
+
+返回一个浮点 `Tensor` `[B,H,D]`，保持 initial/transition 的 dtype/device；按时间顺序包含 H 个预测状态，不包含初始 `[B,D]` 状态。actions 为 `[B,H,A]`，A 为动作维度。保留每一步经递推传向 initial、actions 与可微 transition 参数的梯度。不 detach、不返回 list、不修改输入。
+
+#### `_tensor` (已提供)
+
+已提供校验函数：x 是秩为 ndim 的有限、非空 float32/float64 Tensor时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 调用一次 `predictor(embeddings[:, :-1], actions)`。提供的预测器满足时间因果性，输出 `(B,T-1,D)`；你不需要实现它的架构。把结果与 `embeddings[:, 1:]` 对齐，并按官方 `train.py` 的约定对批次、时间、特征的**全部元素取平均**：
 
 $$L_{pred}=\frac{1}{B(T-1)D}\sum_{b,t,d}(\hat z_{b,t+1,d}-z_{b,t+1,d})^2.$$

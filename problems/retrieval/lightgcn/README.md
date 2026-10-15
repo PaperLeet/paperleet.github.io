@@ -15,6 +15,26 @@ $$
 
 ## 2. 线性传播与层聚合
 
+### 返回值要求
+
+#### `normalized_bipartite_graph` (需实现)
+
+返回一个浮点 `Tensor` `[N,N]`；交互表为 `[U,I]` 时 N=U+I，两个轴都先用户、后物品。dtype=None 时使用 float32，否则使用指定的 float32/float64，device 与交互表一致。返回对称归一化邻接矩阵而非 embeddings：无自环，孤立行/列为零，支持空轴。不修改输入，Boolean 历史无梯度。
+
+#### `lightgcn_embeddings` (需实现)
+
+返回一个浮点 `Tensor` `[N,D]`，保持初始 embedding 的 dtype/device，为第 0 层到 K=`layers` 层共 K+1 项的均匀平均。深度为零时返回初始值，N=0 合法。保留初始 embeddings 与可微图矩阵的全部传播路径梯度，不只保留最后一层。不修改输入、不 detach 输出。
+
+#### `_check_graph` (已提供)
+
+已提供校验函数：interactions 是 Boolean `[U,I]`，dtype 明确为 float32 或 float64（调用方先把 None 转为 float32）时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_propagation` (已提供)
+
+已提供校验函数：initial `[N,D]`（D>0）与 graph `[N,N]` 是有限且匹配的 float32/float64 Tensor，layers 是非负、非 Boolean 的 Python int时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 `lightgcn_embeddings(initial, normalized_graph, layers=2)` 接收 `[N,D]` 初始 embedding 和 `[N,N]` 图，`D>0`，两者共享 float32/float64 dtype 和 device。`layers` 是非负 Python 整数，Boolean 不算整数。
 
 $$

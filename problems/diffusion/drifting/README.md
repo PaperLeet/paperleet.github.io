@@ -1,8 +1,28 @@
 # 18. Drifting：成对漂移场与冻结目标
 
+## 1. 题目目标
+
 实现距离核漂移场及 stop-gradient 目标，训练一次前向即可采样的生成器。
 
-## 接口
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `drift_field`（需实现）
+
+返回漂移向量 Tensor `[N,D]`，与 generated 同形状、浮点 dtype/device；N 为生成样本数，D 为特征维度，positive 的 M 个样本不会新增输出轴。每行是一个生成样本的场，不是 `[N,N+M]` 权重矩阵。不在此函数内 detach；冻结目标由 drifting_loss 负责。
+
+#### `drifting_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor，dtype/device 与 generated 一致。MSE 对 N 个生成样本和 D 个特征全部取均值。整个 generated+field 目标停止梯度，只有左侧 generated 接收梯度，positive 不接收；不修改输入。
+
+#### 已提供的局部辅助函数
+
+- `_time`：已提供：返回把 t 从 `[B]` reshape 成 `[B,1,...,1]` 的 Tensor，其阶数与 x 相同；B 为样本数，每个非 batch 轴长度为 1。保留 t（不是 x）的 dtype/device 与梯度，不修改输入；返回值可能与 t 共享存储。
+
+### 公式与接口说明
+
+### 接口
 
 - `drift_field(generated: Tensor, positive: Tensor, temperature: float = .2) -> Tensor`
 - `drifting_loss(generated: Tensor, positive: Tensor, temperature: float = .2) -> Tensor`

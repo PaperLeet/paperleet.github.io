@@ -8,6 +8,26 @@ This is the second selected core module of DDPM. Implement only `q_posterior` an
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `q_posterior` (required)
+
+Return the tuple (mean, variance), both Tensors, in that order. mean has x_t shape [B,...]; variance has shape [B,1,...,1], the same rank as x_t with singleton non-batch axes, broadcastable over each sample. B is batch size. Return variance, not standard deviation or log variance. Both use x_t floating dtype/device and preserve gradients; variance is zero at index t=0.
+
+#### `p_sample_step` (required)
+
+Return one reverse-step sample Tensor with x_t shape [B,...] and floating dtype/device; B counts samples and trailing axes are coordinates. Return only the sample, not posterior statistics. Handle t=0 per example: neither variance option adds noise there. The function does not itself stop gradients.
+
+#### `ddpm_sample` (provided)
+
+With return_traj=False, return final samples as a Tensor with the requested shape=(B,...) and betas dtype/device. With True, return (samples, trajectory) in that order. trajectory is a Tensor [T+1,B,...], T=len(betas): initial Gaussian noise first, then each reverse update from index T-1 through 0, ending at samples. All returned tensors are gradient-free.
+
+#### Provided local helpers
+
+- `_extract`: Provided: return coefficients selected by t as a Tensor [B,1,...,1], with x rank and singleton non-batch axes, B=len(t). Convert to x dtype/device while preserving differentiable paths through values. Leave all inputs unchanged.
+
+### Equations and interface notes
+
 Given the clean data, $q(x_{t-1}\mid x_t,x_0)$ is Gaussian. Its mean is a weighted combination of the current sample and clean data:
 
 $$\tilde\mu_t=\frac{\sqrt{\bar\alpha_{t-1}}\beta_t}{1-\bar\alpha_t}x_0+\frac{\sqrt{1-\beta_t}(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}x_t,\qquad\tilde\beta_t=\frac{1-\bar\alpha_{t-1}}{1-\bar\alpha_t}\beta_t.$$

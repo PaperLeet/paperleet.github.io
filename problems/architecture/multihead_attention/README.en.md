@@ -4,6 +4,18 @@ One head routes information using one projected feature space. Multiple heads ca
 
 ## Your core module
 
+### Return requirements
+
+#### `multi_head_attention` — Required
+
+Return `(output, weights)` in that order: floating tensors `[B,Q,D]` and `[B,H,Q,K]`, where B is batch size, Q/K query/key lengths, D model width and H=num_heads. output has already concatenated heads and applied w_o; weights retain each head rather than averaging heads. Preserve input dtype/device and gradients to query/key/value and all four projection matrices. Fully masked query rows are zero; do not mutate inputs.
+
+#### `attention_kernel` — Provided
+
+Return `(output, weights)` as floating tensors `[B,H,Q,Dv]` and `[B,H,Q,K]`: B batch size, H heads, Q/K query/key lengths and Dv value width. Weights sum to one over visible keys; a fully masked row has zero output and weights. Preserve the input dtype/device and q/k/v autograd with finite gradients for masked rows. This helper returns per-head values before concatenation/output projection and does not mutate inputs.
+
+### Formula and conventions
+
 Implement `multi_head_attention`. The stable scaled attention function `attention_kernel` is supplied in the editor, so this module can be completed independently of the scaled attention exercise. Focus on input projections, splitting heads, passing the mask, concatenating head outputs, and the final projection.
 
 $$

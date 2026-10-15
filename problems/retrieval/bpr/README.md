@@ -12,6 +12,26 @@ $$M_{b,j}=\neg S_{u_b,j}.$$
 
 ## 2. BPR-MF 目标
 
+### 返回值要求
+
+#### `eligible_negatives` (需实现)
+
+返回一个 Boolean `Tensor` `[B,I]`，device 与交互表一致；B 为查询 user ID 数量，I 为物品数。True 表示该行用户未观察过该物品。保留查询顺序和重复用户，空 batch/物品轴保持对应空维度；无梯度、不修改输入。
+
+#### `bpr_mf_loss` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，保持因子表 dtype/device：B 个三元组上的平均成对损失，加上不取平均的整张因子表 L2 先验。保留用户表、物品表梯度，先验还覆盖未选中行。空三元组的数据损失为零，但保留两张表的计算图及完整先验。不 detach、不转 Python float、不修改输入。
+
+#### `_check_mask` (已提供)
+
+已提供校验函数：interactions 是 Boolean `[U,I]`，同 device 的 user_ids 是 int64 `[B]` 且 ID 均在范围内时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_loss` (已提供)
+
+已提供校验函数：有限因子表 `[U,D]`/`[I,D]`、int64 triples `[B,3]`、合法且不同的正负物品索引和有限非负 l2 符合共同 dtype/device 约定时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 `bpr_mf_loss(user_factors, item_factors, triples, l2=0.)` 接收浮点 `[U,D]` 用户表、`[I,D]` 物品表和 int64 `[B,3]` 三元组。每行是 `(用户, 正样本, 未观察物品)`；三元组已构造，不必在 loss 中重新采样。两张表共享 float32/float64 dtype、device，`D > 0`。先取出对应行，再计算：
 
 $$

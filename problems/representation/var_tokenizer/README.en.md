@@ -4,6 +4,30 @@ Implement the frozen latent tokenizer behind [VAR](https://arxiv.org/html/2404.0
 
 ## Implement
 
+### Return requirements
+
+#### `multiscale_quantize` (required)
+
+Return `(token_maps, reconstructions)`, a Python tuple of two Python lists, each of length K=`len(scales)` in scale order. Entry k of `token_maps` is an int64 `Tensor` `[B,n_k,n_k]`; entry k of `reconstructions` is a detached floating `Tensor` `[B,C,H,H]` containing the cumulative reconstruction through scale k, not just its contribution. B is batch size, C channels and H the final scale. Preserve feature dtype/device; snapshots must have independent storage. No input mutation or gradients.
+
+#### `decode_multiscale` (required)
+
+Return one detached floating `Tensor` `[B,C,H,H]`, where B is token-map batch size, C codebook width and H the largest map size. It is the sum of every lifted scale, matching the encoder's final reconstruction, not a list or scale average. Preserve codebook dtype/device and leave all inputs unchanged; no gradients are required.
+
+#### `lift_codes` (provided)
+
+Provided helper: return one floating `Tensor` `[B,C,full_size,full_size]` from int64 tokens `[B,n,n]`, codebook `[V,C]` and channel projection `[C,C]`. Keep the codebook/projection dtype and device. The helper itself does not detach differentiable codebook/projection paths; the frozen encode/decode callers run under no_grad. No input mutation.
+
+#### `resize_residual` (provided)
+
+Provided helper: return a floating `Tensor` `[B,C,size,size]` from residual `[B,C,H,H]`, preserving dtype/device and its gradient path. If `size==H`, return the original tensor itself (an alias), not a copy or `None`. Otherwise return the resized values. Do not modify residual in place.
+
+#### `_validate_codes` (provided)
+
+Provided helper: return a Python `list[int]` containing the K square token-map sizes in input order, not tensors or `None`. Validate nonempty int64 maps `[B,n_k,n_k]`, increasing scales beginning at 1, in-range code indices, codebook `[V,C]` and matching projections `[K,C,C]`; checked failures raise `ValueError`. Leave inputs unchanged; there is no gradient output.
+
+### Formula and conventions
+
 `multiscale_quantize(features, codebook, scales, projections) -> (token_maps, reconstructions)`
 
 Start with residual `e=features` and full-resolution reconstruction `f_hat=0`. For every scale `n_k`, in ascending order:

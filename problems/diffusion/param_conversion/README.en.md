@@ -8,6 +8,34 @@ This module selects the supporting parameterization technique from Appendix D. I
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `eps_to_x0` (provided)
+
+Return one Tensor of clean data recovered from a noise prediction, matching x_t shape [B,...]; B is batch size and trailing axes are sample coordinates. alpha/sigma are already broadcastable by the input convention; do not add coefficient axes. Preserve the documented matching floating dtype/device and gradients. Do not return multiple parameterizations as a tuple or mutate inputs.
+
+#### `x0_to_eps` (provided)
+
+Return one Tensor of noise recovered from a clean-data prediction, matching x_t shape [B,...]; B is batch size and trailing axes are sample coordinates. alpha/sigma are already broadcastable by the input convention; do not add coefficient axes. Preserve the documented matching floating dtype/device and gradients. Do not return multiple parameterizations as a tuple or mutate inputs.
+
+#### `make_v` (required)
+
+Return one Tensor of angular velocity v, matching x0 shape [B,...]; B is batch size and trailing axes are sample coordinates. alpha/sigma are already broadcastable by the input convention; do not add coefficient axes. Preserve the documented matching floating dtype/device and gradients. Do not return multiple parameterizations as a tuple or mutate inputs.
+
+#### `v_to_x0` (required)
+
+Return one Tensor of clean data recovered from v, matching x_t shape [B,...]; B is batch size and trailing axes are sample coordinates. alpha/sigma are already broadcastable by the input convention; do not add coefficient axes. Preserve the documented matching floating dtype/device and gradients. Do not return multiple parameterizations as a tuple or mutate inputs.
+
+#### `v_to_eps` (required)
+
+Return one Tensor of noise recovered from v, matching x_t shape [B,...]; B is batch size and trailing axes are sample coordinates. alpha/sigma are already broadcastable by the input convention; do not add coefficient axes. Preserve the documented matching floating dtype/device and gradients. Do not return multiple parameterizations as a tuple or mutate inputs.
+
+#### `convert` (provided)
+
+Return one Tensor in the dst parameterization, with pred/x_t shape [B,...], preserving the documented matching floating dtype/device and gradients. When src=dst, return pred directly (the same object); otherwise return the converted prediction. Do not return a dictionary of x0/eps/v or mutate inputs.
+
+### Equations and interface notes
+
 Let $x_0,\epsilon,x_t\in\mathbb R^{B\times D}$, with $\alpha=\sqrt{\bar\alpha_t}$ and $\sigma=\sqrt{1-\bar\alpha_t}$ broadcastable to the input shape, and $\alpha^2+\sigma^2=1$. Here alpha is a square-root signal coefficient, unlike the one-step alpha in problem **6**.
 
 $$x_t=\alpha x_0+\sigma\epsilon,\qquad v=\alpha\epsilon-\sigma x_0.$$

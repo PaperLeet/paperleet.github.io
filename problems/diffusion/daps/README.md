@@ -1,6 +1,31 @@
 # DAPS 解耦后验采样
 
+## 1. 题目目标
+
 实现 [DAPS 式 (7) 与 Algorithm 1](https://arxiv.org/abs/2407.01521) 的局部后验采样核心。在当前噪声层，由已提供的 probability-flow ODE 输出 `x0_hat` 构建干净样本的高斯近似，在干净空间中结合观测做 MCMC，再独立加噪进入下一层。
+
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `posterior_score`（需实现）
+
+返回逐样本条件 score Tensor `[B, D]`：B 为样本数，D 为未知量坐标数，与 `x` 同形状、dtype/device。观测维度 M 不成为输出维度；不对批次或坐标归约，不除以 B 或 D。保留可微张量运算，不修改输入。
+
+#### `langevin_step`（需实现）
+
+返回一次更新后的样本 Tensor，与 `x` 完全同形状、dtype/device（本题使用 `[B,D]`，B 为批大小、D 为坐标数）。只返回新样本，不返回 score 或噪声；`eta=0` 时数值等于 x。不修改输入，也不主动 detach 输出。
+
+#### `renoise`（需实现）
+
+返回下一噪声层样本 Tensor，与 `x0` 完全同形状、dtype/device（本题 `[B,D]`）。`sigma_next=0` 时数值等于 x0。返回单个样本张量，保留可微运算；不修改 x0 或传入噪声。
+
+#### 已提供的局部辅助函数
+
+- `_positive`：已提供：当标量合法时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+- `_matching`：已提供：当浮点张量的有限值、形状、dtype/device 匹配时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+
+### 公式与接口说明
 
 线性观测 `y = A x + measurement_noise` 下：
 
@@ -12,7 +37,7 @@ $$
 
 `r`、`beta` 表示标准差；两份独立标准高斯噪声由调用者传入。下一噪声层以 MCMC 的干净样本为中心，标准差直接使用 `sigma_next`。
 
-## 实现接口
+### 实现接口
 
 | 函数 | 输入 | 输出 |
 |---|---|---|

@@ -2,6 +2,28 @@
 
 Implement the feature-space objective from [VICReg](https://arxiv.org/html/2105.04906v3). Two augmented views should agree, each feature should retain sufficient spread across examples, and different features should avoid redundant covariance.
 
+## Implementation requirements
+
+### Return requirements
+
+#### `vicreg_terms` (required)
+
+Return `(invariance, variance, covariance)`, exactly three scalar floating `Tensor`s with shape `()` and the views' dtype/device. For views `[B,D]`, invariance averages B*D squared differences; variance averages feature penalties and both views; covariance sums both views' off-diagonal squared entries and divides by D. Preserve gradients to both views, including sample statistics with denominator B-1; do not detach or mutate inputs.
+
+#### `vicreg_loss` (required)
+
+Return one scalar floating `Tensor`, shape `()`, equal to the weighted sum of the three `vicreg_terms` outputs in their declared order. Preserve the common input dtype/device and gradients to both x and y. Do not return the components, a Python float, a detached value or an in-place update.
+
+#### `_check_pair` (provided)
+
+Provided validator: return Python `None` when finite matching float32/float64 views `[B,D]` satisfy B>=2, D>=1 and epsilon is finite positive. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_weights` (provided)
+
+Provided validator: return Python `None` when all three coefficients are finite and nonnegative. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 Given paired features $X,Y\in\mathbb R^{B\times D}$, let $X_c=X-\operatorname{mean}_B(X)$ and $C_X=X_c^TX_c/(B-1)$, with the same definitions for $Y$.
 
 $$

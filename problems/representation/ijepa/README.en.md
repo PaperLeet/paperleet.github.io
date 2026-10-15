@@ -4,6 +4,34 @@
 
 ## Implement
 
+### Return requirements
+
+#### `masked_targets` (required)
+
+Return a detached floating `Tensor` `[K*C*B,M,D]`, ordered by target block, context, then batch item. K is the number of masks, C is `num_context`, B is batch size, M is tokens per mask and D is feature width. Preserve the feature dtype/device; no gradient reaches teacher features and no input is modified.
+
+#### `masked_prediction_loss` (required)
+
+Return one scalar `Tensor`, shape `()`, of the common prediction/target dtype and device: smooth-L1 with beta=1 averaged over every tensor element. Retain prediction gradients but detach the target internally. Do not return per-token losses, a Python float or mutate either input.
+
+#### `ema_update` (required)
+
+Return a new detached `Tensor` with the same shape, floating dtype and device as `target` and `online`, containing the updated target parameters. Neither input receives gradients or is updated in place. This functional helper returns the new value, not `None`.
+
+#### `_features` (provided)
+
+Provided validator: return Python `None` when x is a finite, nonempty float32/float64 Tensor with the requested rank when ndim is supplied. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_pair` (provided)
+
+Provided validator: return Python `None` when both finite nonempty floating tensors have identical shape, dtype and device. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_targets` (provided)
+
+Provided validator: return Python `None` when features `[B,N,D]`, equal-length int64 masks `[B,M]`, positive integer context count and positive finite epsilon satisfy the target contract. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 `masked_targets(features, masks, num_context=1, eps=1e-5)` receives teacher features `[B,N,D]` and a list of `K` target masks, each integer `[B,M]`. It must:
 
 1. Detach the teacher features and apply layer normalization independently to each token's **D features**, without affine parameters. Use population variance and `sqrt(variance + eps)`.

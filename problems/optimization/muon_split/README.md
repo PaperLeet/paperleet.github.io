@@ -4,6 +4,14 @@
 
 ## 需要实现
 
+### 返回值要求
+
+#### `headwise_orthogonalize` — 需要实现
+
+返回一个与 matrix 同形状/dtype/device 的浮点 Tensor `[num_heads*head_dim,input_dim]`。逐头部分极分解因子按原有连续行头顺序拼回，不返回列表或新增头维度的 Tensor。声明的相对阈值以下奇异方向贡献零，全零头保持为零。仅要求满秩且奇异值互异的块保留 autograd；秩边界/重复奇异值不属于梯度要求。不修改 matrix。
+
+### 公式与约定
+
 只实现 `headwise_orthogonalize(matrix, num_heads)`。
 
 输入形状为 `[num_heads * head_dim, input_dim]`。每个头占用**连续的行块**：拆成 `[num_heads, head_dim, input_dim]`，逐头正交化，再按原顺序拼回。调用者会对每种上投影的梯度／动量矩阵分别应用这个函数。

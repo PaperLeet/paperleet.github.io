@@ -7,8 +7,14 @@ def clipped_surrogate(new_logp: Tensor, old_logp: Tensor, advantages: Tensor,
                       clip_eps: float = 0.2) -> Tensor:
     """Minimized PPO policy loss for [B] log-probs and already prepared advantages.
 
-    Freeze the old policy and advantages; keep gradients through new_logp.
-    Return one scalar. Advantage normalization is supplied by ppo_loss.
+    Freeze the old policy and advantages; keep gradients through new_logp. Return one
+    scalar. Advantage normalization is supplied by ppo_loss.
+
+    Returns:
+        Return one floating scalar Tensor loss, shape (): the negative batch mean of the
+        clipped policy surrogate for [B] inputs. Preserve input floating dtype/device.
+        Retain gradients through new_logp; freeze old_logp and advantages. Return the Tensor
+        itself, without .item() or .detach().
     """
     raise NotImplementedError()
 
@@ -18,7 +24,14 @@ def ppo_loss(new_logp: Tensor, old_logp: Tensor, advantages: Tensor, new_values:
              old_values: Tensor, returns: Tensor, entropy: Tensor | None = None,
              clip_eps: float = 0.2, vf_clip: float | None = 0.2, vf_coef: float = 0.5,
              ent_coef: float = 0.0, norm_adv: bool = True) -> dict[str, Tensor]:
-    """Provided training adapter: normalization, value/entropy terms, diagnostics."""
+    """Provided training adapter: normalization, value/entropy terms, diagnostics.
+
+    Returns:
+        dict[str, Tensor] with scalar () values: loss (total objective), pg_loss, v_loss
+        (half mean value error), entropy (mean or zero), approx_kl and clipfrac. Only
+        approx_kl/clipfrac are detached diagnostics. Current policy/value loss paths stay
+        live; old policy/values and advantage/return targets are frozen.
+    """
     old_values = old_values.detach()
     advantages, returns = advantages.detach(), returns.detach()
     if norm_adv:

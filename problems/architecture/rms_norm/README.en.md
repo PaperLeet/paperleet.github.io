@@ -2,6 +2,18 @@
 
 ## 1. Problem
 
+### Return requirements
+
+#### `rms_norm` — Required
+
+Return one floating Tensor with x's full `[...,D]` shape, where D is feature width and all leading batch/token axes are preserved. Return scaled normalized features, not the RMS statistic. Preserve x's dtype/device and gradients to x and weight without changing inputs.
+
+#### `partial_rms_norm` — Required
+
+Return one floating Tensor `[...,D]`, preserving all D features and all leading dimensions even though only the first k features determine the normalization scale. D is feature width. Preserve dtype/device and gradients to x and weight, including the dependence of every output on the prefix statistic. Do not detach the statistic or modify inputs.
+
+### Formula and conventions
+
 Implement `rms_norm` and `partial_rms_norm`. Explore what changes when normalization keeps the mean, and when its scale estimate sees only part of each token. No Transformer model is needed.
 
 The primary source is [Root Mean Square Layer Normalization](https://arxiv.org/abs/1910.07467), Equation (4) and Section 5, by Biao Zhang and Rico Sennrich, NeurIPS 2019.

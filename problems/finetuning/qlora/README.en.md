@@ -6,6 +6,22 @@ Paper: [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/230
 
 ## Selected core
 
+### Return requirements
+
+#### `nf4_quantize` — Required
+
+Return `(codes, scales)` as a Python tuple of tensors. codes has weight's shape/device, dtype torch.uint8 and unpacked NF4 indices 0..15 (one index per weight element). scales is a floating Tensor `[ceil(N/block_size)]` in weight's dtype/device, where N=weight.numel(); entries are per-block absolute maxima over the flattened weight, including a short final block. Both outputs are detached from weight; zero blocks use code 7 and scale 0. Do not mutate weight.
+
+#### `nf4_dequantize` — Required
+
+Return one floating Tensor with exactly codes' shape and scales' dtype/device, reconstructing the quantized weight. Do not return uint8 indices or flattened weights. Treat scales as frozen, so the result has no gradient path to scales; integer codes are nondifferentiable. Inputs remain unchanged.
+
+#### `qlora_linear` — Required
+
+Return one floating Tensor `[...,out_features]` for x `[...,in_features]` and codes `[out_features,in_features]`, retaining all leading dimensions. Use x's dtype/device. The result combines the reconstructed frozen base with the low-rank adapter and optional bias. Preserve gradients to x, a and b only; scales and optional bias stay frozen and codes are integer indices. Do not mutate inputs or return quantization state.
+
+### Formula and conventions
+
 Three CPU functions. Code indices are unpacked uint8 for inspectability; packed 4-bit storage, double quantization and paged optimizers are outside scope.
 
 $$

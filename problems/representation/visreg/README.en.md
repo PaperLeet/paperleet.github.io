@@ -4,6 +4,26 @@ Implement the regularizer and view-invariance objective in [VISReg](https://arxi
 
 ## Implement
 
+### Return requirements
+
+#### `visreg_terms` (required)
+
+Return `(scale, shape, center)`, exactly three scalar floating `Tensor`s with shape `()` and z's dtype/device. For z `[N,D]` and K directions, scale and center average D features; shape averages N*K projected quantile errors. Keep z gradients, but freeze supplied directions and freeze standard deviation only in the shape denominator. The scale term retains its standard-deviation gradient. No input mutation.
+
+#### `view_invariance` (required)
+
+Return one scalar floating `Tensor`, shape `()`, with views' dtype/device: squared error from the first G=`num_global` views' mean, averaged over all V*N*D entries of views `[V,N,D]`. Gradients flow through every view and through that global-view mean; it is not a detached teacher. Leave inputs unchanged.
+
+#### `_features` (provided)
+
+Provided validator: return Python `None` when x is a finite, nonempty float32/float64 Tensor of the requested rank. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_terms` (provided)
+
+Provided validator: return Python `None` when features z `[N,D]`, N>=2, and matching finite directions `[D,K]` have nonzero columns and epsilon is finite positive. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 `visreg_terms(z, directions, eps=1e-4)` receives features `[N,D]` and fixed, nonzero projection columns `[D,K]`. Return three scalar tensors **in this order: scale, shape, center**.
 
 Let the per-feature population mean and standard deviation be

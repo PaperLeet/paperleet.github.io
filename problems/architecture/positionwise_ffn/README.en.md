@@ -4,6 +4,14 @@ Attention mixes information across positions. The Transformer then applies the s
 
 ## Your core module
 
+### Return requirements
+
+#### `positionwise_ffn` — Required
+
+Return one floating Tensor `[...,D]`, matching x's complete shape: D is the model feature width and leading batch/token axes are unchanged. Return the second linear layer's output, not hidden activations of width H. Preserve dtype/device and gradients to x, w1, b1, w2 and b2. Each token stays independent and inputs are not modified.
+
+### Formula and conventions
+
 Implement `positionwise_ffn(x, w1, b1, w2, b2)`:
 
 $$

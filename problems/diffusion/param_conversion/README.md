@@ -8,6 +8,34 @@
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `eps_to_x0`（已提供）
+
+返回单个由噪声预测恢复的干净数据 Tensor，与 `x_t` 同形状 `[B,...]`；B 为批大小，末尾为样本坐标。alpha/sigma 已按输入约定可广播，输出不增加系数轴。保留本题匹配浮点输入的 dtype/device 和梯度；不返回多种参数化的元组，也不修改输入。
+
+#### `x0_to_eps`（已提供）
+
+返回单个由干净数据预测恢复的噪声 Tensor，与 `x_t` 同形状 `[B,...]`；B 为批大小，末尾为样本坐标。alpha/sigma 已按输入约定可广播，输出不增加系数轴。保留本题匹配浮点输入的 dtype/device 和梯度；不返回多种参数化的元组，也不修改输入。
+
+#### `make_v`（需实现）
+
+返回单个角速度 v Tensor，与 `x0` 同形状 `[B,...]`；B 为批大小，末尾为样本坐标。alpha/sigma 已按输入约定可广播，输出不增加系数轴。保留本题匹配浮点输入的 dtype/device 和梯度；不返回多种参数化的元组，也不修改输入。
+
+#### `v_to_x0`（需实现）
+
+返回单个由 v 恢复的干净数据 Tensor，与 `x_t` 同形状 `[B,...]`；B 为批大小，末尾为样本坐标。alpha/sigma 已按输入约定可广播，输出不增加系数轴。保留本题匹配浮点输入的 dtype/device 和梯度；不返回多种参数化的元组，也不修改输入。
+
+#### `v_to_eps`（需实现）
+
+返回单个由 v 恢复的噪声 Tensor，与 `x_t` 同形状 `[B,...]`；B 为批大小，末尾为样本坐标。alpha/sigma 已按输入约定可广播，输出不增加系数轴。保留本题匹配浮点输入的 dtype/device 和梯度；不返回多种参数化的元组，也不修改输入。
+
+#### `convert`（已提供）
+
+返回 dst 所指定参数化的单个 Tensor，形状与 pred/x_t 相同 `[B,...]`，保留本题匹配浮点输入的 dtype/device 和梯度。src=dst 时直接返回 pred（同一对象），否则返回转换后的预测。不是包含 x0/eps/v 的字典；不修改输入。
+
+### 公式与接口说明
+
 设 $x_0,\epsilon,x_t\in\mathbb R^{B\times D}$，$\alpha=\sqrt{\bar\alpha_t}$、$\sigma=\sqrt{1-\bar\alpha_t}$ 可广播到输入形状，且 $\alpha^2+\sigma^2=1$。本题的 alpha 是标准差系数，和前向加噪模块中单步 alpha 的含义不同。
 
 $$x_t=\alpha x_0+\sigma\epsilon,\qquad v=\alpha\epsilon-\sigma x_0.$$

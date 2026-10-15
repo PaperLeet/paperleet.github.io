@@ -2,6 +2,14 @@
 
 ## 1. 问题
 
+### 返回值要求
+
+#### `apply_rope` — 需要实现
+
+返回一个与 x 同形状的浮点 Tensor `[B,H,L,D]`：B 为批大小，H 为头数，L 为 token 数，D 为偶数特征宽度。其值为相邻特征对旋转后的结果，不是正弦/余弦表。保持 x 的 dtype/device 和 x、浮点 positions 的梯度，位置转换 dtype/device 时也不可切断梯度。空 B/L 轴保留原形状，不修改两个输入。
+
+### 公式与约定
+
 [RoFormer](https://arxiv.org/abs/2104.09864) §3.2、§3.4.2 将位置信息写入 query/key 的旋转。作者的[官方仓库](https://github.com/ZhuiyiTechnology/roformer)也给出了相邻坐标配对的示意实现。投影后的 q、k 分别调用同一个旋转函数；本题只实现 `apply_rope`，不搭建完整注意力层。
 
 先完成[正弦位置编码](../positional_encoding/README.md)，再比较“给输入加位置向量”和“旋转投影后的特征”如何改变内积。

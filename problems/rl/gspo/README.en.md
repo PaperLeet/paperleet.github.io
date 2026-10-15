@@ -6,6 +6,20 @@ Paper: [Group Sequence Policy Optimization](https://arxiv.org/abs/2507.18071v1).
 
 ## Selected core
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `sequence_ratio` · Required
+
+Return one floating Tensor `ratio`, shape `[B]`, for `[B, L]` scores/mask (`B` responses, `L` token positions). Each value is the geometric mean of valid-token importance ratios; an empty response returns `1`. Preserve input floating dtype/device and gradients to `logp`; `old_logp` is fixed. Do not reduce over the batch.
+
+#### `gspo_loss` · Required
+
+Return one scalar floating Tensor `loss`, shape `()`, the negative mean clipped sequence objective over **all `B` responses**, including zero contributions from empty responses. Retain `logp` gradients, freezing `old_logp` and advantages. An all-empty mask returns a differentiable zero, not a Python number.
+
+### Formula and conventions
+
 Two functions; group advantages, sampling and distributed RL are outside this module.
 
 $$

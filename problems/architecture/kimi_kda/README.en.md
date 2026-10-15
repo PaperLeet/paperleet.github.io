@@ -4,6 +4,18 @@ Implement two small operators from [Kimi K3: Open Frontier Intelligence, v2, §2
 
 ## Your core module
 
+### Return requirements
+
+#### `bounded_decay` — Required
+
+Return one floating retention Tensor `[B,T,H,K]`, matching logits: B batch size, T sequence length, H head count, K key channels. Values lie between exp(lower_bound) and 1; return retention factors, not their logarithms. Preserve logits' dtype/device and gradients into logits and log_scale; do not change inputs.
+
+#### `recurrent_kda` — Required
+
+Return `(output, final_state)` as floating tensors `[B,T,H,V]` and `[B,H,K,V]`. B is batch size, T token count, H head count, K key channels and V value channels (K and V may differ). Each output reads the state after that token's update; final_state can resume the scan. With T=0, output is `[B,0,H,V]` and final_state equals the supplied initial state, or zeros when it is None. Preserve shared dtype/device and gradient paths through nonempty scans to q/k/v/alpha/beta/initial_state; do not detach the returned state or mutate inputs.
+
+### Formula and conventions
+
 1. `bounded_decay` turns per-channel logits into retention factors.
 2. `recurrent_kda` consumes prepared queries, keys, values and gates, returning every output and the final memory.
 

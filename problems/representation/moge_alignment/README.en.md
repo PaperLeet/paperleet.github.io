@@ -2,6 +2,28 @@
 
 Implement the robust optimal alignment (ROE) core of [MoGe](https://arxiv.org/abs/2410.19115). A predicted point map has an unknown shared scale and a shift along the camera's z axis. The alignment objective uses inverse target depth and coordinate-wise absolute residuals:
 
+## Implementation requirements
+
+### Return requirements
+
+#### `optimal_scale_1d` (required)
+
+Return the Python tuple `(scale, loss)` in that order; both are detached scalar floating `Tensor`s with shape `()` and x's dtype/device. `loss` is the sum of weighted absolute residuals, individually capped when `trunc` is set, not a mean. Ties choose the smallest active scale; with no active coefficient return scale zero and its objective. Do not mutate inputs.
+
+#### `roe_align` (required)
+
+Return the Python tuple `(scale, z_shift)`, two detached scalar floating `Tensor`s of shape `()` with the point-map dtype/device. `z_shift` is a scalar translation only along z, not a 3-vector; the second return is not an objective value. Fit only masked-valid points; no input mutation or solver gradient is required.
+
+#### `_check_vectors` (provided)
+
+Provided validator: return Python `None` when x, y and nonnegative weight are finite, nonempty, matching 1D floating tensors and trunc is None or finite positive. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_points` (provided)
+
+Provided helper: return `(valid_prediction, valid_target)`, floating Tensors `[M,3]` in the original mask-selected order, where M is the number of True mask entries. Preserve point dtype/device and leave originals unchanged. Validate nonempty selection and positive valid target depths, raising `ValueError` on checked invalid inputs; masked-out NaNs are excluded before value validation. The helper does not itself detach; the solver callers are no_grad.
+
+### Formula and conventions
+
 $$
 \min_{s,t}\sum_{i\in M}\sum_{d\in\{x,y,z\}}
 \min\left(\frac{|s\hat p_{id}+t\mathbf 1_{d=z}-p_{id}|}{p_{iz}},\tau\right).

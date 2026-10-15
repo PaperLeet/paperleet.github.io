@@ -2,6 +2,28 @@
 
 实现 [MoGe](https://arxiv.org/abs/2410.19115) 的鲁棒最优对齐（ROE）核心。预测点图存在未知全局尺度，以及相机 z 轴方向的平移。目标使用真实深度倒数作权重，逐坐标计算绝对残差：
 
+## 实现要求
+
+### 返回值要求
+
+#### `optimal_scale_1d` (需实现)
+
+按顺序返回 Python tuple `(scale, loss)`；两项都是已 detach 的标量浮点 `Tensor`，形状 `()`，dtype/device 与 x 一致。`loss` 是加权绝对残差之和，指定 `trunc` 时逐项截断，不取平均。并列最优时选最小的有效 scale；没有有效系数时返回零 scale 及其目标值。不修改输入。
+
+#### `roe_align` (需实现)
+
+按顺序返回 Python tuple `(scale, z_shift)`，两项都是已 detach 的标量浮点 `Tensor`，形状 `()`，保持点图 dtype/device。`z_shift` 只表示 z 轴平移，不是三维向量，第二项也不是 loss。只拟合 mask 选中的有效点；不修改输入，本题不要求求解器梯度。
+
+#### `_check_vectors` (已提供)
+
+已提供校验函数：x、y、非负 weight 是有限、非空且匹配的一维浮点 Tensor，trunc 为 None 或有限正数时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_points` (已提供)
+
+已提供 helper：返回 `(valid_prediction, valid_target)`，两个浮点 Tensor `[M,3]` 按 mask 选中点的原顺序排列，M 为 True 数量。保持点图 dtype/device，不修改原输入。校验非空选择与有效目标的正深度，被校验条件不满足时抛出 `ValueError`；未选中的 NaN 在数值检查前被排除。helper 自身不 detach，求解器调用方使用 no_grad。
+
+### 公式与约定
+
 $$
 \min_{s,t}\sum_{i\in M}\sum_{d\in\{x,y,z\}}
 \min\left(\frac{|s\hat p_{id}+t\mathbf 1_{d=z}-p_{id}|}{p_{iz}},\tau\right).

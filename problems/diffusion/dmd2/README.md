@@ -1,8 +1,32 @@
 # 20. DMD2：双时间尺度与对抗更新
 
+## 1. 题目目标
+
 在分布匹配基础上实现 critic/生成器更新比例和非饱和 GAN 项。
 
-## 接口
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `generator_due`（需实现）
+
+返回 Python `bool`，不是整数或 Tensor。仅在已完成的 critic 更新数为正、且恰好达到一次 generator 更新周期时返回 True；计数为 0 时返回 False。此函数不执行更新，也没有张量形状或梯度。
+
+#### `adversarial_losses`（需实现）
+
+按顺序返回 `(discriminator_loss, generator_loss)` 二元组，每项均为形状 `()` 的浮点 Tensor。保留输入 logits 的 dtype/device；real 与 fake 数量可不同。判别器的 real/fake 项分别求均值再相加，生成器项对 fake 求均值。这里不 detach logits，两项保留各自的梯度路径。
+
+#### `generator_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor，使用 generated/logits 的 dtype/device。DM matching 对 generated 的全部元素取均值并带 1/2 系数，GAN 项对 fake_logits 取均值。冻结由 generated-gradient 构造的目标；保留 generated 与 fake_logits 的训练梯度。没有 paired regression 项，不返回多个损失。
+
+#### 已提供的局部辅助函数
+
+- `_time`：已提供：返回把 t 从 `[B]` reshape 成 `[B,1,...,1]` 的 Tensor，其阶数与 x 相同；B 为样本数，每个非 batch 轴长度为 1。保留 t（不是 x）的 dtype/device 与梯度，不修改输入；返回值可能与 t 共享存储。
+
+### 公式与接口说明
+
+### 接口
 
 - `generator_due(completed_critic_updates: int, critic_per_generator: int = 5) -> bool`
 - `adversarial_losses(real_logits: Tensor, fake_logits: Tensor) -> tuple[Tensor, Tensor]`

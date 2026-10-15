@@ -4,6 +4,18 @@ Transformer 根据 query 与 key 的匹配程度，从 value 中汇聚信息。�
 
 ## 核心任务
 
+### 返回值要求
+
+#### `scaled_dot_product_attention` — 需要实现
+
+返回 Python 元组 `(output, weights)`，两项均为浮点 Tensor：`output[B,H,Q,Dv]` 是值向量的聚合结果，`weights[B,H,Q,K]` 是注意力概率。B 为批大小，H 为头数，Q/K 为查询/键长度，Dv 为值向量宽度。有可见键的每行概率和为 1；全遮挡行的权重和输出均为精确零。保持输入 dtype/device 及 q/k/v 的梯度；全遮挡行梯度为有限零，不修改输入。
+
+#### `causal_mask` — 已提供
+
+返回一个 `torch.bool` Tensor `[Q,K]`，Q=query_length、K=key_length；行为查询，列为键。键下标不大于查询下标时为 True，采用左上对齐。使用指定 device；可见性掩码不带梯度。
+
+### 公式与约定
+
 只需实现 `scaled_dot_product_attention`。`causal_mask` 与实验循环已经提供。输入已经完成投影并拆分 head；投影层、位置编码、前馈网络和完整语言模型训练不属于本题范围。
 
 $$

@@ -4,6 +4,18 @@
 
 ## 你要实现的核心模块
 
+### 返回值要求
+
+#### `multi_head_attention` — 需要实现
+
+依次返回浮点 Tensor 元组 `(output, weights)`，形状为 `[B,Q,D]`、`[B,H,Q,K]`；B 为批大小，Q/K 为查询/键长度，D 为模型宽度，H=num_heads。output 已拼接各头并经过 w_o 投影；weights 保留每个头，不进行头平均。保持输入 dtype/device 及 query/key/value、四个投影矩阵的梯度。全遮挡查询行返回零，不修改输入。
+
+#### `attention_kernel` — 已提供
+
+返回浮点 Tensor 元组 `(output, weights)`，形状为 `[B,H,Q,Dv]`、`[B,H,Q,K]`；B 为批大小，H 为头数，Q/K 为查询/键长度，Dv 为值向量宽度。权重在可见键上求和为 1，全遮挡行的输出和权重为零。保持输入 dtype/device 和 q/k/v 的 autograd，全遮挡行梯度有限。此 helper 返回拼接/输出投影之前的逐头结果，不修改输入。
+
+### 公式与约定
+
 只实现 `multi_head_attention`。编辑器已提供稳定的缩放点积注意力函数 `attention_kernel`，因此本题可以独立于缩放点积注意力题完成。核心是输入投影、拆分多个头、传递掩码、拼接各头输出，以及最终的输出投影。
 
 $$

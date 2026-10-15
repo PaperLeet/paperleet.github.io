@@ -1,6 +1,28 @@
 # DiffusionNFT 正负双分支流匹配
 
-实现 [DiffusionNFT 式 (5)](https://arxiv.org/html/2509.16117v1#S3.SS2)。单个可训练 velocity `v_current` 围绕固定 rollout velocity `v_old` 隐式定义两个策略：
+## 1. 题目目标
+
+实现 [DiffusionNFT 式 (5)](https://arxiv.org/html/2509.16117v1#S3.SS2)。
+
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `implicit_velocities`（需实现）
+
+按顺序返回二元组 `(positive, negative)`，两项都是与 `current` 同形状 `[B,...]`、dtype/device 的 Tensor；B 为样本数，末尾为全部特征维度。保留两条分支对 current 的梯度，并在函数内部 detach old；不修改输入。
+
+#### `nft_loss`（需实现）
+
+返回与 `current` 同 dtype/device 的标量 Tensor，形状 `()`。每个样本先对全部非 batch 坐标的平方误差求和，再对 B 个样本取平均；不能把全部元素直接求平均。梯度只进入 current；old、target、rewards 均停止梯度，不修改输入。
+
+#### 已提供的局部辅助函数
+
+- `_check_velocity`：已提供：当velocity 与 beta 满足约定时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+
+### 公式与接口说明
+
+单个可训练 velocity `v_current` 围绕固定 rollout velocity `v_old` 隐式定义两个策略：
 
 $$
 v^+=(1-\beta)v_{old}+\beta v_{current},\qquad
@@ -15,7 +37,7 @@ $$
 
 隐式分支使用 **beta 本身**，不是倒数。负样本通过非负平方误差训练负分支，不能改成给 MSE 乘负奖励。
 
-## 实现接口
+### 实现接口
 
 | 函数 | 输入 | 输出 |
 |---|---|---|

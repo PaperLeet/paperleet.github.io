@@ -8,6 +8,26 @@ DDPM 将复杂数据逐步变成高斯噪声，再学习反向恢复数据。前
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `linear_betas`（已提供）
+
+返回形状 `[T]` 的 `torch.float64` Tensor（本题默认 CPU），每项是一层噪声方差 beta；索引 0..T-1 对应论文时间 1..T。T>=2 时包含 beta_start 与 beta_end 两个端点；T=1 时唯一元素为 beta_start。不是累计 alpha，也不是 Python 列表；输出无梯度。
+
+#### `cosine_betas`（已提供）
+
+返回形状 `[T]` 的 `torch.float64` Tensor（本题默认 CPU），每项是离散余弦调度的一步 beta，并受 max_beta 上限约束。返回 T 项而非 T+1 项，也不返回累计 alpha；输出无梯度。
+
+#### `make_schedule`（已提供）
+
+返回 `dict[str, Tensor]`，必须包含这六个键：`alphas`、`alpha_bars`、`alpha_bars_prev`、`sqrt_alpha_bars`、`sqrt_one_minus_alpha_bars`、`log_snr`。所有值均为 `[T]`、torch.float64、与 betas 相同 device，T=`len(betas)`；alpha_bars_prev 的首项为 1。没有 betas 键，不返回元组。保留可微计算，不修改 betas。
+
+#### `q_sample`（需实现）
+
+返回指定逐样本时间的带噪 Tensor，与 x0 同形状 `[B,...]`、dtype/device；B 为批大小，末尾为任意样本维度。alpha_bars 中选出的系数须转换到 x0 的 dtype/device，不能使 float32 样本变成 float64。只返回样本，保留可微路径，不修改输入。
+
+### 公式与接口说明
+
 单步噪声方差为 $\beta_t$，保留信号的比例为 $\alpha_t=1-\beta_t$，累计信号为 $\bar\alpha_t=\prod_{s=1}^t\alpha_s$。由于每一步噪声独立，累计方差可以合并：
 
 $$q(x_t\mid x_0)=\mathcal N(\sqrt{\bar\alpha_t}x_0,(1-\bar\alpha_t)I),\qquad x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon.$$

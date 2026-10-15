@@ -6,6 +6,26 @@ A single pooled vector can collapse distinct token bags into the same direction.
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `maxsim_scores` (required)
+
+Return one floating `Tensor` `[B,N]`, all pairs of B queries and N documents, preserving their shared dtype/device. Max over valid document tokens, then sum retained query-token evidence; do not average query tokens or return aligned-pair scores. All-masked documents score -inf; empty/fully masked queries score zero against valid documents. Keep both encoding gradients, with exact max ties routed to the first valid document token and masked gradients zero; do not mutate inputs.
+
+#### `pairwise_loss` (required)
+
+Return one scalar floating `Tensor`, shape `()`, of the score dtype/device, averaging the negative log-softmax probability of the positive over B nonempty score pairs. Retain gradients to both `[B]` score inputs. Do not return a per-pair vector, detach, convert to a Python float or mutate inputs.
+
+#### `_checked_masks` (provided)
+
+Provided helper: return `(query_mask, document_mask)`, two Boolean `Tensor`s of shapes `[B,Q]` and `[N,L]` on the encoding device. A supplied valid mask is returned unchanged; each None becomes an all-True mask. Reject invalid dimensions/dtype/device with `ValueError`. No input mutation or differentiable output.
+
+#### `_check_pairs` (provided)
+
+Provided validator: return Python `None` when positive and negative are matching, nonempty 1D float32/float64 score tensors on one device. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 Normalize each vector with `eps=1e-12`, then match every kept query position to its best kept document position:
 
 $$\widehat{x}=\frac{x}{\max(\|x\|_2,\epsilon)},\qquad S_{b,n}=\sum_{i:\,m^q_{b,i}}\max_{j:\,m^d_{n,j}}\widehat{q}_{b,i}^{\mathsf T}\widehat{d}_{n,j}.$$

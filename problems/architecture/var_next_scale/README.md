@@ -4,6 +4,26 @@
 
 ## 需要实现
 
+### 返回值要求
+
+#### `scale_causal_mask` — 需要实现
+
+返回一个位于指定 device 的 `torch.bool` Tensor `[L,L]`，其中 `L=sum(n*n for n in scales)`。行为查询 token，列为键 token，按尺度递增、尺度内光栅顺序拼接。同一尺度及更早尺度的键为 True，包括尺度内所有配对。它是不带梯度的可见性矩阵，不是浮点加性掩码。
+
+#### `next_scale_inputs` — 需要实现
+
+返回一个浮点 Tensor `[B,L_next,C]`：B 为批大小，C 为 codebook 通道宽度，`L_next=sum(n*n for n in scales[1:])`。按尺度顺序拼接目标尺度 2..K 的特征，各尺度内部按行优先空间顺序排列；不包含单独提供的首尺度起始嵌入。保持 codebook 的 dtype/device；仅有一个尺度时返回 `[B,0,C]`。冻结 tokenizer 的结果必须 requires_grad=False，即使 codebook/projections 需要梯度也不例外，不修改输入。
+
+#### `lift_codes` — 已提供
+
+返回一个浮点 Tensor `[B,C,F,F]`；B 为批大小，C 为投影后的通道宽度，F=full_size。它是提升到完整空间分辨率并经通道投影的 codebook 特征，采用通道在前布局。保持 codebook/projection 的共同 dtype/device，不修改输入。此 helper 自身不切断 codebook/projection 梯度；next_scale_inputs 在 no-grad 上下文调用它。
+
+#### `_validate_codes` — 已提供 helper
+
+校验尺度序列和 Tensor 布局后，返回 Python `list[int]`，按输入顺序列出每个 token map 的正方形边长，不是 Tensor。受检输入不合法时抛出 ValueError，不修改输入。
+
+### 公式与约定
+
 `next_scale_inputs(token_maps, codebook, projections) -> Tensor`
 
 输入是 `K` 个整数目标图 `[B,n_k,n_k]`。已提供 `lift_codes`，完成查码本、bicubic 放大、通道投影。记最大尺度 `H=n_K`，预测第 `k>0` 个尺度的输入为

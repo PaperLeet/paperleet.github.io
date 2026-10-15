@@ -8,6 +8,28 @@ GRPO 对同一 prompt 采样一组回答，用相对奖励代替 value 模型，
 
 ## 2. 核心公式与题面
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `grpo_advantages` · 需要实现
+
+返回一个浮点 Tensor `advantages`，形状 `[B * G]`，保持原本组相邻的顺序（`B` 个问题，每组 `G = group_size` 个回答），保留 `rewards` 的 dtype/device。每组减均值；仅在 `scale_std=True` 时除以样本标准差加 `eps`。返回展平的向量，不是 `[B, G]` 矩阵或标量。
+
+#### `grpo_loss` · 需要实现
+
+返回 `(loss, stats)`，即“标量 Tensor、字典”的二元组。`loss` 形状为 `()`：对于 `[N, L]` 输入（`N` 个回答、`L` 个 token 位置），先对每个回答的有效 token 平均，再对全部回答平均；空回答贡献零。保留 `logp` 的梯度，旧/参考分数及 advantage 固定。字典字段为 `kl_mean`、`clipfrac`、`ratio_mean`，均为已 detach、形状 `()` 的浮点标量 Tensor，按全部有效 token 平均。`clipfrac` 统计 `abs(ratio - 1) > clip_eps` 的比例；没有有效 token 时三者均为零。
+
+#### `masked_logprobs` · 已提供
+
+返回 `(masked_logp, masked_old_logp, masked_ref_logp)`，与三个分数输入顺序一致。每个 Tensor 都保留对应输入的 `[N, L]` 形状、dtype 和 device，将 padding 位置置零，其余位置不变。这个辅助函数保留有效位置的梯度路径，旧/参考分数由调用它的 loss 函数另行冻结。
+
+#### `token_statistics` · 已提供
+
+对 `[N, L]` token 数组返回 `dict[str, Tensor]`。字典字段为 `kl_mean`、`clipfrac`、`ratio_mean`，均为已 detach、形状 `()` 的浮点标量 Tensor，按全部有效 token 平均。`clipfrac` 统计 `abs(ratio - 1) > clip_eps` 的比例；没有有效 token 时三者均为零。
+
+### 公式与约定
+
 实现 `grpo_advantages` 和 `grpo_loss`。奖励 `[B*G]` 中，同一 prompt 的 $G$ 个回答必须相邻，$G\ge2$ 且整除奖励数。组内均值 $\bar r_g$ 和样本标准差 $s_g$ 用来计算：
 
 $$

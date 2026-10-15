@@ -4,6 +4,14 @@ Transformer 没有循环或卷积来提供 token 的顺序信息。[Attention Is
 
 ## 你要实现的核心
 
+### 返回值要求
+
+#### `sinusoidal_encoding` — 需要实现
+
+返回一个浮点 Tensor `[length,d_model]`，不添加批维度。第 i 行编码绝对位置 start+i，列为特征通道，偶数列为正弦、奇数列为余弦。遵循指定的 float32/float64 dtype 和 device；奇数宽度保留最后一个正弦通道，length=0 返回 `[0,d_model]`。固定编码的 requires_grad=False；返回 Tensor，不返回列表或两张表。
+
+### 公式与约定
+
 实现 `sinusoidal_encoding(length, d_model, start=0, *, dtype=torch.float32, device=None)`：
 
 $$

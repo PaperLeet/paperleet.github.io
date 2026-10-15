@@ -1,8 +1,32 @@
 # 16. MeanFlow: Average Velocity and JVP Targets
 
+## 1. Exercise goal
+
 Implement the total-derivative average-velocity target and its frozen-target loss, then sample in one call.
 
-## Contract
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `meanflow_target` (required)
+
+Return the tuple (prediction, target), in that order, as Tensors with z shape [B,...] and floating dtype/device; B counts samples and trailing axes are coordinates. prediction is the model prediction with training gradients retained; target is the fully detached JVP-corrected target. Do not return the JVP derivative itself.
+
+#### `meanflow_loss` (required)
+
+Return a floating scalar Tensor of shape (), matching clean/noise and model-output dtype/device. Average squared prediction-target error over the batch and all coordinates, without adaptive weighting. Preserve model gradients through prediction and stop target gradients.
+
+#### `one_step` (required)
+
+Return the data-endpoint Tensor from one model call, matching noise shape [B,...] and floating dtype/device; B counts samples and trailing axes are coordinates. Return only samples, not a trajectory. The supplied no_grad decorator makes the output gradient-free; noise is unchanged.
+
+#### Provided local helpers
+
+- `_time`: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.
+
+### Equations and interface notes
+
+### Contract
 
 - `meanflow_target(model, z: Tensor, r: Tensor, t: Tensor, velocity: Tensor) -> tuple[Tensor, Tensor]`
 - `meanflow_loss(model, clean: Tensor, noise: Tensor, r: Tensor, t: Tensor) -> Tensor`

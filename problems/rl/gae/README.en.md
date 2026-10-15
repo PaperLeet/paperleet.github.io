@@ -8,6 +8,16 @@ Module goal: Implement the backward GAE recurrence from TD residuals with correc
 
 ## 2. Core equations and task
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `compute_gae` · Required
+
+Return `(advantages, returns)`, a tuple of two floating Tensors in that order. Both have shape `[T, N]`: `T` time steps and `N` environments, preserving `rewards` dtype/device. `returns = advantages + values`; keep both axes even when `T = N = 1`. Return the arrays, with no batch/time reduction.
+
+### Formula and conventions
+
 Implement `compute_gae`, returning advantages and value targets. Rewards $r_t$, current values $V_t$, and next-state values $V_{t+1}$ have shape `[T,N]`, with time first. Both episode-ending flags are boolean tensors of shape `[T,N]`.
 
 $$

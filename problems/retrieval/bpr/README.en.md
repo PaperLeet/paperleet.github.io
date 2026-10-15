@@ -12,6 +12,26 @@ A `True` entry is unobserved by **this user**, making it an eligible comparison 
 
 ## 2. Pairwise matrix-factorization loss
 
+### Return requirements
+
+#### `eligible_negatives` (required)
+
+Return one Boolean `Tensor` `[B,I]` on the interaction device, where B is the number of requested user IDs and I the number of items. True means that item is unobserved by that row's user. Preserve requested order and duplicate users; empty batches/items retain their empty dimensions. No gradient or input mutation.
+
+#### `bpr_mf_loss` (required)
+
+Return one scalar floating `Tensor`, shape `()`, with the factor tables' dtype/device: mean pairwise loss over B triples plus the unaveraged, full-table L2 prior. Keep gradients to both user/item tables, including unselected rows in the prior. Empty triples contribute zero data loss while retaining both gradient graphs and the full prior. Do not detach, return a Python float or mutate inputs.
+
+#### `_check_mask` (provided)
+
+Provided validator: return Python `None` when interactions is Boolean `[U,I]` and same-device user_ids is int64 `[B]` with every ID in range. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+#### `_check_loss` (provided)
+
+Provided validator: return Python `None` when finite factor tables `[U,D]`/`[I,D]`, int64 triples `[B,3]`, valid distinct positive/negative indices and nonnegative finite l2 satisfy the shared dtype/device contract. Raise `ValueError` when a checked condition fails; do not mutate inputs or return transformed tensors.
+
+### Formula and conventions
+
 `bpr_mf_loss(user_factors, item_factors, triples, l2=0.)` takes matching float32/float64 `[U,D]` and `[I,D]` factor tables, plus int64 `[B,3]` rows `(user, positive, unobserved)`, with `D > 0`. Triples are already constructed. Gather their factor rows and return the scalar:
 
 $$

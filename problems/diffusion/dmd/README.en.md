@@ -1,8 +1,32 @@
 # 19. DMD: Score-Difference Distillation
 
+## 1. Exercise goal
+
 Implement the distribution-matching generator gradient, paired regression, and separate fake-score update.
 
-## Contract
+## 2. Interfaces and returns
+
+### Return requirements
+
+#### `score_difference` (required)
+
+Return one frozen gradient-target Tensor with real_score/fake_score shape [B,...] and floating dtype/device. Broadcast the B weights per example without reducing any axes. Detach the complete result, so no gradient reaches real_score, fake_score or weight.
+
+#### `dmd_loss` (required)
+
+Return a scalar Tensor of shape (), using generated floating dtype/device. Both matching and paired-regression errors average over B and all coordinates; matching has a factor of 1/2. Keep the left-hand generated gradient path, but freeze the target constructed from generated-gradient and paired_target. Do not return the gradient tensor itself.
+
+#### `fake_score_loss` (required)
+
+Return a floating scalar Tensor of shape (), matching generated dtype/device, averaging denoising-score error over the batch and all coordinates. Detach generated inside the function while retaining model-parameter gradients; do not detach the loss. This interface does not explicitly stop gradients through noise or sigma.
+
+#### Provided local helpers
+
+- `_time`: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.
+
+### Equations and interface notes
+
+### Contract
 
 - `score_difference(real_score: Tensor, fake_score: Tensor, weight: Tensor) -> Tensor`
 - `dmd_loss(generated: Tensor, gradient: Tensor, paired_target: Tensor, regression_weight: float = .1) -> Tensor`

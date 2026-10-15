@@ -1,6 +1,27 @@
 # FD-loss 总体矩与 EMA
 
+## 1. 题目目标
+
 实现 [Representation Fréchet Loss for Visual Generation 第 3.2 节](https://arxiv.org/html/2604.28190)中的总体统计估计器。FD-loss 用历史信息估计特征分布，同时只对当前微批次求梯度。论文默认的 EMA 版本保存均值和**原始二阶矩**。
+
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `batch_moments`（需实现）
+
+按顺序返回 `(mean, raw_second)` 二元组，均为 Tensor。输入 features 为 `[B,D]`，B 为样本数、D 为特征数；mean 为 `[D]`，raw_second 为 `[D,D]` 的原始二阶矩，不是中心化协方差。两项均除以 B 而非 B-1，保留 features 的 float32/float64 dtype/device 和梯度，不修改输入。
+
+#### `ema_population_stats`（需实现）
+
+按顺序返回三元组 `(mean, raw_second, covariance)`，Tensor 形状依次为 `[D]`、`[D,D]`、`[D,D]`；D 为特征数。保留 features 的 float32/float64 dtype/device，以及当前批次梯度（beta=1 时为零）；在函数内 detach 两个历史张量。不原地更新历史，调用方另行保存 detach 后的 mean/raw_second。
+
+#### 已提供的局部辅助函数
+
+- `_check_features`：已提供：当特征是合法有限 `[B,D]` 浮点张量时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+- `_check_history`：已提供：当当前特征、历史矩和 beta 匹配约定时返回 Python `None`，不返回布尔值或校验后的张量。无效输入抛出 `ValueError`。仅检查，不修改输入或其梯度设置；不存在返回张量的形状、dtype/device。
+
+### 公式与接口说明
 
 对当前特征 $X\in\mathbb R^{B\times D}$，先计算
 
@@ -16,7 +37,7 @@ M=\beta\,\operatorname{sg}(M_{old})+(1-\beta)M_b,\quad
 \Sigma=M-\mu\mu^\top.
 $$
 
-## 需要实现
+### 需要实现
 
 | 函数 | 返回值 |
 |---|---|

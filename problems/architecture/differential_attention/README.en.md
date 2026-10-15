@@ -12,6 +12,18 @@ $$\lambda=\exp(\lambda_{q1}^T\lambda_{k1})-\exp(\lambda_{q2}^T\lambda_{k2})+\lam
 
 ## Interfaces
 
+### Return requirements
+
+#### `differential_lambda` — Required
+
+Return one zero-dimensional floating Tensor (`shape == ()`) containing the scalar coefficient lambda, not a Python float or one-element vector. It is not restricted to [0,1]. Preserve the parameter vectors' dtype/device and gradients to all four vectors, without changing inputs.
+
+#### `differential_attention` — Required
+
+Return one floating Tensor `[B,H,T,2D]`, with batch size B, head count H, sequence length T and Q/K width D; its shape matches value. This is the differential value aggregate before head normalization/output projection, not a tuple containing attention weights. Preserve input dtype/device and gradients through both Q/K branches, value and a Tensor coefficient. Do not modify inputs.
+
+### Formula and conventions
+
 - `differential_lambda(q1, k1, q2, k2, lambda_init=0.2)` takes equal nonempty parameter vectors `[Dλ]` and returns a scalar tensor. These are lambda parameters, separate from the attention Q/K tensors. The caller supplies the layer-dependent initialization; the paper uses `0.8 - 0.6 exp(-0.3(l-1))` for layers starting at 1.
 - `differential_attention(q1, k1, q2, k2, value, coefficient, causal=True)` takes Q/K tensors `[B,H,T,D]` and V `[B,H,T,2D]`. Return `[B,H,T,2D]`. The coefficient is a finite Python scalar or scalar tensor; preserve its gradient.
 

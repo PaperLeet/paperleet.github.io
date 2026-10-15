@@ -4,6 +4,18 @@
 
 ## 你要实现的核心
 
+### 返回值要求
+
+#### `bounded_decay` — 需要实现
+
+返回一个与 logits 同形状的浮点保留因子 Tensor `[B,T,H,K]`；B 为批大小，T 为序列长度，H 为头数，K 为键通道数。取值在 exp(lower_bound) 与 1 之间，返回因子本身而非其对数。保持 logits 的 dtype/device 及 logits、log_scale 的梯度，不修改输入。
+
+#### `recurrent_kda` — 需要实现
+
+返回浮点 Tensor 元组 `(output, final_state)`，形状为 `[B,T,H,V]` 和 `[B,H,K,V]`。B 为批大小，T 为 token 数，H 为头数，K/V 分别为键/值通道数，可不相等。每个输出读取该 token 更新后的状态；final_state 可用于继续扫描。T=0 时输出为 `[B,0,H,V]`，最终状态等于传入初始状态，初始状态为 None 则返回零状态。保持共同 dtype/device；非空扫描保留 q/k/v/alpha/beta/initial_state 的梯度，不 detach 返回状态或修改输入。
+
+### 公式与约定
+
 - `bounded_decay`：把每个 key 通道的 logit 转成保留系数。
 - `recurrent_kda`：读取已经投影好的 q/k/v 与门值，返回各步输出和最终记忆。
 

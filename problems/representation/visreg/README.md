@@ -4,6 +4,26 @@
 
 ## 实现内容
 
+### 返回值要求
+
+#### `visreg_terms` (需实现)
+
+按顺序返回 `(scale, shape, center)`，恰好三个标量浮点 `Tensor`，形状均为 `()`，dtype/device 与 z 一致。对 z `[N,D]` 和 K 个方向，scale、center 在 D 个特征上平均，shape 在 N*K 个投影分位误差上平均。保留 z 梯度，冻结方向，仅在 shape 分母中冻结标准差；scale 仍保留标准差梯度。不修改输入。
+
+#### `view_invariance` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，保持 views 的 dtype/device：相对于前 G=`num_global` 个视图均值的平方误差，在 views `[V,N,D]` 的全部 V*N*D 个元素上平均。所有视图及全局视图均值都保留梯度，它不是 detach 的 teacher。不修改输入。
+
+#### `_features` (已提供)
+
+已提供校验函数：x 是指定秩的有限、非空 float32/float64 Tensor时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_terms` (已提供)
+
+已提供校验函数：特征 z `[N,D]` 满足 N>=2，匹配的有限 directions `[D,K]` 每列非零，epsilon 为有限正数时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 `visreg_terms(z, directions, eps=1e-4)` 接收 `[N,D]` 特征和固定的非零投影列 `[D,K]`，依次返回三个标量：**scale、shape、center**。
 
 每个特征维度的总体均值、标准差为

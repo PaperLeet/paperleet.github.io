@@ -8,6 +8,30 @@ This module selects the linear conditional path and its CFM objective. Implement
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `sample_t` (provided)
+
+Return times as a Tensor [B], B=batch, with one value strictly inside (0,1) per example. Use the PyTorch default floating dtype (float32 here) and default CPU; this helper has no dtype/device argument. The output is gradient-free, not a scalar or [B,1] tensor.
+
+#### `interpolate` (required)
+
+Return an interpolated sample Tensor [B,...], matching x0/x1 shape and preserving the documented matching floating dtype/device and gradients. B is batch size; trailing axes are arbitrary sample dimensions. Broadcast t [B] per example without changing output shape. t=0 is the noise endpoint and t=1 the data endpoint.
+
+#### `cfm_target` (required)
+
+Return the conditional velocity Tensor with x0/x1 shape [B,...] and dtype/device. Each element is a sample coordinate; do not sum or average. This is a velocity target, not an interpolated sample. The function does not itself stop input gradients.
+
+#### `cfm_loss` (required)
+
+Return a floating scalar Tensor of shape (), using sample/model-output dtype/device. Average squared velocity error over the batch and every non-batch coordinate, not a per-example error vector. Preserve model training gradients; this interface does not additionally detach inputs or targets.
+
+#### `euler_sample` (provided)
+
+With return_traj=False, return t=1 samples as a Tensor matching x0 shape [B,...] and dtype/device. With True, return (samples, trajectory) in that order; trajectory is a Tensor [num_steps+1,B,...], beginning with a copy of x0, followed by updates in integration order and ending at samples. Outputs are gradient-free, x0 is unchanged, and model evaluations use left endpoints t<1.
+
+### Equations and interface notes
+
 In this exercise, x0 is noise and x1 is data. Both have shape `[B,D]`; time t has shape `[B]`, with a separate interpolation weight for each sample:
 
 $$x_t=(1-t)x_0+tx_1,\qquad u=x_1-x_0,\qquad\mathcal L=\operatorname{mean}_{b,d}\left(v_\theta(x_t,t)-u\right)^2.$$

@@ -2,6 +2,14 @@
 
 ## 1. Problem
 
+### Return requirements
+
+#### `apply_rope` — Required
+
+Return one floating Tensor `[B,H,L,D]` matching x: B batch size, H heads, L token count and D even feature width. It contains rotated adjacent feature pairs, not a table of sine/cosine values. Preserve x's dtype/device and gradients into x and floating-point positions, including across position dtype/device conversion. Empty B/L axes retain their shapes; do not mutate either input.
+
+### Formula and conventions
+
 [RoFormer](https://arxiv.org/abs/2104.09864), Sections 3.2 and 3.4.2, introduces rotations of projected query/key features. The [authors' repository](https://github.com/ZhuiyiTechnology/roformer) illustrates adjacent-coordinate pairing. Implement `apply_rope`; an attention layer can call it independently for q and k.
 
 Try [sinusoidal position encoding](../positional_encoding/README.md) first, then compare adding position vectors with rotating projected features.

@@ -1,8 +1,36 @@
 # 26. Progressive Distillation：教师两步压成学生一步
 
+## 1. 题目目标
+
 求出使学生一步 DDIM 精确匹配教师两步的干净数据目标，并训练学生。
 
-## 接口
+## 2. 接口与返回值
+
+### 返回值要求
+
+#### `ddim_step`（需实现）
+
+返回较干净时间 s 的样本 Tensor，与 noisy 同形状 `[B,...]`、浮点 dtype/device；B 为批大小，末尾为样本坐标。只返回更新后的样本，不返回 clean_prediction 或系数。保留可微路径；时间系数 `[B]` 在样本维度广播。
+
+#### `distilled_target`（需实现）
+
+返回使学生一步匹配教师终点的干净预测目标 Tensor，与 noisy 同形状 `[B,...]`、浮点 dtype/device。整个结果必须 detach，不向 noisy、teacher_endpoint 或时间系数传播梯度。不是教师终点本身，也不是教师第一次预测。
+
+#### `distillation_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor，dtype/device 与 prediction 一致。先将每个样本的 weight 广播到坐标，再对 batch 与所有坐标的加权平方误差取均值；不除以权重和。保留 prediction 梯度并在函数内部 detach target；weight 不主动 detach。
+
+#### `teacher_pair`（已提供）
+
+返回教师恰好两步 DDIM 后的终点 Tensor，与 noisy 同形状 `[B,...]`、浮点 dtype/device。只返回最终 end 时间的样本，不返回中点或两个预测的元组；输出不带梯度，不修改 noisy。
+
+#### 已提供的局部辅助函数
+
+- `_time`：已提供：返回把 t 从 `[B]` reshape 成 `[B,1,...,1]` 的 Tensor，其阶数与 x 相同；B 为样本数，每个非 batch 轴长度为 1。保留 t（不是 x）的 dtype/device 与梯度，不修改输入；返回值可能与 t 共享存储。
+
+### 公式与接口说明
+
+### 接口
 
 - `ddim_step(noisy: Tensor, clean_prediction: Tensor, alpha_t: Tensor, sigma_t: Tensor, alpha_s: Tensor, sigma_s: Tensor) -> Tensor`
 - `distilled_target(noisy: Tensor, teacher_endpoint: Tensor, alpha_t: Tensor, sigma_t: Tensor, alpha_s: Tensor, sigma_s: Tensor) -> Tensor`

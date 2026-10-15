@@ -2,6 +2,28 @@
 
 实现 [LeJEPA 第 4.2.3、5.1 节](https://arxiv.org/html/2511.08544v1) 的 SIGReg：把特征投影到单位方向，比较各切片的经验特征函数与标准高斯目标，再对切片统计量取平均。这使约束超出一阶和二阶矩。
 
+## 实现要求
+
+### 返回值要求
+
+#### `epps_pulley` (需实现)
+
+返回一个浮点 `Tensor` `[M]`，对应 `projected[N,M]` 的 M 个投影，每项是包含 N 倍系数的 Epps-Pulley 统计量。积分归约频率节点轴，此处不平均 M 个切片。保持 dtype/device 与投影样本梯度，冻结节点 t，不修改输入。
+
+#### `sigreg_loss` (需实现)
+
+返回一个标量浮点 `Tensor`，形状 `()`，为特征 `[N,D]` 沿方向 `[D,M]` 得到的 M 个切片统计量的平均值。保持特征 dtype/device 和梯度；方向与频率节点 t 都是冻结常量。不要额外除以 N、detach 特征或修改输入。
+
+#### `_check_projected` (已提供)
+
+已提供校验函数：projected `[N,M]` 是有限、非空的 float32/float64 Tensor，匹配的节点 t `[K]`（K>=2）从零开始并严格递增时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+#### `_check_features` (已提供)
+
+已提供校验函数：features `[N,D]` 与节点通过校验，有限且匹配的 directions `[D,M]` 每列为单位长度时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 对投影 $P=XA\in\mathbb R^{N\times M}$ 与频率 $t_k\ge0$，
 
 $$

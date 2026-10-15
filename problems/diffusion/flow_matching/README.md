@@ -8,6 +8,30 @@ Flow Matching 学习一个随时间变化的速度场，用常微分方程把噪
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `sample_t`（已提供）
+
+返回时间 Tensor `[B]`，B=`batch`，每个元素严格位于 `(0,1)`，一个样本对应一个时间。使用 PyTorch 默认浮点 dtype（本题 float32）及默认 CPU；没有 dtype/device 输入参数。输出不带梯度；不是标量或 `[B,1]`。
+
+#### `interpolate`（需实现）
+
+返回插值样本 Tensor `[B,...]`，形状与 x0/x1 相同，保留本题匹配浮点输入的 dtype/device 和梯度。B 为批大小，末尾为任意样本维度；t 的 `[B]` 只逐样本广播，不改变输出形状。t=0 返回噪声端，t=1 返回数据端。
+
+#### `cfm_target`（需实现）
+
+返回条件速度 Tensor，与 x0/x1 同形状 `[B,...]`、dtype/device；每个元素对应一个样本坐标，不求和、不取均值。它是速度目标，不是插值样本。函数本身不停止输入的梯度。
+
+#### `cfm_loss`（需实现）
+
+返回形状 `()` 的浮点 Tensor 标量，使用样本/模型输出的 dtype/device。对 batch 及全部非 batch 坐标的速度平方误差取均值，不返回逐样本误差。保留模型训练梯度；本接口没有额外 detach 输入或目标。
+
+#### `euler_sample`（已提供）
+
+`return_traj=False` 时返回 t=1 的样本 Tensor，与 x0 同形状 `[B,...]`、dtype/device。为 True 时按顺序返回 `(samples, trajectory)`，trajectory 为 `[num_steps+1,B,...]` Tensor，首项是 x0 副本，后续项按积分顺序记录更新，末项等于 samples。输出均不带梯度，不修改 x0；模型只在 t<1 的左端点求值。
+
+### 公式与接口说明
+
 本题固定 x0 是噪声，x1 是数据。二者均为 `[B,D]`，时间 t 为 `[B]`，每个样本拥有自己的插值比例：
 
 $$x_t=(1-t)x_0+tx_1,\qquad u=x_1-x_0,\qquad\mathcal L=\operatorname{mean}_{b,d}\left(v_\theta(x_t,t)-u\right)^2.$$

@@ -6,6 +6,18 @@ TIGER 把物品内容编码成语义 ID，再用序列模型生成 ID 来召回�
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `residual_quantize` (需实现)
+
+返回由两个 Tensor 组成的 Python tuple `(codes, reconstruction)`。`codes` 为 int64 `[B,L]`（B 个物品、L 层量化）；`reconstruction` 为已 detach 的浮点 `[B,D]`，是各层选中向量之和，保持 latent dtype/device。codes 使用同一 device，距离精确并列时选择最小索引。B=0 时保留两项空形状。两个输出都不要求梯度，不修改输入。
+
+#### `resolve_collisions` (需实现)
+
+返回一个 int64 `Tensor` `[B,L+1]`，device 与 codes 一致；保留原来的 L 列 code，末列追加相同完整行所在组内从零开始的出现次数。保持行顺序，单例后缀也是零；B=0 返回 `[0,L+1]`。无梯度、不修改输入。
+
+### 公式与约定
+
 令 $r_0=z$。第 $d$ 级使用自己的码本 $C_d$：
 
 $$c_d=\arg\min_j\|r_d-C_d[j]\|_2^2,\quad r_{d+1}=r_d-C_d[c_d],\quad \hat z=\sum_d C_d[c_d].$$

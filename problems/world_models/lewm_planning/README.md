@@ -2,6 +2,24 @@
 
 [LeWorldModel §3.2 与附录 B](https://arxiv.org/html/2603.19312v2) 用冻结的世界模型预测不同动作序列的结果。交叉熵方法（CEM）反复采样计划，选择低代价候选，再根据这些精英样本重估高斯采样分布。
 
+## 实现要求
+
+### 返回值要求
+
+#### `terminal_cost` (需实现)
+
+返回一个浮点 `Tensor` `[N]`，为 rollout `[N,H,D]` 中的每个候选给出一个代价；H 为预测时域，D 为潜在维度。仅对末状态的 D 个平方误差求和，不归约时域或候选，不除以 D。保持 rollout dtype/device 和输入值。本采样规划题不规定梯度或 detach 行为。
+
+#### `cem_refit` (需实现)
+
+按顺序返回 `(mean, variance, elite_indices)`，恰好三个 Tensor。对 candidates `[N,H,A]` 与 K=`num_elites`，mean、总体方差 variance 均为浮点 `[H,A]`，保持候选 dtype/device；elite_indices 是同 device 的 int64 `[K]`，按代价升序、并列时原索引升序排列。只归约 K 个 elite；返回方差（K=1 时为零）而非标准差。不修改输入，本题不规定梯度或 detach 行为。
+
+#### `_float_tensor` (已提供)
+
+已提供校验函数：x 是秩为 ndim 的有限、非空 float32/float64 Tensor时返回 Python `None`；被校验条件不满足时抛出 `ValueError`。不修改输入，也不返回变换后的 Tensor。
+
+### 公式与约定
+
 实现决定候选优劣与下一轮分布的两个内核：
 
 | 函数 | 输入 | 输出 |

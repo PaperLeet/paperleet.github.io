@@ -8,6 +8,26 @@
 
 ## 2. 核心公式与题面
 
+### 返回值要求
+
+按下列结构返回，保留形状中的单例维度。标量 Tensor 的形状为 `()`，不是 Python `float`。
+
+#### `clipped_surrogate` · 需要实现
+
+返回一个浮点标量 Tensor `loss`，形状为 `()`：对 `[B]` 输入的截断策略目标取 **batch 平均后加负号**，保留输入浮点 dtype/device。梯度只经过 `new_logp`，`old_logp` 与 `advantages` 固定；直接返回 Tensor，不调用 `.item()` 或 `.detach()`。
+
+#### `ppo_loss` · 已提供
+
+返回 `dict[str, Tensor]`，包含以下六个键，每个值的形状均为标量 `()`：
+
+- `loss`：需要最小化的总损失，`pg_loss + vf_coef * v_loss - ent_coef * entropy`。
+- `pg_loss`：截断策略损失；`v_loss`：均方 value 误差的一半（可启用 value clipping）；`entropy`：batch 平均熵，未提供时为零。
+- `approx_kl`：detach 的平均 k3 KL 估计；`clipfrac`：detach 的 `abs(ratio - 1) > clip_eps` 比例。
+
+损失项保留当前策略/value 的梯度；旧策略、旧 value、advantage 和 return 目标固定。通过 `result["loss"]` 读取总损失。
+
+### 公式与约定
+
 只需实现 `clipped_surrogate(new_logp, old_logp, advantages, clip_eps=0.2)`。三个输入都是 `[B]`，返回用于最小化的策略损失标量。`advantages` 已经准备好，函数内部冻结它与 `old_logp`，保留 `new_logp` 的梯度。
 
 $$

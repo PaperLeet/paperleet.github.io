@@ -2,6 +2,18 @@
 
 ## 1. 问题
 
+### 返回值要求
+
+#### `rms_norm` — 需要实现
+
+返回一个浮点 Tensor，完整形状为 x 的 `[...,D]`；D 为特征宽度，保留全部前导批/token 轴。返回经缩放的归一化特征，不返回 RMS 统计量。保持 x 的 dtype/device 和 x、weight 的梯度，不修改输入。
+
+#### `partial_rms_norm` — 需要实现
+
+返回一个浮点 Tensor `[...,D]`；尽管只有前 k 个特征用于计算归一化尺度，仍返回全部 D 个特征并保留所有前导维度，D 为特征宽度。保持 dtype/device 及 x、weight 的梯度，包括所有输出对前缀统计量的依赖。不要 detach 统计量或修改输入。
+
+### 公式与约定
+
 实现 `rms_norm` 和 `partial_rms_norm`，理解归一化时保留均值会改变什么，以及只用部分特征估计尺度会带来什么影响。每个 token 独立处理，不需要构建 Transformer。
 
 依据是 [RMSNorm 原论文](https://arxiv.org/abs/1910.07467) 的式 (4) 和第 5 节；作者为 Biao Zhang、Rico Sennrich，发表于 NeurIPS 2019。

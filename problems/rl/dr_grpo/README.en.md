@@ -8,6 +8,40 @@ Module goal: Remove group standard-deviation scaling and use a fixed length deno
 
 ## 2. Core equations and task
 
+### Return requirements
+
+Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape `()`, not a Python `float`.
+
+#### `drgrpo_advantages` · Required
+
+Return one floating Tensor `advantages`, shape `[B * G]` (`B` prompts, `G` adjacent responses each), preserving reward order, dtype and device. Values are group-centered rewards without std scaling; do not reduce or retain a separate group axis.
+
+#### `drgrpo_loss` · Required
+
+Return `(loss, stats)`. `loss` is a scalar Tensor, shape `()`, equal to the negative masked objective sum divided by `N * max_len` for `[N, L]` token inputs. `max_len` is the external fixed generation limit. Retain gradients to `logp`; freeze old/reference scores and advantages. The dictionary has exactly the documented fields `kl_mean`, `clipfrac`, `ratio_mean`: floating scalar Tensors of shape `()`, detached, averaged over all valid tokens. `clipfrac` counts `abs(ratio - 1) > clip_eps`. With no valid tokens, all three are zero.
+
+#### `token_objective` · Provided
+
+Returns `(objective, ratio, kl)`, a tuple of three floating Tensors, all `[N, L]` (responses × tokens). `objective` is the clipped advantage objective **already minus `beta * kl`**, with no mask or reduction applied. `ratio` is the importance ratio and `kl` the k3 estimate. All three retain `logp` gradient paths; old/reference scores and advantages are frozen. Apply padding isolation before calling it and aggregate the objective in `drgrpo_loss`.
+
+#### `masked_logprobs` · Provided
+
+Returns `(masked_logp, masked_old_logp, masked_ref_logp)` in the same order as the three score inputs. Each Tensor keeps its input's `[N, L]` shape, dtype and device, with zero at masked positions and unchanged scores elsewhere. This helper preserves active-position gradient paths; the loss caller freezes old/reference scores separately.
+
+#### `token_statistics` · Provided
+
+Returns a `dict[str, Tensor]` for `[N, L]` token arrays. The dictionary has exactly the documented fields `kl_mean`, `clipfrac`, `ratio_mean`: floating scalar Tensors of shape `()`, detached, averaged over all valid tokens. `clipfrac` counts `abs(ratio - 1) > clip_eps`. With no valid tokens, all three are zero.
+
+#### `grpo_reference_loss` · Provided reference alias
+
+The supplied GRPO baseline returns `(loss, stats)`: `loss` is a scalar Tensor `()`, averaging valid tokens within each response and then all responses. The dictionary contains detached scalar `kl_mean`, `clipfrac` and `ratio_mean`, each averaged over valid tokens. Its policy gradient remains live, with old/reference scores and advantages frozen. This baseline uses GRPO's response normalization, not the fixed `N * max_len` denominator you implement.
+
+#### `grpo_reference_advantages` · Provided reference alias
+
+The supplied GRPO baseline returns one floating Tensor `[B * G]`, preserving reward order, dtype and device. By default it subtracts the group mean and divides by sample standard deviation plus `eps`; your required `drgrpo_advantages` instead omits this scaling.
+
+### Formula and conventions
+
 Using the supplied GRPO token objective, implement `drgrpo_advantages` and `drgrpo_loss`. Rewards `[B*G]` remain contiguous by group. All three log-probability tensors and the mask have shape `[N,L]`; advantages have shape `[N]`, with $N=BG$. Group size must be at least two and divide the reward count.
 
 $$

@@ -6,6 +6,18 @@
 
 ## 精选核心
 
+### 返回值要求
+
+#### `lora_delta` — 需要实现
+
+从 a `[r,in_features]`、b `[out_features,r]` 返回一个浮点 Tensor `[out_features,in_features]`，表示经缩放的低秩权重增量。保持共同 dtype/device 及两个 adapter 的梯度。仅返回增量矩阵，不合并进或修改基座权重。
+
+#### `lora_linear` — 需要实现
+
+对 x `[...,in_features]` 返回一个浮点 Tensor `[...,out_features]`，保留所有前导批/token 维度。其值包含基座线性输出和 adapter 贡献，可选 bias 仅加入一次。保持 x 的 dtype/device 及 x、a、b 的梯度；weight 和可选 bias 即使需要梯度也应冻结。不修改输入，也不返回更新后的参数。
+
+### 公式与约定
+
 实现线性层的两个函数；初始化与 rank-2 回归训练循环已提供。
 
 $$

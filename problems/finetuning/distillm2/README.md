@@ -4,6 +4,34 @@
 
 ## 函数
 
+### 返回值要求
+
+#### `skew_kl` — 需要实现
+
+对 `[...,V]` logits 返回一个形状为 `[...]` 的浮点 Tensor；V 为词表大小，保留全部前导位置/批轴。每项为对应位置在词表维度求和后的 skew forward KL，不对位置取平均。保持 logits 的 dtype/device 和学生梯度，冻结教师 logits；alpha=1 返回零且保留可求得的零学生梯度，不修改输入。
+
+#### `skew_reverse_kl` — 需要实现
+
+对 `[...,V]` logits 返回一个浮点 Tensor `[...]`；V 为词表大小，前导位置/批轴不变。每项为在词表维度求和后的 skew reverse KL，不归约位置或批维度。保持 dtype/device 和学生梯度，冻结教师 logits，不修改输入；alpha=1 返回零并保留可求得的零学生梯度。
+
+#### `distillm2_loss` — 需要实现
+
+返回一个零维浮点 Tensor（`shape == ()`），不是 Python 数字。分别累加两种来源中掩码允许的 token 散度，教师回答来源乘 1-beta、学生回答来源乘 beta，再除以 2B；B 为共同批大小，不除以 token 数。空/全遮挡来源贡献零。保持共同浮点 dtype/device，仅保留两条学生分支的梯度；教师分支冻结，遮挡位置梯度为零，不修改输入。
+
+#### `_coefficient` — 已提供 helper
+
+检查 Python 系数有限且位于 [0,1] 后返回 None。校验失败抛出 ValueError，不返回归一化后的系数或 Tensor。
+
+#### `_log_pair` — 已提供 helper
+
+返回浮点 Tensor 的 Python 元组 `(teacher_log_probs, student_log_probs)`，各项保持对应 logits 的 `[...,V]` 形状/dtype/device，V 为词表大小。返回对数概率，不归约词表维度；教师值 detach，学生值保留 autograd。校验 alpha 和相等的非空词表布局，不修改输入。
+
+#### `_log_mix` — 已提供 helper
+
+返回一个与输入对数概率同形状 `[...,V]` 的浮点 Tensor，表示概率混合后的对数；log_a 对应权重 alpha，log_b 对应权重 1-alpha。保持 dtype/device 和已有梯度路径，此 helper 不单独 detach 任一输入。alpha=0 返回 log_b；alpha=1 返回 log_a，同时保留对 log_b 的零梯度路径，不修改输入。
+
+### 公式与约定
+
 记教师分布 `p=softmax(teacher_logits)`、学生分布 `q=softmax(student_logits)`：
 
 $$\mathrm{SKL}_\alpha(p,q)=\sum_v p_v\log\frac{p_v}{\alpha p_v+(1-\alpha)q_v},$$

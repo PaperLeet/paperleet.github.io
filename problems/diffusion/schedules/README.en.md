@@ -8,6 +8,26 @@ This module selects the closed-form marginal in Equation (4). Implement only `q_
 
 ## 2. Core equations
 
+### Return requirements
+
+#### `linear_betas` (provided)
+
+Return a torch.float64 Tensor of shape [T] (CPU by default here), containing one noise variance beta per level. Indices 0..T-1 correspond to paper times 1..T. For T>=2, include both beta_start and beta_end; for T=1, the only value is beta_start. This is not cumulative alpha or a Python list. The output is gradient-free.
+
+#### `cosine_betas` (provided)
+
+Return a torch.float64 Tensor of shape [T] (CPU by default here), containing per-step betas from the discretized cosine schedule, bounded above by max_beta. Return T entries, not T+1 or cumulative alpha. The output is gradient-free.
+
+#### `make_schedule` (provided)
+
+Return a dict[str, Tensor] with exactly these six keys: alphas, alpha_bars, alpha_bars_prev, sqrt_alpha_bars, sqrt_one_minus_alpha_bars, log_snr. Every value has shape [T], torch.float64 dtype and betas device, where T=len(betas); alpha_bars_prev starts at 1. There is no betas key and no tuple return. Keep differentiable computation and leave betas unchanged.
+
+#### `q_sample` (required)
+
+Return the noisy Tensor at each sample time, matching x0 shape [B,...] and dtype/device; B is batch size and trailing axes are arbitrary sample dimensions. Selected alpha_bars coefficients must use x0 dtype/device, rather than promoting float32 samples to float64. Return only samples, preserve differentiable paths, and leave inputs unchanged.
+
+### Equations and interface notes
+
 The one-step noise variance is $\beta_t$, the retained signal fraction is $\alpha_t=1-\beta_t$, and the cumulative signal is $\bar\alpha_t=\prod_{s=1}^t\alpha_s$. Independent noise from successive steps combines into a single variance:
 
 $$q(x_t\mid x_0)=\mathcal N(\sqrt{\bar\alpha_t}x_0,(1-\bar\alpha_t)I),\qquad x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon.$$

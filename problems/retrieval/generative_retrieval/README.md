@@ -6,6 +6,18 @@
 
 ## 2. 核心公式
 
+### 返回值要求
+
+#### `beam_search` (需实现)
+
+返回 Python `list[tuple[tuple[int, ...], float]]`；每项为 `(tokens, cumulative_log_score)`，tokens 含恰好 `length` 个 Python int，分数为 Python float，不是 Tensor。最多保留 `beam_width` 项，先按分数降序，精确并列时按 token tuple 字典序排列。`length=0` 返回 `[((), 0.0)]`。这是无梯度的冻结解码，不修改 callback 的 logits。
+
+#### `lookup_candidates` (需实现)
+
+返回 Python `list[tuple[int, float]]`，每项为 `(catalog_row_index, original_log_score)`；删除不在目录中的完整 ID 和重复物品后，保留 beam 顺序。整数索引对应目录 `[N,L]` 的行，不是 token。最多返回 k 项；k=0、输入/目录为空或无有效 ID 时返回 `[]`。保留 Python float 原始分数，不重新归一化、不反传、不修改输入。
+
+### 公式与约定
+
 $$s(c_{1:L})=\sum_{d=1}^{L}\log\operatorname{softmax}(f(c_{<d}))_{c_d}.$$
 
 每一步扩展所有保留前缀的全部 V 个 token，按累计分数从所有候选中保留前 b 个。完成 L 步后，过滤不属于目录的完整 ID，去掉重复物品，再取 k 个。分数不重新归一化。

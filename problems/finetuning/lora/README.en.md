@@ -6,6 +6,18 @@ Paper: [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/ab
 
 ## Selected core
 
+### Return requirements
+
+#### `lora_delta` — Required
+
+Return one floating Tensor `[out_features,in_features]`, the scaled low-rank weight update, from a `[r,in_features]` and b `[out_features,r]`. Preserve their shared dtype/device and gradients to both adapters. Return the update matrix only, without merging it into or modifying a base weight.
+
+#### `lora_linear` — Required
+
+Return one floating Tensor `[...,out_features]` from x `[...,in_features]`, preserving every leading batch/token dimension. It contains the base linear output plus adapter contribution, with optional bias included once. Preserve x's dtype/device and gradients to x, a and b; weight and optional bias are frozen even if they require gradients. Do not mutate any input or return updated parameters.
+
+### Formula and conventions
+
 Two functions for a linear layer; initialization and a rank-two regression training loop are provided.
 
 $$
