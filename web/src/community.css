@@ -165,7 +165,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: var(--green);
+  color: var(--text-secondary);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -335,7 +335,7 @@
   color: var(--accent);
 }
 .recognized-institution {
-  color: var(--green);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -362,22 +362,6 @@
 .avatar-upload-help { margin: 9px 0 6px; }
 .settings-avatar .profile-edit-hint { margin: 0 0 13px; }
 .public-affiliation-setting p { margin: 9px 0 0; }
-.avatar-palette {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-}
-.avatar-palette button {
-  width: 23px;
-  height: 23px;
-  border-radius: 50%;
-  color: white;
-  padding: 0;
-}
-.avatar-palette button[aria-pressed="true"] {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
 .settings-section {
   border-top: 1px solid var(--line);
   margin-top: 7px;
@@ -1050,9 +1034,6 @@
   gap: 6px;
   color: var(--text-secondary);
   font-size: 13px;
-}
-.profile-facts > .institution-badge {
-  color: var(--green);
 }
 .profile-bio {
   font-size: 16px;

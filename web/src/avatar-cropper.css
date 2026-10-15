@@ -1,0 +1,42 @@
+.avatar-cropper-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 58%);
+}
+.avatar-cropper {
+  box-sizing: border-box;
+  width: min(100%, 420px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 24%);
+}
+.avatar-cropper:focus { outline: none; }
+.avatar-cropper header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.avatar-cropper h2 { margin: 0; font-size: 20px; line-height: 1.35; }
+.avatar-cropper-close { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border: 0; border-radius: 7px; color: var(--text-secondary); background: transparent; cursor: pointer; }
+.avatar-cropper-close:hover { background: var(--surface2); color: var(--text); }
+.avatar-cropper-frame { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: 4px; background: var(--surface2); cursor: grab; touch-action: none; user-select: none; }
+.avatar-cropper-frame:active { cursor: grabbing; }
+.avatar-cropper-frame:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.avatar-cropper-frame canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
+.avatar-cropper-grid { position: absolute; inset: 0; pointer-events: none; border: 1px solid rgb(255 255 255 / 80%); background-image: linear-gradient(to right, transparent calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 + 0.5px), transparent calc(100% / 3 + 0.5px), transparent calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 + 0.5px), transparent calc(200% / 3 + 0.5px)), linear-gradient(to bottom, transparent calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 + 0.5px), transparent calc(100% / 3 + 0.5px), transparent calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 + 0.5px), transparent calc(200% / 3 + 0.5px)); }
+.avatar-cropper-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-secondary); font-size: 14px; }
+.avatar-cropper > p { margin: 12px 0 18px; text-align: center; color: var(--text-secondary); font-size: 13px; }
+.avatar-cropper-zoom { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.avatar-cropper-zoom input { min-width: 0; flex: 1; height: 24px; accent-color: var(--accent); cursor: pointer; }
+.avatar-cropper-zoom output { min-width: 40px; text-align: right; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.avatar-cropper footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+@media (max-width: 480px) {
+  .avatar-cropper-backdrop { padding: 14px; }
+  .avatar-cropper { padding: 18px; max-height: calc(100dvh - 28px); }
+  .avatar-cropper h2 { font-size: 19px; }
+}

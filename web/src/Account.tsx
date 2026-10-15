@@ -26,19 +26,10 @@ import type { AccountUser } from "./social";
 import type { AccountCapabilities } from "./social";
 import { organizationLoginError } from "./accountNavigation";
 import { decodeProblemHash } from "./reports";
-import { AvatarImageError, prepareProfileAvatar } from "./profileAvatar";
+import { AvatarImageError } from "./profileAvatar";
+import AvatarCropper from "./AvatarCropper";
 import { readProfileEditPolicy } from "./profileEditPolicy";
 
-const COLORS = [
-  "#4f7c73",
-  "#8665a1",
-  "#5b78a6",
-  "#ac7545",
-  "#a45e78",
-  "#627a43",
-  "#747789",
-  "#9b6853",
-];
 export default function Account({ returnTo }: { returnTo?: string }) {
   const { user, loading, capabilities, error, refresh } = useAccount();
   const { t } = useI18n();
@@ -628,7 +619,6 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
   const { setUser, health } = useAccount();
   const [name, setName] = useState(user.display_name),
     [username, setUsername] = useState(user.username),
-    [color, setColor] = useState(user.avatar_color),
     [bio, setBio] = useState(user.bio || "");
   const [country, setCountry] = useState(user.country || ""),
     [showCountry, setShowCountry] = useState(user.show_country),
@@ -637,7 +627,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
     [error, setError] = useState("");
   const [policy, setPolicy] = useState(() => readProfileEditPolicy(user.profile_edit_policy));
   const [avatarImage, setAvatarImage] = useState<string | null>();
-  const [preparingAvatar, setPreparingAvatar] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<{ file: File; epoch: number }>();
   const active = useRef(true);
   const imageEpoch = useRef(0);
   useEffect(() => {
@@ -645,7 +635,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
     return () => { active.current = false; imageEpoch.current += 1; };
   }, []);
   const avatarSupported = !!policy;
-  const changing = busy || preparingAvatar;
+  const changing = busy || !!avatarFile;
   const dateLabel = (date: string) => new Date(date).toLocaleString(locale === "en" ? "en-US" : "zh-CN", { timeZoneName: "short" });
   function changeHint(field: "display_name" | "username") {
     const days = field === "display_name" ? 7 : 30;
@@ -655,23 +645,24 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       ? t(`每 ${days} 天可修改一次。下次可修改：${dateLabel(next)}`, `Change once every ${days} days. Next change: ${dateLabel(next)}`)
       : t(`每 ${days} 天可修改一次，目前可以修改。`, `Change once every ${days} days. A change is available now.`);
   }
-  async function selectAvatar(file: File) {
+  function selectAvatar(file: File) {
     if (!avatarSupported || busy) return;
-    const epoch = ++imageEpoch.current;
-    setPreparingAvatar(true);
     setError("");
-    try {
-      const image = await prepareProfileAvatar(file);
-      if (active.current && epoch === imageEpoch.current) setAvatarImage(image);
-    } catch (e) {
-      if (!active.current || epoch !== imageEpoch.current) return;
-      const code = e instanceof AvatarImageError ? e.code : "decode";
-      setError(code === "type" ? t("请选择 JPEG、PNG 或 WebP 图片。", "Choose a JPEG, PNG, or WebP image.")
-        : code === "size" ? t("头像原图须大于 0 字节且不超过 5 MiB。", "The original avatar image must be nonempty and no larger than 5 MiB.")
-        : t("无法读取这张图片，请换一张 JPEG、PNG 或 WebP 图片。", "This image could not be read. Try another JPEG, PNG, or WebP file."));
-    } finally {
-      if (active.current && epoch === imageEpoch.current) setPreparingAvatar(false);
-    }
+    setAvatarFile({ file, epoch: ++imageEpoch.current });
+  }
+  function finishAvatarCrop(epoch: number, image?: string) {
+    if (!active.current || epoch !== imageEpoch.current) return;
+    imageEpoch.current += 1;
+    setAvatarFile(undefined);
+    if (image !== undefined) setAvatarImage(image);
+  }
+  function rejectAvatarCrop(epoch: number, error: unknown) {
+    if (!active.current || epoch !== imageEpoch.current) return;
+    finishAvatarCrop(epoch);
+    const code = error instanceof AvatarImageError ? error.code : "decode";
+    setError(code === "type" ? t("请选择 JPEG、PNG 或 WebP 图片。", "Choose a JPEG, PNG, or WebP image.")
+      : code === "size" ? t("头像原图须大于 0 字节且不超过 5 MiB。", "The original avatar image must be nonempty and no larger than 5 MiB.")
+      : t("无法读取这张图片，请换一张 JPEG、PNG 或 WebP 图片。", "This image could not be read. Try another JPEG, PNG, or WebP file."));
   }
   async function save() {
     if (changing) return;
@@ -681,7 +672,6 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       const data = await socialApi<{ user: AccountUser }>("account/profile", {
         display_name: name.trim(),
         username: username.trim(),
-        avatar_color: color,
         ...(avatarSupported && avatarImage !== undefined ? { avatar_image: avatarImage } : {}),
         bio,
         country: country.trim().toUpperCase(),
@@ -737,43 +727,28 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
         >
           {error && <SocialNotice error={error} />}
           <div className="settings-avatar">
-            <ProfileAvatarPreview user={{ ...user, display_name: name, avatar_color: color }} image={avatarImage} size={64} />
+            <ProfileAvatarPreview user={{ ...user, display_name: name }} image={avatarImage} size={64} />
             <div>
               <h3>{t("公开头像", "Public avatar")}</h3>
               <div className="avatar-upload-actions">
                 <label className={`button subtle avatar-file-button ${!avatarSupported || changing ? "disabled" : ""}`}>
-                  {preparingAvatar ? t("正在处理图片…", "Preparing image…") : t("选择图片", "Choose image")}
+                  {t("选择图片", "Choose image")}
                   <input type="file" accept="image/jpeg,image/png,image/webp" aria-label={t("选择头像图片", "Choose avatar image")}
                     disabled={!avatarSupported || changing} onChange={(event) => {
                       const file = event.currentTarget.files?.[0];
                       event.currentTarget.value = "";
-                      if (file) void selectAvatar(file);
+                      if (file) selectAvatar(file);
                     }} />
                 </label>
                 {(typeof avatarImage === "string" || (avatarImage === undefined && user.avatar_url)) && <button type="button" className="button subtle" disabled={!avatarSupported || changing}
                   onClick={() => { imageEpoch.current += 1; setAvatarImage(null); }}>{t("移除图片", "Remove image")}</button>}
-                {(avatarImage !== undefined || color !== user.avatar_color) && <button type="button" className="button subtle" disabled={changing}
-                  onClick={() => { imageEpoch.current += 1; setAvatarImage(undefined); setColor(user.avatar_color); }}>{t("撤销头像更改", "Discard avatar change")}</button>}
+                {(avatarImage !== undefined) && <button type="button" className="button subtle" disabled={changing}
+                  onClick={() => { imageEpoch.current += 1; setAvatarImage(undefined); }}>{t("撤销头像更改", "Discard avatar change")}</button>}
               </div>
               <p className="avatar-upload-help">{avatarSupported
-                ? t("JPEG / PNG / WebP，原图不超过 5 MiB。居中裁为方形；点击保存设置后才上传。", "JPEG / PNG / WebP, up to 5 MiB. Center-cropped to a square; uploaded only when you save changes.")
+                ? t("JPEG / PNG / WebP，原图不超过 5 MiB。选图后裁剪为正方形，保存设置后上传。", "JPEG / PNG / WebP, up to 5 MiB. Crop to a square, then save changes to upload.")
                 : t("头像上传需等待服务更新；其他现有资料仍可保存。", "Avatar uploads are waiting for a service update. You can still save existing profile fields.")}</p>
-              {policy && <p className="profile-edit-hint">{t(`头像每天最多修改 ${policy.avatar.daily_limit} 次，今天剩余 ${policy.avatar.remaining} 次，UTC 00:00 重置。图片和颜色在同次保存中合计一次。`, `Avatar changes: up to ${policy.avatar.daily_limit} per day, ${policy.avatar.remaining} remaining today. Resets at 00:00 UTC. An image and color saved together count as one change.`)}</p>}
-              <div className="avatar-palette">
-                {COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-label={`${t("头像颜色", "Avatar color")} ${c}`}
-                    aria-pressed={color === c}
-                    style={{ backgroundColor: c }}
-                    disabled={changing}
-                    onClick={() => setColor(c)}
-                  >
-                    {color === c && <Check size={14} />}
-                  </button>
-                ))}
-              </div>
+              {policy && <p className="profile-edit-hint">{t(`头像每天最多修改 ${policy.avatar.daily_limit} 次，今天剩余 ${policy.avatar.remaining} 次，UTC 00:00 重置。`, `Avatar changes: up to ${policy.avatar.daily_limit} per day, ${policy.avatar.remaining} remaining today. Resets at 00:00 UTC.`)}</p>}
             </div>
           </div>
           <label>
@@ -932,7 +907,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           <section className="social-panel">
             <h3>{t("公开预览", "Public preview")}</h3>
             <div className="profile-preview">
-              <ProfileAvatarPreview user={{ ...user, display_name: name, avatar_color: color }} image={avatarImage} size={46} />
+              <ProfileAvatarPreview user={{ ...user, display_name: name }} image={avatarImage} size={46} />
               <b>{name || t("你的昵称", "Your display name")}</b>
               <span>@{username}</span>
               <TestAccountBadge isTestUser={user.is_test_user} />
@@ -945,6 +920,10 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           </section>
         </aside>
       </div>
+      {avatarFile && <AvatarCropper key={avatarFile.epoch} file={avatarFile.file}
+        onConfirm={image => finishAvatarCrop(avatarFile.epoch, image)}
+        onCancel={() => finishAvatarCrop(avatarFile.epoch)}
+        onError={error => rejectAvatarCrop(avatarFile.epoch, error)} />}
     </>
   );
 }

@@ -50,15 +50,35 @@ function findNode(node, matches) {
 }
 
 const server = await createServer({
+  // Crop rendering/math have their own browser-like test. Here, control the
+  // boundary to verify the real settings form never uploads an unfinished crop.
+  plugins: [{
+    name: 'profile-save-cropper-boundary', enforce: 'pre',
+    resolveId(source) {
+      if (source === './AvatarCropper' || source === '/src/AvatarCropper.tsx') return '\0profile-save-cropper';
+    },
+    load(id) {
+      if (id !== '\0profile-save-cropper') return;
+      return `import React from 'react';
+        let current;
+        export const cropperProps = () => current;
+        export default function AvatarCropper(props) {
+          current = props;
+          return React.createElement('div', { role: 'dialog', 'data-avatar-cropper': 'true' }, 'Crop fixture');
+        }`;
+    },
+  }],
   server: { middlewareMode: true }, appType: 'custom', optimizeDeps: { noDiscovery: true, entries: [] },
   define: { 'import.meta.env.VITE_PUBLIC_SITE': '"0"', 'import.meta.env.VITE_APP_EDITION': '"hosted"', 'import.meta.env.VITE_API_ORIGIN': '""' },
 });
-const names = ['window', 'document', 'location', 'localStorage', 'fetch', 'createImageBitmap', 'IS_REACT_ACT_ENVIRONMENT'];
+const names = ['window', 'document', 'location', 'localStorage', 'fetch', 'IS_REACT_ACT_ENVIRONMENT'];
 const originals = new Map(names.map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
 let root;
 try {
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const { ProfileSettings } = await server.ssrLoadModule('/src/Account.tsx');
+  const { cropperProps } = await server.ssrLoadModule('/src/AvatarCropper.tsx');
+  const { AvatarImageError } = await server.ssrLoadModule('/src/profileAvatar.ts');
   const { AccountProvider, useAccount } = await server.ssrLoadModule('/src/social.tsx');
   const document = new TestNode(9, '#document', null);
   document.createElement = name => new TestNode(1, name.toUpperCase(), document);
@@ -96,6 +116,10 @@ try {
   assert(form);
   const uploadInput = () => findNode(form, node => node.tagName === 'INPUT' && node.attributes.type === 'file');
   const button = label => findNode(form, node => node.tagName === 'BUTTON' && node.textContent === label);
+  const croppedPreview = image => findNode(form, node => node.tagName === 'IMG' && node.attributes.src === image);
+  const cropDialog = () => findNode(container, node => node.attributes['data-avatar-cropper'] === 'true');
+  assert(!findNode(form, node => (node.tagName === 'INPUT' && node.attributes.type === 'color')
+    || /头像颜色|Avatar color/.test(node.attributes['aria-label'] || '')), 'Avatar uploads replace the editable color picker');
   assert('disabled' in uploadInput().attributes, 'Old servers must disable new avatar uploads');
   assert('disabled' in button('移除图片').attributes, 'Old servers must not pretend to support avatar deletion');
   assert.match(container.textContent, /头像上传需等待服务更新/);
@@ -120,6 +144,7 @@ try {
   assert.equal(requests.length, 1);
   assert.equal(requests[0].expected_user_id, user.id, 'Profile saves must name the expected authenticated account');
   assert(!('avatar_image' in requests[0]), 'Unchanged or unsupported avatars must not be submitted');
+  assert(!('avatar_color' in requests[0]), 'Saving a profile must not overwrite its existing fallback color');
   assert.equal(requests[0].show_institution, true, 'Old servers must also restore public institution visibility when settings are saved');
   assert.equal(location.hash, '#/account', 'Do not leave settings while the save is pending');
   assert('disabled' in saveButton().attributes);
@@ -144,12 +169,6 @@ try {
   const supported = { ...savedUser, profile_edit_policy: policy,
     affiliation: { kind: 'email_domain', domain: 'example.test', name: 'example.test' } };
   const preparedImage = 'data:image/jpeg;base64,cHJlcGFyZWQ=';
-  globalThis.createImageBitmap = async () => ({ width: 800, height: 400, close() {} });
-  const createElement = document.createElement;
-  document.createElement = name => {
-    if (name === 'canvas') return { getContext: () => ({ fillRect() {}, drawImage() {} }), toDataURL: () => preparedImage };
-    return createElement(name);
-  };
   async function showSettings(next, key) {
     location.hash = '#/account';
     await act(async () => root.render(React.createElement(LocaleProvider, null, React.createElement(AccountProvider, null,
@@ -161,18 +180,55 @@ try {
       preventDefault() { this.defaultPrevented = true; }, stopPropagation() {} };
     await act(async () => { for (const listener of container.listeners.get(type) || []) listener(event); });
   }
+  async function selectImage() {
+    const selected = uploadInput();
+    const file = { type: 'image/png', size: 300 };
+    selected.files = [file];
+    selected.value = 'fixture.png';
+    await dispatch('change', selected);
+    assert(cropDialog(), 'Selecting an image opens the crop step');
+    assert.equal(cropperProps().file, file, 'The cropper receives the selected original image');
+    assert.equal(selected.value, '', 'The same file can be selected again after closing the cropper');
+    return cropperProps();
+  }
   await showSettings(supported, 'supported');
   assert(!('disabled' in uploadInput().attributes), 'A supported server enables avatar selection');
   assert.match(container.textContent, /每天最多修改 3 次.*剩余 2 次/);
   assert.match(container.textContent, /固定公开，不能隐藏/);
-  const selected = uploadInput();
-  selected.files = [{ type: 'image/png', size: 300 }];
-  selected.value = 'fixture.png';
-  await dispatch('change', selected);
-  assert.equal(requests.length, 2, 'File selection and preview must not upload before Save');
-  assert(findNode(form, node => node.tagName === 'IMG' && node.attributes.src === preparedImage), 'The prepared avatar is previewed before saving');
+  const canceledCrop = await selectImage();
+  assert.equal(requests.length, 2, 'File selection must not upload before Save');
+  assert(!croppedPreview(preparedImage), 'The original profile preview stays unchanged until crop confirmation');
+  assert('disabled' in saveButton().attributes, 'Saving cannot bypass the pending crop step');
+  await submit();
+  assert.equal(requests.length, 2, 'The save handler also refuses submission while the crop step is open');
+  await act(async () => canceledCrop.onCancel());
+  assert(!cropDialog(), 'Cancel closes the crop step');
+  assert(findNode(form, node => node.tagName === 'IMG'), 'Cancel preserves the previous uploaded avatar');
+  assert(!('disabled' in saveButton().attributes), 'Cancel restores the usable profile form');
+  await act(async () => canceledCrop.onConfirm(preparedImage));
+  assert(!croppedPreview(preparedImage), 'A late confirmation from a canceled crop must be ignored');
+
+  const confirmedCrop = await selectImage();
+  await act(async () => confirmedCrop.onConfirm(preparedImage));
+  assert(!cropDialog(), 'Confirm closes the crop step');
+  assert(croppedPreview(preparedImage), 'The confirmed square crop is previewed before saving');
+  assert.equal(requests.length, 2, 'Crop confirmation stages the avatar without uploading it');
+  const replacementCrop = await selectImage();
+  await act(async () => replacementCrop.onCancel());
+  assert(croppedPreview(preparedImage), 'Canceling a replacement keeps the already staged crop');
+  await act(async () => replacementCrop.onConfirm('data:image/jpeg;base64,bGF0ZQ=='));
+  assert(croppedPreview(preparedImage), 'A late replacement cannot overwrite the staged crop');
+
+  const invalidCrop = await selectImage();
+  await act(async () => invalidCrop.onError(new AvatarImageError('decode')));
+  assert(!cropDialog(), 'An unreadable image closes the crop step');
+  assert(croppedPreview(preparedImage), 'An unreadable replacement keeps the staged crop');
+  assert.match(container.textContent, /无法读取这张图片/);
+  await act(async () => invalidCrop.onConfirm('data:image/jpeg;base64,bGF0ZQ=='));
+  assert(croppedPreview(preparedImage), 'An errored crop cannot later replace the staged avatar');
   await submit();
   assert.equal(requests[2].avatar_image, preparedImage);
+  assert(!('avatar_color' in requests[2]), 'An image change must not include an unrelated fallback color change');
   assert.equal(requests[2].expected_user_id, supported.id);
   const limitedPolicy = { ...policy, avatar: { ...policy.avatar, remaining: 0 } };
   await act(async () => completeSave(Response.json({ error: 'Profile limit', code: 'profile_edit_limit', field: 'avatar',
@@ -189,7 +245,7 @@ try {
   await showSettings(supported, 'remove');
   await dispatch('click', button('移除图片'));
   assert.equal(requests.length, 4, 'Removing an image is also staged until Save');
-  assert(!findNode(form, node => node.tagName === 'IMG'), 'Removal previews the original letter/color avatar');
+  assert(!findNode(form, node => node.tagName === 'IMG'), 'Removal previews the original letter avatar');
   await submit();
   assert.equal(requests[4].avatar_image, null, 'Only an explicit removal sends null');
   await act(async () => completeSave(Response.json({ user: { ...supported, avatar_url: null } })));
@@ -203,7 +259,13 @@ try {
   await act(async () => completeSave(Response.json({ user: supported })));
   assert.equal(account.user.id, otherUser.id, 'A late save must not restore an account after the settings owner changes');
   assert.equal(location.hash, '#/account', 'A late old-account response must not navigate the new account away');
-  console.log('PASS profile save: old-server compatibility, private actor identity, staged avatar upload/removal, 429 policy/preview preservation and successful profile navigation');
+
+  const oldAccountCrop = await selectImage();
+  await showSettings(supported, 'another-settings-owner');
+  await act(async () => oldAccountCrop.onConfirm(preparedImage));
+  assert(!croppedPreview(preparedImage), 'A crop from a previous settings owner cannot change the new account preview');
+  assert(!cropDialog());
+  console.log('PASS profile save: crop confirmation/cancel/error/late callbacks, no color edits, staged upload/removal, private actor identity, 429 retry preservation and profile navigation');
 } finally {
   if (root) await act(async () => root.unmount());
   for (const name of names) {
