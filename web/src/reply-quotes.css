@@ -1,0 +1,9 @@
+.discussion-replies h2 { scroll-margin-top:120px; }
+.reply-respond-actions { display:flex; flex-wrap:wrap; align-items:center; gap:18px; }
+.reply-respond-actions .reply-link { min-height:34px; }
+.reply-respond-actions .reply-link:disabled { opacity:.5; cursor:default; }
+.discussion-actions .discussion-compose-action { display:inline-flex; align-items:center; gap:6px; min-height:34px; margin-inline-start:auto; color:var(--accent); }
+.reply-quote-notice { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:10px 12px; border:1px solid var(--line); border-radius:7px; background:var(--surface2); color:var(--text-secondary); font-size:12px; line-height:1.7; }
+.reply-quote-notice > button { margin-inline-start:auto; min-height:32px; }
+.reply-respond-actions :focus-visible,.discussion-compose-action:focus-visible,.reply-quote-notice > button:focus-visible,.discussion-replies h2:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media (pointer:coarse) { .reply-respond-actions .reply-link,.reply-quote-notice > button,.discussion-actions .discussion-compose-action { min-height:44px; } }

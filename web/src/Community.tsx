@@ -5,13 +5,15 @@ import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
 import {useDiscussionReplies,ReplyListControls,MoreReplies} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
+import {quoteReplyDraft,type ReplyQuote} from './replyQuotes';
+import './reply-quotes.css';
 import MarkdownEditor from "./MarkdownEditor";
 import {
   ArrowLeft,
@@ -32,6 +34,7 @@ import {
   Plus,
   RefreshCw,
   Repeat2,
+  Quote,
   Search,
   Settings2,
   Trash2,
@@ -716,7 +719,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   );
 }
 function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
-  const { t } = useI18n();
+  const { t,locale } = useI18n();
   const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
   useReadingOrigin(accountLoading?undefined:user?'account:'+user.id:'guest',id,returnTo);
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
@@ -746,6 +749,19 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
   const [draftSaved, setDraftSaved] = useState<boolean | null>(() => hasReplyDraft(draft) ? true : null);
   const [discardReply, setDiscardReply] = useState(false);
   const [replyPreview, setReplyPreview] = useState(false);
+  const replyField=useRef<HTMLTextAreaElement>(null);
+  const quoteEdit=useRef<(ReplyQuote&{selection:{start:number;end:number;scroll:number}})>(undefined);
+  const [quoteNotice,setQuoteNotice]=useState('');
+  const [replyFocus,setReplyFocus]=useState<{href:string;source:string;opener:Element|null;selection?:{start:number;end:number;scroll:number}}>();
+  useLayoutEffect(()=>{
+    if(!replyFocus||replyPreview)return;setReplyFocus(undefined);
+    if(replyFocus.href!==location.href||replyFocus.source!==draft.body||!mounted.current||busy)return;
+    if(document.activeElement!==replyFocus.opener&&!(document.activeElement===document.body&&!replyFocus.opener?.isConnected))return;
+    const field=replyField.current;if(!field)return;
+    field.focus({preventScroll:true});field.scrollIntoView({block:'center'});
+    field.setSelectionRange(replyFocus.selection?.start??draft.body.length,replyFocus.selection?.end??draft.body.length);
+    field.scrollTop=replyFocus.selection?.scroll??field.scrollHeight;
+  },[replyFocus,replyPreview,draft.body,busy]);
   const [replyNotice, setReplyNotice] = useState<'' | 'posted' | 'refresh-failed'>('');
   const [postedReplyId, setPostedReplyId] = useState<string>();
   const [replyDraftKept,setReplyDraftKept] = useState(false);
@@ -766,6 +782,26 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
     setDraftSaved(writeReplyDraft(tabDraftStorage(), owner, id, next));
     setReplyNotice("");
     setReplyDraftKept(false);
+    setQuoteNotice('');
+  }
+  function focusReply(selection?:{start:number;end:number;scroll:number}){
+    if(!user||busy||loading||editingReply)return;
+    setReplyPreview(false);setReplyFocus({href:location.href,source:currentDraft.current.body,opener:document.activeElement,selection});
+  }
+  function quoteReply(row:Reply){
+    if(!user||busy||loading||editingReply||!post?.replies.some(reply=>reply.id===row.id))return;
+    const previous=quoteEdit.current;
+    if(previous?.replyId===row.id&&sameReplyDraft(previous.after,currentDraft.current)){setQuoteNotice(t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'));focusReply();return;}
+    const result=quoteReplyDraft(currentDraft.current,id,row,authorName(row.author)||t('用户','User'),locale==='en');
+    if(!result.ok){setQuoteNotice(result.reason==='length'?t('引用会超过回复长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the reply limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This reply could not be quoted. You can still reply directly.'));return;}
+    const field=replyField.current;
+    quoteEdit.current={...result.quote,selection:{start:field?.selectionStart??body.length,end:field?.selectionEnd??body.length,scroll:field?.scrollTop||0}};
+    editReply(result.quote.after);setQuoteNotice(t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'));focusReply();
+  }
+  function undoQuote(){
+    const operation=quoteEdit.current;
+    if(!operation||busy||loading||!sameReplyDraft(operation.after,currentDraft.current))return;
+    editReply(operation.before);quoteEdit.current=undefined;focusReply(operation.selection);
   }
   async function refresh() {
     if (!mounted.current) return false;
@@ -839,7 +875,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
         setDraft(currentDraft.current);
         setDraftSaved(null);
         setDiscardReply(false);
-        setReplyPreview(false);
+        setReplyPreview(false);setQuoteNotice('');quoteEdit.current=undefined;
       }
       setReplyNotice('posted');
       if (!await refresh() && mounted.current) {
@@ -948,16 +984,14 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,returnTo,replyTarget)}
                 disabled={busy||loading||editingPost||!!editingReply} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
-              <span>
-                <MessageCircle size={15} />
-                {post.counts.replies} {t("条回复", "replies")}
-              </span>
+              <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复','replies')}</button>
+              {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,returnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
             </div>
           </article>
           <section ref={replyList.root} className="social-panel discussion-replies">
             {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,returnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
             <div className="panel-title">
-              <h2>
+              <h2 id="discussion-replies-heading" tabIndex={-1}>
                 {t("回复", "Replies")} <span>{post.counts.replies}</span>
               </h2>
             </div>
@@ -1005,18 +1039,18 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                     closeReplyEditing(r.id);setReplyEdited(r.id);
                   }}/>}
                   {user && (
-                    <button
+                    <div className="reply-respond-actions"><button type="button"
                       className="reply-link"
-                      disabled={busy}
+                      disabled={repliesLocked}
                       onClick={() => {
                         editReply({ parentId: r.id });
                         setReplyPreview(false);
-                        requestAnimationFrame(() => document.getElementById("reply-body")?.focus());
+                        focusReply();
                       }}
                     >
                       <MessageCircle size={12} />
                       {t("回复", "Reply")}
-                    </button>
+                    </button><button type="button" className="reply-link" disabled={repliesLocked} aria-label={t(`引用${authorName(r.author)||'用户'}的回复`,`Quote reply from ${authorName(r.author)||'user'}`)} onClick={()=>quoteReply(r)}><Quote size={12} aria-hidden="true"/>{t('引用','Quote')}</button></div>
                   )}
                 </article>
               ))
@@ -1067,6 +1101,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 <button type="button" disabled={busy} onClick={() => { editReply({ body: "", parentId: undefined }); setDiscardReply(false); setReplyPreview(false); }}>{t("确认丢弃", "Discard draft")}</button>
                 <button type="button" disabled={busy} onClick={() => setDiscardReply(false)}>{t("保留草稿", "Keep draft")}</button>
               </div>}
+              {quoteNotice&&<div className="reply-quote-notice" role="status"><span>{quoteNotice}</span>{quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={busy||loading} onClick={undoQuote}>{t('撤销引用','Undo quote')}</button>}</div>}
               <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={busy || loading} onRetry={() => void reply(publication?.receipt)} />
               {replyNotice && <div className="reply-publication-notice" role="status"><p>{replyNotice === 'posted'
                 ? t('回复已发布。','Reply posted.')
@@ -1082,7 +1117,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 }}
               >
                 <MarkdownEditor value={body} onChange={body=>editReply({body})} preview={replyPreview} onPreviewChange={setReplyPreview}
-                  id="reply-body" label={t('回复内容','Your reply')} modeLabel={t('回复编辑模式','Reply editor mode')}
+                  textareaRef={replyField} id="reply-body" label={t('回复内容','Your reply')} modeLabel={t('回复编辑模式','Reply editor mode')}
                   rows={5} maxLength={10000} disabled={busy} placeholder={t('写下你的回复…（支持 Markdown）','Write a reply… (Markdown supported)')}/>
                 <PublishingRules action="reply" />
                 <div className="form-footer">
