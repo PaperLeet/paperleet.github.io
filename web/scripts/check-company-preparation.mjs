@@ -1,0 +1,68 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__companyFixture:undefined};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+let lastScroll;
+dom.window.HTMLElement.prototype.scrollIntoView=function(options){lastScroll={element:this,options};};
+dom.window.matchMedia=()=>({matches:true});
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('hosted'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('0'),'import.meta.env.VITE_API_ORIGIN':JSON.stringify('')},plugins:[{
+ name:'company-preparation-fixture',enforce:'pre',resolveId(source){if(source==='./social')return '\0company-preparation-fixture';},
+ load(id){if(id==='\0company-preparation-fixture')return `import React from 'react';export const useAccount=()=>({user:null});export const socialApi=(...args)=>globalThis.__companyFixture.request(...args);export const errorMessage=e=>e.message;export const PersonLink=({user})=>React.createElement('span',null,user.display_name);export const DateLabel=({value})=>React.createElement('time',null,value);`;}
+}]});
+let root;
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Hub}=await server.ssrLoadModule('/src/Interviews.tsx');
+ const {INTERVIEW_REQUEST_TIMEOUT}=await server.ssrLoadModule('/src/interviewApi.ts');
+ const nav=await server.ssrLoadModule('/src/interviewNavigation.ts'),preparation=await server.ssrLoadModule('/src/interviewPreparation.ts');
+ const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const requests=[],pending=[];
+ globalThis.__companyFixture={request(path,body,signal){return new Promise((resolve,reject)=>{const request={path,body,signal,resolve,reject};requests.push(request);pending.push(request);});}};
+ const modules=[{id:'architecture/attention',number:1,title:'Attention'},{id:'finetuning/lora',number:2,title:'LoRA'},{id:'optimization/adamw',number:3,title:'AdamW'},{id:'retrieval/bpr',number:4,title:'BPR'}];
+ const summary={reports:0,contributors:0,days:'365',basis:'published-community-reports',generated_at:'2026-10-15',companies:[],questions:[]};
+ const feed={items:[],total:0,limit:20,offset:0};
+ function LanguageSwitch(){const {setLocale}=useI18n();return React.createElement('button',{onClick:()=>setLocale('zh')},'中文 fixture');}
+ const hub=async route=>{location.hash=route;await act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(LanguageSwitch),React.createElement(Hub,{route:route.replace(/^#\/?/,''),problems:modules})));});};
+ const take=fragment=>{const index=pending.findIndex(request=>request.path.includes(fragment));assert(index>=0,'Missing request '+fragment);return pending.splice(index,1)[0];};
+ const reply=async(request,value)=>act(async()=>request.resolve(value));
+ const button=text=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()===text);
+ const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
+ const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;pending.length=0;};
+ await hub('#/interviews?view=companies');await reply(take('/summary'),summary);
+ assert.equal(document.querySelectorAll('.interview-resource-list a').length,3);await click(button('Explore all 17 resources'));assert.equal(document.querySelectorAll('.interview-resource-list a').length,17);assert.equal(document.querySelector('.interview-resources-toggle').getAttribute('aria-expanded'),'true');assert(document.querySelector('.interview-resource-list').textContent.includes('Careers entry'));await click(button('Show fewer resources'));assert.equal(document.querySelectorAll('.interview-resource-list a').length,3);
+ const google=[...document.querySelectorAll('.interview-company-card')].find(card=>card.textContent.includes('Google'));assert.equal(nav.readInterviewRoute(google.getAttribute('href')).view,'companies');assert(google.textContent.includes('2 official resources'));
+ await hub('#/interviews?company=google&view=companies');await reply(take('/summary'),summary);
+ assert.equal(document.querySelectorAll('.interview-company-checklist li').length,3);assert.equal(document.querySelectorAll('.interview-company-card').length,0);assert.equal(document.querySelectorAll('.interview-resource-list a').length,2);assert([...document.querySelectorAll('.interview-resource-list a')].every(anchor=>/google/.test(anchor.href)));assert(!document.querySelector('.interview-resource-panel').textContent.includes('Amazon'));
+ const route=location.hash;await click(button('Start preparing'));assert.equal(location.hash,route);assert.equal(document.activeElement.id,'interview-preparation-heading');assert.equal(lastScroll.options.behavior,'instant');await click(button('Read company resources'));assert.equal(document.activeElement.id,'interview-resources-heading');assert.equal(location.hash,route);
+ assert.equal(preparation.companyResources('missing-company').length,0);assert.deepEqual(preparation.rolePreparationPaths('llm').map(path=>path.id),['llm','training']);assert.deepEqual(preparation.rolePreparationPaths('recommendation').map(path=>path.id),['recommendation','training']);assert.equal(preparation.rolePreparationPaths('other').length,1);
+ await hub('#/interviews?company=nvidia&role=llm&days=90&view=companies');await reply(take('/summary'),summary);assert.equal(document.querySelectorAll('.interview-path-grid article').length,2);assert.equal(nav.readInterviewRoute(libraryReturnHref(document.querySelector('.interview-path-grid a').getAttribute('href'))).company,'nvidia');
+ await click([...document.querySelectorAll('.interview-active-filters button')].find(button=>button.getAttribute('aria-label')==='Remove filter: NVIDIA'));const removed=nav.readInterviewRoute(location.hash);assert.equal(removed.company,'');assert.equal(removed.role,'llm');assert.equal(removed.days,'90');assert.equal(removed.view,'companies');
+ await hub('#/interviews?company=meta&view=companies');await reply(take('/summary'),summary);assert(document.querySelector('.interview-resource-empty').textContent.includes('No official preparation resource'));assert.equal(document.querySelectorAll('.interview-resource-list a').length,0,'A company with no listed resource cannot inherit another company’s sources');
+ await hub('#/interviews');await reply(take('interviews?'),feed);await reply(take('/summary'),null);assert(document.querySelector('.interview-statistics-error'));assert(document.body.textContent.includes('Start with the first shared experience'),'Statistics failure never blocks the report feed');const beforeCountsRetry=requests.length;await click(button('Retry counts'));assert.equal(requests.length,beforeCountsRetry+1,'Retrying counts does not clear or refetch the visible feed');await reply(take('/summary'),summary);assert(!document.querySelector('.interview-statistics-error'));const queryInput=document.querySelector('.interview-search input');await act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(queryInput,'  loss\t& shape  ');queryInput.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});await act(async()=>document.querySelector('.interview-search').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));assert.equal(nav.readInterviewRoute(location.hash).q,'loss & shape');assert.equal(queryInput.value,'loss & shape','Search normalizes pasted control characters without throwing a route error');
+ const outOfRange={...nav.emptyInterviewFilters(),company:'google',role:'ml',q:'loss & shape',days:'90',sort:'helpful',page:4};await hub(nav.interviewHref(outOfRange));await reply(take('interviews?'),{...feed,total:1,offset:60});await reply(take('/summary'),summary);assert(document.body.textContent.includes('No reports on this page'));await click(button('Return to first page'));assert.deepEqual(nav.readInterviewRoute(location.hash),{...outOfRange,page:1});
+ for(const invalid of [null,undefined,false,0,'']){
+  await stop();await hub('#/interviews');await reply(take('interviews?'),invalid);await reply(take('/summary'),summary);assert(document.querySelector('[role="alert"]').textContent.includes('response could not be read'));assert.equal(document.querySelectorAll('.interview-loading').length,0);
+  await click(button('Retry loading'));await reply(take('interviews?'),feed);await reply(take('/summary'),summary);assert(document.body.textContent.includes('Start with the first shared experience'));
+ }
+ await stop();
+ const set=globalThis.setTimeout,clear=globalThis.clearTimeout,timers=[];
+ globalThis.setTimeout=(callback,delay,...args)=>{if(delay===INTERVIEW_REQUEST_TIMEOUT){const timer={callback,cancelled:false};timers.push(timer);return timer;}return set(callback,delay,...args);};
+ globalThis.clearTimeout=id=>{if(timers.includes(id))id.cancelled=true;else clear(id);};
+ try{
+  await hub('#/interviews?company=google&role=ml');const lateFeed=take('interviews?'),lateSummary=take('/summary');assert.equal(timers.length,2);await act(async()=>timers.forEach(timer=>timer.callback()));assert(lateFeed.signal.aborted&&lateSummary.signal.aborted);assert(document.querySelector('[role="alert"]').textContent.includes('Loading timed out'));const hash=location.hash,requestCount=requests.length;
+  await click(button('中文 fixture'));assert(document.querySelector('[role="alert"]').textContent.includes('加载超时'));assert.equal(requests.length,requestCount,'Language changes translate the timeout without refetching');
+  await reply(lateFeed,{...feed,total:99});await reply(lateSummary,{...summary,reports:99,contributors:1});assert(document.querySelector('[role="alert"]').textContent.includes('加载超时'),'A timed-out transport cannot overwrite its timeout');
+  await click(button('重试加载'));assert.equal(location.hash,hash);await reply(take('interviews?'),feed);await reply(take('/summary'),summary);assert(!document.querySelector('[role="alert"]'));assert.equal(document.querySelector('.interview-company-overview header p span').textContent,'0 篇面经');
+  await act(async()=>timers.forEach(timer=>timer.callback()));assert(!document.querySelector('[role="alert"]'),'Settled or aborted timers cannot affect a completed retry');await stop();
+ }finally{globalThis.setTimeout=set;globalThis.clearTimeout=clear;}
+ assert(requests.every(request=>!request.body),'Browsing, filters, source expansion and retries never publish content');
+ console.log('PASS company preparation: company-only official sources, guide/careers labels, source expansion, role paths, scoped practice links, reduced-motion focus without route changes, removable filters, out-of-range pagination, null/empty response recovery, timed aborts, stale response rejection and bilingual timeout retry');
+}finally{
+ if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
+}
