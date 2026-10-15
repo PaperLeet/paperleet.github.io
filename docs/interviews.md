@@ -46,3 +46,26 @@ filter and account races, preview, drafts, retry IDs, cleanup failures, concept 
 company evidence and metadata conflict review. These checks do not access a running
 browser or write production content. The build verifies that the new pages remain
 deferred and the existing initial-JavaScript budgets remain unchanged.
+
+## Company preparation spaces
+
+Company cards open a preparation overview with that company's official resources,
+community experiences and report-based concept ranking. The resource library contains
+17 entries covering 16 companies. It distinguishes interview guides from careers
+portals. Career entries link to official role/application information and make no claim
+about specific interview rounds or question frequency. DeepSeek's recruitment entry
+is linked from its official home page. Sources have a review date; recruiters remain
+the source for a specific role's current arrangements. Companies without a listed
+source show an explicit empty state rather than another company's resources.
+
+Choose a role to narrow the curated preparation paths. These are editorial curriculum
+recommendations, independent of the company evidence. In-page preparation/resource
+buttons scroll and focus the destination heading while preserving the hash route and
+respecting reduced-motion preferences. Filter chips can be removed independently;
+returning from an empty pagination page preserves all the other filters.
+
+Read requests have a 15-second timeout. Null, empty or primitive successful responses
+show a retryable data error instead of an indefinite loader. Retry preserves the view,
+late or aborted responses cannot overwrite it, and changing language translates the
+error without issuing another request. `check-company-preparation.mjs` exercises the
+actual components and controlled timers for these flows, without production writes.
