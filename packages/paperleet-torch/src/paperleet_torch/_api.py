@@ -93,6 +93,7 @@ def create_torch(name='torch', *, register=False):
 
     registry = _registry.OperatorRegistry(modules)
     registry.add('torch.promote_types', _construction.promote_types, reverse='control', forward=True)
+    registry.add('torch.result_type', _promotion.result_type, reverse='control', forward=True)
     registry.group('torch.cuda', {'is_available': lambda: False, 'device_count': lambda: 0,
                                  'is_initialized': lambda: False})
     registry.group('torch', {'tensor': _ops.tensor, 'as_tensor': _ops.as_tensor}, reverse='factory', forward=True)
@@ -110,7 +111,7 @@ def create_torch(name='torch', *, register=False):
                      lambda input,_kind=name,**kw: _random.create(_kind,*input.shape,**_ops.inherited_options(input.dtype,kw)),
                      reverse='factory', forward=True)
     registry.group('torch', {
-        'where': _ops.where, 'cat': _ops.concatenate, 'stack': lambda tensors,dim=0: _ops.concatenate(tensors,dim,stack=True),
+        'where': _ops.where, 'cat': _ops.cat, 'concat': _ops.cat, 'concatenate': _ops.cat, 'stack': _ops.stack,
         'matmul': lambda input,other: _ops.wrap(input) @ other, 'pow': _ops.power,
         'cosine_similarity': _nn.cosine_similarity,
     }, reverse='analytic', forward=True)
@@ -210,4 +211,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor
+from . import _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor

@@ -46,6 +46,21 @@ shape/dtype contracts for comparison across versions. Large 4,096-element cases
 use `max(1, iterations // 40)` calls per batch. Source/destination fixtures are
 prepared before timing; complete Tensor allocation and cleanup remain included.
 
+`bench_selection.py` measures same-dtype `where`, float-scalar `where`, `cat`,
+`stack`, their complete reverse passes and a 16-stage where chain on 64×128
+float32/float64 fixtures. Values, dtypes and analytical gradients are checked
+outside timing; masks select two of every three positions. Use `--benchmark
+selection` with the CPU/WASM runners. The default is 11 batches of 120 calls,
+with 30 calls for the chain. A float scalar ensures equal baseline/candidate
+semantics; changed mixed-dtype correctness is tested separately from latency.
+
+`bench_where_memory.py` retains a squared-mean scalar loss through a 16-stage
+where chain after dropping branch/intermediate user variables. Input and mask
+storage are allocated before tracing. Default/retained backward and final release
+record traced retained/peak allocations, with independent values/gradients
+checked after tracing stops. These are CPython allocation measurements, not RSS
+or browser heap usage. Use `--dtype float64` for the wider fixture.
+
 `bench_tensor_hooks.py` measures plain leaf/graph backward, retained non-leaf
 backward, leaf observers/transforms/post-accumulation callbacks, intermediate
 registration/dispatch and explicit registration/removal. Each case uses a

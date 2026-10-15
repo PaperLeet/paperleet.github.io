@@ -170,3 +170,23 @@ bundle cache recovery. Numerical library/application sources, curriculum,
 Python tests, exported data and the maintained WASM gate are unchanged. All 33
 timed source hashes still match. The combined frontend check suite and production
 build pass again after integration, including cached-bundle recovery checks.
+
+## Remote quality, deployment and exact live verification
+
+Release commit `9b1822ee0e307e5b1d5e5cafc160514bd54a3a9b` is adopted on main.
+Its [quality run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38799534042)
+and [Pages run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38799533989)
+both succeed. The hosted full suite passes 4,733 tests (one optional Docker skip,
+seven warnings) in 475.51 seconds; native CI checks all 71 modules with three
+repetitions, 9,372 executions and all 312 mutants in 400.67 seconds. The seven
+maintained pinned WASM suites pass on the same commit.
+
+An independent verifier compares the live `https://paperleet.com/` compact index,
+all 71 starters and every referenced manifest against expected artifacts frozen
+from this exact release. Both runtime bundles match byte-for-byte: autograd is
+339,988 bytes / SHA-256
+`244c25bc1c00c4682f678c88404552fa7249e90d51f608cb69c3bca79c8e4c64`;
+legacy is 35,895 bytes / SHA-256
+`5ef028c8b739a20fe7a83c0861ea279eaaf8416519111e1ddf0394befa359fe8`.
+Version 0.12.0 and canonical Apache-2.0 LICENSE/NOTICE match in both profiles.
+Local receipts, frozen expectations and verifier are retained in iteration 12.

@@ -1,0 +1,154 @@
+--- a/_ops.py
++++ b/_ops.py
+@@ -20,8 +20,6 @@
+ 
+ 
+ _DEFAULT_DIM = _DefaultDimension()
+-_BOOL_DTYPE = np.dtype('bool')
+-_BYTE_DTYPE = np.dtype('uint8')
+ 
+ 
+ def unbroadcast(value, shape):
+@@ -87,17 +85,14 @@
+         raise TypeError('where requires both input and other')
+     if out is not _OMITTED and out is not None:
+         raise _errors.BrowserUnsupported('where output buffers require the server')
+-    left_tensor, right_tensor = isinstance(input, _tensor.Tensor), isinstance(other, _tensor.Tensor)
+-    left_info = None if left_tensor else _promotion.scalar_info(input)
+-    right_info = None if right_tensor else _promotion.scalar_info(other)
+-    if condition.dtype != _BOOL_DTYPE:
+-        if condition.dtype != _BYTE_DTYPE:
+-            raise RuntimeError('where condition must have boolean dtype')
+-        if not _state._where_uint8_warning_emitted:
+-            _state._where_uint8_warning_emitted = True
+-            warnings.warn('where received a uint8 condition; use boolean conditions instead.', UserWarning, stacklevel=2)
+-    same_dtype = left_tensor and right_tensor and input.dtype == other.dtype
+-    dtype = input.dtype if same_dtype else _promotion.operand_dtype(input, other, left_info=left_info, right_info=right_info)
++    left_info = None if isinstance(input, _tensor.Tensor) else _promotion.scalar_info(input)
++    right_info = None if isinstance(other, _tensor.Tensor) else _promotion.scalar_info(other)
++    if condition.dtype not in (np.dtype('bool'), np.dtype('uint8')):
++        raise RuntimeError('where condition must have boolean dtype')
++    if condition.dtype == np.dtype('uint8') and not _state._where_uint8_warning_emitted:
++        _state._where_uint8_warning_emitted = True
++        warnings.warn('where received a uint8 condition; use boolean conditions instead.', UserWarning, stacklevel=2)
++    dtype = _promotion.operand_dtype(input, other, left_info=left_info, right_info=right_info)
+     left = None if left_info is None else _promotion.scalar_array(left_info[0], dtype, parsed=True)
+     right = None if right_info is None else _promotion.scalar_array(right_info[0], dtype, parsed=True)
+     if isinstance(input, _autograd.ForwardTensor) or isinstance(other, _autograd.ForwardTensor):
+@@ -105,8 +100,8 @@
+         if right_info is not None: other = _tensor.Tensor(right, _metadata_owned=True)
+         pa, ta = _autograd.forward_parts(input); pb, tb = _autograd.forward_parts(other)
+         return _autograd.ForwardTensor(where(condition, pa, pb), where(condition, ta, tb))
+-    if left_tensor: left = input._data if same_dtype else _promotion.array(input, dtype)
+-    if right_tensor: right = other._data if same_dtype else _promotion.array(other, dtype)
++    if left_info is None: left = _promotion.array(input, dtype)
++    if right_info is None: right = _promotion.array(other, dtype)
+     mask = condition._data
+     try:
+         data = np.where(mask, left, right)
+@@ -114,10 +109,10 @@
+         raise RuntimeError('where operands cannot be broadcast together') from error
+     edges = []
+     if _state._grad_enabled:
+-        if left_tensor and input.requires_grad:
++        if isinstance(input, _tensor.Tensor) and input.requires_grad:
+             shape = input.shape
+             edges.append((input, lambda g, shape=shape: unbroadcast(np.where(mask, g, 0), shape)))
+-        if right_tensor and other.requires_grad:
++        if isinstance(other, _tensor.Tensor) and other.requires_grad:
+             shape = other.shape
+             edges.append((other, lambda g, shape=shape: unbroadcast(np.where(mask, 0, g), shape)))
+     return _autograd.result(data, *edges, saved=(condition,), versioned=(condition,))
+@@ -331,40 +326,27 @@
+ 
+ 
+ def concatenate(tensors, dim=0, *, stack=False):
+-    if not isinstance(tensors, (list, tuple)):
++    if not isinstance(tensors, (list, tuple)) or any(not isinstance(value, _tensor.Tensor) for value in tensors):
+         raise TypeError('Expected a list or tuple of Tensors')
+     if type(dim) is bool: raise TypeError('Tensor dimension must be an integer, not bool')
+     dim = operator.index(dim)
+     tensors = tuple(tensors)
+-    if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
+-    dtype, all_same, forward, empty, active = None, True, False, False, False
+-    for value in tensors:
+-        if not isinstance(value, _tensor.Tensor):
+-            raise TypeError('Expected a list or tuple of Tensors')
+-        forward = forward or isinstance(value, _autograd.ForwardTensor)
+-        empty = empty or value.shape == (0,)
+-        active = active or value.requires_grad
+-        if dtype is None:
+-            dtype = value.dtype
+-        elif dtype != value.dtype:
+-            all_same = False
+-            dtype = _construction.promote_types(dtype, value.dtype)
+-        if not stack and value.ndim == 0:
+-            raise RuntimeError('Zero-dimensional tensors cannot be concatenated')
+-    if forward:
++    if any(isinstance(v, _autograd.ForwardTensor) for v in tensors):
+         parts = [_autograd.forward_parts(v) for v in tensors]
+         return _autograd.ForwardTensor(concatenate([v[0] for v in parts], dim, stack=stack), concatenate([v[1] for v in parts], dim, stack=stack))
+-    values = tensors if stack or not empty else tuple(value for value in tensors if value.shape != (0,))
++    if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
++    if not stack and any(value.ndim == 0 for value in tensors):
++        raise RuntimeError('Zero-dimensional tensors cannot be concatenated')
++    values = tensors if stack else tuple(value for value in tensors if value.shape != (0,))
+     rank = (values[0] if values else tensors[0]).ndim + int(stack)
+     if not -rank <= dim < rank: raise IndexError('Tensor dimension out of range')
+     dim %= rank
+-    arrays = [value._data for value in values or tensors] if all_same else [_promotion.array(value, dtype) for value in values or tensors]
++    dtype = _promotion.sequence_dtype(tensors)
++    arrays = [_promotion.array(value, dtype) for value in values or tensors]
+     try:
+         data = np.stack(arrays, axis=dim) if stack else np.concatenate(arrays, axis=dim)
+     except ValueError as error:
+         raise RuntimeError('Tensor shapes are incompatible for stack/concatenation') from error
+-    if not active or not _state._grad_enabled:
+-        return _autograd.result(data, saves_tensors=False)
+     edges, offset = [], 0
+     for value in tensors:
+         if not stack and value.shape == (0,) and values:
+@@ -372,14 +354,12 @@
+                 edges.append((value, lambda g: np.empty((0,), dtype=g.dtype)))
+             continue
+         start, end = offset, offset + (1 if stack else value.shape[dim])
+-        if not value.requires_grad:
+-            offset = end
+-            continue
+         def vjp(g, start=start, end=end):
+             index = [slice(None)] * rank
+             index[dim] = start if stack else slice(start, end)
+             return g[tuple(index)]
+-        edges.append((value, vjp))
++        if value.requires_grad and _state._grad_enabled:
++            edges.append((value, vjp))
+         offset = end
+     return _autograd.result(data, *edges, saves_tensors=False)
+ 
+--- a/_promotion.py
++++ b/_promotion.py
+@@ -12,7 +12,6 @@
+ _ULONG = np.dtype('uint64')
+ _FLOAT = np.dtype('float32')
+ _COMPLEX = np.dtype('complex64')
+-_DOUBLE = np.dtype('float64')
+ 
+ 
+ def is_scalar(value):
+@@ -108,15 +107,7 @@
+             valid = -(2**(bits-1)) <= number < 2**(bits-1)
+         if not valid:
+             raise RuntimeError('Scalar cannot be converted to ' + str(dtype) + ' without overflow')
+-    elif dtype == _FLOAT:
+-        if math.isfinite(number) and abs(number) > 3.4028234663852886e38:
+-            raise RuntimeError('Scalar cannot be converted to ' + str(dtype) + ' without overflow')
+-        # Normal/zero/non-finite double -> float32 conversion cannot underflow.
+-        if not number or not math.isfinite(number) or abs(number) >= 1.1754943508222875e-38:
+-            return np.asarray(number, dtype=dtype)
+-    elif dtype == _DOUBLE:
+-        return np.asarray(number, dtype=dtype)
+-    elif dtype == _COMPLEX:
++    elif dtype == _FLOAT or dtype == _COMPLEX:
+         parts = (number.real, number.imag) if isinstance(number, complex) else (number,)
+         if any(math.isfinite(part) and abs(part) > 3.4028234663852886e38 for part in parts):
+             raise RuntimeError('Scalar cannot be converted to ' + str(dtype) + ' without overflow')

@@ -154,6 +154,7 @@ class Tensor:
     def long(self): return self.to(dtype=np.int64)
     def int(self): return self.to(dtype=np.int32)
     def bool(self): return self.to(dtype=np.bool_)
+    def where(self, condition, other): return _ops.where(condition, self, other)
     def new_zeros(self, *shape, **kw): return _random.create('zeros', *shape, **_ops.inherited_options(self.dtype,kw))
     def new_ones(self, *shape, **kw): return _random.create('ones', *shape, **_ops.inherited_options(self.dtype,kw))
     def new_empty(self, *shape, **kw): return _random.create('empty', *shape, **_ops.inherited_options(self.dtype,kw))

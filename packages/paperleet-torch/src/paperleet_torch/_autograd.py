@@ -7,7 +7,7 @@ import numpy as np
 
 from . import _graph, _tensor
 
-def result(data, *edges, saved=(), saves_tensors=True):
+def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
         raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
     value = _tensor.Tensor(data, _metadata_owned=True)
@@ -16,10 +16,13 @@ def result(data, *edges, saved=(), saves_tensors=True):
     parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
     value.requires_grad = bool(parents)
     if value.requires_grad:
-        # Conservatively guard every operand, including frozen operands and output
-        # arrays captured by VJP closures. Unsupported graph reuse falls back rather
-        # than returning derivatives calculated from mutated storage.
-        counters = {node._storage for node in (value, *(node for node, _ in edges), *saved)} if saves_tensors else ()
+        # Default to conservative guards for arrays captured by VJP closures.
+        # Proven selective rules can name only the inputs their pullbacks save.
+        if saves_tensors:
+            operands = (value, *(node for node, _ in edges), *saved) if versioned is None else versioned
+            counters = {node._storage for node in operands}
+        else:
+            counters = ()
         value._grad_node = _graph.Node(value, parents, saved=saves_tensors,
                                       versions=tuple((counter, counter.version) for counter in counters))
     return value

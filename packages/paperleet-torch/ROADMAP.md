@@ -148,6 +148,20 @@ WASM workflows cover precision, copies, gradients, bounds and invalid inputs.
 Balanced CPU/WASM/Chrome performance, independent distribution and 71-module
 integration gates pass; large-sequence checking costs remain explicit targets.
 
+## Version 0.13 milestone
+
+Mixed-dtype `where`, `cat` and `stack` use native Tensor/Number category priority
+and all-input promotion; complex joins preserve imaginary values. Public
+`result_type`, Tensor.where, concat/concatenate, keyword/axis aliases and
+one-argument where indices improve ordinary torch code compatibility. Scalar
+protocol/overflow handling is validated separately from constructor inference.
+Where pullbacks retain condition data and shape metadata without branch Tensor
+closures; condition-only version guards, release/retention and VJP/JVP workflows
+are checked independently of course coverage. Fixed CPU fixture memory savings
+and common-path latency costs are recorded alongside balanced CPU/WASM/Chrome
+controls. ComplexHalf, real output buffers and remaining operator-wide promotion
+are explicit boundaries.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

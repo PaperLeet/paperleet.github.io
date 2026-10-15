@@ -122,6 +122,46 @@ inputs retain ordered recursive inference and scalar storage. Global default
 dtype changes, broader array-protocol inference and the full legacy Tensor
 constructor remain separate compatibility work. Default floats remain float32.
 
+## Selection and joining tensors
+
+`torch.result_type` follows the category priority of dimensioned Tensors,
+zero-dimensional Tensors and scalar Number arguments. `where` uses these rules
+instead of NumPy's integer-to-float widening; `cat`/`stack` promote all input
+Tensor dtypes, preserving complex Tensor values:
+
+```python
+x = torch.tensor([1., 2.], dtype=torch.float32)
+y = torch.tensor([3, 4], dtype=torch.int64)
+mask = torch.tensor([True, False])
+assert torch.result_type(x, y) == torch.float32
+assert torch.where(mask, x, y).dtype == torch.float32
+assert torch.where(mask, x, 0).dtype == torch.float32
+indices = torch.where(mask)  # tuple of int64 index Tensors
+joined = torch.concat([x, y])  # torch.cat / torch.concatenate aliases
+```
+
+`Tensor.where`, `cat`/`stack`'s `axis` alias and native argument keywords are
+supported. Empty one-dimensional cat inputs may be skipped for shape purposes
+while contributing dtype and receiving empty gradients. `out=None` works for
+three-argument selection/joins; real output buffers remain unsupported. NumPy
+has no native complex32 storage, so promotion needing ComplexHalf fails
+explicitly. Complex storage support does not add complex reverse-mode gradients.
+
+Number argument parsing follows native protocols rather than Tensor constructor
+inference. In particular NumPy bool/complex64 Numbers use their float protocol
+(the latter warns and drops imaginary parts); complex Tensor inputs preserve
+both components. Scalar overflow checks apply before JVP execution as well.
+Boolean conditions are supported; deprecated uint8 selection conditions warn once.
+One-argument `where` on wide unsigned conditions remains unsupported.
+
+Where backward retains only its condition and shape metadata, releasing branch
+Tensor storage when other graph operators do not need it. Mutating a condition
+invalidates backward, while mutating a leaf branch or where output does not
+invalidate where's derivative. Upstream operators retain their own mutation
+rules. Saved-state violations use the library's typed unsupported-operation
+policy. Default and retained backward, mixed-dtype/broadcast gradients and the
+validated forward-mode subset are covered by independent CPU/WASM contracts.
+
 ## Models and in-memory checkpoints
 
 `nn.Module` registers parameters, child modules and buffers, with deduplicated
@@ -508,8 +548,13 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-The [0.11 candidate record](../../docs/validation/torch-runtime-iteration-11.md)
-tracks NumPy import validation, scalar construction and pending performance gates.
+The [0.13 validation record](../../docs/validation/torch-runtime-iteration-13.md)
+tracks mixed-dtype selection/joins, where graph retention and CPU/WASM/Chrome
+performance, including unresolved process variance. The
+[0.12 record](../../docs/validation/torch-runtime-iteration-12.md) covers sequence
+inference and checked scalar storage, and the
+[0.11 record](../../docs/validation/torch-runtime-iteration-11.md) covers NumPy
+import validation and metadata isolation.
 See the [0.10 validation record](../../docs/validation/torch-runtime-iteration-10.md)
 for Tensor gradient callbacks, CPU copies, complete training and runtime costs.
 The [0.9 validation record](../../docs/validation/torch-runtime-iteration-9.md)

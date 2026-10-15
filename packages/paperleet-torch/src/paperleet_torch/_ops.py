@@ -3,6 +3,25 @@ import numpy as np
 import warnings
 from functools import reduce
 from operator import or_
+import operator
+
+
+class _Omitted:
+    def __repr__(self):
+        return '<omitted>'
+
+
+_OMITTED = _Omitted()
+
+
+class _DefaultDimension:
+    def __repr__(self):
+        return '0'
+
+
+_DEFAULT_DIM = _DefaultDimension()
+_BOOL_DTYPE = np.dtype('bool')
+_BYTE_DTYPE = np.dtype('uint8')
 
 
 def unbroadcast(value, shape):
@@ -52,15 +71,56 @@ def count_nonzero(input, dim=None):
     return _tensor.Tensor(np.count_nonzero(input._data, axis=axes), dtype=np.int64)
 
 
-def where(condition, x, y):
-    if isinstance(x, _autograd.ForwardTensor) or isinstance(y, _autograd.ForwardTensor):
-        px, tx = _autograd.forward_parts(x); py, ty = _autograd.forward_parts(y)
-        return _autograd.ForwardTensor(where(condition, px, py), where(condition, tx, ty))
-    condition, a, b = wrap(condition), wrap(x), wrap(y)
+def where(condition, input=_OMITTED, other=_OMITTED, *, out=_OMITTED):
+    if not isinstance(condition, _tensor.Tensor):
+        raise TypeError('where condition must be a Tensor')
+    if input is _OMITTED and other is _OMITTED:
+        if out is not _OMITTED:
+            raise TypeError('where(condition) does not accept out')
+        if isinstance(condition, _autograd.ForwardTensor):
+            raise _errors.BrowserUnsupported('Nonzero indices inside forward AD are unsupported')
+        if condition.dtype.kind == 'u' and condition.dtype.itemsize > 1:
+            raise _errors.BrowserUnsupported('Nonzero indices for wider unsigned storage are unsupported')
+        return tuple(_tensor.Tensor(value.astype(np.int64, copy=False), _metadata_owned=True)
+                     for value in np.nonzero(np.atleast_1d(condition._data)))
+    if input is _OMITTED or other is _OMITTED:
+        raise TypeError('where requires both input and other')
+    if out is not _OMITTED and out is not None:
+        raise _errors.BrowserUnsupported('where output buffers require the server')
+    left_tensor, right_tensor = isinstance(input, _tensor.Tensor), isinstance(other, _tensor.Tensor)
+    left_info = None if left_tensor else _promotion.scalar_info(input)
+    right_info = None if right_tensor else _promotion.scalar_info(other)
+    if condition.dtype != _BOOL_DTYPE:
+        if condition.dtype != _BYTE_DTYPE:
+            raise RuntimeError('where condition must have boolean dtype')
+        if not _state._where_uint8_warning_emitted:
+            _state._where_uint8_warning_emitted = True
+            warnings.warn('where received a uint8 condition; use boolean conditions instead.', UserWarning, stacklevel=2)
+    same_dtype = left_tensor and right_tensor and input.dtype == other.dtype
+    dtype = input.dtype if same_dtype else _promotion.operand_dtype(input, other, left_info=left_info, right_info=right_info)
+    left = None if left_info is None else _promotion.scalar_array(left_info[0], dtype, parsed=True)
+    right = None if right_info is None else _promotion.scalar_array(right_info[0], dtype, parsed=True)
+    if isinstance(input, _autograd.ForwardTensor) or isinstance(other, _autograd.ForwardTensor):
+        if left_info is not None: input = _tensor.Tensor(left, _metadata_owned=True)
+        if right_info is not None: other = _tensor.Tensor(right, _metadata_owned=True)
+        pa, ta = _autograd.forward_parts(input); pb, tb = _autograd.forward_parts(other)
+        return _autograd.ForwardTensor(where(condition, pa, pb), where(condition, ta, tb))
+    if left_tensor: left = input._data if same_dtype else _promotion.array(input, dtype)
+    if right_tensor: right = other._data if same_dtype else _promotion.array(other, dtype)
     mask = condition._data
-    return _autograd.result(np.where(mask, a._data, b._data),
-                  (a, lambda g: unbroadcast(np.where(mask, g, 0), a.shape)),
-                  (b, lambda g: unbroadcast(np.where(mask, 0, g), b.shape)), saved=(condition,))
+    try:
+        data = np.where(mask, left, right)
+    except ValueError as error:
+        raise RuntimeError('where operands cannot be broadcast together') from error
+    edges = []
+    if _state._grad_enabled:
+        if left_tensor and input.requires_grad:
+            shape = input.shape
+            edges.append((input, lambda g, shape=shape: unbroadcast(np.where(mask, g, 0), shape)))
+        if right_tensor and other.requires_grad:
+            shape = other.shape
+            edges.append((other, lambda g, shape=shape: unbroadcast(np.where(mask, 0, g), shape)))
+    return _autograd.result(data, *edges, saved=(condition,), versioned=(condition,))
 
 
 def _numpy_input(data, *, warn_readonly=False):
@@ -253,22 +313,68 @@ def einsum(equation, a, b):
                   (b, lambda g: unbroadcast(np.einsum(f'{output},{left}->{right}', g, a_data), b_data.shape)))
 
 
+def _join_dimension(dim, axis):
+    if axis is not _OMITTED:
+        if dim is not _DEFAULT_DIM: raise TypeError('Specify dim or axis, not both')
+        return axis
+    return 0 if dim is _DEFAULT_DIM else dim
+
+
+def cat(tensors, dim=_DEFAULT_DIM, *, out=None, axis=_OMITTED):
+    if out is not None: raise _errors.BrowserUnsupported('cat output buffers require the server')
+    return concatenate(tensors, _join_dimension(dim, axis))
+
+
+def stack(tensors, dim=_DEFAULT_DIM, *, out=None, axis=_OMITTED):
+    if out is not None: raise _errors.BrowserUnsupported('stack output buffers require the server')
+    return concatenate(tensors, _join_dimension(dim, axis), stack=True)
+
+
 def concatenate(tensors, dim=0, *, stack=False):
-    tensors = [wrap(value) for value in tensors]
-    if any(isinstance(v, _autograd.ForwardTensor) for v in tensors):
+    if not isinstance(tensors, (list, tuple)):
+        raise TypeError('Expected a list or tuple of Tensors')
+    if type(dim) is bool: raise TypeError('Tensor dimension must be an integer, not bool')
+    dim = operator.index(dim)
+    tensors = tuple(tensors)
+    if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
+    dtype, all_same, forward, empty, active = None, True, False, False, False
+    for value in tensors:
+        if not isinstance(value, _tensor.Tensor):
+            raise TypeError('Expected a list or tuple of Tensors')
+        forward = forward or isinstance(value, _autograd.ForwardTensor)
+        empty = empty or value.shape == (0,)
+        active = active or value.requires_grad
+        if dtype is None:
+            dtype = value.dtype
+        elif dtype != value.dtype:
+            all_same = False
+            dtype = _construction.promote_types(dtype, value.dtype)
+        if not stack and value.ndim == 0:
+            raise RuntimeError('Zero-dimensional tensors cannot be concatenated')
+    if forward:
         parts = [_autograd.forward_parts(v) for v in tensors]
         return _autograd.ForwardTensor(concatenate([v[0] for v in parts], dim, stack=stack), concatenate([v[1] for v in parts], dim, stack=stack))
-    if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
-    rank = tensors[0].ndim + int(stack)
+    values = tensors if stack or not empty else tuple(value for value in tensors if value.shape != (0,))
+    rank = (values[0] if values else tensors[0]).ndim + int(stack)
     if not -rank <= dim < rank: raise IndexError('Tensor dimension out of range')
     dim %= rank
-    floating = [value.dtype for value in tensors if value.dtype.kind == 'f']
-    dtype = np.result_type(*(floating or [value.dtype for value in tensors]))
-    values = [value._data.astype(dtype, copy=False) for value in tensors]
-    data = np.stack(values, axis=dim) if stack else np.concatenate(values, axis=dim)
+    arrays = [value._data for value in values or tensors] if all_same else [_promotion.array(value, dtype) for value in values or tensors]
+    try:
+        data = np.stack(arrays, axis=dim) if stack else np.concatenate(arrays, axis=dim)
+    except ValueError as error:
+        raise RuntimeError('Tensor shapes are incompatible for stack/concatenation') from error
+    if not active or not _state._grad_enabled:
+        return _autograd.result(data, saves_tensors=False)
     edges, offset = [], 0
     for value in tensors:
+        if not stack and value.shape == (0,) and values:
+            if value.requires_grad and _state._grad_enabled:
+                edges.append((value, lambda g: np.empty((0,), dtype=g.dtype)))
+            continue
         start, end = offset, offset + (1 if stack else value.shape[dim])
+        if not value.requires_grad:
+            offset = end
+            continue
         def vjp(g, start=start, end=end):
             index = [slice(None)] * rank
             index[dim] = start if stack else slice(start, end)
@@ -386,4 +492,4 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _construction, _conversion, _device, _errors, _state, _tensor
+from . import _autograd, _construction, _conversion, _device, _errors, _promotion, _state, _tensor
