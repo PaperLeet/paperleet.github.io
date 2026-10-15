@@ -24,12 +24,15 @@ export function jobErrorText(message: string, locale: string): string {
     "Sign in to view or submit judge jobs.": "请登录后查看或提交判题任务。",
     "Your account changed. Reload before submitting.": "账号已变更，请刷新页面后再提交。",
     "The judge job service is temporarily unavailable. Your draft is preserved.": "判题任务服务暂时不可用；你的草稿已保留。",
+    "The queue stayed full. Automatic waiting stopped; your draft is preserved.": "队列持续繁忙，已停止自动等待；草稿仍保留，可稍后重新提交。",
+    "The submission is being confirmed. Wait for its queue status before cancelling.": "正在确认这次提交，确认入队后才能取消排队。",
+    "Server submission could not start. Your draft is preserved; try again.": "服务端提交未能启动；草稿已保留，请重试。",
     "Too many requests. Please wait before submitting again.": "提交过于频繁，请稍候再试。",
   };
   return translations[message] || message;
 }
 export class JobRequestError extends Error {
-  constructor(message: string, public status: number) { super(message); }
+  constructor(message: string, public status: number, public code?: string, public retryAfter?: string) { super(message); }
 }
 
 export function parseJob(value: unknown): JudgeJob {
@@ -57,8 +60,13 @@ export async function requestJob(path: string, client: string, signal: AbortSign
     cache: "no-store",
     signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]),
   });
-  const value = await response.json();
-  if (!response.ok) throw new JobRequestError(value.error || "Judge job unavailable", response.status);
+  const value = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = typeof value?.error === 'string' ? value.error : 'Judge job unavailable';
+    const code = typeof value?.code === 'string' && value.code.length <= 64 ? value.code : undefined;
+    const retry = response.headers.get('Retry-After');
+    throw new JobRequestError(message, response.status, code, retry && retry.length <= 128 ? retry : undefined);
+  }
   return parseJob(value);
 }
 

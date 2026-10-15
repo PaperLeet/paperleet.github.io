@@ -404,7 +404,8 @@ function Workspace() {
     : '';
   const browserStatus = browserProgressText(browser.progress || { stage: browser.stage || 'loading' }, locale === 'en');
   const queuedHere = judge.pending?.problem === problem?.id;
-  const runStatus = judge.reconnecting ? t("连接中断，正在恢复任务状态…", "Reconnecting to your existing job…")
+  const runStatus = judge.waiting ? judge.waiting.attempting ? t("正在确认能否入队…", "Confirming admission…") : t("正在等待判题名额…", "Waiting for a judge slot…")
+    : judge.reconnecting ? t("连接中断，正在恢复任务状态…", "Reconnecting to your existing job…")
     : judge.job?.status === "queued" ? t(`正在排队，前方 ${judge.job.ahead} 个任务`, `Queued · ${judge.job.ahead} jobs ahead`)
     : judge.job?.status === "running" ? t("正在执行测试…", "Running tests…")
     : t("正在提交判题任务…", "Submitting your job…");
@@ -1297,7 +1298,8 @@ function Workspace() {
                     </div>
                     <p>
                       {running
-                        ? browserHere ? browserStatus : queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
+                        ? judge.active ? queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
+                        : browser.active && browserHere ? browserStatus : t('正在准备测试…','Preparing tests…')
                         : syntaxFailure
                           ? hasCurrentSyntaxError
                             ? t('语法检查失败。查看详情定位错误，修改后重新运行。','Syntax check failed. View details, fix the source, and run again.')
@@ -1317,7 +1319,7 @@ function Workspace() {
                       {running ? (
                         <>
                           <span className="spinner" />
-                          {judge.job?.status === "queued" ? t("正在排队…", "Queued…") : t("正在判题…", "Running tests…")}
+                          {judge.active ? runStatus : browser.active ? t("浏览器判题中…", "Running in browser…") : t("正在准备测试…", "Preparing tests…")}
                         </>
                       ) : hosted && !user && !browserAvailable ? (
                         <a href={signInHref(id)}>

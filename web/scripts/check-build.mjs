@@ -15,6 +15,13 @@ for (const key of ['src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.ts
   assert(manifest[key]?.isDynamicEntry, `${key} must remain a deferred entry`);
   assert(!initial.has(key), `${key} must not load with the paper library`);
 }
+for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
+  if (process.env.VITE_PUBLIC_SITE === '1') assert(!manifest[key], `${key} must be removed from the browser-only edition`);
+  else {
+    assert(manifest[key]?.isDynamicEntry, `${key} must load only when server judging is needed`);
+    assert(!initial.has(key), `${key} must not load with the paper library`);
+  }
+}
 const files = [...initial].map(key => manifest[key].file);
 assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichText|SolutionHistory)-/.test(file)), 'Optional runtime dependencies must not be pulled back into the shell');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);

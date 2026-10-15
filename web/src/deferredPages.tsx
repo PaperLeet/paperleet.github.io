@@ -19,3 +19,5 @@ export const PythonEditor = deferredFeature(() => import('./PythonEditor'), ['�
 function FeatureProseFailure({ retry }: { retry: () => void }) {
   return <FeatureFailure label={['题面与公式', 'statements and formulas']} retry={retry} />;
 }
+
+export const QueueAdmissionNotice = deferredFeature(() => import('./QueueAdmissionNotice'), ['等待状态', 'queue waiting status'], {loading: props => <QueueAdmissionFallback {...props} />, failure: props => <QueueAdmissionFallback {...props} />});

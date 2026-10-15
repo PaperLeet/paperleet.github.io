@@ -1,116 +1,51 @@
-import { useEffect, useRef, useState } from "react";
-import { useAccount } from "./social";
-import { JobRequestError, requestJob, watchJob } from "./judgeJobs";
-import type { JudgeJob } from "./judgeJobs";
-import type { Report } from "./types";
+import { useEffect, useRef, useState } from 'react';
+import { useAccount } from './social';
+import type { Report } from './types';
+import type { QueuedJudgeController, QueuedJudgeView } from './queuedJudgeController';
 
-type Pending = { id: string; problem: string };
-type View = { owner: string; pending?: Pending; job?: JudgeJob; reconnecting: boolean; error: string };
-const uuid = () => crypto.randomUUID().replaceAll("-", "");
-const keyFor = (owner: string) => `paperleet.judge.pending.v1:${owner}`;
-function clientId() {
+const empty=(owner:string):QueuedJudgeView=>({owner,reconnecting:false,error:''});
+function clientId(){
   try {
-    const saved = sessionStorage.getItem("paperleet.judge.client.v1");
-    if (saved && /^[a-f0-9]{32}$/.test(saved)) return saved;
-    const id = uuid();
-    sessionStorage.setItem("paperleet.judge.client.v1", id);
-    return id;
-  } catch { return uuid(); }
+    const saved=sessionStorage.getItem('paperleet.judge.client.v1');
+    if(saved&&/^[a-f0-9]{32}$/.test(saved))return saved;
+    const id=crypto.randomUUID().replaceAll('-','');sessionStorage.setItem('paperleet.judge.client.v1',id);return id;
+  } catch{return crypto.randomUUID().replaceAll('-','');}
 }
-function remember(owner: string, value?: Pending) {
-  try {
-    if (value) sessionStorage.setItem(keyFor(owner), JSON.stringify(value));
-    else sessionStorage.removeItem(keyFor(owner));
-  } catch { /* Polling works without storage; refresh recovery needs session storage. */ }
-}
-function recall(owner: string): Pending | undefined {
-  try {
-    const value = JSON.parse(sessionStorage.getItem(keyFor(owner)) || "null");
-    if (value && /^[a-f0-9]{32}$/.test(value.id) && typeof value.problem === "string") return value;
-  } catch { /* Ignore invalid or unavailable session storage. */ }
-}
-const empty = (owner: string): View => ({ owner, reconnecting: false, error: "" });
-
-export function useQueuedJudge(owner: string, ready: boolean, onReport: (report: Report, owner: string) => void) {
-  const { health, user } = useAccount();
-  const [client] = useState(clientId);
-  const [view, setView] = useState<View>(() => empty(owner));
-  const controller = useRef<AbortController | undefined>(undefined);
-  const callback = useRef(onReport);
-  callback.current = onReport;
-  const visible = view.owner === owner ? view : empty(owner);
-
-  async function attach(pending: Pending, runOwner: string, signal: AbortSignal) {
-    try {
-      const job = await watchJob(pending.id, client, signal,
-        (job) => {
-          if (job.problem !== pending.problem) throw new JobRequestError("The judge returned a different module", 422);
-          if (!signal.aborted) setView({ owner: runOwner, pending, job, reconnecting: false, error: "" });
-        },
-        (connected) => { if (!signal.aborted) setView((previous) => previous.owner === runOwner ? { ...previous, reconnecting: !connected } : previous); });
-      if (signal.aborted) return;
-      remember(runOwner);
-      setView({ owner: runOwner, job, reconnecting: false, error: job.status === "failed" ? job.error || "Judge job failed" : "" });
-      if (job.status === "succeeded" && job.report) callback.current(job.report, runOwner);
-    } catch (error) {
-      if (signal.aborted) return;
-      remember(runOwner);
-      setView({ owner: runOwner, reconnecting: false, error: error instanceof Error ? error.message : "Judge job unavailable" });
-    }
+type Context={owner:string;disposed:boolean;controller?:QueuedJudgeController;promise:Promise<QueuedJudgeController>};
+export function useQueuedJudge(owner:string,ready:boolean,onReport:(report:Report,owner:string)=>void){
+  const {health,user}=useAccount(),[client]=useState(clientId),[view,setView]=useState(()=>empty(owner));
+  const callback=useRef(onReport);callback.current=onReport;
+  const current=useRef({owner,ready});current.current={owner,ready};
+  const context=useRef<Context|undefined>(undefined);
+  function getController(){
+    const previous=context.current;
+    if(previous&&!previous.disposed&&previous.owner===owner)return previous.promise;
+    const next:Context={owner,disposed:false,promise:undefined!};
+    const alive=()=>!next.disposed&&context.current===next&&current.current.owner===owner&&current.current.ready;
+    next.promise=import('./queuedJudgeController').then(module=>{
+      if(!alive())throw new DOMException('Owner changed','AbortError');
+      return next.controller=new module.QueuedJudgeController({owner,client,expectedUser:health?.mode==='hosted'?user?.id:undefined,
+        alive,onView:setView,onReport:(report,runOwner)=>{if(alive())callback.current(report,runOwner);}});
+    });
+    context.current=next;return next.promise;
   }
-
-  useEffect(() => {
-    controller.current?.abort();
+  function fail(error:unknown){
+    if(current.current.owner!==owner||!current.current.ready||error instanceof DOMException&&error.name==='AbortError')return;
+    if(context.current?.owner===owner){context.current.disposed=true;context.current.controller?.dispose();context.current=undefined;}
+    setView({...empty(owner),error:'Server submission could not start. Your draft is preserved; try again.'});
+  }
+  useEffect(()=>{
     setView(empty(owner));
-    if (!ready) return;
-    const pending = recall(owner);
-    if (pending) {
-      const next = new AbortController();
-      controller.current = next;
-      setView({ ...empty(owner), pending });
-      void attach(pending, owner, next.signal);
+    if(ready){
+      let pending=false;
+      try{pending=!!sessionStorage.getItem(`paperleet.judge.pending.v1:${owner}`);}catch{/* No recovery without a receipt. */}
+      if(pending)void getController().then(controller=>controller.resume()).catch(fail);
     }
-    return () => controller.current?.abort();
-  }, [owner, ready]);
-
-  async function submit(problem: string, code: string) {
-    if (!ready || visible.pending) return;
-    const pending = { id: uuid(), problem };
-    const next = new AbortController();
-    controller.current?.abort();
-    controller.current = next;
-    remember(owner, pending);
-    setView({ ...empty(owner), pending });
-    try {
-      const job = await requestJob("", client, next.signal, { ...pending, code,
-        ...(health?.mode === "hosted" ? { expected_user_id: user?.id } : {}) });
-      if (next.signal.aborted) return;
-      if (job.id !== pending.id || job.problem !== pending.problem) throw new JobRequestError("The judge returned a different submission", 502);
-      setView({ ...empty(owner), pending, job });
-      void attach(pending, owner, next.signal);
-    } catch (error) {
-      if (next.signal.aborted) return;
-      if (!(error instanceof JobRequestError) || error.status >= 500) {
-        // Creation may have succeeded before the reply was lost. Query its
-        // stable ID rather than submit the same source a second time.
-        setView({ ...empty(owner), pending, reconnecting: true });
-        void attach(pending, owner, next.signal);
-      } else {
-        remember(owner);
-        setView({ ...empty(owner), error: error.message });
-      }
-    }
-  }
-
-  async function cancel() {
-    if (!visible.pending || visible.job?.status !== "queued") return;
-    try {
-      await requestJob(`/${visible.pending.id}/cancel`, client, controller.current!.signal,
-        health?.mode === "hosted" ? { expected_user_id: user?.id } : {});
-    } catch (error) {
-      if (controller.current?.signal.aborted) return;
-      setView((previous) => previous.owner === owner ? { ...previous, error: error instanceof Error ? error.message : "Could not cancel this job" } : previous);
-    }
-  }
-  return { ...visible, active: !!visible.pending, submit, cancel };
+    return()=>{const previous=context.current;if(previous){previous.disposed=true;previous.controller?.dispose();if(context.current===previous)context.current=undefined;}};
+  },[owner,ready]);
+  const visible=view.owner===owner?view:empty(owner);
+  return {...visible,active:!!visible.pending,
+    submit:async(problem:string,code:string)=>{if(ready&&current.current.owner===owner&&current.current.ready)try{await(await getController()).submit(problem,code);}catch(error){fail(error);}},
+    cancel:()=>current.current.owner===owner?context.current?.controller?.cancel():undefined,
+    stopWaiting:()=>current.current.owner===owner&&(context.current?.controller?.stopWaiting()||false)};
 }
