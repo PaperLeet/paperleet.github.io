@@ -162,6 +162,41 @@ rules. Saved-state violations use the library's typed unsupported-operation
 policy. Default and retained backward, mixed-dtype/broadcast gradients and the
 validated forward-mode subset are covered by independent CPU/WASM contracts.
 
+## Core arithmetic
+
+`torch.add/sub/mul/div`, their ordinary Tensor methods and
+`subtract/multiply/divide/true_divide` aliases accept Tensor or Number operands.
+`add` and `sub` support checked `alpha`; `div` accepts `rounding_mode="floor"`
+or `"trunc"`. Promotion respects dimensioned Tensor, scalar Tensor and Number
+priority rather than NumPy's integer-to-float widening. Integer true division
+produces float32, while rounded int64 division keeps integer precision.
+
+```python
+x = torch.tensor([3., -3.], requires_grad=True)
+y = torch.add(x, 2., alpha=0.5)
+assert y.tolist() == [4., -2.]
+assert torch.div(x, 2., rounding_mode="floor").tolist() == [1., -2.]
+y.sum().backward()
+assert x.grad.tolist() == [1., 1.]
+```
+
+`torch.reciprocal(x)` and `x.reciprocal()` preserve floating/complex storage;
+integer and boolean inputs produce float32. Python `number / tensor` follows
+native reciprocal-then-multiply order, while functional `torch.div(number,
+tensor)` performs direct division. This distinction matters at overflow,
+underflow and signed-zero boundaries. Rounded division has zero derivatives;
+ordinary arithmetic and real reciprocal support the validated reverse/forward
+AD subset. Complex reverse graphs, ComplexHalf and wider-unsigned kernels that
+have not been validated fail explicitly. `out=None` works; actual output buffers
+remain unsupported.
+
+Arithmetic kernels, reverse accumulation and gradient-seed casts isolate NumPy
+floating-point error settings, returning IEEE non-finite values as native Torch
+does. User Tensor hooks run with the caller's NumPy policy; hook changes to
+`seterr`/`seterrcall` and hook exceptions persist through the reverse traversal.
+This does not add floating-point trapping to WASM: its behavior depends on the
+underlying NumPy runtime.
+
 ## Models and in-memory checkpoints
 
 `nn.Module` registers parameters, child modules and buffers, with deduplicated
@@ -558,6 +593,10 @@ promise for other devices or browser downloads. The
 [measurement record](benchmarks/results/linear-wasm-0.13.1.json) identifies the
 source, runtime, samples and scope. Empty/strided shapes, independent scalar and
 native gradients, repeated backward seeds, JVP and mutation guards are covered.
+
+The [unreleased 0.14 validation record](../../docs/validation/torch-runtime-iteration-14.md)
+tracks arithmetic promotion, native numerical order, callback policies and
+separately preserved optimization phases. Its pending release gates are explicit.
 
 The [0.13 validation record](../../docs/validation/torch-runtime-iteration-13.md)
 tracks mixed-dtype selection/joins, where graph retention and CPU/WASM/Chrome

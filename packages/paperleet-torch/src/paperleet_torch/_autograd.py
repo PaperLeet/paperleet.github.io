@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 
 
-from . import _graph, _tensor
+from . import _arithmetic, _graph, _tensor
 
 def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
@@ -52,6 +52,11 @@ def backprop(output, seed, *, retain_graph=False, inputs=None, accumulate=False)
     return _graph.run(roots, seeds, retain_graph=retain_graph, targets=targets, accumulate=accumulate)
 
 
+def match_tangent(tangent, primal):
+    if tangent.dtype != primal.dtype: tangent = tangent.to(dtype=primal.dtype)
+    return tangent if tangent.shape == primal.shape else tangent.expand(primal.shape)
+
+
 class ForwardTensor(_tensor.Tensor):
     """One forward tangent; both channels retain ordinary reverse-mode graphs."""
     def __init__(self, primal, tangent):
@@ -75,22 +80,45 @@ class ForwardTensor(_tensor.Tensor):
         return self._tangent_value
 
     def __add__(self, other):
-        p, t = forward_parts(other)
-        return ForwardTensor(self._primal + p, self._tangent + t)
+        raw = other._primal if isinstance(other, ForwardTensor) else other
+        primal = self._primal + raw
+        tangent = self._tangent + other._tangent if isinstance(other, ForwardTensor) else match_tangent(self._tangent, primal)
+        return ForwardTensor(primal, tangent)
     def __radd__(self, other): return self + other
     def __neg__(self): return ForwardTensor(-self._primal, -self._tangent)
-    def __sub__(self, other): return self + -other
-    def __rsub__(self, other): return -self + other
+    def __sub__(self, other):
+        raw = other._primal if isinstance(other, ForwardTensor) else other
+        primal = self._primal - raw
+        tangent = self._tangent - other._tangent if isinstance(other, ForwardTensor) else match_tangent(self._tangent, primal)
+        return ForwardTensor(primal, tangent)
+    def __rsub__(self, other):
+        raw = other._primal if isinstance(other, ForwardTensor) else other
+        primal = raw - self._primal
+        tangent = other._tangent - self._tangent if isinstance(other, ForwardTensor) else match_tangent(-self._tangent, primal)
+        return ForwardTensor(primal, tangent)
     def __mul__(self, other):
-        p, t = forward_parts(other)
-        return ForwardTensor(self._primal * p, self._tangent * p + self._primal * t)
+        p = _arithmetic.forward_primal(self._primal, other)
+        primal = self._primal * p
+        tangent = self._tangent * p
+        if isinstance(other, ForwardTensor): tangent = tangent + self._primal * other._tangent
+        return ForwardTensor(primal, tangent)
     def __rmul__(self, other): return self * other
     def __truediv__(self, other):
-        p, t = forward_parts(other)
-        return ForwardTensor(self._primal / p, (self._tangent - (self._primal / p) * t) / p)
+        p = _arithmetic.forward_primal(self._primal, other)
+        primal = self._primal / p
+        tangent = (self._tangent - primal * other._tangent) / p if isinstance(other, ForwardTensor) else self._tangent / p
+        return ForwardTensor(primal, tangent)
     def __rtruediv__(self, other):
-        p, t = forward_parts(other)
-        return ForwardTensor(p / self._primal, (t - (p / self._primal) * self._tangent) / self._primal)
+        if not isinstance(other, _tensor.Tensor): return self.reciprocal() * other
+        p = other._primal if isinstance(other, ForwardTensor) else other
+        primal = p / self._primal
+        numerator = other._tangent.to(dtype=primal.dtype) - primal * self._tangent if isinstance(other, ForwardTensor) else -primal * self._tangent
+        return ForwardTensor(primal, numerator / self._primal)
+    def reciprocal(self):
+        with np.errstate(all='ignore'):
+            primal = self._primal.reciprocal()
+            tangent = self._tangent * -(primal * primal)
+        return ForwardTensor(primal, tangent)
     def __pow__(self, exponent):
         p = self._primal ** exponent
         t = self._tangent * (exponent * self._primal ** (exponent - 1)) if exponent else self._tangent * 0
@@ -215,7 +243,9 @@ def _backward_arguments(outputs, gradients, retain_graph, create_graph):
             if not isinstance(gradient,_tensor.Tensor):raise TypeError('Gradient must be a Tensor or None')
             if gradient.shape!=output.shape:raise RuntimeError('Gradient shape must match its output')
             if gradient.dtype.kind=='c':raise _errors.BrowserUnsupported('Complex backward seeds are unsupported')
-            seed=np.asarray(gradient._data,dtype=output.dtype)
+            if gradient.dtype == output.dtype: seed=gradient._data
+            else:
+                with np.errstate(all='ignore'): seed=np.asarray(gradient._data,dtype=output.dtype)
         seeds.append(seed)
     return outputs,tuple(seeds),bool(retain_graph)
 

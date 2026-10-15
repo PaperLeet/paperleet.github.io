@@ -141,6 +141,12 @@ def create_torch(name='torch', *, register=False):
         return input @ other
     registry.group('torch', {'outer': outer, 'dot': dot}, reverse='analytic')
     registry.group('torch', {
+        'reciprocal': _arithmetic.reciprocal,
+        'add': _arithmetic.add, 'sub': _arithmetic.sub, 'subtract': _arithmetic.sub,
+        'mul': _arithmetic.mul, 'multiply': _arithmetic.mul,
+        'div': _arithmetic.div, 'divide': _arithmetic.div, 'true_divide': _arithmetic.true_divide,
+    }, reverse='analytic', forward=True)
+    registry.group('torch', {
         'floor_divide': lambda input,other: _ops.wrap(input).floor_divide(other),
         'unique': _ops.unique, 'bincount': _ops.bincount,
     })  # Reverse AD is unavailable; plain values remain supported.
@@ -211,4 +217,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor
+from . import _arithmetic, _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor

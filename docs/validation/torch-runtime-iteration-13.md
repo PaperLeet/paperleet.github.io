@@ -177,3 +177,22 @@ All **4,390** upstream published hashed assets are byte-identical; no unpublishe
 unreachable assets require removal. Official Pages retention/backfill checks pass.
 Thirteen Chrome suites cover 95 original tests and catch 61 representative mutants,
 in addition to 116 standalone contracts.
+
+## Remote quality and exact live verification
+
+Commit `594a984d8fed2fbcba933e946e8177922c742871` is adopted on main. Its
+[Quality run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38809390693)
+and [Pages run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38809390732)
+both succeed. Hosted tests pass 8,856 cases (one optional Docker skip, seven
+warnings) in 340.27 seconds. Native CI passes all 77 modules, 9,987 executions,
+three repetitions and 336 mutants in 295.59 seconds; all 13 pinned WASM suites pass.
+
+An independent verifier compares the live compact index, all 77 starters and every
+referenced manifest to expectations frozen from this exact commit. Both runtime
+bundles match byte-for-byte: autograd 351,662 bytes / SHA-256
+`9ff414c4d8d81f3aee9d1371cc0b9e71d5b3a89c12c6f024ec319a7d91a6aa3f`
+(30 Python sources), and schedules 35,895 bytes / SHA-256
+`56d884869fc7c94748c023274066bf5ca4b96b1049172340a61f0997581cae4a`
+(three sources). Version 0.13.0 and canonical Apache LICENSE/NOTICE match in both.
+Frozen expected assets and complete verifier/remote logs remain in iteration 13;
+they are independent of later working-tree source changes.

@@ -25,6 +25,10 @@ def scalar_info(value):
     """Parse a Number argument, distinct from sequence constructor storage."""
     if type(value) is bool:
         return value, _BOOL
+    if type(value) is float:
+        return value, _FLOAT
+    if type(value) is complex:
+        return value, _COMPLEX
     if isinstance(value, (int, np.integer)):
         number = operator.index(value)
         if -(2**63) <= number < 2**63:

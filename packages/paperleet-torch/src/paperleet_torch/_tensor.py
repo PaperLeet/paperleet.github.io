@@ -238,7 +238,8 @@ class Tensor:
         else:
             if not isinstance(self.grad, Tensor) or self.grad.shape != grad.shape or self.grad.dtype.kind != 'f':
                 raise RuntimeError('Existing gradient must be a floating Tensor of the correct shape')
-            self.grad._data[...] += grad
+            with np.errstate(all='ignore'):
+                self.grad._data[...] += grad
             self.grad._storage.bump()
 
     def __getitem__(self, index):
@@ -355,41 +356,56 @@ class Tensor:
         value.grad = copy.deepcopy(self.grad, memo)
         return value
 
-    def _binary(self, other, op, left, right, *, saves_tensors=True):
-        if not isinstance(other, (Tensor, np.ndarray)):
-            metadata_owned = type(other) in (int, float, bool, complex) or (isinstance(other, np.generic) and type(other) is other.dtype.type)
-            if isinstance(other, (complex, np.complexfloating)):
-                other = Tensor(other, dtype=np.complex128 if self.dtype in (np.dtype('float64'),np.dtype('complex128')) else np.complex64, _metadata_owned=metadata_owned)
-            elif self.dtype.kind in 'fc': other = Tensor(other, dtype=self.dtype, _metadata_owned=metadata_owned)
-        other = _ops.wrap(other)
-        a, b = self._data, other._data
-        floating = [value.dtype for value in (a,b) if value.dtype.kind in 'fc']
-        if floating:
-            dtype = np.result_type(*floating)
-            for array, scalar in ((a,b),(b,a)):
-                if array.ndim and not scalar.ndim and array.dtype.kind in 'fc':
-                    dtype = array.dtype
-                    if array.dtype.kind == 'f' and scalar.dtype.kind == 'c':
-                        dtype = np.dtype('complex128' if array.dtype.itemsize == 8 else 'complex64')
-            a, b = a.astype(dtype,copy=False), b.astype(dtype,copy=False)
-        elif a.dtype.kind in 'biu' and b.dtype.kind in 'biu':
-            dtype = a.dtype if a.ndim and not b.ndim and a.dtype.kind!='b' else b.dtype if b.ndim and not a.ndim and b.dtype.kind!='b' else np.result_type(a.dtype,b.dtype)
-            a,b=a.astype(dtype,copy=False),b.astype(dtype,copy=False)
+    def _binary(self, other, op, left, right, *, saves_tensors=True, floating=False, subtract=False, reverse=False):
+        other, a, b, dtype = _arithmetic.operands(self, other, floating=floating, subtract=subtract)
+        if dtype.kind == 'u' and dtype.itemsize > 1 and (op in (np.add, np.subtract) or subtract):
+            raise _errors.BrowserUnsupported('This unsigned arithmetic kernel requires the server')
+        with np.errstate(all='ignore'):
+            try:
+                first, second = (b, a) if reverse else (a, b)
+                if dtype.kind == 'c' and op in (np.add, np.subtract):
+                    sign = np.asarray(1 if op is np.add else -1, dtype=dtype)
+                    data = np.add(first, np.multiply(second, sign))
+                else: data = op(first, second)
+            except ValueError as error: raise RuntimeError('Arithmetic operands have incompatible shapes') from error
+        if (not _state._grad_enabled or not self.requires_grad and (other is None or not other.requires_grad)) and not isinstance(self, _autograd.ForwardTensor) and not isinstance(other, _autograd.ForwardTensor):
+            return _autograd.result(data, saves_tensors=False)
         if not saves_tensors:
-            left_shape,right_shape = a.shape,b.shape
-            return _autograd.result(op(a,b),
-                (self,lambda g:_ops.unbroadcast(left(g,None,None),left_shape)),
-                (other,lambda g:_ops.unbroadcast(right(g,None,None),right_shape)),saves_tensors=False)
-        return _autograd.result(op(a, b), (self, lambda g: _ops.unbroadcast(left(g, a, b), a.shape)),
-                      (other, lambda g: _ops.unbroadcast(right(g, a, b), b.shape)))
+            left_shape, right_shape = a.shape, b.shape
+            left_edge = (self, lambda g: _ops.unbroadcast(left(g,None,None),left_shape))
+            if other is None: return _autograd.result(data, left_edge, saves_tensors=False)
+            return _autograd.result(data, left_edge,
+                (other, lambda g: _ops.unbroadcast(right(g,None,None),right_shape)), saves_tensors=False)
+        left_edge = (self, lambda g: _ops.unbroadcast(left(g,a,b),a.shape))
+        if other is None: return _autograd.result(data, left_edge)
+        return _autograd.result(data, left_edge,
+            (other, lambda g: _ops.unbroadcast(right(g,a,b),b.shape)))
     def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g, saves_tensors=False)
     __radd__ = __add__
-    def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g, saves_tensors=False)
-    def __rsub__(self, other): return -self + other
+    def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g, saves_tensors=False, subtract=True)
+    def __rsub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:-g, lambda g,a,b:g, saves_tensors=False, subtract=True, reverse=True)
     def __mul__(self, other): return self._binary(other, np.multiply, lambda g,a,b:g*b, lambda g,a,b:g*a)
     __rmul__ = __mul__
-    def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*a/(b*b))
-    def __rtruediv__(self, other): return self._binary(other, lambda a,b: b/a, lambda g,a,b: -g*b/(a*a), lambda g,a,b: g/a)
+    def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*((a/b)/b), floating=True)
+    def __rtruediv__(self, other):
+        if type(self) is Tensor and type(other) in (bool, int, float, complex):
+            return _arithmetic.reflected_number_divide(self, other)
+        return self.reciprocal() * other
+    def reciprocal(self):
+        source = self._data
+        with np.errstate(all='ignore'):
+            data = _arithmetic.reciprocal_values(source)
+        value = _autograd.result(data, (self, lambda g: g * -(data * data)), versioned=())
+        if value.requires_grad:
+            # Reciprocal backward saves its output, not the input values.
+            value._grad_node.versions = ((value._storage, value._storage.version),)
+        return value
+    def add(self, other, *, alpha=1): return _arithmetic.add(self, other, alpha=alpha)
+    def sub(self, other, *, alpha=1): return _arithmetic.sub(self, other, alpha=alpha)
+    def mul(self, other): return _arithmetic.mul(self, other)
+    def div(self, other, *, rounding_mode=None): return _arithmetic.div(self, other, rounding_mode=rounding_mode)
+    def true_divide(self, other): return _arithmetic.true_divide(self, other)
+    subtract, multiply, divide = sub, mul, div
     def floor_divide(self, other):
         other_value = _ops.wrap(other)
         self._real_only(); other_value._real_only()
@@ -1052,4 +1068,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks
+from . import _arithmetic, _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks
