@@ -88,10 +88,22 @@ behavior. Passing its current exercises alone does not establish library readine
 - Native full-gradient encoder training and independent NumPy-only stochastic
   AdamW/scheduler checkpoint workflows validate behavior beyond lesson coverage.
 
+## Version 0.8 milestone
+
+- Python-style missing-attribute behavior, generic model initialization,
+  registered-name introspection and computed submodule access.
+- Local forward pre/post callbacks support ordering, kwargs, input/output
+  replacement, gradients, always-call exception cleanup and removable handles.
+- Public checkpoint pre/post callbacks support metadata, format transformation,
+  child traversal and shared incompatible-key editing during continuation.
+- Weak handles, deep-copy behavior, lazy callback storage and an unhooked call
+  path are validated with native-reference and independent NumPy/WASM workflows.
+
 ## Next implementation areas
 
-1. Remaining model lifecycle: common hooks where bounded behavior can be
-   validated; define file checkpoint serialization and expand memory formats.
+1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization
+   and expanded memory formats. Local forward and public checkpoint callbacks
+   are covered by the 0.8 milestone above.
 2. Optimizer extensions: remaining scheduling policies, common hooks and algorithms where
    numerical and performance evidence justify them; keep state compatibility and
    unknown-option errors explicit. Profile small-parameter update overhead.

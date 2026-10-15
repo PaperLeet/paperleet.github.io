@@ -18,7 +18,7 @@ const repeat = Number(values.repeat), iterations = Number(values.iterations);
 if (!Number.isInteger(repeat) || !Number.isInteger(iterations) || Math.min(repeat,iterations) < 1) {
   throw new Error('repeat and iterations must be positive integers');
 }
-if (!['runtime','schedulers','nn'].includes(values.benchmark)) throw new Error('Unknown benchmark');
+if (!['runtime','schedulers','nn','module_hooks'].includes(values.benchmark)) throw new Error('Unknown benchmark');
 if (values.benchmark === 'schedulers' && (values.case || values.dtype !== 'float32')) {
   throw new Error('Scheduler suite uses fixed float32 fixtures and all cases');
 }

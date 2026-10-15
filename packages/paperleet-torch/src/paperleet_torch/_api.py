@@ -25,7 +25,7 @@ def create_torch(name='torch', *, register=False):
                  'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
                  'nn.modules.normalization', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
                  'nn.modules.flatten', 'nn.modules.distance',
-                 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
+                 'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name):
@@ -50,6 +50,9 @@ def create_torch(name='torch', *, register=False):
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
     ):
         for name in names:setattr(torch.nn,name,getattr(module,name))
+    torch.utils = modules['torch.utils']
+    torch.utils.hooks = modules['torch.utils.hooks']
+    torch.utils.hooks.RemovableHandle = _module_hooks.RemovableHandle
     torch.nn.parameter = modules['torch.nn.parameter']
     torch.nn.parameter.Parameter = torch.nn.Parameter
     torch.nn.modules = modules['torch.nn.modules']
@@ -201,4 +204,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _activation, _autograd, _conversion, _device, _errors, _linalg, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor
+from . import _activation, _autograd, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _random, _registry, _schedulers, _tensor

@@ -18,6 +18,17 @@ package source directory, allowing a frozen baseline to run in a separate fresh
 process. CPU baselines can use `PYTHONPATH=/path/to/baseline-parent` with the
 same benchmark file. Inspect the recorded implementation path to verify imports.
 
+`bench_module_hooks.py` measures unhooked/removed-hook/active-hook dispatch,
+16-layer identity composition, frozen linear inference, module construction,
+checkpoint saving/loading and registration/removal. Run it on CPU, or pass
+`--benchmark module_hooks` to the WASM runner. The default has eleven batches of
+1,200 calls; small dispatch/construction/registration cases use ten times that
+count to reduce browser timer quantization. Each result records its actual inner
+iteration count. Hook-free baselines execute the six common cases; callback
+cases require a version that implements their registration methods. Cases are
+separate fixtures, and callback registration is outside timings except in the
+explicit `register_remove` case.
+
 Use `--dtype float64` to measure double-precision workloads. Repeat `--case`
 to select a smaller set, for example `--case attention_backward --case linear_backward`.
 `bench_attention_memory.py` separately records forward retained/peak and backward

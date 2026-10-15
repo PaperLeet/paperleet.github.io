@@ -1,12 +1,25 @@
 """Model registration, traversal and in-memory state independent of the judge."""
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping
+from functools import partial
 from reprlib import recursive_repr
 
 import numpy as np
 
 from . import _tensor
 from ._module_conversion import ModuleConversion
+from ._module_hooks import ModuleHooks
+
+
+_UNSUPPORTED_MODULE_METHODS = frozenset({
+    'register_backward_hook', 'register_full_backward_hook', 'register_full_backward_pre_hook',
+    'cuda', 'mps', 'xpu', 'ipu', 'mtia', 'half', 'bfloat16', 'to_empty', 'share_memory', 'compile',
+    '_register_state_dict_hook', '_register_load_state_dict_pre_hook',
+})
+
+
+def _unsupported_method(name, *args, **kwargs):
+    return _errors.unsupported(name)
 
 
 class Parameter(_tensor.Tensor):
@@ -29,10 +42,11 @@ class _IncompatibleKeys(namedtuple('IncompatibleKeys', 'missing_keys unexpected_
         return super().__repr__()
 
 
-class Module(ModuleConversion):
+class Module(ModuleHooks, ModuleConversion):
     """Registered models and buffers with native-style shared-object semantics.
 
-    Hooks and assign-based checkpoint loading remain unsupported interfaces.
+    Local forward/checkpoint hooks are supported; backward hooks and assign-based
+    checkpoint loading remain unsupported interfaces.
     State dictionaries are in-memory Tensor mappings with optional model extra state.
     """
     _version = 1
@@ -43,15 +57,22 @@ class Module(ModuleConversion):
         object.__setattr__(self, '_buffers', {})
         object.__setattr__(self, '_modules', {})
         object.__setattr__(self, '_non_persistent_buffers_set', set())
+        object.__setattr__(self, '_has_forward_hooks', False)
 
     def __getattr__(self, name):
         for registry in ('_parameters', '_buffers', '_modules'):
             values = self.__dict__.get(registry, {})
             if name in values:
                 return values[name]
-        if name.startswith('_'):
-            raise AttributeError(name)
-        return _errors.unsupported(f'nn.Module.{name}')
+        if name in _UNSUPPORTED_MODULE_METHODS:
+            return partial(_unsupported_method, f'nn.Module.{name}')
+        raise AttributeError(f'{type(self).__name__!r} object has no attribute {name!r}')
+
+    def __dir__(self):
+        names = set(super().__dir__())
+        for registry in ('_parameters', '_buffers', '_modules'):
+            names.update(self.__dict__.get(registry, {}))
+        return sorted(name for name in names if not name[0].isdigit())
 
     def __setattr__(self, name, value):
         parameters = self.__dict__.get('_parameters')
@@ -101,9 +122,7 @@ class Module(ModuleConversion):
             raise TypeError('A registration name must be a string')
         if not name or '.' in name:
             raise KeyError('A registration name must be nonempty and contain no dots')
-        exists = name in self.__dict__ or any(name in cls.__dict__ for cls in type(self).__mro__)
-        exists = exists or any(name in self.__dict__.get(key, {}) for key in ('_parameters', '_buffers', '_modules'))
-        if exists and name not in self.__dict__[registry]:
+        if hasattr(self, name) and name not in self.__dict__[registry]:
             raise KeyError(f'Attribute {name!r} already exists')
 
     def register_parameter(self, name, param):
@@ -133,6 +152,8 @@ class Module(ModuleConversion):
     register_module = add_module
 
     def __call__(self, *args, **kwargs):
+        if self._has_forward_hooks:
+            return self._call_with_hooks(args, kwargs)
         return self.forward(*args, **kwargs)
 
     def forward(self, *args, **kwargs):
@@ -193,7 +214,7 @@ class Module(ModuleConversion):
     def get_submodule(self, target):
         module = self
         for name in target.split('.') if target else ():
-            child = module._modules.get(name)
+            child = getattr(module, name, None)
             if not isinstance(child, Module):
                 raise AttributeError(f'{name!r} is not a child module')
             module = child
@@ -278,21 +299,35 @@ class Module(ModuleConversion):
         if destination is None:
             destination = OrderedDict()
             destination._metadata = OrderedDict()
+        local_metadata = {'version': self._version}
         metadata = getattr(destination, '_metadata', None)
         if metadata is not None:
-            metadata[prefix[:-1]] = {'version': self._version}
+            metadata[prefix[:-1]] = local_metadata
         self.__dict__['_saving_state'] = True
         try:
+            pre_hooks = self.__dict__.get('_state_dict_pre_hooks')
+            if pre_hooks:
+                for hook in pre_hooks.values():
+                    hook(self, prefix, keep_vars)
             self._save_to_state_dict(destination, prefix, keep_vars)
             for name, module in self._modules.items():
                 if module is not None:
                     module.state_dict(destination=destination, prefix=prefix + name + '.', keep_vars=keep_vars)
+            post_hooks = self.__dict__.get('_state_dict_hooks')
+            if post_hooks:
+                for hook in post_hooks.values():
+                    if hook(self, destination, prefix, local_metadata) is not None:
+                        raise RuntimeError('state_dict post-hook must return None')
         finally:
             self.__dict__.pop('_saving_state', None)
         return destination
 
     def _load_from_state_dict(self, state, prefix, local_metadata, strict, missing_keys,
                               unexpected_keys, error_msgs):
+        pre_hooks = self.__dict__.get('_load_state_dict_pre_hooks')
+        if pre_hooks:
+            for hook in pre_hooks.values():
+                hook(self, state, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs)
         local = {name: value for name, value in self._parameters.items() if value is not None}
         local.update((name, value) for name, value in self._buffers.items()
                      if value is not None and name not in self._non_persistent_buffers_set)
@@ -335,10 +370,12 @@ class Module(ModuleConversion):
             raise _errors.BrowserUnsupported('Assign-based state loading is unsupported')
         if not isinstance(state_dict, Mapping):
             raise TypeError('state_dict must be a mapping')
-        state = dict(state_dict)
+        state = OrderedDict(state_dict)
         if any(not isinstance(key, str) for key in state):
             raise TypeError('State dictionary keys must be strings')
-        metadata = getattr(state_dict, '_metadata', {})
+        metadata = getattr(state_dict, '_metadata', None)
+        if metadata is not None:
+            state._metadata = metadata
         missing, unexpected, errors = [], [], []
         active = set()
 
@@ -347,13 +384,19 @@ class Module(ModuleConversion):
                 raise _errors.BrowserUnsupported('Cyclic module state is unsupported')
             active.add(id(module))
             try:
-                module._load_from_state_dict(values, prefix, metadata.get(prefix[:-1], {}),
+                module._load_from_state_dict(values, prefix, {} if metadata is None else metadata.get(prefix[:-1], {}),
                                              True, missing, unexpected, errors)
                 for name, child in module._modules.items():
                     if child is not None:
                         child_prefix = prefix + name + '.'
                         load(child, {key: value for key, value in values.items()
                                      if key.startswith(child_prefix)}, child_prefix)
+                post_hooks = module.__dict__.get('_load_state_dict_post_hooks')
+                if post_hooks:
+                    incompatible = _IncompatibleKeys(missing, unexpected)
+                    for hook in post_hooks.values():
+                        if hook(module, incompatible) is not None:
+                            raise AssertionError('load_state_dict post-hook must return None')
             finally:
                 active.remove(id(module))
 

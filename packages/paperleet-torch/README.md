@@ -87,12 +87,50 @@ parameter paths, metadata and subclass extra state are included. Loading copies
 values into existing parameters, preserving optimizer references, and reports
 missing/unexpected keys. Shape/type errors still fail with `strict=False`.
 
-This is in-memory state support. Model hooks, `load_state_dict(assign=True)`
+This is in-memory state support. Backward/global hooks, `load_state_dict(assign=True)`
 and `torch.save/load` remain
 unsupported. `ModuleList.insert` supports indices from zero through its length;
 insertion into a named `Sequential` is unsupported. Copying a model clears copied
 parameter gradients, as native PyTorch does. Copying non-leaf tensors or exotic
 non-dense NumPy backing allocations fails explicitly.
+
+## Local model callbacks
+
+Ordinary Python attribute checks work on models: absent attributes raise
+`AttributeError`, so `hasattr(module, "weight")` and `getattr(module, "weight", None)`
+can drive generic initialization. Registered parameters, buffers and children
+appear in `dir(module)`; computed submodule properties work with `get_submodule`.
+Known unavailable execution methods still fail with `UnsupportedOperation` when
+called.
+
+`register_forward_pre_hook` and `register_forward_hook` support ordered callbacks,
+`prepend`, `with_kwargs`, input/output replacements and removable handles.
+Forward hooks can opt into `always_call=True` for exception cleanup; cleanup
+failures warn while preserving the original exception. Direct `model.forward(...)`
+bypasses callbacks. Replacements use ordinary Tensor operations and keep their
+normal reverse/forward AD rules.
+
+```python
+with layer.register_forward_hook(lambda module, args, output: output * 0.5):
+    prediction = layer(x)
+# The context removes the callback, including on exceptions.
+```
+
+Public `register_state_dict_pre_hook`, `register_state_dict_post_hook`,
+`register_load_state_dict_pre_hook` and `register_load_state_dict_post_hook`
+support checkpoint transformation, local metadata and shared missing/unexpected
+key lists. Post-hooks modify state/key lists in place and must return `None`.
+Load pre-hooks receive the copied state mapping; shallow Tensor storage retains
+the existing checkpoint sharing rules. Register callbacks again when rebuilding
+a model: they are Python behavior and are not serialized in `state_dict`.
+
+Handles are also available as `torch.utils.hooks.RemovableHandle`. Removal is
+idempotent; handles weakly reference callback registries and do not retain the
+model. Deep-copying a model with a handle attribute connects the copied handle to
+its copied registrations. Callback dictionaries allocate lazily; models without
+callbacks use a fast call path, restored after the first call following removal.
+Module backward hooks, process-global registration hooks, private checkpoint-hook
+interfaces, compilation and native file serialization remain unsupported.
 
 ## CPU model conversion and gradient modes
 
@@ -326,7 +364,9 @@ The subproject builds separately with `pip wheel --no-deps ./packages/paperleet-
 `paperleet.browser.numpy_autograd` and `schedules_numpy` retain compatibility
 facades; source changes should be made in this library.
 
-See the [0.7 validation record](../../docs/validation/torch-runtime-iteration-7.md)
+See the [0.8 validation record](../../docs/validation/torch-runtime-iteration-8.md)
+for model introspection, local callbacks, checkpoint transforms and dispatch costs.
+The [0.7 validation record](../../docs/validation/torch-runtime-iteration-7.md)
 for neural-network layers, normalization accuracy, encoder training and memory.
 The [0.6 validation record](../../docs/validation/torch-runtime-iteration-6.md)
 for scheduling, training continuation and CPU/WASM overhead measurements.

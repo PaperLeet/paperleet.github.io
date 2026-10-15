@@ -118,7 +118,7 @@ def test_state_errors_and_unsupported_lifecycle_options_are_explicit():
     with pytest.raises(UnsupportedOperation, match='Assign'):
         module.load_state_dict(module.state_dict(), assign=True)
     with pytest.raises(UnsupportedOperation): module.to('cuda')
-    with pytest.raises(UnsupportedOperation): module.register_forward_hook(lambda *args: None)
+    with pytest.raises(UnsupportedOperation): module.register_full_backward_hook(lambda *args: None)
 
 
 def test_container_slicing_mutation_registration_and_named_order():
