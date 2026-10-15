@@ -10,6 +10,8 @@ import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
 import {useDiscussionReplies,ReplyListControls,MoreReplies} from './useDiscussionReplies';
+import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
+import PublishingIdentity from './PublishingIdentity';
 import MarkdownEditor from "./MarkdownEditor";
 import {
   ArrowLeft,
@@ -215,18 +217,10 @@ function PostCard({ post, activity, returnTo, resumed }: { post: Post; activity?
     <article className="community-post-card" data-reading-post={post.id} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
       <div className="post-card-layout">
-        <a
-          href={profileHref(post.author)}
-          aria-label={post.author.display_name}
-        >
-          <Avatar user={post.author} size={36} />
-        </a>
+        <CommunityAuthorAvatar user={post.author}/>
         <div className="post-card-main">
           <div className="post-card-meta">
-            <a className="post-author-name" href={profileHref(post.author)}>
-              {post.author.display_name}
-            </a>
-            <TestAccountBadge isTestUser={post.author.is_test_user} />
+            <CommunityAuthor user={post.author} avatar={false}/>
             <span>·</span>
             <DateLabel value={post.created_at} />
             <Category value={post.category} />
@@ -279,6 +273,8 @@ function Composer({
   onClose: () => void;
 }) {
   const { t, locale } = useI18n();
+  const {capabilities}=useAccount();
+  const anonymousAvailable=capabilities?.community_anonymous_posts===true;
   const initialCategory = category || (topic ? "questions" : "papers");
   const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
   const currentDraft = useRef(draft);
@@ -309,7 +305,7 @@ function Composer({
       ? t("未发布草稿已保存在本标签页，仅当前账号可恢复。", "Unpublished draft saved in this tab, separately for your account.")
       : t("草稿仅保存在本标签页，发布后才会公开。", "Drafts stay in this tab and become public only when published.");
   function discardDraft() {
-    edit({ title: "", body: "", category: initialCategory, paperUrl: "" });
+    edit({ title: "", body: "", category: initialCategory, paperUrl: "", anonymous:false });
     setDiscardRequested(false);
     setPreview(false);
   }
@@ -326,13 +322,14 @@ function Composer({
       return;
     }
     const submittedRoute = location.hash;
+    if((previous?previous.payload.anonymous===true:submitted.anonymous)&&!anonymousAvailable){setError(t('匿名发布暂不可用，草稿已保留。','Anonymous posting is unavailable. Your draft is kept.'));return;}
     setBusy(true);
     publishing.current = true;
     setError("");
     try {
       const pending = preparePublication(tabDraftStorage(),owner,'post',scope,previous?.payload || postPublication(submitted,topic?.id),previous);
       setPublication(pending);
-      const post = await socialApi<Post>("community/posts", {
+      const post = await socialApi<Post>(pending.receipt.payload.anonymous===true?"community/posts/anonymous":"community/posts", {
         ...pending.receipt.payload,
         request_id: pending.receipt.requestId,
         expected_user_id: owner,
@@ -389,6 +386,7 @@ function Composer({
           void publish();
         }}
       >
+        <PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
         <label>
           {t("版块", "Category")}
           <select value={board} disabled={busy} onChange={(e) => edit({ category: e.target.value })}>
@@ -419,12 +417,12 @@ function Composer({
         <div className="form-footer">
           <small>
             {t(
-              "帖子以你的公开昵称发布。",
-              "Posts are published under your public display name.",
+              draft.anonymous?"匿名发布，所属机构仍公开。":"帖子以你的公开昵称发布。",
+              draft.anonymous?"Posting anonymously; affiliation remains public.":"Posts are published under your public display name.",
             )}
             {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
-          <button className="button" disabled={busy || !body.trim()}>
+          <button className="button" disabled={busy || !body.trim() || !!draft.anonymous&&!anonymousAvailable}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
             {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>
@@ -759,6 +757,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
   }, []);
   const { body } = draft;
   const target = draft.parentId ? post?.replies.find((reply) => reply.id === draft.parentId) : undefined;
+  const authorName=(author:PublicUser|undefined)=>author?.anonymous?t('匿名用户','Anonymous'):author?.display_name;
   const missingTarget = !!draft.parentId && !!post && !target;
   function editReply(change: Partial<ReplyDraft>) {
     const next = { ...currentDraft.current, ...change };
@@ -901,8 +900,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
               <Category value={post.category} />
               <h1>{post.title}</h1>
               <div className="discussion-author">
-                <PersonLink user={post.author} />
-                <AffiliationBadge affiliation={post.author.affiliation} institution={post.author.institution} />
+                <CommunityAuthor user={post.author}/>
                 <DateLabel value={post.created_at} />
                 {post.updated_at!==post.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={post.updated_at}/></span>}
                 {canEditPost(post,owner)&&<button ref={postEditButton} type="button" className="text-button" disabled={loading||busy||editingPost} onClick={()=>{setEditingPost(true);setPostEdited(false);}}>{t('编辑帖子','Edit post')}</button>}
@@ -973,7 +971,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                   tabIndex={-1}
                 >
                   <div className="reply-heading">
-                    <PersonLink user={r.author} compact />
+                    <CommunityAuthor user={r.author} compact/>
                     {r.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}
                     <DateLabel value={r.created_at} />
                     <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={returnTo}/>
@@ -986,7 +984,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                         onClick={()=>replyList.reveal(r.parent_id!)}
                       >
                         {t("回复", "Replying to")}{" "}
-                        {replyList.byId.get(r.parent_id)?.author.display_name ||
+                        {authorName(replyList.byId.get(r.parent_id)?.author) ||
                           t("已删除的回复", "a deleted reply")}
                       </button>
                     )}
@@ -1038,12 +1036,12 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
             <section className="social-panel reply-composer">
               <div className="panel-title">
                 <h3>{t("参与讨论", "Join the discussion")}</h3>
-                <PersonLink user={user} compact />
+                <CommunityAuthor user={post.anonymous&&post.viewer.can_edit?post.author:user} compact/>
               </div>
               {draft.parentId && (
                 <div className="reply-target">
                   <span>
-                    {t("回复", "Replying to")} {target?.author.display_name || t("已删除或暂不可用的回复", "a deleted or unavailable reply")}
+                    {t("回复", "Replying to")} {authorName(target?.author) || t("已删除或暂不可用的回复", "a deleted or unavailable reply")}
                   </span>
                   <button
                     className="icon-button"
@@ -1138,6 +1136,10 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
   );
 }
 export function UserProfile({ username }: { username: string }) {
+  const {user}=useAccount();
+  return <ProfilePage key={`${username}:${user?.id||'guest'}`} username={username}/>;
+}
+function ProfilePage({ username }: { username: string }) {
   const { user } = useAccount();
   // Account changes must remove a previous viewer's private progress immediately.
   return <UserProfileContents key={`${username}:${user?.id || "guest"}`} username={username} />;

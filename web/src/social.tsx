@@ -31,6 +31,7 @@ export type PublicUser = {
   country?: string;
   show_progress?: boolean;
   is_test_user?: boolean;
+  anonymous?: boolean;
 };
 export type AccountUser = PublicUser & {
   status?: 'active' | 'waitlisted' | 'disabled';
@@ -47,6 +48,7 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  community_anonymous_posts?: boolean;
   community_papers?: boolean;
   account_achievements?: boolean;
   community_bookmarks?: boolean;

@@ -1,4 +1,4 @@
-export type PostDraft = { title: string; body: string; category: string; paperUrl?: string };
+export type PostDraft = { title: string; body: string; category: string; paperUrl?: string; anonymous?: boolean };
 export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 const categories = new Set(["papers", "implementation", "questions", "career", "lounge"]);
 
@@ -20,14 +20,14 @@ export function readPostDraft(storage: DraftStorage | undefined, owner: string, 
     const draft = value.draft;
     if (typeof draft?.title !== "string" || draft.title.length > 160 ||
         typeof draft.body !== "string" || draft.body.length > 20_000 ||
-        !categories.has(draft.category) ||
+        !categories.has(draft.category) || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') ||
         (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return undefined;
-    return { title: draft.title, body: draft.body, category: draft.category, ...(draft.paperUrl !== undefined ? { paperUrl: draft.paperUrl } : {}) };
+    return { title: draft.title, body: draft.body, category: draft.category, ...(draft.anonymous?{anonymous:true}:{}), ...(draft.paperUrl !== undefined ? { paperUrl: draft.paperUrl } : {}) };
   } catch { return undefined; }
 }
 
 export function writePostDraft(storage: DraftStorage | undefined, owner: string, scope: string, draft: PostDraft): boolean {
-  if (!storage || !owner || !scope || (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return false;
+  if (!storage || !owner || !scope || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') || (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return false;
   try {
     if (hasDraft(draft)) {
       storage.setItem(draftKey(owner, scope), JSON.stringify({ version: 1, owner, scope, draft }));
@@ -39,7 +39,7 @@ export function writePostDraft(storage: DraftStorage | undefined, owner: string,
 /** A delayed publish must not erase a newer draft created after navigation. */
 export function clearPublishedDraft(storage: DraftStorage | undefined, owner: string, scope: string, submitted: PostDraft): boolean {
   const saved = readPostDraft(storage, owner, scope);
-  if (!saved || saved.title !== submitted.title || saved.body !== submitted.body || saved.category !== submitted.category || (saved.paperUrl || '') !== (submitted.paperUrl || '')) return false;
+  if (!saved || saved.title !== submitted.title || saved.body !== submitted.body || saved.category !== submitted.category || (saved.paperUrl || '') !== (submitted.paperUrl || '') || !!saved.anonymous!==!!submitted.anonymous) return false;
   try { storage!.removeItem(draftKey(owner, scope)); return true; }
   catch { return false; }
 }

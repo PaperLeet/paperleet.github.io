@@ -4,6 +4,7 @@ import type { PublicUser } from './social';
 export type Counts = { likes: number; reposts: number; replies: number };
 export type Post = {
   id: string; title: string; body: string; category: string;
+  anonymous?: boolean;
   interview?: import('./interviewModels').InterviewDetails;
   paper_url?: string | null; paper?: import('./communityPapers').PaperPreview | null;
   problem_id: string | null; problem: ProblemTopic | null;

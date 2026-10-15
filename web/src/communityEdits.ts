@@ -1,4 +1,5 @@
 import type { DraftStorage } from './communityDrafts';
+import {isThreadAnonymous} from './communityIdentity';
 import type { Post } from './communityDiscussion';
 import {readInterviewDetails,type InterviewDetails} from './interviewModels';
 
@@ -8,7 +9,7 @@ const categories = new Set(['papers','implementation','questions','career','loun
 export const postEditKey = (owner:string,post:string) =>
   `paperleet.community.post-edit.v1:${encodeURIComponent(owner)}:${encodeURIComponent(post)}`;
 export function canEditPost(post:Post,owner:string):boolean {
-  return !!owner && post.author.id === owner && post.viewer.can_edit === true && version.test(post.edit_version || '');
+  return !!owner && (post.author.id === owner || isThreadAnonymous(post.author,post.id)) && post.viewer.can_edit === true && version.test(post.edit_version || '');
 }
 export function newPostEdit(post:Post):PostEditDraft {
   return {title:post.title,body:post.body,category:post.category,baseVersion:post.edit_version || '',...(post.interview?{interview:{...post.interview,questions:[...post.interview.questions]}}:{}),...(post.paper_url?{paperUrl:post.paper_url}:{})};

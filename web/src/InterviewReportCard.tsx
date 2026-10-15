@@ -1,8 +1,9 @@
 import {useId,useState} from 'react';
 import {ArrowRight,BookOpen,Heart,MessageCircle,RefreshCw} from 'lucide-react';
 import {useI18n} from './i18n';
-import {DateLabel,PersonLink} from './social';
+import {DateLabel} from './social';
 import {communityPostHref} from './communityNavigation';
+import CommunityAuthor from './CommunityAuthor';
 import PostBookmark from './PostBookmark';
 import InterviewMeta from './InterviewMeta';
 import PostPreview from './PostPreview';
@@ -14,7 +15,7 @@ export default function InterviewReportCard({post,owner,canSave,returnTo,savedVi
  const [bookmarked,setBookmarked]=useState(post.viewer?.bookmarked),[busy,setBusy]=useState(false);
  const href=communityPostHref(post.id,returnTo);
  return <article data-reading-post={post.id} data-reading-resumed={resumed||undefined} className="interview-report-card" aria-labelledby={titleId}>
-  <div className="interview-report-author"><PersonLink user={post.author} compact/><DateLabel value={post.created_at}/></div>
+  <div className="interview-report-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div>
   <InterviewMeta details={post.interview} compact/>
   <a data-reading-link="title" id={titleId} className="interview-report-title" href={href}>{post.title}</a><PostPreview body={post.body}/>
   <div className="interview-report-footer"><span><MessageCircle size={13}/>{post.counts.replies} {t('条讨论','replies')}</span><span><Heart size={13}/>{post.counts.likes}</span>{post.interview.questions.length>0&&<span><BookOpen size={13}/>{post.interview.questions.length} {t('个知识点','concepts')}</span>}</div>

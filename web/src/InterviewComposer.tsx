@@ -15,6 +15,8 @@ import {emptyInterviewFilters,interviewHref} from './interviewNavigation';
 import {deferredFeature} from './deferredFeature';
 import {defaultInterviewOutline,hasInterviewDraftContent,insertInterviewOutline,interviewOutlines,type InterviewOutlineEdit,type WritingOutlineId} from './interviewWriting';
 import './interview-writing.css';
+import PublishingIdentity from './PublishingIdentity';
+import {ownsCommunityPost} from './communityIdentity';
 
 const WritingGuide=deferredFeature(()=>import('./InterviewWritingGuide'),['写作提纲','writing prompts'],{
  failure:(props,retry)=><WritingGuideFailure onRetry={()=>{props.onRestoreFocus();retry();}}/>,
@@ -25,7 +27,7 @@ function WritingGuideFailure({onRetry}:{onRetry:()=>void}){
 }
 
 export default function InterviewComposer({owner,company,problems,onClose,onPublished}:{owner:string;company:string;problems:InterviewModule[];onClose:()=>void;onPublished:(post:InterviewPost)=>void}){
- const {t,locale}=useI18n(),{user}=useAccount();
+ const {t,locale}=useI18n(),{user,capabilities}=useAccount();
  const [draft,setDraft]=useState<InterviewDraft>(()=>readInterviewDraft(tabDraftStorage(),owner)||{title:'',body:'',interview:{company:company||'other',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]}});
  const latest=useRef(draft),active=useRef(true),inflight=useRef(false),currentOwner=useRef(user?.id);currentOwner.current=user?.id;
  const [pending,setPending]=useState(()=>readPublication(tabDraftStorage(),owner,'interview','general'));
@@ -63,14 +65,15 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
  async function publish(previous?:PublicationReceipt){
    if(inflight.current||!user||user.id!==owner)return;
    const receipt=previous||(pending&&samePublication(pending.receipt,interviewPublication(latest.current))?pending.receipt:undefined);
-   const submitted=receipt?{title:receipt.payload.title as string,body:receipt.payload.body as string,interview:JSON.parse(receipt.payload.interview as string)} as InterviewDraft:latest.current;
+   const submitted=receipt?{anonymous:receipt.payload.anonymous===true,title:receipt.payload.title as string,body:receipt.payload.body as string,interview:JSON.parse(receipt.payload.interview as string)} as InterviewDraft:latest.current;
    if(!submitted.title.trim()||!submitted.body.trim()||!receipt&&!hasInterviewDraftContent(submitted.body))return;
+   if(submitted.anonymous&&capabilities?.community_anonymous_posts!==true){setError(t('匿名发布暂不可用，草稿已保留。','Anonymous posting is unavailable. Your draft is kept.'));return;}
    inflight.current=true;setBusy(true);setError('');
    try{
      const request=preparePublication(tabDraftStorage(),owner,'interview','general',interviewPublication(submitted),receipt);setPending(request);
      const {interview,...content}=request.receipt.payload;
-     const confirmed=await socialApi<InterviewPost>('community/posts',{...content,interview:JSON.parse(interview as string),request_id:request.receipt.requestId,expected_user_id:owner});
-     if(!confirmed?.interview||confirmed.author?.id!==owner||!/^[a-f0-9]{32}$/.test(confirmed.id))throw Error(t('发布结果暂时无法确认，请保留草稿并重试。','Publication could not be confirmed. Keep your draft and retry.'));
+     const confirmed=await socialApi<InterviewPost>(request.receipt.payload.anonymous===true?'community/posts/anonymous':'community/posts',{...content,interview:JSON.parse(interview as string),request_id:request.receipt.requestId,expected_user_id:owner});
+     if(!confirmed?.interview||!ownsCommunityPost(confirmed,owner,request.receipt.payload.anonymous===true)||!/^[a-f0-9]{32}$/.test(confirmed.id))throw Error(t('发布结果暂时无法确认，请保留草稿并重试。','Publication could not be confirmed. Keep your draft and retry.'));
      if(!active.current||currentOwner.current!==owner)return;
      const removed=clearInterviewDraft(tabDraftStorage(),owner,submitted);
      const same=samePublication(request.receipt,interviewPublication(latest.current));
@@ -82,12 +85,13 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
  }
  return <section className="interview-composer social-panel" aria-labelledby="interview-compose-heading">
   <div className="interview-compose-heading"><div><h2 id="interview-compose-heading">{t('分享面经','Share an interview experience')}</h2></div><button className="icon-button" type="button" disabled={busy} aria-label={t('关闭，保留草稿','Close and keep draft')} onClick={onClose}><X size={18}/></button></div>
-  <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。以你的公开昵称发布。','Company, role and linked concepts are public. Outcome and location are optional. Your public display name appears as the author.')}</p>
+  <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。可选择昵称或匿名发布，所属机构仍展示。','Company, role and linked concepts are public. Outcome and location are optional. Choose named or anonymous posting; affiliation remains visible.')}</p>
   {!durable&&<p role="alert" className="interview-notice">{t('草稿暂时无法保存到此标签页，请保持页面打开或复制内容。','This tab cannot save the draft. Keep this page open or copy your text.')}</p>}
   {error&&<p role="alert" className="interview-error">{error}</p>}
   {confirmedPost&&<p role="status" className="interview-notice">{t('面经已发布；当前草稿仍保留。','Your report was published; the current draft is preserved.')} <a href={communityPostHref(confirmedPost.id,interviewHref({...emptyInterviewFilters(),company:confirmedPost.interview.company}))}>{t('查看已发布面经','View published report')}</a></p>}
   {!confirmedPost&&<PublicationRecovery pending={pending} payload={interviewPublication(draft)} busy={busy} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
+   <PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
    <label>{t('面经标题','Title')}<input autoFocus required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
@@ -98,7 +102,7 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
      placeholder={t('记录轮次、考察方向、你的解题思路和准备建议。只分享可以公开的信息。','Describe the rounds, concepts, your approach and preparation tips. Share information you can make public.')}/>
    {draft.body.trim()&&!contentReady&&!pendingMatches&&<p id={contentHint} className="interview-writing-hint" role="status">{t('提纲已经准备好。补充你实际经历的流程、思路或复盘后即可发布。','Your outline is ready. Add your actual process, approach or reflection before publishing.')}</p>}
    <PublishingRules action="post"/>
-   <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!draft.title.trim()||!contentReady&&!pendingMatches} aria-describedby={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
+   <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!draft.title.trim()||!contentReady&&!pendingMatches||!!draft.anonymous&&capabilities?.community_anonymous_posts!==true} aria-describedby={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
   </form>
   {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃当前草稿？已发送但待确认的发布记录会保留，避免误发重复内容。','Discard this draft? Unconfirmed publication receipts are retained so they can be retried safely.')}</p><button type="button" disabled={busy} onClick={()=>{if(discardInterviewDraft(tabDraftStorage(),owner))onClose();else setError(t('暂时无法清除草稿，请重试。','The draft could not be cleared. Try again.'));}}>{t('确认丢弃','Discard draft')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('继续编辑','Keep editing')}</button></div>}
  </section>;

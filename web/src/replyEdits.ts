@@ -1,9 +1,10 @@
 import type { DraftStorage } from './communityDrafts';
+import {isThreadAnonymous} from './communityIdentity';
 import type { Reply } from './communityDiscussion';
 export type ReplyEditDraft={body:string;baseVersion:string};
 const version=/^[a-f0-9]{64}$/;
 export const replyEditKey=(owner:string,reply:string)=>`paperleet.community.reply-edit.v1:${encodeURIComponent(owner)}:${encodeURIComponent(reply)}`;
-export const canEditReply=(reply:Reply,owner:string)=>!!owner&&reply.author.id===owner&&reply.can_edit===true&&version.test(reply.edit_version||'');
+export const canEditReply=(reply:Reply,owner:string)=>!!owner&&(reply.author.id===owner||isThreadAnonymous(reply.author,reply.post_id))&&reply.can_edit===true&&version.test(reply.edit_version||'');
 export const newReplyEdit=(reply:Reply):ReplyEditDraft=>({body:reply.body,baseVersion:reply.edit_version||''});
 function valid(value:unknown):value is ReplyEditDraft {
   if(!value||typeof value!=='object')return false;

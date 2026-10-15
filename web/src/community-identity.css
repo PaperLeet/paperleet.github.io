@@ -1,0 +1,13 @@
+.community-author-identity { display:inline-flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0; }
+.community-author-identity .institution-badge { max-width:220px; font-size:10px; line-height:1.6; }
+.community-author-identity .affiliation-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.anonymous-author { color:var(--text-secondary); }
+.anonymous-avatar { display:inline-flex; }
+.publishing-identity { padding:12px 14px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); }
+.publishing-identity-preview { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.publishing-identity-preview > small { color:var(--muted); font-size:11px; }
+.social-form .publishing-identity-preview > label { display:inline-flex; flex-direction:row; align-items:center; gap:7px; margin-inline-start:auto; min-height:34px; color:var(--text-secondary); font-size:12px; cursor:pointer; }
+.social-form .publishing-identity input[type="checkbox"] { width:16px; height:16px; margin:0; accent-color:var(--accent); }
+.publishing-identity > p { margin:9px 0 0; color:var(--muted); font-size:11px; line-height:1.7; }
+.publishing-identity :focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media (pointer:coarse) { .social-form .publishing-identity-preview > label { min-height:44px; } }
