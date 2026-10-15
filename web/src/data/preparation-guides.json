@@ -898,6 +898,258 @@
           }
         }
       ]
+    },
+    {
+      "id": "foundations/next_token_loss",
+      "source": "problems/foundations/next_token_loss/README.md",
+      "functions": [
+        "next_token_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么长度为 T 的序列只有 T−1 个预测目标？首个 token 与最后一行 logits 分别如何处理？",
+            "en": "Why does a length-T sequence have only T−1 prediction targets? What happens to the first token and the final logits row?"
+          },
+          "hint": {
+            "zh": "按同一序列内的相邻位置配对，避免跨样本连接。逐项标出产生预测的位置与作为标签的位置。",
+            "en": "Pair neighboring positions within each sequence. Label the predictor position and target position separately, without crossing batch boundaries."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样在保持 dtype 和梯度的同时计算稳定的下一词损失？",
+            "en": "How would you compute a numerically stable next-token loss while preserving the output dtype and gradients?"
+          },
+          "hint": {
+            "zh": "思考很大或很小的 logits 以及词表轴上的归一化。中间提高精度后，最终结果仍需符合题面规定。",
+            "en": "Consider extreme logits and normalization along the vocabulary axis. Higher-precision intermediates still need an output matching the exercise contract."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检验 T=1、batch 边界和最后一行 logits 的梯度？",
+            "en": "How would you check T=1, batch boundaries and gradients for the final logits row?"
+          },
+          "hint": {
+            "zh": "单 token 输入应返回仍连接计算图的零；改变另一个样本不能改变本样本的配对，最后一行不参与预测目标。",
+            "en": "A single-token input needs a graph-connected zero. A different batch row must not alter the pairing, and the final logits row has no prediction target."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/sft_loss_mask",
+      "source": "problems/foundations/sft_loss_mask/README.md",
+      "functions": [
+        "sft_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "回答掩码和 attention 掩码描述的是标签位置还是预测位置？移位后该怎样对齐？",
+            "en": "Do the response and attention masks describe targets or predictors? How should they align after shifting?"
+          },
+          "hint": {
+            "zh": "本题由调用方提供有效 token ID 与回答范围。追踪目标 j 和用于预测它的 j−1，不能额外解析聊天模板。",
+            "en": "The caller supplies valid token IDs and response spans. Track target j and predictor j−1; this exercise does not infer a chat template."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "不同序列有效回答 token 数不同，为什么不能先分别求平均再平均？",
+            "en": "Why can averaging per-sequence mean losses be wrong when sequences have different numbers of valid response tokens?"
+          },
+          "hint": {
+            "zh": "比较有效 token 总损失除以总数量，与每条序列等权平均的区别；空选择还需要保留零梯度的计算图。",
+            "en": "Compare total valid-token loss divided by total count with equal sequence weighting. An empty selection still needs a graph-connected zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用 prompt、padding 和空回答的扰动检查损失与梯度？",
+            "en": "How can perturbations of prompt, padding and empty-response positions test the loss and gradients?"
+          },
+          "hint": {
+            "zh": "只应选中同时满足两种掩码的目标位置。检查被排除的预测与末尾 logits 梯度为零，并使用不等长回答验证归约。",
+            "en": "Only targets admitted by both masks contribute. Check zero gradients for excluded predictors and final logits, and test reduction with unequal response lengths."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/top_k_sampling",
+      "source": "problems/foundations/top_k_sampling/README.md",
+      "functions": [
+        "top_k_probs"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "本题要求恰好保留 k 个候选时，logits 并列该如何决定？",
+            "en": "When this exercise requires exactly k candidates, how should equal logits be ordered?"
+          },
+          "hint": {
+            "zh": "本题约定按词表索引较小者优先。简单的分数阈值可能把并列候选全部保留，从而超过 k。",
+            "en": "This exercise breaks ties by smaller vocabulary index. A score threshold can admit every tied candidate and keep more than k."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "温度应作用于哪里？为何极端 logits 和很小温度需要仔细安排计算顺序？",
+            "en": "Where should temperature act, and why do extreme logits and tiny temperatures require care with operation order?"
+          },
+          "hint": {
+            "zh": "比较先归一化概率再除温度，与在 logits 上缩放。按题面使用高精度中间量，并关注相减与相除各自的溢出风险。",
+            "en": "Compare dividing normalized probabilities with scaling logits. Use the exercise’s higher-precision intermediates and examine overflow in subtraction and division."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分候选集合、返回概率和实验中的随机采样？",
+            "en": "How would you separately check candidate membership, returned probabilities and random draws in the experiment?"
+          },
+          "hint": {
+            "zh": "先检查 k=1、k=V、并列值、行和与零概率位置；确定性概率检查不应依赖某次随机抽样是否碰巧接近。",
+            "en": "First check k=1, k=V, ties, row sums and excluded entries. Deterministic probability checks should not depend on whether one random sample happens to look close."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/top_p_sampling",
+      "source": "problems/foundations/top_p_sampling/README.md",
+      "functions": [
+        "top_p_probs"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "按本题的最短前缀约定，累计概率恰好达到 p 或第一次超过 p 时应保留到哪里？",
+            "en": "Under this exercise’s shortest-prefix rule, where should retention stop when cumulative mass reaches or first exceeds p?"
+          },
+          "hint": {
+            "zh": "越过边界的候选也属于前缀；四个均匀概率在 p=0.5 时保留两个。本题明确采用累计质量至少为 p 的约定。",
+            "en": "The boundary-crossing candidate belongs to the prefix. Four uniform candidates retain two at p=0.5, under this exercise’s explicit mass-at-least-p convention."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "温度和 top-p 选择的先后顺序为什么会改变候选集合？",
+            "en": "Why can the order of temperature scaling and top-p selection change the candidate set?"
+          },
+          "hint": {
+            "zh": "候选由缩放后全词表分布的累计质量决定。最后还要恢复原词表顺序，并对保留部分重新归一化。",
+            "en": "Selection uses cumulative mass in the scaled full-vocabulary distribution. The result must return to original vocabulary order and normalize the retained candidates."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何检查 p=1、极小正 p、并列概率与精度边界？",
+            "en": "How would you test p=1, a tiny positive p, equal probabilities and numerical boundary cases?"
+          },
+          "hint": {
+            "zh": "单独设计可手算的累计概率，检查边界候选与索引顺序。遵循题面的高精度比较，不用随意的容差改变候选数量。",
+            "en": "Construct hand-computable cumulative masses and check boundary membership and index order. Follow the specified higher-precision comparisons without arbitrary membership tolerances."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/gradient_accumulation",
+      "source": "problems/foundations/gradient_accumulation/README.md",
+      "functions": [
+        "accumulate_gradients"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "每个输入梯度已经是局部有效 token 的均值时，合并权重应由什么决定？",
+            "en": "If each input gradient is already a local valid-token mean, what should determine its merge weight?"
+          },
+          "hint": {
+            "zh": "区分局部均值、局部总和与有效 token 数。不同 microbatch 的 token 数可能不同，不能一律等权。",
+            "en": "Distinguish local means, local sums and valid-token counts. Microbatches can have unequal counts, so equal weighting is not generally appropriate."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么合并后不应再除以累积步数？零 token 的 batch 应怎样参与？",
+            "en": "Why should the merged gradient not be divided again by the number of accumulation steps, and how should zero-token batches participate?"
+          },
+          "hint": {
+            "zh": "先写清目标大 batch 的平均梯度，再检查每个分母是否只使用了一次。没有有效 token 的输入不应稀释结果。",
+            "en": "Write down the desired full-batch mean before counting denominators. A batch with no valid tokens should not dilute the result."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用大小不同的 microbatch 验证合并后的一次更新？",
+            "en": "How would unequal microbatches validate one update using the merged gradient?"
+          },
+          "hint": {
+            "zh": "比较一次完整 batch 更新与先合并再更新；同时检查输入梯度没有被修改。这里只合并同一参数的梯度，不执行优化器。",
+            "en": "Compare a full-batch update with merge-then-update, and check that input gradients stay unchanged. The function merges gradients of one parameter and does not run an optimizer."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/gradient_clipping",
+      "source": "problems/foundations/gradient_clipping/README.md",
+      "functions": [
+        "clip_gradients"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "把不同参数各自裁剪，与用一个全局 L2 范数裁剪，有什么区别？",
+            "en": "How does clipping each parameter separately differ from clipping with one global L2 norm?"
+          },
+          "hint": {
+            "zh": "把所有参数的元素看作同一个向量。梯度分别为 3 和 4 时，全局范数是 5，而不是分别使用两个范数。",
+            "en": "Treat every parameter element as part of one vector. Separate gradients of 3 and 4 have a global norm of 5, rather than two independent clipping norms."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "返回的范数是裁剪前还是裁剪后？为什么缩放系数必须避免放大梯度？",
+            "en": "Should the returned norm describe gradients before or after clipping, and why must the scale avoid amplification?"
+          },
+          "hint": {
+            "zh": "本题返回原始范数和新的梯度列表。缩放共享同一个上界与 epsilon 约定，同时保留输入张量和列表。",
+            "en": "This exercise returns the original norm and a new gradient list. One shared bounded scale follows the epsilon convention while leaving input tensors and the list intact."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样覆盖全零、空张量、max_norm=0 和极端幅度？",
+            "en": "How would you cover all-zero gradients, empty tensors, max_norm=0 and extreme magnitudes?"
+          },
+          "hint": {
+            "zh": "检查所有元素都进入全局统计、输出形状与 dtype 不变，并用小于上界的梯度验证不会放大；大、小量级需要稳定计算。",
+            "en": "Check that every element contributes, output shapes and dtypes remain unchanged, and gradients below the bound are not amplified. Extreme magnitudes need stable computation."
+          }
+        }
+      ]
     }
   ]
 }

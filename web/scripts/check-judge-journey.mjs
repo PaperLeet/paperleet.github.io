@@ -69,6 +69,9 @@ try {
   for (const change of [{created:Date.now()+1000},{problem:'../private'},{problem:'https://outside.test/'},{code:'你'.repeat(50_000)},{owner:'anonymous'},{owner:'user:<script>'},{version:2}]) {
     assert(!parseHandoff(JSON.stringify({...held,...change})));
   }
+  for(const problem of ['foundations/next_token_loss','foundations/sft_loss_mask','foundations/top_k_sampling','foundations/top_p_sampling','foundations/gradient_accumulation','foundations/gradient_clipping','retrieval/late_interaction']) {
+    saveHandoff(storage,{...held,problem});assert.equal(claimHandoff(storage,'user:alice').problem,problem);assert.equal(claimHandoff(storage,'user:bob'),undefined);assert.equal(storage.getItem(HANDOFF_KEY),null);
+  }
   assert(!parseHandoff('{broken'));
   assert.throws(()=>saveHandoff({...storage,setItem(){throw Error('blocked')}},held));
 

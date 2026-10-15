@@ -122,6 +122,7 @@
 .interview-section-title svg { color:var(--accent); }
 .interview-section-title > small { color:var(--muted); font-size:9px; }
 .interview-path-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+@media(min-width:1051px) { .interview-path-grid:has(> article:nth-child(4)) { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 .interview-path-grid > article { min-width:0; padding:18px; border:1px solid var(--line); border-radius:11px; background:var(--surface); }
 .interview-path-icon { display:inline-flex; color:var(--accent); padding:8px; background:var(--surface2); border-radius:8px; }
 .interview-path-grid h3 { margin:12px 0 8px; font-size:13px; font-weight:550; }
