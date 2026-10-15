@@ -15,9 +15,12 @@ try {
     assert.deepEqual(item.paper, { title: "" }, "Module-only paper metadata loads with the detail");
     assert.deepEqual(item.functions, [], "Full signatures must not be duplicated in the homepage index");
     assert(fs.existsSync(`public/data/${item.detail_url}`));
-    const full = JSON.parse(fs.readFileSync(`public/data/${item.detail_url}`, "utf8"));
+    const raw = fs.readFileSync(`public/data/${item.detail_url}`, "utf8");
+    const full = JSON.parse(raw);
     assert(full.paper?.title && full.functions.length, "Every maintained detail retains its paper and signatures");
     assert.equal(item.starter, full.starter, "Progress and backup comparisons keep the exact starter");
+    assert.deepEqual(await loadProblemDetail(item, "/all-modules/", async () => new Response(raw)),
+      { ...full, detail_url: item.detail_url }, "All maintained exports satisfy the rendering contract");
   }
   const detail = JSON.parse(fs.readFileSync(`public/data/${summary.detail_url}`, "utf8"));
   const signal = new AbortController().signal;
@@ -37,6 +40,55 @@ try {
   await assert.rejects(loadProblemDetail(summary, "/", async () => Response.json({ ...detail, id: "wrong" })));
   await assert.rejects(loadProblemDetail({ ...summary, detail_url: "https://untrusted.test/code" }, "/"));
   assert.equal(await loadProblemDetail(detail, "/", () => { throw Error("Legacy details need no fetch"); }), detail);
+
+  const invalidDetails = [null, [], 7, "not a module", summary,
+    { ...detail, module: null },
+    { ...detail, module: { ...detail.module, required_functions: null } },
+    { ...detail, module: { ...detail.module, provided_functions: [null] } },
+    { ...detail, module: { ...detail.module, goal: { text: "invalid React child" } } },
+    { ...detail, tests: { ...detail.tests, T0: 999 } },
+    { ...detail, browser_judge: { ...detail.browser_judge, backend: "unknown" } },
+    { ...detail, starter: "different starter" },
+    { ...detail, paper: null },
+    { ...detail, paper: { ...detail.paper, title: {} } },
+    { ...detail, paper: { ...detail.paper, authors: [null] } },
+    { ...detail, paper: { ...detail.paper, anchors: [null] } },
+    { ...detail, functions: null },
+    { ...detail, functions: [{ name: "invalid", signature: {} }] },
+    { ...detail, translations: { en: { title: {}, readme: "", notes: "" } } },
+    { ...detail, translations: { en: { ...detail.translations.en, readme: [] } } },
+    { ...detail, translations: { en: { ...detail.translations.en, notes: {} } } },
+    { ...detail, solution: {} }, { ...detail, vizData: [] }];
+  for (const [index, invalid] of invalidDetails.entries()) {
+    await assert.rejects(loadProblemDetail(summary, `/invalid-detail-${index}/`, async () => Response.json(invalid)),
+      /Module details do not match the catalog/, "Invalid data must not reach the React workspace");
+  }
+  const reordered = { ...detail, module: Object.fromEntries(Object.entries(detail.module).reverse()),
+    tests: Object.fromEntries(Object.entries(detail.tests).reverse()) };
+  assert.deepEqual((await loadProblemDetail(summary, "/reordered/", async () => Response.json(reordered))).module,
+    detail.module, "Equivalent JSON objects may use a different key order");
+  const cacheModes = [];
+  const recoveryResponses = [Response.json(invalidDetails[6]), new Response("not JSON"), Response.json(detail), Response.json(detail)];
+  const recovering = async (_url, options) => { cacheModes.push(options.cache); return recoveryResponses.shift(); };
+  await assert.rejects(loadProblemDetail(summary, "/recover-detail/", recovering));
+  await assert.rejects(loadProblemDetail(summary, "/recover-detail/", recovering));
+  assert.equal((await loadProblemDetail(summary, "/recover-detail/", recovering)).id, summary.id);
+  await loadProblemDetail(summary, "/recover-detail/", recovering);
+  assert.deepEqual(cacheModes, ["force-cache", "reload", "reload", "force-cache"],
+    "Retry must bypass a cached bad HTTP 200; a valid recovery restores immutable caching");
+  let attempts = 0;
+  const abandoned = new AbortController(), reason = new Error("Changed module");
+  abandoned.abort(reason);
+  await assert.rejects(loadProblemDetail(summary, "/aborted-detail/", () => { attempts++; }, abandoned.signal), reason);
+  assert.equal(attempts, 0);
+  const late = new AbortController();
+  await assert.rejects(loadProblemDetail(summary, "/late-abort/", async () => {
+    late.abort(reason); return Response.json(detail);
+  }, late.signal), reason);
+  await loadProblemDetail(summary, "/late-abort/", async (_url, options) => {
+    assert.equal(options.cache, "force-cache", "Cancellation must not mark healthy content as corrupt");
+    return Response.json(detail);
+  });
 
   const id = "a".repeat(32);
   const report = { problem: summary.id, summary: { T0: [1, 1] }, tests: [{ id: "one", layer: "T0", passed: true }] };
@@ -76,7 +128,7 @@ try {
   const waiting = pollDelay(10000, stop.signal);
   stop.abort(new Error("account changed"));
   await assert.rejects(waiting, /account changed/);
-  console.log("PASS split catalog: size budget, immutable module details, identity and base paths; async jobs: transient recovery, GET-only polling, status validation, private access and abort cleanup");
+  console.log("PASS split catalog: all maintained details, malformed rendering data, retry cache recovery, cancellation, size budget, identity and base paths; async jobs: transient recovery, GET-only polling, status validation, private access and abort cleanup");
 } finally {
   await server.close();
 }
