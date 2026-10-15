@@ -1,10 +1,17 @@
-.post-card-counts.card-actions{gap:6px 14px;align-items:center;margin-top:12px}
+.post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:12px;color:var(--text-secondary);font-size:13px}
 .card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s}
 .card-actions>button:hover,.card-actions>button[aria-expanded=true]{background:var(--surface2);color:var(--text)}
 .card-actions>button.is-liked{color:#d44b69;background:color-mix(in srgb,#d44b69 8%,transparent)}
 .card-actions>button:focus-visible,.card-comments button:focus-visible,.card-comments a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .card-actions>button:disabled{cursor:default;opacity:.6}
-.card-actions .card-reposts{font-size:12px;gap:5px;padding:6px 0}
+.card-actions .card-reposts{display:inline-flex;align-items:center;font-size:12px;gap:5px;padding:6px 0}
+.card-actions-extras{margin-inline-start:auto;min-width:0;max-width:100%}
+.card-actions-extras>.interview-report-actions{margin:0;align-items:center;gap:8px 12px}
+.interview-report-concepts{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)}
+.interview-report-card>.community-card-interaction{padding-top:4px;border-top:1px solid var(--line)}
+.card-account-recovery{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}
+.card-account-recovery p{margin:0 0 8px;line-height:1.6}
+.card-account-recovery a{margin-inline-start:14px}
 .card-comments{margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow-wrap:anywhere}
 .card-comments>header{display:flex;align-items:center;gap:10px;font-size:13px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 .card-comments>header>span{color:var(--text-secondary);font-size:11px}
@@ -34,9 +41,12 @@
 .card-action-error{font-size:12px;margin-top:8px}
 @media(max-width:600px){.card-comments{padding:12px;margin-inline:-8px}.card-actions>button{min-height:44px}.card-comment-links button,.card-more-comments,.card-collapse-comments{min-height:44px}.card-reply-form>footer{align-items:flex-start;flex-direction:column}.card-reply-form>footer .button{align-self:flex-end;min-height:44px}.card-comments>header{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.card-actions>button{transition:none}}
+@media(max-width:600px){.card-actions-extras{flex-basis:100%;margin:0}.card-actions-extras>.interview-report-actions{justify-content:flex-start}.card-actions-extras>.interview-report-actions .post-bookmark>button,.card-account-recovery>button,.card-account-recovery>a{min-height:44px;display:inline-flex;align-items:center}}
 
 .card-reply-form .compose-preview{min-height:110px}
 .card-reply-form .markdown-format-tools{gap:0;padding:2px 6px}
 .card-reply-form .markdown-format-tools button{min-height:32px;min-width:32px}
 .card-reply-form .markdown-editor-footer .community-format-help{font-size:11px}
 .card-reply-form .markdown-editor-footer{padding:8px 12px}
+
+.card-account-checking{font-size:12px;color:var(--text-secondary);padding:12px;border-radius:8px;background:var(--surface2)}
