@@ -115,6 +115,12 @@ try {
   assert.deepEqual(matchingIds("absent module query"), []);
   const browserModules = catalog.problems.filter((p) => p.browser_judge);
   assert.equal(browserModules.length, catalog.problems.length, 'Every published module must support browser execution');
+  const simclr=catalog.papers.find(p=>p.id==='simclr');
+  assert(simclr&&simclr.number===57&&simclr.category==='representation');
+  assert.deepEqual(simclr.module_ids,['representation/simclr']);
+  assert.deepEqual(matchingPaperModules(simclr,catalog.problems,'NT-Xent','all','browser').map(p=>p.number),[84]);
+  assert.equal(Object.values(catalog.problems.find(p=>p.id==='representation/simclr').tests).reduce((sum,count)=>sum+count,0),9);
+  assert(paperCollections.some(list=>list.paperIds.includes('simclr')));
   const moco=catalog.papers.find(p=>p.id==='moco');
   assert(moco&&moco.number===58&&moco.category==='representation');
   assert.deepEqual(moco.module_ids,['representation/moco']);

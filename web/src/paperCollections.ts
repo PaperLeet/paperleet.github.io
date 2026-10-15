@@ -72,7 +72,7 @@ export const paperCollections: PaperCollection[] = [
     name_en: "Visual Generation",
     description: "视觉表征 · 多尺度生成",
     description_en: "Visual features · Multiscale generation",
-    paperIds: ["clip", "moco", "rotation-trick", "var", "repa", "drifting", "fd-loss"],
+    paperIds: ["clip", "simclr", "moco", "rotation-trick", "var", "repa", "drifting", "fd-loss"],
   },
 ];
 
