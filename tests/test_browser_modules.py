@@ -29,7 +29,10 @@ def test_comparison_explicit_scalar_tensor_precision_and_broadcasting(op):
 
 @pytest.mark.parametrize('dtype', [np.float32, np.float64])
 @pytest.mark.parametrize('shape,bias', [((3,), False), ((5, 3), True), ((2, 4, 3), False), ((0, 3), True)])
-def test_linear_identical_parameters_match_native_values_and_all_gradients(dtype, shape, bias):
+@pytest.mark.parametrize('wasm_kernel', [False, True])
+def test_linear_identical_parameters_match_native_values_and_all_gradients(dtype, shape, bias, wasm_kernel, monkeypatch):
+    from paperleet_torch import _nn
+    monkeypatch.setattr(_nn, '_WASM_LINEAR_GRADS', wasm_kernel)
     rng = np.random.RandomState(73)
     data, weight, offset = rng.randn(*shape).astype(dtype), rng.randn(2, 3).astype(dtype), rng.randn(2).astype(dtype)
     actual = wasm.Linear(3, 2, bias=bias, dtype=dtype)
