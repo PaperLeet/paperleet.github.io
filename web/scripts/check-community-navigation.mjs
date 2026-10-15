@@ -9,6 +9,8 @@ try {
   const {signInHref,accountReturnHref}=await server.ssrLoadModule('/src/accountNavigation.ts');
   const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
   const {default:Community}=await server.ssrLoadModule('/src/Community.tsx');
+  const {default:PostBookmark}=await server.ssrLoadModule('/src/PostBookmark.tsx');
+  const {confirmedBookmark}=await server.ssrLoadModule('/src/communityBookmarks.ts');
   const id='a'.repeat(32), topics=[undefined,'architecture/attention','retired/module'];
   for (const topic of topics) {
     for (const search of ['', 'mask gradient', '张量 & mask=1? 100%_% # + /', '中文 😀']) {
@@ -27,6 +29,34 @@ try {
     }
   }
   assert.equal(communityFeedHref(undefined,emptyCommunityFeed()),'#/community');
+  for(const topic of topics) {
+    const state={category:'questions',following:false,saved:true,search:'数学 & mask 😀',page:2};
+    const feed=communityFeedHref(topic,state), post=communityPostHref(id,feed,'b'.repeat(32));
+    assert.deepEqual(readCommunityFeed(feed),{topicId:topic,state});
+    assert.equal(communityPostReturn(post,id),feed);
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(feed))),feed);
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(post))),post);
+    assert.equal(communityShareUrl('https://paperleet.test/?private=query'+post,id),`https://paperleet.test/#/community/${id}`);
+  }
+  for(const query of ['saved=other','saved=1&saved=0']) {
+    assert.equal(readCommunityFeed('community?'+query),undefined);
+    assert.equal(signInHref('community?'+query),'#/account');
+  }
+  const owner='viewer-a',ack={owner_id:owner,post_id:id,bookmarked:true};
+  assert.deepEqual(confirmedBookmark(ack,owner,id,true),ack);
+  assert.deepEqual(confirmedBookmark({...ack,bookmarked:false},owner,id),{...ack,bookmarked:false});
+  for(const value of [null,[],{}, {...ack,owner_id:'viewer-b'}, {...ack,post_id:'b'.repeat(32)}, {...ack,bookmarked:'true'}, {...ack,bookmarked:false}]) {
+    assert.equal(confirmedBookmark(value,owner,id,true),undefined);
+  }
+  const props={postId:id,owner,bookmarked:false,enabled:true,returnTo:communityPostHref(id),disabled:false,onChange(){},onBusyChange(){}};
+  const html=renderToString(React.createElement(PostBookmark,props));
+  assert(html.includes('aria-label="收藏帖子"')&&html.includes('aria-pressed="false"'));
+  assert(renderToString(React.createElement(PostBookmark,{...props,bookmarked:true})).includes('aria-label="取消收藏"'));
+  assert(renderToString(React.createElement(PostBookmark,{...props,disabled:true})).includes('disabled=""'));
+  assert.equal(renderToString(React.createElement(PostBookmark,{...props,enabled:false})), '');
+  assert.equal(renderToString(React.createElement(PostBookmark,{...props,bookmarked:undefined})), '');
+  const guest=renderToString(React.createElement(PostBookmark,{...props,owner:''}));
+  assert(guest.includes('登录收藏')&&guest.includes(signInHref(props.returnTo))&&!guest.includes('<button'));
   assert.equal(communityFeedHref(undefined,{...emptyCommunityFeed(),code:'private code',reply:'private reply',owner:'private account'}),'#/community');
   assert.equal(communityPostHref(id),'#/community/'+id);
   const reply='b'.repeat(32);

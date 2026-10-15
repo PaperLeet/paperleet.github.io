@@ -1,6 +1,6 @@
 import { topicHref } from './communityTopics';
 
-export type CommunityFeedState = { category: string; following: boolean; search: string; page: number };
+export type CommunityFeedState = { category: string; following: boolean; saved?: boolean; search: string; page: number };
 export const COMMUNITY_PAGE_SIZE = 20;
 export const emptyCommunityFeed = (): CommunityFeedState => ({ category: '', following: false, search: '', page: 1 });
 const categories = ['', 'papers', 'implementation', 'questions', 'career', 'lounge'];
@@ -21,7 +21,7 @@ function knownParameters(params: URLSearchParams, allowed: string[]) {
 /** Parse only local feed routes and supported filters; nested return routes are forbidden. */
 export function readCommunityFeed(route: string): { topicId?: string; state: CommunityFeedState } | undefined {
   const value = parts(route);
-  if (!value || !knownParameters(value.params, ['category', 'following', 'q', 'page'])) return;
+  if (!value || !knownParameters(value.params, ['category', 'following', 'saved', 'q', 'page'])) return;
   let topicId: string | undefined;
   if (value.path !== 'community') {
     if (!value.path.startsWith('community/problem/')) return;
@@ -30,11 +30,14 @@ export function readCommunityFeed(route: string): { topicId?: string; state: Com
   }
   const category = value.params.get('category') || '';
   const following = value.params.get('following') || '';
+  const saved = value.params.get('saved') || '';
   const search = (value.params.get('q') || '').trim();
   const page = value.params.get('page') || '1';
   if (!categories.includes(category) || !['', '1', 'true', '0', 'false'].includes(following)
+    || !['', '1', 'true', '0', 'false'].includes(saved)
     || Array.from(search).length > 200 || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page)) || Number(page) > maxPage) return;
-  return { topicId, state: { category, following: following === '1' || following === 'true', search, page: Number(page) } };
+  return { topicId, state: { category, following: following === '1' || following === 'true',
+    ...(saved === '1' || saved === 'true' ? {saved: true} : {}), search, page: Number(page) } };
 }
 
 export function communityFeedHref(topicId: string | undefined, state: CommunityFeedState): string {
@@ -43,6 +46,7 @@ export function communityFeedHref(topicId: string | undefined, state: CommunityF
   const params = new URLSearchParams();
   if (state.category) params.set('category', state.category);
   if (state.following) params.set('following', '1');
+  if (state.saved) params.set('saved', '1');
   if (state.search.trim()) params.set('q', state.search.trim());
   if (state.page > 1) params.set('page', String(state.page));
   const href = base + (params.size ? `?${params}` : '');

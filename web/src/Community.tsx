@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
+  Bookmark,
   BriefcaseBusiness,
   Check,
   ChevronLeft,
@@ -53,6 +54,7 @@ import PublicationRecovery from './PublicationRecovery';
 import PostEditor from './PostEditor';
 import ReplyEditor from './ReplyEditor';
 import DiscussionLink from './DiscussionLink';
+import PostBookmark from './PostBookmark';
 import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
 type Profile = PublicUser & {
@@ -472,14 +474,18 @@ export default function Community({ postId, route, ...scope }: CommunityProps) {
 }
 function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
-  const { user } = useAccount();
+  const { user, capabilities, loading: accountLoading } = useAccount();
   const draftScope = topicId || "general";
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
   const filters = readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
   const { category, following, search, page } = filters;
+  const saved = filters.saved === true;
+  const savedAvailable = capabilities?.community_bookmarks === true;
+  const savedGate = saved && savedAvailable;
+  const waitingForSavedAccount = saved && accountLoading;
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
-  const requestKey = JSON.stringify([topicId, user?.id, category, following, search, page]);
+  const requestKey = JSON.stringify([topicId, user?.id, category, following, saved, savedGate, search, page]);
   const [query, setQuery] = useState(search);
   const boards = useRef<HTMLElement>(null);
   const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
@@ -515,11 +521,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       category,
       q: search,
       following: following ? "true" : "false",
+      ...(saved ? {saved: 'true'} : {}),
       offset: String(offset),
       limit: String(PAGE_SIZE),
       ...(topicId ? { problem_id: topicId } : {}),
     });
-    if (following && !user) {
+    if (waitingForSavedAccount) return;
+    if ((saved && !savedGate) || ((following || saved) && !user)) {
       setData({ items: [], total: 0, requestKey });
       setLoading(false);
       return;
@@ -530,7 +538,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
         if (page > lastPage) {
           redirected = true;
-          location.replace(communityFeedHref(topicId, { category, following, search, page: lastPage }));
+          location.replace(communityFeedHref(topicId, { category, following, ...(saved ? {saved:true} : {}), search, page: lastPage }));
           return;
         }
         setData({ ...data, requestKey });
@@ -544,7 +552,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     return () => {
       live = false;
     };
-  }, [category, following, search, offset, user?.id, retry, topicId]);
+  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId]);
   return (
     <main className="social-page community-page">
       {topicId && (
@@ -608,20 +616,24 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           <div className="community-feed-toolbar">
             <div className="social-tabs compact">
               <button
-                className={!following ? "selected" : ""}
-                aria-pressed={!following}
-                onClick={() => choose({ following: false })}
+                className={!following && !saved ? "selected" : ""}
+                aria-pressed={!following && !saved}
+                onClick={() => choose({ following: false, saved: false })}
               >
                 {t("最新", "Latest")}
               </button>
               <button
-                className={following ? "selected" : ""}
-                aria-pressed={following}
-                onClick={() => choose({ following: true })}
+                className={following && !saved ? "selected" : ""}
+                aria-pressed={following && !saved}
+                onClick={() => choose({ following: true, saved: false })}
               >
                 <Users size={14} />
                 {t("关注", "Following")}
               </button>
+              {savedAvailable&&<button type="button" className={saved?'selected':''} aria-pressed={saved}
+                onClick={()=>choose({saved:true,following:false})}>
+                <Bookmark size={14}/>{t('我的收藏','Saved')}
+              </button>}
             </div>
             <form
               className="community-search"
@@ -648,7 +660,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>
             </form>
           </div>
-          {!pending && !error && !(following && !user) && <p className="community-result-summary" role="status">
+          {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && <p className="community-result-summary" role="status">
             {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
           </p>}
           <div className="social-panel feed-items">
@@ -664,13 +676,18 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </div>
             ) : pending ? (
               <Loading />
-            ) : following && !user ? (
+            ) : saved && !savedAvailable ? (
+              <Empty title={t('收藏功能暂不可用','Saved posts are unavailable')} icon={<Bookmark size={31}/>}>
+                <p>{t('当前服务尚未提供收藏。你仍可以浏览其他讨论。','This service does not currently provide saved posts. You can still browse discussions.')}</p>
+                <button type="button" className="button subtle" onClick={()=>choose({saved:false,following:false})}>{t('查看最新讨论','View latest discussions')}</button>
+              </Empty>
+            ) : (following || saved) && !user ? (
               <Empty
                 title={t(
-                  "关注你感兴趣的人",
-                  "Follow people you want to learn with",
+                  saved?"登录查看你的收藏":"关注你感兴趣的人",
+                  saved?"Sign in to see your saved posts":"Follow people you want to learn with",
                 )}
-                icon={<Users size={31} />}
+                icon={saved?<Bookmark size={31}/>:<Users size={31} />}
               >
                 <JoinPrompt returnTo={returnTo} />
               </Empty>
@@ -679,7 +696,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 title={
                   search
                     ? t("没有找到相关讨论", "No matching discussions")
-                    : following
+                    : saved ? t('还没有收藏的讨论','No saved discussions yet') : following
                       ? t(
                           "关注动态会显示在这里",
                           "Your following feed starts here",
@@ -690,7 +707,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 <p>
                   {search
                     ? t("换个关键词试试。", "Try a different search term.")
-                    : following
+                    : saved ? t('在帖子中点击收藏，之后可以在这里继续阅读。','Save a post to return to it here later.') : following
                       ? t(
                           "关注其他研究者，查看他们发布的帖子。",
                           "Follow other members to see their posts here.",
@@ -720,7 +737,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
 }
 function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
   const { t } = useI18n();
-  const { user } = useAccount();
+  const { user, capabilities, refresh: refreshAccount } = useAccount();
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
   const [editingReply,setEditingReply]=useState<string>(), [replyEdited,setReplyEdited]=useState<string>();
@@ -949,6 +966,10 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                   : t("转发", "Repost")}
                 <span>{post.counts.reposts}</span>
               </button>
+              <PostBookmark key={`${id}:${owner}`} postId={id} owner={owner} bookmarked={post.viewer.bookmarked}
+                enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,returnTo,replyTarget)}
+                disabled={busy||loading||editingPost||!!editingReply} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
+                onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
               <span>
                 <MessageCircle size={15} />
                 {post.counts.replies} {t("条回复", "replies")}

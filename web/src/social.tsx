@@ -44,6 +44,7 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  community_bookmarks?: boolean;
   auth_available: boolean;
   auth_mode?: "institutional" | "test" | "oauth";
   oauth_providers?: { id: "google" | "microsoft"; available: boolean }[];
@@ -82,9 +83,10 @@ export class SocialError extends Error {
     }
   }
 }
-export async function socialApi<T>(path: string, body?: unknown): Promise<T> {
+export async function socialApi<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const response = await apiFetch(`/api/${path}`, {
     cache: "no-store",
+    ...(signal ? { signal } : {}),
     ...(body === undefined
       ? {}
       : {
