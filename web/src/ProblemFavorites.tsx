@@ -82,7 +82,7 @@ export function ProblemFavoritesPage({route='favorites',problems,saved,progressR
   const entries=new Map(problems.map(problem=>[problem.id,problem]));
   const ids=rows.owner===user?.id?rows.ids:[];
   const active=new Set(state.snapshot?.items.map(item=>item.problem_id));
-  const shown=ids.filter(id=>{const problem=entries.get(id);return (!query.trim()||(id+' '+problem?.title+' '+problem?.translations?.en?.title).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))&&(filter==='all'||!!problem&&progressReady&&status(problem,saved[id])===filter);});
+  const shown=ids.filter(id=>{const problem=entries.get(id);return (!query.trim()||[id,problem?.number,problem?.title,problem?.translations?.en?.title].filter(value=>value!==undefined).join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))&&(filter==='all'||!!problem&&progressReady&&status(problem,saved[id])===filter);});
   if(!view)return <main className="problem-favorites-page"><SocialNotice error={t('收藏筛选链接无效。','This saved-problem filter is invalid.')}/><a className="button subtle" href="#/favorites">{t('查看全部收藏','View all saved problems')}</a></main>;
   return <main className="problem-favorites-page">
     <a className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</a>
