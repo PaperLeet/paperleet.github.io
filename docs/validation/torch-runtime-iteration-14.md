@@ -1,10 +1,11 @@
-# Lightweight torch 0.14 — unreleased work in progress
+# Lightweight torch 0.14 — arithmetic, promotion and IEEE behavior
 
 The maintained implementation is being expanded to cover ordinary arithmetic
 function/method APIs, mixed dtype/Number promotion and checked alpha values.
-**This candidate is not adopted on main.** Numerical edge cases now have
-corrections and independent regression tests; final distribution, browser and
-performance gates remain outstanding.
+**Combined-source local validation is complete; exact main CI and deployed
+adoption are still pending.** Historical phases below retain their own source
+hashes, failures and costs. The final combined-source section compares0.14 with
+main0.13.1, preserving its WASM linear optimization.
 
 ## Implementation and evidence so far
 
@@ -106,7 +107,7 @@ square-first derivative. `torch.reciprocal` and the Tensor method are also
 available. Complex zero sign handling follows native results, while complex
 reverse graphs remain explicitly unsupported.
 
-Forward AD omits absent constant tangents instead of fabricating `0 * infinity`.
+Elementary arithmetic forward AD omits absent constant tangents instead of fabricating `0 * infinity`.
 Explicit dual zero tangents still take part in the calculation, with native
 non-finite and signed-zero behavior. Constant broadcast/mixed-dtype directions
 match the primal result's shape and dtype.
@@ -261,3 +262,68 @@ The independent-library/core-coverage objective remains active. No new GPU
 backend or PyPI publication is part of this candidate. A possible later CPU
 optimization is private in-place quotient VJP workspace reuse; it is an untested
 idea and is not included in any timings or current code.
+
+## Combined0.14 with main0.13.1 — local gates complete
+
+The four rebase conflicts are resolved by preserving exact main content and
+reapplying the intended0.14 changes. The upstream `_nn.py` is byte-identical;
+only that module differs between the final35-file source and the preintegration
+35-file source. A verified reconstruction bridge links all earlier phases.
+All5,014 then-published hashed assets remain byte-identical.
+
+The combined source passes **17,066 full tests**, one optional Docker skip and
+seven warnings in183.35 seconds; **207 minimum-NumPy1.26.4 independent tests**;
+native **77 modules /9,987 executions /three repeats /336 caught mutants**;
+**187 pinned WASM contracts** including50 independent linear scalar-oracle
+contracts; and the **entire77-module real WASM catalog**, reference implementations,
+mutants and learner runs. The catalog gate takes406.582 seconds with no device
+budget observations on this runner. It overlaps independent distribution/UI
+correctness builds; that elapsed time is not a causal performance comparison.
+
+Fresh Chrome155.0.8059.82 passes187 contracts and13 representative full cases.
+The standalone wheel/sdist include exactly35 Python modules and Apache-2.0
+LICENSE/NOTICE resources, with no native Torch dependency. The installed wheel
+passes207 tests without native Torch under NumPy1.26.4. Wheel120,255 bytes,
+SHA-256 `cceb37ad48150bf8722bcc67718d38d91e64509c088ac8bac07d603c6d7943e4`.
+Current-main web checks and production build pass.
+
+After both correctness/build producers terminate, a new frozen baseline is
+main0.13.1 commit `16386436c08cf8201947950e77698f4d8e77c126` (34 modules), with the
+combined0.14 candidate (35 modules). The same complete57-case five-suite protocol
+retains40 fresh CPU,40 fresh Node/WASM, eight fresh Chrome process/Worker and
+eight allocation reports, with11 batches per timing and ABBA order per dtype.
+Source/resource/harness hashes are checked before/after. There is no pooling
+with the older0.13 comparisons.
+
+Node/WASM scalar add/mul/div take roughly11–15% less time; reflected subtraction
+40–43% less and the affine chain about5% less. Reflected division costs9% more,
+short arithmetic reverse passes5–9% more, and the MLP training step about4% more.
+Chrome float32 scalar calls take about5–9% less time, reflected subtraction36.7%
+less and the affine chain2.6% less; reflected division costs16%, short reverse
+passes8–12%, and retained-hook backward15.3% more in this series. CPU division
+backward costs10.7%/13.1% and float64 reflected division26.9% more. These costs
+remain in the report; increased compatibility is not an all-operator speedup.
+
+Primary Chrome float64 results show unresolved process variation. Scalar-add
+baseline medians18.6667/9.9167 microseconds yield an apparent40.2% improvement;
+AdamW costs24.5% more despite unchanged optimizer code. A separate four-process
+**float64 BAAB** full-suite followup keeps all original data. It observes scalar
+add−13.2%, multiply−12.6%, divide−11.7%, reflected subtraction−42.3%, reflected
+division+11.2%, short reverse passes+3.9–8.4%, affine backward−6.3%, attention+0.5%,
+MLP near parity and AdamW−1.6%. Primary and followup remain separate; large
+primary gains/costs are not stable causal claims. Timer-floor zeros are retained
+without inventing ratios. No cross-engine causal speedup or general-device
+latency promise is made.
+
+[Final combined local samples and reconstruction](../../packages/paperleet-torch/benchmarks/results/iteration-14.json)
+retain every primary/followup sample, test/harness source, source/resource digest
+and distribution identity. The
+[combined validation record](../../packages/paperleet-torch/benchmarks/results/iteration-14-combined-validation.json)
+contains the entire77-module WASM result, native checks and Chrome contracts.
+
+Latest fetched main `09fac92fd270b9028643f609a5965067e1a2a411` only updates six
+English module goals, documentation and the CI push branch filter. Backend,
+Python tests and browser runner source are unchanged. Preserve those updates,
+regenerate the final catalog, compare all77 judge/runtime hashes against the
+validated snapshot, and run affected integration checks before non-force main
+promotion. Exact remote CI and deployed-source verification remain outstanding.
