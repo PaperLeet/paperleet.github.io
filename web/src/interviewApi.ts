@@ -1,3 +1,4 @@
+import {loadCatalogIndex} from './catalogIndex';
 import {useEffect,useState} from 'react';
 import {socialApi,errorMessage} from './social';
 import {useI18n} from './i18n';
@@ -39,9 +40,7 @@ export function useInterviewResource<T>(path:string,enabled=true,retry=0,scope='
 }
 let modulePromise:Promise<InterviewModule[]>|undefined;
 export function loadInterviewModules(){
-  if(!modulePromise)modulePromise=fetch(`${import.meta.env.BASE_URL}data/index.json`,{cache:'no-cache'}).then(async response=>{
-    if(!response.ok)throw Error('Catalog unavailable');
-    const data=await response.json();if(!Array.isArray(data.problems))throw Error('Catalog unavailable');
+  if(!modulePromise)modulePromise=loadCatalogIndex(import.meta.env.BASE_URL).then(data=>{
     return data.problems.filter((p:InterviewModule)=>p&&typeof p.id==='string'&&typeof p.title==='string'&&Number.isSafeInteger(p.number));
   }).catch(error=>{modulePromise=undefined;throw error;});
   return modulePromise;

@@ -2,6 +2,8 @@
 import json
 import hashlib
 import re
+import base64
+import gzip
 from pathlib import Path
 
 from paperleet.catalog import problems, root
@@ -124,4 +126,15 @@ def export_catalog():
     # Do not delete previous hashes: a browser may still hold the old manifest.
     write_json(destination.parent / "index.json",
                {"schema_version": 2, "categories": categories, "papers": papers, "problems": index})
+    # Keep the established index for already-open clients. New clients decode
+    # the bundled starters before exposing the same in-memory catalog model.
+    # No source text or return contract is removed to meet the homepage budget.
+    sources = json.dumps({item["id"]: item["starter"] for item in index},
+                         ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    write_json(destination.parent / "index-v3.json", {
+        "schema_version": 3, "categories": categories, "papers": papers,
+        "problems": [{key: value for key, value in item.items() if key != "starter"} for item in index],
+        "starters": {"encoding": "gzip-base64", "bytes": len(sources),
+                     "data": base64.b64encode(gzip.compress(sources, mtime=0)).decode("ascii")},
+    })
     return destination

@@ -128,6 +128,22 @@ def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, m
     assert detail["paper"] == paper and detail["functions"] == functions
     assert hashlib.sha256(detail_path.read_bytes()).hexdigest()[:20] in detail_path.name
     assert index_path.stat().st_size < full_path.stat().st_size / 5
+    import base64
+    import gzip
+    compact_path = full_path.parent / "index-v3.json"
+    compact = json.loads(compact_path.read_text())
+    sources = json.loads(gzip.decompress(base64.b64decode(compact["starters"]["data"])))
+    assert compact["schema_version"] == 3
+    assert compact["starters"]["encoding"] == "gzip-base64"
+    assert compact["starters"]["bytes"] == len(gzip.decompress(base64.b64decode(compact["starters"]["data"])))
+    assert sources == {item["id"]: item["starter"] for item in index["problems"]}
+    restored = {**compact, "schema_version": 2, "problems": [
+        {**item, "starter": sources[item["id"]]} for item in compact["problems"]]}
+    del restored["starters"]
+    assert restored == index, "Transport compaction must not modify source, paper or grading metadata"
+    before = compact_path.read_bytes()
+    export_catalog()
+    assert compact_path.read_bytes() == before, "The source transport is reproducible"
     (folder / "solution.py").write_text("updated reference source")
     export_catalog()
     updated = json.loads(index_path.read_text())["problems"][0]

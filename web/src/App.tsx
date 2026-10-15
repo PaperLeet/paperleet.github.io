@@ -1,3 +1,4 @@
+import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
@@ -45,7 +46,6 @@ import { BilingualText } from "./BilingualText";
 import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
 import ResizableSplit from "./ResizableSplit";
 import { recommendPractice, nextPractice } from "./practice-recommendation";
-import { loadProblemDetail } from "./catalogData";
 import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobs";
 import { reloadApp } from './appRecovery';
@@ -273,20 +273,7 @@ function Workspace() {
     : judge.job?.status === "running" ? t("正在执行测试…", "Running tests…")
     : t("正在提交判题任务…", "Submitting your job…");
   function loadCatalog() {
-    return fetch(
-      `${import.meta.env.BASE_URL}data/index.json`,
-      { cache: "no-cache" },
-    )
-      .then(async (r) => {
-        if (!r.ok)
-          throw Error(
-            t(
-              "暂时无法加载题库，请稍后刷新。",
-              "The problem catalog is unavailable. Please refresh shortly.",
-            ),
-          );
-        return r.json();
-      })
+    return loadCatalogIndex(import.meta.env.BASE_URL)
       .then((data) => {
         setProblems(Array.isArray(data) ? data : data.problems);
         const loadedPapers: Paper[] = Array.isArray(data.papers) ? [...data.papers] : [];
@@ -299,7 +286,7 @@ function Workspace() {
         setCategories(Array.isArray(data.categories) ? data.categories : []);
         setLoadError("");
       })
-      .catch((e) => setLoadError(e.message));
+      .catch(() => setLoadError(t('暂时无法加载题库，请稍后刷新。','The problem catalog is unavailable. Please refresh shortly.')));
   }
   useEffect(() => {
     void loadCatalog();
@@ -320,7 +307,7 @@ function Workspace() {
     if (!sourceProblem?.detail_url || details[sourceProblem.detail_url]) return;
     const controller = new AbortController();
     const key = sourceProblem.detail_url;
-    void loadProblemDetail(sourceProblem, import.meta.env.BASE_URL, fetch, controller.signal)
+    void import('./catalogData').then(({loadProblemDetail})=>loadProblemDetail(sourceProblem,import.meta.env.BASE_URL,fetch,controller.signal))
       .then((detail) => {
         if (!controller.signal.aborted) setDetails((previous) => ({ ...previous, [key]: detail }));
       })
@@ -574,6 +561,8 @@ function Workspace() {
             <h2>{t("题目暂时无法加载", "Module unavailable")}</h2>
             <p>{t("你的草稿仍然保留，请重试加载题目。", "Your draft is preserved. Try loading this module again.")}</p>
             <button className="button" onClick={() => setDetailRetry((value) => value + 1)}>{t("重试加载", "Retry loading")}</button>
+            <button className="text-button" disabled={!!editorRecoveryReason} onClick={()=>{if(!editorRecoveryReason&&practice.owns(practice.owner))reloadApp();}}>{t('刷新并恢复草稿','Reload and restore draft')}</button>
+            {editorRecoveryReason&&<small>{editorRecoveryReason}</small>}
             <a className="text-button" href={libraryReturn || '#'}>{t("返回题库", "Back to papers")}</a>
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
