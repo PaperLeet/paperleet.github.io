@@ -107,7 +107,6 @@
 .workspace .description-scroll { padding: 24px; }
 .workspace .problem-heading h1 { font-size: clamp(21px, 1.65vw, 25px); }
 .workspace .module-scope-card { padding: 17px 18px; }
-.workspace .editor-bottom { min-height: 58px; padding-block: 9px; }
 .workspace .editor-lab[hidden] { display: none; }
 .workspace .editor-code-panel { min-width: 0; }
 .workspace .pane-tabs { scrollbar-width: none; }

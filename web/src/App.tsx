@@ -142,7 +142,7 @@ function Workspace() {
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number};vertical?:{ratio:number}}>();
-  const [resultsCollapsed, setResultsCollapsed] = useState(false);
+  const [resultsCollapsed, setResultsCollapsed] = useState(true);
   function selectReadingTab(nextTab: string) {
     setTab(nextTab); setMobilePane("read"); setFocusMode(false);
     requestAnimationFrame(() => {
@@ -263,8 +263,10 @@ function Workspace() {
   const browserHere = browser.problem === problem?.id;
   const running = preparingRun || judge.active || browser.active;
   const canRun = !!problem && !running && practice.ready && !(!browserAvailable && hosted && (!user || !online || !!practice.conflicts[problem.id]));
-  const workspaceAttention = !!(judge.error || practice.error || (problem && (practice.conflicts[problem.id] || browser.reasons[problem.id])));
-  useEffect(() => { if (workspaceAttention) setResultsCollapsed(false); }, [workspaceAttention]);
+  const workspaceAttention = !!(judge.error || practice.error || (!health && healthError) || (problem && (practice.conflicts[problem.id] || browser.reasons[problem.id])));
+  const resultsVisible = !!(report || syntaxFailure || running || workspaceAttention || (!health && healthError) || (hosted && !browserAvailable && (!user || !online)) || judge.job?.status === "cancelled");
+  useEffect(() => { setResultsCollapsed(true); }, [problem?.id, practice.owner]);
+  useEffect(() => { if (workspaceAttention || running) setResultsCollapsed(false); }, [workspaceAttention, running, problem?.id, practice.owner]);
   useWorkspaceShortcuts({ enabled: !!problem && !backupOpen, canRun, focused: focusMode, onRun: () => void run(), onExitFocus: () => setFocusMode(false) });
   const editorRecoveryReason = running
     ? t('请先停止测试或等待运行完成，再重新加载。', 'Stop the tests or wait for the run to finish before reloading.')
@@ -374,6 +376,7 @@ function Workspace() {
     const submittedCode = current.code ?? problem.starter;
     setResultsCollapsed(false);
     setRightTab("code");
+    setMobilePane("code");
     setPreparingRun(true);
     try {
       if (verification) {
@@ -388,12 +391,12 @@ function Workspace() {
           // Hosted completions and shared statistics remain server-authoritative.
           if (!user) practice.applyReport(problem, outcome.report, runOwner);
           else learning.record(problem,outcome.report,runOwner);
-          if ([problem.id,String(problem.number)].includes(routePath(getId()))) showTests();
+          if ([problem.id,String(problem.number)].includes(routePath(getId()))) setResultsCollapsed(false);
           setToast(t("浏览器测试已完成", "Browser run complete"));
           return;
         }
         if (outcome.type === 'syntax_error') {
-          if ([problem.id,String(problem.number)].includes(routePath(getId()))) showTests();
+          if ([problem.id,String(problem.number)].includes(routePath(getId()))) setResultsCollapsed(false);
           setToast(t('请先修正 Python 语法错误。','Fix the Python syntax error before running tests.'));
           return;
         }
@@ -635,10 +638,28 @@ function Workspace() {
             <b title={locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}>
               {problem.number}. {locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}
             </b>
+            <div className="workspace-run-controls">
+              {(running || !practice.ready || practice.loading || (!online && !browserAvailable)) && <span className="workspace-run-state" role="status">
+                {running ? <><span className="spinner" />{judge.active ? runStatus : browser.active ? t("运行中…", "Running…") : t("正在准备…", "Preparing…")}</> : !practice.ready || practice.loading ? t("正在准备工作区…", "Preparing workspace…") : t("判题服务未连接", "Judge offline")}
+              </span>}
+              {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
+              <div className="editor-run-actions">
+                {(browserAvailable || (!hosted && !publicSite)) && <button
+                  className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
+                  disabled={running || !practice.ready}
+                  onClick={() => void run(browserAvailable ? 'browser' : 'server')}
+                ><Play size={15} fill="currentColor" />{t("运行测试", "Run tests")}</button>}
+                {hostedAppAvailable && <button
+                  className="button run-button"
+                  disabled={running || !practice.ready || (!!user && (!queueReady || !online || !!practice.conflicts[problem.id]))}
+                  onClick={() => user ? void run('server') : signInToSubmit()}
+                >{user ? t("提交", "Submit") : t("登录后提交", "Sign in to submit")}</button>}
+              </div>
+            </div>
             <WorkspaceLayoutMenu onLayout={(ratio, reset) => {
               setFocusMode(false);
               setLayoutRequest({horizontal:{ratio},vertical:reset?{ratio:.72}:undefined});
-              if (reset) setResultsCollapsed(false);
+              if (reset) setResultsCollapsed(!running && !workspaceAttention);
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
             <ModuleNavigator key={problem.id} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />
@@ -647,7 +668,6 @@ function Workspace() {
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16} />{t("题面与结果", "Read & results")}{(report || syntaxFailure) && <span aria-hidden="true" className={`mobile-result-dot ${!hasCurrentSyntaxError && reportSource === "current" && isPassed(problem,report) ? "passed" : ""}`} />}</button>
             <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16} />{t("编写代码", "Write code")}</button>
           </div>
-          <div className="mobile-workspace-switch" role="group" aria-label={t('练习视图','Practice view')}><button aria-pressed={mobilePane==='read'} aria-controls="problem-description-panel" onClick={()=>selectReadingTab(tab)}><BookOpen size={16}/>{t('题面与结果','Read & results')}</button><button aria-pressed={mobilePane==='code'} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16}/>{t('编写代码','Write code')}</button></div>
           <ResizableSplit
             as="main"
             className="workspace"
@@ -936,14 +956,14 @@ function Workspace() {
               <div className="editor-lab" id="editor-lab-view" role="tabpanel" aria-labelledby="editor-tab-lab" tabIndex={0} hidden={rightTab!=='lab'}>
                 {rightTab === 'lab' && <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />}
               </div>
-              <div className="editor-workbench" id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
+              <div className="editor-workbench" data-results-visible={resultsVisible} id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
                   <ResizableSplit
                     className="editor-split"
                     axis="vertical"
                     storageKey="paperleet.layout.editor.v1"
                     initial={0.72}
                     layout={layoutRequest?.vertical}
-                    secondCollapsed={resultsCollapsed}
+                    secondCollapsed={resultsCollapsed || !resultsVisible}
                     minFirst={180}
                     minSecond={100}
                     label={t("调整代码与测试结果区高度", "Resize code and test results panels")}
@@ -1057,26 +1077,21 @@ function Workspace() {
                     </span>
                   </div>
                   </div>
-                  <div className="editor-results-panel" id="problem-results-panel">
+                  <div className="editor-results-panel" id="problem-results-panel" hidden={!resultsVisible}>
                   <button type="button" className="results-pane-toggle" aria-expanded={!resultsCollapsed} aria-controls="problem-results-content" onClick={() => setResultsCollapsed(value => !value)}>
                     <Terminal size={14} aria-hidden="true"/><b>{t('测试结果','Test results')}</b>
                     <span>{running ? t('运行中…','Running…') : workspaceAttention ? t('需要处理','Needs attention') : hasCurrentSyntaxError ? t('语法错误','Syntax error') : reportSource === 'changed' || syntaxFailure ? t('代码已修改','Code changed') : report && reportSource !== 'current' ? t('上次运行','Previous run') : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t('等待运行','Ready to run')}</span>
                     <ChevronDown size={14} aria-hidden="true"/>
                   </button>
                   <div className="editor-results-content" id="problem-results-content" hidden={resultsCollapsed}>
-                  {problem.browser_judge && <div className="browser-judge-panel">
+                  {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || report?.runtime === "browser-numpy-wasm") && <div className="browser-judge-panel">
                     {browser.active && (browserHere
                       ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
                       : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
-                    <small>{t('运行测试会在浏览器中执行；点击 Submit 后，服务端判题并将解答保存到账号。', 'Run tests executes in your browser. Submit runs on the server and saves your solution to your account.')}</small>
-                    {browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
+                    {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
-                    {browser.calibrations[problem.id] && report?.runtime === "browser-numpy-wasm" && <small>{t("兼容性校验", "Compatibility calibration")}: {browser.calibrations[problem.id].reference_passed} {t("项参考测试通过", "reference tests passed")} · {Object.keys(browser.calibrations[problem.id].mutants_caught).length} {t("个错误实现被抓住", "mutants caught")}</small>}
-                    {browser.diagnostics[problem.id] && <details><summary>{t("运行时详情", "Runtime details")}</summary><code>{browser.diagnostics[problem.id]}</code></details>}
-                    {report?.runtime === "browser-numpy-wasm" && <p role="status">{t("本次结果来自浏览器 · NumPy / WASM", "Results from your browser · NumPy / WASM")}</p>}
-                    <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"} measurement={report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined}/>
+                    {(report?.runtime === "browser-numpy-wasm" || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"} calibration={browser.calibrations[problem.id]} diagnostics={browser.diagnostics[problem.id]} measurement={report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined}/>}
                   </div>}
-                  {!problem.browser_judge && <div className="server-judge-panel"><strong>{t('服务端 CPU 判题', 'Server CPU judging')}</strong><small>{t('在网页完成实现后提交，服务端执行完整测试并返回结果。', 'Implement on the web, then submit for the complete suite and feedback from the server.')}</small></div>}
                   {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
                   {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
                     <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
@@ -1173,12 +1188,7 @@ function Workspace() {
                   {!user && <div className="practice-notice" role="status"><span>{t('游客草稿自动保存在此浏览器，刷新可恢复。清除网站数据会删除草稿；不会跨设备同步。', 'Guest drafts save in this browser and survive reloads. Clearing site data deletes them; they do not sync.')}</span>{hostedAppAvailable && <button onClick={signInToSubmit}>{t('登录', 'Sign in')}</button>}</div>}
                   <div className="console">
                     <ReportSourceNotice state={reportSource} />
-                    <div className="console-header">
-                      <span>
-                        <Terminal size={14} />
-                        {t("测试结果", "Test results")}
-                      </span>
-                      {(report || syntaxFailure) && (
+                    {(report || syntaxFailure) && <div className="console-header">
                         <button
                           className="text-button"
                           onClick={() => showTests()}
@@ -1186,8 +1196,7 @@ function Workspace() {
                           {t("查看详情", "View details")}{" "}
                           <ArrowRight size={13} />
                         </button>
-                      )}
-                    </div>
+                    </div>}
                     <p>
                       {running
                         ? judge.active ? queuedHere ? runStatus : t("正在处理另一道题的判题任务。", "A judge job for another module is in progress.")
@@ -1199,8 +1208,8 @@ function Workspace() {
                         : report
                           ? `${t("上次结果：", "Last result: ")}${report.tests.filter((test) => test.passed).length} / ${report.tests.length} ${t("项测试通过。", "tests passed.")}`
                           : t(
-                              "完成实现后，点击下方按钮运行测试。",
-                              "Complete the implementation, then run the tests below.",
+                              "完成实现后，点击上方按钮运行测试。",
+                              "Complete the implementation, then run the tests above.",
                             )}
                     </p>
                     {!running && report && report.tests.length > 0 && <div className="console-result-meter" aria-hidden="true" data-current={reportSource === 'current'} data-passed={isPassed(problem,report)}><span style={{width:`${report.tests.filter(test => test.passed).length / report.tests.length * 100}%`}}/></div>}
@@ -1208,52 +1217,7 @@ function Workspace() {
                   </div>
                   </div>
                   </ResizableSplit>
-                  <div className="editor-bottom">
-                    <span className="editor-run-status" role="status">
-                      {running ? (
-                        <>
-                          <span className="spinner" />
-                          {judge.active ? runStatus : browser.active ? t("浏览器判题中…", "Running in browser…") : t("正在准备测试…", "Preparing tests…")}
-                        </>
-                      ) : !practice.ready || practice.loading ? <><i className="yellow-dot" />{practice.error ? t('工作区需要恢复','Restore workspace to run') : t('正在准备工作区…','Preparing workspace…')}</> : hosted && !user && !browserAvailable ? (
-                        <a href={signInHref(id)}>
-                          {t("登录后运行", "Sign in to run")}
-                        </a>
-                      ) : online || browserAvailable ? (
-                        <>
-                          <i className="green-dot" />
-                          {browserAvailable
-                            ? online
-                              ? t("浏览器 / 服务端可用", "Browser / server ready")
-                              : t("浏览器测试可用", "Browser tests ready")
-                            : t("判题服务已连接", "Judge connected")}
-                        </>
-                      ) : (
-                        <>
-                          <i className="yellow-dot" />
-                          {t("判题服务未连接", "Judge offline")}
-                        </>
-                      )}
-                    </span>
-                    {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
-                    <div className="editor-run-actions">
-                      {(browserAvailable || (!hosted && !publicSite)) && <button
-                        className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
-                        disabled={running || !practice.ready}
-                        onClick={() => void run(browserAvailable ? 'browser' : 'server')}
-                      >
-                        <Play size={15} fill="currentColor" />
-                        {t("运行测试", "Run tests")}
-                      </button>}
-                      {hostedAppAvailable && <button
-                        className="button run-button"
-                        disabled={running || !practice.ready || (!!user && (!queueReady || !online || !!practice.conflicts[problem.id]))}
-                        onClick={() => user ? void run('server') : signInToSubmit()}
-                      >
-                        {user ? t("提交", "Submit") : t("登录后提交", "Sign in to submit")}
-                      </button>}
-                    </div>
-                  </div>
+
               </div>
             </section>
           </ResizableSplit>
