@@ -1,6 +1,8 @@
 import AffiliationBadge from "./AffiliationBadge";
 import InterviewMeta from './InterviewMeta';
 import PostPreview from './PostPreview';
+import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
+import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
 import { useEffect, useRef, useState } from "react";
@@ -205,10 +207,10 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo }: { post: Post; activity?: ReactNode; returnTo?: string }) {
+function PostCard({ post, activity, returnTo, resumed }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean }) {
   const { locale } = useI18n();
   return (
-    <article className="community-post-card">
+    <article className="community-post-card" data-reading-post={post.id} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
       <div className="post-card-layout">
         <a
@@ -227,7 +229,7 @@ function PostCard({ post, activity, returnTo }: { post: Post; activity?: ReactNo
             <DateLabel value={post.created_at} />
             <Category value={post.category} />
           </div>
-          <a className="post-title" href={postHref(post.id, returnTo)}>
+          <a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
             {post.title}
           </a>
           {post.problem && (
@@ -513,6 +515,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     [compose, setCompose] = useState(false),
     [retry, setRetry] = useState(0);
   const pending = loading || data.requestKey !== requestKey;
+  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable));
   function choose(change: Partial<CommunityFeedState>) {
     location.hash = communityFeedHref(topicId, { ...filters, page: 1, ...change });
   }
@@ -573,7 +576,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     };
   }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId]);
   return (
-    <main className="social-page community-page">
+    <main ref={reading.container} className="social-page community-page">
       {topicId && (
         <a className="social-back" href="#/community">
           <ArrowLeft size={14} />{t("所有社区讨论", "All community discussions")}
@@ -685,9 +688,10 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>
             </form>
           </div>
-          {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && <p className="community-result-summary" role="status">
+          {!pending && !error && !((following || saved) && !user) && !(saved && !savedAvailable) && <p data-reading-list="" tabIndex={-1} className="community-result-summary" role="status">
             {data.total ? `${offset + 1}–${Math.min(offset + PAGE_SIZE, data.total)} / ${data.total}` : '0'} {t('条讨论', 'discussions')}
           </p>}
+          <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           <div className="social-panel feed-items">
             {error ? (
               <div className="feed-error">
@@ -745,7 +749,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {(category || following || search) && <button className="button subtle" onClick={() => choose(emptyCommunityFeed())}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} />)
+              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} resumed={reading.resumedPost===post.id}/>)
             )}
           </div>
           {!pending && !error && (
@@ -762,7 +766,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
 }
 function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
   const { t } = useI18n();
-  const { user, capabilities, refresh: refreshAccount } = useAccount();
+  const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
+  useReadingOrigin(accountLoading?undefined:user?'account:'+user.id:'guest',id,returnTo);
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
   const [editingReply,setEditingReply]=useState<string>(), [replyEdited,setReplyEdited]=useState<string>();
