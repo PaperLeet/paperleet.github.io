@@ -1,17 +1,17 @@
 /** Deferred server-queue lifecycle, isolated to one active workspace owner. */
-import { JobRequestError, requestJob, watchJob } from './judgeJobs';
+import { JobRequestError, requestJob, watchJob, submissionModuleLoadError } from './judgeJobs';
 import type { JudgeJob } from './judgeJobs';
 import type { Report } from './types';
 import type { AdmissionWait } from './queueAdmission';
 
 type Pending = { id:string; problem:string };
-export type QueuedJudgeView = { owner:string; pending?:Pending; job?:JudgeJob; waiting?:AdmissionWait; reconnecting:boolean; error:string };
+export type QueuedJudgeView = { owner:string; pending?:Pending; job?:JudgeJob; waiting?:AdmissionWait; reconnecting:boolean; error:string; reloadRequired?:boolean };
 export const pendingKey = (owner:string) => `paperleet.judge.pending.v1:${owner}`;
 const empty = (owner:string):QueuedJudgeView => ({owner,reconnecting:false,error:''});
 type Options = { owner:string; client:string; expectedUser?:string; storage?:Pick<Storage,'getItem'|'setItem'|'removeItem'>;
   alive:()=>boolean; onView:(view:QueuedJudgeView)=>void; onReport:(report:Report,owner:string)=>void;
   fetcher?:typeof fetch; wait?:typeof import('./judgeJobs').pollDelay; pollWait?:typeof import('./judgeJobs').pollDelay;
-  now?:()=>number; wall?:()=>number; uuid?:()=>string };
+  now?:()=>number; wall?:()=>number; uuid?:()=>string; loadAdmission?:()=>Promise<typeof import('./queueAdmission')> };
 
 export class QueuedJudgeController {
   private view:QueuedJudgeView;
@@ -69,8 +69,8 @@ export class QueuedJudgeController {
     this.emit({...empty(owner),pending});
     let tracking=false;
     try {
-      const admission=await import('./queueAdmission').catch(()=>{
-        throw new JobRequestError('Server submission could not start. Your draft is preserved; try again.',400);
+      const admission=await (this.options.loadAdmission?.() || import('./queueAdmission')).catch(()=>{
+        throw new JobRequestError(submissionModuleLoadError,400,'client_module_unavailable');
       });
       if(!this.owns(next.signal))return;
       const job=await admission.admitSubmission({...pending,code},client,next.signal,expectedUser,()=>{
@@ -93,7 +93,7 @@ export class QueuedJudgeController {
       if(!(error instanceof JobRequestError)||error.status>=500||error.status===422) {
         this.remember(pending);this.emit({...empty(owner),pending,reconnecting:true});
         tracking=true;void this.attach(pending,next.signal);
-      } else {this.remember();this.emit({...empty(owner),error:error.message});}
+      } else {this.remember();this.emit({...empty(owner),error:error.message,reloadRequired:error.code==='client_module_unavailable'});}
     } finally {if(!tracking)this.clear(next.signal);}
   }
   stopWaiting() {

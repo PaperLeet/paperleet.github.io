@@ -2,6 +2,7 @@
 """Keep recently replaced Vite assets without retaining old HTML or runtimes."""
 
 import argparse
+from contextlib import ExitStack
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 import json
@@ -10,7 +11,7 @@ import shutil
 import tarfile
 
 MANIFEST = "pages-assets-manifest.json"
-WINDOW_SECONDS = 30 * 60
+WINDOW_SECONDS = 7 * 24 * 60 * 60
 MAX_MANIFEST_BYTES = 4 * 1024 * 1024
 MAX_ASSET_BYTES = 256 * 1024 * 1024
 MAX_ASSET_FILES = 20_000
@@ -90,7 +91,7 @@ def previous_generations(archive, members, now):
     if manifest_member is None:
         names = sorted(name for name, member in members.items() if name.startswith("assets/") and member.isfile())
         asset_names(names)
-        print("Previous artifact has no generation manifest; migrating its assets for 30 minutes.")
+        print("Previous artifact has no generation manifest; migrating its assets for 7 days.")
         return [{"created_at": iso_time(now), "retired_at": iso_time(now), "assets": names}]
     if not manifest_member.isfile() or manifest_member.size > MAX_MANIFEST_BYTES:
         raise ValueError("Invalid previous generation manifest")
@@ -119,15 +120,23 @@ def previous_generations(archive, members, now):
     return retained
 
 
-def retain_assets(dist, previous=None, *, now=None, archive_out=None):
+def retain_assets(dist, previous=None, *, seeds=(), now=None, archive_out=None):
     dist = Path(dist)
     now = datetime.now(timezone.utc).timestamp() if now is None else now
     own = current_assets(dist)
+    own_size = sum((dist / name).stat().st_size for name in own)
+    if own_size > MAX_ASSET_BYTES:
+        raise ValueError("Current assets exceed the 256 MiB size limit")
     generations = [{"created_at": iso_time(now), "assets": own}]
     retained_count = 0
-    total_size = sum((dist / name).stat().st_size for name in own)
-    if previous is not None:
-        with tarfile.open(previous, "r:*") as archive:
+    # Historical lightweight artifacts repair versions pruned by an older,
+    # shorter grace period. All archives stay open until validated assets copy.
+    archives = ([previous] if previous is not None else []) + list(seeds)
+    with ExitStack() as stack:
+        sources = {}
+        older = {}
+        for path in archives:
+            archive = stack.enter_context(tarfile.open(path, "r:*"))
             members = {}
             for member in archive:
                 name = safe_name(member.name)
@@ -140,31 +149,41 @@ def retain_assets(dist, previous=None, *, now=None, archive_out=None):
                 if name in members:
                     raise ValueError(f"Duplicate archive path: {name}")
                 members[name] = member
-            older = previous_generations(archive, members, now)
-            wanted = sorted({name for generation in older for name in generation["assets"]})
-            if len(set(own).union(wanted)) > MAX_ASSET_FILES:
-                raise ValueError("Too many retained assets")
-            for name in wanted:
-                member = members.get(name)
-                if member is None or not member.isfile():
-                    raise ValueError(f"Previous generation asset is missing: {name}")
-                if name not in own:
-                    total_size += member.size
-            if total_size > MAX_ASSET_BYTES:
-                raise ValueError("Retained assets exceed the 256 MiB size limit")
-            for name in wanted:
-                if name in own:
-                    continue  # The current build always wins a path collision.
-                destination = dist / name
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                with archive.extractfile(members[name]) as source, destination.open("xb") as target:
-                    shutil.copyfileobj(source, target)
-                retained_count += 1
-            generations.extend(older)
-    else:
+            for generation in previous_generations(archive, members, now):
+                key = (generation["created_at"], tuple(generation["assets"]))
+                existing = older.get(key)
+                # Reading a historical archive must not extend a retirement
+                # date already recorded in a newer archive.
+                if existing is None or timestamp(generation["retired_at"]) < timestamp(existing["retired_at"]):
+                    older[key] = generation
+                for name in generation["assets"]:
+                    member = members.get(name)
+                    if member is None or not member.isfile():
+                        raise ValueError(f"Previous generation asset is missing: {name}")
+                    sources.setdefault(name, (archive, member))
+        retained = sorted(older.values(), key=lambda item: (timestamp(item["retired_at"]), timestamp(item["created_at"])), reverse=True)
+        pruned = 0
+        while True:
+            wanted = sorted({name for generation in retained for name in generation["assets"]}.difference(own))
+            size = own_size + sum(sources[name][1].size for name in wanted)
+            if size <= MAX_ASSET_BYTES and len(own) + len(wanted) <= MAX_ASSET_FILES:
+                break
+            # Evict complete oldest versions, never individual chunks: keeping
+            # only part of a lazy dependency graph would still break Submit.
+            retained.pop()
+            pruned += 1
+        if pruned:
+            print(f"Asset budget reached; dropped {pruned} oldest complete generations.")
+        for name in wanted:
+            archive, member = sources[name]
+            destination = dist / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with archive.extractfile(member) as source, destination.open("xb") as target:
+                shutil.copyfileobj(source, target)
+            retained_count += 1
+        generations.extend(retained)
+    if not archives:
         print("No previous successful Pages artifact is available; publishing the validated current build only.")
-    if total_size > MAX_ASSET_BYTES:
-        raise ValueError("Current assets exceed the 256 MiB size limit")
     manifest = {"version": 1, "grace_seconds": WINDOW_SECONDS, "generations": generations}
     encoded = json.dumps(manifest, indent=2) + "\n"
     if len(encoded.encode("utf-8")) > MAX_MANIFEST_BYTES:
@@ -175,7 +194,7 @@ def retain_assets(dist, previous=None, *, now=None, archive_out=None):
             archive.add(dist / MANIFEST, arcname=MANIFEST, recursive=False)
             for name in sorted({name for generation in generations for name in generation["assets"]}):
                 archive.add(dist / name, arcname=name, recursive=False)
-    print(f"Pages assets: {len(own)} current, {retained_count} retained, {len(generations)} generations; grace period 30 minutes.")
+    print(f"Pages assets: {len(own)} current, {retained_count} retained, {len(generations)} generations; grace period 7 days.")
     return manifest
 
 
@@ -184,8 +203,9 @@ def main():
     parser.add_argument("dist", type=Path)
     parser.add_argument("--previous", type=Path)
     parser.add_argument("--archive-out", type=Path)
+    parser.add_argument("--seed", type=Path, action="append", default=[])
     args = parser.parse_args()
-    retain_assets(args.dist, args.previous, archive_out=args.archive_out)
+    retain_assets(args.dist, args.previous, seeds=args.seed, archive_out=args.archive_out)
 
 
 if __name__ == "__main__":

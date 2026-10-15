@@ -84,10 +84,13 @@ export type Report = {
   tests: TestResult[];
   mutation?: Record<string, string[]> | null;
 };
-export type Saved = { code?: string; report?: Report; acceptedReport?: Report; updated?: string };
+// Only browserLearningView sets this projection marker. JSON imports and account
+// responses cannot manufacture historical browser completion through a flag.
+export const browserLearningPassed = Symbol('browserLearningPassed');
+export type Saved = { code?: string; report?: Report; acceptedReport?: Report; updated?: string; [browserLearningPassed]?: true };
 export const layers = ["T0", "T1", "T2", "T3"];
 export const layerLabels = ["接口契约", "参考对齐", "数学性质", "真实行为"];
-export function isPassed(p: Problem, r?: Report) {
+export function isPassed(p: Pick<Problem, 'id' | 'tests'>, r?: Report) {
   try {
     const report = parseReport(r);
     if (
@@ -115,7 +118,7 @@ export function isPassed(p: Problem, r?: Report) {
   }
 }
 export function status(p: Problem, s: Saved = {}) {
-  return isPassed(p, s.acceptedReport) || isPassed(p, s.report)
+  return s[browserLearningPassed] || isPassed(p, s.acceptedReport) || isPassed(p, s.report)
     ? "done"
     : (s.code !== undefined && s.code !== p.starter) || s.report
       ? "started"

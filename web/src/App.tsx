@@ -48,6 +48,7 @@ import { recommendPractice, nextPractice } from "./practice-recommendation";
 import { loadProblemDetail } from "./catalogData";
 import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobs";
+import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason } from "./browserMessages";
 import { browserBudget } from './browserBudgets';
@@ -1068,7 +1069,12 @@ function Workspace() {
                     {!queuedHere && <a href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</a>}
                     {judge.job?.status === "queued" && <button onClick={() => void judge.cancel()}>{t("取消排队", "Leave queue")}</button>}
                   </div>}
-                  {judge.error && <div className="practice-notice" role="alert">{jobErrorText(judge.error, locale)}</div>}
+                  {judge.error && <div className="practice-notice" role="alert">
+                    <span>{jobErrorText(judge.error, locale)}{judge.reloadRequired && editorRecoveryReason && <small>{editorRecoveryReason}</small>}</span>
+                    {judge.reloadRequired && <button disabled={!!editorRecoveryReason} onClick={() => {
+                      if (!editorRecoveryReason && practice.owns(practice.owner)) reloadApp();
+                    }}>{t('刷新并恢复草稿', 'Reload and restore draft')}</button>}
+                  </div>}
                   {practice.error && <div className="practice-notice" role="alert">
                     <span>{practice.error}</span>
                     <button disabled={practice.saving} onClick={practice.retry}>

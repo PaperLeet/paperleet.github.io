@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { gzipSync } from "node:zlib";
 import { createServer } from "vite";
 
 const server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
 try {
   const { loadProblemDetail } = await server.ssrLoadModule("/src/catalogData.ts");
   const { parseJob, requestJob, watchJob, pollDelay } = await server.ssrLoadModule("/src/judgeJobs.ts");
-  const index = JSON.parse(fs.readFileSync("public/data/index.json", "utf8"));
+  const indexSource = fs.readFileSync("public/data/index.json", "utf8");
+  const index = JSON.parse(indexSource);
   const summary = index.problems[0];
-  assert(fs.statSync("public/data/index.json").size < 256 * 1024, "The homepage index has a 256 KB raw budget");
+  // Exact starters include the function return contracts used by draft comparisons.
+  assert(Buffer.byteLength(indexSource) < 384 * 1024, "The homepage index has a 384 KB raw budget");
+  assert(gzipSync(indexSource).length < 96 * 1024, "The homepage index has a 96 KB gzip budget");
   for (const item of index.problems) {
     assert(!item.readme && !item.notes && !item.solution && !item.vizData);
     assert(item.starter && item.tests && item.module);

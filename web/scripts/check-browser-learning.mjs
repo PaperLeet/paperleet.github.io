@@ -8,6 +8,8 @@ export async function checkBrowserLearning(server) {
   const {mergeBrowserLearning,browserLearningView,learningKey}=await server.ssrLoadModule('/src/browserLearning.ts');
   const {loadBrowserLearning,saveBrowserLearning,dismissBrowserLearning,parseBrowserLearning}=await server.ssrLoadModule('/src/browserLearningStore.ts');
   const {status,isPassed}=await server.ssrLoadModule('/src/types.ts');
+  const {parseSaved}=await server.ssrLoadModule('/src/reports.ts');
+  const {achievementProgress}=await server.ssrLoadModule('/src/achievementProgress.ts');
   const {nextPractice}=await server.ssrLoadModule('/src/practice-recommendation.ts');
   const {BrowserLearningNotice}=await server.ssrLoadModule('/src/BrowserLearningNotice.tsx');
   const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
@@ -50,7 +52,35 @@ export async function checkBrowserLearning(server) {
   assert.equal(browserLearningView(owner,problems,serverAccepted,records).localPasses,0,'Native acceptance takes precedence over local completion');
   assert.equal(browserLearningView('user:bob',problems,saved,records).localPasses,0,'A projection cannot use another owner’s cache');
   const changed={...attention,browser_judge:{...attention.browser_judge,bundle_url:'browser-judge/changed-suite.json'}};
-  assert.equal(browserLearningView(owner,[changed],saved,records).localPasses,0,'Changed maintained tests invalidate an old local completion');
+  const historical=browserLearningView(owner,[changed],saved,records);
+  assert.equal(historical.localPasses,1,'Runtime bundle changes must not erase completed learning');
+  assert.equal(status(changed,historical.saved[attention.id]),'done');
+  assert.equal(historical.records[attention.id],undefined,'An older bundle report must not appear as a current test result');
+  assert.equal(historical.saved[attention.id].report,nativeFailed,'Preserve the account report without substituting older browser evidence');
+  assert.equal(historical.saved[attention.id].code,saved[attention.id].code);
+  assert.equal(historical.saved[attention.id].updated,'draft-token');
+  const expanded={...changed,tests:{...changed.tests,T0:changed.tests.T0+1}};
+  const expandedHistory=browserLearningView(owner,[expanded],saved,records);
+  assert.equal(status(expanded,expandedHistory.saved[attention.id]),'done','A past completion remains a learning milestone after tests are expanded');
+  assert(!isPassed(expanded,report),'Historical mastery must not relax current-suite test coverage');
+  assert.equal(achievementProgress([expanded],papers,expandedHistory.saved).solved,1,'Local learning milestones agree with the library');
+  assert.equal(status(expanded,parseSaved(JSON.parse(JSON.stringify(expandedHistory.saved)))[attention.id]),'started','Projection-only history must not become imported or account evidence');
+  assert.equal(status(expanded,parseSaved({[attention.id]:{...saved[attention.id],browserLearningPassed:true}})[attention.id]),'started','JSON flags cannot manufacture historical mastery');
+  const currentFailure=mergeBrowserLearning(undefined,owner,changed,failed,'new-suite-failure');
+  const failedAgain=browserLearningView(owner,[changed],saved,{...records,[learningKey(changed.id,changed.browser_judge.bundle_url)]:currentFailure});
+  assert.equal(status(changed,failedAgain.saved[attention.id]),'done','A failure under the current runtime cannot erase a prior completed module');
+  assert.equal(failedAgain.records[attention.id].report,currentFailure.report,'The current suite still owns the displayed browser report');
+  assert.equal(failedAgain.localPasses,1,'Multiple suite records count a module only once');
+  for(const invalid of [
+    {...row,owner:'user:other'},
+    {...row,id:'another/module'},
+    {...row,acceptedReport:undefined,report},
+    {...row,acceptedReport:{...report,runtime:'native-torch'}},
+    {...row,acceptedReport:{...report,summary:{T0:[1,1]}}},
+    {...row,acceptedReport:{...report,error:'run failed'}},
+    {...row,acceptedReport:{...report,mutation:{}}},
+    {...row,acceptedReport:failed},
+  ])assert.equal(browserLearningView(owner,[expanded],saved,{[key]:invalid}).localPasses,0,'Historical learning needs a valid accepted browser report for this owner and problem');
   assert.equal(browserLearningView(owner,[{...attention,browser_judge:undefined}],saved,records).localPasses,0);
   assert(!parseBrowserLearning({...row,owner:'user:bob'},owner));
   assert(!parseBrowserLearning('{broken',owner));
@@ -92,5 +122,5 @@ export async function checkBrowserLearning(server) {
       if(english)assert(html.includes(`${count} ${count === 1 ? 'module' : 'modules'} passed`));
     }
   }finally{if(originalStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=originalStorage;}
-  console.log('PASS browser learning: durable complete-suite passes, later-failure preservation, native authority, source-safe projection, next-module routing, owner/suite isolation, concurrent saves, stale dismissal and quota rollback');
+  console.log('PASS browser learning: durable full-suite history across runtime/test updates, strict current reports, projection-only milestones, native authority, owner isolation, source safety, concurrent saves, stale dismissal and quota rollback');
 }

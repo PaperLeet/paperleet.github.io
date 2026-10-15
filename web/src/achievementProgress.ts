@@ -1,4 +1,4 @@
-import { isPassed, type Paper, type Problem, type Saved } from './types';
+import { status, type Paper, type Problem, type Saved } from './types';
 import { emptyLibraryFilters, libraryHref } from './libraryNavigation';
 
 export type AchievementIcon = 'spark' | 'layers' | 'code' | 'gem' | 'crown' | 'book' | 'library' | 'compass' | 'mountain' | 'cpu' | 'target' | 'orbit' | 'scan' | 'wand' | 'stars';
@@ -33,7 +33,7 @@ export const achievementDefinitions: readonly AchievementDefinition[] = [
 export function achievementProgress(problems: Problem[], papers: Paper[], saved: Record<string,Saved>) {
   const modules = new Map(problems.map(problem => [problem.id,problem]));
   const byPaper = new Map(papers.map(paper => [paper.id,paper]));
-  const solved = [...modules.values()].filter(problem => isPassed(problem,saved[problem.id]?.acceptedReport) || isPassed(problem,saved[problem.id]?.report));
+  const solved = [...modules.values()].filter(problem => status(problem,saved[problem.id]) === 'done');
   const passed = new Set(solved.map(problem => problem.id));
   const core = [...modules.values()].filter(problem => !problem.module.optional);
   const categories = new Map<string,number>();

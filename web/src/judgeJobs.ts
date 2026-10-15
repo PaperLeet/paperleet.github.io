@@ -11,9 +11,13 @@ export type JudgeJob = {
   error?: string;
 };
 const states = new Set(["queued", "running", "succeeded", "failed", "cancelled"]);
+export const submissionModuleLoadError = "The submission component could not load. This submission was not sent. Reload the page, then submit again.";
+export const pendingSubmissionModuleLoadError = "The submission component could not load. Reload the page to reconnect to your existing submission.";
 export function jobErrorText(message: string, locale: string): string {
   if (locale !== "zh") return message;
   const translations: Record<string, string> = {
+    [submissionModuleLoadError]: "提交组件加载失败，本次尚未发送。刷新页面后，请再次提交。",
+    [pendingSubmissionModuleLoadError]: "提交组件加载失败。请刷新页面，恢复查询已有任务的结果。",
     "The judge queue is full. Your draft is preserved; try again shortly.": "判题队列已满，请稍后再提交；你的草稿已保留。",
     "You already have a queued or running submission. Wait for it to finish.": "你已有一个排队或运行中的任务，请等待该任务完成。",
     "This job has already started and cannot be removed from the queue.": "任务已经开始执行，无法取消排队，请等待结果。",

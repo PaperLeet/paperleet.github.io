@@ -48,9 +48,9 @@ class PagesAssetsTest(unittest.TestCase):
                     archive.addfile(member, io.BytesIO(value))
         return target
 
-    def publish(self, dist, previous=None, now=NOW):
+    def publish(self, dist, previous=None, now=NOW, seeds=()):
         archive = self.root / f"{dist.name}.tar"
-        manifest = retention.retain_assets(dist, previous, now=now, archive_out=archive)
+        manifest = retention.retain_assets(dist, previous, seeds=seeds, now=now, archive_out=archive)
         return archive, manifest
 
     def test_first_publication_has_current_manifest_and_small_archive(self):
@@ -77,11 +77,50 @@ class PagesAssetsTest(unittest.TestCase):
         self.assertEqual(len(third_manifest["generations"]), 3)
         self.assertTrue((third_dist / "assets/first.js").is_file())
         fourth_dist = self.build("fourth")
-        _, manifest = self.publish(fourth_dist, third, NOW + 1920)
+        _, manifest = self.publish(fourth_dist, third, NOW + retention.WINDOW_SECONDS + 120)
         self.assertEqual(len(manifest["generations"]), 2)
         self.assertTrue((fourth_dist / "assets/third.js").is_file())
         self.assertFalse((fourth_dist / "assets/first.js").exists())
         self.assertFalse((fourth_dist / "assets/second.js").exists())
+
+    def test_open_coding_tab_keeps_chunks_across_days_of_deployments(self):
+        first, _ = self.publish(self.build("first", {"assets/lazy-submit.js": "submit", "assets/lab.js": "lab"}))
+        second, _ = self.publish(self.build("second"), first, NOW + 60)
+        dist = self.build("third")
+        self.publish(dist, second, NOW + 3 * 86400)
+        self.assertTrue((dist / "assets/lazy-submit.js").is_file())
+        self.assertTrue((dist / "assets/lab.js").is_file())
+
+    def test_backfill_restores_pruned_versions_without_renewing_known_retirements(self):
+        first, _ = self.publish(self.build("first"))
+        second, _ = self.publish(self.build("second"), first, NOW + 60)
+        # A previous 30-minute policy removed the first build from the latest archive.
+        pruned, _ = self.publish(self.build("pruned"), now=NOW + 3600)
+        dist = self.build("current")
+        archive, manifest = self.publish(dist, pruned, NOW + 7200, seeds=[second, first])
+        self.assertTrue((dist / "assets/first.js").is_file())
+        self.assertEqual(len(manifest["generations"]), 4)
+        first_generation = next(item for item in manifest["generations"] if item["assets"] == ["assets/first.js"])
+        self.assertEqual(first_generation["retired_at"], retention.iso_time(NOW + 60))
+        expired = self.build("expired")
+        self.publish(expired, archive, NOW + retention.WINDOW_SECONDS + 61)
+        self.assertFalse((expired / "assets/first.js").exists())
+        self.assertTrue((expired / "assets/second.js").is_file())
+
+    def test_budget_keeps_recent_complete_dependency_graph(self):
+        first, _ = self.publish(self.build("first", {"assets/first-lazy.js": "old"}))
+        second, _ = self.publish(self.build("second", {"assets/second-lazy.js": "new"}), first, NOW + 60)
+        dist = self.build("current")
+        limit = retention.MAX_ASSET_BYTES
+        try:
+            retention.MAX_ASSET_BYTES = len("current") + len("second") + len("new")
+            self.publish(dist, second, NOW + 120)
+            self.assertTrue((dist / "assets/second.js").is_file())
+            self.assertTrue((dist / "assets/second-lazy.js").is_file())
+            self.assertFalse((dist / "assets/first.js").exists())
+            self.assertFalse((dist / "assets/first-lazy.js").exists())
+        finally:
+            retention.MAX_ASSET_BYTES = limit
 
     def test_long_lived_current_version_gets_grace_when_replaced(self):
         first, _ = self.publish(self.build("first"))
@@ -152,14 +191,14 @@ class PagesAssetsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.publish(dist)
 
-    def test_size_limit_is_checked_before_copying_previous_assets(self):
+    def test_size_limit_drops_whole_old_generations_before_copying(self):
         previous = self.archive("large", [("assets/old.js", "x" * 20)])
         dist = self.build("current")
         limit = retention.MAX_ASSET_BYTES
         try:
             retention.MAX_ASSET_BYTES = 10
-            with self.assertRaises(ValueError):
-                self.publish(dist, previous)
+            _, manifest = self.publish(dist, previous)
+            self.assertEqual(len(manifest["generations"]), 1)
             self.assertFalse((dist / "assets/old.js").exists())
         finally:
             retention.MAX_ASSET_BYTES = limit

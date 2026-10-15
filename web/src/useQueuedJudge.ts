@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAccount } from './social';
 import type { Report } from './types';
 import type { QueuedJudgeController, QueuedJudgeView } from './queuedJudgeController';
+import { submissionModuleLoadError, pendingSubmissionModuleLoadError } from './judgeJobs';
 
 const empty=(owner:string):QueuedJudgeView=>({owner,reconnecting:false,error:''});
 function clientId(){
@@ -22,7 +23,7 @@ export function useQueuedJudge(owner:string,ready:boolean,onReport:(report:Repor
     if(previous&&!previous.disposed&&previous.owner===owner)return previous.promise;
     const next:Context={owner,disposed:false,promise:undefined!};
     const alive=()=>!next.disposed&&context.current===next&&current.current.owner===owner&&current.current.ready;
-    next.promise=import('./queuedJudgeController').then(module=>{
+    next.promise=import('./queuedJudgeController').catch(()=>{throw new Error(submissionModuleLoadError);}).then(module=>{
       if(!alive())throw new DOMException('Owner changed','AbortError');
       return next.controller=new module.QueuedJudgeController({owner,client,expectedUser:health?.mode==='hosted'?user?.id:undefined,
         alive,onView:setView,onReport:(report,runOwner)=>{if(alive())callback.current(report,runOwner);}});
@@ -32,7 +33,10 @@ export function useQueuedJudge(owner:string,ready:boolean,onReport:(report:Repor
   function fail(error:unknown){
     if(current.current.owner!==owner||!current.current.ready||error instanceof DOMException&&error.name==='AbortError')return;
     if(context.current?.owner===owner){context.current.disposed=true;context.current.controller?.dispose();context.current=undefined;}
-    setView({...empty(owner),error:'Server submission could not start. Your draft is preserved; try again.'});
+    const reloadRequired=error instanceof Error&&error.message===submissionModuleLoadError;
+    let pending=false;
+    try{pending=!!sessionStorage.getItem(`paperleet.judge.pending.v1:${owner}`);}catch{/* A blocked receipt cannot identify an existing job. */}
+    setView({...empty(owner),reloadRequired,error:reloadRequired?(pending?pendingSubmissionModuleLoadError:submissionModuleLoadError):'Server submission could not start. Your draft is preserved; try again.'});
   }
   useEffect(()=>{
     setView(empty(owner));

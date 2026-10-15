@@ -22,7 +22,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check static asset retention
-        run: python web/scripts/check-pages-assets.py
+        run: |
+          python web/scripts/check-pages-assets.py
+          node web/scripts/check-pages-backfill.cjs
       - run: |
           python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
@@ -80,6 +82,20 @@ jobs:
           run-id: ${{ steps.previous-pages.outputs.run_id }}
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/paperleet-previous-assets
+      - name: Recover historical assets when extending the retention window
+        if: steps.previous-pages.outputs.run_id != ''
+        uses: actions/github-script@v7
+        env:
+          PREVIOUS_PAGES_RUN_ID: ${{ steps.previous-pages.outputs.run_id }}
+        with:
+          script: |
+            const path = require('node:path');
+            const backfill = require('./web/scripts/backfill-pages-assets.cjs');
+            await backfill({github, context, core,
+              previousRun: process.env.PREVIOUS_PAGES_RUN_ID,
+              previousArchive: path.join(process.env.RUNNER_TEMP, 'paperleet-previous-assets/artifact.tar'),
+              directory: path.join(process.env.RUNNER_TEMP, 'paperleet-historical-assets'),
+            });
       - name: Retain assets for cached pages
         env:
           PREVIOUS_PAGES_RUN_ID: ${{ steps.previous-pages.outputs.run_id }}
@@ -88,6 +104,10 @@ jobs:
           if [[ -n "$PREVIOUS_PAGES_RUN_ID" ]]; then
             previous=(--previous "$RUNNER_TEMP/paperleet-previous-assets/artifact.tar")
           fi
+          shopt -s nullglob
+          for archive in "$RUNNER_TEMP"/paperleet-historical-assets/*/artifact.tar; do
+            previous+=(--seed "$archive")
+          done
           mkdir -p "$RUNNER_TEMP/paperleet-retained-assets"
           python web/scripts/retain-pages-assets.py web/dist "${previous[@]}" \
             --archive-out "$RUNNER_TEMP/paperleet-retained-assets/artifact.tar"
