@@ -4,18 +4,24 @@ import { ShieldCheck } from "lucide-react";
 import { useI18n } from "./i18n";
 import { signInHref } from "./accountNavigation";
 import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
-import { apiFetch } from "./apiClient";
+import { apiFetch, apiUrl } from "./apiClient";
 import { currentQuotaMessage } from "./publicationQuota";
+import { currentProfileEditLimitMessage, readProfileEditPolicy } from "./profileEditPolicy";
+import type { ProfileEditPolicy } from "./profileEditPolicy";
+import { safeAvatarPath } from "./profileAvatar";
 
 export type Institution = { id: string; name: string; name_en?: string };
+export type Affiliation = { name: string; name_en?: string; domain: string; kind: "institution" | "email_domain" };
 export type PublicUser = {
   id: string;
   username: string;
   display_name: string;
   avatar_color: string;
+  avatar_url?: string | null;
   bio: string;
   created_at: string;
   institution?: Institution | null;
+  affiliation?: Affiliation | null;
   country?: string;
   show_progress?: boolean;
   is_test_user?: boolean;
@@ -31,6 +37,7 @@ export type AccountUser = PublicUser & {
   email_verified?: boolean;
   login_username?: string;
   country: string;
+  profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
   auth_available: boolean;
@@ -49,10 +56,21 @@ export type AccountCapabilities = {
 export class SocialError extends Error {
   status: number;
   code?: string;
-  constructor(message: string, status: number, code?: string) {
+  profileEditPolicy?: ProfileEditPolicy;
+  profileEditField?: "username" | "display_name" | "avatar";
+  nextChangeAt?: string;
+  constructor(message: string, status: number, code?: string, details?: unknown) {
     super(message);
     this.status = status;
     this.code = code;
+    if (details && typeof details === "object") {
+      const data = details as Record<string, unknown>;
+      this.profileEditPolicy = readProfileEditPolicy(data.profile_edit_policy);
+      if (code === "profile_edit_limit" && ["username", "display_name", "avatar"].includes(String(data.field))) {
+        this.profileEditField = data.field as "username" | "display_name" | "avatar";
+        if (typeof data.next_change_at === "string" && Number.isFinite(Date.parse(data.next_change_at))) this.nextChangeAt = data.next_change_at;
+      }
+    }
   }
 }
 export async function socialApi<T>(path: string, body?: unknown): Promise<T> {
@@ -77,9 +95,10 @@ export async function socialApi<T>(path: string, body?: unknown): Promise<T> {
   }
   if (!response.ok)
     throw new SocialError(
-      currentQuotaMessage(data) || data.error || "Request failed",
+      currentProfileEditLimitMessage(data) || currentQuotaMessage(data) || data.error || "Request failed",
       response.status,
       data.code,
+      data,
     );
   return data as T;
 }
@@ -228,9 +247,12 @@ export function Avatar({
   user,
   size = 34,
 }: {
-  user: Pick<PublicUser, "display_name" | "avatar_color">;
+  user: Pick<PublicUser, "display_name" | "avatar_color" | "avatar_url">;
   size?: number;
 }) {
+  const path = safeAvatarPath(user.avatar_url);
+  const source = path ? apiUrl(path) : undefined;
+  const [failed, setFailed] = useState<string>();
   const safeColor = /^#[0-9a-f]{6}$/i.test(user.avatar_color)
     ? user.avatar_color
     : "#4f7c73";
@@ -245,7 +267,7 @@ export function Avatar({
       }}
       aria-label={user.display_name}
     >
-      {Array.from(user.display_name.trim())
+      {source && failed !== source ? <img src={source} alt="" aria-hidden="true" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(source)} /> : Array.from(user.display_name.trim())
         .slice(0, 1)
         .join("")
         .toLocaleUpperCase() || "P"}
@@ -290,6 +312,13 @@ export function InstitutionBadge({
         : institution.name}
     </span>
   ) : null;
+}
+export function AffiliationBadge({ affiliation, institution }: { affiliation?: Affiliation | null; institution?: Institution | null }) {
+  const { t } = useI18n();
+  if (affiliation?.kind === "institution") return <InstitutionBadge institution={{ id: affiliation.domain, name: affiliation.name, name_en: affiliation.name_en }} />;
+  if (affiliation?.kind === "email_domain") return <span className="institution-badge affiliation-domain"
+    title={t("注册邮箱域名，非机构认证", "Registration email domain; not a verified institution")}>{affiliation.domain}</span>;
+  return <InstitutionBadge institution={institution} />;
 }
 export function DateLabel({ value }: { value: string }) {
   const { locale } = useI18n();

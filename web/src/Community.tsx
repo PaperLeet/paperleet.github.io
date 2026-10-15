@@ -37,7 +37,7 @@ import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft
 import {
   Avatar,
   DateLabel,
-  InstitutionBadge,
+  AffiliationBadge,
   PersonLink,
   SocialNotice,
   TestAccountBadge,
@@ -879,7 +879,7 @@ function Discussion({ id, returnTo }: { id: string; returnTo?: string }) {
               <h1>{post.title}</h1>
               <div className="discussion-author">
                 <PersonLink user={post.author} />
-                <InstitutionBadge institution={post.author.institution} />
+                <AffiliationBadge affiliation={post.author.affiliation} institution={post.author.institution} />
                 <DateLabel value={post.created_at} />
                 {post.viewer.can_delete && (
                   <button
@@ -1256,7 +1256,7 @@ function UserProfileContents({ username }: { username: string }) {
                 <span className="profile-handle">@{profile.username}</span>
                 <div className="profile-facts">
                   <TestAccountBadge isTestUser={profile.is_test_user} />
-                  <InstitutionBadge institution={profile.institution} />
+                  <AffiliationBadge affiliation={profile.affiliation} institution={profile.institution} />
                   {profile.country && (
                     <span>
                       <Globe2 size={13} />
@@ -1380,7 +1380,7 @@ function UserProfileContents({ username }: { username: string }) {
                         <span>@{member.username}</span>
                       </a>
                       <TestAccountBadge isTestUser={member.is_test_user} />
-                      <InstitutionBadge institution={member.institution} />
+                      <AffiliationBadge affiliation={member.affiliation} institution={member.institution} />
                       {member.bio && <p>{member.bio}</p>}
                     </div>
                     {!member.viewer.is_self && (

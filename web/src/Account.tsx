@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -13,8 +13,9 @@ import {
 import { useI18n } from "./i18n";
 import {
   Avatar,
-  InstitutionBadge,
+  AffiliationBadge,
   SocialNotice,
+  SocialError,
   TestAccountBadge,
   errorMessage,
   profileHref,
@@ -25,6 +26,8 @@ import type { AccountUser } from "./social";
 import type { AccountCapabilities } from "./social";
 import { organizationLoginError } from "./accountNavigation";
 import { decodeProblemHash } from "./reports";
+import { AvatarImageError, prepareProfileAvatar } from "./profileAvatar";
+import { readProfileEditPolicy } from "./profileEditPolicy";
 
 const COLORS = [
   "#4f7c73",
@@ -124,7 +127,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
     <aside className="social-panel login-card">
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
       <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、公司账号，以及白名单内的个人 Gmail。部分机构可能要求管理员批准应用。", "School and company accounts managed by Google Workspace or Microsoft 365/Entra, plus explicitly invited personal Gmail accounts. Some organizations require administrator approval.")}</p>
-      <p className="social-description">{t("其他邮件系统暂不支持这两个登录入口。邮箱地址不会显示在公开主页，组织账号也不代表学校或雇主对个人身份的背书。", "Other email systems are not covered by these two sign-in options. Your email stays private. An organization account is not an endorsement by a school or employer.")}</p>
+      <p className="social-description">{t("其他邮件系统暂不支持这两个登录入口。注册邮箱对应的机构或邮箱域名会公开展示，完整邮箱保持私密。组织账号不代表学校或雇主对个人身份的背书。", "Other email systems are not covered by these two sign-in options. Your registration institution or email domain is public; your full email stays private. An organization account is not an endorsement by a school or employer.")}</p>
     </aside>
   </div>;
 }
@@ -414,11 +417,11 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
         </form>
         <p className="account-fineprint">
           {workEmailRegistration ? t(
-            "昵称和头像始终公开，完整邮箱保持私密。机构名称经域名审核后才会显示认证标记。",
-            "Your display name and avatar are always public; your full email stays private. Institution badges require a reviewed domain.",
+            "昵称、头像和注册邮箱对应的机构或邮箱域名始终公开，完整邮箱仅本人可见。已审核机构会显示认证标记。",
+            "Your display name, avatar, and registration institution or email domain are public; your full email stays private. Institution badges require a reviewed domain.",
           ) : t(
-            "只有通过审核的机构邮箱可以注册。昵称和头像始终公开，机构和国家／地区由你选择是否展示。",
-            "Registration is limited to approved institutional email domains. Your display name and avatar are always public. You choose whether to display your institution and country or region.",
+            "只有通过审核的机构邮箱可以注册。昵称、头像和注册邮箱归属始终公开，完整邮箱保持私密；国家／地区由你选择是否展示。",
+            "Registration is limited to approved institutional email domains. Your display name, avatar, and registration affiliation are public; your full email stays private. You choose whether to display your country or region.",
           )}
         </p>
       </section>
@@ -428,8 +431,8 @@ export function SignIn({ enabled, workEmailRegistration = false }: { enabled: bo
           <h3>{t("学校／公司邮箱验证", "School / company email verification")}</h3>
           <p>
             {t(
-              "验证说明你拥有这个机构邮箱，不代表在读或在职身份认证。完整邮箱不会出现在公开主页。",
-              "Verification confirms access to an institutional mailbox. It does not certify current student or employment status. Your full email address is never shown on your public profile.",
+              "验证说明你拥有这个机构邮箱，不代表在读或在职身份认证。机构名称或邮箱域名会公开，完整邮箱不会出现在公开主页。",
+              "Verification confirms access to an institutional mailbox. It does not certify current student or employment status. Your institution or email domain is public; your full email address is never shown on your public profile.",
             )}
           </p>
         </div>
@@ -533,19 +536,57 @@ function InstitutionRequest({ openRegistration }: { openRegistration: boolean })
   );
 }
 export function ProfileSettings({ user }: { user: AccountUser }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { setUser, health } = useAccount();
   const [name, setName] = useState(user.display_name),
     [username, setUsername] = useState(user.username),
     [color, setColor] = useState(user.avatar_color),
     [bio, setBio] = useState(user.bio || "");
   const [country, setCountry] = useState(user.country || ""),
-    [showInstitution, setShowInstitution] = useState(user.show_institution),
     [showCountry, setShowCountry] = useState(user.show_country),
     [showProgress, setShowProgress] = useState(user.show_progress);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const [policy, setPolicy] = useState(() => readProfileEditPolicy(user.profile_edit_policy));
+  const [avatarImage, setAvatarImage] = useState<string | null>();
+  const [preparingAvatar, setPreparingAvatar] = useState(false);
+  const active = useRef(true);
+  const imageEpoch = useRef(0);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; imageEpoch.current += 1; };
+  }, []);
+  const avatarSupported = !!policy;
+  const changing = busy || preparingAvatar;
+  const dateLabel = (date: string) => new Date(date).toLocaleString(locale === "en" ? "en-US" : "zh-CN", { timeZoneName: "short" });
+  function changeHint(field: "display_name" | "username") {
+    const days = field === "display_name" ? 7 : 30;
+    if (!policy) return t(`每 ${days} 天修改一次的限制将在服务更新后启用。`, `The once-every-${days}-days limit will be enabled after a service update.`);
+    const next = policy[field].next_change_at;
+    return next && Date.parse(next) > Date.now()
+      ? t(`每 ${days} 天可修改一次。下次可修改：${dateLabel(next)}`, `Change once every ${days} days. Next change: ${dateLabel(next)}`)
+      : t(`每 ${days} 天可修改一次，目前可以修改。`, `Change once every ${days} days. A change is available now.`);
+  }
+  async function selectAvatar(file: File) {
+    if (!avatarSupported || busy) return;
+    const epoch = ++imageEpoch.current;
+    setPreparingAvatar(true);
+    setError("");
+    try {
+      const image = await prepareProfileAvatar(file);
+      if (active.current && epoch === imageEpoch.current) setAvatarImage(image);
+    } catch (e) {
+      if (!active.current || epoch !== imageEpoch.current) return;
+      const code = e instanceof AvatarImageError ? e.code : "decode";
+      setError(code === "type" ? t("请选择 JPEG、PNG 或 WebP 图片。", "Choose a JPEG, PNG, or WebP image.")
+        : code === "size" ? t("头像原图须大于 0 字节且不超过 5 MiB。", "The original avatar image must be nonempty and no larger than 5 MiB.")
+        : t("无法读取这张图片，请换一张 JPEG、PNG 或 WebP 图片。", "This image could not be read. Try another JPEG, PNG, or WebP file."));
+    } finally {
+      if (active.current && epoch === imageEpoch.current) setPreparingAvatar(false);
+    }
+  }
   async function save() {
+    if (changing) return;
     setBusy(true);
     setError("");
     try {
@@ -553,18 +594,24 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
         display_name: name.trim(),
         username: username.trim(),
         avatar_color: color,
+        ...(avatarSupported && avatarImage !== undefined ? { avatar_image: avatarImage } : {}),
         bio,
         country: country.trim().toUpperCase(),
-        show_institution: showInstitution,
+        show_institution: true,
         show_country: showCountry,
         show_progress: showProgress,
+        expected_user_id: user.id,
       });
+      if (!active.current) return;
+      if (data.user.id !== user.id) throw new Error(t("账号已发生变化，请重新打开设置后再保存。", "Your account changed. Reopen settings before saving."));
       setUser(data.user);
       location.hash = profileHref(data.user);
     } catch (e) {
+      if (!active.current) return;
+      if (e instanceof SocialError && e.profileEditPolicy) setPolicy(e.profileEditPolicy);
       setError(errorMessage(e));
     } finally {
-      setBusy(false);
+      if (active.current) setBusy(false);
     }
   }
   async function logout() {
@@ -600,12 +647,28 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
         >
           {error && <SocialNotice error={error} />}
           <div className="settings-avatar">
-            <Avatar
-              user={{ display_name: name, avatar_color: color }}
-              size={64}
-            />
+            <ProfileAvatarPreview user={{ ...user, display_name: name, avatar_color: color }} image={avatarImage} size={64} />
             <div>
               <h3>{t("公开头像", "Public avatar")}</h3>
+              <div className="avatar-upload-actions">
+                <label className={`button subtle avatar-file-button ${!avatarSupported || changing ? "disabled" : ""}`}>
+                  {preparingAvatar ? t("正在处理图片…", "Preparing image…") : t("选择图片", "Choose image")}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" aria-label={t("选择头像图片", "Choose avatar image")}
+                    disabled={!avatarSupported || changing} onChange={(event) => {
+                      const file = event.currentTarget.files?.[0];
+                      event.currentTarget.value = "";
+                      if (file) void selectAvatar(file);
+                    }} />
+                </label>
+                {(typeof avatarImage === "string" || (avatarImage === undefined && user.avatar_url)) && <button type="button" className="button subtle" disabled={!avatarSupported || changing}
+                  onClick={() => { imageEpoch.current += 1; setAvatarImage(null); }}>{t("移除图片", "Remove image")}</button>}
+                {(avatarImage !== undefined || color !== user.avatar_color) && <button type="button" className="button subtle" disabled={changing}
+                  onClick={() => { imageEpoch.current += 1; setAvatarImage(undefined); setColor(user.avatar_color); }}>{t("撤销头像更改", "Discard avatar change")}</button>}
+              </div>
+              <p className="avatar-upload-help">{avatarSupported
+                ? t("JPEG / PNG / WebP，原图不超过 5 MiB。居中裁为方形；点击保存设置后才上传。", "JPEG / PNG / WebP, up to 5 MiB. Center-cropped to a square; uploaded only when you save changes.")
+                : t("头像上传需等待服务更新；其他现有资料仍可保存。", "Avatar uploads are waiting for a service update. You can still save existing profile fields.")}</p>
+              {policy && <p className="profile-edit-hint">{t(`头像每天最多修改 ${policy.avatar.daily_limit} 次，今天剩余 ${policy.avatar.remaining} 次，UTC 00:00 重置。图片和颜色在同次保存中合计一次。`, `Avatar changes: up to ${policy.avatar.daily_limit} per day, ${policy.avatar.remaining} remaining today. Resets at 00:00 UTC. An image and color saved together count as one change.`)}</p>}
               <div className="avatar-palette">
                 {COLORS.map((c) => (
                   <button
@@ -614,6 +677,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
                     aria-label={`${t("头像颜色", "Avatar color")} ${c}`}
                     aria-pressed={color === c}
                     style={{ backgroundColor: c }}
+                    disabled={changing}
                     onClick={() => setColor(c)}
                   >
                     {color === c && <Check size={14} />}
@@ -629,8 +693,10 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               minLength={1}
               maxLength={40}
               value={name}
+              disabled={changing}
               onChange={(e) => setName(e.target.value)}
             />
+            <small className="profile-edit-hint">{changeHint("display_name")}</small>
           </label>
           <label>
             {t("用户名", "Username")}
@@ -640,6 +706,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               maxLength={24}
               pattern="[a-z0-9_]{3,24}"
               value={username}
+              disabled={changing}
               onChange={(e) => setUsername(e.target.value.toLowerCase())}
             />
             <small>
@@ -648,6 +715,8 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
                 "3–24 lowercase letters, numbers, or underscores. Used in your profile link.",
               )}
             </small>
+            <small className="profile-edit-hint">{changeHint("username")}</small>
+            <small>{t("修改昵称或用户名不会改变内部账号 ID、已保存代码和提交记录。", "Changing your display name or username does not change your internal account ID, saved code, or submissions.")}</small>
           </label>
           <label>
             {t("个人简介", "Bio")}
@@ -655,6 +724,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               rows={3}
               maxLength={500}
               value={bio}
+              disabled={changing}
               onChange={(e) => setBio(e.target.value)}
             />
           </label>
@@ -662,30 +732,22 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             <h3>{t("公开资料", "Public visibility")}</h3>
             <p>
               {t(
-                "昵称和头像始终公开。帖子、回复、点赞、转发和关注关系会展示在你的主页。",
-                "Your display name and avatar are always public. Posts, replies, likes, reposts, and follow connections appear on your profile.",
+                "昵称、头像和注册邮箱归属始终公开。帖子、回复、点赞、转发和关注关系会展示在你的主页。完整邮箱仅本人可见。",
+                "Your display name, avatar, and registration affiliation are public. Posts, replies, likes, reposts, and follow connections appear on your profile. Your full email stays private.",
               )}
             </p>
           </div>
-          {!user.is_test_user && user.institution && (
-            <label className="social-checkbox">
-              <input
-                type="checkbox"
-                checked={showInstitution}
-                onChange={(e) => setShowInstitution(e.target.checked)}
-              />
-              <span>
-                {t("显示已验证机构", "Show my verified institution")}
-                <small>{user.institution?.name}</small>
-              </span>
-            </label>
-          )}
+          {!user.is_test_user && <div className="public-affiliation-setting">
+            <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
+            <p>{t("注册邮箱对应的机构或邮箱域名固定公开，不能隐藏。邮箱域名仅表示邮箱归属，不代表已认证的学校或公司身份。", "Your registration institution or email domain is always public and cannot be hidden. An email domain identifies mailbox affiliation, not verified student or employment status.")}</p>
+          </div>}
           <label>
             {t("国家／地区代码（选填）", "Country / region code (optional)")}
             <input
               maxLength={2}
               pattern="[A-Za-z]{2}|"
               value={country}
+              disabled={changing}
               placeholder="US / CN / GB"
               onChange={(e) => setCountry(e.target.value.toUpperCase())}
             />
@@ -700,6 +762,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             <input
               type="checkbox"
               checked={showCountry}
+              disabled={changing}
               onChange={(e) => setShowCountry(e.target.checked)}
             />
             <span>{t("显示我的国家／地区", "Show my country or region")}</span>
@@ -708,6 +771,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             <input
               type="checkbox"
               checked={showProgress}
+              disabled={changing}
               onChange={(e) => setShowProgress(e.target.checked)}
             />
             <span>
@@ -726,7 +790,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             </span>
           </label>
           <div className="form-footer">
-            <button className="button" type="submit" disabled={busy}>
+            <button className="button" type="submit" disabled={changing}>
               {busy ? <span className="spinner" /> : <Check size={15} />}
               {t("保存设置", "Save changes")}
             </button>
@@ -752,14 +816,14 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               <>
                 <h3>{t("邮箱已验证", "Email verified")}</h3>
                 <p className="private-email">{user.email}</p>
-                <InstitutionBadge institution={user.institution} />
+                <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
                 <p>
                   {user.institution ? t(
-                    "此处的完整邮箱仅本人可见。机构名称是否公开由左侧开关控制。",
-                    "Only you can see your full email here. Use the visibility setting to control whether your institution appears publicly.",
+                    "此处的完整邮箱仅本人可见，注册邮箱对应的机构名称固定公开。",
+                    "Only you can see your full email here. Your registration institution is always public.",
                   ) : t(
-                    "此处的完整邮箱仅本人可见。邮箱归属已验证，学校或公司名称尚未审核。",
-                    "Only you can see your full email here. Mailbox ownership is verified; your school or company name has not been reviewed.",
+                    "此处的完整邮箱仅本人可见，注册邮箱域名公开。学校或公司名称尚未审核，域名不会显示机构认证标记。",
+                    "Only you can see your full email here; your registration email domain is public. Your school or company name has not been reviewed, so the domain has no institutional verification badge.",
                   )}
                 </p>
               </>
@@ -767,7 +831,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             <button
               className="button subtle logout-button"
               type="button"
-              disabled={busy}
+              disabled={changing}
               onClick={() => void logout()}
             >
               <LogOut size={14} />
@@ -777,15 +841,12 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           <section className="social-panel">
             <h3>{t("公开预览", "Public preview")}</h3>
             <div className="profile-preview">
-              <Avatar
-                user={{ display_name: name, avatar_color: color }}
-                size={46}
-              />
+              <ProfileAvatarPreview user={{ ...user, display_name: name, avatar_color: color }} image={avatarImage} size={46} />
               <b>{name || t("你的昵称", "Your display name")}</b>
               <span>@{username}</span>
               <TestAccountBadge isTestUser={user.is_test_user} />
-              {!user.is_test_user && showInstitution && (
-                <InstitutionBadge institution={user.institution} />
+              {!user.is_test_user && (
+                <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
               )}
               {showCountry && country && <span>{country}</span>}
               <p>{bio}</p>
@@ -795,4 +856,10 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       </div>
     </>
   );
+}
+
+function ProfileAvatarPreview({ user, image, size }: { user: AccountUser; image: string | null | undefined; size: number }) {
+  return typeof image === "string" ? <span className="social-avatar" style={{ width: size, height: size }} aria-label={user.display_name}>
+    <img src={image} alt="" aria-hidden="true" />
+  </span> : <Avatar user={{ ...user, avatar_url: image === null ? null : user.avatar_url }} size={size} />;
 }
