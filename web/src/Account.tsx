@@ -127,7 +127,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError }: {
     <aside className="social-panel login-card">
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
       <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号可以直接使用。个人 Gmail、Outlook 等账号登录后会进入等待名单；已获邀请的账户按现有资格使用。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts receive access. Personal Gmail, Outlook and similar accounts join the waitlist; invited accounts retain their existing access. Some organizations require administrator approval.")}</p>
-      <p className="social-description">{t("其他邮件系统暂不支持这两个登录入口。注册邮箱对应的机构或邮箱域名会公开展示，完整邮箱保持私密。组织账号不代表学校或雇主对个人身份的背书。", "Other email systems are not covered by these two sign-in options. Your registration institution or email domain is public; your full email stays private. An organization account is not an endorsement by a school or employer.")}</p>
+      <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。可用账号的注册机构或邮箱域名会公开展示，完整邮箱保持私密；等待名单账号不会公开个人主页。组织账号不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Active accounts show their registration institution or email domain publicly; full email addresses stay private. Waitlisted accounts have no public profile. An organization account is not an endorsement by a school or employer.")}</p>
     </aside>
   </div>;
 }
