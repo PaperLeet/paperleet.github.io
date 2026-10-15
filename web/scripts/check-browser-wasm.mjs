@@ -3,44 +3,88 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {loadPyodide} from 'pyodide';
 import {loadJudgePackages} from '../public/browser-judge/packages.mjs';
 import {unsupportedReport} from '../public/browser-judge/diagnostics.mjs';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const cases = ['diffusion/schedules', 'architecture/attention', 'finetuning/lora', 'optimization/adamw', 'optimization/muon_split', 'representation/moco', 'representation/simclr',
+const smokeCases = ['diffusion/schedules', 'architecture/attention', 'finetuning/lora', 'optimization/adamw', 'optimization/muon_split', 'representation/moco', 'representation/simclr',
   'foundations/next_token_loss', 'foundations/sft_loss_mask', 'foundations/top_k_sampling',
   'foundations/top_p_sampling', 'foundations/gradient_accumulation', 'foundations/gradient_clipping'];
+const index = JSON.parse(fs.readFileSync(path.join(web, 'public/data/index.json')));
+const catalog = index.problems;
+const ids = catalog.map(entry => entry.id);
+assert(ids.length && new Set(ids).size === ids.length, 'The exported catalog must have distinct modules');
+for (const entry of catalog) assert(entry.browser_judge?.bundle_url, `${entry.id}: missing browser bundle`);
+const selection = process.argv[2];
 try {
-  if (!process.argv[2]) {
+  if (!selection || selection === '--all' || selection === '--smoke') {
+    const cases = selection === '--smoke' ? smokeCases : ids;
+    const results = [];
+    const started = performance.now();
     for (const id of cases) {
-      const output = execFileSync(process.execPath, [fileURLToPath(import.meta.url), id], {
-        cwd:web, encoding:'utf8', timeout:120_000, maxBuffer:1024*1024,
-      });
-      process.stdout.write(output);
+      const entry = catalog.find(entry => entry.id === id);
+      assert(entry, `Unknown smoke module: ${id}`);
+      try {
+        const output = execFileSync(process.execPath, [fileURLToPath(import.meta.url), id, '--json'], {
+          cwd:web, encoding:'utf8', timeout:entry.browser_judge.budgets.total + 60_000,
+          maxBuffer:1024*1024,
+        });
+        const result = JSON.parse(output);
+        assert.equal(result.id, id);
+        results.push({...result, passed:true});
+        console.log(`PASS real Pyodide ${result.pyodide} / NumPy ${result.numpy}: ${id}, ${result.tests} tests, ${result.mutants} mutants (${(result.elapsed_ms / 1000).toFixed(2)}s)`);
+      } catch(error) {
+        const detail = String(error?.stderr || error?.message || error).slice(-12000);
+        results.push({id,passed:false,error:detail});
+        console.error(`FAIL real WASM ${id}: ${detail}`);
+      }
     }
+    const report = {schema_version:1, scope:selection === '--smoke' ? 'smoke' : 'catalog',
+      catalog_modules:ids.length, modules:results.length, passed:results.every(result => result.passed),
+      elapsed_ms:Math.round(performance.now() - started), results};
+    const reportPath = path.join(web, '../reports/browser-wasm.json');
+    fs.mkdirSync(path.dirname(reportPath), {recursive:true});
+    fs.writeFileSync(reportPath, JSON.stringify(report,null,2)+'\n');
+    console.log(`Real WASM ${report.scope}: ${results.filter(result => result.passed).length}/${results.length} modules passed; ${reportPath}`);
+    if (!report.passed) process.exitCode = 1;
   } else {
-    const id = process.argv[2];
-    assert(cases.includes(id));
-    const index = JSON.parse(fs.readFileSync(path.join(web, 'public/data/index.json')));
-    const entry = index.problems.find(p => p.id === id);
-    const read = relative => JSON.parse(fs.readFileSync(path.join(web, 'public/data', relative)));
+    const started = performance.now();
+    const id = selection;
+    const entry = catalog.find(p => p.id === id);
+    assert(entry, `Unknown catalog module: ${id}`);
+    const read = relative => {
+      const bytes = fs.readFileSync(path.join(web, 'public/data', relative));
+      assert(relative.includes(createHash('sha256').update(bytes).digest('hex').slice(0,20)), `Asset hash mismatch: ${relative}`);
+      return JSON.parse(bytes);
+    };
     const manifest = read(entry.browser_judge.bundle_url);
     const runtime = read(manifest.runtime_bundle_url);
+    assert.equal(manifest.problem,id);
+    assert.deepEqual(manifest.tests,entry.tests);
+    assert.equal(runtime.backend,entry.browser_judge.backend);
     const bundle = {...manifest, adapter:runtime.adapter, harness:runtime.harness, files:{...runtime.files,...manifest.files}};
     const py = await loadPyodide({indexURL:path.join(web,'node_modules/pyodide/'),
       packageCacheDir:path.join(web,'public/browser-runtime/pyodide-0.29.4/'),stdout(){},stderr(){}});
-    await loadJudgePackages(py, ['pyyaml']);
+    await loadJudgePackages(py, manifest.packages);
     assert.equal(py.runPython("__import__('numpy').__version__"), '2.2.5');
     py.globals.set('bundle_json',JSON.stringify(bundle));
     py.runPython("import json\nbundle=json.loads(bundle_json)\nexec(compile(bundle['harness'],'browser_harness.py','exec'))\nprepare(bundle,bundle['adapter'],'/judge')");
+    const prepared = performance.now();
     const calibration = JSON.parse(py.runPython("json.dumps(calibrate(bundle,'/judge'))"));
     assert.equal(calibration.compatible,true,JSON.stringify(calibration));
     assert.equal(calibration.reference_passed,Object.values(entry.tests).reduce((a,b)=>a+b,0));
     assert.equal(Object.keys(calibration.mutants_caught).length,Object.keys(bundle.mutants).length);
+    const calibrated = performance.now();
     const report = JSON.parse(py.runPython("json.dumps(run_suite(bundle,bundle['reference'],'/judge'))"));
+    const completed = performance.now();
     assert(report.passed && !unsupportedReport(report));
+    assert.equal(report.tests.length, Object.values(entry.tests).reduce((a,b) => a+b,0));
+    assert.deepEqual(Object.fromEntries(Object.keys(entry.tests).map(layer => [layer,
+      report.tests.filter(row => row.layer === layer).length])), entry.tests);
+    assert.equal(report.source_sha256,createHash('sha256').update(bundle.reference).digest('hex'));
     if (id === 'foundations/top_p_sampling') {
       const wrong = Object.entries(bundle.mutants).find(([name]) => name.includes('m2_extra_boundary'));
       assert(wrong);
@@ -89,7 +133,7 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
           assert.equal(Number(exitCode), 0, `Standalone ${suite} contracts must pass on WASM`);
         }
       }
-      py.runPython(`
+      if (id === 'architecture/attention') py.runPython(`
 import numpy as np, torch
 from paperleet_torch import as_torch, install_as_torch
 previous_torch = torch
@@ -151,7 +195,15 @@ for dtype in (np.float32,np.float64):
         assert.equal(unsupportedReport(failed),expected);
       }
     }
-    console.log(`PASS real Pyodide ${py.version} / NumPy 2.2.5: ${id}, full reference/mutants/learner suite${runtime.backend==='numpy-autograd-wasm'?', numerical regressions and typed fallback':''}`);
+    const result = {id, pyodide:py.version, numpy:'2.2.5', backend:runtime.backend,
+      tests:report.tests.length, mutants:Object.keys(calibration.mutants_caught).length,
+      packages:manifest.packages, bundle_url:entry.browser_judge.bundle_url,
+      runtime_bundle_url:manifest.runtime_bundle_url, source_sha256:report.source_sha256,
+      preparation_ms:Math.round(prepared-started), calibration_ms:Math.round(calibrated-prepared),
+      learner_ms:Math.round(completed-calibrated), elapsed_ms:Math.round(performance.now()-started),
+      budgets:entry.browser_judge.budgets};
+    if (process.argv[3] === '--json') console.log(JSON.stringify(result));
+    else console.log(`PASS real Pyodide ${py.version} / NumPy 2.2.5: ${id}, ${result.tests} tests, ${result.mutants} mutants, full reference/mutants/learner suite`);
   }
 } catch(error) {
   console.error(String(error?.stderr || error?.message || error).slice(-12000));

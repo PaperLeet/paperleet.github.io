@@ -63,10 +63,25 @@ automatic full-suite validation to cover the same modules. Unvalidated candidate
 remain outside the published catalog until this work is complete.
 
 `npm run check:browser-wasm` runs the actual pinned interpreter and wheels under
-Node, in fresh runtimes for Schedules, Attention and LoRA, including complete
-reference/mutant/learner suites and numerical/fallback regressions. CI runs it in
-addition to native parity tests and frontend protocol checks. This is a WASM
-execution gate; it does not replace browser CSP, UI or multi-browser verification.
+Node in a fresh process for **every module in the exported catalog**. It runs the
+complete reference, every mutant and the learner suite, using only that module's
+declared optional packages. New catalog entries join this gate automatically.
+The exported test-layer counts and exact learner-source digest must match too.
+Shared numerical, model/checkpoint and typed-fallback regressions remain included.
+
+Results are saved in `reports/browser-wasm.json`, including each content-addressed
+bundle/runtime URL, test and mutant counts, declared packages, and preparation,
+calibration and learner-suite timings. These are local Node/WASM observations,
+not browser UI latency or a server speed comparison. The child-process timeout
+allows the declared total budget plus setup/regression overhead; it does not
+change the browser worker's calibration, run or total deadlines.
+
+For a shorter maintainer check, use `npm run check:browser-wasm:smoke`; a single
+module can be checked with `node scripts/check-browser-wasm.mjs architecture/attention`
+from `web/`. The smoke subset is not the publication gate. CI runs the complete
+WASM catalog independently of the native/frontend job and requires both before
+its existing `pilot` quality check succeeds. This is a WASM execution gate; it
+does not replace browser CSP, UI or multi-browser verification.
 
 ## Dependencies and operator capabilities
 
