@@ -1,5 +1,6 @@
 import AffiliationBadge from "./AffiliationBadge";
 import InterviewMeta from './InterviewMeta';
+import PostPreview from './PostPreview';
 import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
 import { useEffect, useRef, useState } from "react";
@@ -235,9 +236,7 @@ function PostCard({ post, activity, returnTo }: { post: Post; activity?: ReactNo
             </a>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact/>}
-          <p className="post-excerpt">
-            {post.body.replace(/[#*`>\[\]]/g, "").slice(0, 190)}
-          </p>
+          <PostPreview body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           <div className="post-card-counts">
             <span>
