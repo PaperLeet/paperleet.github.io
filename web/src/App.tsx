@@ -40,6 +40,7 @@ import { browserProgressText } from "./browserProgress";
 import Brand from "./Brand";
 import RepositoryLink from "./RepositoryLink";
 import OnlinePresence from "./OnlinePresence";
+import CommunitySubmissions from "./CommunitySubmissions";
 import { BilingualText } from "./BilingualText";
 import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
 import ResizableSplit from "./ResizableSplit";
@@ -167,7 +168,7 @@ function Workspace() {
     selectReadingTab("lab");
   }
   const path = routePath(id), libraryReturn = libraryReturnHref(id), libraryView = readLibraryRoute(id);
-  const { stats: problemStats, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(path);
+  const { stats: problemStats, totalSubmissions, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(path);
   const sourceProblem = problems.find(
     (p) => p.id === path || String(p.number) === path,
   );
@@ -499,6 +500,7 @@ function Workspace() {
             <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
             <RepositoryLink />
             <OnlinePresence />
+            <CommunitySubmissions count={totalSubmissions} />
             <AccountNav returnTo={id} theme={theme} onTheme={selectTheme} onBackup={() => setBackupOpen(true)} backupReady={practice.owner !== 'unresolved' && problems.length > 0} />
           </div>
         </div>

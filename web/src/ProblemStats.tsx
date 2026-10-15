@@ -12,6 +12,13 @@ export type ProblemStatistics = {
   acceptance_rate: number | null;
 };
 export type ProblemStatsMap = Record<string, ProblemStatistics>;
+export const COMMUNITY_STATS_REFRESH_MS = 60 * 60 * 1000;
+
+export function totalCommunitySubmissions(stats: ProblemStatsMap | undefined): number | undefined {
+  if (!stats) return undefined;
+  const total = Object.values(stats).reduce((sum, entry) => sum + entry.total_submissions, 0);
+  return Number.isSafeInteger(total) && total >= 0 ? total : undefined;
+}
 
 const emptyStats: ProblemStatistics = {
   attempted_users: 0,
@@ -84,7 +91,31 @@ export function useProblemStats(refreshKey?: string) {
       request.current = null;
     };
   }, [refresh, refreshKey]);
-  return { stats, refresh, loading, error, available };
+  useEffect(() => {
+    if (publicSite) return;
+    let nextRefresh = Date.now() + COMMUNITY_STATS_REFRESH_MS;
+    let timer: number | undefined;
+    function sync() {
+      window.clearTimeout(timer);
+      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      if (Date.now() >= nextRefresh) {
+        nextRefresh = Date.now() + COMMUNITY_STATS_REFRESH_MS;
+        void refresh();
+      }
+      timer = window.setTimeout(sync, Math.max(0, nextRefresh - Date.now()));
+    }
+    sync();
+    document.addEventListener('visibilitychange', sync);
+    window.addEventListener('online', sync);
+    window.addEventListener('offline', sync);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', sync);
+      window.removeEventListener('online', sync);
+      window.removeEventListener('offline', sync);
+    };
+  }, [refresh]);
+  return { stats, totalSubmissions: totalCommunitySubmissions(stats), refresh, loading, error, available };
 }
 
 function formatCount(value: number | undefined, locale: string) {
