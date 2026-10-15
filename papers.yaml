@@ -601,3 +601,15 @@ papers:
     scope: 用户级负样本候选、BPR-MF 成对目标与全表先验，以及 120 次真实合成训练；不复现 LearnBPR 采样器或论文数据基准。
     scope_en: Per-user negative candidates, BPR-MF pairwise objective/global prior and 120 actual synthetic training updates; no LearnBPR sampler or paper dataset benchmark.
     module_ids: [retrieval/bpr]
+
+  - id: lightgcn
+    number: 54
+    category: retrieval
+    short_title: LightGCN
+    year: 2020
+    tags: [Graph Collaborative Filtering, Bipartite Graph, Neighbor Aggregation, BPR]
+    summary: 用对称归一化的用户—物品图传播协同信号，并聚合包含初始层的多跳表示。
+    summary_en: Propagate collaborative signals through a symmetrically normalized user-item graph and aggregate multiple layers including initial embeddings.
+    scope: 稠密二部图、线性传播与均匀层聚合，以及 160 次真实合成训练；不复现大规模稀疏训练或论文数据基准。
+    scope_en: Dense bipartite graphs, linear propagation, uniform layer aggregation and 160 actual synthetic training updates; no large sparse training or paper dataset benchmark.
+    module_ids: [retrieval/lightgcn]

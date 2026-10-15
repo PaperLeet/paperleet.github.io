@@ -29,7 +29,7 @@ export async function checkPracticeScope(server) {
   assert(recommendPractice(problems,completed),'Other collections still have unfinished work');
 
   const queryView = readLibraryRoute('collections/retrieval?q=BPR&difficulty=M&runtime=browser');
-  assert.deepEqual(selectLibraryPractice(papers,problems,{},queryView).problems.map(p=>p.id),[bpr.id]);
+  assert.deepEqual(selectLibraryPractice(papers,problems,{},queryView).problems.map(p=>p.id),[bpr.id,'retrieval/lightgcn']);
   const empty = readLibraryRoute('collections/retrieval?q=definitely-no-matching-paper');
   assert.deepEqual(selectLibraryPractice(papers,problems,{},empty).problems,[]);
   assert.equal(recommendPractice(selectLibraryPractice(papers,problems,{},empty).problems,{}),undefined,'No matches means no unrelated first-practice offer');

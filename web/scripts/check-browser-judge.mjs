@@ -158,7 +158,7 @@ try {
     assert.equal((await wasm).reason, 'runtime_failed');
   }
   const index = JSON.parse(fs.readFileSync('public/data/index.json', 'utf8'));
-  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 68);
+  assert.equal(index.problems.filter((entry) => entry.browser_judge).length, 69);
 
   const frameCount = frames.length;
   for (const fail of [async () => { throw new TypeError('offline'); }, async () => new Response('', { status: 503 }), async () => new Response('invalid JSON')]) {
@@ -181,7 +181,7 @@ try {
   assert.equal(frames.length, frameCount, 'Stop while downloading shared assets must never start a learner worker');
   releaseRuntime(new Response('', { status: 503 }));
   await new Promise(done => setImmediate(done));
-  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all 68 CPU/WASM routes');
+  console.log('PASS browser judge: opaque isolation, restricted network, nonce/source validation, report parsing, assertion failures, abort cleanup and all 69 CPU/WASM routes');
 } finally {
   Object.assign(globalThis, originals);
   await server.close();
