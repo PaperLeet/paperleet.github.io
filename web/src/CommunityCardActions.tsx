@@ -18,6 +18,7 @@ import {clearPublication,preparePublication,readPublication,replyPublication,sam
 import {withConfirmedReply,type Post,type PostDetail,type Reply} from './communityDiscussion';
 import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import {postPreview} from './postExcerpt';
+import {keepReadingTriggerVisible,readingScrollRoot} from './readingViewport';
 import './community-card-actions.css';
 
 type CardProps={post:Post;returnTo?:string;showActivity?:boolean;children?:ReactNode};
@@ -56,8 +57,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     if(location.href!==intent.href||active!==intent.opener&&!(active===document.body&&!intent.opener.isConnected))return;
     const control=toggle.current;if(!control)return;
     control.focus({preventScroll:true});
-    const bounds=control.getBoundingClientRect();
-    if(bounds.top<100||bounds.bottom>window.innerHeight)control.scrollIntoView({block:'nearest',behavior:'instant'});
+    keepReadingTriggerVisible(control,100);
   },[open]);
   useLayoutEffect(()=>{
     const intent=minimized.current;if(writing||!intent)return;minimized.current=undefined;
@@ -67,7 +67,10 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   useLayoutEffect(()=>{
     const intent=opening.current;if(!intent||!writing||preview)return;opening.current=undefined;
     const active=document.activeElement;
-    if(location.href===intent.href&&(active===intent.opener||active===document.body&&intent.opener instanceof HTMLElement&&!!intent.opener.closest('[hidden]')))textarea.current?.focus();
+    if(location.href===intent.href&&(active===intent.opener||active===document.body&&intent.opener instanceof HTMLElement&&!!intent.opener.closest('[hidden]'))){
+      const field=textarea.current;if(!field)return;
+      if(readingScrollRoot(field)){field.focus({preventScroll:true});keepReadingTriggerVisible(field);}else field.focus();
+    }
   },[writing,preview,focusTick]);
   useLayoutEffect(()=>{
     const view=editorView.current,field=textarea.current;

@@ -2,12 +2,13 @@ import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ArrowLeft,ChevronDown,UserRound} from 'lucide-react';
 import type {Reply} from './communityDiscussion';
 import {useI18n} from './i18n';
+import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,readingScrollRoot,keepReadingTriggerVisible,type ReadingAnchor} from './readingViewport';
 import './discussion-replies.css';
 
 const PAGE_SIZE=20,MAX_RETURN_DEPTH=12;
 const EMPTY:Reply[]=[];
 type Order='oldest'|'newest';
-type Origin={href:string;trigger:HTMLElement;row?:string;top:number;order:Order;authorOnly:boolean;limit:number;revealed?:string};
+type Origin=ReadingAnchor&{href:string;trigger:HTMLElement;row?:string;order:Order;authorOnly:boolean;limit:number;revealed?:string};
 type Intent={href:string;opener:Element|null;before:number};
 type Jump=Intent&({kind:'reveal';id:string;origin?:Origin}|{kind:'focus';id:string}|{kind:'back'|'restore';origin:Origin});
 type ReadingNotice={href:string;kind:'restored'|'missing'};
@@ -43,7 +44,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   if(!byId.has(id))return;
   const request=intent(),element=trigger?.closest<HTMLElement>('[data-discussion-reply]');
   const row=element&&root.current?.contains(element)&&byId.has(element.dataset.discussionReply||'')?element:undefined;
-  const origin=trigger?.isConnected&&row?.dataset.discussionReply!==id?{href:request.href,trigger,row:row?.dataset.discussionReply,top:(row||trigger).getBoundingClientRect().top,order,authorOnly,limit,revealed}:undefined;
+  const origin=trigger?.isConnected&&row?.dataset.discussionReply!==id?{href:request.href,trigger,row:row?.dataset.discussionReply,...captureReadingAnchor(row||trigger),order,authorOnly,limit,revealed}:undefined;
   const inFilter=matched.some(reply=>reply.id===id),rows=inFilter?matched:ordered;
   if(!inFilter)setAuthorOnly(false);
   const index=rows.findIndex(reply=>reply.id===id);
@@ -83,17 +84,17 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   setJump(undefined);
   if(jump.kind==='focus'){
    const target=rowElement(jump.id);if(!target)return;
-   target.focus({preventScroll:true});target.scrollIntoView({block:revealBlock,behavior:'instant'});return;
+   target.focus({preventScroll:true});revealReadingTarget(target,revealBlock);return;
   }
   const origin=jump.origin,row=origin.row?rowElement(origin.row):undefined;
   const trigger=origin.trigger.isConnected&&!origin.trigger.matches(':disabled')&&(!origin.row||row?.contains(origin.trigger))?origin.trigger:row;
   const anchor=origin.row?row:trigger;
-  if(anchor&&trigger){
-   window.scrollTo({top:Math.max(0,window.scrollY+anchor.getBoundingClientRect().top-origin.top),behavior:'instant'});
+  if(anchor&&trigger&&restoreReadingAnchor(anchor,origin)){
    trigger.focus({preventScroll:true});
+   if(readingScrollRoot(trigger))keepReadingTriggerVisible(trigger);
   }else{
    setNotice({href:jump.href,kind:'missing'});
-   root.current?.focus({preventScroll:true});root.current?.scrollIntoView({block:'start',behavior:'instant'});
+   if(root.current){root.current.focus({preventScroll:true});revealReadingTarget(root.current);}
   }
  },[jump,rowIdPrefix,revealBlock,disabled]);
  const previous=history.at(-1),canReturn=!!previous&&previous.href===location.href;

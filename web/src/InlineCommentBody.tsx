@@ -5,6 +5,7 @@ import {PostPreviewContent} from './PostPreview';
 import {postPreview} from './postExcerpt';
 import {useI18n} from './i18n';
 import {FeatureBoundary} from './deferredFeature';
+import {keepReadingTriggerVisible} from './readingViewport';
 import './community-card-actions.css';
 
 const InlineCommentBody=memo(function InlineCommentBody({body,variant='reply',limit=280}:{body:string;variant?:'reply'|'post';limit?:number}){
@@ -25,8 +26,7 @@ const InlineCommentBody=memo(function InlineCommentBody({body,variant='reply',li
   const control=toggle.current;if(!control)return;
   control.focus({preventScroll:true});
   // Keep the compact control reachable when a long body leaves the document.
-  const bounds=control.getBoundingClientRect();
-  if(bounds.top<0||bounds.bottom>window.innerHeight)control.scrollIntoView({block:'nearest',behavior:'instant'});
+  keepReadingTriggerVisible(control);
  },[open,body]);
  function change(value:boolean,opener:HTMLElement){
   readingIntent.current={opener,href:location.href,body};
