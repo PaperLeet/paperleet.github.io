@@ -75,6 +75,7 @@ const mocks = {
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
     export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
+    export {default as ReadingTabControls} from '/src/ReadingTabControls.tsx';
     export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content})=>React.createElement('article',null,content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');

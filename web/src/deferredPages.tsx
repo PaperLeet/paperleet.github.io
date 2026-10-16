@@ -24,6 +24,7 @@ export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), 
 
 export const InboxBell = deferredFeature(() => import('./InboxBell'), ['通知', 'notifications'], {loading: () => null});
 export const Messages = deferredFeature(() => import('./Messages'), ['私信', 'messages']);
+export const ReadingTabControls = deferredFeature(() => import('./ReadingTabControls'), ['题目选项导航','problem tab navigation'], {loading:()=>null,failure:()=>null});
 
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDetail').default>[0]&{recovery:EditorRecovery}>(() => import('./PaperDetail'), ['论文详情','paper details'], {
