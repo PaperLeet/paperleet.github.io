@@ -6,6 +6,7 @@ import remarkMath from 'remark-math';
 export type PostMarkdownNode={type:string;value?:string;alt?:string|null;depth?:number;position?:{start:{offset?:number}};children?:PostMarkdownNode[]};
 type PreviewNode=PostMarkdownNode;
 export type PostContentKind='code'|'math'|'table';
+export type PostPreviewSummary={text:string;truncated:boolean;kinds:PostContentKind[];rich:boolean;unavailable?:boolean};
 const parser=unified().use(remarkParse).use(remarkGfm).use(remarkMath).freeze();
 export function parsePostMarkdown(body:string):PostMarkdownNode{return parser.parse(body);}
 const segmenter=typeof Intl.Segmenter==='function'?new Intl.Segmenter(undefined,{granularity:'grapheme'}):undefined;
@@ -28,13 +29,15 @@ function inlineText(root:PreviewNode,formula:string){
 }
 
 /** Parse the same Markdown dialect as the reader, without rendering HTML, math or external assets. */
-export function postPreview(body:string,limit=210,formula='[formula]'):{text:string;truncated:boolean;kinds:PostContentKind[];unavailable?:boolean}{
+export function postPreview(body:string,limit=210,formula='[formula]'):PostPreviewSummary{
  const bounded=body.slice(0,20000).replace(/[\uD800-\uDBFF]$/u,'');
  let tree:PreviewNode;
- try{tree=parsePostMarkdown(bounded);}catch{return {text:'',truncated:false,kinds:[],unavailable:true};}
+ try{tree=parsePostMarkdown(bounded);}catch{return {text:'',truncated:false,kinds:[],rich:true,unavailable:true};}
  const stack=[tree],paragraphs:string[]=[],kinds=new Set<PostContentKind>();
+ let rich=(tree.children?.length||0)>1;
  while(stack.length){
   const node=stack.pop()!;
+  if(node.type!=='root'&&node.type!=='paragraph'&&node.type!=='text'||node.type==='text'&&whitespace(node.value||'')!==node.value)rich=true;
   if(node.type==='code'&&node.value?.trim())kinds.add('code');
   if((node.type==='math'||node.type==='inlineMath')&&node.value?.trim())kinds.add('math');
   if(node.type==='table')kinds.add('table');
@@ -47,5 +50,5 @@ export function postPreview(body:string,limit=210,formula='[formula]'):{text:str
  const text=paragraphs.join(' '),length=Number.isSafeInteger(limit)?Math.max(1,Math.min(400,limit)):210;
  const letters=segmenter?Array.from(segmenter.segment(text),part=>part.segment):Array.from(text);
  const truncated=letters.length>length||bounded.length<body.length;
- return {text:letters.slice(0,length).join('').trimEnd()+(truncated&&letters.length?'…':''),truncated,kinds:(['code','math','table'] as const).filter(kind=>kinds.has(kind))};
+ return {text:letters.slice(0,length).join('').trimEnd()+(truncated&&letters.length?'…':''),truncated,kinds:(['code','math','table'] as const).filter(kind=>kinds.has(kind)),rich};
 }

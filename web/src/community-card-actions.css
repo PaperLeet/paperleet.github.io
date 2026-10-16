@@ -32,6 +32,23 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-list>li[data-comment-located]{background:color-mix(in srgb,var(--accent) 5%,transparent);border-radius:6px}
 .card-comment-list>li[data-comment-located]>.card-comment-meta{color:var(--accent)}
 .card-comment-list .post-excerpt{margin:9px 0 8px;font-size:var(--type-body);line-height:1.65;-webkit-line-clamp:4}
+.inline-comment-body{display:flex;flex-direction:column;min-width:0;margin:8px 0}
+.inline-comment-content{min-width:0}
+.inline-comment-body.is-complete .post-excerpt{display:block;overflow:visible;-webkit-line-clamp:unset}
+.inline-comment-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;order:1}
+.inline-comment-controls>span{font-size:var(--type-meta);color:var(--text-secondary)}
+.inline-comment-body.is-open>.inline-comment-controls{order:0;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.inline-comment-toggle,.inline-comment-collapse{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;gap:5px;min-height:36px;padding:5px 8px;border:0;border-radius:6px;background:transparent;color:var(--accent);font:inherit;font-size:var(--type-small);cursor:pointer}
+.inline-comment-toggle:hover,.inline-comment-collapse:hover{background:var(--surface2)}
+.inline-comment-collapse{margin-top:8px}
+.inline-comment-content .post-content-signals{margin-bottom:4px}
+.inline-comment-content>.community-prose{min-width:0;font-size:var(--type-body);line-height:1.75}
+.inline-comment-content .community-prose>:first-child{margin-top:0}
+.inline-comment-content .community-prose>:last-child{margin-bottom:0}
+.inline-comment-content .community-prose h1{font-size:var(--type-title);line-height:1.4}
+.inline-comment-content .community-prose h2{font-size:var(--type-lead);line-height:1.45}
+.inline-comment-content .community-prose :is(h3,h4,h5,h6){font-size:var(--type-body);line-height:1.5}
+@media(pointer:coarse),(max-width:600px){.inline-comment-toggle,.inline-comment-collapse,.inline-comment-content .community-code-header button{min-height:44px}}
 .card-comment-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;font-size:var(--type-small)}
 .card-comment-links>.reply-reading-return{margin-inline-start:auto;color:var(--accent);background:var(--surface2)}
 .card-comment-links button,.card-more-comments,.card-collapse-comments{border:0;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer}

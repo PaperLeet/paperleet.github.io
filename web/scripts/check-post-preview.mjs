@@ -3,6 +3,7 @@ import React,{act} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
+import {readFile} from 'node:fs/promises';
 
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
 const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true};
@@ -14,6 +15,7 @@ let root,failingServer,serverClosed=false;
 try{
  const {postPreview}=await server.ssrLoadModule('/src/postExcerpt.ts');
  const {default:Preview}=await server.ssrLoadModule('/src/PostPreview.tsx');
+ const {default:InlineBody}=await server.ssrLoadModule('/src/InlineCommentBody.tsx');
  const {default:Card}=await server.ssrLoadModule('/src/InterviewReportCard.tsx');
  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
  const {interviewOutlines,interviewOutlineText}=await server.ssrLoadModule('/src/interviewWriting.ts');
@@ -42,6 +44,8 @@ try{
  assert.equal(postPreview('ab'+family+accent+' tail',3).text,'ab'+family+'…','Truncation keeps a complete emoji grapheme');
  assert.equal(postPreview('ab'+accent+' tail',3).text,'ab'+accent+'…','Combining accents stay with their base character');
  assert.equal(postPreview('四个字好',4).text,'四个字好');assert.equal(postPreview('line one\nline two').text,'line one line two');
+ assert.equal(postPreview('A plain reply.').rich,false);assert.equal(postPreview('一行\n自然换行').rich,true,'Whitespace preserved by the full renderer remains available inline');assert.equal(postPreview('Aligned  words').rich,true);
+ for(const body of ['**emphasis**','[source](https://example.org)','`x * y`','## Heading','- First\n- Second','> Context','First\n\nSecond','![alt](https://example.org/image)','A hard  \nbreak'])assert.equal(postPreview(body).rich,true,'Formatted replies must retain an in-place full reading option: '+body);
  const bounded=postPreview('x'.repeat(20000)+'SECRET_AFTER_LIMIT',400);assert(!bounded.text.includes('SECRET_AFTER_LIMIT'));assert.equal(bounded.text.length,401);assert(bounded.truncated);
  const original=rich;postPreview(rich);assert.equal(rich,original);
  const staticPreview=body=>renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Preview,{body})));
@@ -54,6 +58,19 @@ try{
  await act(async()=>document.querySelector('button').click());assert.equal(document.querySelector('.post-content-signals').getAttribute('aria-label'),'内容包含');assert(document.querySelector('.post-content-signals').textContent.includes('代码片段'));
  await render(React.createElement(Preview,{body:'Before $x$ after.'}));assert(document.querySelector('.post-excerpt').textContent.includes('[公式]'));await act(async()=>document.querySelector('button').click());assert(document.querySelector('.post-excerpt').textContent.includes('[formula]'),'Changing language regenerates math placeholders without changing the post');await act(async()=>document.querySelector('button').click());
  await render(React.createElement(Preview,{body:'真正的新正文。'}));assert.equal(document.querySelector('.post-excerpt').textContent,'真正的新正文。');assert(!document.querySelector('.post-content-signals'),'Content updates cannot retain stale badges');
+ // Inline reply reading reuses the bounded model but mounts the full renderer only on demand.
+ const inlineStyle=document.createElement('style');inlineStyle.textContent=await readFile(new URL('../src/post-preview.css',import.meta.url),'utf8')+'\n'+await readFile(new URL('../src/community-card-actions.css',import.meta.url),'utf8');document.head.append(inlineStyle);
+ const short='完整中文回复'.repeat(40);
+ await render(React.createElement(InlineBody,{body:short}));assert.equal(document.querySelector('.post-excerpt').textContent,short);assert(!document.querySelector('.inline-comment-toggle'));assert.equal(window.getComputedStyle(document.querySelector('.post-excerpt')).display,'block','An untruncated reply cannot still be clipped by the four-line preview rule');
+ const emojiReply=family.repeat(300),click=async node=>act(async()=>{node.focus();node.click();});
+ await render(React.createElement(InlineBody,{body:emojiReply}));let disclosure=document.querySelector('.inline-comment-toggle');assert.equal(disclosure.getAttribute('aria-expanded'),'false');assert.equal(document.querySelector('.post-excerpt').textContent,family.repeat(280)+'…');assert.equal(window.getComputedStyle(document.querySelector('.inline-comment-controls')).order,'1');
+ await click(disclosure);assert.equal(disclosure.getAttribute('aria-expanded'),'true');assert.equal(document.querySelector('.community-prose').textContent,emojiReply);assert.equal(window.getComputedStyle(document.querySelector('.inline-comment-controls')).order,'0');assert.equal(document.activeElement,disclosure);
+ let scrollOptions;disclosure.getBoundingClientRect=()=>({top:1000,bottom:1040});disclosure.scrollIntoView=options=>{scrollOptions=options;};await click(document.querySelector('.inline-comment-collapse'));assert.equal(document.activeElement,disclosure);assert.deepEqual(scrollOptions,{block:'nearest',behavior:'instant'},'Bottom collapse keeps the compact control reachable without a smooth long jump');assert(!document.querySelector('.community-prose'));
+ const readers=body=>React.createElement(React.Fragment,null,React.createElement(InlineBody,{key:'first',body}),React.createElement(InlineBody,{key:'second',body:rich}));
+ await render(readers(rich));const controls=[...document.querySelectorAll('.inline-comment-toggle')];assert.equal(new Set(controls.map(node=>node.getAttribute('aria-controls'))).size,2,'Identical replies in different cards need independent region IDs');for(const control of controls)assert(document.getElementById(control.getAttribute('aria-controls')));
+ await click(controls[0]);assert.equal(document.querySelectorAll('.community-prose').length,1);assert.equal(controls[1].getAttribute('aria-expanded'),'false');assert(controls[0].textContent.includes('收起回复'));await click(document.querySelector('button'));assert(controls[0].textContent.includes('Show less'));assert.equal(controls[0].getAttribute('aria-expanded'),'true','Changing language retains the current reading position');
+ await render(readers('Changed **reply**'));disclosure=document.querySelector('.inline-comment-toggle');assert.equal(disclosure.getAttribute('aria-expanded'),'false');assert(!document.querySelector('.community-prose'),'Updated content cannot inherit a previously opened body');await click(disclosure);await act(async()=>{const bottom=document.querySelector('.inline-comment-collapse');bottom.focus();bottom.click();location.hash='#/elsewhere';});assert.notEqual(document.activeElement,disclosure,'A route change cancels the focus/scroll handoff');location.hash='';
+ await click(document.querySelector('button'));inlineStyle.remove();
  await render(React.createElement(Preview,{body:'$$\nx=y\n$$'}));assert(document.querySelector('.post-excerpt').textContent.includes('打开阅读全文'));assert.equal(document.querySelectorAll('[data-content-kind="math"]').length,1);
  const filters={...emptyInterviewFilters(),saved:true,company:'google',role:'llm',stage:'technical',q:'reflection',page:3,days:'90',concept:'architecture/attention'},returnTo=interviewHref(filters);
  const post={id:'a'.repeat(32),title:'A useful reflection',body:rich,category:'career',created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:{id:'owner',username:'owner',display_name:'Author',avatar_color:'#48766b'},counts:{replies:3,likes:5,reposts:1},viewer:{bookmarked:false},interview:{company:'google',role:'llm',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:['architecture/attention']}};

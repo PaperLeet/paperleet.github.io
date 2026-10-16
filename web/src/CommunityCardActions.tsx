@@ -4,7 +4,7 @@ import {ChevronDown,ChevronUp,Heart,MessageCircle,PenLine,Repeat2,X} from 'lucid
 import {useI18n} from './i18n';
 import {DateLabel,SocialError,SocialNotice,errorMessage,socialApi,useAccount} from './social';
 import CommunityAuthor from './CommunityAuthor';
-import PostPreview from './PostPreview';
+import InlineCommentBody from './InlineCommentBody';
 import MarkdownEditor,{type MarkdownEditorView} from './MarkdownEditor';
 import PublicationRecovery from './PublicationRecovery';
 import {PublishingRules} from './PublishingRules';
@@ -185,8 +185,8 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         {replies.total?<ol id={regionId+'-list'} className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
           <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/></div>
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
-          <PostPreview body={row.body} limit={280}/>
-          <div className="card-comment-links"><a href={communityPostHref(post.id,returnTo,row.id)}>{t('查看完整回复','Read full reply')}</a>
+          <InlineCommentBody body={row.body}/>
+          <div className="card-comment-links"><a href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</a>
             {owner&&<button type="button" disabled={!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}
             <ReplyReadingReturn list={replies} replyId={row.id}/>
           </div>

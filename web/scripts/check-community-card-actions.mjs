@@ -51,6 +51,23 @@ try{
  const shortcut=async(init={})=>act(async()=>{const field=document.querySelector('textarea');field.focus();field.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true,...init}));});
  const submit=async()=>act(async()=>document.querySelector('form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
  await render();assert.equal(requests.length,0,'Closed previews make no per-card requests');const original=location.href;
+ // Full comment reading is local to its row and never replaces the working composer.
+ const plainBody=replies[7].body;
+ replies[7].body='A long reply with **important** detail.\n\n```python\nanswer = x ** 2\n```\n\n$$\nx^2 + y^2\n$$\n\n| Name | Value |\n| --- | --- |\n| Result | 42 |\n\n[Source](https://example.org/paper)\n\n![pixel](https://tracker.invalid/pixel)\n\n<script>evil()</script>';
+ await click(expand());
+ const richRow=document.querySelector('.card-comment-list>li'),readingToggle=richRow.querySelector('.inline-comment-toggle');
+ assert(readingToggle,'A rich reply must be readable without leaving the list');
+ assert.equal(readingToggle.getAttribute('aria-expanded'),'false');assert(!richRow.querySelector('.community-prose,pre,table,.katex,img'));
+ const richRegion=readingToggle.getAttribute('aria-controls');assert(document.getElementById(richRegion));
+ const readingRequests=requests.length,readingStorage=JSON.stringify({...sessionStorage});
+ await click(readingToggle);assert.equal(readingToggle.getAttribute('aria-expanded'),'true');assert.equal(document.activeElement,readingToggle);
+ assert(richRow.querySelector('.community-code-block').textContent.includes('answer = x ** 2'));assert(richRow.querySelector('.katex'));assert(richRow.querySelector('table'));assert(richRow.querySelector('.community-prose a').getAttribute('rel').includes('nofollow'));assert(!richRow.querySelector('img,script'));assert(!document.body.innerHTML.includes('src="https://tracker.invalid'));
+ assert.equal(document.getElementById(richRegion).getAttribute('role'),'region');
+ const otherReadLink=document.querySelectorAll('.card-comment-links a')[1];await act(async()=>{const bottom=richRow.querySelector('.inline-comment-collapse');bottom.focus();bottom.click();otherReadLink.focus();});assert.equal(document.activeElement,otherReadLink,'Collapsing cannot override a newer focus choice');assert(!richRow.querySelector('.community-prose'));
+ await click(readingToggle);await click(richRow.querySelector('.inline-comment-collapse'));assert.equal(document.activeElement,readingToggle,'Bottom collapse returns to the still-visible reading control');assert.equal(readingToggle.getAttribute('aria-expanded'),'false');assert.equal(requests.length,readingRequests);assert.equal(JSON.stringify({...sessionStorage}),readingStorage);assert.equal(location.href,original);
+ const shortRow=document.querySelectorAll('.card-comment-list>li')[1];assert(shortRow.querySelector('.inline-comment-body.is-complete'));assert(!shortRow.querySelector('.inline-comment-toggle'),'Short plain replies need no extra disclosure');
+ await click(button('Write comment'));await frame();await edit('Draft remains while reading rich comments');const richEditor=document.querySelector('textarea');richEditor.setSelectionRange(2,9,'backward');richEditor.scrollTop=23;richEditor.scrollLeft=7;const beforeRichDraft=JSON.stringify({...sessionStorage});await click(readingToggle);assert.equal(document.querySelector('textarea'),richEditor);assert.equal(richEditor.selectionStart,2);assert.equal(richEditor.selectionEnd,9);assert.equal(richEditor.scrollTop,23);assert.equal(richEditor.scrollLeft,7);assert.equal(JSON.stringify({...sessionStorage}),beforeRichDraft);assert.equal(requests.length,readingRequests);assert.equal(location.href,original);await click(readingToggle);
+ await stop();replies[7].body=plainBody;sessionStorage.clear();requests.length=0;await render();
  await click(like());assert.equal(mutations.length,1);assert.equal(like().getAttribute('aria-pressed'),'true');assert(like().textContent.includes('5'));assert.equal(location.href,original);
  await click(like());assert.equal(like().getAttribute('aria-pressed'),'false');
  failLike=true;await click(like());assert(like().disabled);assert.equal(like().getAttribute('aria-pressed'),'false');failLike=false;await click(button('Retry like action'));assert.equal(mutations.at(-1).body.active,true);assert.equal(like().getAttribute('aria-pressed'),'true');
