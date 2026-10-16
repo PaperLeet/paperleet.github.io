@@ -78,7 +78,7 @@ function ConversationThread({owner, username}: {owner: string; username: string}
   const [thread, setThread] = useState<MessageThread>(), [error, setError] = useState(''), [sendError, setSendError] = useState(''), [readError, setReadError] = useState('');
   const [draft, setDraft] = useState(''), [pending, setPending] = useState<{body: string; requestId: string}>(), [sending, setSending] = useState(false), [more, setMore] = useState(false);
   const alive = useRef(true), manual = useRef<AbortController | undefined>(undefined), sendController = useRef<AbortController | undefined>(undefined), readController = useRef<AbortController | undefined>(undefined);
-  const revision = useRef(0), loadedOlder = useRef(false), lastRead = useRef(0), scroll = useRef<HTMLDivElement>(null), shouldScroll = useRef(true);
+  const revision = useRef(0), loadedOlder = useRef(false), lastRead = useRef(0), readingThrough = useRef(0), scroll = useRef<HTMLDivElement>(null), shouldScroll = useRef(true);
   const editor = useRef<HTMLTextAreaElement>(null);
   useEffect(() => { alive.current = true; return () => { alive.current = false; manual.current?.abort(); sendController.current?.abort(); readController.current?.abort(); }; }, []);
   function receive(next: MessageThread) {
@@ -98,8 +98,11 @@ function ConversationThread({owner, username}: {owner: string; username: string}
   useInboxPolling(owner, refresh, !sending);
   function retry() { manual.current?.abort(); manual.current = new AbortController(); setMore(false); void refresh(manual.current.signal); }
   async function readVisible(snapshot: MessageThread) {
-    if (!inboxVisible() || !snapshot.unread_count || snapshot.observed_message_id <= lastRead.current) return;
+    const box = scroll.current;
+    if (!inboxVisible() || !box || box.clientHeight <= 0 || box.scrollHeight - box.scrollTop - box.clientHeight > 1 || !snapshot.unread_count || snapshot.observed_message_id <= lastRead.current) return;
+    if (readController.current && !readController.current.signal.aborted && readingThrough.current >= snapshot.observed_message_id) return;
     readController.current?.abort(); const controller = new AbortController(); readController.current = controller;
+    readingThrough.current = snapshot.observed_message_id;
     try {
       await inboxRequest<InboxCounts>(owner, `${messagePath(username)}/read`, {through_message_id: snapshot.observed_message_id}, controller.signal);
       if (controller.signal.aborted || !alive.current) return;
@@ -107,11 +110,19 @@ function ConversationThread({owner, username}: {owner: string; username: string}
       setThread(current => current && current.observed_message_id === snapshot.observed_message_id ? {...current, unread_count: 0} : current);
       inboxChanged(owner);
     } catch (e) { if (!controller.signal.aborted && alive.current) setReadError(errorMessage(e)); }
+    finally { if (readController.current === controller) readController.current = undefined; }
   }
-  useEffect(() => { if (thread) void readVisible(thread); }, [thread]);
   useEffect(() => {
+    if (!thread) return;
     if (shouldScroll.current && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
-  }, [thread?.messages.length]);
+    void readVisible(thread);
+  }, [thread]);
+  function historyScrolled() {
+    const box = scroll.current;
+    if (!box) return;
+    shouldScroll.current = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    if (thread) void readVisible(thread);
+  }
   async function loadOlder() {
     if (!thread?.next_before || more) return;
     manual.current?.abort(); const controller = new AbortController(); manual.current = controller;
@@ -158,7 +169,7 @@ function ConversationThread({owner, username}: {owner: string; username: string}
     </header>
     {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
     {readError && <div className="inbox-error" role="alert"><p>{t('未能标为已读。', 'Could not mark messages as read.')}</p><button type="button" onClick={() => thread && void readVisible(thread)}>{t('重试', 'Retry')}</button></div>}
-    <div className="message-history" ref={scroll} onScroll={() => { const box = scroll.current; if (box) shouldScroll.current = box.scrollHeight - box.scrollTop - box.clientHeight < 80; }}>
+    <div className="message-history" ref={scroll} onScroll={historyScrolled}>
       {!thread && !error && <p className="inbox-empty" role="status">{t('正在加载对话…', 'Loading conversation…')}</p>}
       {thread?.next_before && <button type="button" className="inbox-more" disabled={more} onClick={() => void loadOlder()}>{more ? t('正在加载…', 'Loading…') : t('加载更早的消息', 'Load earlier messages')}</button>}
       {thread?.messages.length === 0 && <div className="inbox-empty"><MessageCircle size={28}/><p>{t('发送第一条消息', 'Send the first message')}</p></div>}

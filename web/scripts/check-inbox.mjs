@@ -8,6 +8,7 @@ const values = {window: dom.window, document: dom.window.document, navigator: do
 const previous = new Map(Object.keys(values).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 for (const [key, value] of Object.entries(values)) Object.defineProperty(globalThis, key, {value, writable: true, configurable: true});
 localStorage.setItem('paperleet.locale', 'en');
+Object.defineProperty(dom.window.HTMLElement.prototype, 'clientHeight', {configurable: true, get() {return this.classList.contains('message-history') ? 300 : 0;}});
 const server = await createServer({cacheDir: 'node_modules/.vite-inbox-check', server: {middlewareMode: true, hmr: false}, appType: 'custom', optimizeDeps: {noDiscovery: true, include: []}, plugins: [{name: 'inbox-account-fixture', enforce: 'pre', resolveId(source) {if (source === './social') return '\0inbox-account';}, load(name) {if (name === '\0inbox-account') return `import React from 'react';export const useAccount=()=>globalThis.__inboxFixture.account;export const socialApi=(...args)=>globalThis.__inboxFixture.request(...args);export const errorMessage=e=>e.message;export class SocialError extends Error {constructor(message,status,code){super(message);this.status=status;this.code=code;}}export const Avatar=({user})=>React.createElement('span',null,user.display_name);export const profileHref=user=>'#/u/'+user.username;export const DateLabel=({value})=>React.createElement('time',null,value);`;}}]});
 let root;
 try {
@@ -131,6 +132,32 @@ try {
   thread = {...thread, is_mutual_follow: true, can_send: true, awaiting_reply: false, messages: [{id: 2, sender_id: 'bob', body: 'Private Alice-only message', created_at: '2026-10-15T11:01:00Z'}], observed_message_id: 2, unread_count: 1};
   await render(Messages, {username: 'bob'});
   assert(calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 2));
+  const history = document.querySelector('.message-history');
+  Object.defineProperties(history, {scrollHeight: {value: 1000, configurable: true}, clientHeight: {value: 300, configurable: true}});
+  history.scrollTop = 100;
+  await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
+  thread = {...thread, messages: [...thread.messages, {id: 3, sender_id: 'bob', body: 'New message below the viewport', created_at: '2026-10-15T11:02:00Z'}], observed_message_id: 3, unread_count: 1};
+  await act(async () => inboxChanged('alice'));
+  assert(!calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 3), 'New messages remain unread while browsing older history');
+  assert.equal(history.scrollTop, 100, 'Incoming messages do not move an older reading position');
+  history.scrollTop = 700;
+  await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
+  assert(calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 3), 'Reaching the newest message marks the observed snapshot read');
+  history.scrollTop = 100;
+  await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
+  thread = {...thread, messages: [...thread.messages, {id: 4, sender_id: 'bob', body: 'Unread while hidden', created_at: '2026-10-15T11:03:00Z'}], observed_message_id: 4, unread_count: 1};
+  await act(async () => inboxChanged('alice'));
+  Object.defineProperty(document, 'visibilityState', {configurable: true, value: 'hidden'});
+  history.scrollTop = 700;
+  await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
+  assert(!calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 4), 'Hidden conversations cannot mark messages read');
+  Object.defineProperty(document, 'visibilityState', {configurable: true, value: 'visible'});
+  await act(async () => {history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})); history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true}));});
+  assert.equal(calls.filter(call => call.path === 'messages/bob/read' && call.body.through_message_id === 4).length, 1, 'Repeated scroll events share the in-flight read acknowledgement');
+  Object.defineProperty(history, 'scrollHeight', {value: 1300, configurable: true});
+  thread = {...thread, messages: [...thread.messages, {id: 5, sender_id: 'bob', body: 'Visible after following the live tail', created_at: '2026-10-15T11:04:00Z'}], observed_message_id: 5, unread_count: 1};
+  await act(async () => inboxChanged('alice'));
+  assert(calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 5), 'Following the live tail scrolls to new content before marking it read');
   await edit('x'.repeat(2001)); assert(button('Send').disabled);
   await edit('Mutual followers can reply freely'); assert(!button('Send').disabled);
   deferThread = true; await act(async () => inboxChanged('alice'));
@@ -141,7 +168,7 @@ try {
   // A mismatched owner can never become a private snapshot for a newly signed-in account.
   await assert.rejects(() => inboxRequest('bob', 'inbox?summary=1'), /account changed/);
   assert.deepEqual(mergeMessages([{id: 2, body: 'old'}], [{id: 1, body: 'earlier'}, {id: 2, body: 'updated'}]).map(item => item.body), ['earlier', 'updated']);
-  console.log('PASS inbox summary/red dot, grouped/escaped notifications, snapshot-safe reads, idempotent messages and lost-response reconciliation, editable rejected drafts, stranger/mutual send rules, limits, plain text, no draft storage, account privacy and aborts');
+  console.log('PASS inbox summary/red dot, grouped/escaped notifications, snapshot-safe notification reads, newest-visible-message acknowledgements, preserved history scroll, hidden/pending-read guards, idempotent messages and lost-response reconciliation, editable rejected drafts, stranger/mutual send rules, limits, plain text, no draft storage, account privacy and aborts');
 } finally {
   if (root) await act(async () => root.unmount());
   await server.close(); dom.window.close();
