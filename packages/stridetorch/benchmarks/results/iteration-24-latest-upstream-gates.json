@@ -1,0 +1,40 @@
+{
+  "status": "all_local_release_gates_passed_main_pending",
+  "version": "0.24.0",
+  "merge": {
+    "status": "success",
+    "upstream": "1be5db7e922dc73c449106d142de9eae1e60a7cc",
+    "head": "6b43ce586383d90daed32c4a77d730cca49c8c02",
+    "preserved_upstream_files": [
+      "docs/validation/inline-comment-reading.md",
+      "web/scripts/check-community-card-actions.mjs",
+      "web/scripts/check-post-preview.mjs",
+      "web/src/CommunityCardActions.tsx",
+      "web/src/InlineCommentBody.tsx",
+      "web/src/PostPreview.tsx",
+      "web/src/community-card-actions.css",
+      "web/src/postExcerpt.ts"
+    ],
+    "all_43_core_license_and_161_export_hashes_identical": true,
+    "python_packaging_problems_tests_workflows_and_runtime_inputs_identical": true
+  },
+  "frontend": {
+    "check": "passed48bilingualguides144prompts",
+    "build": "passed8.84s",
+    "pages_policy": "passed",
+    "initial_js_raw_bytes": 408091,
+    "initial_js_gzip_bytes": 131549
+  },
+  "all_numerical_packaging_and_161_export_inputs_identical": true,
+  "prior_gates": "25928native,784Node/Chrome,804minimum;78native and78actualWASM/no budgets;6598publishedassetsunchanged",
+  "pending": [
+    "Nonforce mainintegration",
+    "Exact24Quality/eligiblePages/liveverification"
+  ],
+  "archive": {
+    "path": "iteration-24-latest-upstream-gates-harness.tar.gz",
+    "files": 4,
+    "bytes": 21693,
+    "sha256": "9d2e1f4b9a9f287ba9ef16de8dd14967ac0ec91844cefa52411b036842c69a0d"
+  }
+}

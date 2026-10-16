@@ -1,8 +1,9 @@
-# StrideTorch 0.23 candidate: bounded public-call validation
+# StrideTorch 0.23: bounded public-call validation
 
-This development version reduces repeated public-operator dispatch overhead.
-Numerical kernels are unchanged from 0.22. Main uses 0.22; the 0.23 candidate
-has not been integrated or deployed.
+This version reduces repeated public-operator dispatch overhead. Numerical
+kernels are unchanged from 0.22. Main adopts 0.23 at `3cea3727`, and its exact
+Quality run passes all required jobs. Site publication is unconfirmed: later UI
+commits supersede its eligible Pages triggers. No skipped run counts as deploy.
 
 ## Behavior and memory
 
@@ -56,7 +57,7 @@ also pass. Complete exported WASM passes all 78 modules without any browser
 budget violations (526.647s aggregate). Flow Matching takes 119.498s calibration,
 21.980s learner and 144.720s total, within unchanged 240/60/300s limits. These
 application timings are budget evidence, not controlled release comparisons.
-Main/remote adoption remains pending.
+Exact main Quality is verified below; final site adoption remains unconfirmed.
 
 Latest upstream `c3f8d5c3` adds local request-error and workspace/draft recovery
 fixes. All five changed files are preserved exactly. The affected server suite
@@ -65,7 +66,7 @@ and Pages policy pass again. Refreshed private wheel/source archives include the
 latest server and catalog bytes. All 43 core/license hashes and 161 exported
 files remain identical to the complete numerical/WASM gates, so those numerical
 workloads are not repeated for these application changes. Remote Quality will
-execute the complete final merged infrastructure.
+execute the complete final merged infrastructure, with results recorded below.
 
 ## Controlled dispatch measurements
 
@@ -110,3 +111,25 @@ close the full exported catalog gate against the frozen source and 161 files.
 The [latest upstream gates](../../packages/stridetorch/benchmarks/results/iteration-23-latest-upstream-gates.json)
 and [affected-check archive](../../packages/stridetorch/benchmarks/results/iteration-23-latest-upstream-gates-harness.tar.gz)
 retain the final application merge, server checks and refreshed packaging.
+
+## Main Quality and superseded publication
+
+[Exact Quality 38884042959](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38884042959)
+passes native, browser-wasm and pilot jobs for `3cea3727`. The complete merged
+Linux infrastructure passes 25,613 tests, one optional skip and 20 warnings
+(386.22s). Original native catalog passes 78 problems, 10,218 executions, 342
+mutants and three repetitions (290.68s). Real WASM passes all 78 modules without
+browser budget violations (1,009.695s aggregate). These are gate observations,
+not controlled comparisons with other releases.
+
+Runtime-identical UI descendant `1e2a8a66` has identical 43 core/license hashes
+and 161 export hashes. Its
+[Quality 38885685787](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38885685787)
+also passes all required jobs, but newer UI work supersedes its Pages trigger.
+Both superseded/skipped workflow histories are retained. A mature 0.24 can
+supersede an unreleased site version; the actual final deployment still requires
+eligible Pages steps and frozen live-file verification.
+
+[Main-quality evidence](../../packages/stridetorch/benchmarks/results/iteration-23-main-quality.json)
+and [workflow/artifact archive](../../packages/stridetorch/benchmarks/results/iteration-23-main-quality-harness.tar.gz)
+record that main adoption is proven while site publication is not.

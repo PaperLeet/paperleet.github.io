@@ -274,7 +274,7 @@ Main at `7eac78ab` passes exact remote Quality, including all 78 WASM modules.
 Runtime-identical curriculum descendant `db6408fd` passes exact Quality and
 eligible Pages publication; all 78 live modules/158 immutable comparisons pass.
 
-## Version 0.23 candidate
+## Version 0.23 milestone
 
 Public operators retain at most 32 successful signature patterns per operator,
 using positional arity and ordinary keyword names. Argument values, tensor
@@ -288,14 +288,18 @@ each pass 774 independent contracts. The installed wheel passes 794 tests on
 Python 3.10/NumPy 1.26 without native Torch. Balanced CPU/WASM comparisons retain
 all three phases, including an unstable middle phase and direct-method controls.
 Original native catalog, export/history, latest-curriculum packaging/frontend and
-all 78 exported WASM modules pass. Main and remote adoption remain release gates.
+all 78 exported WASM modules pass. Main `3cea3727` passes exact Quality, including
+25,613 merged infrastructure tests and 78 WASM modules. Runtime-identical
+`1e2a8a66` also passes Quality; both Pages triggers are superseded by later UI
+work, so site publication is not claimed. A mature later version may supersede
+this site rollout, with final eligible deployment/live verification still required.
 
 ## Version 0.24 candidate
 
 Method/functional mean support explicit dtype with strict native reduction
 overloads, integer/boolean floating output, existing complex forward values,
 float32/float64 JVP and reverse differentiation of its tangent. Half sum/division
-uses float32 opmath without an input-sized cast buffer; reverse preserves
+uses float32 opmath without explicitly copying the entire input; reverse preserves
 output rounding and native post-forward model-conversion gradient dtypes.
 
 Final infrastructure passes 25,928 tests; Node/Chrome each pass 784 independent
@@ -303,8 +307,8 @@ contracts and the NumPy 1.26/Python 3.10 installed wheel passes 804 without nati
 Torch. Four balanced CPU/WASM phases retain all 64 children, rejected input-copy
 work and remaining small-call costs. Original native catalog, export/history and
 latest-upstream frontend/packaging gates pass. All 78 exported WASM modules pass
-within unchanged budgets. Later upstream UI integration and remote adoption
-remain required release gates.
+within unchanged budgets. Later upstream UI changes at `1be5db7e` are preserved
+and repeated frontend checks/build pass. Main and remote adoption remain gates.
 
 ## Next implementation areas
 

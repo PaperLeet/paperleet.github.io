@@ -2,8 +2,8 @@
 
 This candidate enables `torch.mean(dtype=...)` and repairs existing half-precision
 means. Main still uses 0.23. The candidate has not been integrated or deployed;
-complete exported WASM has passed; latest UI integration and remote adoption
-remain release gates.
+complete exported WASM and latest UI integration have passed. Main and remote
+adoption remain release gates.
 
 ## Behavior and computation
 
@@ -24,7 +24,8 @@ input-gradient cast. Wider input is not first rounded into half. This follows
 and is independently compared against installed native PyTorch 2.14.1.
 
 The final half path uses a precomputed count and output-sized sum/division;
-there is no full-input float32 conversion buffer. Pullbacks save shape/count,
+the library does not explicitly materialize a full-input float32 copy. NumPy's
+internal buffering is not a measured peak-memory guarantee. Pullbacks save shape/count,
 without retaining intermediate input values or guarding unsaved output values.
 Leaf ownership still retains storage needed for gradient accumulation. Detached
 input/output mutation and repeated backward retain native mean behavior.
@@ -144,6 +145,14 @@ performance comparisons with another release.
 
 The [complete local gates](../../packages/stridetorch/benchmarks/results/iteration-24-local-gates.json)
 and [final WASM receipts](../../packages/stridetorch/benchmarks/results/iteration-24-local-gates-harness.tar.gz)
-close the catalog gate against frozen source and all 161 export hashes. A later
-eight-file upstream UI change is preserved separately before main integration;
-affected frontend checks and remote adoption remain pending.
+close the catalog gate against frozen source and all 161 export hashes. The later
+eight-file UI change at `1be5db7e` is preserved byte-for-byte. Repeated complete
+frontend checks, production build (8.84s) and Pages policy pass; initial JavaScript
+is 408,091 raw / 131,549 gzip bytes. Core/license, Python packaging, tests,
+problems, workflows and all 161 export hashes remain identical, preserving the
+completed numerical/catalog evidence without repeating unrelated workloads.
+
+[Latest upstream gates](../../packages/stridetorch/benchmarks/results/iteration-24-latest-upstream-gates.json)
+and the [affected-check archive](../../packages/stridetorch/benchmarks/results/iteration-24-latest-upstream-gates-harness.tar.gz)
+close that integration gate. Main adoption and exact remote Quality/eligible
+Pages/live verification remain pending.
