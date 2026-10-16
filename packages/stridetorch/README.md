@@ -185,12 +185,15 @@ Backward guards RHS, factor and output mutations, and shares one adjoint solve
 across both input gradients. Narrow matrix RHS gradients associate products
 through their columns to avoid a cubic factor-gradient multiplication. Finite
 triangular factors needing gradients reuse one forward and one adjoint
-intermediate; finite narrow JVPs associate products through the RHS while keeping
-the full native factor/direction rules. These are saved graph values, not
+intermediate. Finite narrow JVPs use one analytical multi-input pullback while
+keeping all full-factor and direction gradients. Forward and adjoint products
+through RHS columns are shared across the four pullbacks. Unneeded primal/tangent arrays
+are released; permitted direction edits use a snapshot, while required saved
+values retain native mutation guards. These are graph-local values, not
 cross-call caches. Output
 buffers, half factorization and complex AD remain explicit unsupported cases.
-Version0.33 validation and integration are tracked in its
-[validation report](../../docs/validation/torch-runtime-iteration-33.md).
+Version 0.34 validation and integration are tracked in its
+[validation report](../../docs/validation/torch-runtime-iteration-34.md).
 
 Factorization failures are checked across numerical runtimes. Cholesky verifies
 its returned diagonal because some WASM NumPy builds return NaN factors without

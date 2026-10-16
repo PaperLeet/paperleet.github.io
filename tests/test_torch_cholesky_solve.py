@@ -124,3 +124,62 @@ def test_large_narrow_jvp_and_all_reverse_edges(dtype,upper,active,triangular):
     for x,y in zip(a[2],b[2]):
         if y is None:assert x is None
         else:close(x,y,dtype)
+
+
+FLAGS=[(b,f,db,df) for b in (False,True) for f in (False,True)
+       for db in (False,True) for df in (False,True) if b or f or db or df]
+
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('flags',FLAGS)
+@pytest.mark.parametrize('mutated',range(6))
+def test_narrow_jvp_mutation_guards_and_permitted_source_snapshots(upper,flags,mutated):
+    f,b=arrays('float64',(),(),65,2);reports=[]
+    for lib in (lite,native):
+        args=tuple(lib.tensor(v,requires_grad=flag) for v,flag in zip(
+            (b,f,np.full_like(b,.03),np.full_like(f,.01)),flags))
+        x,t=lib.func.jvp(lambda b,f:lib.cholesky_solve(b,f,upper),args[:2],args[2:])
+        with lib.no_grad():(*args,x,t)[mutated].detach().add_(.1)
+        try:
+            t.sum().backward()
+            reports.append(('allowed',[None if a.grad is None else a.grad.numpy().copy() for a in args]))
+        except RuntimeError:reports.append(('guarded',[]))
+    assert reports[0][0]==reports[1][0]
+    for actual,expected in zip(reports[0][1],reports[1][1]):
+        if expected is None:assert actual is None
+        else:close(actual,expected,'float64')
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('flags',FLAGS)
+@pytest.mark.parametrize('triangular',[False,True])
+def test_narrow_jvp_broadcast_strided_all_activity_patterns(dtype,upper,flags,triangular):
+    f,b=arrays(dtype,(2,1),(1,3),64,3)
+    if triangular:f=np.triu(f) if upper else np.tril(f)
+    rng=np.random.default_rng(340);df=(rng.normal(size=f.shape)*.01).astype(dtype);db=(rng.normal(size=b.shape)*.03).astype(dtype);reports=[]
+    for lib in (lite,native):
+        args=tuple(lib.from_numpy(v.copy()).requires_grad_(flag) for v,flag in zip((b,f,db,df),flags))
+        # Keep final axes strided in the primal and directional inputs.
+        args=tuple(a.transpose(-1,-2).contiguous().transpose(-1,-2) for a in args)
+        x,t=lib.func.jvp(lambda b,f:lib.cholesky_solve(b,f,upper),args[:2],args[2:]);loss=.17*x.square().sum()+.23*t.square().sum()
+        gradients=lib.autograd.grad(loss,tuple(a for a in args if a.requires_grad),retain_graph=True)
+        second=lib.autograd.grad(.31*x.sum()-.11*t.sum(),tuple(a for a in args if a.requires_grad))
+        reports.append((x.detach().numpy(),t.detach().numpy(),x.stride(),t.stride(),[g.numpy() for g in (*gradients,*second)]))
+    a,b=reports;close(a[0],b[0],dtype);close(a[1],b[1],dtype);assert a[2:4]==b[2:4]
+    for actual,expected in zip(a[4],b[4]):close(actual,expected,dtype)
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('disabled',[False,True])
+@pytest.mark.parametrize('config',[((),(),64,2),((0,1),(1,2),64,2),((2,1),(1,3),64,0)])
+def test_narrow_jvp_no_reverse_and_empty_batches(dtype,upper,disabled,config):
+    f,b=arrays(dtype,*config);reports=[]
+    for lib in (lite,native):
+        args=tuple(lib.tensor(v,requires_grad=disabled) for v in (b,f,np.full_like(b,.03),np.full_like(f,.01)))
+        with lib.no_grad() if disabled else __import__('contextlib').nullcontext():
+            x,t=lib.func.jvp(lambda b,f:lib.cholesky_solve(b,f,upper),args[:2],args[2:])
+        assert not x.requires_grad and not t.requires_grad
+        reports.append((x.detach().numpy(),t.detach().numpy(),x.stride(),t.stride()))
+    close(reports[0][0],reports[1][0],dtype);close(reports[0][1],reports[1][1],dtype);assert reports[0][2:]==reports[1][2:]

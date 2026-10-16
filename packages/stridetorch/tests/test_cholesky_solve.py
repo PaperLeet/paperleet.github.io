@@ -130,3 +130,60 @@ def test_invalid_inputs_and_capability_metadata():
     for dtype in (torch.int64,torch.float16):
         with pytest.raises(UnsupportedOperation):torch.cholesky_solve(b.to(dtype=dtype),f.to(dtype=dtype))
     assert torch._browser_capabilities['torch.cholesky_solve'].forward
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('triangular',[False,True])
+@pytest.mark.parametrize('flags',[(True,False,False,False),(False,True,False,False),
+    (False,False,True,False),(False,False,False,True),(True,True,True,True),(True,False,False,True)])
+def test_narrow_tangent_closed_form_full_reverse_broadcast(dtype,upper,triangular,flags):
+    n=64;rng=np.random.default_rng(340)
+    f=(rng.normal(size=(2,1,n,n))*.02).astype(dtype);f[...,np.arange(n),np.arange(n)]=2
+    if triangular:f=np.triu(f) if upper else np.tril(f)
+    selected=np.triu(f) if upper else np.tril(f);tr=lambda a:a.swapaxes(-1,-2)
+    a=tr(selected)@selected if upper else selected@tr(selected)
+    b=(rng.normal(size=(1,3,n,2))*.1).astype(dtype);db=(rng.normal(size=b.shape)*.03).astype(dtype);df=(rng.normal(size=f.shape)*.01).astype(dtype)
+    x=np.linalg.solve(a,b);product=tr(df)@f if upper else df@tr(f);da=product+tr(product);t=np.linalg.solve(a,db-da@x)
+    q=np.linalg.solve(a,.46*t);z=np.linalg.solve(a,.34*x-da@q)
+    def adjoint(left,right,multiplier):
+        common=left@tr(right)+right@tr(left)
+        return -(multiplier@common if upper else common@multiplier)
+    expected=(z,adjoint(z,x,f)+adjoint(q,t,f)+adjoint(q,x,df),q,adjoint(q,x,f))
+    args=tuple(torch.tensor(v,requires_grad=flag) for v,flag in zip((b,f,db,df),flags))
+    actual,tangent=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),args[:2],args[2:]);close(actual.numpy(),x,dtype);close(tangent.numpy(),t,dtype)
+    actual_gradients=torch.autograd.grad(.17*actual.square().sum()+.23*tangent.square().sum(),tuple(a for a in args if a.requires_grad))
+    for gradient,reference,arg in zip(actual_gradients,(v for v,flag in zip(expected,flags) if flag),(a for a in args if a.requires_grad)):
+        close(gradient.numpy(),reduce(reference,arg.shape),dtype)
+
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('direction_grad',[False,True])
+def test_narrow_tangent_direction_snapshot_and_lifetimes(upper,direction_grad):
+    f=torch.tensor(np.eye(65));b=torch.ones(65,2,dtype=torch.float64,requires_grad=True)
+    db=torch.full_like(b,.03);df=torch.full_like(f,.01,requires_grad=direction_grad)
+    df_array=weakref.ref(df._data);db_array=weakref.ref(db._data)
+    x,t=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),(b,f),(db,df))
+    # Only the saved coefficient direction is needed for dB; dDF does not
+    # depend on DF values. Native permits this source edit after forward.
+    with torch.no_grad():df.add_(.5);db.add_(.7)
+    gradients=torch.autograd.grad(t.sum(),(b,df) if direction_grad else (b,),retain_graph=True)
+    close(gradients[0].numpy(),np.full((65,2),-1.3))
+    del gradients,df,db;gc.collect();assert db_array() is None
+    assert (df_array() is not None)==direction_grad
+    values_array=weakref.ref(t._data);factor_array=weakref.ref(f._data)
+    loss=t.sum();del t,x,f;gc.collect();assert values_array() is None and factor_array() is not None
+    loss.backward();gc.collect();assert values_array() is factor_array() is None
+
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('disabled',[False,True])
+@pytest.mark.parametrize('shape',[(64,2),(0,64,2),(64,0)])
+def test_narrow_tangent_without_recorded_reverse(upper,disabled,shape):
+    import contextlib
+    f=torch.eye(64,dtype=torch.float64,requires_grad=disabled);b=torch.full(shape,.2,dtype=torch.float64,requires_grad=disabled)
+    db=torch.full_like(b,.03);df=torch.full_like(f,.01)
+    with torch.no_grad() if disabled else contextlib.nullcontext():
+        x,t=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),(b,f),(db,df))
+    close(x.numpy(),np.full(shape,.2));close(t.numpy(),np.full(shape,.03-2*.01*64*.2))
+    assert not x.requires_grad and not t.requires_grad

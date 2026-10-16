@@ -1,0 +1,3814 @@
+{
+  "status": "complete_local_core_and_application_gates_passed_main_adoption_pending",
+  "version": "0.34.0",
+  "baseline_main": "5779d3a1e36ba538bf33eea23eb4fed02c89369c",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "d50098a3c1612ca07b906a550706e1384fe58ac9bf1e4f4e724e021f2f279c08",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "ad3e1b3b6d210909ab21b79db2ab63793ae39a655596d890aea514bda7f6154f",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+    "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "standalone_test_hashes": {
+    "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+    "test_cholesky_solve.py": "50dd4c5dece9a406949ef0912598957763fc2446847280b4c4c7562c427df2b0",
+    "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+    "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+    "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+    "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+  },
+  "native_test_hashes": {
+    "test_torch_classification.py": "19cf93bb1afd2e1ed3d41856f3af26c14d7ff2bb178aea877e4707b75d37f76e",
+    "test_torch_nan_reductions.py": "38c389a42a326312114dd9451be4d545ab2ca570759eee8158c38e8c9e009e16",
+    "test_torch_mean.py": "cac51d9c31426b84da8f579e86852b6384cbe13a504a52cfcc1dbe097100fd19",
+    "test_torch_cholesky.py": "3750adc3d1a9201355f4c1073ad7dbde3f44a90afe0f4e60d54259d8a241171e",
+    "test_torch_batchnorm.py": "f12ddcfd8dc9fe273304e9b5dd31f717a1f41a61c8af6cb40d8b565a6f691388",
+    "test_torch_numpy_inputs.py": "80cbb33b4f1c88e910597a4bb25948dd2f4bd51129d751f121e7c4b250c604ab",
+    "test_torch_triangular.py": "e5c94a60ee79e60ff3093173d64abe17796a654205522b74f0f3a47cda013e39",
+    "test_torch_promotion.py": "ad2aa7259e3d44411571b66b654e2a562407b6fe8251f9618ef2eab3ccf41681",
+    "test_torch_graph_lifecycle.py": "5353e27e7584858d0851439e8ecff3099c4549b9ddfe3819393694145a6bc23e",
+    "test_torch_layout.py": "30d1b207c370cd49f9af8bae03e051a64924ae0e5043d5bdaf9e8d3a26b9a1e4",
+    "test_torch_arithmetic.py": "01d81d88df00ab1531320e1d347afe9f78854189b84e6144a9fdc7ed36128a5f",
+    "test_torch_ieee.py": "9eaf11ec3b7d6a197f6d7f2fb728d37c41232708900a38fac513e84ef0fa34c7",
+    "test_torch_nn_blocks.py": "4d575ebd244dfa1257acdbc3ef78a56b67555b0a67d9b6868d70deebf7588e4a",
+    "test_torch_groupnorm.py": "1e9aea2c5c333dcbf65c0bc98959c4d788cda38d501b76c7f625596ccdc2c9ae",
+    "test_torch_indexing.py": "15fc385d0a304075e4b25b888234af77059830227848f66f28396986ddcebce1",
+    "test_torch_grad_mode.py": "4e7172a8f2401b65cbf0e2ced4a82b3f6f469361879b85439393653f784c8472",
+    "test_torch_axis_transforms.py": "26979a38d6b1a2b40ae537da78548b9c38c6a1e9eb1b0e93cf3ed79886502ac5",
+    "test_torch_module_hooks.py": "86d4dda744002d7442767d7e62283d005a68fb14166ee5b9cd4aee2df849321d",
+    "test_torch_statistics.py": "41d6d1d6d4d5bd839d17a56206d5408645e269d573790902c088500f3ce93ce1",
+    "test_torch_convolution.py": "ae8cc0f07e4525922a2cb20731c9fc43ddc1dff3f9815d8129398d329ae3ac24",
+    "test_torch_gradient_layout.py": "ee4ccbc10272a1011e0dcd671545c8a9b5d9ad82b061af5a96a7c07d7cb7befe",
+    "test_torch_tensor_hooks.py": "1f628581360bfba9984c911cd558b74e5f762759cbeb3c10f2fd32d1e013aea5",
+    "test_torch_model_conversion.py": "801f1251aec3a4613bf164ed89b91fe4ab4d2aa6565fb7f598510d749d1f7437",
+    "test_torch_schedulers.py": "cc590cb167efc7cc352fa5f43ac18ba3169b35d1e614258836bc471b0925abf3",
+    "test_torch_runtime_kernels.py": "346caa072254dd65cab730db575ccb9be9e37a935bc20845c7c37a62a4870566",
+    "test_torch_optimizer_lifecycle.py": "f3062b539fc44f6f8339cae53056d912a610c0800b7292dad48b0899a2d5d7b0",
+    "test_torch_linalg_failures.py": "88839ae303566cafdc752cb83b7df0e6cce991fe09712fccb3d0fc1492005370",
+    "test_torch_shape_ops.py": "251aaee06b85150332b52ecdc9d04192f537da2c62d59f7e1e1eb1863c5487c3",
+    "test_torch_cholesky_solve.py": "769796e28664c72405fae7ca15ee1a5ea1e61ae5d71a0a0de0898de0b9e4b0e2",
+    "test_torch_serialization.py": "93645d53407fd4e394f7358cdfdb543c0acdc5319649bd4e580bfd9cbc533707",
+    "test_torch_module_lifecycle.py": "0fce9c352d14e24dd4ac767dacb75b06da105714879550944a68d45baf913bbe",
+    "test_torch_copy.py": "c7547370826a04052b4f48cd603385c5cbdb92053dcbab9e246351ffe432a7bf",
+    "test_torch_construction.py": "a4daf4138d21e631920b866646f3783bb019985ebf9098c48917ba90d5f03687",
+    "test_torch_solve.py": "6007d3d4cde762c534c6153146ad693be1a1240f207f3a8551780b2e1ae7834b"
+  },
+  "full_cpu": {
+    "exit_code": 0,
+    "elapsed_s": 258.92973337500007,
+    "passed": 32043,
+    "skipped": 1,
+    "warnings": 34,
+    "duration_s": 256.31,
+    "optional_skipped": 1
+  },
+  "focused_passed": 667,
+  "minimal_passed": 1451,
+  "minimal_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.34.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "d50098a3c1612ca07b906a550706e1384fe58ac9bf1e4f4e724e021f2f279c08",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "ad3e1b3b6d210909ab21b79db2ab63793ae39a655596d890aea514bda7f6154f",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 45,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.34.0-py3-none-any.whl": "fb66a529536a60ffc77e1c89104217fa94bf8e0c38ee9b6b821aa30461fa1f56",
+      "stridetorch-0.34.0.tar.gz": "e12988dd6f161d391047f1752e5260973cbb5dee43ff2567576fa99ae4cc2e23"
+    },
+    "receipts": {
+      "python310-stride034-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.10572900000261143,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/python310-stride034-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride034-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.22804491699207574,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/python310-stride034-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/dist-preflight/stridetorch-0.34.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride034-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 9.466995124996174,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/python310-stride034-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/python310-stride034-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "node_wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.34.0",
+    "numpy": "2.2.5",
+    "passed": 1439,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "ad3e1b3b6d210909ab21b79db2ab63793ae39a655596d890aea514bda7f6154f",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_cholesky.py": "d50098a3c1612ca07b906a550706e1384fe58ac9bf1e4f4e724e021f2f279c08",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835"
+    }
+  },
+  "actual_chrome_worker": {
+    "status": "success",
+    "library": "0.34.0",
+    "numpy": "2.2.5",
+    "passed": 1439,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "d50098a3c1612ca07b906a550706e1384fe58ac9bf1e4f4e724e021f2f279c08",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "ad3e1b3b6d210909ab21b79db2ab63793ae39a655596d890aea514bda7f6154f",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+      "test_cholesky_solve.py": "50dd4c5dece9a406949ef0912598957763fc2446847280b4c4c7562c427df2b0",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+      "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "d7cc471de4a30af7d0764c344a70617d93dac98733e258bcf613ebe16da8f980",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "a60f5a1fd235426cb55265e011ba2de0ce85d052322c83c2d5d7fce5f623d5dd"
+    }
+  },
+  "coinstall": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "d50098a3c1612ca07b906a550706e1384fe58ac9bf1e4f4e724e021f2f279c08",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "ad3e1b3b6d210909ab21b79db2ab63793ae39a655596d890aea514bda7f6154f",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.34.0-py3-none-any.whl": "fb66a529536a60ffc77e1c89104217fa94bf8e0c38ee9b6b821aa30461fa1f56",
+      "paperleet-0.1.0-py3-none-any.whl": "93286c0b301662cb1162bb67c970def7635b2f81df5d3fb42eb268bf6e540504"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.11319658299908042
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/dist-preflight/stridetorch-0.34.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.19218287500552833
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.34.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.0957963750115596
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.017440333002014086
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.34.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.12908441699983086
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.01997999999730382
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013567165995482355
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.34.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.2203973750001751
+      }
+    ],
+    "scope": "ZIP checkpoint alias/shared-storage/model-optimizer-scheduler resume verified in each namespace. Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP,matrix views and batched right-solve VJP/JVP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "gate_receipts": {
+    "build-public": {
+      "exit_code": 0,
+      "elapsed_s": 1.3392619590013055,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/dist-preflight"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch"
+    },
+    "build-private": {
+      "exit_code": 0,
+      "elapsed_s": 1.4669569590041647,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/private-dist"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "chrome-worker": {
+      "exit_code": 0,
+      "elapsed_s": 14.969511083007092,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/chrome-contracts/run.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "node-wasm": {
+      "exit_code": 0,
+      "elapsed_s": 15.875443999990239,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/wasm-contracts.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "coinstall": {
+      "exit_code": 0,
+      "elapsed_s": 3.8446591249958146,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/check-coinstall.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "minimal-wheel": {
+      "exit_code": 0,
+      "elapsed_s": 9.950558167009149,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/proof/check-wheel.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    }
+  },
+  "initial_performance": {
+    "scope": "16sequential paired children after local heavy gates;2dtypes and2fresh processes/runtime/lane;previous fused and old composition lanes separated;GC enabled;all numerical/state assertions passed;shared host;effective vendor threads unverified;no cloud CI run or cross-runtime throughput claim.",
+    "summary": {
+      "previous/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            -1.8561279177404355,
+            0.07631906527345578,
+            0.7489656831083713,
+            0.1550598642021006
+          ],
+          "baseline_median_us": [
+            63.00415989244357,
+            61.68833002448082,
+            62.865419895388186,
+            60.99291000282392
+          ],
+          "candidate_median_us": [
+            63.88458001310937,
+            61.64125006762333,
+            61.23498998931609,
+            61.17541983257979
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            -0.7570024328612313,
+            0.24088698290167798,
+            -0.5559338987286555,
+            0.05296908699503611
+          ],
+          "baseline_median_us": [
+            90.90624997043051,
+            87.59832999203354,
+            88.48874014802277,
+            83.73958000447601
+          ],
+          "candidate_median_us": [
+            90.73250999790616,
+            87.48624997679144,
+            88.48500991007313,
+            83.97582991165109
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            -0.40453759083298735,
+            0.20387519792607334,
+            -0.45667448118809073,
+            -0.21020837070300225
+          ],
+          "baseline_median_us": [
+            299.8984373334679,
+            295.75787448266055,
+            290.96356229274534,
+            288.2968756239279
+          ],
+          "candidate_median_us": [
+            302.0572494278895,
+            295.0520620288444,
+            294.66668820532504,
+            288.41143830504734
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            0.2108490151359943,
+            -0.8707889839400629,
+            0.3273965910582044,
+            -0.47655820331040655
+          ],
+          "baseline_median_us": [
+            623.5414984985255,
+            608.291506068781,
+            609.27100275876,
+            603.6879931343719
+          ],
+          "candidate_median_us": [
+            621.958497504238,
+            611.6665026638657,
+            611.4999996498227,
+            606.1879976186901
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            0.5344838184197176,
+            -0.18311203494518757,
+            0.027800442656722435,
+            0.161733758193372
+          ],
+          "baseline_median_us": [
+            623.7499983399175,
+            613.0630063125864,
+            599.7914995532483,
+            605.3124961908907
+          ],
+          "candidate_median_us": [
+            624.0630027605221,
+            615.7915049698204,
+            602.8959978721105,
+            602.2710003890097
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            0.5816812841499819,
+            0.04902999625111537,
+            -0.49643326536628063,
+            0.25323080923664865
+          ],
+          "baseline_median_us": [
+            1072.2914958023466,
+            1062.6044968375936,
+            1187.2504983330145,
+            1182.3959939647466
+          ],
+          "candidate_median_us": [
+            1071.874998160638,
+            1061.4165003062226,
+            1172.3745046765544,
+            1177.8745029005222
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            -1.6033127060743224,
+            0.19970625559773136,
+            -0.4611467800454072,
+            -0.17364606314920206
+          ],
+          "baseline_median_us": [
+            279.5208747556899,
+            280.2863746182993,
+            274.42456212156685,
+            278.3593745334656
+          ],
+          "candidate_median_us": [
+            288.8593744501122,
+            280.64062462362926,
+            281.3177497955621,
+            280.90624982723966
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            -2.030894966394059,
+            0.519499944798596,
+            -0.22728330626227145,
+            0.254885066822097
+          ],
+          "baseline_median_us": [
+            80.48624993534759,
+            76.91624996368773,
+            76.2616700376384,
+            73.56249989243224
+          ],
+          "candidate_median_us": [
+            84.63165984721854,
+            76.51667008758523,
+            76.40209005330689,
+            73.83167001535185
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            14.046603522883593,
+            14.234315903963157,
+            15.99807993279464,
+            14.55256813026704
+          ],
+          "baseline_median_us": [
+            349.16649747174233,
+            337.8750043339096,
+            342.4789974815212,
+            342.1454966883175
+          ],
+          "candidate_median_us": [
+            299.0620050695725,
+            290.5625005951151,
+            290.02100200159475,
+            291.9375037890859
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            12.117731123145003,
+            10.52202829678841,
+            11.802075276846702,
+            11.140235982792369
+          ],
+          "baseline_median_us": [
+            542.7733740361873,
+            515.4999998921994,
+            524.8021252555191,
+            508.8489369882154
+          ],
+          "candidate_median_us": [
+            478.7526258951402,
+            460.97393806121545,
+            461.1145632225089,
+            458.0546865327051
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            13.776540125044978,
+            11.684288032120183,
+            13.992834848840097,
+            13.82411693642963
+          ],
+          "baseline_median_us": [
+            418.72900328598917,
+            400.99999750964344,
+            417.29200165718794,
+            415.1875036768615
+          ],
+          "candidate_median_us": [
+            352.3539999150671,
+            354.5420040609315,
+            361.66700738249347,
+            357.85399813903496
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            9.68471973266113,
+            8.193038946904895,
+            6.984605477831963,
+            7.563757595833886
+          ],
+          "baseline_median_us": [
+            922.4170062225312,
+            889.4790007616393,
+            913.9169997069985,
+            941.7080073035322
+          ],
+          "candidate_median_us": [
+            821.916495624464,
+            818.833002995234,
+            858.3954986534081,
+            872.874996275641
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            9.097060249946265,
+            6.994579558081626,
+            10.278567462101229,
+            8.737468814189963
+          ],
+          "baseline_median_us": [
+            647.6692506112158,
+            607.1588759368751,
+            645.960936708434,
+            610.7447497925023
+          ],
+          "candidate_median_us": [
+            597.70056304842,
+            563.6953119392274,
+            570.6041865778388,
+            558.2551875704667
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            2.3277407646547066,
+            2.26626235627172,
+            2.570029971859056,
+            2.226522119801133
+          ],
+          "baseline_median_us": [
+            47.39458003314212,
+            43.18749997764826,
+            43.15707992645912,
+            40.39498991915025
+          ],
+          "candidate_median_us": [
+            46.23790999175981,
+            42.64541988959536,
+            41.077089990722016,
+            39.711249992251396
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -0.15632686090973902,
+            -0.003111364015673246,
+            0.9608122557365428,
+            0.278196041371348
+          ],
+          "baseline_median_us": [
+            70.80749986926094,
+            67.79541989089921,
+            67.47833002009429,
+            63.79168000421487
+          ],
+          "candidate_median_us": [
+            71.80456988862716,
+            67.88084006984718,
+            67.24916005623527,
+            63.82417006534524
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            0.9930202491944096,
+            0.5117504852936272,
+            -1.525858240496647,
+            -1.244233068228251
+          ],
+          "baseline_median_us": [
+            31.822079909034073,
+            29.25750013673678,
+            30.703750089742243,
+            28.91707990784198
+          ],
+          "candidate_median_us": [
+            31.51500000967644,
+            29.10291004809551,
+            30.467920150840655,
+            29.007499833824113
+          ]
+        }
+      },
+      "previous/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            2.9091447137329696,
+            -1.456009065683661,
+            -0.37753456797304796,
+            -0.3162041696526119
+          ],
+          "baseline_median_us": [
+            146.0145800000001,
+            128.2904099999982,
+            125.48291999999961,
+            128.94457999999884
+          ],
+          "candidate_median_us": [
+            141.22833000000057,
+            131.68708000000026,
+            127.2883299999994,
+            131.39916999999946
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            -1.0092584247818337,
+            0.06353954181562704,
+            0.6513974907865538,
+            0.5488154835939674
+          ],
+          "baseline_median_us": [
+            165.7158400000025,
+            154.6095800000025,
+            149.3745800000035,
+            145.89583999999877
+          ],
+          "candidate_median_us": [
+            167.89791999999971,
+            154.88625000000144,
+            147.7874999999984,
+            146.62041000000238
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            -6.524354331838311,
+            0.009886373141376747,
+            0.9692889715809394,
+            0.3187752672849764
+          ],
+          "baseline_median_us": [
+            451.11456249999344,
+            396.17449999998496,
+            380.7813124999948,
+            380.69531249998454
+          ],
+          "candidate_median_us": [
+            470.9478750000162,
+            397.9739999999954,
+            379.1119375000096,
+            379.5703125000216
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            0.13251512529567355,
+            -3.7267088459636e-05,
+            0.348042951366756,
+            0.3336985266291781
+          ],
+          "baseline_median_us": [
+            1480.249999999961,
+            1362.4995000001138,
+            1334.3124999998236,
+            1327.6454999997522
+          ],
+          "candidate_median_us": [
+            1463.5205000002038,
+            1377.1460000002733,
+            1342.2500000002112,
+            1320.1250000001164
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            -0.2123425339932261,
+            -0.7898965434852467,
+            -0.025069788856435515,
+            -0.48756369125939614
+          ],
+          "baseline_median_us": [
+            1521.4584999998506,
+            1377.6455000000797,
+            1328.9794999999938,
+            1324.7499999999857
+          ],
+          "candidate_median_us": [
+            1524.4585000000475,
+            1376.6875000000846,
+            1333.7500000001335,
+            1330.5624999999654
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            0.25112140686675,
+            0.06073050060751983,
+            0.23027648670415068,
+            0.25909079617796316
+          ],
+          "baseline_median_us": [
+            19398.791500000014,
+            18028.24999999997,
+            22011.583000000057,
+            21882.999999999876
+          ],
+          "candidate_median_us": [
+            19638.271500000083,
+            18011.146000000088,
+            21943.2504999999,
+            21848.479500000016
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            0.42429418055309753,
+            0.25631153697839304,
+            -0.3220431485025488,
+            0.043236662459822384
+          ],
+          "baseline_median_us": [
+            1093.5234375000214,
+            1085.8281875000264,
+            1061.867249999987,
+            1056.489562499985
+          ],
+          "candidate_median_us": [
+            1080.6301875000145,
+            1081.8255624999995,
+            1066.6874999999964,
+            1062.3020625000202
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            0.2652439594050038,
+            -0.27365301407402676,
+            0.3142990406293955,
+            -0.14499412906254783
+          ],
+          "baseline_median_us": [
+            138.52123999999577,
+            137.1883299999954,
+            134.1087499999949,
+            133.82374999999945
+          ],
+          "candidate_median_us": [
+            137.6799999999978,
+            136.63334000000305,
+            135.47041999999897,
+            134.48834000000076
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            15.05590944321752,
+            15.361088849680538,
+            14.779060664390798,
+            15.32945133081628
+          ],
+          "baseline_median_us": [
+            673.2290000002195,
+            673.7290000000673,
+            677.3960000003854,
+            653.1254999999625
+          ],
+          "candidate_median_us": [
+            575.6875000000327,
+            571.749999999982,
+            574.5420000002888,
+            553.916499999918
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            9.081597835661881,
+            8.864510539953141,
+            10.102798865654773,
+            10.152649381478474
+          ],
+          "baseline_median_us": [
+            927.2136249999785,
+            911.4531250000168,
+            881.7916249999614,
+            895.1641250000141
+          ],
+          "candidate_median_us": [
+            844.9375624999811,
+            829.7526250000132,
+            804.0911875000222,
+            796.7786250000497
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            4.8168845503112845,
+            5.004874745647792,
+            5.500921356459331,
+            5.57042376040775
+          ],
+          "baseline_median_us": [
+            2012.9380000004637,
+            1973.0830000002088,
+            1979.6040000001904,
+            1997.4579999999519
+          ],
+          "candidate_median_us": [
+            1894.3539999995985,
+            1868.2709999997548,
+            1881.437000000208,
+            1890.6035000001432
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            -24.89374199298493,
+            -23.00208431219286,
+            -23.382590136097402,
+            -20.83176031330285
+          ],
+          "baseline_median_us": [
+            5414.916499999922,
+            5623.1044999996975,
+            5446.624999999816,
+            5458.957999999737
+          ],
+          "candidate_median_us": [
+            6826.604500000056,
+            15591.58350000045,
+            6706.437500000106,
+            6613.854499999849
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            3.747628987494822,
+            4.052215018451177,
+            5.11855797738413,
+            3.965994345360102
+          ],
+          "baseline_median_us": [
+            1124.9479375000092,
+            1102.2161249999995,
+            1097.1353750000023,
+            1086.804624999993
+          ],
+          "candidate_median_us": [
+            1078.9115000000015,
+            1057.5624999999977,
+            1051.4661250000668,
+            1042.2188124999398
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -0.01856937169955053,
+            -0.41243791330156654,
+            0.799968077278912,
+            1.1538440893545499
+          ],
+          "baseline_median_us": [
+            87.07083000000003,
+            85.06249999999937,
+            83.23707999999819,
+            81.52582999999325
+          ],
+          "candidate_median_us": [
+            86.83042000000363,
+            85.41333000000151,
+            83.03249999999096,
+            80.78000000000252
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            0.30607736864175505,
+            -1.2602173146209372,
+            -0.8636787745616381,
+            1.2978923258471498
+          ],
+          "baseline_median_us": [
+            134.22749999999263,
+            133.9270900000056,
+            130.88751000000622,
+            128.5004100000009
+          ],
+          "candidate_median_us": [
+            135.28792000000678,
+            133.51749999999996,
+            132.11166000000497,
+            128.04832999999684
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            1.1051579000257772,
+            -1.4831079797954505,
+            2.7320751859783554,
+            -1.6899003137339053
+          ],
+          "baseline_median_us": [
+            66.86915999999599,
+            64.83916000000534,
+            66.64916000000076,
+            62.94750000000349
+          ],
+          "candidate_median_us": [
+            66.99333000000252,
+            65.68624999999884,
+            65.41375000000293,
+            64.0112499999912
+          ]
+        }
+      },
+      "composition/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            20.58708386391145,
+            20.14050175771547,
+            20.873635885455897,
+            20.41402506427179
+          ],
+          "baseline_median_us": [
+            77.62167006148957,
+            77.38792002783157,
+            75.64041006844491,
+            75.28292000642978
+          ],
+          "candidate_median_us": [
+            61.21458995039575,
+            62.01084004715085,
+            59.88250006339513,
+            60.247080109547824
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            10.997425552843698,
+            10.183164192819405,
+            15.435406984989974,
+            15.708234446362667
+          ],
+          "baseline_median_us": [
+            96.5350000478793,
+            96.9237499521114,
+            99.68667014618404,
+            98.34541007876396
+          ],
+          "candidate_median_us": [
+            86.59958009957336,
+            87.0729198504705,
+            84.42999998806044,
+            83.26583993039094
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            4.641705746456914,
+            5.093254403241754,
+            4.504758522900998,
+            4.664915913951029
+          ],
+          "baseline_median_us": [
+            308.67449913785094,
+            309.4869998676586,
+            302.83331307146,
+            301.0598120454233
+          ],
+          "candidate_median_us": [
+            294.9791251012357,
+            294.3411254818784,
+            287.7551878555096,
+            287.0156249628053
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            8.514983088663353,
+            8.529051195797365,
+            9.344537024733102,
+            10.125261952730336
+          ],
+          "baseline_median_us": [
+            664.6664915024303,
+            663.6670004809275,
+            673.5209972248413,
+            683.8545014034025
+          ],
+          "candidate_median_us": [
+            607.0415038266219,
+            612.3749990365468,
+            609.7290024627,
+            616.3750003906898
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            8.285875787574625,
+            8.622727702974931,
+            8.945578321840674,
+            8.753034694571582
+          ],
+          "baseline_median_us": [
+            672.0835008309223,
+            663.9165076194331,
+            673.4790076734498,
+            666.4375032414682
+          ],
+          "candidate_median_us": [
+            616.395496763289,
+            607.5414930819534,
+            612.1875048847869,
+            608.1039973651059
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            11.207845154122264,
+            10.590477532539587,
+            12.084319594100734,
+            12.184655461507587
+          ],
+          "baseline_median_us": [
+            1181.7080012406223,
+            1190.0625031557865,
+            1320.749994192738,
+            1325.4375007818453
+          ],
+          "candidate_median_us": [
+            1046.625002345536,
+            1064.562500687316,
+            1163.5205009952188,
+            1166.875495982822
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            3.534228182012644,
+            3.7256044706200364,
+            3.3054516797968003,
+            3.4989509288549714
+          ],
+          "baseline_median_us": [
+            287.0729376809322,
+            293.22925001906697,
+            289.3046257668175,
+            289.55474954273086
+          ],
+          "candidate_median_us": [
+            277.2395628198865,
+            281.330811958469,
+            279.9608746499871,
+            279.6718754325411
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            15.597455974062713,
+            15.924838087917903,
+            17.262654781000297,
+            16.38490280689142
+          ],
+          "baseline_median_us": [
+            89.87582987174392,
+            90.17375006806105,
+            90.2541600225959,
+            89.33958000852726
+          ],
+          "candidate_median_us": [
+            75.21416002418846,
+            76.2075099919457,
+            74.60668013663962,
+            74.40415996825323
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            12.19174925744534,
+            12.089473087606617,
+            11.559452451541397,
+            11.263244538441008
+          ],
+          "baseline_median_us": [
+            337.1459970367141,
+            329.2920009698719,
+            328.91699811443686,
+            330.75000101234764
+          ],
+          "candidate_median_us": [
+            297.7500043925829,
+            290.10400612605736,
+            293.43750793486834,
+            291.8329992098734
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            14.846826278622427,
+            14.36882476836594,
+            15.717653310180902,
+            15.563953512487828
+          ],
+          "baseline_median_us": [
+            535.3488741093315,
+            530.8775616867933,
+            533.7813117876067,
+            538.9556881709723
+          ],
+          "candidate_median_us": [
+            458.06768775946693,
+            451.9296880971524,
+            447.97656209993875,
+            455.4661873044097
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            12.745073167563525,
+            12.354304520621916,
+            12.169269207250045,
+            12.085830772821337
+          ],
+          "baseline_median_us": [
+            408.2494997419417,
+            405.72899888502434,
+            406.0835053678602,
+            407.31250192038715
+          ],
+          "candidate_median_us": [
+            357.4579968699254,
+            355.6040028342977,
+            360.2290089474991,
+            359.6665046643466
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            13.478456186928378,
+            13.457937477863801,
+            11.994792190280812,
+            11.462950496253555
+          ],
+          "baseline_median_us": [
+            955.5619981256314,
+            948.2295063207857,
+            961.1880013835616,
+            975.6040017236955
+          ],
+          "candidate_median_us": [
+            826.3330018962733,
+            814.4374951370992,
+            851.7914975527674,
+            868.9165042596869
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            12.193798437568304,
+            12.146758910612665,
+            14.549691284536648,
+            14.735851759075624
+          ],
+          "baseline_median_us": [
+            641.6511250790791,
+            652.3099373225705,
+            655.1979377036332,
+            655.0781245096005
+          ],
+          "candidate_median_us": [
+            563.382813197677,
+            579.2812498839339,
+            556.7161251747166,
+            555.7681870413944
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            0.7983730198441896,
+            -0.5247981218005737,
+            -2.02149386500996,
+            0.601777124953351
+          ],
+          "baseline_median_us": [
+            44.044170062989,
+            43.47541005699895,
+            40.28251001727767,
+            40.60209001181647
+          ],
+          "candidate_median_us": [
+            44.083749962737784,
+            43.57750003691763,
+            40.884159971028566,
+            40.27707997011021
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -0.6097714937531862,
+            -1.1266944494831899,
+            -0.6701741590873667,
+            -1.2419122771562652
+          ],
+          "baseline_median_us": [
+            66.86874010483734,
+            66.7529100610409,
+            64.21582991606556,
+            64.19500001356937
+          ],
+          "candidate_median_us": [
+            67.4708400038071,
+            67.30124994646758,
+            64.38124997657724,
+            65.4279200534802
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            1.2965195986204825,
+            0.8858514302005016,
+            -0.7167616902870044,
+            0.26906642062782815
+          ],
+          "baseline_median_us": [
+            29.459170036716387,
+            29.823330114595592,
+            28.61582994228229,
+            28.65083995857276
+          ],
+          "candidate_median_us": [
+            29.32499992311932,
+            29.61207996122539,
+            28.59166997950524,
+            28.794589889002964
+          ]
+        }
+      },
+      "composition/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            20.743410828953422,
+            20.812156688284478,
+            20.295629513340685,
+            19.780252778034047
+          ],
+          "baseline_median_us": [
+            166.51084000000037,
+            160.70291999999765,
+            173.25459000000265,
+            160.02832000000078
+          ],
+          "candidate_median_us": [
+            130.40958000000157,
+            127.63751000000045,
+            140.0458299999996,
+            129.90000999999918
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            16.035732428986847,
+            16.636438031092695,
+            16.50956191353793,
+            17.138567077649935
+          ],
+          "baseline_median_us": [
+            187.27043000000162,
+            187.94458000000347,
+            176.2420900000006,
+            177.77250999999825
+          ],
+          "candidate_median_us": [
+            157.64750000000214,
+            156.4616799999996,
+            147.1870899999983,
+            147.4491599999972
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            5.87576452401245,
+            3.5017488583120038,
+            6.6569437783599135,
+            7.5341981761024135
+          ],
+          "baseline_median_us": [
+            432.7447500000192,
+            439.67974999997716,
+            413.37237499999844,
+            411.28381249996846
+          ],
+          "candidate_median_us": [
+            409.30462499999544,
+            418.8880000000062,
+            387.8333125000022,
+            381.48181250000084
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            6.864670048065202,
+            6.382404547926901,
+            7.474202462085621,
+            7.268075804141438
+          ],
+          "baseline_median_us": [
+            1459.16700000015,
+            1444.9999999999186,
+            1477.5000000000205,
+            1429.125000000031
+          ],
+          "candidate_median_us": [
+            1367.2289999999698,
+            1357.708000000013,
+            1365.5834999999338,
+            1338.7295000000245
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            8.101498094910454,
+            9.078560484255227,
+            6.434231805553936,
+            6.599585487610438
+          ],
+          "baseline_median_us": [
+            1516.9164999999653,
+            1505.4999999997153,
+            1424.4375000000975,
+            1432.5414999998288
+          ],
+          "candidate_median_us": [
+            1383.6664999999916,
+            1373.8124999997935,
+            1323.603999999756,
+            1342.8545000000458
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            4.766057335959584,
+            4.994976783593119,
+            28.015222258553795,
+            27.87223929483188
+          ],
+          "baseline_median_us": [
+            19160.187499999814,
+            18899.667000000118,
+            30008.687500000073,
+            30093.979500000147
+          ],
+          "candidate_median_us": [
+            18205.00000000003,
+            17923.60449999997,
+            21601.6870000002,
+            21678.16700000014
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            1.2710712539648616,
+            0.7026789865169247,
+            0.9562473040612529,
+            0.8907236962124254
+          ],
+          "baseline_median_us": [
+            1097.406250000016,
+            1090.624999999984,
+            1073.7473749999895,
+            1066.6197499999973
+          ],
+          "candidate_median_us": [
+            1084.0754999999758,
+            1079.0573125000203,
+            1059.2786250000208,
+            1063.817687499968
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            21.197256087117744,
+            22.570592281737078,
+            22.65801986974075,
+            21.75799845012528
+          ],
+          "baseline_median_us": [
+            180.2962500000005,
+            177.10541000000023,
+            176.68458000000163,
+            172.8766700000062
+          ],
+          "candidate_median_us": [
+            141.77624999999858,
+            137.30833999999527,
+            138.3345799999969,
+            134.5204099999986
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -0.22337656501425496,
+            0.4555601430487166,
+            0.8471247038562502,
+            -0.15686675481596524
+          ],
+          "baseline_median_us": [
+            584.9795000001379,
+            571.6040000001143,
+            576.0629999995715,
+            567.3539999997423
+          ],
+          "candidate_median_us": [
+            587.5829999999471,
+            571.3339999999789,
+            575.4585000001811,
+            564.8959999997594
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            9.843874540998831,
+            9.423655377450213,
+            10.292517914041854,
+            9.867960433681766
+          ],
+          "baseline_median_us": [
+            934.3619374999612,
+            918.8098750000373,
+            929.3255625000274,
+            883.5156249999976
+          ],
+          "candidate_median_us": [
+            842.7135625000415,
+            829.5052500000288,
+            838.4843750000036,
+            793.6223750000249
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            -27.62095080797664,
+            -25.732672567943006,
+            -25.29556289207595,
+            -28.87407034830676
+          ],
+          "baseline_median_us": [
+            1488.2914999994057,
+            1504.353500000555,
+            1598.4165000002547,
+            1456.4790000002326
+          ],
+          "candidate_median_us": [
+            1907.8544999997505,
+            1877.18700000028,
+            1973.707999999519,
+            1878.1249999992865
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            -53.72271368936259,
+            -54.76070011619145,
+            -55.807393949627105,
+            -56.068252473251334
+          ],
+          "baseline_median_us": [
+            4288.645999999563,
+            4243.229500000112,
+            4966.333500000086,
+            4277.249999999899
+          ],
+          "candidate_median_us": [
+            6549.853999999745,
+            6562.458500000368,
+            7732.916499999743,
+            6596.3125000001455
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            1.1579899338290622,
+            1.877369103668991,
+            -0.9411312678740069,
+            1.3374154331295185
+          ],
+          "baseline_median_us": [
+            1102.4452499999727,
+            1099.8542499999764,
+            1195.0833125000115,
+            1052.3827499999693
+          ],
+          "candidate_median_us": [
+            1084.1640625000036,
+            1070.4869999999532,
+            1181.1589374999821,
+            1035.3281250000123
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -1.9765302680728292,
+            -2.623612548945209,
+            -2.014014094144323,
+            -2.719045237822937
+          ],
+          "baseline_median_us": [
+            85.76915999999989,
+            85.34375999999178,
+            85.99624999999556,
+            79.66166000000108
+          ],
+          "candidate_median_us": [
+            87.55916999999336,
+            87.65624999999666,
+            87.42167999999495,
+            81.85373999999968
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -4.318617445029416,
+            -2.735625170134015,
+            -1.553044590854502,
+            -4.806750939270188
+          ],
+          "baseline_median_us": [
+            133.21250000000617,
+            131.19665999999697,
+            125.95751000000098,
+            124.13583000000727
+          ],
+          "candidate_median_us": [
+            137.89457999999755,
+            134.04582999999803,
+            129.27667000000474,
+            130.26916000000278
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            -0.6259061155674317,
+            0.9877287468617602,
+            0.024893753655852446,
+            -0.254679540779601
+          ],
+          "baseline_median_us": [
+            66.83750000000543,
+            66.41166999999726,
+            65.23209000000918,
+            63.80250000000309
+          ],
+          "candidate_median_us": [
+            67.25583999999785,
+            66.05541999999076,
+            64.87833000000442,
+            64.6374999999999
+          ]
+        }
+      }
+    },
+    "source_footprint": {
+      "previous_033": {
+        "raw_bytes": 512093,
+        "local_gzip_estimate_bytes": 120643
+      },
+      "candidate_034": {
+        "raw_bytes": 514976,
+        "local_gzip_estimate_bytes": 121416
+      }
+    },
+    "receipts": {
+      "previous-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.734816292009782,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.6260009170073317,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.72663212500629,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.562088124992442,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.622997083002701,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.4872441250045085,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.6203812500025379,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.5510551670013228,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.6314037089905469,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.6160847910068696,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.53140429200721,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.973591875008424,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.59877820899419,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.695238165993942,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.685104499993031,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.6145340409857454,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      }
+    }
+  },
+  "final_performance": {
+    "scope": "16sequential paired children after local heavy gates;2dtypes and2fresh processes/runtime/lane;previous fused and old composition lanes separated;GC enabled;all numerical/state assertions passed;shared host;effective vendor threads unverified;no cloud CI run or cross-runtime throughput claim.",
+    "summary": {
+      "previous/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            0.43702778586698354,
+            2.5908767426931045,
+            1.332102851791661,
+            -1.1929747399366697
+          ],
+          "baseline_median_us": [
+            82.64208008768037,
+            89.3195801472757,
+            80.41207984206267,
+            79.47457997943275
+          ],
+          "candidate_median_us": [
+            81.6800000029616,
+            88.42915995046496,
+            79.75542001076974,
+            81.17458986816928
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            0.06057124229501554,
+            0.9143115728068696,
+            -0.29804315311152685,
+            -1.2951559643287647
+          ],
+          "baseline_median_us": [
+            106.25166003592312,
+            123.71958990115672,
+            116.69123996398412,
+            116.58750008791685
+          ],
+          "candidate_median_us": [
+            106.44125010003336,
+            123.04124014917761,
+            117.69999997341074,
+            117.1837501169648
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            0.4463571053782034,
+            -1.1652823074780327,
+            0.3056629336531058,
+            1.665800627437264e-05
+          ],
+          "baseline_median_us": [
+            324.8333114242996,
+            378.09893728990573,
+            384.8254991680733,
+            398.16400112613337
+          ],
+          "candidate_median_us": [
+            323.2734998164233,
+            380.4531252171728,
+            382.130187972507,
+            391.19793746067444
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            -0.5734662986504047,
+            1.4013490834133058,
+            0.1340274216398485,
+            0.8429108091299153
+          ],
+          "baseline_median_us": [
+            711.1875020200387,
+            777.8545041219331,
+            815.6039984896779,
+            813.5624957503751
+          ],
+          "candidate_median_us": [
+            741.583491617348,
+            797.6874985615723,
+            814.0829959302209,
+            808.9580005616881
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            -0.03049557907217615,
+            1.1440610329933598,
+            -0.39997954744486197,
+            -0.1582280850585649
+          ],
+          "baseline_median_us": [
+            684.5414973213337,
+            783.8120000087656,
+            829.4790022773668,
+            813.6874967021868
+          ],
+          "candidate_median_us": [
+            684.7500044386834,
+            775.2914971206337,
+            828.2499984488823,
+            817.5210023182444
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            -0.5906860985523288,
+            -0.26035655688323445,
+            -0.4886772544911322,
+            0.3080880434847
+          ],
+          "baseline_median_us": [
+            1286.5620010416023,
+            1348.5625022440217,
+            1591.6250049485825,
+            1603.5630033002235
+          ],
+          "candidate_median_us": [
+            1322.8335010353476,
+            1337.6870047068223,
+            1628.5625024465844,
+            1604.3124996940605
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            -1.5078583562448067,
+            0.13155091310214084,
+            -0.36087265435627014,
+            -0.5057307351309825
+          ],
+          "baseline_median_us": [
+            358.1901246434427,
+            358.06774940283503,
+            352.71875003672903,
+            350.6562488837517
+          ],
+          "candidate_median_us": [
+            363.59112436912255,
+            357.80212510871934,
+            355.1328118192032,
+            348.8125621515792
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            -0.2870483583644168,
+            0.23462898428097123,
+            -0.027842949621281754,
+            0.17190617733817692
+          ],
+          "baseline_median_us": [
+            99.32832981576212,
+            104.34665993670933,
+            97.87832997972146,
+            96.37331997510046
+          ],
+          "candidate_median_us": [
+            98.97249983623624,
+            103.5720799700357,
+            97.89042000193149,
+            100.20332993008196
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            14.39907657114855,
+            14.950371073599412,
+            15.559775502035688,
+            17.288616108557065
+          ],
+          "baseline_median_us": [
+            438.54200339410454,
+            469.000508019235,
+            437.93750228360295,
+            429.77101111318916
+          ],
+          "candidate_median_us": [
+            375.39600452873856,
+            402.66650466946885,
+            366.5415060822852,
+            358.68749546352774
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            14.707120710348176,
+            11.42989082168494,
+            12.05270788834818,
+            12.599123110409716
+          ],
+          "baseline_median_us": [
+            683.8541876277304,
+            662.3099370699492,
+            710.3255002220976,
+            655.4270630658721
+          ],
+          "candidate_median_us": [
+            582.0676869916497,
+            581.4114374516066,
+            629.2890620898106,
+            572.8490004912601
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            15.214156360556819,
+            13.450492879737618,
+            13.584752166474367,
+            14.173753835972969
+          ],
+          "baseline_median_us": [
+            565.1250030496158,
+            516.1044973647222,
+            572.8544929297641,
+            520.9169976296835
+          ],
+          "candidate_median_us": [
+            489.7914914181456,
+            448.14599823439494,
+            496.2914972566068,
+            449.4585009524599
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            9.344311005327521,
+            13.271982731638643,
+            7.38758177989427,
+            11.624920406783602
+          ],
+          "baseline_median_us": [
+            1232.416499988176,
+            1188.333502796013,
+            1403.791997290682,
+            1258.8960016728379
+          ],
+          "candidate_median_us": [
+            1110.9585029771551,
+            1033.2704987376928,
+            1295.0835007359274,
+            1129.9164980300702
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            9.231642407659123,
+            10.249235671515533,
+            11.302433823114145,
+            12.025949674139191
+          ],
+          "baseline_median_us": [
+            808.0521247393335,
+            817.8411253538798,
+            891.335937922122,
+            805.7682498474605
+          ],
+          "candidate_median_us": [
+            738.9661877823528,
+            779.1120006004348,
+            779.5937490300275,
+            709.2995001585223
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            0.9783945895540991,
+            0.7622099517853975,
+            1.6922856453938984,
+            0.1469403927260471
+          ],
+          "baseline_median_us": [
+            62.335420079762116,
+            62.79082997934893,
+            58.87542007258162,
+            53.58623981010169
+          ],
+          "candidate_median_us": [
+            61.5862499398645,
+            61.834170046495274,
+            58.37415999849327,
+            53.11291999532841
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -0.7736299701759375,
+            -1.0466972242539896,
+            -1.4568197471889643,
+            -0.007786578519430876
+          ],
+          "baseline_median_us": [
+            97.52084020874463,
+            98.5162598954048,
+            93.9270899107214,
+            86.22041990747675
+          ],
+          "candidate_median_us": [
+            98.1383299222216,
+            96.99208007077686,
+            93.19124990724958,
+            91.5291698765941
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            2.412970429253336,
+            -1.5675760526736138,
+            1.8336676636711347,
+            1.7611812647274183
+          ],
+          "baseline_median_us": [
+            43.7916700320784,
+            41.75873997155577,
+            41.18625016417354,
+            40.91626004083082
+          ],
+          "candidate_median_us": [
+            42.40541995386593,
+            42.41333997924812,
+            40.87624998646788,
+            40.68001013365574
+          ]
+        }
+      },
+      "previous/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            0.9064689258466818,
+            2.526387688649545,
+            -1.7519497547109575,
+            1.2390418842554762
+          ],
+          "baseline_median_us": [
+            236.26041999999626,
+            190.18208999999953,
+            194.6758400000004,
+            191.89042000000268
+          ],
+          "candidate_median_us": [
+            238.67875000000538,
+            197.13833000000403,
+            198.90000000000185,
+            183.74416999999977
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            0.33306760947016123,
+            -1.2085270240686175,
+            -0.488214314026858,
+            -0.3881493645754297
+          ],
+          "baseline_median_us": [
+            301.8333399999973,
+            247.05166999999582,
+            213.4675099999983,
+            213.32333000000148
+          ],
+          "candidate_median_us": [
+            308.52916999999815,
+            243.6545699999959,
+            220.97250000000292,
+            209.24916999999874
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            -0.2931569252198729,
+            -0.12338430315446125,
+            0.6936950612549175,
+            -0.13557041277594273
+          ],
+          "baseline_median_us": [
+            901.2786250000015,
+            571.7890624999943,
+            544.7188125000114,
+            533.4583749999899
+          ],
+          "candidate_median_us": [
+            972.9505000000138,
+            571.0338750000154,
+            535.3984374999732,
+            535.3202499999987
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            -0.5421305359452289,
+            0.2822671745340344,
+            1.3028474883110097,
+            0.9546807973760507
+          ],
+          "baseline_median_us": [
+            2545.7079999999796,
+            1955.6664999997865,
+            1940.7289999999743,
+            1924.9785000001739
+          ],
+          "candidate_median_us": [
+            2409.1044999998703,
+            1935.8334999999283,
+            1930.1039999999325,
+            1906.6039999999784
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            -1.1361756915205357,
+            -0.6350915992945128,
+            0.8268192041158695,
+            0.14315833658792299
+          ],
+          "baseline_median_us": [
+            2366.749999999751,
+            1966.270500000089,
+            1926.1039999998175,
+            1911.6880000000779
+          ],
+          "candidate_median_us": [
+            2393.68750000013,
+            1958.0625000001905,
+            1915.082999999873,
+            1910.4580000000037
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            2.347014986873308,
+            0.9203879117800184,
+            -0.43563219657121177,
+            0.3098949019683994
+          ],
+          "baseline_median_us": [
+            24750.35400000003,
+            26537.896000000226,
+            32271.14550000021,
+            31853.66700000003
+          ],
+          "candidate_median_us": [
+            23991.687500000135,
+            25873.187500000007,
+            32601.708000000064,
+            31933.021000000394
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            0.4979502824900006,
+            0.6427921363947098,
+            0.14669286162721784,
+            0.3089145631884005
+          ],
+          "baseline_median_us": [
+            1560.5260624999562,
+            1551.252562499994,
+            1664.4974375000231,
+            1525.9192500000072
+          ],
+          "candidate_median_us": [
+            1556.3932499999544,
+            1543.3203125000405,
+            1659.8985000000343,
+            1511.3671874999459
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            0.2323941335867108,
+            0.4155452986943198,
+            1.5055558329759244,
+            2.098462450520544
+          ],
+          "baseline_median_us": [
+            198.38416999999885,
+            195.92917000000654,
+            203.90083000000558,
+            194.18083000000584
+          ],
+          "candidate_median_us": [
+            195.69998999999783,
+            199.972500000003,
+            209.26749000000024,
+            190.41790999999364
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            20.146359120361645,
+            14.83180709050831,
+            15.32128033874237,
+            15.569924097807453
+          ],
+          "baseline_median_us": [
+            1030.478999999751,
+            884.562500000019,
+            946.8955000002666,
+            941.1875000000514
+          ],
+          "candidate_median_us": [
+            829.1250000000971,
+            747.249999999422,
+            798.4999999997023,
+            795.125499999827
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            12.988664920226578,
+            12.298549065539188,
+            12.9727757382054,
+            13.749923180740753
+          ],
+          "baseline_median_us": [
+            1342.8672499999905,
+            1214.7421250000011,
+            1323.3646249999897,
+            1306.2213124999666
+          ],
+          "candidate_median_us": [
+            1160.7526249999833,
+            1049.4791249999746,
+            1151.6874999999982,
+            1109.611999999982
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            6.253452422446437,
+            4.997618698944883,
+            8.574953290394038,
+            4.996866273395351
+          ],
+          "baseline_median_us": [
+            2896.1044999999963,
+            2652.1250000000055,
+            3322.729000000191,
+            2909.5415000002236
+          ],
+          "candidate_median_us": [
+            2692.7919999994997,
+            2482.4164999999175,
+            3016.8540000001794,
+            2789.604499999765
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            -0.9690357548718165,
+            -1.3630048320929067,
+            0.36029369223145036,
+            -0.45884503272963784
+          ],
+          "baseline_median_us": [
+            7756.603999999889,
+            7692.020999999993,
+            7969.563000000068,
+            7936.666500000023
+          ],
+          "candidate_median_us": [
+            7832.7920000003105,
+            7729.333000000338,
+            7975.166500000075,
+            8118.000500000555
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            11.608312245180718,
+            11.130175786037865,
+            8.99461766657943,
+            9.861353021404362
+          ],
+          "baseline_median_us": [
+            1653.41143750003,
+            1675.2448124999764,
+            1874.5807499999655,
+            1576.8984375000296
+          ],
+          "candidate_median_us": [
+            1534.5000000000496,
+            1441.3203125000496,
+            1752.4036250000097,
+            1420.2318125000056
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -0.28587640011372706,
+            -2.8295166858142595,
+            1.1778146726148186,
+            -1.0097812798786965
+          ],
+          "baseline_median_us": [
+            127.31001000000575,
+            127.3533300000107,
+            148.86750000000504,
+            120.91959000000152
+          ],
+          "candidate_median_us": [
+            126.747920000021,
+            128.99499000000426,
+            147.6391700000068,
+            119.9545900000043
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            1.1417994370981344,
+            -0.4054221942963121,
+            0.6467814131892458,
+            1.1847462748711624
+          ],
+          "baseline_median_us": [
+            194.72334000003144,
+            195.84248999999332,
+            190.79081999999303,
+            185.35499999999593
+          ],
+          "candidate_median_us": [
+            194.41333999997923,
+            196.98375000000823,
+            197.15458000000297,
+            184.92583999999647
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            -0.652573836280057,
+            1.13900637581007,
+            -1.2528898477435213,
+            0.584911328760751
+          ],
+          "baseline_median_us": [
+            102.05833000000553,
+            93.57542000000052,
+            100.45749999999742,
+            91.62332999999911
+          ],
+          "candidate_median_us": [
+            103.40206999998713,
+            94.47999999999901,
+            102.41083000000373,
+            90.73667000000007
+          ]
+        }
+      },
+      "composition/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            19.828255013409233,
+            20.512802178082957,
+            19.205910951798167,
+            22.199902093309564
+          ],
+          "baseline_median_us": [
+            110.36875992431305,
+            109.12083002040163,
+            109.97706995112821,
+            134.74583989591338
+          ],
+          "candidate_median_us": [
+            88.47542005241849,
+            86.73709002323449,
+            87.89958985289559,
+            106.71750002074987
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            11.800516475696343,
+            11.014032506731875,
+            15.364025295603223,
+            17.09365971002217
+          ],
+          "baseline_median_us": [
+            140.5904200510122,
+            151.52999985730276,
+            133.60750017454848,
+            174.029580084607
+          ],
+          "candidate_median_us": [
+            123.3016599144321,
+            135.30582989915274,
+            113.08001005090773,
+            148.1041600345634
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            4.720166985115815,
+            3.9334015017078783,
+            4.838387063436588,
+            8.048103038526245
+          ],
+          "baseline_median_us": [
+            414.61456203251146,
+            432.79168767185183,
+            346.8463746685302,
+            461.58081204339396
+          ],
+          "candidate_median_us": [
+            395.41406204079976,
+            425.72924940031953,
+            331.3281249575084,
+            441.98437535669655
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            10.163094160718222,
+            12.33313088170288,
+            11.480925133562636,
+            11.085527615061785
+          ],
+          "baseline_median_us": [
+            921.4794990839437,
+            978.3539935597219,
+            766.2709977012128,
+            1021.0835025645792
+          ],
+          "candidate_median_us": [
+            828.6875017802231,
+            840.9589936491102,
+            681.3334912294522,
+            908.958500076551
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            9.19364901853843,
+            10.575092563200773,
+            10.454019759128673,
+            11.111740528264146
+          ],
+          "baseline_median_us": [
+            925.1244991901331,
+            999.9375033657998,
+            757.4789997306652,
+            1054.374995874241
+          ],
+          "candidate_median_us": [
+            838.4785032831132,
+            918.3744987240061,
+            679.4374930905178,
+            927.0630034734495
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            9.918989119019772,
+            13.911232021100407,
+            12.682677730260528,
+            16.065354926916285
+          ],
+          "baseline_median_us": [
+            1624.791999347508,
+            1853.7500000093132,
+            1433.728997653816,
+            2255.041508760769
+          ],
+          "candidate_median_us": [
+            1457.5210079783574,
+            1595.937501406297,
+            1253.4164998214692,
+            1868.1465007830411
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            -0.3211046825908559,
+            5.578289494792143,
+            3.3560567882806813,
+            4.94298863766357
+          ],
+          "baseline_median_us": [
+            400.49999915936496,
+            457.1067493088776,
+            304.7708751182654,
+            445.8333123693592
+          ],
+          "candidate_median_us": [
+            396.4634997828398,
+            426.934874667495,
+            294.1770626421203,
+            427.63800047396217
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            18.632715493688146,
+            20.283171643435328,
+            18.871855698433592,
+            17.317212432052177
+          ],
+          "baseline_median_us": [
+            126.92041011177935,
+            149.5820800482761,
+            100.88000984978862,
+            152.41332992445678
+          ],
+          "candidate_median_us": [
+            104.59498997079208,
+            119.55207999562845,
+            82.54917018348351,
+            123.92125005135313
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            12.475894792405317,
+            12.572255705740776,
+            12.569538393570612,
+            14.632553310593844
+          ],
+          "baseline_median_us": [
+            442.12549983058125,
+            497.89599142968655,
+            332.7290032757446,
+            565.688002097886
+          ],
+          "candidate_median_us": [
+            382.52050580922514,
+            439.4374991534278,
+            293.27050287975,
+            492.49999574385583
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            17.02190929838674,
+            25.933183660580262,
+            16.696062975359872,
+            15.836371997187316
+          ],
+          "baseline_median_us": [
+            753.81512488093,
+            1051.0156253076275,
+            497.72393685998395,
+            907.3124374481267
+          ],
+          "candidate_median_us": [
+            627.7551874518394,
+            772.1275633230107,
+            417.1510618107277,
+            763.5338761247112
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            11.48831880022686,
+            9.902772560620509,
+            10.471593190668305,
+            10.25309600393821
+          ],
+          "baseline_median_us": [
+            555.2079965127632,
+            690.7504939590581,
+            360.4580051614903,
+            676.6250080545433
+          ],
+          "candidate_median_us": [
+            496.20799836702645,
+            611.8954988778569,
+            324.72900056745857,
+            602.7710041962564
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            17.091284013721044,
+            13.056811664379065,
+            13.42636398245929,
+            11.438484509228708
+          ],
+          "baseline_median_us": [
+            1313.187494815793,
+            2180.8540041092783,
+            910.3749980567954,
+            1648.146499064751
+          ],
+          "candidate_median_us": [
+            1103.3335031243041,
+            1863.0000049597584,
+            771.4164967183024,
+            1443.3125033974648
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            13.909988639087988,
+            12.955346957227842,
+            15.137083214149726,
+            13.121000525726112
+          ],
+          "baseline_median_us": [
+            884.3176865411806,
+            1110.9999995824182,
+            650.5129995275638,
+            1032.1171876057633
+          ],
+          "candidate_median_us": [
+            740.018186661473,
+            968.0312496129773,
+            555.3046876229928,
+            871.7031250853324
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            4.212659280295394,
+            -1.566663170774385,
+            -0.4864321012066464,
+            -6.009230359178197
+          ],
+          "baseline_median_us": [
+            63.489590102108195,
+            78.07166999555193,
+            40.01333989435807,
+            65.79874985618517
+          ],
+          "candidate_median_us": [
+            61.16707998444326,
+            81.53001006576233,
+            40.02667003078386,
+            68.92792007420212
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -1.700482959864802,
+            0.25867328886257646,
+            -1.6055031076998016,
+            1.7123252264967248
+          ],
+          "baseline_median_us": [
+            94.74958991631866,
+            119.2383399757091,
+            64.33292001020163,
+            112.74041011347435
+          ],
+          "candidate_median_us": [
+            96.32458008127287,
+            122.60457981028594,
+            65.05208002636209,
+            103.82916996604763
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            0.804418184149025,
+            1.362520452281346,
+            -2.043402217505297,
+            -0.576087277220938
+          ],
+          "baseline_median_us": [
+            43.54791992227547,
+            44.95624001719989,
+            29.13790987804532,
+            50.448739930288866
+          ],
+          "candidate_median_us": [
+            42.4179200490471,
+            44.8120798682794,
+            29.475830087903887,
+            51.182079914724454
+          ]
+        }
+      },
+      "composition/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            20.656590911434613,
+            11.005509548298209,
+            23.01540013322303,
+            22.76488092984542
+          ],
+          "baseline_median_us": [
+            170.06499000000287,
+            332.144169999995,
+            249.02500000000052,
+            297.69416000000604
+          ],
+          "candidate_median_us": [
+            135.44250000000034,
+            288.98458000000016,
+            203.6029199999989,
+            233.6466700000006
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            15.789693067623844,
+            17.14990093751111,
+            16.45384420446876,
+            18.597958655305558
+          ],
+          "baseline_median_us": [
+            188.3137499999954,
+            348.93500000000796,
+            318.70542000000944,
+            302.49291999999707
+          ],
+          "candidate_median_us": [
+            159.33582999999805,
+            287.82041999999564,
+            259.91040999999274,
+            242.4387399999972
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            5.6425979508981206,
+            2.668876608846038,
+            6.1358846283010475,
+            3.7433780905541836
+          ],
+          "baseline_median_us": [
+            429.9765625000174,
+            779.2760625000005,
+            731.7187499999434,
+            659.8203125000035
+          ],
+          "candidate_median_us": [
+            405.4635625000136,
+            787.4114374999963,
+            678.2109999999841,
+            617.9061875000168
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            6.540578417277187,
+            9.334459132016715,
+            6.337608956845154,
+            8.58181164415155
+          ],
+          "baseline_median_us": [
+            1459.6664999997345,
+            2917.457999999762,
+            2537.3124999998886,
+            2107.145999999727
+          ],
+          "candidate_median_us": [
+            1365.3959999999634,
+            2614.10350000002,
+            2362.666999999874,
+            1907.4585000002921
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            8.09571244409929,
+            13.122247939983122,
+            8.375373650625628,
+            5.198370902153259
+          ],
+          "baseline_median_us": [
+            1491.291500000269,
+            2832.0420000005342,
+            2391.541999999802,
+            2076.0205000001088
+          ],
+          "candidate_median_us": [
+            1363.229000000077,
+            2545.9579999997927,
+            2141.9584999997633,
+            1982.9374999997817
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            17.9193063190052,
+            5.428751319415337,
+            28.351974250187194,
+            27.923321374971344
+          ],
+          "baseline_median_us": [
+            36687.208000000246,
+            33821.561999999525,
+            46141.979500000205,
+            45877.083499999746
+          ],
+          "candidate_median_us": [
+            34806.292000000074,
+            31910.937999999776,
+            32781.29150000009,
+            32192.25049999963
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            13.572091997506119,
+            0.46718418147795315,
+            -1.4736664366908903,
+            1.393466309027902
+          ],
+          "baseline_median_us": [
+            3915.1301875000045,
+            1933.38274999999,
+            1738.5884999999712,
+            1726.268249999996
+          ],
+          "candidate_median_us": [
+            3448.6927500000374,
+            1909.684874999984,
+            1748.8358750000211,
+            1754.802062500005
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            19.70918227861681,
+            22.662845217129657,
+            24.998940600928844,
+            23.279913212980784
+          ],
+          "baseline_median_us": [
+            576.0883299999975,
+            331.7729199999952,
+            320.5612499999954,
+            280.9008300000038
+          ],
+          "candidate_median_us": [
+            474.8862499999973,
+            260.71832000000404,
+            244.37083999999666,
+            216.69916000000455
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            10.374523713660267,
+            0.5567992022661561,
+            -1.3658171024859778,
+            1.3328839008406201
+          ],
+          "baseline_median_us": [
+            1991.9795000000738,
+            1044.6044999996575,
+            884.7085000001086,
+            989.3960000004754
+          ],
+          "candidate_median_us": [
+            1907.2079999999935,
+            1006.4585000004734,
+            896.7920000002572,
+            976.208500000908
+          ]
+        },
+        "narrow-jvp-backward": {
+          "median_reductions_percent": [
+            8.238226179608644,
+            9.736420836087845,
+            14.960951009342338,
+            12.295947388314277
+          ],
+          "baseline_median_us": [
+            3123.554687499974,
+            1584.5884999999837,
+            1479.1015624999736,
+            1658.440062499933
+          ],
+          "candidate_median_us": [
+            2721.812499999976,
+            1367.1953749999077,
+            1261.4766250000353,
+            1513.2759999999523
+          ]
+        },
+        "quarter-jvp": {
+          "median_reductions_percent": [
+            -25.417114891029847,
+            -25.67341899262663,
+            -17.988500112154515,
+            -30.96859960180678
+          ],
+          "baseline_median_us": [
+            3518.854000000182,
+            2337.6880000007814,
+            2618.2080000003434,
+            2500.9790000005696
+          ],
+          "candidate_median_us": [
+            4268.83300000025,
+            2950.104499999995,
+            3127.7505000000265,
+            3247.729499999963
+          ]
+        },
+        "quarter-jvp-backward": {
+          "median_reductions_percent": [
+            -9.852180601592542,
+            -25.70642022387606,
+            -21.916193276613072,
+            -28.37926819928791
+          ],
+          "baseline_median_us": [
+            14295.688000000695,
+            7620.250000000439,
+            10541.958500000172,
+            6542.3124999997035
+          ],
+          "candidate_median_us": [
+            17842.500500000468,
+            9551.06249999993,
+            13691.958500000823,
+            8390.58299999973
+          ]
+        },
+        "batch-jvp-backward": {
+          "median_reductions_percent": [
+            12.067537171451692,
+            8.02636771711932,
+            8.251312151615798,
+            8.492857585846359
+          ],
+          "baseline_median_us": [
+            3382.5807499999746,
+            1726.575499999994,
+            1869.177124999899,
+            1511.7213125001026
+          ],
+          "candidate_median_us": [
+            3248.4870625000276,
+            1595.4426874998928,
+            1741.7708125000431,
+            1386.4088750000778
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            2.0700180027166115,
+            5.0111244223807745,
+            -0.23947261434560385,
+            -1.977851613203896
+          ],
+          "baseline_median_us": [
+            186.99459000002253,
+            195.34332999999293,
+            133.33124999999058,
+            110.15791000000164
+          ],
+          "candidate_median_us": [
+            185.01708000000502,
+            215.57624999999803,
+            129.09834000002007,
+            112.65041999999781
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -4.8412301259838975,
+            -4.826441276421978,
+            -4.72231053654415,
+            -3.045356305101077
+          ],
+          "baseline_median_us": [
+            395.0337599999898,
+            370.74290999999704,
+            191.91041999999214,
+            164.88750000000607
+          ],
+          "candidate_median_us": [
+            398.61291999999435,
+            356.7175100000064,
+            188.81792000000175,
+            170.57499999999948
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            -0.8327126690596653,
+            -13.57497992970773,
+            4.505072939511246,
+            1.554114164650322
+          ],
+          "baseline_median_us": [
+            136.82041999999228,
+            170.1075000000074,
+            105.39623999997971,
+            82.37791999999189
+          ],
+          "candidate_median_us": [
+            137.2316799999851,
+            172.17959000001673,
+            101.23333000002788,
+            83.48750999999766
+          ]
+        }
+      }
+    },
+    "source_footprint": {
+      "previous_033": {
+        "raw_bytes": 512093,
+        "local_gzip_estimate_bytes": 120643
+      },
+      "candidate_034": {
+        "raw_bytes": 515467,
+        "local_gzip_estimate_bytes": 121531
+      }
+    },
+    "receipts": {
+      "previous-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.126289166000788,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.1715978749998612,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 8.748296208999818,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 8.366806000005454,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 7.903909166008816,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 8.02564529099618,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.223153208004078,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "previous-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.103013749991078,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.3172800000029383,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.8663170000072569,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 12.19065879099071,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 10.242629000000306,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 10.714206707998528,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 10.81822529200872,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.777168624990736,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "composition-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-34/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.7208599590085214,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      }
+    }
+  },
+  "cold_namespace_imports": {
+    "scope": "16fresh alternating CPU processes after all compatibility gates;NumPy included/preloaded reported separately;shared host;no browser wire-size or nativeTorch import comparison.",
+    "summary": {
+      "0": {
+        "previous_033": {
+          "samples_ms": [
+            134.72204099525698,
+            149.5610830024816,
+            144.97675000166055,
+            133.69324999803212
+          ],
+          "median_ms": 139.84939549845876
+        },
+        "candidate_034": {
+          "samples_ms": [
+            146.84645799570717,
+            152.11683399684262,
+            136.79512499948032,
+            134.56095900619403
+          ],
+          "median_ms": 141.82079149759375
+        }
+      },
+      "1": {
+        "previous_033": {
+          "samples_ms": [
+            94.85870899516158,
+            108.2871660037199,
+            109.96225000417326,
+            97.30608300014865
+          ],
+          "median_ms": 102.79662450193428
+        },
+        "candidate_034": {
+          "samples_ms": [
+            97.09312500490341,
+            97.83612500177696,
+            101.04100000171456,
+            98.72016700683162
+          ],
+          "median_ms": 98.27814600430429
+        }
+      }
+    },
+    "receipts": [
+      {
+        "name": "0-0-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.17651874999864958
+      },
+      {
+        "name": "0-0-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.18960616699769162
+      },
+      {
+        "name": "0-1-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.19665387499844655
+      },
+      {
+        "name": "0-1-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.19314800000574905
+      },
+      {
+        "name": "0-2-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.1868645830109017
+      },
+      {
+        "name": "0-2-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.17737112499889918
+      },
+      {
+        "name": "0-3-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.17315291699196678
+      },
+      {
+        "name": "0-3-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.1735027499962598
+      },
+      {
+        "name": "1-0-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.16998591700394172
+      },
+      {
+        "name": "1-0-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.17216412498964928
+      },
+      {
+        "name": "1-1-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.17646145899198018
+      },
+      {
+        "name": "1-1-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.19105300000228453
+      },
+      {
+        "name": "1-2-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.19885604199953377
+      },
+      {
+        "name": "1-2-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.18601316699641757
+      },
+      {
+        "name": "1-3-candidate_034",
+        "exit_code": 0,
+        "elapsed_s": 0.17626341599680018
+      },
+      {
+        "name": "1-3-previous_033",
+        "exit_code": 0,
+        "elapsed_s": 0.1783239579963265
+      }
+    ]
+  },
+  "archive": {
+    "file": "iteration-34-harness.tar.gz",
+    "files": 774,
+    "bytes": 1820372,
+    "sha256": "48dcf811d23bf0f26e3ee0db1ee4304184a89619fdf1c0e84744a73f789f90ea"
+  },
+  "scope": "Finite real narrow Cholesky-solve JVP has one analytical4input pullback through primal result,factor,RHS direction,factor direction;all full unmasked native reverse edges retained. Direction snapshot when input-factor gradients inactive;selective source/output guards;unneeded result arrays released. Float32/64;unchanged complex inference/unsupported boundaries. No cross-call numerical cache or nativeTorch runtime dependency.",
+  "retained_failures": [
+    "First180native mutation probes:8candidate mismatches vs12in0.33. Native permits DF source edits without factor adjoint;conditional source snapshot resolves all180.",
+    "First expanded focused run627pass/4failure:memory test incorrectly consumed graph before a second backward and assumed active gradient leaves could disappear. Corrected retain_graph/leaf ownership expectations and improved real saved-array selectivity;667finalfocuspasses.",
+    "First complete16timingchildren exposed20to25percent quarter-width tangent-backward regression vs0.33;source,all6packagegates/full32043proofs and16measurements retained. Old-source exported WASM run intentionally terminated before completion after this finding. Final refinement shares forward/adjoint n-by-k products rather than narrowing supported shapes.",
+    "Initial first4timingchildren used frozen candidate-first before selective snapshot/memory refinement and version bump. Final16children hash-check the final47resources and retain unchanged controls."
+  ],
+  "primary_sources": [
+    "https://github.com/pytorch/pytorch/blob/v2.14.0/torch/csrc/autograd/FunctionsManual.cpp#L4719",
+    "https://docs.pytorch.org/docs/2.14/generated/torch.cholesky_solve.html"
+  ],
+  "release_policy": "No agent tag,dispatch or online publication;ordinary main updates trigger no CI;user will tag later."
+}

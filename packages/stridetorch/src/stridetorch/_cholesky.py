@@ -144,6 +144,77 @@ def _solve_values(factor, rhs, upper, *, save_intermediate=False):
     return (value, intermediate) if save_intermediate else value
 
 
+def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper):
+    """Fuse the real JVP without projecting any full-factor reverse edge."""
+    x, f, df = value._data, factor._data, factor_direction._data
+    transpose = lambda a: a.swapaxes(-1, -2)
+
+    def factor_product(rhs):
+        return (f if upper else transpose(f)) @ rhs
+
+    def direction_product(rhs):
+        return (df if upper else transpose(df)) @ rhs
+
+    fx, dfx = factor_product(x), direction_product(x)
+    residual = -(transpose(df) @ fx + transpose(f) @ dfx if upper
+                 else df @ fx + f @ dfx)
+    if rhs_direction is not None:
+        residual = rhs_direction._data + residual
+    values = _linalg._solve_layout(_solve_values(f, residual, upper), True)
+    db = rhs_direction if rhs_direction is not None else _tensor.Tensor(np.zeros_like(x))
+    inputs = (value, factor, db, factor_direction)
+    if not _state._grad_enabled or not any(t.requires_grad for t in inputs):
+        return _tensor.Tensor(values, _metadata_owned=True)
+    shapes = tuple(t.shape for t in inputs)
+    saved_x = x if factor.requires_grad or factor_direction.requires_grad else None
+    saved_output = values if factor.requires_grad else None
+    saved_fx = fx if factor_direction.requires_grad else None
+    saved_dfx = dfx if factor.requires_grad else None
+    if value.requires_grad and not factor.requires_grad:
+        # Native saves the already-formed coefficient direction. Its source
+        # direction may change when no factor adjoint needs that source. Keep
+        # a source snapshot without forming the coefficient product.
+        df = df.copy()
+    elif not value.requires_grad and not factor.requires_grad:
+        df = None
+
+    def factor_adjoint(q, solution, product_q, product_solution):
+        # The forward and adjoint n-by-k products are shared across all four
+        # inputs. Recomputing them per input penalizes wider narrow systems.
+        if upper:
+            return -(product_q @ transpose(solution) + product_solution @ transpose(q))
+        return -(q @ transpose(product_solution) + solution @ transpose(product_q))
+
+    def backward(g, needs):
+        q = _solve_values(f, g, upper)
+        fq = factor_product(q) if needs[0] or needs[1] or needs[3] else None
+        dfq = direction_product(q) if needs[0] or needs[1] else None
+        dx = (-(transpose(df) @ fq + transpose(f) @ dfq if upper
+                else df @ fq + f @ dfq)) if needs[0] else None
+        if needs[1]:
+            gf = factor_adjoint(q, saved_output, fq, factor_product(saved_output))
+            gf += factor_adjoint(q, saved_x, dfq, saved_dfx)
+        else:
+            gf = None
+        gd = factor_adjoint(q, saved_x, fq, saved_fx) if needs[3] else None
+        gradients = (dx, gf, q if needs[2] else None, gd)
+        return tuple(None if gradient is None else gradient if gradient.shape == shape
+                     else _ops.unbroadcast(gradient, shape)
+                     for gradient, shape in zip(gradients, shapes))
+
+    # RHS directions enter linearly and their values are not saved. The other
+    # selective guards match the operands needed by the analytical pullback.
+    guarded = [factor]
+    if value.requires_grad or factor.requires_grad or factor_direction.requires_grad:
+        guarded.append(value)
+    if factor.requires_grad:
+        guarded.append(factor_direction)
+    output = _autograd.joint_result(values, inputs, backward, versioned=guarded)
+    counter = output._storage
+    output._grad_node.versions += ((counter, counter.version),)
+    return output
+
+
 def cholesky_solve(input, input2, upper=False, *, out=None):
     if not isinstance(input, _tensor.Tensor) or not isinstance(input2, _tensor.Tensor):
         raise TypeError('cholesky_solve inputs must be Tensors')
@@ -175,16 +246,13 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
         narrow_direction = f_shape[-1] >= 64 and value.shape[-1] * 4 <= f_shape[-1] and all(
             np.isfinite(t._data).all() for t in (primal_f, direction, value))
         if narrow_direction:
-            # Preserve the full factor/direction rule without forming dA's
-            # n-by-n products. Tensor operations retain all reverse edges.
-            if upper:
-                contribution = direction.transpose(-1, -2) @ (primal_f @ value) + primal_f.transpose(-1, -2) @ (direction @ value)
-            else:
-                contribution = direction @ (primal_f.transpose(-1, -2) @ value) + primal_f @ (direction.transpose(-1, -2) @ value)
-        else:
-            product = direction.transpose(-1, -2) @ primal_f if upper else direction @ primal_f.transpose(-1, -2)
-            coefficient_direction = product + product.transpose(-1, -2)
-            contribution = coefficient_direction @ value
+            tangent = _narrow_tangent(value, primal_f,
+                input._tangent if isinstance(input, _autograd.ForwardTensor) else None,
+                direction, upper)
+            return _autograd.ForwardTensor(value, _layout.matching_tangent(tangent, value))
+        product = direction.transpose(-1, -2) @ primal_f if upper else direction @ primal_f.transpose(-1, -2)
+        coefficient_direction = product + product.transpose(-1, -2)
+        contribution = coefficient_direction @ value
         residual = -contribution
         if isinstance(input, _autograd.ForwardTensor):
             residual = input._tangent + residual

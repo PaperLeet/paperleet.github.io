@@ -540,6 +540,18 @@ source-commit deployment was superseded and is not claimed as published.
   Main adoption is separate from online publication; no CI/tag/dispatch is
   triggered. The user will explicitly tag a release later.
 
+## Version 0.34: fused narrow Cholesky JVP
+
+- One analytical multi-input tangent pullback retains full native primal/direction
+  reverses, broadcasting and mutation behavior. Conditional direction snapshots
+  correct 12 overly restrictive 0.33 probe cases; unneeded X/T arrays release.
+- Full core 32,043 passes; Node/Chrome 1,439 each; minimum installed
+  wheel 1,451. Original native/exported WASM catalogs and application gates pass.
+- [Measured paired results](../../docs/validation/torch-runtime-iteration-34.md)
+  compare both 0.33 fused and 0.32 public composition workflows, including a full
+  reverse-through-JVP workload. No uniform speedup or GPU support is claimed.
+- No automatic CI, tag or online publication. Naming remains pending user choice.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
