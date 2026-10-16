@@ -227,6 +227,18 @@ rather than retaining expanded activations. Actual WASM/Chrome and independent
 CNN training supplement catalog coverage. Same-source CPU/WASM timing records
 both spatial gains and depthwise regression. See the iteration 19 validation.
 
+## Version 0.20 milestone
+
+True storage-sharing view/view_as semantics separate from reshape, physical
+stride/element-size queries and empty factory metadata improve ordinary Torch
+code compatibility. Wrapper ownership preserves version guards and checkpoint
+aliases. Native/scalar contracts and actual WASM/Chrome/minimum-version wheels
+cover reverse and forward tapes. Four frozen CPU/WASM comparisons retain the
+initial rejected regressions and the remaining validated view-checking costs.
+Complete local native/catalog/WASM/distribution/frontend gates pass; exact remote
+adoption follows publication. Evidence is tracked in
+[iteration 20](../../docs/validation/torch-runtime-iteration-20.md).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

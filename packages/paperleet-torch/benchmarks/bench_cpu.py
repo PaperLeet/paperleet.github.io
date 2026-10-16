@@ -18,12 +18,12 @@ import sys
 
 def source_hashes(directory):
     return {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in sorted(directory.glob('*.py'))}
+            for path in sorted(directory.iterdir()) if path.is_file() and (path.suffix == '.py' or path.name in ('LICENSE', 'NOTICE'))}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--benchmark', choices=['runtime', 'tensor_hooks', 'tensor_factories', 'arithmetic', 'selection', 'module_hooks', 'nn', 'schedulers'], default='runtime')
+    parser.add_argument('--benchmark', choices=['runtime', 'tensor_hooks', 'tensor_factories', 'arithmetic', 'selection', 'module_hooks', 'nn', 'schedulers', 'batchnorm', 'groupnorm', 'classification', 'convolution', 'layout'], default='runtime')
     parser.add_argument('--threads', type=int, default=1, help='Requested maximum for backend environment controls')
     parser.add_argument('--output')
     options, remaining = parser.parse_known_args()
@@ -31,9 +31,15 @@ def main():
     names = ['OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS']
     for name in names: os.environ[name] = str(options.threads)
     import numpy as np
-    build = np.__config__.show(mode='dicts')
+    try:
+        build = np.__config__.show(mode='dicts')
+    except TypeError:
+        legacy = io.StringIO()
+        with contextlib.redirect_stdout(legacy): np.__config__.show()
+        build = {'legacy_config': legacy.getvalue()}
     blas = build.get('Build Dependencies', {}).get('blas', {})
     controls = dict(environment={name: os.environ[name] for name in names}, numpy_blas=blas)
+    if 'legacy_config' in build: controls['legacy_numpy_configuration'] = build['legacy_config']
     accelerate = None
     if sys.platform == 'darwin' and blas.get('name') == 'accelerate':
         import ctypes
@@ -65,7 +71,7 @@ def main():
     finally:
         sys.argv = previous
     report = json.loads(output.getvalue())
-    actual = Path(report['implementation']).parent
+    actual = Path(report.get('runtime_module') or report['implementation']).parent
     report['source_hashes'] = source_hashes(actual)
     if actual == package and before != report['source_hashes']:
         raise RuntimeError('Benchmark sources changed during execution')

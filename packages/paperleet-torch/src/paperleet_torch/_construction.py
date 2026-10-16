@@ -217,7 +217,7 @@ def array(data, dtype=None):
         with np.errstate(all='ignore'):
             result = _flat(data, dtype)
         if result is not None:
-            return result
+            return _layout.contiguous_empty(result) if not result.size else result
     shape = _shape(data)
     inferred = dtype is None
     if inferred:
@@ -236,8 +236,8 @@ def array(data, dtype=None):
             result = np.array(_store(data, shape, dtype), dtype=dtype, copy=True)
         if result.shape != shape:
             result = np.array(_store(data, shape, dtype), dtype=dtype, copy=True)
-        return result
+        return _layout.contiguous_empty(result) if not result.size else result
 
 
 # Keep a module reference across the Tensor/operator import cycle, as _ops does.
-from . import _tensor
+from . import _layout, _tensor

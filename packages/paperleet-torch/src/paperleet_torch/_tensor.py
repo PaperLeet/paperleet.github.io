@@ -35,10 +35,21 @@ class StorageVersion:
             counter._linked = members
 
 
+def storage_owner(data):
+    """Resolve ndarray bases and NumPy's metadata-only stride wrappers."""
+    owner = data
+    while True:
+        base = owner.base
+        if isinstance(base, np.ndarray): owner = base
+        elif isinstance(getattr(base, 'base', None), np.ndarray): owner = base.base
+        else: return owner
+
+
 def storage_version(data):
     """Views, detach and dtype-preserving casts share their NumPy allocation's counter."""
     owner = data
     while isinstance(owner.base, np.ndarray): owner = owner.base
+    if owner.base is not None: owner = storage_owner(owner)
     key = id(owner)
     previous = _state._storages.get(key)
     if previous is not None and previous[0]() is owner: return previous[1]
@@ -129,6 +140,8 @@ class Tensor:
     def numel(self): return self._data.size
     def data_ptr(self): return int(self._data.__array_interface__['data'][0]) if self.numel() else 0
     def dim(self): return self.ndim
+    def stride(self, dim=None): return _layout.stride(self._data, dim)
+    def element_size(self): return self._data.itemsize
     def is_floating_point(self): return self.dtype.kind == 'f'
     def count_nonzero(self, dim=None): return _ops.count_nonzero(self, dim)
     def size(self, dim=None): return self.shape if dim is None else self.shape[dim]
@@ -215,8 +228,7 @@ class Tensor:
         self._data = value._data
         # Future views use the retained parameter counter. The temporary cast
         # counter can then disappear; externally held cast tensors stay linked.
-        owner = self._data
-        while isinstance(owner.base, np.ndarray): owner = owner.base
+        owner = storage_owner(self._data)
         previous = _state._storages.get(id(owner))
         if previous is not None and previous[0]() is owner:
             _state._storages[id(owner)] = (previous[0], self._storage)
@@ -341,8 +353,7 @@ class Tensor:
     def __deepcopy__(self, memo):
         if self._parents:
             raise _errors.BrowserUnsupported('Copying non-leaf autograd tensors requires the server')
-        owner = self._data
-        while isinstance(owner.base, np.ndarray): owner = owner.base
+        owner = storage_owner(self._data)
         if owner.dtype.hasobject or not (owner.flags.c_contiguous or owner.flags.f_contiguous):
             raise _errors.BrowserUnsupported('Copying tensors with non-dense backing storage is unsupported')
         # Memoize the allocation, not each view: detached checkpoint entries can
@@ -555,7 +566,36 @@ class Tensor:
         original_shape = self.shape
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
         return _autograd.result(original_data.reshape(shape), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
-    view = reshape
+    def view(self, *shape, **kwargs):
+        original_data = self._data
+        original_shape = original_data.shape
+        data = None
+        if not kwargs and original_data.size > 1:
+            target = shape[0] if len(shape) == 1 and isinstance(shape[0], (tuple, list)) else shape
+            if len(target) == 2 and type(target[0]) is int and type(target[1]) is int:
+                a, b = target
+                if a == -1 and b > 0 and original_data.size % b == 0:
+                    target = (original_data.size // b, b)
+                elif b == -1 and a > 0 and original_data.size % a == 0:
+                    target = (a, original_data.size // a)
+                if target[0] > 0 and target[1] > 0 and target[0] * target[1] == original_data.size:
+                    # Geometry proves these reshapes cannot allocate a data copy.
+                    # Keep the common two-integer call free of generic parsers.
+                    if original_data.ndim == 1 and original_data.strides[0] % original_data.itemsize == 0:
+                        data = original_data.reshape(target)
+                    elif original_data.flags.c_contiguous and 1 not in original_shape:
+                        data = original_data.reshape(target)
+                    elif tuple(target) == original_shape and 1 not in original_shape:
+                        strides = original_data.strides
+                        if strides[0] % original_data.itemsize == 0 and strides[1] % original_data.itemsize == 0:
+                            data = original_data.view()
+        if data is None:
+            args = _layout.arguments(shape, kwargs)
+            data = _layout.view(original_data, *args)
+        return _autograd.result(data, (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
+    def view_as(self, other):
+        if not isinstance(other, Tensor): raise TypeError('view_as requires a Tensor')
+        return self.view(other.shape)
     def reshape_as(self, other): return self.reshape(other.shape)
     def split(self, split_size_or_sections, dim=0):
         if not -self.ndim <= dim < self.ndim: raise IndexError('split dimension out of range')
@@ -1068,4 +1108,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks
+from . import _arithmetic, _autograd, _conversion, _device, _errors, _layout, _linalg, _ops, _random, _state, _tensor_hooks

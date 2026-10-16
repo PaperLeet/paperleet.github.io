@@ -228,3 +228,18 @@ WASM. Default sampling is nine batches, twenty calls and three warmups; tiny
 cases multiply calls by four and the larger case divides by eight. All timing
 samples are retained. A direct/auto comparison is neither native-Torch latency
 nor whole-application speedup.
+
+`bench_layout.py` provides nine fixed view/allocation controls on 64-element
+inputs and a 64×128 NumPy array. It measures default float32 scalar construction,
+array import/copy, mutually valid contiguous/stepped/transposed-same-shape views,
+a common squared-mean reverse pass, its view variant and matching-layout JVP.
+Both releases must pass alias/value/analytical-gradient checks before timing.
+It excludes newly rejected layouts and mismatched-layout JVP copies from the
+previous-release comparison. Defaults are eleven batches of 1,200 calls, with
+one tenth that count for reverse/JVP and three warmups. `--dtype` controls array
+fixtures; builtin scalar construction retains the library's float32 default.
+CPU/WASM wrappers accept `--benchmark layout`; the WASM runner requires all nine
+cases. The CPU wrapper also accepts batchnorm/groupnorm/classification/convolution,
+records license hashes and can report older NumPy configuration APIs without
+claiming a verified thread count.
+These are local microbenchmarks, not native-Torch or application speed claims.

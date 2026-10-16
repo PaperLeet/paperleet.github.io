@@ -108,6 +108,7 @@ def randperm(n, *, generator=None, dtype=np.int64, device=None):
     for i, bit in enumerate(bits):
         other = i + int(bit) % (n-i)
         values[i], values[other] = values[other], values[i]
+    if not values.size: values = _layout.contiguous_empty(values)
     return _tensor.Tensor(values)
 
 
@@ -116,6 +117,7 @@ def create(kind, *shape, dtype=np.float32, device=None, requires_grad=False, gen
     if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
     rng = generator.rng if generator else np.random
     value = normal_samples(generator or _default_generator, shape, dtype) if kind == 'randn' else uniform_samples(rng, shape, dtype) if kind == 'rand' else getattr(np, kind)(shape, dtype=dtype)
+    if not value.size: value = _layout.contiguous_empty(np.asarray(value, dtype=dtype))
     return _tensor.Tensor(value, dtype=dtype, requires_grad=requires_grad)
 
 
@@ -142,7 +144,9 @@ def randint(low=0, high=None, size=None, *, generator=None, dtype=np.int64, devi
     rng = generator.rng if generator else np.random
     if not 0 < high-low <= 2**32: raise _errors.BrowserUnsupported('This randint range requires the server')
     bits = rng.randint(0, 2**32, size=size, dtype=np.uint32).astype(np.uint64)
-    return _tensor.Tensor((bits % (high-low)).astype(dtype) + low)
+    value = (bits % (high-low)).astype(dtype) + low
+    if not value.size: value = _layout.contiguous_empty(value)
+    return _tensor.Tensor(value)
 
 
 def uniform_samples(rng, shape, dtype):
@@ -157,4 +161,4 @@ def uniform_samples(rng, shape, dtype):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _errors, _ops, _tensor
+from . import _errors, _layout, _ops, _tensor

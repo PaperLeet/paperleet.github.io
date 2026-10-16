@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 
 
-from . import _arithmetic, _graph, _tensor
+from . import _arithmetic, _graph, _layout, _tensor
 
 def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
@@ -183,7 +183,19 @@ for _forward_name in ('clone', 'reshape', 'flatten', 'unsqueeze', 'squeeze', 'pe
     setattr(ForwardTensor, _forward_name, _forward_map)
 
 
-ForwardTensor.view = ForwardTensor.reshape
+def _forward_view(self, *shape, **kwargs):
+    primal = self._primal.view(*shape, **kwargs)
+    tangent = _layout.matching_tangent(self._tangent, self._primal).view(primal.shape)
+    return ForwardTensor(primal, tangent)
+
+
+def _forward_view_as(self, other):
+    if not isinstance(other, _tensor.Tensor): raise TypeError('view_as requires a Tensor')
+    return self.view(other.shape)
+
+
+ForwardTensor.view = _forward_view
+ForwardTensor.view_as = _forward_view_as
 
 
 def forward_parts(value):

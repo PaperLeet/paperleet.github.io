@@ -122,6 +122,32 @@ inputs retain ordered recursive inference and scalar storage. Global default
 dtype changes, broader array-protocol inference and the full legacy Tensor
 constructor remain separate compatibility work. Default floats remain float32.
 
+## Storage views and layout queries
+
+`Tensor.view(*shape)` and `view(size=shape)` create a storage-sharing view;
+`view_as(other)` uses only the other Tensor's shape. Incompatible transposed,
+stepped or broadcast chunks raise instead of silently copying. Use `reshape`
+when a copy is acceptable. One inferred dimension (`-1`), scalar/empty shapes
+and singleton axes follow the validated native shape-only view rules.
+
+`stride()` returns the actual underlying strides in element units; `stride(dim)`
+supports negative dimensions. `element_size()` reports bytes per element.
+Views/detached aliases share storage versions, including NumPy's stride wrappers,
+so alias writes still invalidate upstream saved values. General computed layouts
+can differ from native Torch; these queries describe the NumPy backing storage.
+Fresh empty factories use conventional contiguous strides while imported NumPy
+arrays retain their original metadata.
+
+Shape-only views retain reverse gradients and JVP reverse tapes. A JVP can copy
+its tangent into the primal's nonoverlapping layout before viewing; compatible
+matching layouts share storage. Materializing a differently laid-out tangent
+into potentially overlapping or negative-stride storage remains explicitly
+unsupported. This does not add dtype-reinterpreting views, arbitrary as_strided,
+storage-offset queries, channels-last execution or general differentiable
+in-place mutation. Read-only backing storage retains its existing write boundary.
+See the [0.20 validation record](../../docs/validation/torch-runtime-iteration-20.md)
+for source identities, native/scalar contracts and measured compatibility costs.
+
 ## Selection and joining tensors
 
 `torch.result_type` follows the category priority of dimensioned Tensors,

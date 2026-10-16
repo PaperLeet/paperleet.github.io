@@ -401,10 +401,33 @@ def cov(x, *, correction=1, fweights=None, aweights=None):
     return _autograd.result(value.squeeze(), (x, vjp))
 
 
+def arange(*args, dtype=None, device=None):
+    _device.check_device(device)
+    value = np.arange(*args,dtype=dtype or (np.float32 if any(isinstance(x,float) for x in args) else np.int64))
+    if not value.size: value = _layout.contiguous_empty(value)
+    return _tensor.Tensor(value)
+
+
+def eye(n,m=None,*,dtype=np.float32,device=None,requires_grad=False):
+    _device.check_device(device)
+    value = np.eye(n,m,dtype=dtype)
+    if not value.size: value = _layout.contiguous_empty(value)
+    return _tensor.Tensor(value,requires_grad=requires_grad)
+
+
+def linspace(start,end,steps,*,dtype=np.float32,device=None,requires_grad=False):
+    _device.check_device(device)
+    value = np.linspace(start,end,steps,dtype=dtype)
+    if not value.size: value = _layout.contiguous_empty(value)
+    return _tensor.Tensor(value,requires_grad=requires_grad)
+
+
 def full(shape, fill_value, *, dtype=None, device=None, requires_grad=False):
     _device.check_device(device)
     if dtype is None: dtype = np.bool_ if isinstance(fill_value, bool) else np.float32 if isinstance(fill_value, float) else np.int64
-    return _tensor.Tensor(np.full(shape, fill_value, dtype=dtype), requires_grad=requires_grad)
+    value = np.full(shape, fill_value, dtype=dtype)
+    if not value.size: value = _layout.contiguous_empty(value)
+    return _tensor.Tensor(value, requires_grad=requires_grad)
 
 
 def full_like(input, fill_value, *, dtype=None, device=None, requires_grad=False, **options):
@@ -492,4 +515,4 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _construction, _conversion, _device, _errors, _promotion, _state, _tensor
+from . import _layout, _autograd, _construction, _conversion, _device, _errors, _promotion, _state, _tensor

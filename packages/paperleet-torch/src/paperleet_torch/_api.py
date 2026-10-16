@@ -108,9 +108,9 @@ def create_torch(name='torch', *, register=False):
     registry.group('torch', {
         'from_numpy': _ops.from_numpy, 'full': _ops.full, 'full_like': _ops.full_like,
         'randint': _random.randint, 'randperm': _random.randperm,
-        'eye': lambda n,m=None,*,dtype=np.float32,device=None,requires_grad=False: (_device.check_device(device), _tensor.Tensor(np.eye(n,m,dtype=dtype),requires_grad=requires_grad))[1],
-        'linspace': lambda start,end,steps,dtype=np.float32,device=None,requires_grad=False: (_device.check_device(device), _tensor.Tensor(np.linspace(start,end,steps,dtype=dtype),requires_grad=requires_grad))[1],
-        'arange': lambda *args,dtype=None,device=None: (_device.check_device(device), _tensor.Tensor(np.arange(*args,dtype=dtype or (np.float32 if any(isinstance(x,float) for x in args) else np.int64))))[1],
+        'eye': _ops.eye,
+        'linspace': _ops.linspace,
+        'arange': _ops.arange,
     }, reverse='factory')
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         registry.add('torch.' + name, lambda *shape,_kind=name,**kw: _random.create(_kind,*shape,**kw), reverse='factory')
