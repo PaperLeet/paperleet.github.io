@@ -9,15 +9,15 @@ name is being considered; no new name has been adopted or published.
 
 ## Fused analytical rule
 
-For a lower factor F, X = solve(F Fᵀ, B), H = DF Fᵀ + F DFᵀ and
-T = solve(F Fᵀ, DB − H X), using selected triangles for primal solves and full
-factors/directions for the native derivative extension. Upper factors transpose
-the corresponding products. This follows the
+Let S(R) denote two triangular solves using the selected triangle of F.
+For a lower factor, X = S(B), H = DF Fᵀ + F DFᵀ and T = S(DB − H X).
+The products in H use the full F/DF, including the unused half, as required by
+native differentiation. Upper factors transpose the corresponding products. This follows the
 [native rules](https://github.com/pytorch/pytorch/blob/v2.14.0/torch/csrc/autograd/FunctionsManual.cpp#L4719)
 checked against installed native Torch 2.14.1.
 
 The new tangent node has four inputs: X, F, DB and DF. For tangent seed G,
-Q = solve(F Fᵀ, G). Its pullbacks are −H Q for X, Q for DB,
+Q = S(G). Its pullbacks are −H Q for X, Q for DB,
 −(Q Xᵀ + X Qᵀ) F for DF, and the sum of the outer-factor solve adjoint and
 −(Q Xᵀ + X Qᵀ) DF for F. The primal X graph carries the remaining B/F
 contributions. Products associate through RHS width, avoiding dense cubic
@@ -27,7 +27,8 @@ across the four pullbacks. The first fusion recomputed them per input and
 regressed 20–25% on quarter-width tangent backward; the final rule removes
 those duplicate products without narrowing the supported input domain.
 All broadcast reductions, full unmasked factor gradients and zero reverse edges
-remain covered. Nonfinite/general/wide paths keep the existing implementation;
+remain covered. Nonfinite F/DF/X, factors with fewer than 64 rows and wider RHSs keep the
+existing JVP implementation;
 complex AD, `out`, half and general higher-order reverse remain unsupported.
 
 ## Mutation and saved-array ownership
@@ -142,3 +143,9 @@ live deployment. WebGPU remains an end-to-end evaluation target, not an enabled
 backend in this version.
 
 The final main sync also preserves all seven incoming reading-pane files from `dd6ca81f`. Its new reply-viewport check, the 14 related checks and both typed builds pass. All computational resources, exports and Python/native/WASM inputs remain unchanged; see `iteration-34-main-sync-final.json`.
+
+The validated source was adopted non-force on remote `main` at `ded40931`.
+A read-only post-push query found no Actions run for that commit. See
+`iteration-34-main-adoption.json` for the exact SHA and verification time.
+No tag, workflow dispatch or online release was created; subsequent proof-only
+commits do not change the validated runtime or exports.
