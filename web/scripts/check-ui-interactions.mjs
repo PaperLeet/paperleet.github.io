@@ -67,6 +67,12 @@ try {
   const batchHref=interviewHref({...emptyInterviewFilters(),view:'questions',queue:paperModules(course,catalog.problems).map(problem=>problem.number).join(',')});
   const batchResult=renderToStaticMarkup(React.createElement(CourseNext,{...courseAfter,returnTo:batchHref}));
   assert(batchResult.includes('本组练习已完成') && batchResult.includes(batchHref.replaceAll('&','&amp;')) && !batchResult.includes('专题已完成'),'An interview preparation batch keeps its own completion destination even when its modules also complete a course');
+  const {favoriteHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+  const favoriteView=favoriteHref({query:'LLM 数学 & 🧪',state:'done'});
+  const favoriteCourse=renderToStaticMarkup(React.createElement(PaperDetail,{...courseProps,returnTo:favoriteView}));
+  assert(action(favoriteCourse).includes(`href="#/${attention.number}"`) && favoriteCourse.includes(withLibraryContext(courseAfter.current.number,favoriteView)),'Continuing to another paper is explicit while course review retains the saved-problem search and status');
+  const favoriteFinish=renderToStaticMarkup(React.createElement(CourseNext,{...courseAfter,returnTo:favoriteView}));
+  assert(favoriteFinish.includes(withLibraryContext(`papers/${course.id}`,favoriteView)) && favoriteFinish.includes('专题已完成'),'A completed course returns through the same Unicode saved-problem view');
   assert.deepEqual(courseProps,beforeCourse,'Course recommendations cannot mutate code, progress, catalog order or the return URL');
   const tests=[{id:'test_reference',nodeid:'file.py::test_reference[a]',layer:'T1',passed:true,duration_s:.001},{id:'test_reference',nodeid:'file.py::test_reference[b]',layer:'T1',passed:false,message:'submission.py:2: in f\nE ValueError: <script>unsafe</script>'},{id:'test_gradient',layer:'T2',passed:false}];
   const filtered=visibleReportTests(tests,'failed','T1');
