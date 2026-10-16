@@ -2,7 +2,8 @@ import {useEffect,useRef,useState} from 'react';
 import {ArrowRight,BookOpen,CheckCircle2,Clock3,RefreshCw} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
-import {interviewCatalog,interviewLabel,type InterviewSummary} from './interviewModels';
+import {interviewCatalog,type InterviewSummary} from './interviewModels';
+import InterviewCompanySources from './InterviewCompanySources';
 import {rolePreparationPaths} from './interviewPreparation';
 import {interviewHref,type InterviewFilters,type InterviewStudyState} from './interviewNavigation';
 import {interviewPracticeHref} from './interviewPracticeBatch';
@@ -84,7 +85,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
     <div className="interview-ranking-copy"><div className="interview-ranking-title">{problem?<a id={heading} href={practice(problem)}>{name}</a>:<b id={heading} tabIndex={-1}>{name}</b>}{problem&&<span className={`interview-ranking-state ${state||''}`}>{state==='done'?<CheckCircle2 size={12}/>:state==='started'?<Clock3 size={12}/>:null}{stateLabel(state)}</span>}</div>
      {!!matches.length&&<p className="interview-search-match"><span>{t('匹配：','Matched: ')}</span>{matches.map(matchLabel).join(' · ')}{matches.includes('paper')&&problem?.paper?.title&&<span className="interview-search-paper">{problem.paper.title}</span>}{evidence&&matches.includes('goal')&&problem&&<span className="interview-search-paper">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</span>}</p>}
      {problem&&<p className="interview-ranking-module-meta">{[({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[problem.difficulty],problem.estimated_minutes?`${problem.estimated_minutes} min`:''].filter(Boolean).join(' · ')}</p>}
-     {evidence?<div className="interview-company-tags">{evidence.companies.map(company=><a key={company.company} href={interviewHref({...filters,view:'reports',company:company.company,concept:id,q:'',page:1,saved:false})} aria-label={t(`阅读${interviewLabel('companies',company.company,false)}关于${name}的 ${company.reports} 篇来源面经`,`Read ${company.reports} ${interviewLabel('companies',company.company,true)} source ${company.reports===1?'report':'reports'} about ${name}`)}><OrganizationLogo id={company.company} size={14}/>{interviewLabel('companies',company.company,locale==='en')}<small>{company.reports}</small></a>)}</div>:problem&&<p className="interview-curated-goal">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</p>}
+     {evidence?<InterviewCompanySources companies={evidence.companies} problemId={id} name={name} filters={filters}/>:problem&&<p className="interview-curated-goal">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</p>}
     </div>
     <div className="interview-ranking-actions">{evidence?<span className="interview-ranking-evidence"><span><b>{evidence.contributors}</b> {t('位分享者',evidence.contributors===1?'contributor':'contributors')}</span><a href={sources}>{t(`查看 ${evidence.reports} 篇来源`,`Read ${evidence.reports} source ${evidence.reports===1?'report':'reports'}`)}</a></span>:<small className="interview-curated-label">{t('编辑推荐','Curated practice')}</small>}{problem?<><a className="button subtle" href={practice(problem)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}<ArrowRight size={13}/></a><InterviewGroupToggle problem={problem} name={name} group={group}/></>:<small>{t('练习暂不可用','Practice unavailable')}</small>}</div>
     {problem&&<PreparationGuide problemId={problem.id} practiceHref={practice(problem)}/>}
