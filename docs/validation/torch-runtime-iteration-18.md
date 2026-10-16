@@ -176,3 +176,14 @@ after rebase. Final initial JS graph:404456raw /130110gzip bytes; this includes
 upstream UI changes.
 [Integration evidence](../../packages/paperleet-torch/benchmarks/results/iteration-18-integration.json)
 records input invariance, final distribution identities and all affected checks.
+
+## Verified remote adoption
+
+Commit `5321620fc58b014deaf0fa4bb57000fb9b2e1a71` passed exact-main Quality
+38848025756 and the subsequent Pages38849647095 deployment. Remote native passed
+18393 infrastructure cases and77 catalog modules/9987 executions/336 mutants;
+actual WASM passed77/77 with415 independent contracts and no budget excess.
+Live verification compared all77 starters/manifests/details and156 immutable
+payloads, including both0.18 profiles and Apache notices, to frozen expected bytes.
+The [remote proof](../../packages/paperleet-torch/benchmarks/results/iteration-18-remote-adoption.json)
+retains job/step outcomes, downloaded reports, live hashes and observed receipts.

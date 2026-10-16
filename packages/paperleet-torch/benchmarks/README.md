@@ -215,3 +215,16 @@ Label same-source joint/composition comparisons separately from old-release
 comparisons. The 0.17 baseline supports only `tiny_index`, `classifier_index` and
 `vocabulary_index`, using `--implementation joint`. Preserve all process samples,
 freeze source/harness identities and exclude concurrent correctness/build work.
+
+`bench_convolution.py` measures complete Tensor convolution forward and squared-mean
+backward calls, including validation, packing, graph construction and cleanup.
+Ten cases cover tiny/pointwise/spatial/depthwise/dilated/3D/larger inputs and
+forward-only, weight-only and bias-only tapes. `--implementation auto|direct|matrix`
+selects a private experiment override; it is not a public convolution argument.
+Every active gradient and output is checked against the same-library direct
+path before timing; independent native/scalar tests establish mathematical
+correctness separately. Use `bench_wasm.mjs --benchmark convolution` for pinned
+WASM. Default sampling is nine batches, twenty calls and three warmups; tiny
+cases multiply calls by four and the larger case divides by eight. All timing
+samples are retained. A direct/auto comparison is neither native-Torch latency
+nor whole-application speedup.

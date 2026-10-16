@@ -529,6 +529,36 @@ The [0.16 validation record](../../docs/validation/torch-runtime-iteration-16.md
 records supported behavior, complete release gates and measured costs, including
 the eval-backward tradeoff.
 
+## Convolution
+
+`nn.Conv1d`, `Conv2d`, `Conv3d` and their `nn.functional.conv1d/2d/3d`
+functions support real float32/float64, batched and unbatched inputs, groups
+(including depthwise), stride, dilation, integer/tuple padding and `same`/`valid`.
+Modules also support `reflect`, `replicate` and `circular` padding. Parameters,
+dtype conversion and in-memory checkpoints use the common Module lifecycle.
+Standard imports such as `from torch.nn.modules.conv import Conv2d` work.
+
+```python
+model = nn.Sequential(nn.Conv2d(3, 8, 3, padding="same"), nn.SiLU())
+x = torch.randn(2, 3, 16, 16, requires_grad=True)
+model(x).square().mean().backward()
+```
+
+Analytical input/weight/bias gradients and bilinear JVPs include validated
+reverse-over-forward tapes. Saved input and weight versions are guarded even
+on a bias-only tape. Empty batches/channels and nonfinite values have separate
+contracts. `same` padding requires unit stride; reflection padding must be
+smaller than its axis and circular padding cannot wrap more than once.
+
+Larger finite workloads use packed NumPy matrix products when the estimated
+logical workspace fits 32 MiB. Small/pointwise, nonfinite and larger-workspace
+cases use direct contractions. Backward repacks inputs instead of retaining
+expanded im2col activations. The estimate is a dispatch policy, not a peak-memory
+limit for NumPy or BLAS. Transposed convolution, complex/float16 kernels, GPU
+execution and general higher-order reverse AD remain outside this contract.
+The [0.19 validation record](../../docs/validation/torch-runtime-iteration-19.md)
+separates native/scalar correctness, CPU/WASM timing and application regression.
+
 ## Optimizers and training checkpoints
 
 `torch.optim.Optimizer`, `SGD`, `Adam` and `AdamW` share parameter groups,

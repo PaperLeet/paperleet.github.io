@@ -129,7 +129,7 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
       if (id === 'architecture/attention') {
         // Run the independent NumPy-only model/checkpoint suite against the
         // exported library, including ordinary torch aliases in a real VM.
-        for (const suite of ['module_lifecycle', 'optimizer_lifecycle', 'conversion_modes', 'scheduler_lifecycle', 'nn_workflows', 'module_hooks', 'graph_lifecycle', 'tensor_hooks', 'numpy_inputs', 'construction', 'promotion', 'linear_wasm', 'arithmetic', 'ieee', 'batchnorm', 'groupnorm', 'classification']) {
+        for (const suite of ['module_lifecycle', 'optimizer_lifecycle', 'conversion_modes', 'scheduler_lifecycle', 'nn_workflows', 'module_hooks', 'graph_lifecycle', 'tensor_hooks', 'numpy_inputs', 'construction', 'promotion', 'linear_wasm', 'arithmetic', 'ieee', 'batchnorm', 'groupnorm', 'classification', 'convolution']) {
           const testPath = `/judge/test_lightweight_${suite}.py`;
           py.FS.writeFile(testPath, fs.readFileSync(path.join(web,
             `../packages/paperleet-torch/tests/test_${suite}.py`), 'utf8'));

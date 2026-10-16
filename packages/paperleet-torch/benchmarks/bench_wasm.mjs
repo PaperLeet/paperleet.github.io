@@ -13,15 +13,18 @@ const {values} = parseArgs({options: {
   cache: {type:'string', default:path.resolve(here, '../../../web/public/browser-runtime/pyodide-0.29.4')},
   output: {type:'string'}, repeat: {type:'string', default:'11'}, iterations: {type:'string', default:'30'},
   benchmark: {type:'string', default:'runtime'},
-  implementation: {type:'string', default:'joint'},
+  implementation: {type:'string'},
   dtype: {type:'string', default:'float32'}, case: {type:'string', multiple:true},
 }});
 const repeat = Number(values.repeat), iterations = Number(values.iterations);
+const implementation = values.implementation ?? (values.benchmark === 'convolution' ? 'auto' : 'joint');
 if (!Number.isInteger(repeat) || !Number.isInteger(iterations) || Math.min(repeat,iterations) < 1) {
   throw new Error('repeat and iterations must be positive integers');
 }
-if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm','groupnorm','classification'].includes(values.benchmark)) throw new Error('Unknown benchmark');
-if (!['joint','composite'].includes(values.implementation) || !['batchnorm','groupnorm','classification'].includes(values.benchmark) && values.implementation !== 'joint') throw new Error('Implementation selection is for batchnorm/groupnorm/classification');
+if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm','groupnorm','classification','convolution'].includes(values.benchmark)) throw new Error('Unknown benchmark');
+if (values.benchmark === 'convolution') {
+  if (!['auto','direct','matrix'].includes(implementation)) throw new Error('Convolution uses auto/direct/matrix');
+} else if (!['joint','composite'].includes(implementation) || !['batchnorm','groupnorm','classification'].includes(values.benchmark) && implementation !== 'joint') throw new Error('Implementation selection is for batchnorm/groupnorm/classification/convolution');
 if (values.benchmark === 'schedulers' && (values.case || values.dtype !== 'float32')) {
   throw new Error('Scheduler suite uses fixed float32 fixtures and all cases');
 }
@@ -40,7 +43,7 @@ for (const name of fs.readdirSync(values.source).filter(name => name.endsWith('.
 py.runPython('import sys\nsys.path.insert(0,"/runtime")');
 py.FS.writeFile('/runtime/bench_runtime.py',fs.readFileSync(path.join(here,`bench_${values.benchmark}.py`),'utf8'));
 const options = values.benchmark === 'schedulers' ? {repeat,iterations} : {repeat,iterations,dtype:values.dtype,cases:values.case};
-if (['batchnorm','groupnorm','classification'].includes(values.benchmark)) options.implementation = values.implementation;
+if (['batchnorm','groupnorm','classification','convolution'].includes(values.benchmark)) options.implementation = implementation;
 py.globals.set('benchmark_options_json',JSON.stringify(options));
 const report = JSON.parse(py.runPython('import json, bench_runtime\njson.dumps(bench_runtime.run_benchmarks(**json.loads(benchmark_options_json)))'));
 report.pyodide = py.version;

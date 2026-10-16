@@ -209,6 +209,24 @@ Chrome Worker and isolated minimum-version wheel gates pass. Balanced same-sourc
 CPU/WASM measurements preserve all samples; the larger runtime transfer size is
 reported separately. See [validation](../../docs/validation/torch-runtime-iteration-17.md).
 
+## Version 0.18 milestone
+
+Weighted/smoothed/spatial cross entropy, probability targets and NLL add native
+VJP/JVP and full checkpoint-resume coverage. Finite default CE caches its
+analytical derivative and avoids generic spatial work. Rejected regressions and
+final CPU/WASM measurements are retained. Exact main Quality, Pages and live
+assets passed; see the iteration 18 remote adoption receipt.
+
+## Version 0.19 milestone
+
+Grouped 1D/2D/3D convolution adds batched/unbatched layouts, dilation, padding
+modes, analytical active VJPs, bilinear JVP reverse tapes and module lifecycle.
+Direct/packed-matrix/auto paths are tested against native and scalar mathematics.
+A 32 MiB logical-workspace estimate bounds matrix dispatch and backward repacks
+rather than retaining expanded activations. Actual WASM/Chrome and independent
+CNN training supplement catalog coverage. Same-source CPU/WASM timing records
+both spatial gains and depthwise regression. See the iteration 19 validation.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization
@@ -221,7 +239,7 @@ reported separately. See [validation](../../docs/validation/torch-runtime-iterat
    remaining retention corner cases, graph-node callbacks and forward-mode gaps. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
 4. Neural-network coverage: expand instance normalization, attention options,
-   weighted/smoothed/spatial losses and convolution, with masked/empty/non-contiguous
+   transpose convolution and pooling, with masked/empty/non-contiguous
    cases and numerical checks. Optimize exact array erf and continue auditing
    low-precision/statistic accumulation behavior across numerical runtimes.
 5. Runtime efficiency: profile allocation/graph overhead and larger linear algebra
