@@ -152,6 +152,20 @@ accepts both historical and canonical runtime payloads, while rejecting problem
 bundles that override either library namespace.
 
 All 6,124 historical immutable assets remain byte-identical; all 158 new assets
-are reachable. Full exported application verification under the new name and
-remote adoption remain pending. Old proofs are retained as the before-renaming
-snapshot, not reinterpreted as new namespace tests.
+are reachable. After merging main at `8856bcc8`, all 55 upstream UI/check files
+remain byte-identical and the library source hashes are unchanged. The merged
+frontend check, production build and Pages policy pass.
+
+The renamed exported catalog passes 78/78 modules in actual pinned Pyodide
+0.29.4/NumPy 2.2.5, with no browser budget excess (367.31s total). Flow Matching
+uses 96.80s calibration, 17.29s learner execution and 115.72s total, within its
+existing 240/60/300s budgets. These are validation observations, not controlled
+application speed comparisons. The test command succeeded; a subsequent report
+copy used the wrong working-directory-relative path. The existing root report
+was copied and independently asserted without rerunning the suite.
+
+[Renaming proof](../../packages/stridetorch/benchmarks/results/iteration-21-stridetorch.json)
+and [integration proof](../../packages/stridetorch/benchmarks/results/iteration-21-stridetorch-integration.json)
+retain the canonical source, packaging, browser and merge checks. Remote adoption
+remains pending. Old proofs are retained as the before-renaming snapshot, not
+reinterpreted as new namespace tests.
