@@ -294,7 +294,7 @@ all 78 exported WASM modules pass. Main `3cea3727` passes exact Quality, includi
 work, so site publication is not claimed. A mature later version may supersede
 this site rollout, with final eligible deployment/live verification still required.
 
-## Version 0.24 candidate
+## Version 0.24
 
 Method/functional mean support explicit dtype with strict native reduction
 overloads, integer/boolean floating output, existing complex forward values,
@@ -308,7 +308,26 @@ Torch. Four balanced CPU/WASM phases retain all 64 children, rejected input-copy
 work and remaining small-call costs. Original native catalog, export/history and
 latest-upstream frontend/packaging gates pass. All 78 exported WASM modules pass
 within unchanged budgets. Later upstream UI changes at `1be5db7e` are preserved
-and repeated frontend checks/build pass. Main and remote adoption remain gates.
+and repeated frontend checks/build pass. Main `002b693e` passes exact remote
+Quality: 25,928 infrastructure tests, all 78 native problems / 10,218 executions /
+342 mutants / three repeats, and 78 WASM modules within unchanged budgets.
+Pages eligibility was superseded by later UI work; deployment/live verification
+is not claimed. Actual reports and terminal observer are retained in the 0.24
+main Quality archive.
+
+## Version 0.25 candidate
+
+Real nansum/nanmean cover dtype, strict dimensions, VJP and float32/64 JVP with
+reverse over the tangent. IEEE mask rules, half composite overflow, post-forward
+model conversion and selective graph pruning match native references. All 2,982
+supported cases in a 3,024-case audit agree; 42 empty real-to-complex cases retain
+the explicit complex boundary. Node/Chrome each pass 806 independent contracts;
+the minimum Python 3.10/NumPy 1.26 wheel passes 818 without native Torch. Fresh
+public/private wheel coinstallation and uninstall ownership pass. Final merged
+infrastructure passes 26,466 tests with one optional Docker skip. All 16 balanced
+CPU/WASM timing children complete: small/casted nanmean improves 51–56% against
+the matching where/sum composition, with ordinary controls and all regressions
+retained. Catalog/export, latest upstream, main and deployment gates remain pending.
 
 ## Next implementation areas
 

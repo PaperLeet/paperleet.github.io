@@ -6,7 +6,7 @@ import warnings
 from collections import namedtuple
 from statistics import NormalDist
 import numpy as np
-from . import _layout, _statistics
+from . import _layout, _statistics, _reductions
 
 
 class StorageVersion:
@@ -730,12 +730,13 @@ class Tensor:
         index = [slice(None)] * source.ndim; index[dim] = indices
         return source[tuple(index)]
 
-    def sum(self, dim=None, keepdim=False, *, dtype=None):
+    def sum(self, dim=_layout.UNSPECIFIED_DIM, keepdim=_layout.UNSPECIFIED_DIM, *, dtype=None):
+        requested, keepdim = _reductions.arguments(dim,keepdim,name='sum')
         if dtype is not None and np.dtype(dtype).kind not in 'fc' and self.requires_grad and _state._grad_enabled:
             raise RuntimeError('Autograd does not support a non-floating sum dtype')
         original_data = self._data
         original_shape = self.shape
-        dims = tuple(range(self.ndim)) if isinstance(dim,(tuple,list)) and not dim else _ops.reduction_axes(dim,self.ndim)
+        dims = _reductions.axes(requested,self.ndim)
         def vjp(g):
             if not keepdim:
                 for axis in sorted(dims): g = np.expand_dims(g, axis)
@@ -743,19 +744,10 @@ class Tensor:
         if dtype is None and original_data.dtype.kind in 'biu': dtype = np.int64
         return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False)
     def mean(self, dim=_layout.UNSPECIFIED_DIM, keepdim=_layout.UNSPECIFIED_DIM, *, dtype=None):
-        missing = _layout.UNSPECIFIED_DIM
-        if dim is missing:
-            if keepdim is not missing:raise TypeError('mean keepdim requires an explicit dimension')
-            dim = None
-        if keepdim is missing:keepdim = False
-        if type(keepdim) is not bool:raise TypeError('mean keepdim must be bool')
-        requested = () if dim is None else tuple(dim) if isinstance(dim,(tuple,list)) else (dim,)
-        requested = tuple(_layout.integer(d) for d in requested)
+        requested, keepdim = _reductions.arguments(dim,keepdim,name='mean')
         target = self.dtype if dtype is None else np.dtype(dtype)
         if target.kind not in 'fc':raise RuntimeError('mean requires floating or complex dtype')
-        normalized = tuple(_layout.dimension(d,self.ndim) for d in requested)
-        if len(set(normalized)) != len(normalized):raise RuntimeError('Duplicate reduction dimensions')
-        dims = tuple(range(self.ndim)) if not requested else normalized if self.ndim else ()
+        dims = _reductions.axes(requested,self.ndim)
         shape = self.shape
         count = math.prod(shape[d] for d in dims)
         def vjp(g):
@@ -777,6 +769,10 @@ class Tensor:
             else:value = self._data.sum(axis=dims,keepdims=keepdim,dtype=accumulator)/np.asarray(0,dtype=accumulator)
             if half:value = value.astype(target,copy=False)
         return _autograd.result(value,(self,vjp),saves_tensors=False)
+    def nansum(self, dim=None, keepdim=False, *, dtype=None):
+        return _reductions.nan_reduce(self,dim,keepdim,dtype=dtype)
+    def nanmean(self, dim=None, keepdim=False, *, dtype=None):
+        return _reductions.nan_reduce(self,dim,keepdim,dtype=dtype,mean=True)
     def trace(self):
         original_data = self._data
         if original_data.ndim != 2: raise RuntimeError('trace expects a matrix')

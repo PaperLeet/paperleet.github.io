@@ -21,8 +21,10 @@ const implementation = values.implementation ?? (values.benchmark === 'convoluti
 if (!Number.isInteger(repeat) || !Number.isInteger(iterations) || Math.min(repeat,iterations) < 1) {
   throw new Error('repeat and iterations must be positive integers');
 }
-if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm','groupnorm','classification','convolution','layout','shape_ops','statistics','dispatch','mean'].includes(values.benchmark)) throw new Error('Unknown benchmark');
-if (values.benchmark === 'convolution') {
+if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm','groupnorm','classification','convolution','layout','shape_ops','statistics','dispatch','mean','nan_reductions'].includes(values.benchmark)) throw new Error('Unknown benchmark');
+if (values.benchmark === 'nan_reductions') {
+  if (!['direct','composite'].includes(values.implementation ?? 'direct')) throw new Error('NaN reductions use direct/composite');
+} else if (values.benchmark === 'convolution') {
   if (!['auto','direct','matrix'].includes(implementation)) throw new Error('Convolution uses auto/direct/matrix');
 } else if (!['joint','composite'].includes(implementation) || !['batchnorm','groupnorm','classification'].includes(values.benchmark) && implementation !== 'joint') throw new Error('Implementation selection is for batchnorm/groupnorm/classification/convolution');
 if (values.benchmark === 'layout' && values.case) throw new Error('Layout controls use all nine fixed cases');
@@ -49,6 +51,7 @@ py.runPython('import sys\nsys.path.insert(0,"/runtime")');
 py.FS.writeFile('/runtime/bench_runtime.py',fs.readFileSync(path.join(here,`bench_${values.benchmark}.py`),'utf8'));
 const options = values.benchmark === 'schedulers' ? {repeat,iterations} : {repeat,iterations,dtype:values.dtype,cases:values.case};
 if (['batchnorm','groupnorm','classification','convolution'].includes(values.benchmark)) options.implementation = implementation;
+if (values.benchmark === 'nan_reductions') options.implementation = values.implementation ?? 'direct';
 py.globals.set('benchmark_options_json',JSON.stringify(options));
 const report = JSON.parse(py.runPython('import json, bench_runtime\njson.dumps(bench_runtime.run_benchmarks(**json.loads(benchmark_options_json)))'));
 report.pyodide = py.version;

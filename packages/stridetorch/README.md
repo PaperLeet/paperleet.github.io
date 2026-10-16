@@ -63,13 +63,41 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## NaN-aware reductions
+
+`Tensor.nansum/nanmean` and `torch.nansum/nanmean` support real inputs,
+integer or multiple axes, `keepdim` and explicit output `dtype`. `nansum`
+also accepts integer/boolean input; `nanmean` requires floating input even
+with an explicit floating output dtype. Unlike ordinary `sum/mean`, these
+two functions allow `keepdim` without specifying `dim`.
+
+```python
+x = torch.tensor([[1., float('nan'), 3.]], requires_grad=True)
+torch.nanmean(x, dim=1).backward()
+print(x.grad.tolist())  # [[0.5, 0.0, 0.5]]
+```
+
+Empty/all-NaN sums are zero; empty/all-NaN means are NaN. Reverse-mode
+NaN masks multiply the seed, preserving IEEE behavior for infinite/NaN
+seeds. Float32/float64 JVP and reverse differentiation of its tangent use
+the separate native forward-AD mask rule, including exact zero primal
+gradients for `nanmean`. In-place saved-input mutation is checked; changing
+the reduction output does not invalidate its pullback. Complex CPU kernels,
+half/complex JVP and output buffers retain explicit errors.
+
+Half `nanmean` follows native's sum-then-divide composition: its intermediate
+sum can overflow, unlike the opmath CPU `mean` below. See the
+[native reduction implementation](https://github.com/pytorch/pytorch/blob/v2.14.1/aten/src/ATen/native/ReduceOps.cpp#L1411-L1429)
+and [autograd definitions](https://github.com/pytorch/pytorch/blob/v2.14.1/tools/autograd/derivatives.yaml#L1549-L1551).
+
 ## Means and explicit dtype
 
 `Tensor.mean` and `torch.mean` accept an explicit `dtype`, including floating
 outputs for integer/boolean inputs. Integer axes, axis tuples/lists, scalar and
 empty tensors, `keepdim` and empty-axis all-dimension reductions are supported.
 Boolean/fractional axes, duplicates and out-of-range axes are rejected; passing
-`keepdim` requires an explicit dimension, including `dim=None`.
+`keepdim` requires an explicit dimension, including `dim=None`. Ordinary
+`sum` uses the same dimension and boolean `keepdim` checks.
 
 ```python
 x = torch.tensor([[1., 3.], [5., 7.]], requires_grad=True)

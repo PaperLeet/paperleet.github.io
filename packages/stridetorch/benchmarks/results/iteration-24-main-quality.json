@@ -1,0 +1,235 @@
+{
+  "status": "main_integrated_exact_quality_passed_pages_superseded",
+  "commit": "002b693e8f96f38a80c579a503058ce0ed1949e1",
+  "quality": {
+    "id": 38890431872,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "002b693e8f96f38a80c579a503058ce0ed1949e1",
+    "event": "push",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38890431872",
+    "jobs": [
+      {
+        "name": "browser-wasm",
+        "id": 116938316259,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the public catalog exporter",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Export the current source into immutable browser bundles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Execute every maintained suite and mutant on pinned WASM",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "native",
+        "id": 116938316494,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Pages release gating",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install CPU-only dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test judge infrastructure",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Reference, mutation, determinism, and CPU budgets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Generate all visualization data and catalog",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build static web app",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "pilot",
+        "id": 116945519143,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require both native/frontend and complete WASM checks",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "native": {
+    "infrastructure_passed": 25928,
+    "skipped": 1,
+    "warnings": 26,
+    "elapsed_s": 525.93,
+    "catalog_problems": 78,
+    "catalog_tests_executed": 10218,
+    "mutants": 342,
+    "catalog_repeats": 3,
+    "catalog_elapsed_s": 406.629194653
+  },
+  "wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "passed": true,
+    "elapsed_ms": 763674,
+    "browser_budget_exceeded": []
+  },
+  "publication": {
+    "status": "superseded_after_quality",
+    "superseding_main": "f8324727c260c18abfc85255c52f6fb490c6a7de",
+    "eligible_pages_run": null,
+    "live_verified": false
+  },
+  "archive": {
+    "file": "iteration-24-main-quality-harness.tar.gz",
+    "bytes": 81102,
+    "sha256": "c618d26e113f83b2578d427b8f1cf9a7b6091a4408bd09adf2aed700ec5c1288",
+    "files": {
+      "publication.json": "a32543b04a195fab1e7be80d6125812bd3448237663609d39df8f43343f4d531",
+      "remote-observer-terminal.json": "2ed31d57555ff6961e55f34e7d3093be944cff82cfdee2ac9ee170458c67cca3",
+      "remote-state.json": "1b68189333775408495ef89f5e73e1780a7e11f8fdf64e677d07793b69230d64",
+      "remote-native/ci.json": "daf9c9cdb21995cf96d95f72821fd9d2d6ac1a69088974927807a112e8974710",
+      "remote-native-job.log": "115bce718c53252c4dbdabdf84c393cf5435ba6255442247960b80be926b9973",
+      "remote-wasm/browser-wasm.json": "4b0323337e1cb067c335eb5387a0f1667ce7eb143c0aeaadbc12ca0b6f83be31"
+    }
+  }
+}

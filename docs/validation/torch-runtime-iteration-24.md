@@ -1,9 +1,10 @@
-# StrideTorch 0.24 candidate: typed means and half precision
+# StrideTorch 0.24: typed means and half precision
 
 This candidate enables `torch.mean(dtype=...)` and repairs existing half-precision
-means. Main still uses 0.23. The candidate has not been integrated or deployed;
-complete exported WASM and latest UI integration have passed. Main and remote
-adoption remain release gates.
+means. It was integrated into main at `002b693e8f96f38a80c579a503058ce0ed1949e1`.
+Complete exported WASM, latest UI integration and exact-commit remote Quality
+passed. A newer main commit superseded Pages eligibility; this record does not
+claim a deployed or live-verified 0.24 site runtime.
 
 ## Behavior and computation
 
@@ -154,5 +155,15 @@ completed numerical/catalog evidence without repeating unrelated workloads.
 
 [Latest upstream gates](../../packages/stridetorch/benchmarks/results/iteration-24-latest-upstream-gates.json)
 and the [affected-check archive](../../packages/stridetorch/benchmarks/results/iteration-24-latest-upstream-gates-harness.tar.gz)
-close that integration gate. Main adoption and exact remote Quality/eligible
-Pages/live verification remain pending.
+close that integration gate. Exact main [Quality run 38890431872](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38890431872)
+subsequently passed all three jobs: native, browser-WASM and pilot. Native Linux
+ran 25,928 infrastructure tests (one optional Docker skip, 26 warnings, 525.93s),
+then all 78 problems / 10,218 executions / 342 mutants / three repeats in 406.63s.
+Pinned WASM passed all 78 problems in 763,674ms without any budget violation.
+These are independent runner durations, not controlled speedup comparisons.
+
+[Main Quality evidence](../../packages/stridetorch/benchmarks/results/iteration-24-main-quality.json)
+and its [receipt/archive](../../packages/stridetorch/benchmarks/results/iteration-24-main-quality-harness.tar.gz)
+preserve actual reports and the terminal observer. No eligible Pages deployment
+or subsequent live-byte verification was observed for this commit; skipped
+Pages run 38890780962 does not count as publication.

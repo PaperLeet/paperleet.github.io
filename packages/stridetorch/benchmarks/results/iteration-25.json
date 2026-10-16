@@ -1,0 +1,1593 @@
+{
+  "version": "0.25.0",
+  "status": "candidate_local_gates_passed_catalog_export_integration_pending",
+  "baseline_commit": "002b693e8f96f38a80c579a503058ce0ed1949e1",
+  "license": "Apache-2.0",
+  "package_modules": 42,
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+    "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+    "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+    "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "native": {
+    "passed": 26466,
+    "skipped": 1,
+    "warnings": 23,
+    "elapsed_s": 181.79,
+    "scope": "tests and packages/stridetorch/tests; does not replace original full problem catalog CI"
+  },
+  "wasm": {
+    "node": {
+      "numpy_fenv_traps": false,
+      "library": "0.25.0",
+      "numpy": "2.2.5",
+      "passed": 806,
+      "source_hashes": {
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835"
+      }
+    },
+    "chrome": {
+      "status": "success",
+      "library": "0.25.0",
+      "numpy": "2.2.5",
+      "passed": 806,
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+        "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+        "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      },
+      "test_hashes": {
+        "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+        "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+        "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+        "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+        "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+        "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+        "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+        "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+        "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+        "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+        "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+        "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+        "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+        "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+        "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+        "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+        "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+        "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+        "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+        "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+        "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+        "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+        "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+        "test_nan_reductions.py": "99e214b873aa9348b471f9917d116800957ce2f5dd04dfb27726db8c954e416d",
+        "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+      },
+      "pyodide": "0.29.4",
+      "browser": "155.0.8059.82",
+      "harness": {
+        "run.mjs": "3108f2a5fff47e171ae790be8535e8566ef24dfd830eefc97216805bf60711d4",
+        "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+        "plan.json": "271f51c5275f5e7ca0ff1f2b3eee197b394b211db55a20bf9c0406d3c3834af1"
+      }
+    }
+  },
+  "minimum_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.25.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 42,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.25.0-py3-none-any.whl": "0a95b03396f945b702deb85340e0bc61c108831bd194c4fb14a9e35adbe538be",
+      "stridetorch-0.25.0.tar.gz": "022876ad7753bd317e21ec617b5a7d6c14cc07fc8b763b00d54b9c624a7eb63c"
+    },
+    "receipts": {
+      "python310-stride025-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.02335795900580706,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/python310-stride025-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride025-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.2085693330009235,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/python310-stride025-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/dist-preflight/stridetorch-0.25.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride025-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 9.779476791998604,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/python310-stride025-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/python310-stride025-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "coinstallation": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.25.0-py3-none-any.whl": "0a95b03396f945b702deb85340e0bc61c108831bd194c4fb14a9e35adbe538be",
+      "paperleet-0.1.0-py3-none-any.whl": "f736750c37d78273a08950a4110016ed95b5e47041be66310a48d1e05f4f3fc5"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.07921966700087069
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/dist-preflight/stridetorch-0.25.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.16513945799670182
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.25.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nprint('PASS isolated module ownership and NaN pullback')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.3074393340066308
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013000375001865905
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.25.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nprint('PASS isolated module ownership and NaN pullback')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10247404200345045
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013048124994384125
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.010707083005399909
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/order-proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.25.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nprint('PASS isolated module ownership and NaN pullback')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.18580108400055906
+      }
+    ],
+    "scope": "Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "audit": {
+    "cases": 3024,
+    "matching_supported_cases": 2982,
+    "declared_unsupported": 42,
+    "unexpected_differences": [],
+    "boundary": "Empty real input to complex output bypasses the native CPU kernel; StrideTorch retains its explicit complex-kernel/autograd boundary, including empty tensors.",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    }
+  },
+  "performance": {
+    "status": "success",
+    "elapsed_s": 25.97034312500182,
+    "source_hashes": {
+      "baseline": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+        "_api.py": "5e625ff6d06589e1730a4e9236be6d7238e45b03421595c3523f6a4315d948da",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "545147c6cfa771f3845a73f5a1284aff8b2a1bc59eddbf381a8679984fc7a9bf",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_tensor.py": "2d8bed749e32352f10cab5a108c8968853b9706833f1c41fc0f08250bd228908",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+        "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      },
+      "candidate": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+        "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+        "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      }
+    },
+    "harness_hashes": {
+      "bench_mean.py": "9c071d7d70361abbca914374e453e60905eae1e72df36cfbfaaed5b6e6fc2c7d",
+      "bench_nan_reductions.py": "e7252cee373fca92c0cc326928081c3f334058c2da1a56970ebac243f791f696",
+      "bench_wasm.mjs": "402634f4f13c7dd87c6990031befa3cf2e1b2f862fb8b733da2fc6eb2aa029fb",
+      "bench_cpu.py": "0ce8b3c3e4234d87cd012d586222e55e8cbe53b94d3b08da35d75c1e36b6fca9"
+    },
+    "receipts": [
+      {
+        "name": "cpu-float32-0-baseline",
+        "backend": "cpu",
+        "dtype": "float32",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 0.8061641669992241,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float32-0-baseline.json"
+        ]
+      },
+      {
+        "name": "cpu-float32-1-candidate",
+        "backend": "cpu",
+        "dtype": "float32",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 0.546014583997021,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float32-1-candidate.json"
+        ]
+      },
+      {
+        "name": "cpu-float32-2-candidate",
+        "backend": "cpu",
+        "dtype": "float32",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 0.5416725839968421,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float32-2-candidate.json"
+        ]
+      },
+      {
+        "name": "cpu-float32-3-baseline",
+        "backend": "cpu",
+        "dtype": "float32",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 0.8084339170018211,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float32-3-baseline.json"
+        ]
+      },
+      {
+        "name": "cpu-float64-0-baseline",
+        "backend": "cpu",
+        "dtype": "float64",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 0.7934529159974772,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float64-0-baseline.json"
+        ]
+      },
+      {
+        "name": "cpu-float64-1-candidate",
+        "backend": "cpu",
+        "dtype": "float64",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 0.5457224159981706,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float64-1-candidate.json"
+        ]
+      },
+      {
+        "name": "cpu-float64-2-candidate",
+        "backend": "cpu",
+        "dtype": "float64",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 0.5408151250012452,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float64-2-candidate.json"
+        ]
+      },
+      {
+        "name": "cpu-float64-3-baseline",
+        "backend": "cpu",
+        "dtype": "float64",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 0.7986427499999991,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_cpu.py",
+          "--threads",
+          "2",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/cpu-float64-3-baseline.json"
+        ]
+      },
+      {
+        "name": "wasm-float32-0-baseline",
+        "backend": "wasm",
+        "dtype": "float32",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 2.8427598330017645,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/baseline/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float32-0-baseline.json"
+        ]
+      },
+      {
+        "name": "wasm-float32-1-candidate",
+        "backend": "wasm",
+        "dtype": "float32",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 2.440566666999075,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/finalcandidate/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float32-1-candidate.json"
+        ]
+      },
+      {
+        "name": "wasm-float32-2-candidate",
+        "backend": "wasm",
+        "dtype": "float32",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 2.4398539579997305,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/finalcandidate/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float32-2-candidate.json"
+        ]
+      },
+      {
+        "name": "wasm-float32-3-baseline",
+        "backend": "wasm",
+        "dtype": "float32",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 2.803674041002523,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/baseline/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float32",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float32-3-baseline.json"
+        ]
+      },
+      {
+        "name": "wasm-float64-0-baseline",
+        "backend": "wasm",
+        "dtype": "float64",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 2.8038809999998193,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/baseline/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float64-0-baseline.json"
+        ]
+      },
+      {
+        "name": "wasm-float64-1-candidate",
+        "backend": "wasm",
+        "dtype": "float64",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 2.196051749997423,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/finalcandidate/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float64-1-candidate.json"
+        ]
+      },
+      {
+        "name": "wasm-float64-2-candidate",
+        "backend": "wasm",
+        "dtype": "float64",
+        "label": "candidate",
+        "exit_code": 0,
+        "elapsed_s": 2.2005672080049408,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/finalcandidate/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "direct",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float64-2-candidate.json"
+        ]
+      },
+      {
+        "name": "wasm-float64-3-baseline",
+        "backend": "wasm",
+        "dtype": "float64",
+        "label": "baseline",
+        "exit_code": 0,
+        "elapsed_s": 2.7708815000005416,
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/frozen/harness/bench_wasm.mjs",
+          "--source",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/baseline/stridetorch",
+          "--runtime",
+          "/Users/david/Developer/PaperLeet-torch-release/web/node_modules/pyodide",
+          "--cache",
+          "/Users/david/Developer/PaperLeet-torch-release/web/public/browser-runtime/pyodide-0.29.4",
+          "--benchmark",
+          "nan_reductions",
+          "--dtype",
+          "float64",
+          "--repeat",
+          "11",
+          "--iterations",
+          "1000",
+          "--implementation",
+          "composite",
+          "--output",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-25/performance/wasm-float64-3-baseline.json"
+        ]
+      }
+    ],
+    "scope": "ABBA fresh sequential processes;11 batches;3 warmups;1000 forward,250 row,100 reverse calls per batch. Baseline0.24 where/sum composite versus candidate0.25 direct on valid finite-gradient workloads; excludes pathological NaN/Inf-gradient behavior. Ordinary sum/mean/exp controls. Shared machine,CPU env requested2 threads;actual BLAS threading unverified. No local tests/builds/audits overlap. No coldstart/native Torch/application/peak-memory speed claims.",
+    "results": {
+      "cpu-float32": {
+        "nansum_small": {
+          "baseline_medians_ms": [
+            0.006697541000903584,
+            0.006531582999741659
+          ],
+          "candidate_medians_ms": [
+            0.004258250002749264,
+            0.0043065410063718446
+          ],
+          "time_reduction_percent": 35.258063884627845
+        },
+        "nanmean_small": {
+          "baseline_medians_ms": [
+            0.013482292000844609,
+            0.013383875004365109
+          ],
+          "candidate_medians_ms": [
+            0.006060125000658445,
+            0.006139666998933535
+          ],
+          "time_reduction_percent": 54.59050039692572
+        },
+        "nansum_rows": {
+          "baseline_medians_ms": [
+            0.009611832007067278,
+            0.009789500007173046
+          ],
+          "candidate_medians_ms": [
+            0.009044663980603218,
+            0.00918083600117825
+          ],
+          "time_reduction_percent": 6.060573735843555
+        },
+        "nanmean_rows": {
+          "baseline_medians_ms": [
+            0.018692999990889803,
+            0.018235335999634117
+          ],
+          "candidate_medians_ms": [
+            0.0121531680051703,
+            0.011909163993550465
+          ],
+          "time_reduction_percent": 34.84046504317082
+        },
+        "nanmean_columns": {
+          "baseline_medians_ms": [
+            0.01916900000651367,
+            0.01970400000573136
+          ],
+          "candidate_medians_ms": [
+            0.01360966800712049,
+            0.013350667984923348
+          ],
+          "time_reduction_percent": 30.6450853200131
+        },
+        "nanmean_cast": {
+          "baseline_medians_ms": [
+            0.013853583004674874,
+            0.014728791000379715
+          ],
+          "candidate_medians_ms": [
+            0.0063478340016445145,
+            0.006100375001551583
+          ],
+          "time_reduction_percent": 56.447952850261075
+        },
+        "nansum_rows_reverse": {
+          "baseline_medians_ms": [
+            0.028636669958359562,
+            0.031366659968625754
+          ],
+          "candidate_medians_ms": [
+            0.02656124997884035,
+            0.026658330025384203
+          ],
+          "time_reduction_percent": 11.305622422981399
+        },
+        "nanmean_rows_reverse": {
+          "baseline_medians_ms": [
+            0.045227080045151524,
+            0.04523916999460198
+          ],
+          "candidate_medians_ms": [
+            0.03080707996559795,
+            0.030771250021643937
+          ],
+          "time_reduction_percent": 31.932262075434124
+        },
+        "control_sum_small": {
+          "baseline_medians_ms": [
+            0.0016762079976615496,
+            0.001694375001534354
+          ],
+          "candidate_medians_ms": [
+            0.0017480000024079345,
+            0.0017308750029769726
+          ],
+          "time_reduction_percent": -3.212856832626221
+        },
+        "control_mean_small": {
+          "baseline_medians_ms": [
+            0.00422558299760567,
+            0.004292417004762683
+          ],
+          "candidate_medians_ms": [
+            0.0038961250029387884,
+            0.003926916993805207
+          ],
+          "time_reduction_percent": 8.15869928893086
+        },
+        "control_exp_small": {
+          "baseline_medians_ms": [
+            0.0013537499980884604,
+            0.0013751660007983446
+          ],
+          "candidate_medians_ms": [
+            0.001425708003807813,
+            0.001448166003683582
+          ],
+          "time_reduction_percent": -5.311926371633358
+        }
+      },
+      "cpu-float64": {
+        "nansum_small": {
+          "baseline_medians_ms": [
+            0.00668733299971791,
+            0.006641583000600804
+          ],
+          "candidate_medians_ms": [
+            0.004408749999129213,
+            0.00441812500503147
+          ],
+          "time_reduction_percent": 33.776497624040694
+        },
+        "nanmean_small": {
+          "baseline_medians_ms": [
+            0.01349149999441579,
+            0.013566540997999255
+          ],
+          "candidate_medians_ms": [
+            0.006254792002437171,
+            0.006347832997562364
+          ],
+          "time_reduction_percent": 53.42373454333844
+        },
+        "nansum_rows": {
+          "baseline_medians_ms": [
+            0.010039163986220956,
+            0.010698500002035871
+          ],
+          "candidate_medians_ms": [
+            0.009350167994853109,
+            0.00958566801273264
+          ],
+          "time_reduction_percent": 8.68867381442483
+        },
+        "nanmean_rows": {
+          "baseline_medians_ms": [
+            0.019335335993673652,
+            0.019253164005931467
+          ],
+          "candidate_medians_ms": [
+            0.012353332014754415,
+            0.012359164014924318
+          ],
+          "time_reduction_percent": 35.95890996039852
+        },
+        "nanmean_columns": {
+          "baseline_medians_ms": [
+            0.02062133199069649,
+            0.020640499977162108
+          ],
+          "candidate_medians_ms": [
+            0.013757000007899478,
+            0.0133628319890704
+          ],
+          "time_reduction_percent": 34.27380534607577
+        },
+        "nanmean_cast": {
+          "baseline_medians_ms": [
+            0.013874958996893838,
+            0.014032209001015872
+          ],
+          "candidate_medians_ms": [
+            0.006468166000558995,
+            0.006311625002126675
+          ],
+          "time_reduction_percent": 54.20606274472961
+        },
+        "nansum_rows_reverse": {
+          "baseline_medians_ms": [
+            0.028651250031543896,
+            0.030166659998940304
+          ],
+          "candidate_medians_ms": [
+            0.028249169990886003,
+            0.02739625000685919
+          ],
+          "time_reduction_percent": 5.393748317637881
+        },
+        "nanmean_rows_reverse": {
+          "baseline_medians_ms": [
+            0.04537833003269043,
+            0.046999579935800284
+          ],
+          "candidate_medians_ms": [
+            0.032736669963924214,
+            0.03187540998624172
+          ],
+          "time_reduction_percent": 30.056785250711403
+        },
+        "control_sum_small": {
+          "baseline_medians_ms": [
+            0.0016758750061853789,
+            0.0017435419940738939
+          ],
+          "candidate_medians_ms": [
+            0.0017110420012613758,
+            0.0017072499977075495
+          ],
+          "time_reduction_percent": 0.032900383026179814
+        },
+        "control_mean_small": {
+          "baseline_medians_ms": [
+            0.003224041996872984,
+            0.0032460410002386197
+          ],
+          "candidate_medians_ms": [
+            0.0030562909960281104,
+            0.002957999997306615
+          ],
+          "time_reduction_percent": 7.0446082991571295
+        },
+        "control_exp_small": {
+          "baseline_medians_ms": [
+            0.0015019999991636723,
+            0.0015092079993337393
+          ],
+          "candidate_medians_ms": [
+            0.001522792001196649,
+            0.001473708005505614
+          ],
+          "time_reduction_percent": 0.4884415756894911
+        }
+      },
+      "wasm-float32": {
+        "nansum_small": {
+          "baseline_medians_ms": [
+            0.016162291999999964,
+            0.015932415999999838
+          ],
+          "candidate_medians_ms": [
+            0.010598500000000177,
+            0.010687917000000047
+          ],
+          "time_reduction_percent": 33.67624033220569
+        },
+        "nanmean_small": {
+          "baseline_medians_ms": [
+            0.031276749999999964,
+            0.031256167
+          ],
+          "candidate_medians_ms": [
+            0.015351708000000075,
+            0.013819749999999908
+          ],
+          "time_reduction_percent": 53.3502363243346
+        },
+        "nansum_rows": {
+          "baseline_medians_ms": [
+            0.022270835999999683,
+            0.021836500000000036
+          ],
+          "candidate_medians_ms": [
+            0.024270835999999463,
+            0.01836366399999978
+          ],
+          "time_reduction_percent": 3.339208697620022
+        },
+        "nanmean_rows": {
+          "baseline_medians_ms": [
+            0.041887168000000585,
+            0.04121349999999957
+          ],
+          "candidate_medians_ms": [
+            0.03260783200000006,
+            0.02433133200000004
+          ],
+          "time_reduction_percent": 31.48170120606011
+        },
+        "nanmean_columns": {
+          "baseline_medians_ms": [
+            0.042295500000001596,
+            0.041575832000001256
+          ],
+          "candidate_medians_ms": [
+            0.02829000000000015,
+            0.023935000000000706
+          ],
+          "time_reduction_percent": 37.73200120394049
+        },
+        "nanmean_cast": {
+          "baseline_medians_ms": [
+            0.031452249999999626,
+            0.031200791000000283
+          ],
+          "candidate_medians_ms": [
+            0.016660042000000038,
+            0.013850665999999956
+          ],
+          "time_reduction_percent": 51.302111576675046
+        },
+        "nansum_rows_reverse": {
+          "baseline_medians_ms": [
+            0.06495166999999746,
+            0.06455000000000322
+          ],
+          "candidate_medians_ms": [
+            0.06208374999999933,
+            0.058183340000002026
+          ],
+          "time_reduction_percent": 7.130857849168493
+        },
+        "nanmean_rows_reverse": {
+          "baseline_medians_ms": [
+            0.09582208000000314,
+            0.09412167000000249
+          ],
+          "candidate_medians_ms": [
+            0.08326457999999981,
+            0.06543875000000199
+          ],
+          "time_reduction_percent": 21.71191207923535
+        },
+        "control_sum_small": {
+          "baseline_medians_ms": [
+            0.004405042000000137,
+            0.0043686659999999655
+          ],
+          "candidate_medians_ms": [
+            0.0046061250000000165,
+            0.004610833000000092
+          ],
+          "time_reduction_percent": -5.052025893727041
+        },
+        "control_mean_small": {
+          "baseline_medians_ms": [
+            0.010237291999999787,
+            0.010157416999999835
+          ],
+          "candidate_medians_ms": [
+            0.010251542000000224,
+            0.010078500000000101
+          ],
+          "time_reduction_percent": 0.3170773360840706
+        },
+        "control_exp_small": {
+          "baseline_medians_ms": [
+            0.003128457999999945,
+            0.0031055829999999673
+          ],
+          "candidate_medians_ms": [
+            0.0031940420000000636,
+            0.0032826250000002055
+          ],
+          "time_reduction_percent": -3.891953870697362
+        }
+      },
+      "wasm-float64": {
+        "nansum_small": {
+          "baseline_medians_ms": [
+            0.016182208999999895,
+            0.016023166999999953
+          ],
+          "candidate_medians_ms": [
+            0.010798582999999917,
+            0.010596542000000042
+          ],
+          "time_reduction_percent": 33.56660391109838
+        },
+        "nanmean_small": {
+          "baseline_medians_ms": [
+            0.03121345800000008,
+            0.031192540999999796
+          ],
+          "candidate_medians_ms": [
+            0.014180625000000058,
+            0.013995250000000015
+          ],
+          "time_reduction_percent": 54.85069472247351
+        },
+        "nansum_rows": {
+          "baseline_medians_ms": [
+            0.022834335999999844,
+            0.02228116800000013
+          ],
+          "candidate_medians_ms": [
+            0.018768500000000188,
+            0.018657168000000723
+          ],
+          "time_reduction_percent": 17.04477467435378
+        },
+        "nanmean_rows": {
+          "baseline_medians_ms": [
+            0.04198249999999959,
+            0.041381831999999896
+          ],
+          "candidate_medians_ms": [
+            0.0245443320000005,
+            0.023952000000000417
+          ],
+          "time_reduction_percent": 41.82604138182116
+        },
+        "nanmean_columns": {
+          "baseline_medians_ms": [
+            0.042982331999999346,
+            0.04199733599999966
+          ],
+          "candidate_medians_ms": [
+            0.024173500000000736,
+            0.02417133600000021
+          ],
+          "time_reduction_percent": 43.11011429227811
+        },
+        "nanmean_cast": {
+          "baseline_medians_ms": [
+            0.0317502919999999,
+            0.030917042000000006
+          ],
+          "candidate_medians_ms": [
+            0.013871250000000002,
+            0.013763041999999892
+          ],
+          "time_reduction_percent": 55.90319511597552
+        },
+        "nansum_rows_reverse": {
+          "baseline_medians_ms": [
+            0.0664087499999999,
+            0.06383209000000001
+          ],
+          "candidate_medians_ms": [
+            0.058592499999998715,
+            0.05868540999999894
+          ],
+          "time_reduction_percent": 9.953045450261433
+        },
+        "nanmean_rows_reverse": {
+          "baseline_medians_ms": [
+            0.09621082999999864,
+            0.09437875000000151
+          ],
+          "candidate_medians_ms": [
+            0.0669900000000001,
+            0.06655333999999957
+          ],
+          "time_reduction_percent": 29.93145795273825
+        },
+        "control_sum_small": {
+          "baseline_medians_ms": [
+            0.00440599999999991,
+            0.004398624999999878
+          ],
+          "candidate_medians_ms": [
+            0.004506499999999969,
+            0.004519291999999897
+          ],
+          "time_reduction_percent": -2.511941167285192
+        },
+        "control_mean_small": {
+          "baseline_medians_ms": [
+            0.00858049999999988,
+            0.008615792000000067
+          ],
+          "candidate_medians_ms": [
+            0.007875374999999796,
+            0.00791129200000018
+          ],
+          "time_reduction_percent": 8.197261363089059
+        },
+        "control_exp_small": {
+          "baseline_medians_ms": [
+            0.0033466250000002695,
+            0.003161999999999665
+          ],
+          "candidate_medians_ms": [
+            0.0031954580000004285,
+            0.0031690829999999615
+          ],
+          "time_reduction_percent": 2.213739461092723
+        }
+      }
+    }
+  },
+  "pending": [
+    "Original catalog reference/mutation/determinism/budgets",
+    "Immutable export and history preservation",
+    "All exported maintained WASM suites and mutants with unchanged budgets",
+    "Latest upstream UI integration and frontend/package checks",
+    "Non-force main adoption and exact remote Quality",
+    "Actual eligible Pages deployment and frozen live-byte verification"
+  ],
+  "boundaries": [
+    "Complex CPU kernels/autograd,half JVP and out buffers remain explicit",
+    "42 native empty real-to-complex cases bypass its kernel and are explicitly unsupported here",
+    "Raw ndarray integer overflow casts remain platform dependent"
+  ],
+  "failures_retained": [
+    "Initial native ZeroTensor numpy conversion and unavailable public .data setter in test fixtures",
+    "Native lazy ZeroTensor .grad accumulation is immutable; graph replay checks clear gradients",
+    "Initial Chrome expected-count mismatch:all numerical cases passed; expanded Node suites and corrected exact count",
+    "Validation order audit:initial source errors corrected before final adoption"
+  ],
+  "archive": {
+    "file": "iteration-25-harness.tar.gz",
+    "files": 555,
+    "bytes": 1727018,
+    "sha256": "0db84bf2c2051624485f378a55411e0b9cd77965ed1ee3f7efa61cba9984de01"
+  },
+  "final_test_format_identity": {
+    "tests/test_torch_nan_reductions.py": {
+      "before_sha256": "f8678b1ce48a3b9fb18aac1d98d2550549eec4123442386fc605d06c60a4ca90",
+      "after_sha256": "38c389a42a326312114dd9451be4d545ab2ca570759eee8158c38e8c9e009e16",
+      "same_ast": true,
+      "change": "Remove extra blank line at EOF after completed gates; frozen tested files remain in archive"
+    },
+    "packages/stridetorch/tests/test_nan_reductions.py": {
+      "before_sha256": "99e214b873aa9348b471f9917d116800957ce2f5dd04dfb27726db8c954e416d",
+      "after_sha256": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "same_ast": true,
+      "change": "Remove extra blank line at EOF after completed gates; frozen tested files remain in archive"
+    }
+  }
+}
