@@ -1,23 +1,46 @@
 name: Publish PaperLeet public site
 on:
-  push:
+  workflow_run:
+    workflows: [PaperLeet quality gate]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: paperleet-pages
-  cancel-in-progress: true
 jobs:
   build:
-    if: github.repository == 'PaperLeet/paperleet.github.io'
+    if: >-
+      github.repository == 'PaperLeet/paperleet.github.io' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_sha == github.sha))
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    concurrency:
+      group: paperleet-pages-build
+      cancel-in-progress: true
+    outputs:
+      sha: ${{ steps.release.outputs.sha }}
+      quality_run: ${{ steps.release.outputs.quality_run }}
     permissions:
       contents: read
       actions: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Require complete quality checks on this main revision
+        id: release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const resolve = require('./web/scripts/pages-release-gate.cjs');
+            const release = await resolve({github, context});
+            core.setOutput('sha', release.sha);
+            core.setOutput('quality_run', String(release.runId));
+            core.info(`Publishing tested main ${release.sha}, quality run ${release.runId}.`);
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -124,12 +147,31 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    concurrency:
+      group: paperleet-pages
+      cancel-in-progress: false
     permissions:
+      contents: read
+      actions: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Recheck the tested revision before publishing
+        id: current
+        uses: actions/github-script@v7
+        env:
+          RELEASE_SHA: ${{ needs.build.outputs.sha }}
+          QUALITY_RUN: ${{ needs.build.outputs.quality_run }}
+        with:
+          script: |
+            const {data: branch} = await github.rest.repos.getBranch({...context.repo, branch: 'main'});
+            const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo, run_id: Number(process.env.QUALITY_RUN)});
+            const publish = branch.commit.sha === process.env.RELEASE_SHA && run.head_sha === process.env.RELEASE_SHA && run.status === 'completed' && run.conclusion === 'success';
+            core.setOutput('publish', String(publish));
+            core.info(publish ? 'The tested release is still current.' : 'Skip publication: main or its quality result changed during the build.');
       - uses: actions/deploy-pages@v4
+        if: steps.current.outputs.publish == 'true'
         id: deployment

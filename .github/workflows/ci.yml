@@ -17,6 +17,8 @@ jobs:
       PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Pages release gating
+        run: node web/scripts/check-pages-release.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
