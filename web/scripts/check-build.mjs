@@ -41,6 +41,9 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('community-code-manual')), 'Enhanced community code controls must remain deferred');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-code-manual')), 'Community code reading styles must remain deferred');
+assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('community-code-manual')), 'Deferred community Markdown must include the manual code-copy recovery');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('KaTeX_Main-Regular')), 'Math font styles must load with rich text rather than the homepage');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'Python navigation styles must stay deferred with the editor');
 assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'The enhanced editor must include its navigation layout');

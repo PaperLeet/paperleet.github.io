@@ -1,40 +1,15 @@
-import { Children, createElement, isValidElement, memo, useMemo, useState } from 'react';
+import { Children, createElement, isValidElement, memo, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import Markdown from 'react-markdown';
 import type {Components} from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import { Check, Copy } from 'lucide-react';
-import { Highlight } from './SyntaxHighlight';
+import CommunityCodeBlock from './CommunityCodeBlock';
+export {default as CommunityCodeBlock} from './CommunityCodeBlock';
 import { useI18n } from './i18n';
 import {headingAnchor} from './markdownOutline';
 import 'katex/dist/katex.min.css';
-
-export function CommunityCodeBlock({ code, language = 'text' }: { code: string; language?: string }) {
-  const { t } = useI18n();
-  const [feedback, setFeedback] = useState<{ code: string; state: 'copying' | 'copied' | 'failed' }>();
-  const state = feedback?.code === code ? feedback.state : undefined;
-  async function copy() {
-    setFeedback({ code, state: 'copying' });
-    try {
-      await navigator.clipboard.writeText(code);
-      setFeedback({ code, state: 'copied' });
-    } catch { setFeedback({ code, state: 'failed' }); }
-  }
-  return <div className="community-code-block">
-    <div className="community-code-header">
-      <span>{language}</span>
-      <button type="button" disabled={state === 'copying'} onClick={() => void copy()} aria-label={t(`复制 ${language} 代码`, `Copy ${language} code`)}>
-        {state === 'copied' ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
-        {state === 'copied' ? t('已复制', 'Copied') : t('复制代码', 'Copy code')}
-      </button>
-    </div>
-    <Highlight code={code} lang={language} />
-    {state === 'copied' && <span className="sr-only" role="status">{t('代码已复制。', 'Code copied.')}</span>}
-    {state === 'failed' && <p className="community-copy-error" role="alert">{t('无法自动复制，请选择代码后手动复制。', 'Could not copy automatically. Select the code and copy it manually.')}</p>}
-  </div>;
-}
 
 export function CommunityFormatHelp() {
   const { t } = useI18n();

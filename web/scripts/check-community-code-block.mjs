@@ -1,0 +1,95 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+
+const dom=new JSDOM('<!doctype html><div id="root"></div><button id="other-task">Other task</button>',{url:'https://paperleet.test/#/22?from=collections%2Fllm-basics',pretendToBeVisual:true});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const nativeTimeout=window.setTimeout.bind(window),nativeClear=window.clearTimeout.bind(window),deadlines=new Map();let timerId=100000;
+window.setTimeout=(callback,delay,...args)=>{if(delay===8000){const id=timerId++;deadlines.set(id,()=>callback(...args));return id;}return nativeTimeout(callback,delay,...args);};
+window.clearTimeout=id=>{if(deadlines.has(id))deadlines.delete(id);else nativeClear(id);};
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+let root;
+try{
+  const {createRoot}=await import('react-dom/client');
+  const {default:Markdown,CommunityCodeBlock}=await server.ssrLoadModule('/src/CommunityMarkdown.tsx');
+  const {default:SolutionReadingCard}=await server.ssrLoadModule('/src/SolutionReadingCard.tsx');
+  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+  const code='# 中文 😀 <script> literal\n\ndef forward(x):\n\treturn "'+ 'long-token-'.repeat(35)+'"\n';
+  let props={code,language:'python'},setLocale,mode='direct';
+  function Harness(){setLocale=useI18n().setLocale;return React.createElement(React.Fragment,null,
+    React.createElement('textarea',{'aria-label':'Practice code',defaultValue:'Private draft 😀\nreturn original'}),
+    React.createElement('div',{className:'description-scroll'},mode==='direct'?React.createElement(CommunityCodeBlock,props):mode==='solution'?React.createElement(SolutionReadingCard,{id:'a'.repeat(32),title:'A detailed solution',body:'## Approach\n\nReasoning.\n\n## Implementation\n\n```python\n'+code+'```',onCode:()=>document.querySelector('[aria-label="Practice code"]').focus({preventScroll:true})}):React.createElement(Markdown,{body:'## Approach\n\n```python\n'+code+'```\n\n```json\n{"size": 2}\n```\n\nInline `x.detach()` stays inline.'})));}
+  root=createRoot(document.querySelector('#root'));
+  const render=async patch=>{props={...props,...patch};await act(async()=>root.render(React.createElement(LocaleProvider,null,React.createElement(Harness))));};
+  const block=()=>document.querySelector('.community-code-block'),copy=()=>block().querySelector('[aria-busy]'),wrap=()=>block().querySelector('[aria-pressed]'),status=()=>block().querySelector('[role="status"]'),manual=()=>block().querySelector('.community-code-manual textarea');
+  const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
+  const waitFor=async(condition,message)=>{const until=Date.now()+3000;while(!condition()&&Date.now()<until)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(condition(),message);};
+  const writes=[],pending=[];
+  const clipboard={writeText(value){writes.push(value);return new Promise((resolve,reject)=>pending.push({resolve,reject,value}));}};
+  Object.defineProperty(navigator,'clipboard',{value:clipboard,configurable:true});
+  const begin=async()=>{await click(copy());assert.equal(copy().getAttribute('aria-busy'),'true');return pending.shift();};
+  const settle=async(item,fail=false)=>act(async()=>fail?item.reject(Error('Permission denied')):item.resolve());
+  await render();
+  const editor=document.querySelector('[aria-label="Practice code"]'),pane=document.querySelector('.description-scroll');
+  editor.setSelectionRange(3,14,'backward');editor.scrollTop=39;pane.scrollTop=480;
+  const url=location.href,stored=JSON.stringify({...localStorage}),session=JSON.stringify({...sessionStorage});
+  assert.equal(writes.length,0,'Rendering never requests clipboard access');assert.equal(deadlines.size,0);
+  assert.equal(wrap().getAttribute('aria-pressed'),'false');assert.equal(block().querySelector('pre code').textContent,code);
+  await click(wrap());assert(block().classList.contains('is-wrapped'));assert.equal(document.activeElement,wrap());
+  assert.equal(block().querySelector('pre code').textContent,code,'Wrapping only changes presentation');
+  // Wait for the real syntax highlighter to replace its plain fallback.
+  await waitFor(()=>block().querySelector('pre.shiki'),'The real asynchronous syntax renderer loads');
+  assert(block().classList.contains('is-wrapped'));assert.equal(block().querySelector('pre code').textContent,code);
+  const button=copy();let first;
+  await act(async()=>{button.focus();button.click();button.click();first=pending.shift();});
+  assert.equal(writes.length,1,'Repeated commands during the same request write once');assert.equal(first.value,code);
+  assert.equal(button.disabled,false);assert.equal(button.getAttribute('aria-disabled'),'true');assert.equal(document.activeElement,button);assert.equal(deadlines.size,1);
+  await act(async()=>setLocale('zh'));assert.equal(copy(),button);assert.equal(document.activeElement,button);assert(status().textContent.includes('正在复制'));
+  await settle(first);assert(status().textContent.includes('代码已复制'));assert.equal(deadlines.size,0);assert.equal(copy().getAttribute('aria-busy'),'false');assert(!manual());
+  await act(async()=>setLocale('en'));
+  const denied=await begin();const newerFocus=document.querySelector('#other-task');newerFocus.focus();await settle(denied,true);
+  assert.equal(document.activeElement,newerFocus,'Denied permission must not steal newer focus');assert(manual().readOnly);assert.equal(manual().value,code);
+  manual().focus();assert.equal(manual().selectionStart,0);assert.equal(manual().selectionEnd,code.length);
+  const field=manual();field.setSelectionRange(5,20,'backward');field.scrollTop=23;
+  await act(async()=>setLocale('zh'));assert.equal(manual(),field);assert.equal(document.activeElement,field);assert.equal(field.selectionStart,5);assert.equal(field.selectionEnd,20);assert.equal(field.selectionDirection,'backward');assert.equal(field.scrollTop,23);
+  assert.equal(manual().getAttribute('aria-label'),'手动复制 python 代码');await act(async()=>setLocale('en'));
+  const timed=await begin();assert.equal(deadlines.size,1);await act(async()=>[...deadlines.values()][0]());
+  assert(manual());assert.equal(copy().getAttribute('aria-busy'),'false');assert.equal(deadlines.size,0);
+  const retry=await begin();await settle(timed);assert.equal(copy().getAttribute('aria-busy'),'true','A timed-out write cannot finish a newer retry');assert(!manual());await settle(retry);assert(status().textContent.includes('Code copied.'));
+  const lateCode=await begin();await render({code:'return newer'});assert.equal(deadlines.size,0);assert.equal(wrap().getAttribute('aria-pressed'),'false');await render({code});await settle(lateCode,true);assert.equal(status().textContent,'');assert(!manual(),'A → B → A replacement cannot restore old copy failure');
+  const lateLanguage=await begin();await render({language:'text'});assert.equal(deadlines.size,0);await settle(lateLanguage);assert.equal(status().textContent,'');await render({language:'python'});
+  assert.equal(location.href,url,'Reading, wrapping, copying and recovering code do not navigate away from the practice module');
+  const leaving=await begin();await act(async()=>{location.hash='#/community?solutions=1';window.dispatchEvent(new dom.window.HashChangeEvent('hashchange'));});
+  assert.equal(deadlines.size,0);assert.equal(copy().getAttribute('aria-busy'),'false');await settle(leaving);assert.equal(status().textContent,'');
+  // A changed URL is also checked before the browser dispatches its history event.
+  const beforeEvent=await begin();location.hash='#/u/alice?tab=solutions';await settle(beforeEvent,true);assert.equal(status().textContent,'');assert(!manual());
+  await act(async()=>{window.dispatchEvent(new dom.window.HashChangeEvent('hashchange'));});
+  const fresh=await begin();await act(async()=>window.dispatchEvent(new dom.window.HashChangeEvent('hashchange')));assert.equal(copy().getAttribute('aria-busy'),'true','A delayed history notification for the current URL must not cancel a newer copy');await settle(fresh);
+  const popped=await begin();await act(async()=>{window.history.replaceState(null,'','#/community?solutions=1');window.dispatchEvent(new dom.window.PopStateEvent('popstate'));});await settle(popped);assert.equal(status().textContent,'');assert.equal(deadlines.size,0);
+  Object.defineProperty(navigator,'clipboard',{value:undefined,configurable:true});await click(copy());assert(manual());assert.equal(manual().value,code);assert.equal(deadlines.size,0);
+  Object.defineProperty(navigator,'clipboard',{value:{writeText(){throw Error('Blocked synchronously');}},configurable:true});await click(copy());assert(manual());assert.equal(copy().getAttribute('aria-busy'),'false');
+  Object.defineProperty(navigator,'clipboard',{value:clipboard,configurable:true});mode='markdown';await render();
+  const blocks=[...document.querySelectorAll('.community-code-block')];assert.equal(blocks.length,2);assert.equal(document.querySelectorAll('.community-prose>p>code').length,1);
+  await click(blocks[0].querySelector('[aria-pressed]'));assert(blocks[0].classList.contains('is-wrapped'));assert(!blocks[1].classList.contains('is-wrapped'),'Each snippet owns its wrapping preference');
+  const markdownCopy=await begin();assert.equal(markdownCopy.value,code.slice(0,-1),'Markdown copies the existing rendered snippet contract, without its terminal fence newline');await settle(markdownCopy);
+  assert.equal(document.querySelector('[aria-label="Practice code"]'),editor);assert.equal(editor.value,'Private draft 😀\nreturn original');assert.equal(editor.selectionStart,3);assert.equal(editor.selectionEnd,14);assert.equal(editor.selectionDirection,'backward');assert.equal(editor.scrollTop,39);assert.equal(pane.scrollTop,480);
+  assert.equal(JSON.stringify({...localStorage}),stored);assert.equal(JSON.stringify({...sessionStorage}),session);
+  assert.equal(location.hash,'#/community?solutions=1');assert(url.includes('#/22?from='),'Only the test history commands changed the practice URL');
+  mode='solution';await render();await click(document.querySelector('.solution-reading-card>details>summary'));
+  const disclosure=document.querySelector('.solution-reading-card>details');assert(disclosure.open);
+  await waitFor(block,'The native disclosure event mounts the solution code');
+  await click(wrap());assert(disclosure.open);assert(block().classList.contains('is-wrapped'));
+  const inSolution=await begin();await settle(inSolution,true);manual().focus();const selected=manual();
+  await act(async()=>selected.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
+  assert(disclosure.open,'Escape in the manual copy field keeps the solution and native selection open');assert.equal(document.activeElement,selected);assert.equal(selected.selectionEnd,selected.value.length);
+  await click(document.querySelector('.solution-reading-code'));assert.equal(document.activeElement,editor);assert.equal(editor.selectionStart,3);assert.equal(editor.selectionEnd,14);assert.equal(editor.selectionDirection,'backward');assert.equal(pane.scrollTop,480);
+  const unmounted=await begin();await act(async()=>root.unmount());root=undefined;assert.equal(deadlines.size,0);await settle(unmounted,true);assert.equal(document.querySelector('#root').textContent,'');
+  console.log('PASS community code reading: independent wrapping with real async highlighting, exact Unicode/tab/raw clipboard content, explicit deduplicated copy and focused busy state, bilingual selected-text fallback, timeout/retry and stale code/language/ABA/route/history/unmount isolation, in-place solution/Escape/back-to-code integration, unchanged editor/caret/scroll/drafts and inline Markdown');
+}finally{
+  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
+  for(const [key,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];
+}
