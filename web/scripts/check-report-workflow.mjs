@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import {renderToStaticMarkup as renderStatic} from 'react-dom/server';
 import {localizedRenderer} from './render-locale.mjs';
+import {checkFailurePicker} from './check-failure-picker.mjs';
 
 export async function checkReportWorkflow(server) {
   const renderToStaticMarkup=await localizedRenderer(server,"zh",renderStatic);
@@ -61,5 +62,6 @@ export async function checkReportWorkflow(server) {
   assert(!failedFirst.includes('title="check_property"'),'Passing tests remain available through All, rather than burying failures on first view');
   assert.equal((failedFirst.match(/class="test-detail failed"/g)||[]).length,2);
   assert.equal((failedFirst.match(/<details[^>]+open=""/g)||[]).length,1);
+  await checkFailurePicker(server,ReportWorkflow,props);
   console.log('PASS fix/verify workflow: ordered failures, exact-source syntax priority, stale-frame rejection, bounded real diagnostics, Unicode context, retry/stop actions, failed-first reports, collapsed escaped tracebacks and immutable grades');
 }
