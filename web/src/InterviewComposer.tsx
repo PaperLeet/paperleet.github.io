@@ -98,7 +98,7 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
    {writingError&&<p className="interview-writing-hint" role="status">{writingError}</p>}
    <MarkdownEditor submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
      textareaRef={editor} label={t('流程、思路与复盘','Process, approach and reflection')} modeLabel={t('面经编辑模式','Report editing mode')}
-     rows={12} maxLength={20000} disabled={busy} describedBy={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}
+     rows={12} maxLength={20000} busy={busy} describedBy={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}
      placeholder={t('记录轮次、考察方向、你的解题思路和准备建议。只分享可以公开的信息。','Describe the rounds, concepts, your approach and preparation tips. Share information you can make public.')}/>
    {draft.body.trim()&&!contentReady&&!pendingMatches&&<p id={contentHint} className="interview-writing-hint" role="status">{t('提纲已经准备好。补充你实际经历的流程、思路或复盘后即可发布。','Your outline is ready. Add your actual process, approach or reflection before publishing.')}</p>}
    <PublishingRules action="post"/>

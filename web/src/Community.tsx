@@ -453,7 +453,7 @@ function Composer({
         {writingError&&<p className="community-writing-hint" role="alert">{writingError}</p>}
         {writingNotice&&<p className="community-writing-hint" role="status">{writingNotice}</p>}
         <MarkdownEditor submitShortcut value={body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
-          textareaRef={editor} describedBy={body.trim()&&!contentReady&&!pendingMatches?writingHint:undefined} label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} disabled={busy}
+          textareaRef={editor} describedBy={body.trim()&&!contentReady&&!pendingMatches?writingHint:undefined} label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} busy={busy}
           placeholder={board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
         {body.trim()&&!contentReady&&!pendingMatches&&<p id={writingHint} className="community-writing-hint" role="status">{t('提纲已准备好。补充自己的问题、观察或思考后，就可以发布。','Your outline is ready. Add your own question, observations or thoughts to publish.')}</p>}
         <PublishingRules action="post" />
@@ -1169,7 +1169,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
               >
                 <MarkdownEditor submitShortcut value={body} onChange={body=>editReply({body})} preview={replyPreview} onPreviewChange={setReplyPreview}
                   textareaRef={replyField} id="reply-body" label={t('回复内容','Your reply')} modeLabel={t('回复编辑模式','Reply editor mode')}
-                  rows={5} maxLength={10000} disabled={busy} placeholder={t('写下你的回复…（支持 Markdown）','Write a reply… (Markdown supported)')}/>
+                  rows={5} maxLength={10000} busy={busy} placeholder={t('写下你的回复…（支持 Markdown）','Write a reply… (Markdown supported)')}/>
                 <PublishingRules action="reply" />
                 <div className="form-footer">
                   <small>

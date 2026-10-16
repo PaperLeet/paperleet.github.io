@@ -53,7 +53,7 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
       <MarkdownEditor submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
-        label={t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={6} maxLength={10000} disabled={busy||disabled} autoFocus/>
+        label={t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={6} maxLength={10000} busy={busy} disabled={disabled} autoFocus/>
       <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的回复不会改变。','Discard unsaved edits? The published reply will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedReplyEdit(tabDraftStorage(),owner,reply.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
