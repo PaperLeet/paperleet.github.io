@@ -256,7 +256,7 @@ within budget. Exact Quality passes; the runtime-identical curriculum descendant
 asset comparisons. See
 [iteration 21](../../docs/validation/torch-runtime-iteration-21.md).
 
-## Version 0.22 candidate
+## Version 0.22 milestone
 
 Shared real statistics validate dimension/type/range/duplicate rules, scalar and
 empty reductions, fractional correction and unbiased overloads. Native values
@@ -270,7 +270,9 @@ supplement native references. Local infrastructure passes 25,605 tests; all 78
 native and exported WASM problems pass within their existing budgets. Independent
 Node/Chrome contracts, minimum-dependency installed wheels and balanced CPU/WASM
 comparisons pass. Remaining standard-deviation reverse costs are documented.
-This candidate awaits main integration and exact remote deployment verification.
+Main at `7eac78ab` passes exact remote Quality, including all 78 WASM modules.
+Runtime-identical curriculum descendant `db6408fd` awaits eligible publication
+and frozen live asset verification.
 
 ## Version 0.23 candidate
 
@@ -285,7 +287,8 @@ Final infrastructure passes 25,612 tests; real Node/Pyodide and Chrome Worker
 each pass 774 independent contracts. The installed wheel passes 794 tests on
 Python 3.10/NumPy 1.26 without native Torch. Balanced CPU/WASM comparisons retain
 all three phases, including an unstable middle phase and direct-method controls.
-Original catalogs, exported bundles and remote adoption remain release gates.
+Original native catalog, export/history and latest-curriculum packaging/frontend
+checks pass. Full exported WASM and remote adoption remain release gates.
 
 ## Next implementation areas
 

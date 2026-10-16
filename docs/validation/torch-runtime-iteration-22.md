@@ -1,10 +1,10 @@
-# StrideTorch 0.22 candidate: shared real statistics
+# StrideTorch 0.22: shared real statistics
 
-This development candidate adds shared real `var/std/var_mean/std_mean` kernels,
-strict reduction/overload contracts and analytical VJP/JVP. It is not adopted on
-main. All local release gates pass, including 25,605 infrastructure tests and
-the complete native and exported WASM catalogs. Remote integration remains
-pending. Version 0.21 is already deployed and independently verified.
+This version adds shared real `var/std/var_mean/std_mean` kernels, strict
+reduction/overload contracts and analytical VJP/JVP. Main includes 0.22 at
+`7eac78ab`; its exact Quality run passes native, complete WASM and pilot checks.
+All local release gates also pass. Publication/live verification is still
+pending on the runtime-identical curriculum descendant `db6408fd`.
 
 ## Correctness and computation
 
@@ -129,3 +129,23 @@ retain full native/WASM results, packaging receipts, history checks and frozen
 runtime/live-verification inputs. The independent project name **StrideTorch**
 is explicitly confirmed by the human; distribution, import and launcher use
 `stridetorch`, while host/launcher aliases preserve ordinary `import torch`.
+
+## Main quality and pending publication
+
+[Exact Quality 38879271337](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38879271337)
+passes all three required jobs. Linux infrastructure passes 25,605 tests with
+one optional skip and 20 warnings (564.42s). Native catalog passes 78 problems,
+10,218 executions, 342 mutants and three repetitions (419.80s). Actual WASM
+passes all 78 modules without browser budget violations (1,025.912s aggregate).
+Flow Matching takes 233.066s calibration, 46.635s learner and 284.134s total,
+within unchanged 240/60/300s limits. These timings are budget observations on
+the actual runner, not controlled performance comparisons.
+
+Main advances to `db6408fd` before the original Quality finishes, so the old
+Pages trigger is skipped/superseded rather than published. All 43 core/license
+hashes, library packaging inputs, problems, tests, workflows and browser bundles
+are identical in that descendant. Nine upstream curriculum/UI files differ,
+including private application catalog metadata; whole-application wheel identity
+is not claimed. Its actual Quality/eligible Pages and live asset checks remain
+pending. [Main-quality evidence](../../packages/stridetorch/benchmarks/results/iteration-22-main-quality.json)
+records this distinction.

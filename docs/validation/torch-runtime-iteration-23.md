@@ -46,8 +46,12 @@ validation. Initial failures and frozen source/tests remain preserved.
 The original native catalog passes all 78 problems, 10,218 executions across
 three repetitions and 342 mutants (123.49s), retaining its existing budgets.
 Export preserves 6,440 published immutable assets; all 158 new assets are
-reachable. Frontend checks/build and Pages policy pass before the next upstream
-curriculum merge. Full exported WASM and main/remote adoption remain pending.
+reachable. After merging upstream curriculum at `db6408fd`, all nine upstream
+files match exactly and all core/license hashes and 161 frozen export files
+remain unchanged. Fresh private wheels/source archives retain the latest
+application catalog metadata and identical standalone core bytes. Repeated
+frontend checks validate 48 bilingual guides/144 prompts; build and Pages policy
+also pass. Full exported WASM and main/remote adoption remain pending.
 
 ## Controlled dispatch measurements
 
@@ -83,3 +87,6 @@ The [development evidence](../../packages/stridetorch/benchmarks/results/iterati
 and [source/test/harness archive](../../packages/stridetorch/benchmarks/results/iteration-23-harness.tar.gz)
 retain all phases, failed prototypes, independent distributions and release
 snapshots. They explicitly distinguish completed gates from pending adoption.
+The [merged gates](../../packages/stridetorch/benchmarks/results/iteration-23-merged-gates.json)
+and [merged packaging/frontend archive](../../packages/stridetorch/benchmarks/results/iteration-23-merged-gates-harness.tar.gz)
+record the refreshed application metadata and repeated affected checks.
