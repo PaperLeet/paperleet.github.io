@@ -1,0 +1,61 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'https://paperleet.test/#/community',pretendToBeVisual:true});
+dom.window.matchMedia=()=>({matches:true});dom.window.HTMLElement.prototype.scrollIntoView=function(){};
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__feedRecovery:undefined};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
+ name:'feed-recovery-fixture',enforce:'pre',resolveId(source){if(source==='./social')return '\0feed-recovery-fixture';},load(name){if(name==='\0feed-recovery-fixture')return `import React from 'react';export const useAccount=()=>globalThis.__feedRecovery.account;export const socialApi=(...args)=>globalThis.__feedRecovery.request(...args);export const errorMessage=e=>e.message;export class SocialError extends Error{};export const Avatar=({user})=>React.createElement('span',null,user.display_name);export const profileHref=user=>'#/u/'+user.username;export const PersonLink=({user})=>React.createElement('span',null,user.display_name);export const DateLabel=({value})=>React.createElement('time',null,value);export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);export const TestAccountBadge=()=>null;`;}
+}]});
+let root;const realSet=globalThis.setTimeout,realClear=globalThis.clearTimeout,timers=[];
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Community,COMMUNITY_FEED_TIMEOUT}=await server.ssrLoadModule('/src/Community.tsx');
+ const nav=await server.ssrLoadModule('/src/communityNavigation.ts');
+ globalThis.setTimeout=(callback,delay,...args)=>{if(delay===COMMUNITY_FEED_TIMEOUT){const timer={callback,cancelled:false};timers.push(timer);return timer;}return realSet(callback,delay,...args);};
+ globalThis.clearTimeout=id=>{if(timers.includes(id))id.cancelled=true;else realClear(id);};
+ const user=id=>({id,username:id,display_name:id,avatar_color:'#48766b',can_publish_community:true,affiliation:{kind:'institution',domain:'research.edu',name:'测试研究院',name_en:'Research Institute'}});
+ const account={user:user('alice'),loading:false,capabilities:{community_bookmarks:true,community_feed_sorting:true,community_papers:true},refresh:async()=>{}};
+ const requests=[];globalThis.__feedRecovery={account,request(path,body,signal){assert.equal(body,undefined,'Reading/retrying/clearing never publishes');return new Promise((resolve,reject)=>requests.push({path,signal,resolve,reject}));}};
+ const post=title=>({id:'a'.repeat(32),title,body:'Discussion content',category:'questions',created_at:'2026-10-16T00:00:00Z',updated_at:'2026-10-16T00:00:00Z',author:user('alice'),counts:{likes:0,replies:0,reposts:0},viewer:{}});
+ const result=title=>({items:[post(title)],total:40,sort:'top'});
+ function Locale(){const {locale,setLocale}=useI18n();return React.createElement('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'locale');}
+ const topicId='architecture/attention',scope={category:'questions',following:false,saved:true,sort:'top',search:'mask & 中 😀',page:2};location.hash=nav.communityFeedHref(topicId,scope);
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),React.createElement(Community,{route:location.hash,topicId,topic:{id:topicId,title:'Attention'}})));});
+ const click=async node=>{assert(node,'Missing control');await act(async()=>node.click());};
+ const button=text=>[...document.querySelectorAll('button')].find(node=>node.textContent.trim()===text);
+ const edit=async(node,value)=>act(async()=>{assert(node);const name=node.tagName==='TEXTAREA'?'HTMLTextAreaElement':'HTMLInputElement';Object.getOwnPropertyDescriptor(dom.window[name].prototype,'value').set.call(node,value);node.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
+ const finish=async(request,value)=>act(async()=>request.resolve(value));
+ const fire=async timer=>act(async()=>timer.callback());
+ await render();assert.equal(requests.length,1);const first=requests[0],firstTimer=timers.at(-1),url=location.href;
+ await click(document.querySelector('.community-compose-button'));const field=document.querySelector('.community-composer textarea');assert(field);
+ await edit(field,'Working private draft 🧪 with a selected region.');field.focus();field.setSelectionRange(2,9,'backward');field.scrollTop=19;field.scrollLeft=7;
+ const search=document.querySelector('.community-search input');await edit(search,'unsubmitted search');field.focus();
+ const unchanged=()=>{assert.equal(document.querySelector('.community-composer textarea'),field);assert.equal(field.value,'Working private draft 🧪 with a selected region.');assert.deepEqual([field.selectionStart,field.selectionEnd,field.selectionDirection,field.scrollTop,field.scrollLeft],[2,9,'backward',19,7]);assert.equal(document.querySelector('.community-search input'),search);assert.equal(search.value,'unsubmitted search');assert.equal(location.href,url);};
+ await fire(firstTimer);assert(first.signal.aborted);assert(document.querySelector('[role="alert"]').textContent.includes('timed out'));assert(!document.querySelector('.social-loading'));assert.equal(document.activeElement,field);unchanged();
+ const beforeLocale=requests.length;await click(document.querySelector('#locale'));assert(document.querySelector('[role="alert"]').textContent.includes('讨论加载超时'));assert.equal(requests.length,beforeLocale);unchanged();
+ await click(button('重试'));assert.equal(requests.length,2);const retry=requests.at(-1),retryTimer=timers.at(-1);assert.equal(retry.path,first.path);assert(!document.querySelector('[role="alert"]'));unchanged();
+ await finish(first,result('Stale timed-out response'));assert(!document.querySelector('[data-reading-post]'));assert(document.querySelector('.social-loading'));await fire(firstTimer);assert(!document.querySelector('[role="alert"]'));
+ field.focus();await finish(retry,result('Current response'));assert(retryTimer.cancelled);assert(document.body.textContent.includes('Current response'));assert(!document.body.textContent.includes('Stale timed-out response'));assert.equal(document.activeElement,field);unchanged();
+ await fire(retryTimer);assert(!document.querySelector('[role="alert"]'),'A settled deadline cannot affect the completed retry');await click(document.querySelector('#locale'));assert.equal(requests.length,2);
+ const clear=document.querySelector('[aria-label="Clear search"]');clear.focus();await click(clear);await render();
+ assert.deepEqual(nav.readCommunityFeed(location.hash),{topicId,state:{...scope,search:'',page:1}});assert.equal(document.activeElement,search);assert.equal(document.querySelector('.community-composer textarea'),field);assert.equal(field.value,'Working private draft 🧪 with a selected region.');
+ const pending=requests.at(-1),pendingTimer=timers.at(-1),count=requests.length,deadlineCount=timers.length;
+ account.user=undefined;account.loading=true;await render();assert(pending.signal.aborted&&pendingTimer.cancelled);assert.equal(requests.length,count);assert.equal(timers.length,deadlineCount);
+ account.loading=false;await render();assert.equal(requests.length,count);assert.equal(timers.length,deadlineCount);assert(document.body.textContent.includes('Sign in to see your saved posts'));
+ await finish(pending,result('Previous account response'));await fire(pendingTimer);assert(!document.body.textContent.includes('Previous account response'));assert(!document.querySelector('.community-composer textarea'));
+ account.user=user('bob');account.capabilities.community_bookmarks=false;await render();assert.equal(requests.length,count);assert.equal(timers.length,deadlineCount);assert(document.body.textContent.includes('Saved posts are unavailable'));
+ account.capabilities.community_bookmarks=true;account.capabilities.community_feed_sorting=false;await render();assert.equal(requests.length,count);assert.equal(timers.length,deadlineCount);assert(document.body.textContent.includes('This order is currently unavailable'));
+ account.capabilities.community_feed_sorting=true;await render();assert.equal(requests.length,count+1);const failed=requests.at(-1),failedTimer=timers.at(-1);
+ await act(async()=>failed.reject(Error('Network unavailable')));assert(failedTimer.cancelled);assert(document.querySelector('[role="alert"]').textContent.includes('Network unavailable'));await fire(failedTimer);assert(!document.querySelector('[role="alert"]').textContent.includes('timed out'));
+ await click(button('Retry'));const aborted=requests.at(-1),abortedTimer=timers.at(-1);location.hash=nav.communityFeedHref(topicId,{...scope,category:'papers'});await render();assert(aborted.signal.aborted&&abortedTimer.cancelled);
+ await fire(abortedTimer);await finish(aborted,result('Previous filter response'));assert(!document.querySelector('[role="alert"]'));assert(!document.body.textContent.includes('Previous filter response'));
+ const last=requests.at(-1),lastTimer=timers.at(-1);await act(async()=>root.unmount());root=undefined;assert(last.signal.aborted&&lastTimer.cancelled);await fire(lastTimer);await finish(last,result('After unmount'));
+ assert(timers.every(timer=>timer.cancelled));
+ console.log('PASS community feed recovery: bounded timeout/abort, bilingual no-refetch error, exact scoped retry, working draft/caret/both-scroll/search/focus continuity, late/settled/account/filter/unmount guards and no reads/deadlines across private capability gates');
+}finally{globalThis.setTimeout=realSet;globalThis.clearTimeout=realClear;if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

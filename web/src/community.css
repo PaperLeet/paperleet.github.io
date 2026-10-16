@@ -484,7 +484,7 @@
   margin-bottom: 19px;
 }
 .community-feed-toolbar > .social-tabs { flex-shrink: 0; }
-.community-feed-controls { display: flex; align-items: center; gap: 12px; flex: 0 1 465px; min-width: 0; margin-left: auto; }
+.community-feed-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; flex: 0 1 465px; min-width: 0; margin-left: auto; }
 .social-tabs {
   display: flex;
   align-items: center;
@@ -521,33 +521,44 @@
   padding: 10px 1px;
 }
 .community-search {
-  flex: 1 1 255px;
+  flex: 1 1 220px;
   min-width: 0;
-  height: 44px;
+  min-height: 44px;
   background: var(--surface);
   border: 1px solid var(--line);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
+  gap: 6px;
+  padding: 1px 3px 1px 10px;
   border-radius: 5px;
   color: var(--text-secondary);
 }
 .community-search input {
+  flex: 1;
   min-width: 0;
+  padding: 0;
   border: 0;
   background: none;
   width: 100%;
   font-size: var(--type-body);
-  line-height: 1.9;
+  line-height: 1.5;
   outline: none;
 }
 .community-search:focus-within {
   border-color: var(--accent);
 }
 .community-search button {
-  padding: 1px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 6px;
 }
+.community-search button:hover { color:var(--text); background:var(--surface2); }
+.community-search button:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
+.community-search input::-webkit-search-cancel-button, .community-search input::-webkit-search-decoration { -webkit-appearance:none; }
 .feed-items {
   padding: 0;
   overflow: hidden;
@@ -1575,8 +1586,8 @@
 .waitlist-email { overflow-wrap: anywhere; font-weight: 600; }
 .waitlist-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 
-/* Search and ordering share a single control row above the feed. */
-.community-sort { display:inline-flex; flex:none; align-items:center; gap:7px; color:var(--muted); font-size:var(--type-small); }
+/* Search and ordering share a compact group, wrapping when space is limited. */
+.community-sort { display:inline-flex; flex:none; align-items:center; gap:7px; margin-left:auto; color:var(--muted); font-size:var(--type-small); }
 .community-sort select { min-width:132px; height:44px; max-width:100%; padding:6px 28px 6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--text); font:inherit; cursor:pointer; }
 .community-sort select:hover { border-color:var(--muted); }
 .community-sort select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
@@ -1587,6 +1598,11 @@
 @media (max-width:640px) {
   .community-feed-controls { gap:10px; }
   .community-sort > svg, .community-sort > span { display:none; }
+}
+@media (pointer:coarse) {
+  .community-search { min-height:48px; }
+  .community-search button { width:44px; height:44px; }
+  .community-sort select { height:48px; }
 }
 
 .post-card-counts { flex-wrap:wrap; }

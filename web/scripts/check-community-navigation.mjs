@@ -109,7 +109,7 @@ try {
   assert.equal(accountReturnHref('account/continue/#/community?category=questions'),undefined);
   const route=communityFeedHref('architecture/attention',{category:'questions',following:true,search:'mask & gradient',page:2});
   const markup=renderToString(React.createElement(Community,{route:decodeProblemHash(route),topicId:'architecture/attention'}));
-  assert(markup.includes('value="mask &amp; gradient"') && markup.includes('maxLength="200"'));
+  assert(markup.includes('value="mask &amp; gradient"') && markup.includes('maxLength="400"') && markup.includes('最多200个字符') && markup.includes('type="search"'));
   assert(markup.includes('aria-pressed="true"') && markup.includes(signInHref(route).replaceAll('&','&amp;')));
   console.log('PASS community navigation: scoped filter/page URLs, reserved Unicode search text, post return context, login round trips, public-only targets and malformed/recursive/external rejection');
 } finally { await server.close(); }
