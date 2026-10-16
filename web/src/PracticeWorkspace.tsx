@@ -237,6 +237,7 @@ export function usePracticeWorkspace() {
           }, owner);
           serverMutation.current += 1;
           cache.current?.acknowledge(owner, {[id]: {code: draft.code}});
+          cache.current?.retireRecovery(owner, id);
           publishPracticeChange({owner, problem: id, kind: 'draft', revision: response.draft.updated, source: source.current});
         }
         if (currentOwner.current === owner && epoch.current === generation)
@@ -335,7 +336,8 @@ export function usePracticeWorkspace() {
     if (owner === "local" || owner === "anonymous") return browserWorkspace.resolveConflict(id,keepLocal);
     failed.current = false;
     setError("");
-    mutate((previous) => {
+    let discarded = false;
+    const resolved = mutate((previous) => {
       const server = previous.conflicts[id];
       if (!server) return previous;
       const pending = { ...previous.pending },
@@ -344,12 +346,17 @@ export function usePracticeWorkspace() {
       if (keepLocal && pending[id])
         pending[id] = { ...pending[id], base: server.updated || "" };
       else {
+        discarded = !!pending[id];
         delete pending[id];
         records[id] = server;
       }
       delete conflicts[id];
       return { ...previous, pending, conflicts, records };
     });
+    // A recovered journal belongs to an earlier document. Removing only our
+    // pending map leaves it available to resurrect the rejected source later.
+    if (resolved && discarded)
+      cache.current?.retireRecovery(owner, id);
   }
   const visible = bundle.owner === owner ? bundle : emptyBundle(owner);
   function replaceCode(problem: Problem, code: string, expected: DraftExpectation) {
@@ -390,7 +397,10 @@ export function usePracticeWorkspace() {
       failed.current = false;
       setError("");
       if (!visible.hydrated) setRetryVersion((v) => v + 1);
-      else setFlushVersion((v) => v + 1);
+      else {
+        refreshWorkspace.current?.();
+        setFlushVersion((v) => v + 1);
+      }
     },
     owns: (expected: string) => currentOwner.current === expected,
   };

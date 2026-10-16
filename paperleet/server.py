@@ -80,7 +80,10 @@ class JudgeHandler(BaseHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 256 * 1024:
                 return self.respond(413, {"error": "Request must be between 1 byte and 256 KB"})
-            data = json.loads(self.rfile.read(size))
+            try:
+                data = json.loads(self.rfile.read(size))
+            except RecursionError:
+                raise ValueError("Request JSON is too deeply nested") from None
             if not isinstance(data, dict):
                 raise ValueError("Expected a JSON object")
             if is_job_path(self.path):

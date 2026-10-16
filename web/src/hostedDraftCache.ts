@@ -38,8 +38,12 @@ export function createHostedDraftCache(source: string) {
         let session: string | null = null;
         try { session = sessionStorage.getItem(sessionKey(owner)); } catch { /* Use the durable recovery journal. */ }
         const legacy = parse(localStorage.getItem(base(owner)));
-        recoveredLegacy.set(owner, legacy);
         const recovered = session !== null ? parse(session) : {...legacy};
+        // A tab session may deliberately ignore another window's legacy draft.
+        // Only adopted legacy source belongs to this document's retirement set.
+        recoveredLegacy.set(owner, session === null ? legacy : Object.fromEntries(
+          Object.entries(legacy).filter(([id, draft]) => JSON.stringify(recovered[id]) === JSON.stringify(draft)),
+        ));
         if (session === null) for (const [id, draft] of Object.entries(recovered)) {
           if (localStorage.getItem(legacyAckKey(owner, id)) === JSON.stringify(draft)) delete recovered[id];
         }
@@ -103,6 +107,18 @@ export function createHostedDraftCache(source: string) {
           if (workspace[id]?.code === draft.code) localStorage.setItem(legacyAckKey(owner, id), JSON.stringify(draft));
         }
       } catch { /* Keeping an acknowledged copy is safe; a future read clears it. */ }
+    },
+    retireRecovery(owner: string, id: string) {
+      // Retire every recovered revision of this problem, including the source
+      // before any edits in this document. Unseen peer keys remain untouched.
+      try {
+        for (const journal of recoveredKeys.get(owner) || []) {
+          const entries = Object.entries(parse(localStorage.getItem(journal)));
+          if (entries.length && entries.every(([problem]) => problem === id)) localStorage.removeItem(journal);
+        }
+        const legacy = recoveredLegacy.get(owner)?.[id];
+        if (legacy) localStorage.setItem(legacyAckKey(owner, id), JSON.stringify(legacy));
+      } catch { /* Keep the remaining recovery copy if storage is unavailable. */ }
     },
   };
 }

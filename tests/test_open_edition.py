@@ -41,10 +41,10 @@ def local_api(tmp_path, monkeypatch):
     worker = threading.Thread(target=httpd.serve_forever, daemon=True)
     worker.start()
 
-    def request(path, body=None, client="a" * 32, origin="http://127.0.0.1:5173"):
+    def request(path, body=None, client="a" * 32, origin="http://127.0.0.1:5173", *, raw=None):
         connection = HTTPConnection("127.0.0.1", httpd.server_port, timeout=20)
-        connection.request("GET" if body is None else "POST", "/api/" + path,
-                           json.dumps(body) if body is not None else None,
+        encoded = raw if raw is not None else json.dumps(body) if body is not None else None
+        connection.request("POST" if encoded is not None else "GET", "/api/" + path, encoded,
                            {"Content-Type": "application/json", "Origin": origin,
                             "X-PaperLeet-Client-ID": client})
         response = connection.getresponse()
@@ -55,6 +55,18 @@ def local_api(tmp_path, monkeypatch):
     httpd.shutdown()
     httpd.server_close()
     worker.join(timeout=2)
+
+
+def test_deep_json_is_rejected_before_local_execution(local_api, monkeypatch):
+    def forbidden_execution(*args, **kwargs):
+        raise AssertionError("Malformed JSON must not execute learner code")
+
+    monkeypatch.setattr(server, "run_problem", forbidden_execution)
+    nested = '{"layers":' + '[' * 10000 + '0' + ']' * 10000 + '}'
+    status, payload = local_api("test", raw=nested)
+    assert status == 400
+    assert "error" in payload
+    assert local_api("health")[0] == 200
 
 
 def test_local_judge_runs_without_accounts_and_rejects_online_routes(local_api):

@@ -32,11 +32,13 @@ const id='rl/dpo',problem={id,test_count:1};
 const passed={problem:id,tests:[{id:'case',layer:'T0',passed:true}],summary:{T0:[1,1]},selected:'all'};
 const failed={...passed,tests:[{...passed.tests[0],passed:false}],summary:{T0:[0,1]}};
 let workspace={[id]:{code:'base',updated:'v1'}};
-let delayedRead,pauseRead=false;
+let delayedRead,pauseRead=false,readError=false;
 function copy(value){return JSON.parse(JSON.stringify(value));}
 globalThis.__workspaceApi=async(path,body)=>{
   if(path==='practice/workspace'){
-    requests++;const snapshot={user_id:'alice',workspace:copy(workspace)};
+    requests++;
+    if(readError)throw Error('Workspace temporarily unavailable');
+    const snapshot={user_id:'alice',workspace:copy(workspace)};
     if(pauseRead){pauseRead=false;return new Promise(resolve=>{delayedRead=()=>resolve(snapshot);});}
     return snapshot;
   }
@@ -119,6 +121,17 @@ try{
   assert.equal(requests,beforeFocus+2,'focus and visibility event pair coalesces');
   console.log('PASS focus/visibility refresh recovers missed notifications without polling');
 
+  readError=true;await signal();
+  await settle(()=>views.a.error&&views.b.error,'background workspace read fails visibly');
+  const beforeRetry=requests;
+  workspace[id]={...workspace[id],code:'remote edit during outage',updated:`v${++version}`};
+  readError=false;
+  await act(async()=>views.a.retry());
+  await settle(()=>views.a.saved[id]?.code==='remote edit during outage','Retry reloads a hydrated workspace after a failed background read');
+  assert.equal(requests,beforeRetry+1,'manual read retry makes one authoritative request');
+  assert.equal(views.a.error,'');
+  console.log('PASS manual Retry recovers failed background workspace reads');
+
   pauseRead=true;await signal();await settle(()=>Boolean(delayedRead),'account switch request pending');
   const staleA=views.a;userIds.a='bob';await render('a');
   await act(async()=>delayedRead());delayedRead=undefined;
@@ -178,6 +191,53 @@ try{
   sessionStorage.clear();assert.equal(cleaner.read(owner)[id].code,'new unsynced concurrent edit');
   console.log('PASS adversarial peer acknowledgement cannot erase a concurrent immutable draft revision');
   console.log('PASS isolated recovery journals survive reload/closed tabs and migrate legacy source safely');
+
+  localStorage.clear();sessionStorage.clear();
+  const otherId='rl/gae',oldWriter=createHostedDraftCache('old-writer');
+  oldWriter.write(owner,{...recovered,[otherId]:{...recovered[id],code:'another problem'}});
+  sessionStorage.clear();const recovering=createHostedDraftCache('recovering');recovering.read(owner);
+  recovering.write(owner,{[id]:{...recovered[id],code:'new unsynced edit'}});
+  const latePeer=createHostedDraftCache('late-peer');
+  latePeer.write(owner,{[id]:{...recovered[id],code:'unseen peer edit'}});
+  recovering.retireRecovery(owner,id);
+  const durable=Object.values(localStorage).join('\n');
+  assert(durable.includes('new unsynced edit'),'retiring recovery preserves this document\'s newer unsynced source');
+  assert(durable.includes('unseen peer edit'),'retiring recovery preserves an unseen peer revision');
+  sessionStorage.clear();assert.equal(recovering.read(owner)[otherId].code,'another problem','retirement is scoped to one problem');
+  console.log('PASS recovery retirement preserves newer unsynced edits, unseen peer revisions and other problems');
+
+  localStorage.clear();sessionStorage.clear();
+  const sessionDraft={...recovered[id],code:'this tab session source'};
+  const sessionWriter=createHostedDraftCache('session-writer');sessionWriter.write(owner,{[id]:sessionDraft});
+  localStorage.setItem(legacy,JSON.stringify(recovered));
+  const sessionReader=createHostedDraftCache('session-reader');
+  assert.equal(sessionReader.read(owner)[id].code,sessionDraft.code,'the tab session takes precedence over another window\'s legacy source');
+  sessionReader.retireRecovery(owner,id);
+  sessionStorage.clear();
+  assert.equal(createHostedDraftCache('fresh-reader').read(owner)[id]?.code,recovered[id].code,
+    'retiring session recovery must not acknowledge a legacy source the tab never recovered');
+  console.log('PASS session recovery retirement preserves ignored legacy drafts from other windows');
+
+  for(const keepLocal of [true,false]){
+    localStorage.clear();sessionStorage.clear();
+    localStorage.setItem(legacy,JSON.stringify(recovered));
+    const closedWindow=createHostedDraftCache('closed-window');
+    closedWindow.write(owner,recovered);
+    sessionStorage.clear();userIds.a='alice';await render('a');
+    await settle(()=>views.a.ready&&views.a.conflicts[id],'closed-window source conflicts with the current server draft');
+    assert.equal(views.a.saved[id].code,recovered[id].code);
+    await act(async()=>views.a.update(id,{code:`edited recovered source ${keepLocal}`}));
+    await act(async()=>views.a.resolveConflict(id,keepLocal));
+    if(keepLocal)await act(async()=>views.a.flush());
+    assert.equal(views.a.saved[id].code,workspace[id].code,'the selected source matches the server');
+    await act(async()=>roots.a.unmount());delete roots.a;
+    sessionStorage.clear();await render('a');
+    await settle(()=>views.a.ready,'a fresh browser session hydrates after resolving recovery');
+    assert.equal(views.a.saved[id].code,workspace[id].code,'superseded recovery must not reappear in a fresh session');
+    assert.deepEqual(views.a.conflicts,{});
+    await act(async()=>roots.a.unmount());delete roots.a;
+  }
+  console.log('PASS saved and explicitly discarded recovered drafts retire older journal and legacy copies');
 }finally{
   for(const root of Object.values(roots))if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();
