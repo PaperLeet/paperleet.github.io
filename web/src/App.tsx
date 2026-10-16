@@ -5,7 +5,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
+import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { isPassed, status } from "./types";
 import type { Category, Paper, Problem, Report } from "./types";
-import { PaperDetail, PaperLibrary, paperModules } from "./PaperViews";
+import { PaperLibrary, paperModules } from "./PaperViews";
 import { collectionIdFromRoute } from "./paperCollections";
 import { decodeProblemHash } from "./reports";
 import { LocaleProvider, useI18n } from "./i18n";
@@ -286,7 +286,7 @@ function Workspace() {
     : learning.failed
       ? t('请先重试保存本机学习记录，再重新加载。', 'Retry saving browser learning progress before reloading.')
     : !practice.ready || practice.loading || !learning.ready
-      ? t('正在加载工作区，暂不能重新加载编辑器。', 'Wait for the workspace to finish loading before reloading the editor.')
+      ? t('正在加载工作区，完成后可重新加载页面。', 'Wait for the workspace to finish loading before reloading.')
     : practice.pending || practice.saving || learning.saving
       ? t('正在保存草稿和学习记录，保存完成后可重新加载。', 'Saving drafts and learning progress. Reloading becomes available when saving finishes.')
     : '';
@@ -627,6 +627,9 @@ function Workspace() {
             stats={problemStats}
             returnTo={libraryReturn}
             progressReady={progressReady}
+            recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:()=>{
+              if(!editorRecoveryReason&&practice.owns(practice.owner))reloadApp();
+            }}}
           />
         ) : (
           <PaperLibrary

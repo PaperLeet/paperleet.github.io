@@ -1,5 +1,6 @@
 import { deferredFeature, FeatureFailure } from './deferredFeature';
-import { EditorFailure, EditorLoading } from './EditorFallback';
+import { EditorFailure, EditorLoading, type EditorRecovery } from './EditorFallback';
+import { PaperDetailFailure } from './PaperDetailFallback';
 import { WorkspaceBackupFailure } from './WorkspaceBackupFallback';
 import { ModuleNavigationFallback } from "./ModuleNavigationFallback";
 import { QueueAdmissionFallback } from './QueueAdmissionFallback';
@@ -25,6 +26,10 @@ export const InboxBell = deferredFeature(() => import('./InboxBell'), ['通知',
 export const Messages = deferredFeature(() => import('./Messages'), ['私信', 'messages']);
 
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
+export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDetail').default>[0]&{recovery:EditorRecovery}>(() => import('./PaperDetail'), ['论文详情','paper details'], {
+  failure:props=><PaperDetailFailure returnTo={props.returnTo} recovery={props.recovery}/>,
+});
+
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
 export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['公司面经关联','company mentions'], {loading:()=>null,failure:()=>null});
 export const PreparationGuide = deferredFeature(() => import('./PreparationGuide'), ['面试自测提纲','study prompts'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试自测提纲','Retry study prompts']}/>});

@@ -65,9 +65,10 @@ const mocks = {
   './useBrowserLearning': `export const useBrowserLearning=()=>globalThis.__paperleetWorkspaceActionTest.learning;`,
   './catalogIndex': `export const loadCatalogIndex=async()=>globalThis.__paperleetWorkspaceActionTest.catalog||({problems:[globalThis.__paperleetWorkspaceActionTest.problem],papers:[],categories:[]});`,
   './ProblemStats': `export const useProblemStats=()=>({stats:{},totalSubmissions:0,refresh:()=>{},loading:false});export const getProblemStats=()=>({});export const ProblemStats=()=>null;`,
-  './PaperViews': `import React from 'react';export const PaperDetail=props=>React.createElement('section',{'data-test-paper-detail':true,'data-practice-ids':props.practiceProblems?.map(p=>p.id).join(','),'data-return-to':props.returnTo});export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
+  './PaperViews': `export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
   './ReportView': `import React from 'react';import Report from '/src/ReportView.tsx?fixture_actual=1';globalThis.__paperleetWorkspaceActionTest.calls.detailsLoads++;export default function FixtureReport(props){if(globalThis.__paperleetWorkspaceActionTest.failDetails)throw Error('Fixture detail failure');return React.createElement(Report,props);}`,
   './deferredPages': `import React,{useEffect} from 'react';
+    export const PaperDetail=props=>React.createElement('section',{'data-test-paper-detail':true,'data-practice-ids':props.practiceProblems?.map(p=>p.id).join(','),'data-return-to':props.returnTo,'data-reload-blocked':String(!!props.recovery?.blocked)});
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
     export const InboxBell=()=>null,Messages=()=>null;
@@ -328,6 +329,11 @@ try {
   await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
   await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-practice-ids')===position.id);
   assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),selectedView,'The real App sends its current canonical library selection to paper details');
+  assert.equal(find('[data-test-paper-detail]').getAttribute('data-reload-blocked'),'false');
+  await act(async()=>{fixture.practice.pending=true;notify();});
+  await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-reload-blocked')==='true');
+  await act(async()=>{fixture.practice.pending=false;notify();});
+  await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-reload-blocked')==='false');
   const emptyView=libraryNav.libraryHref(undefined,{...libraryNav.emptyLibraryFilters(),query:'missing-paper'});
   await act(async()=>{location.hash=libraryNav.withLibraryContext('papers/attention',emptyView);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});
   await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-practice-ids')==='');
