@@ -28,7 +28,7 @@ def create_torch(name='torch', *, register=False):
     for name in ('nn', 'nn.functional', 'nn.parameter', 'nn.modules', 'nn.modules.module',
                  'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
                  'nn.modules.normalization', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
-                 'nn.modules.flatten', 'nn.modules.distance',
+                 'nn.modules.flatten', 'nn.modules.distance', 'nn.modules.pooling',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         module = types.ModuleType(root_name + '.' + name)
@@ -52,6 +52,7 @@ def create_torch(name='torch', *, register=False):
         (_groupnorm,('GroupNorm',)),
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
+        (_pooling,('MaxPool2d',)),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
@@ -70,6 +71,7 @@ def create_torch(name='torch', *, register=False):
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'conv':('Conv1d','Conv2d','Conv3d'),
+        'pooling':('MaxPool2d',),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
@@ -211,6 +213,10 @@ def create_torch(name='torch', *, register=False):
         if inplace: raise _errors.BrowserUnsupported('In-place ReLU requires the server')
         return input.relu()
     registry.add('torch.nn.functional.relu', relu, reverse='analytic', forward=True)
+    registry.add('torch.max_pool2d', _pooling.torch_max_pool2d, reverse='analytic', forward=True)
+    registry.group('torch.nn.functional', {
+        'max_pool2d': _pooling.max_pool2d, 'max_pool2d_with_indices': _pooling.max_pool2d_with_indices,
+    }, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
         'interpolate': _nn.interpolate, 'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d,
         'normalize': _nn.normalize, 'smooth_l1_loss': _nn.smooth_l1_loss,
@@ -244,4 +250,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _promotion, _random, _registry, _schedulers, _serialization, _tensor

@@ -94,7 +94,7 @@ tape. Detached view writes still invalidate computations that saved those values
 
 ## Optional feature detection
 
-Modules, Tensors and optimizers support ordinary Python feature checks:
+Torch module namespaces, Tensors and optimizers support ordinary Python feature checks:
 `hasattr(value, name)` returns false for a missing symbol, and
 `getattr(value, name, default)` returns the supplied default. Dynamic attributes
 are honored; missing names are not cached. For example,
@@ -110,6 +110,28 @@ Existing errors from unsupported modes and real descriptor failures still
 propagate; attribute existence alone does not establish dtype, gradient or
 device support. The compatibility and validation scope is recorded in the
 [0.37 report](../../docs/validation/torch-runtime-iteration-37.md).
+
+## Max pooling
+
+`torch.nn.MaxPool2d`, `torch.nn.functional.max_pool2d` and
+`max_pool2d_with_indices` support batched/unbatched 2D inputs, noncontiguous
+arrays, empty batches, stride, padding, dilation and ceil mode. Indices are
+int64 offsets within each input channel. Finite ties select the first sample;
+multiple NaNs select the last NaN, including the corresponding gradient route.
+The root `torch.max_pool2d` entry point returns values only.
+
+Float32/float64 support reverse-mode gradients, JVP and reverse-over-forward.
+Float16 and supported integer types also work for inference. Inputs and returned
+indices retain native-style storage-version guards; detached output edits do
+not invalidate the pool's backward rule. The existing general restrictions on
+direct edits of differentiable non-leaf tensors still apply.
+
+Specialized 2×2 pooling, window packing and scanning share these semantics.
+Window packing has a conservative 32 MiB temporary-workspace limit and falls
+back to scanning beyond it. Extreme dilated/padded windows with no real input
+sample reproduce native inference values/indices but reject derivatives
+explicitly. See the [0.38 validation record](../../docs/validation/torch-runtime-iteration-38.md)
+for measured complete CNN flows and the remaining compatibility boundaries.
 
 ## Linear systems
 

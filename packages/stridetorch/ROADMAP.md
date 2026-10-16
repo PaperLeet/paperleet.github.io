@@ -594,6 +594,21 @@ source-commit deployment was superseded and is not claimed as published.
 - Quiet main adoption is separate from publication. No CI/tag/dispatch/online
   release. Actual missing pooling/transpose-convolution APIs remain future work.
 
+## Version 0.38: native-compatible 2D max pooling and CNN paths
+
+- Add functional/root max_pool2d, with-indices and MaxPool2d with native
+  geometry, int64 indices, finite/NaN/zero selection, noncontiguous inputs,
+  empty batches, VJP/JVP, saved-storage guards, imports and Module lifecycle.
+- Use measured 2x2 blocks, bounded packing and scan fallback. Complete CNN
+  inference/SGD checks compare values, gradients and updated parameters;
+  existing numerical workflows have a separate 0.37 regression comparison.
+- Full suite 33,167 passes; actual Node/Chrome 1,730 each;
+  minimum wheel 1,743. Native/exported catalogs and frontend/builds pass.
+  Raw controls, compatibility limits and measurements are in the
+  [validation record](../../docs/validation/torch-runtime-iteration-38.md).
+- Quiet main adoption remains separate from publication. No CI/tag/dispatch
+  or online release. Broader pooling/convolution/normalization remains active.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
