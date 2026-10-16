@@ -511,13 +511,15 @@
       "id": "training",
       "name": "训练与实验基础",
       "name_en": "Training & experimentation",
-      "description": "实现优化器、扩散过程和策略优化，用测试解释算法行为。",
-      "description_en": "Implement optimizers, diffusion and policy optimization, and use tests to explain behavior.",
+      "description": "从优化器、扩散调度与预测参数化，练到 DDPM / DDIM 采样、流匹配和策略优化。",
+      "description_en": "Practice optimizers, diffusion schedules and prediction targets, then DDPM/DDIM sampling, flow matching and policy optimization.",
       "modules": [
         "optimization/adamw",
         "optimization/muon_split",
         "diffusion/schedules",
+        "diffusion/param_conversion",
         "diffusion/ddpm_sampling",
+        "diffusion/ddim",
         "diffusion/flow_matching",
         "rl/ppo_clip",
         "rl/grpo"

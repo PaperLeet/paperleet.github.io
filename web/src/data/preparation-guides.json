@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-15",
+  "reviewed_on": "2026-10-16",
   "modules": [
     {
       "id": "architecture/attention",
@@ -770,6 +770,50 @@
       ]
     },
     {
+      "id": "diffusion/param_conversion",
+      "source": "problems/diffusion/param_conversion/README.md",
+      "functions": [
+        "make_v",
+        "v_to_x0",
+        "v_to_eps"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这里的 alpha、sigma 和 v 分别表示什么？v 与 Flow Matching 的目标速度有什么区别？",
+            "en": "What do alpha, sigma and v mean here, and how does v differ from the target velocity in Flow Matching?"
+          },
+          "hint": {
+            "zh": "alpha 是累计信号的平方根，alpha²+sigma²=1。将系数看成旋转角的余弦与正弦；这里对角度求导，Flow Matching 则对所选路径的时间求导。",
+            "en": "Alpha is the square root of cumulative signal, with alpha²+sigma²=1. View the coefficients as cosine and sine of an angle: this v differentiates by angle, whereas Flow Matching differentiates its chosen path by time."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样从 x_t 和 v 恢复干净数据与噪声，使纯信号、纯噪声两个端点都不需要除法？",
+            "en": "How can x_t and v recover clean data and noise without division, including the pure-signal and pure-noise endpoints?"
+          },
+          "hint": {
+            "zh": "先写出信号与噪声到 x_t、v 的二维旋转，再利用正交矩阵的逆。系数已可广播；保持样本形状、输入精度和梯度，只补全三个核心函数。",
+            "en": "Write the two-dimensional rotation from signal and noise to x_t and v, then invert the orthogonal matrix. Coefficients already broadcast. Preserve sample shape, input precision and gradients; implement only the three core functions."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "往返转换全部通过后，还能用什么检查发现 v 的符号写反，以及端点处错误的稳定性直觉？",
+            "en": "Beyond round trips, what checks reveal a reversed v sign and mistaken assumptions about stability at an endpoint?"
+          },
+          "hint": {
+            "zh": "固定同一对数据与噪声，对旋转角做中心有限差分，再分别检查 alpha=0 与 sigma=0。提供的除法 clamp 只保证有限值，不能恢复端点已经丢失的信息。",
+            "en": "Fix the same data/noise pair and take a central finite difference in angle, then test alpha=0 and sigma=0 separately. The supplied division clamp keeps values finite; it cannot recover information absent at an endpoint."
+          }
+        }
+      ]
+    },
+    {
       "id": "diffusion/ddpm_sampling",
       "source": "problems/diffusion/ddpm_sampling/README.md",
       "functions": [
@@ -808,6 +852,48 @@
           "hint": {
             "zh": "先验证后验系数和最终噪声屏蔽，再看固定种子的分布指标。有限步离散化与有限样本本来就会带来误差。",
             "en": "Check posterior coefficients and final-step noise masking before fixed-seed distribution metrics. Finite discretization and finite samples naturally introduce error."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion/ddim",
+      "source": "problems/diffusion/ddim/README.md",
+      "functions": [
+        "ddim_step"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DDIM 跳步时，当前时间与目标时间的累计信号系数各用于哪里？eta 改变了什么？",
+            "en": "In a DDIM jump, where do the current and target cumulative signal coefficients enter, and what does eta change?"
+          },
+          "hint": {
+            "zh": "用当前系数从 x_t 恢复干净预测，再用目标系数组合下一状态。目标可以跨过多个离散时间；eta 控制随机项，方向项也必须扣除对应的随机方差。",
+            "en": "Recover the clean prediction from x_t using the current coefficient, then combine the next state using the target coefficient. The target may skip several discrete times. Eta controls stochastic noise, whose variance must also be removed from the direction term."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "只实现 ddim_step 时，怎样同时满足 eta=0 与最终干净边界 ab_prev=1？",
+            "en": "When implementing only ddim_step, how do eta=0 and the final clean boundary ab_prev=1 constrain the update?"
+          },
+          "hint": {
+            "zh": "输入 noise 已由调用者提供，不要自行抽样或停止梯度。eta=0 时替换 noise 不应影响结果；最终边界的方向项与随机项应消失，返回干净预测。时间子序列与采样循环已提供。",
+            "en": "The caller supplies noise: do not draw new randomness or stop gradients. With eta=0, changing noise must not affect the output. At the clean boundary, direction and stochastic terms vanish, leaving the clean prediction. Timesteps and sampling loops are supplied."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何区分随机方差错误、漏掉干净端点，以及把确定性误认为精确可逆？",
+            "en": "How would you distinguish a variance bug, a missing clean endpoint and the mistaken belief that determinism guarantees exact inversion?"
+          },
+          "hint": {
+            "zh": "相邻时间 eta=1 可核对 DDPM 后验方差；完美单点预测器应在一步或多步后到达同一个干净点。固定初始噪声比较网格，反演只检验误差随步数下降，不要求有限步逐位可逆。",
+            "en": "At adjacent times, eta=1 checks the DDPM posterior variance. A perfect point predictor must reach the same clean point in one or many steps. Compare grids with fixed initial noise; inversion checks error reduction with more steps rather than bitwise reversibility at finite steps."
           }
         }
       ]
