@@ -15,7 +15,7 @@ import { deferredFeature } from './deferredFeature';
 import "./practice-journey.css";
 import LibraryOverview from './LibraryOverview';
 import { StateIcon } from "./PaperState";
-import { emptyLibraryFilters, libraryHref, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters, type LibrarySort } from './libraryNavigation';
+import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters, type LibrarySort } from './libraryNavigation';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export { paperModules, matchingPaperModules, paperProgress } from './libraryPractice';
@@ -107,7 +107,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const listedModuleIds = new Set(listedPapers.flatMap((paper) => paper.module_ids));
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
   const visibleCategories = categories.filter((item) => listedPapers.some((paper) => paper.category === item.id));
-  const tags = [...new Set(listedPapers.filter((paper) => category === "all" || paper.category === category).flatMap((paper) => paper.tags))];
+  const tags = libraryTags(listedPapers, category);
+  const selectedTag = tag === 'all' ? 'all' : tags.find(name => sameLibraryTag(name, tag)) ?? tag;
   const solvedModules = listedModules.filter((p) => status(p, saved[p.id]) === "done").length;
   const selection = selectLibraryPractice(papers, problems, saved, { collectionId: selectedCollection?.id, filters });
   const filtered = sortLibraryPapers(selection.papers, sort);
@@ -180,7 +181,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} placeholder={t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape") change({query:''}); }} />{query ? <button className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { change({query:""}); searchInput.current?.focus(); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
         <button className="library-filter-toggle" aria-controls="library-advanced-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(open => !open)}><SlidersHorizontal size={16} aria-hidden="true" />{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
         <div className="filter-bar" id="library-advanced-filters" data-expanded={filtersOpen}>
-          <div className="select-wrap"><select aria-label={t("主题筛选", "Filter by topic")} value={tag} onChange={(e) => change({tag:e.target.value})}>
+          <div className="select-wrap"><select aria-label={t("主题筛选", "Filter by topic")} value={selectedTag} onChange={(e) => change({tag:e.target.value})}>
             <option value="all">{t("主题", "Topic")}</option>{tags.map((name) => <option key={name}>{name}</option>)}
           </select><ChevronDown size={12} aria-hidden="true" /></div>
           <div className="select-wrap"><select aria-label={t("模块难度筛选", "Filter module difficulty")} value={diff} onChange={(e) => change({difficulty:e.target.value})}>

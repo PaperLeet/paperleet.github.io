@@ -1,7 +1,7 @@
 import { status } from './types';
 import type { Paper, Problem, Saved } from './types';
 import { paperCollections, papersInCollection } from './paperCollections';
-import { normalizeLibraryFilters, type LibraryFilters } from './libraryNavigation';
+import { normalizeLibraryFilters, sameLibraryTag, type LibraryFilters } from './libraryNavigation';
 import { parseArxivUrl } from './communityPapers';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
@@ -52,6 +52,6 @@ export function selectLibraryPractice(papers: Paper[], problems: Problem[], save
     (filters.category === 'all' || paper.category === filters.category) &&
     matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime).length > 0 &&
     (filters.state === 'all' || paperProgress(paper, { problems, saved }).state === filters.state) &&
-    (filters.tag === 'all' || paper.tags.includes(filters.tag)));
+    (filters.tag === 'all' || paper.tags.some(tag => sameLibraryTag(tag, filters.tag))));
   return { papers: visible, problems: visible.flatMap(paper => matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime)) };
 }
