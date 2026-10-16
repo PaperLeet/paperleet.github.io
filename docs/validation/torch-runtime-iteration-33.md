@@ -133,3 +133,9 @@ from `17e5fa5f` byte for byte. Its complete frontend check and both builds pass
 again; all 47 runtime resources and 161 active exports remain identical to the
 full core/native/WASM evidence above. See `iteration-33-main-sync.json`. The
 React source review is recorded separately and does not claim manual visual QA.
+
+The validated source was adopted non-force on remote `main` at `d5e9b91d`.
+A read-only post-push query found no Actions run for that commit.
+See `iteration-33-main-adoption.json` for the timestamp and exact SHA. No tag,
+workflow dispatch or online release was created; subsequent proof-only commits
+do not change the validated runtime or catalog.
