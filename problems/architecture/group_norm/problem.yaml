@@ -1,0 +1,68 @@
+id: architecture/group_norm
+number: 92
+title: GroupNorm：分组统计与批次独立性
+title_en: 'GroupNorm: Grouped Statistics and Batch Independence'
+paper:
+  title: Group Normalization
+  authors: Yuxin Wu and Kaiming He
+  venue: ECCV 2018
+  arxiv: '1803.08494'
+  anchors:
+  - 'Section 3.1, Equations (1), (2), (6), (7): per-sample grouped moments and per-channel affine'
+  - 'Section 3.2, Figure 3: reshape, grouped moments, normalization, affine'
+  official_code: https://github.com/facebookresearch/Detectron/tree/04155a01a6ea68f22ac27c79a822066457941ece/projects/GN
+paper_id: groupnorm
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: group_norm
+  signature: 'group_norm(x: Tensor, num_groups: int, weight: Tensor, bias: Tensor, eps: float = 1e-5) -> Tensor'
+module:
+  goal: 实现每个样本内的分组归一化，保留逐通道仿射参数及统计量的梯度。
+  goal_en: Implement per-sample group normalization with per-channel affine parameters and differentiable statistics.
+  scope: 补全一个函数；提供独立标量检查、梯度检查和批次组成实验，无需训练模型。
+  scope_en: Complete one function; independent scalar checks, gradient checks and a batch-composition experiment are supplied, without model training.
+  required_functions: [group_norm]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: 'x [N,C,*spatial], rank >= 3; N >= 0, C and all spatial dimensions positive; weight/bias [C]'
+  groups: 'num_groups is an integer (not bool), 1 <= G <= C, C divisible by G; contiguous channel groups'
+  statistics: 'Population variance within each sample/group across C/G channels and all spatial positions; never reduce over N'
+  epsilon: 'Finite eps > 0, inside the square root; singleton groups follow the mathematical formula'
+  dtype: 'Preserve matching float32/float64 dtype/device and gradients to x, weight and bias; tests use well-scaled finite inputs'
+  device: CPU; no data, pretrained weights or GPU required
+tests: {T0: 1, T1: 1, T2: 8, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 25
+tags: [GroupNorm, Normalization, Computer Vision, Gradients]
+viz: [toy_experiment]
+sources_verified: '2026-10-16'
+verified_sources:
+  checked_at: '2026-10-16'
+  links:
+  - https://arxiv.org/html/1803.08494v3#S3
+  - https://docs.pytorch.org/docs/2.14/generated/torch.nn.GroupNorm.html
+  - https://github.com/facebookresearch/Detectron/blob/04155a01a6ea68f22ac27c79a822066457941ece/projects/GN/README.md
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/html/1803.08494v3#S3
+  anchor: 'Section 3.1, Equation (7), Figure 2; Section 3.2, Figure 3'
+  adaptation: Controlled synthetic feature maps compare companion-sample sensitivity and group choices. No ImageNet/COCO training, model accuracy or hardware speedup is reproduced.
+mutants:
+- id: m1_batch_statistics
+  bug: 错把其他样本纳入分组统计量
+- id: m2_channel_only
+  bug: 忽略组数，每个通道单独计算统计量
+- id: m3_unbiased_variance
+  bug: 用 m-1 而不是 m 作为方差分母
+- id: m4_epsilon_outside
+  bug: 将 epsilon 放在平方根外
+- id: m5_detached_statistics
+  bug: detach 均值和方差，破坏统计量的梯度
+- id: m6_group_affine
+  bug: 每组共享仿射参数，丢失逐通道的缩放与偏置
+browser:
+  backend: numpy-autograd-wasm
