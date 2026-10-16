@@ -1,3 +1,4 @@
+import {privateProfileReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
 import { resolveAffiliation } from './affiliationNames';
@@ -236,10 +237,11 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo, resumed, showActivity, readInPlace=false, onCode }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void }) {
+function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean }) {
   const { locale } = useI18n();
+  const returnTo=privateProfile?undefined:sourceReturnTo;
   return (
-    <article className="community-post-card" data-reading-post={post.id} data-reading-resumed={resumed||undefined}>
+    <article className="community-post-card" data-reading-post={post.id} data-reading-private-profile={privateProfile?"true":undefined} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
       <div className="post-card-layout">
         <CommunityAuthorAvatar user={post.author}/>
@@ -791,11 +793,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     </FeedRoot>
   );
 }
-function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
+function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
   const { t,locale } = useI18n();
   const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
-  useReadingOrigin(accountLoading?undefined:user?'account:'+user.id:'guest',id,returnTo);
+  const readingOwner=accountLoading?undefined:user?'account:'+user.id:'guest';
+  const returnTo=providedReturnTo||privateProfileReadingReturn(readingOwner,id,typeof location==='undefined'?'':location.hash);
+  useReadingOrigin(readingOwner,id,returnTo);
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
   const [editingReply,setEditingReply]=useState<string>(), [replyEdited,setReplyEdited]=useState<string>();
@@ -901,7 +905,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
   async function react(kind: "like" | "repost") {
     if (loading || busy) return;
     if (!user) {
-      location.hash = signInHref(postHref(id, returnTo, replyTarget));
+      location.hash = signInHref(postHref(id, providedReturnTo, replyTarget));
       return;
     }
     if (!post) return;
@@ -1026,7 +1030,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 )}
               </div>
             </div>
-            {post.interview && <InterviewMeta details={post.interview} returnTo={returnTo}/>}
+            {post.interview && <InterviewMeta details={post.interview} returnTo={providedReturnTo}/>}
             <DiscussionReading body={post.body} postId={post.id} />
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
@@ -1056,15 +1060,15 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 <span>{post.counts.reposts}</span>
               </button>
               <PostBookmark key={`${id}:${owner}`} postId={id} owner={owner} bookmarked={post.viewer.bookmarked}
-                enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,returnTo,replyTarget)}
+                enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,providedReturnTo,replyTarget)}
                 disabled={busy||loading||editingPost||!!editingReply} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
               <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复','replies')}</button>
-              {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,returnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
+              {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
             </div>
           </article>
           <section ref={replyList.root} tabIndex={-1} aria-labelledby="discussion-replies-heading" className="social-panel discussion-replies">
-            {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,returnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
+            {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,providedReturnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
             <div className="panel-title">
               <h2 id="discussion-replies-heading" tabIndex={-1}>
                 {t("回复", "Replies")} <span>{post.counts.replies}</span>
@@ -1085,7 +1089,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                     <CommunityAuthor user={r.author} compact/>
                     {r.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}
                     <DateLabel value={r.created_at} />
-                    <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={returnTo}/>
+                    <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={providedReturnTo}/>
                     {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
                     {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={()=>{setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}
                     {r.parent_id && (
@@ -1215,7 +1219,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
             </section>
           ) : (
             <section className="social-panel">
-              <JoinPrompt returnTo={postHref(id, returnTo, replyTarget)} />
+              <JoinPrompt returnTo={postHref(id, providedReturnTo, replyTarget)} />
             </section>
           )}
           {deleteTarget && (
@@ -1291,7 +1295,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
   const path = `community/profiles/${encodeURIComponent(username)}`;
   const connectionTab = tab === "following" || tab === "followers";
   const solutionCount=typeof profile?.counts.solutions==="number"&&Number.isSafeInteger(profile.counts.solutions)&&profile.counts.solutions>=0?profile.counts.solutions:undefined;
-  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!!profile&&!loading&&!activityPending&&!activityError&&!connectionTab&&tab!=='replies');
+  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!!profile&&!loading&&!activityPending&&!activityError&&!connectionTab);
   useEffect(()=>{
     if(unavailableSolutions&&currentProfileHref()===profileFeedHref(username,view))location.replace(returnTo);
   },[unavailableSolutions,route,returnTo,username]);
@@ -1611,11 +1615,11 @@ function UserProfileContents({ username,route }: { username: string;route:string
                   key={`${item.kind}-${item.reply?.id || item.post.id}-${index}`}
                 >
                   {item.reply ? (
-                    <article className="profile-reply-card">
+                    <article className="profile-reply-card" data-reading-post={item.post.id} data-reading-reply={item.reply.id} data-reading-private-profile={profile.viewer.is_self&&item.post.anonymous===true?"true":undefined} data-reading-resumed={reading.resumedReply===item.reply.id||undefined}>
                       <div className="activity-label">
                         <MessageCircle size={13} />
                         {t("回复了", "Replied to")}
-                        <a href={postHref(item.post.id,returnTo,item.reply.id)}>{item.post.title}</a>
+                        <a data-reading-link="title" href={postHref(item.post.id,profile.viewer.is_self&&item.post.anonymous===true?undefined:returnTo,item.reply.id)}>{item.post.title}</a>
                         <DateLabel value={item.created_at} />
                       </div>
                       <CommunityMarkdown body={item.reply.body} />
@@ -1624,6 +1628,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                     <PostCard
                       post={item.post}
                       returnTo={returnTo}
+                      privateProfile={profile.viewer.is_self&&item.post.anonymous===true}
                       resumed={reading.resumedPost===item.post.id}
                       readInPlace={tab==="solutions"}
                       activity={

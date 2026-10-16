@@ -1,9 +1,9 @@
 import {useEffect,useLayoutEffect,useRef,useState,useSyncExternalStore} from 'react';
-import {communityPostReturn} from './communityNavigation';
-import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingPracticeTarget,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
+import {communityPostReturn,communityReplyTarget} from './communityNavigation';
+import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingPracticeTarget,privateProfilePostRoute,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
 
 export type ReadingNotice='restored'|'available'|'missing';
-type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string;practice?:string};
+type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string;practice?:string;reply?:string};
 export function useReadingOrigin(owner:string|undefined,post:string,href:string|undefined){
  useEffect(()=>resumeReadingOrigin(owner,post,href),[owner,post,href]);
 }
@@ -17,7 +17,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
  const revision=useSyncExternalStore(subscribeReadingReturn,readingReturnRevision,()=>0);
  const here=()=>live.current.owner===owner&&live.current.href===href&&live.current.ready&&readingListHref(location.hash)===href&&!!container.current?.isConnected;
  const targetFor=(row:ReadingReturn)=>{
-  const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]`);
+  const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]${row.reply?`[data-reading-reply="${row.reply}"]`:""}`);
   if(row.link==='practice')return card?.querySelector<HTMLElement>(`a[data-reading-link="practice"][data-reading-practice="${row.practice}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link="title"]')||card?.querySelector<HTMLElement>('a[data-reading-link="read"]');
   return card?.querySelector<HTMLElement>(`a[data-reading-link="${row.link}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link]');
  };
@@ -30,7 +30,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
   const before=interactions.current;
   if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,notice:'available'});return;}
   scrollRequest.current={row,opener,before};
-  setState({owner:row.owner,href,id:row.id,notice:targetFor(row)?'restored':'missing',post:targetFor(row)?row.post:undefined,practice:row.practice});
+  setState({owner:row.owner,href,id:row.id,notice:targetFor(row)?'restored':'missing',post:targetFor(row)?row.post:undefined,practice:row.practice,reply:row.reply});
  }
  // Commit the notice first, then measure. Its height must not displace the restored card.
  useLayoutEffect(()=>{
@@ -44,7 +44,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
    if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,notice:'available'});return;}
    const target=targetFor(row);
    const notice=target?'restored':'missing';
-   if(state?.notice!==notice){scrollRequest.current=request;setState({owner:row.owner,href,id:row.id,notice,post:target?row.post:undefined,practice:row.practice});return;}
+   if(state?.notice!==notice){scrollRequest.current=request;setState({owner:row.owner,href,id:row.id,notice,post:target?row.post:undefined,practice:row.practice,reply:row.reply});return;}
    if(target){
     window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-row.top),behavior:'instant'});
     if(row.focus||opener)target.focus({preventScroll:true});
@@ -68,8 +68,11 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
    const destination=new URL(link.href,location.href),post=card.dataset.readingPost;
    if(destination.origin!==location.origin||destination.pathname!==location.pathname||destination.search!==location.search||!post)return;
    const practice=link.dataset.readingLink==='practice'?readingPracticeTarget(destination.hash,href):undefined;
-   if(link.dataset.readingLink==='practice'?practice!==link.dataset.readingPractice||!practice:communityPostReturn(destination.hash,post)!==href)return;
-   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(practice?{practice}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
+   const reply=card.dataset.readingReply;
+   if(reply&&(!/^[a-f0-9]{32}$/.test(reply)||communityReplyTarget(destination.hash,post)!==reply))return;
+   const privateProfile=card.dataset.readingPrivateProfile==='true'&&live.current.owner.startsWith('account:');
+   if(link.dataset.readingLink==='practice'?practice!==link.dataset.readingPractice||!practice:privateProfile?!privateProfilePostRoute(destination.hash,post):communityPostReturn(destination.hash,post)!==href)return;
+   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(practice?{practice}:{}),...(reply?{reply}:{}),...(privateProfile?{privateProfile:true as const}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
    setState(undefined);
   };
   document.addEventListener('click',capture);
@@ -85,7 +88,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
   if(row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning')apply(row);
  },[owner,href,ready,revision]);
  const visible=ready&&state&&state.owner===owner&&state.href===href?state:undefined;
- return {container,notice:visible?.notice,resumedPost:visible?.post,resumedPractice:visible?.post?visible.practice:undefined,restore:(opener:HTMLElement)=>{
+ return {container,notice:visible?.notice,resumedPost:visible?.post,resumedReply:visible?.reply,resumedPractice:visible?.post?visible.practice:undefined,restore:(opener:HTMLElement)=>{
   const row=currentReadingReturn();if(row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning')apply(row,opener);
  }};
 }

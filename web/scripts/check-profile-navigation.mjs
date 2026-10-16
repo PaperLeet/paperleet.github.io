@@ -71,12 +71,13 @@ try{
  const alice={id:'alice',username:'alice',display_name:'Alice',created_at:'2026-01-01',avatar_color:'#123456'},topic={id:'architecture/attention',number:1,title:'Attention'};
  const counts={posts:22,solutions:22,replies:1,likes:1,reposts:1,following:1,followers:1};
  const post={id,title:'Profile solution',body:'## Approach\nA complete derivation.',solution:true,category:'implementation',problem_id:topic.id,problem:topic,author:alice,counts:{likes:0,reposts:0,replies:0},viewer:{},created_at:'2026-10-16',updated_at:'2026-10-16'};
- const account={user:alice,loading:false,capabilities:{community_profile_solutions:true,community_solutions:true}},requests=[];let hold=false,held;
+ const account={user:alice,loading:false,capabilities:{community_profile_solutions:true,community_solutions:true}},requests=[];let hold=false,held,anonymous=false;
  globalThis.__profileFixture={account,request:async(path,payload,signal)=>{
   assert.equal(payload,undefined);requests.push({path,signal});const url=new URL(path,'https://fixture.test/');
-  if(url.pathname==='/community/posts/'+id)return {...post,replies:[]};
+  const shown=anonymous?{...post,anonymous:true,author:{...alice,id:'anonymous:'+id,username:'',display_name:'Anonymous',anonymous:true}}:post;
+  if(url.pathname==='/community/posts/'+id)return {...shown,replies:[]};
   if(url.pathname.endsWith('/activity')){
-   const tab=url.searchParams.get('tab');const result={items:tab==='replies'?[{kind:tab,post,reply:{id:reply,body:'A follow-up',created_at:post.created_at},created_at:post.created_at}]:[{kind:tab,post,created_at:post.created_at}],total:22,...(tab==='solutions'?{solutions:true}:{})};
+   const tab=url.searchParams.get('tab');const result={items:tab==='replies'?[reply,'c'.repeat(32)].map(replyId=>({kind:tab,post:shown,reply:{id:replyId,body:'A follow-up',created_at:post.created_at},created_at:post.created_at})):[{kind:tab,post:shown,created_at:post.created_at}],total:22,...(tab==='solutions'?{solutions:true}:{})};
    if(hold)return new Promise(resolve=>held={resolve,result,signal});return result;
   }
   if(url.pathname.endsWith('/connections'))return {items:[],total:0};
@@ -108,10 +109,20 @@ try{
  assert.equal(document.querySelector('.social-back').getAttribute('href'),scope);
  hold=true;base=1800;await click(document.querySelector('.social-back'));assert.equal(location.hash,scope);assert.equal(model.currentReadingReturn().phase,'returning');assert.equal(document.querySelector('#profile-community-panel').getAttribute('aria-busy'),'true');assert(!anchor());
  scrolls=[];hold=false;await act(async()=>held.resolve(held.result));assert.equal(anchor().getBoundingClientRect().top,origin.top);assert.equal(document.activeElement,anchor());assert(document.querySelector('[data-reading-resumed="true"]'));assert.equal(scrolls.length,1);
+ // Anonymous self-profile context remains in the current account session, never a public post URL.
+ anonymous=true;await stop();await render();const privateLink=anchor();assert.equal(privateLink.getAttribute('href'),'#/community/'+id);assert.equal(community.communityPostReturn(privateLink.getAttribute('href'),id),undefined);
+ viewport=1250;await click(privateLink,{keyboard:true});assert.equal(location.hash,'#/community/'+id);assert.equal(model.currentReadingReturn().privateProfile,true);assert.equal(model.privateProfileReadingReturn('account:bob',id,location.hash),undefined);assert.equal(model.privateProfileReadingReturn(undefined,id,location.hash),undefined);
+ assert.equal(document.querySelector('.social-back').getAttribute('href'),scope);await click(document.querySelector('.social-back'));assert.equal(location.hash,scope);assert.equal(document.activeElement,anchor());
+ // The same source-free URL in a fresh session exposes no private profile return.
+ await click(anchor());await stop();model.discardReadingReturn();await render();assert.notEqual(document.querySelector('.social-back').getAttribute('href'),scope);
+ await stop();anonymous=false;await navigate(scope);await render();
  // Browser history changes the category/page without replacing the whole profile or scrolling to its top.
  const identity=document.querySelector('.profile-header');viewport=900;scrolls=[];await navigate('#/u/alice?tab=likes&page=2');assert.equal(document.querySelector('.profile-header'),identity);assert.equal(document.querySelector('#profile-tab-likes').getAttribute('aria-selected'),'true');assert.equal(scrolls.length,0);
  await act(async()=>{window.history.back();await new Promise(resolve=>setTimeout(resolve,20));});assert.equal(location.hash,scope);assert.equal(document.querySelector('#profile-tab-solutions').getAttribute('aria-selected'),'true');assert.equal(viewport,900);
  await navigate('#/u/alice?tab=replies&page=2');const replyLink=document.querySelector('.profile-reply-card .activity-label a');assert.equal(community.communityReplyTarget(replyLink.getAttribute('href'),id),reply);assert.equal(community.communityPostReturn(replyLink.getAttribute('href'),id),'#/u/alice?tab=replies&page=2');
+ // Distinct reply IDs select the exact source row, including anonymous owner-only context.
+ anonymous=true;await stop();await render();const privateReply=document.querySelectorAll('.profile-reply-card .activity-label a')[1];assert.equal(privateReply.getAttribute('href'),'#/community/'+id+'?reply='+'c'.repeat(32));
+ await click(privateReply,{keyboard:true});assert.equal(model.currentReadingReturn().reply,'c'.repeat(32));assert.equal(model.currentReadingReturn().privateProfile,true);assert.equal(document.querySelector('.social-back').getAttribute('href'),'#/u/alice?tab=replies&page=2');await click(document.querySelector('.social-back'));assert.equal(document.activeElement,document.querySelectorAll('.profile-reply-card .activity-label a')[1]);assert.equal(document.querySelectorAll('.profile-reply-card[data-reading-resumed="true"]').length,1);anonymous=false;
  // A late empty page cannot redirect after a newer URL is already visible but before router cleanup.
  await stop();hold=true;await navigate(scope);await render();const stale=held;
   window.history.replaceState(null,'','#/settings');await act(async()=>stale.resolve({...stale.result,items:[],total:0}));assert.equal(location.hash,'#/settings','A stale profile response must not replace a newer destination');
@@ -120,5 +131,5 @@ try{
  await stop();await navigate(scope);account.loading=true;const before=requests.length;await render();assert(!requests.slice(before).some(row=>row.path.includes('/activity')));account.loading=false;await render();assert(requests.at(-1).path.includes('tab=solutions'));
  account.capabilities.community_profile_solutions=false;await render();await wait();assert.equal(location.hash,'#/u/alice');assert.equal(document.querySelector('#profile-tab-posts').getAttribute('aria-selected'),'true');assert(!document.querySelector('#profile-tab-solutions'));
  assert.deepEqual(errors,[]);
- console.log('PASS real profile reading journey: copied/reloaded category/page, controlled route updates, stable profile and browser Back, full thread/reply source, delayed exact reading/focus restoration, capability hydration and canonical unsupported fallback without publication');
+ console.log('PASS real profile reading journey: copied/reloaded category/page, controlled route updates, stable profile and browser Back, full thread/reply source, anonymous session-only returns and source-free URLs, delayed exact reading/focus restoration, capability hydration and canonical unsupported fallback without publication');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();if(timezone===undefined)delete process.env.TZ;else process.env.TZ=timezone;for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
