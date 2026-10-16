@@ -302,8 +302,9 @@ Final infrastructure passes 25,928 tests; Node/Chrome each pass 784 independent
 contracts and the NumPy 1.26/Python 3.10 installed wheel passes 804 without native
 Torch. Four balanced CPU/WASM phases retain all 64 children, rejected input-copy
 work and remaining small-call costs. Original native catalog, export/history and
-latest-upstream frontend/packaging gates pass; complete exported WASM and remote
-adoption remain required release gates.
+latest-upstream frontend/packaging gates pass. All 78 exported WASM modules pass
+within unchanged budgets. Later upstream UI integration and remote adoption
+remain required release gates.
 
 ## Next implementation areas
 

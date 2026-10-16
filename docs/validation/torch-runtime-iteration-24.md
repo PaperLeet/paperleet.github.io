@@ -2,7 +2,8 @@
 
 This candidate enables `torch.mean(dtype=...)` and repairs existing half-precision
 means. Main still uses 0.23. The candidate has not been integrated or deployed;
-complete exported WASM and remote adoption remain release gates.
+complete exported WASM has passed; latest UI integration and remote adoption
+remain release gates.
 
 ## Behavior and computation
 
@@ -135,6 +136,14 @@ Initial JavaScript is 408,091 raw / 131,542 gzip bytes.
 
 The [integration gates](../../packages/stridetorch/benchmarks/results/iteration-24-integration-gates.json)
 and [integration snapshot archive](../../packages/stridetorch/benchmarks/results/iteration-24-integration-gates-harness.tar.gz)
-retain those receipts. The complete exported WASM catalog and main/remote
-adoption remain pending; none of these application times is a controlled
-performance comparison with another release.
+retain those receipts. Complete exported WASM now passes all 78 modules with no
+browser budget violations (355.605s aggregate). Flow Matching takes 84.719s
+calibration, 17.001s learner and 103.320s total, within unchanged 240/60/300s
+limits. These application times are budget observations, not controlled
+performance comparisons with another release.
+
+The [complete local gates](../../packages/stridetorch/benchmarks/results/iteration-24-local-gates.json)
+and [final WASM receipts](../../packages/stridetorch/benchmarks/results/iteration-24-local-gates-harness.tar.gz)
+close the catalog gate against frozen source and all 161 export hashes. A later
+eight-file upstream UI change is preserved separately before main integration;
+affected frontend checks and remote adoption remain pending.
