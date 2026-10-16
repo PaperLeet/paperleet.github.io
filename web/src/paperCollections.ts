@@ -31,9 +31,9 @@ export const paperCollections: PaperCollection[] = [
     id: "retrieval",
     name: "检索与推荐",
     name_en: "Retrieval",
-    description: "序列推荐 · 对比检索 · 生成式召回",
-    description_en: "Sequential recommendation · Contrastive retrieval · Generative retrieval",
-    paperIds: ["bpr", "lightgcn", "sasrec", "clip", "colbert", "rotation-trick", "tiger"],
+    description: "图学习 · 序列推荐 · 对比检索 · 生成式召回",
+    description_en: "Graph learning · Sequential recommendation · Contrastive retrieval · Generative retrieval",
+    paperIds: ["bpr", "graphsage", "lightgcn", "sasrec", "clip", "colbert", "rotation-trick", "tiger"],
   },
   {
     id: "rl",
