@@ -7,22 +7,15 @@ import numpy as np
 
 from . import _arithmetic, _graph, _layout, _tensor
 
-def result(data, *edges, saved=(), saves_tensors=True, versioned=None, view_of=None):
+def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
         raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
     value = _tensor.Tensor(data, _metadata_owned=True)
-    if view_of is not None and value._storage is view_of._storage:
-        base=view_of._view_base
-        value._view_base=view_of if base is None else base
-        if not _state._grad_enabled:
-            value.__dict__.pop('requires_grad',None)
-            value._no_grad_view=True
-            return value
     if value.dtype.kind == 'c' and _state._grad_enabled and any(node.requires_grad for node, _ in edges):
         raise _errors.BrowserUnsupported('Complex autograd requires the server')
     parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
-    value.requires_grad = bool(parents)
-    if value.requires_grad:
+    if parents:
+        value._requires_grad = True
         # Default to conservative guards for arrays captured by VJP closures.
         # Proven selective rules can name only the inputs their pullbacks save.
         if saves_tensors:
@@ -32,8 +25,30 @@ def result(data, *edges, saved=(), saves_tensors=True, versioned=None, view_of=N
             counters = ()
         value._grad_node = _graph.Node(value, parents, saved=saves_tensors,
                                       versions=tuple((counter, counter.version) for counter in counters))
-    if view_of is not None and value._view_base is not None and value._grad_node is None:
-        value.__dict__.pop('requires_grad',None)
+    return value
+
+
+
+def view_result(data, parent, backward):
+    """One-input metadata pullback, including reshape's possible storage copy.
+
+    These rules save only shape/index metadata. They never retain operand
+    values or require storage-version guards; value-saving operations use result.
+    """
+    if isinstance(parent,ForwardTensor):
+        raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
+    value=_tensor.Tensor(data,_metadata_owned=True)
+    shared=value._storage is parent._storage
+    if shared:
+        base=parent._view_base
+        value._view_base=parent if base is None else base
+    if _state._grad_enabled and parent.requires_grad:
+        if value.dtype.kind=='c':
+            raise _errors.BrowserUnsupported('Complex autograd requires the server')
+        value._requires_grad=True
+        value._grad_node=_graph.Node(value,((_graph.node_for(parent),backward,parent.dtype),),saved=False)
+    elif shared:
+        value._requires_grad=None
         value._no_grad_view=True
     return value
 

@@ -160,7 +160,10 @@ reverse edge. Graphless views follow subsequent base flag changes, while explici
 `view.requires_grad_()` promotes an independent leaf accumulator. Mutating the
 base flag does not reconnect a previously graphless view. These rules are checked
 against native PyTorch; they do not establish every native view-mutation rule.
-The candidate's remaining validation costs and pending integration gates are in
+Direct `view.requires_grad = True` also promotes a leaf. Attribute assignment
+requires a bool and a leaf; `requires_grad_(True)` may retain a non-leaf's flag,
+while disabling it remains invalid even after its backward graph is released.
+The candidate's measured costs and pending integration gates are in
 the [0.21 record](../../docs/validation/torch-runtime-iteration-21.md).
 
 ## Selection and joining tensors

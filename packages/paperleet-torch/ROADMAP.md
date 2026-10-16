@@ -246,8 +246,11 @@ method entries, scalar/empty cases, singleton strides, VJP and JVP. Graphless
 views preserve base-dependent gradient flags without inventing gradient edges;
 explicit `requires_grad_()` creates a leaf accumulator. Checked `copy_` retains
 nonoverlapping singleton expansions. Source snapshots, rejected failures and two
-balanced CPU/WASM benchmark phases are retained. This candidate has remaining
-view/expansion overhead and has not been adopted on main; complete catalog,
+initial CPU/WASM benchmark phases are retained alongside newer improvements.
+A dedicated one-input metadata result path and validated expansion descriptors
+remove the initial view/expansion latency regression. Direct gradient-flag
+assignment follows native leaf rules; ordinary reverse microbenchmarks retain
+small costs. This candidate has not been adopted on main; complete catalog,
 exported application and remote integration gates remain required. See
 [iteration 21](../../docs/validation/torch-runtime-iteration-21.md).
 

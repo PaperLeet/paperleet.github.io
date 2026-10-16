@@ -1,6 +1,6 @@
 # Torch runtime 0.21 candidate: shape contracts and graphless views
 
-This is an unpublished candidate on the development branch. Main remains on
+This is an unpublished candidate on the development branch. The refinement below supersedes the initial microbenchmark costs. Main remains on
 0.20.0. Complete catalog, exported application and remote adoption gates are
 pending; the measurements below do not establish an application speedup.
 
@@ -97,3 +97,31 @@ Machine-readable local evidence is in
 [`iteration-21.json`](../../packages/paperleet-torch/benchmarks/results/iteration-21.json);
 source snapshots, harnesses, all timing samples and rejected logs are in
 [`iteration-21-harness.tar.gz`](../../packages/paperleet-torch/benchmarks/results/iteration-21-harness.tar.gz).
+
+## Refined metadata path and direct gradient flags
+
+A dedicated single-input metadata result avoids general multi-input graph setup.
+Expansion descriptors use the already validated geometry without a second NumPy
+broadcast pass. Direct `requires_grad` assignment now has native bool/leaf rules,
+including explicit promotion and restrictions after backward graph release.
+
+Two additional balanced sixteen-process phases retain all samples. The final
+property phase reduces CPU bare-view latency by25–28% and WASM by22–27%; expansion
+latency falls15–18% on CPU and13–14% on WASM versus0.20. Shape-chain JVP is near
+parity or faster. Ordinary reverse controls retain1–3% CPU and4–6% WASM costs.
+These remain local microbenchmarks with the same limits described above.
+
+The refined source passes3,547 focused contracts,721 each in real Node/Chrome,
+and741 minimum-wheel cases. Direct assignment audit differences fall14/16 to0/16.
+Native catalog passes78problems/10,218executions/3repeats/342mutants,184.04s.
+The full infrastructure run passes22,666 numerical/other cases and fails one
+structural AST check that mistook propertygetter/setter for method shadowing.
+The check now allows one getter/setter/deleter per property and still rejects
+repeated definitions of each kind; all39 contracts pass after the correction.
+A fresh complete merged run remains pending. Only `_api.py` indentation differs
+between final timed and runtime snapshots; their ASTs match and all other source
+and license bytes are identical.
+
+[Refinement evidence](../../packages/paperleet-torch/benchmarks/results/iteration-21-view-path.json)
+and [source/harness archive](../../packages/paperleet-torch/benchmarks/results/iteration-21-view-path-harness.tar.gz)
+retain both phases and the rejected structural run.

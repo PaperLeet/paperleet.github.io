@@ -184,3 +184,36 @@ def test_native_graphless_view_tracks_base_flags_without_reconnecting(recording,
     with warnings.catch_warnings():
         warnings.simplefilter('ignore',UserWarning)
         assert exercise(torch)==exercise(native)
+
+
+@pytest.mark.parametrize('initial',[False,True])
+@pytest.mark.parametrize('recording',[False,True])
+@pytest.mark.parametrize('flag',[True,False,1,None])
+def test_native_view_direct_requires_grad_assignment(initial,recording,flag):
+    def exercise(api):
+        base=api.from_numpy(np.arange(3.)).requires_grad_(initial)
+        with api.set_grad_enabled(recording):view=base.view(3)
+        try:view.requires_grad=flag
+        except RuntimeError:return 'error'
+        base.requires_grad=not initial
+        result=view.square().sum()
+        if result.requires_grad:result.backward()
+        return (view.requires_grad,view.is_leaf,
+                None if base.grad is None else base.grad.tolist(),
+                None if view.grad is None else view.grad.tolist())
+    assert exercise(torch)==exercise(native)
+
+
+@pytest.mark.parametrize('flag',[1,None,'True',np.bool_(True)])
+def test_native_requires_grad_method_rejects_nonbool(flag):
+    for api in (torch,native):
+        with pytest.raises(TypeError):api.ones(2).requires_grad_(flag)
+
+
+def test_released_nonleaf_gradient_flags_keep_native_leaf_rules():
+    for api in (torch,native):
+        x=api.ones(2,requires_grad=True);y=x.square();y.sum().backward()
+        for flag in (False,True):
+            with pytest.raises(RuntimeError):y.requires_grad=flag
+        assert y.requires_grad_(True) is y
+        with pytest.raises(RuntimeError):y.requires_grad_(False)

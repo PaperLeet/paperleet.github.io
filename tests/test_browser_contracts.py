@@ -129,7 +129,14 @@ def test_triangular_vector_input_is_rejected_and_tensor_methods_are_not_shadowed
     for source in Path(paperleet_torch.__file__).parent.glob('*.py'):
         tree = ast.parse(source.read_text())
         for cls in (node for node in tree.body if isinstance(node, ast.ClassDef)):
-            methods = [node.name for node in cls.body if isinstance(node, ast.FunctionDef)]
+            methods = []
+            for node in (item for item in cls.body if isinstance(item, ast.FunctionDef)):
+                accessor = next((decorator.attr for decorator in node.decorator_list
+                                 if isinstance(decorator, ast.Attribute)
+                                 and isinstance(decorator.value, ast.Name)
+                                 and decorator.value.id == node.name
+                                 and decorator.attr in ('setter', 'deleter')), None)
+                methods.append((node.name, accessor))
             assert len(methods) == len(set(methods)), f'Duplicate methods in {cls.name}'
 
 

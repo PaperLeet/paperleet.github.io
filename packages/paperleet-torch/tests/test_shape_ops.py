@@ -190,3 +190,32 @@ def test_singleton_expand_metadata_allows_checked_copy_without_duplicate_writes(
     with pytest.raises(RuntimeError,match='overlapping'):
         base[:1].expand(2,4).copy_(torch.zeros(2,4,dtype=torch.float64))
     assert base._version==before
+
+
+def test_direct_flag_assignment_promotes_view_leaf_and_hooks():
+    base=torch.arange(3,dtype=torch.float64).requires_grad_()
+    with torch.no_grad():view=base.view(3)
+    view.requires_grad=True
+    seen=[];view.register_hook(lambda grad:seen.append(grad.numpy().copy()))
+    base.requires_grad=False
+    view.square().sum().backward()
+    np.testing.assert_array_equal(view.grad.numpy(),[0.,2.,4.])
+    assert len(seen)==1 and base.grad is None
+    np.testing.assert_array_equal(seen[0],[0.,2.,4.])
+    with torch.no_grad():other=base.view(3)
+    other.requires_grad=False;base.requires_grad=True
+    assert other.requires_grad and other.is_leaf
+    other.square().sum().backward();assert other.grad is None
+
+
+def test_flag_validation_and_released_nonleaf_identity():
+    x=torch.ones(2,requires_grad=True);y=x.square();y.sum().backward()
+    for value in (True,False):
+        with pytest.raises(RuntimeError):y.requires_grad=value
+    assert y.requires_grad_(True) is y
+    with pytest.raises(RuntimeError):y.requires_grad_(False)
+    for value in (1,None,'True',np.bool_(True)):
+        with pytest.raises(RuntimeError):x.requires_grad=value
+        with pytest.raises(TypeError):x.requires_grad_(value)
+    integers=torch.ones(2,dtype=torch.int64)
+    with pytest.raises(RuntimeError):integers.requires_grad=True

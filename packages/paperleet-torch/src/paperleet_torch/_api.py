@@ -136,7 +136,7 @@ def create_torch(name='torch', *, register=False):
         'trapezoid': _ops.trapezoid,
         'topk': lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out),
         'scatter': lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce),
-                'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
+        'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
     }, reverse='analytic')
     registry.add('torch.nan_to_num', _ops.nan_to_num, reverse='analytic', unsupported_keywords=('out',))
     def outer(input, other):
