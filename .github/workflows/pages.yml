@@ -1,27 +1,37 @@
 name: Publish PaperLeet public site
 on:
-  push:
-    tags: ['v*']
+  workflow_run:
+    workflows: [PaperLeet quality gate]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: paperleet-tag-release
-  cancel-in-progress: true
 jobs:
-  release:
+  build:
     if: >-
       github.repository == 'PaperLeet/paperleet.github.io' &&
-      github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') &&
-      github.event.created && !github.event.deleted
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_sha == github.sha))
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+    concurrency:
+      group: paperleet-pages-build
+      cancel-in-progress: true
     outputs:
       sha: ${{ steps.release.outputs.sha }}
-      tag: ${{ steps.release.outputs.tag }}
-      tag_object: ${{ steps.release.outputs.tag_object }}
+      quality_run: ${{ steps.release.outputs.quality_run }}
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
-      - name: Resolve immutable version tag on main
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Require complete quality checks on this main revision
         id: release
         uses: actions/github-script@v7
         with:
@@ -29,31 +39,8 @@ jobs:
             const resolve = require('./web/scripts/pages-release-gate.cjs');
             const release = await resolve({github, context});
             core.setOutput('sha', release.sha);
-            core.setOutput('tag', release.tag);
-            core.setOutput('tag_object', release.tagObject);
-            core.info(`Release ${release.tag} resolves to ${release.sha}.`);
-  quality:
-    needs: release
-    uses: ./.github/workflows/ci.yml
-    with:
-      revision: ${{ needs.release.outputs.sha }}
-    permissions:
-      contents: read
-  build:
-    needs: [release, quality]
-    if: needs.release.result == 'success' && needs.quality.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    concurrency:
-      group: paperleet-pages-build
-      cancel-in-progress: true
-    permissions:
-      contents: read
-      actions: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release.outputs.sha }}
+            core.setOutput('quality_run', String(release.runId));
+            core.info(`Publishing tested main ${release.sha}, quality run ${release.runId}.`);
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -92,7 +79,7 @@ jobs:
         with:
           script: |
             const runs = await github.rest.actions.listWorkflowRuns({
-              ...context.repo, workflow_id: 'pages.yml',
+              ...context.repo, workflow_id: 'pages.yml', branch: 'main',
               status: 'success', per_page: 100,
             });
             for (const run of runs.data.workflow_runs) {
@@ -104,12 +91,6 @@ jobs:
               const artifact = available.find(item => item.name === 'paperleet-pages-assets')
                 || available.find(item => item.name === 'github-pages');
               if (!artifact) continue;
-              const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
-                ...context.repo, run_id: run.id, filter: 'latest', per_page: 100,
-              });
-              const deployed = jobs.some(job => job.name === 'deploy' && job.conclusion === 'success'
-                && job.steps?.some(step => step.name.includes('deploy-pages@') && step.conclusion === 'success'));
-              if (!deployed) continue;
               core.info(`Retaining assets from successful Pages run ${run.id} (${artifact.name}).`);
               core.setOutput('run_id', String(run.id));
               core.setOutput('artifact_name', artifact.name);
@@ -164,7 +145,7 @@ jobs:
         with:
           path: web/dist
   deploy:
-    needs: [release, quality, build]
+    needs: build
     runs-on: ubuntu-latest
     concurrency:
       group: paperleet-pages
@@ -178,26 +159,19 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release.outputs.sha }}
-      - name: Recheck the tested release tag before publishing
+      - name: Recheck the tested revision before publishing
         id: current
         uses: actions/github-script@v7
         env:
-          RELEASE_SHA: ${{ needs.release.outputs.sha }}
-          RELEASE_TAG: ${{ needs.release.outputs.tag }}
-          RELEASE_TAG_OBJECT: ${{ needs.release.outputs.tag_object }}
+          RELEASE_SHA: ${{ needs.build.outputs.sha }}
+          QUALITY_RUN: ${{ needs.build.outputs.quality_run }}
         with:
           script: |
-            const {stillCurrent} = require('./web/scripts/pages-release-gate.cjs');
-            const publish = await stillCurrent({github, context, expected: {
-              sha: process.env.RELEASE_SHA, tag: process.env.RELEASE_TAG,
-              tagObject: process.env.RELEASE_TAG_OBJECT,
-            }});
-            if (!publish) throw new Error('The tested release tag changed or is no longer on main.');
-            core.setOutput('publish', 'true');
-            core.info('The immutable tested release tag is still current.');
+            const {data: branch} = await github.rest.repos.getBranch({...context.repo, branch: 'main'});
+            const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo, run_id: Number(process.env.QUALITY_RUN)});
+            const publish = branch.commit.sha === process.env.RELEASE_SHA && run.head_sha === process.env.RELEASE_SHA && run.status === 'completed' && run.conclusion === 'success';
+            core.setOutput('publish', String(publish));
+            core.info(publish ? 'The tested release is still current.' : 'Skip publication: main or its quality result changed during the build.');
       - uses: actions/deploy-pages@v4
         if: steps.current.outputs.publish == 'true'
         id: deployment

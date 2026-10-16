@@ -39,7 +39,7 @@ module.exports = async function backfill({github, context, core, previousRun, pr
   }
   const cutoff = new Date(now - WINDOW_SECONDS * 1000).toISOString();
   const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
-    ...context.repo, workflow_id:'pages.yml', status:'success', created:`>=${cutoff}`, per_page:100,
+    ...context.repo, workflow_id:'pages.yml', branch:'main', status:'success', created:`>=${cutoff}`, per_page:100,
   });
   let bytes = 0, count = 0;
   for (const run of runs) {

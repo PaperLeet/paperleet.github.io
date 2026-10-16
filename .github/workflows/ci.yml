@@ -1,11 +1,9 @@
 name: PaperLeet quality gate
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
-  workflow_call:
-    inputs:
-      revision:
-        required: false
-        type: string
 permissions:
   contents: read
 jobs:
@@ -19,8 +17,6 @@ jobs:
       PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.revision || github.sha }}
       - name: Validate Pages release gating
         run: node web/scripts/check-pages-release.cjs
       - uses: actions/setup-python@v5
@@ -68,8 +64,6 @@ jobs:
       PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.revision || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -89,8 +83,6 @@ jobs:
       PAPERLEET_WASM_CONCURRENCY: '2'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.revision || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
