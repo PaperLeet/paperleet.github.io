@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { createServer } from 'vite';
+import { JSDOM } from 'jsdom';
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const storage = globalThis.sessionStorage, localeStorage = globalThis.localStorage;
@@ -136,6 +137,51 @@ try {
     assert(!detail.includes('judge-capability-badge'),'Browser execution is standard, so module cards need no capability tag');
     assert(detail.includes(en ? 'Back to library results' : '返回题库结果') && detail.includes(returnTo.replaceAll('&', '&amp;')));
     assert(detail.includes(withLibraryContext(6, returnTo).replaceAll('&', '&amp;')));
+    const position = catalog.problems.find(p => p.id === 'architecture/positional_encoding');
+    const positionView = libraryHref(undefined, { ...emptyLibraryFilters(), query: 'Vaswani Sinusoidal' });
+    const positionScope = selectLibraryPractice(catalog.papers, catalog.problems, {}, readLibraryRoute(positionView)).problems;
+    const detailPage = props => JSDOM.fragment(render(PaperDetail, {
+      paper: transformer, problems: catalog.problems, saved: {},
+      returnTo: positionView, practiceProblems: positionScope, ...props,
+    }));
+    const primary = page => page.querySelector('.paper-primary-action a');
+    const positionHref = withLibraryContext(position.number, positionView);
+    const scoped = detailPage({});
+    assert.equal(primary(scoped).getAttribute('href'), positionHref, 'A paper primary action must honor the module search, rather than restart at Attention');
+    assert.equal(scoped.querySelector('.paper-completion-card a.button').getAttribute('href'), positionHref, 'Both paper practice entries use the same scope');
+    assert.equal(scoped.querySelectorAll('.paper-module-card').length, transformer.module_ids.length, 'The complete paper curriculum stays available for explicit exploration');
+    assert.equal(scoped.querySelector('[data-next] h3').textContent, `${position.number}. ${en ? position.translations.en.title : position.title}`);
+    const drafts = { [attention.id]: { code: attention.starter + '\n# recent outside-scope draft', updated: '2026-10-16T10:00:00Z' },
+      [position.id]: { code: position.starter + '\n# scoped draft', updated: '2026-10-15T10:00:00Z' } };
+    const resumed = detailPage({saved:drafts});
+    assert.equal(primary(resumed).getAttribute('href'), positionHref, 'A newer draft outside the filter cannot replace the scoped recommendation');
+    assert(primary(resumed).textContent.includes(en ? 'Continue practice' : '继续实现'));
+    const acceptedFor = problem => ({ problem: problem.id,
+      tests: Object.entries(problem.tests).flatMap(([layer,count])=>Array.from({length:count},(_,i)=>({id:`${layer}_${i}`,layer,passed:true}))),
+      summary: Object.fromEntries(Object.entries(problem.tests).map(([layer,count])=>[layer,[count,count]])) });
+    const reviewed = detailPage({saved:{[position.id]:{report:acceptedFor(position)}}});
+    assert(primary(reviewed).textContent.includes(en ? 'Review implementation' : '回顾实现'), 'Review follows the selected module, even when the rest of its paper is unfinished');
+    assert.equal(reviewed.querySelector('[data-next]'), null, 'A solved filtered module must not be marked as unfinished Up next');
+    const mediumView = libraryHref('llm-basics', {...emptyLibraryFilters(),query:'Vaswani',difficulty:'M'});
+    const mediumScope = selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute(mediumView)).problems;
+    const medium = detailPage({returnTo:mediumView,practiceProblems:mediumScope});
+    assert.equal(primary(medium).getAttribute('href'), withLibraryContext(27,mediumView), 'Collection and difficulty bounds also govern the detail recommendation');
+    const empty = detailPage({practiceProblems:[]});
+    assert.equal(primary(empty),null);
+    assert.equal(empty.querySelector('.paper-completion-card a.button'),null);
+    assert(empty.textContent.includes(en ? 'No modules match this library view' : '当前题库筛选中没有匹配模块'));
+    assert.equal(empty.querySelector('.paper-library-link').getAttribute('href'),positionView);
+    const pending = detailPage({progressReady:false});
+    assert.equal(primary(pending),null);
+    assert(pending.textContent.includes(en ? 'Loading progress' : '正在加载学习进度'));
+    assert(!pending.textContent.includes(en ? 'No modules match this library view' : '当前题库筛选中没有匹配模块'));
+    const course = catalog.papers.find(p=>p.kind==='course');
+    const courseModules = catalog.problems.filter(p=>course.module_ids.includes(p.id));
+    const completed = Object.fromEntries(courseModules.map(p=>[p.id,{report:acceptedFor(p)}]));
+    const scopedCourse = JSDOM.fragment(render(PaperDetail,{paper:course,problems:catalog.problems,practiceProblems:courseModules,saved:completed,returnTo:'#/collections/llm-basics'}));
+    assert(primary(scopedCourse).textContent.includes(en ? 'Continue learning' : '继续学习'), 'A completed course retains its explicitly labeled cross-paper continuation');
+    assert(scopedCourse.querySelector('.paper-action-target').textContent.includes(en ? 'Another paper' : '其他论文'));
+    assert.equal(primary(scopedCourse).getAttribute('href'),`#/${attention.number}`,'The explicit cross-paper continuation starts a fresh scope');
     const next = render(PracticeNextStep, { next: catalog.problems.find(p => p.number === 6), samePaper: true, returnTo, onNotes() {}, onLab() {} });
     assert(next.includes(withLibraryContext(6, returnTo).replaceAll('&', '&amp;')));
     const escaped = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query: '<script>alert(1)</script>' }) });
@@ -161,7 +207,7 @@ try {
   globalThis.sessionStorage = { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); } };
   rememberLibraryPosition('#/?q=volatile', { y: 123 });
   assert.deepEqual(readLibraryPosition('#/?q=volatile'), { y: 123 });
-  console.log('PASS library navigation: bibliography and versioned arXiv searches, combined paper/module terms, preserved collection/progress/runtime boundaries, complete filter/login/practice returns, bounded scroll persistence and bilingual results');
+  console.log('PASS library navigation: scoped paper recommendations, matching draft/review/empty/loading/course actions, complete paper exploration, bibliography search, preserved collection/difficulty/progress boundaries, exact returns and bilingual results');
 } finally {
   if (storage === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = storage;
   if (localeStorage === undefined) delete globalThis.localStorage; else globalThis.localStorage = localeStorage;
