@@ -55,6 +55,8 @@ make dev
 
 关注表征几何，可选择[表征对齐与分布正则路径](https://paperleet.com/#/interviews?track=representation-shape)：VICReg、SIGReg、VISReg 与 REPA。中英自测区分矩匹配与分布形状、冻结的归一化支架与可微特征，以及 patch 对齐和速度预测目标。
 
+准备策略蒸馏，可选择[策略蒸馏与上下文对齐路径](https://paperleet.com/#/interviews?track=policy-distillation)：从 SFT 损失掩码，走到学生前缀 OPD、OPSD 因果对齐与逐词表项截断。中英自测区分有效 token 平均与回答等权、双上下文位置偏移和有符号的截断项。
+
 1. 在题库中选择论文，例如 **6 · DDPM**，再打开“前向加噪”模块。
 2. 阅读模块目标，在右侧编辑器中补全标注为需要实现的函数；调度器等辅助函数已经提供。
 3. 点击 **Run tests / 运行测试**，在浏览器中检查代码并等待结果显示。
