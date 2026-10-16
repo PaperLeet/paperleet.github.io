@@ -178,7 +178,7 @@ def create_torch(name='torch', *, register=False):
     methods = {
         **dict.fromkeys(('var','std'), ('analytic',True,('out',))),
         **dict.fromkeys(('sum','exp','log','sqrt','abs','sin','cos','tanh','rsqrt','sigmoid'), ('analytic',True,('out',))),
-        **dict.fromkeys(('mean',), ('analytic',True,('out','dtype'))),
+        **dict.fromkeys(('mean',), ('analytic',True,('out',))),
         **dict.fromkeys(('relu','softmax','log_softmax','reshape'), ('analytic',True,())),
         **dict.fromkeys(('clamp','clamp_min','clamp_max','acos','cumsum','cumprod','norm','logsumexp','diag','triu','tril','amax','prod','round'), ('analytic',False,('out',))),
         **dict.fromkeys(('repeat_interleave','flip','roll','chunk','erfinv'), ('analytic',False,())),

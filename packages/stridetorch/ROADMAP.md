@@ -290,6 +290,20 @@ all three phases, including an unstable middle phase and direct-method controls.
 Original native catalog, export/history, latest-curriculum packaging/frontend and
 all 78 exported WASM modules pass. Main and remote adoption remain release gates.
 
+## Version 0.24 candidate
+
+Method/functional mean support explicit dtype with strict native reduction
+overloads, integer/boolean floating output, existing complex forward values,
+float32/float64 JVP and reverse differentiation of its tangent. Half sum/division
+uses float32 opmath without an input-sized cast buffer; reverse preserves
+output rounding and native post-forward model-conversion gradient dtypes.
+
+Final infrastructure passes 25,928 tests; Node/Chrome each pass 784 independent
+contracts and the NumPy 1.26/Python 3.10 installed wheel passes 804 without native
+Torch. Four balanced CPU/WASM phases retain all 64 children, rejected input-copy
+work and remaining small-call costs. Original catalogs, export and remote
+adoption remain required release gates.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

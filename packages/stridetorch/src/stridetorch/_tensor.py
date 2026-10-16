@@ -742,22 +742,40 @@ class Tensor:
             return np.broadcast_to(g, original_shape)
         if dtype is None and original_data.dtype.kind in 'biu': dtype = np.int64
         return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False)
-    def mean(self, dim=None, keepdim=False, *, dtype=None):
+    def mean(self, dim=_layout.UNSPECIFIED_DIM, keepdim=_layout.UNSPECIFIED_DIM, *, dtype=None):
+        missing = _layout.UNSPECIFIED_DIM
+        if dim is missing:
+            if keepdim is not missing:raise TypeError('mean keepdim requires an explicit dimension')
+            dim = None
+        if keepdim is missing:keepdim = False
+        if type(keepdim) is not bool:raise TypeError('mean keepdim must be bool')
+        requested = () if dim is None else tuple(dim) if isinstance(dim,(tuple,list)) else (dim,)
+        requested = tuple(_layout.integer(d) for d in requested)
         target = self.dtype if dtype is None else np.dtype(dtype)
         if target.kind not in 'fc':raise RuntimeError('mean requires floating or complex dtype')
-        dims = tuple(range(self.ndim)) if isinstance(dim,(tuple,list)) and not dim else _ops.reduction_axes(dim,self.ndim)
+        normalized = tuple(_layout.dimension(d,self.ndim) for d in requested)
+        if len(set(normalized)) != len(normalized):raise RuntimeError('Duplicate reduction dimensions')
+        dims = tuple(range(self.ndim)) if not requested else normalized if self.ndim else ()
         shape = self.shape
-        count = int(np.prod([shape[d] for d in dims]))
+        count = math.prod(shape[d] for d in dims)
         def vjp(g):
             if not keepdim:
                 for axis in sorted(dims):g=np.expand_dims(g,axis)
-            with np.errstate(divide='ignore',invalid='ignore'):
-                return np.broadcast_to(np.divide(g,count,dtype=g.dtype),shape)
-        if count:
-            value = self._data.mean(axis=dims,keepdims=keepdim,dtype=target)
-        else:
-            with np.errstate(divide='ignore',invalid='ignore'):
-                value = self._data.sum(axis=dims,keepdims=keepdim,dtype=target)/np.asarray(0,dtype=target)
+            if g.dtype == np.dtype('float16'):
+                # Divide in opmath precision, then round before the edge casts
+                # back into the input dtype. The count may exceed half's range.
+                gradient = np.divide(g,count,dtype=np.float32).astype(g.dtype)
+            else:gradient = np.divide(g,count,dtype=g.dtype)
+            return np.broadcast_to(gradient,shape)
+        with np.errstate(all='ignore'):
+            half = target == np.dtype('float16')
+            accumulator = np.float32 if half else target
+            # Native CPU half-output means convert input directly to float32;
+            # they do not round wider input to half before the accumulation.
+            if half:value = self._data.sum(axis=dims,keepdims=keepdim,dtype=accumulator)/np.asarray(count,dtype=accumulator)
+            elif count:value = self._data.mean(axis=dims,keepdims=keepdim,dtype=accumulator)
+            else:value = self._data.sum(axis=dims,keepdims=keepdim,dtype=accumulator)/np.asarray(0,dtype=accumulator)
+            if half:value = value.astype(target,copy=False)
         return _autograd.result(value,(self,vjp),saves_tensors=False)
     def trace(self):
         original_data = self._data

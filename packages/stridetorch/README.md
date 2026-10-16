@@ -63,6 +63,28 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## Means and explicit dtype
+
+`Tensor.mean` and `torch.mean` accept an explicit `dtype`, including floating
+outputs for integer/boolean inputs. Integer axes, axis tuples/lists, scalar and
+empty tensors, `keepdim` and empty-axis all-dimension reductions are supported.
+Boolean/fractional axes, duplicates and out-of-range axes are rejected; passing
+`keepdim` requires an explicit dimension, including `dim=None`.
+
+```python
+x = torch.tensor([[1., 3.], [5., 7.]], requires_grad=True)
+y = torch.mean(x, dim=0, dtype=torch.float64)
+y.sum().backward()
+```
+
+Half outputs use float32 sum/division before output rounding, matching
+[native CPU mean](https://github.com/pytorch/pytorch/blob/v2.14.0/aten/src/ATen/native/ReduceOps.cpp#L1336).
+This avoids overflowing the intermediate sum or denominator for large half
+reductions. Pullbacks round in the output dtype before the input-gradient cast.
+Float32/float64 JVP and reverse differentiation of its tangent support casts
+between those dtypes. Half/complex JVP, complex autograd and output buffers retain
+explicit unsupported errors. Existing complex forward means remain supported.
+
 ## Statistics
 
 `Tensor.var/std`, `torch.var/std` and `torch.var_mean/std_mean` support real

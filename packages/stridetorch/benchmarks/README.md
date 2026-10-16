@@ -49,6 +49,14 @@ calls with repeated argument patterns; import, first binding, native Torch and
 application performance are outside the measured scope. Retain control drift
 and every sample when comparing frozen versions in fresh balanced processes.
 
+`--benchmark mean` compares twelve fixed method/function means, row/column
+reductions, valid half rows, method dtype casts, complete reverse passes and an
+unchanged exponential control. It checks independent NumPy values and analytical
+gradients before timing. Use eleven batches, 1,000 small calls, 250 row/column
+calls or 100 reverse calls per batch, after three warmups. Baseline and candidate
+execute matching already-valid work; corrected overflow/invalid arguments and
+new functional dtype behavior are excluded from speed comparisons.
+
 The 0.12 construction suite has 24 cases, adding small integer/boolean lists,
 64/4,096-element Python vectors, explicit floating/integer storage and nested
 primitive rows. Every new case checks values/dtype outside timing, and reports
