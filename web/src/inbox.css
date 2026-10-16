@@ -43,6 +43,15 @@
 .messages-page-heading { display:flex; align-items:center; gap:22px; margin-bottom:18px; }
 .messages-page-heading h1 { margin:0; font-size:25px; letter-spacing:-.5px; }
 .messages-page-heading .social-back { margin:0; font-size:11px; }
+.messages-welcome-back { display:inline-flex; align-items:center; gap:7px; min-height:36px; color:var(--muted); font-size:12px; }
+.messages-welcome-back:hover { color:var(--accent); }
+.messages-welcome { box-sizing:border-box; width:min(100%,560px); margin:clamp(24px,6vh,64px) auto 0; padding:42px 32px; border:1px solid var(--line); border-radius:16px; background:var(--surface); text-align:center; }
+.messages-welcome-icon { display:grid; place-items:center; width:72px; height:72px; margin:0 auto 20px; border-radius:20px; color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface)); }
+.messages-welcome-eyebrow { color:var(--muted); font-size:11px; }
+.messages-welcome h1 { margin:8px 0 12px; color:var(--text); font-size:30px; letter-spacing:-.6px; }
+.messages-welcome p { max-width:380px; margin:0 auto; color:var(--text-secondary); font-size:14px; line-height:1.8; }
+.messages-welcome .button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; margin-top:26px; padding:11px 26px; }
+.messages-welcome small { display:block; margin-top:15px; color:var(--muted); font-size:12px; line-height:1.6; }
 .messages-layout { display:grid; grid-template-columns:290px minmax(0,1fr); min-height:min(420px,calc(100dvh - 180px)); height:min(720px,calc(100dvh - 180px)); border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--surface); }
 .messages-sidebar { min-width:0; overflow-y:auto; overscroll-behavior:contain; border-right:1px solid var(--line); }
 .messages-sidebar > h2 { margin:0; padding:20px 18px 12px; font-size:13px; font-weight:600; }
@@ -66,6 +75,10 @@
 .message-list p { margin:0; padding:11px 14px; white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; line-height:1.7; background:var(--surface2); border-radius:12px 12px 12px 3px; }
 .message-list .outgoing p { background:color-mix(in srgb,var(--accent) 14%,var(--surface)); border-radius:12px 12px 3px 12px; }
 .message-list time { color:var(--muted); font-size:9px; padding-inline:3px; }
+.message-history:focus-visible { outline-offset:-3px; }
+.message-jump { flex:none; display:flex; justify-content:center; padding:8px 14px; border-top:1px solid var(--line); }
+.message-jump button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:36px; padding:8px 16px; border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line)); border-radius:20px; background:color-mix(in srgb,var(--accent) 8%,var(--surface)); color:var(--text); font-size:12px; }
+.message-jump button:hover { border-color:var(--accent); }
 .message-composer { flex:none; padding:14px 20px 16px; border-top:1px solid var(--line); }
 .message-permission { color:var(--muted); font-size:11px; line-height:1.7; margin:0 0 10px; }
 .message-permission:empty { display:none; }
@@ -80,6 +93,9 @@
   .inbox-popover { position:fixed; top:68px; right:12px; width:390px; max-height:calc(100dvh - 84px); }
   .messages-page { width:calc(100% - 24px); padding-top:18px; }
   .messages-page-heading { justify-content:space-between; gap:12px; }
+  .messages-welcome { margin-top:24px; padding:32px 20px; border-radius:12px; }
+  .messages-welcome .button { width:100%; }
+  .message-jump button { min-height:44px; }
   .messages-page-heading h1 { font-size:22px; }
   .messages-layout { grid-template-columns:minmax(0,1fr); height:calc(100dvh - 160px); min-height:min(420px,calc(100dvh - 160px)); }
   .messages-sidebar { border-right:0; }

@@ -136,13 +136,23 @@ try {
   Object.defineProperties(history, {scrollHeight: {value: 1000, configurable: true}, clientHeight: {value: 300, configurable: true}});
   history.scrollTop = 100;
   await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
+  const latestControl = button('Back to latest messages'); assert(latestControl, 'Older history retains a direct way back to the newest content');
   thread = {...thread, messages: [...thread.messages, {id: 3, sender_id: 'bob', body: 'New message below the viewport', created_at: '2026-10-15T11:02:00Z'}], observed_message_id: 3, unread_count: 1};
   await act(async () => inboxChanged('alice'));
   assert(!calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 3), 'New messages remain unread while browsing older history');
   assert.equal(history.scrollTop, 100, 'Incoming messages do not move an older reading position');
-  history.scrollTop = 700;
-  await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
-  assert(calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 3), 'Reaching the newest message marks the observed snapshot read');
+  const draftEditor = document.querySelector('textarea');
+  await edit('Keep this unfinished reply'); draftEditor.setSelectionRange(3, 9);
+  const jump = button('New messages · Jump to latest'); assert(jump, 'New unread content has an explicit jump action');
+  assert.equal(jump, latestControl, 'An incoming message updates the existing control without replacing its focus target');
+  await click(jump);
+  assert(calls.some(call => call.path === 'messages/bob/read' && call.body.through_message_id === 3), 'Jumping to the newest message marks only the observed snapshot read');
+  assert.equal(document.activeElement, history, 'The jump leaves keyboard focus in message history');
+  assert.equal(history.getAttribute('tabindex'), '0', 'Message history remains reachable for keyboard scrolling');
+  assert.equal(document.querySelector('textarea'), draftEditor);
+  assert.equal(draftEditor.value, 'Keep this unfinished reply');
+  assert.equal(draftEditor.selectionStart, 3); assert.equal(draftEditor.selectionEnd, 9);
+  assert(!button('New messages · Jump to latest'), 'The cue disappears after reaching the newest message');
   history.scrollTop = 100;
   await act(async () => history.dispatchEvent(new dom.window.Event('scroll', {bubbles: true})));
   thread = {...thread, messages: [...thread.messages, {id: 4, sender_id: 'bob', body: 'Unread while hidden', created_at: '2026-10-15T11:03:00Z'}], observed_message_id: 4, unread_count: 1};
@@ -168,7 +178,15 @@ try {
   // A mismatched owner can never become a private snapshot for a newly signed-in account.
   await assert.rejects(() => inboxRequest('bob', 'inbox?summary=1'), /account changed/);
   assert.deepEqual(mergeMessages([{id: 2, body: 'old'}], [{id: 1, body: 'earlier'}, {id: 2, body: 'updated'}]).map(item => item.body), ['earlier', 'updated']);
-  console.log('PASS inbox summary/red dot, grouped/escaped notifications, snapshot-safe notification reads, newest-visible-message acknowledgements, preserved history scroll, hidden/pending-read guards, idempotent messages and lost-response reconciliation, editable rejected drafts, stranger/mutual send rules, limits, plain text, no draft storage, account privacy and aborts');
+  await stop();
+  account.user = null; const guestReads = calls.length;
+  await render(Messages, {username: 'bob'});
+  assert(document.querySelector('.messages-welcome'), 'Guests receive a complete conversation entry state');
+  const signIn = [...document.querySelectorAll('a')].find(link => link.textContent === 'Sign in');
+  assert.equal(signIn.getAttribute('href'), '#/account/continue/messages%2Fbob');
+  assert.equal(document.querySelector('.messages-welcome-back').getAttribute('href'), '#/community');
+  assert.equal(calls.length, guestReads, 'The guest introduction never reads private messages');
+  console.log('PASS inbox summary/red dot, grouped/escaped notifications, snapshot-safe notification reads, newest-visible-message acknowledgements, explicit new-message jump with draft/selection and keyboard focus preservation, guest entry/login returns, preserved history scroll, hidden/pending-read guards, idempotent messages and lost-response reconciliation, editable rejected drafts, stranger/mutual send rules, limits, plain text, no draft storage, account privacy and aborts');
 } finally {
   if (root) await act(async () => root.unmount());
   await server.close(); dom.window.close();
