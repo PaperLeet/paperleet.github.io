@@ -23,7 +23,7 @@ def source_hashes(directory):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--benchmark', choices=['runtime', 'tensor_hooks', 'tensor_factories', 'arithmetic', 'selection', 'module_hooks', 'nn', 'schedulers', 'batchnorm', 'groupnorm', 'classification', 'convolution', 'layout', 'shape_ops', 'statistics'], default='runtime')
+    parser.add_argument('--benchmark', choices=['runtime', 'tensor_hooks', 'tensor_factories', 'arithmetic', 'selection', 'module_hooks', 'nn', 'schedulers', 'batchnorm', 'groupnorm', 'classification', 'convolution', 'layout', 'shape_ops', 'statistics', 'dispatch'], default='runtime')
     parser.add_argument('--threads', type=int, default=1, help='Requested maximum for backend environment controls')
     parser.add_argument('--output')
     options, remaining = parser.parse_known_args()

@@ -31,11 +31,22 @@ class OperatorRegistry:
         signature = inspect.signature(function)
         capability = OperatorCapability(reverse, forward, tuple(unsupported_keywords), str(signature))
         self.capabilities[name] = capability
+        validated_patterns = None
 
         @functools.wraps(function)
         def call(*args, **kwargs):
+            nonlocal validated_patterns
             options = {keyword: kwargs.pop(keyword) for keyword in capability.unsupported_keywords if keyword in kwargs}
-            signature.bind(*args, **kwargs)
+            # Binding validates argument structure only. Keep values and AD state
+            # out of this bounded cache, and run their guards on every call.
+            pattern = (len(args), tuple(kwargs))
+            if validated_patterns is None or pattern not in validated_patterns:
+                signature.bind(*args, **kwargs)
+                if validated_patterns is None: validated_patterns = set()
+                # A str subclass may carry arbitrary payloads through attributes.
+                # Retain only ordinary keyword names, never such user objects.
+                if len(validated_patterns) < 32 and all(type(keyword) is str for keyword in kwargs):
+                    validated_patterns.add(pattern)
             for keyword, value in options.items():
                 if value is not None: raise _errors.BrowserUnsupported(f'{name} argument {keyword} requires the server')
             if _state._jvp_active and not capability.forward and contains_tensor((args, kwargs), lambda v: isinstance(v, _autograd.ForwardTensor)):

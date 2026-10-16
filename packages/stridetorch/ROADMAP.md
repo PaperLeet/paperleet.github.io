@@ -272,6 +272,21 @@ Node/Chrome contracts, minimum-dependency installed wheels and balanced CPU/WASM
 comparisons pass. Remaining standard-deviation reverse costs are documented.
 This candidate awaits main integration and exact remote deployment verification.
 
+## Version 0.23 candidate
+
+Public operators retain at most 32 successful signature patterns per operator,
+using positional arity and ordinary keyword names. Argument values, tensor
+objects, gradients and execution modes are never cached. Unsupported options,
+forward/reverse policies and numerical validation still run on every call;
+uncached or excess patterns retain ordinary binding and error behavior. Keyword
+name subclasses cannot retain attached user payloads through the cache.
+
+Final infrastructure passes 25,612 tests; real Node/Pyodide and Chrome Worker
+each pass 774 independent contracts. The installed wheel passes 794 tests on
+Python 3.10/NumPy 1.26 without native Torch. Balanced CPU/WASM comparisons retain
+all three phases, including an unstable middle phase and direct-method controls.
+Original catalogs, exported bundles and remote adoption remain release gates.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

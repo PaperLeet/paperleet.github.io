@@ -39,6 +39,16 @@ clock quantization; every result records its actual iteration count.
 `numpy_export` and `numpy_array_protocol` separately measure shared-data exports
 and use 100 times the inner count for their sub-microsecond metadata operations.
 
+`--benchmark dispatch` compares twelve fixed public-call and direct-method
+workloads: positional/keyword/optional-output exponential, keyword reduction,
+paired moments, addition, matrix multiplication, nested concatenation and a
+complete functional reverse pass, with three direct-method controls. NumPy
+values and analytical gradients are checked before timing. Use eleven batches
+and 5,000 calls (1,000 for reverse), after three warmups. These are steady-state
+calls with repeated argument patterns; import, first binding, native Torch and
+application performance are outside the measured scope. Retain control drift
+and every sample when comparing frozen versions in fresh balanced processes.
+
 The 0.12 construction suite has 24 cases, adding small integer/boolean lists,
 64/4,096-element Python vectors, explicit floating/integer storage and nested
 primitive rows. Every new case checks values/dtype outside timing, and reports
