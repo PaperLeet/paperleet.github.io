@@ -1663,6 +1663,91 @@
           }
         }
       ]
+    },
+    {
+      "id": "rl/gae",
+      "source": "problems/rl/gae/README.md",
+      "functions": [
+        "compute_gae"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "GAE 为什么反向累加 TD 残差？gamma 和 lambda 分别控制什么？",
+            "en": "Why does GAE accumulate TD residuals backward, and what do gamma and lambda control?"
+          },
+          "hint": {
+            "zh": "先区分奖励折扣与残差权重。lambda=0 只保留当前残差；lambda=1 在连续价值估计下望远镜相消，得到带末状态 bootstrap 的回报减 V。",
+            "en": "Separate reward discounting from residual weighting. Lambda zero keeps one residual; lambda one telescopes consistent values into a bootstrapped return minus V."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "终止与时间截断，为什么需要两种掩码？如何保持并行环境互不影响？",
+            "en": "Why do termination and time truncation need different masks, and how do parallel environments stay independent?"
+          },
+          "hint": {
+            "zh": "残差仅在 terminated 时去掉 next_values；递推在 terminated 或 truncated 时都停止。沿时间反向、按环境保留向量 carry，返回两个 [T,N] 张量：A 和 A+V。",
+            "en": "Only termination removes next_values from the residual. Either ending stops recurrence. Scan time backward with one carry per environment; return A and A+V as [T,N] tensors."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用最小反例检验 bootstrap、跨 episode 污染和返回值形状？",
+            "en": "Which small counterexamples expose wrong bootstrapping, episode leakage and output shapes?"
+          },
+          "hint": {
+            "zh": "令 r=V=0、next_V=2、gamma=0.9：终止与截断应分别得到 0 和 1.8。改变下一 episode 的奖励不应影响结束点之前的 A；T=N=1 也不压缩轴。",
+            "en": "With zero r and V, next_V=2 and gamma=.9, termination gives zero and truncation 1.8. Changing the next episode cannot affect earlier A; T=N=1 still keeps both axes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "rl/dr_grpo",
+      "source": "problems/rl/dr_grpo/README.md",
+      "functions": [
+        "drgrpo_advantages",
+        "drgrpo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "相同负 advantage 的短回答和长回答，为何会受到不同的逐 token 惩罚？",
+            "en": "Why can equally negative advantages penalize short and long responses differently per token?"
+          },
+          "hint": {
+            "zh": "分别除以各自长度时，5-token 回答的逐 token 权重是 20-token 回答的四倍。固定生成上限能去掉这项差异；不除组标准差则保留奖励尺度。",
+            "en": "Per-response averaging gives a five-token response four times the per-token weight of a twenty-token response. A fixed generation limit removes this difference; omitting group std scaling preserves reward units."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "两个归一化修正怎样接入已有 token objective，又不重复计算 KL？",
+            "en": "How do the two normalization changes reuse the token objective without double-counting KL?"
+          },
+          "hint": {
+            "zh": "组内奖励只减均值；有效 objective 求和后除以 N*max_len，max_len 来自调用方。先隔离 padding；提供的 objective 已含 -beta*KL。本题默认 beta=.04，论文实验使用零，别混用配置。",
+            "en": "Center grouped rewards, then divide the valid objective sum by caller-supplied N*max_len. Isolate padding first; the helper already subtracts beta*KL. This exercise defaults to beta=.04, while the paper experiments use zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样验证长度无关性、梯度冻结和诊断量，而不把单次训练曲线当成结论？",
+            "en": "How do you verify length independence, frozen inputs and diagnostics without relying on one training curve?"
+          },
+          "hint": {
+            "zh": "固定 max_len，改变另一条零 advantage 回答的长度，目标回答梯度应不变。logp 保留梯度，旧/参考分数和 advantage 固定；三个诊断按有效 token 平均并 detach，全空时为零。",
+            "en": "Hold max_len fixed and vary another zero-advantage response length: target gradients must stay unchanged. Keep logp gradients, freeze old/reference scores and advantages; detach valid-token diagnostics and return zeros when empty."
+          }
+        }
+      ]
     }
   ]
 }

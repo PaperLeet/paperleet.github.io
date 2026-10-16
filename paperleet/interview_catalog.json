@@ -446,6 +446,25 @@
       ]
     },
     {
+      "id": "post-training",
+      "name": "策略优化与后训练",
+      "name_en": "Policy optimization & post-training",
+      "description": "从 GAE 的优势估计，练到 PPO、GRPO、Dr. GRPO 的目标与归一化，再比较 DPO 偏好优化。",
+      "description_en": "Connect GAE advantages with PPO, GRPO and Dr. GRPO objectives and normalization, then compare DPO preference optimization.",
+      "modules": [
+        "rl/gae",
+        "rl/ppo_clip",
+        "rl/grpo",
+        "rl/dr_grpo",
+        "rl/dpo"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research"
+      ]
+    },
+    {
       "id": "transformer",
       "name": "Transformer 核心与效率",
       "name_en": "Transformer core & efficiency",
