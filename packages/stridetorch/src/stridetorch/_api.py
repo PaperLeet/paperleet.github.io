@@ -218,10 +218,11 @@ def create_torch(name='torch', *, register=False):
         'scaled_dot_product_attention': _nn.scaled_dot_product_attention_oracle,
     }, reverse='analytic')
     registry.group('torch.linalg', {
-        'solve': _linalg.solve, 'inv': _linalg.inv, 'norm': _linalg.linalg_norm, 'svd': _linalg.svd, 'eigh': _linalg.eigh,
+        'inv': _linalg.inv, 'norm': _linalg.linalg_norm, 'svd': _linalg.svd, 'eigh': _linalg.eigh,
         'qr': _linalg.qr, 'eigvalsh': _linalg.eigvalsh, 'det': _linalg.det,
         'svdvals': lambda input,*,driver=None,out=None: _linalg.svd(input,False,driver=driver,out=out).S,
     }, reverse='analytic')
+    registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)
     registry.add('torch.linalg.matrix_rank', lambda input: _tensor.Tensor(np.linalg.matrix_rank(input._data),dtype=np.int64), reverse='nondifferentiable')
     registry.add('torch.testing.assert_close', _ops.assert_close, reverse='control')
     registry.add('torch.random.fork_rng', _random.fork_rng, reverse='control')

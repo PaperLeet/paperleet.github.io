@@ -1,0 +1,1827 @@
+{
+  "status": "candidate_core_validated_performance_and_application_adoption_pending",
+  "version": "0.29.0",
+  "baseline_commit": "0fb0bdc57732aadb8233d3ec9d246570ce088c58",
+  "candidate_source": "trial-selective/stridetorch",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f9e5631580c05e8cfa159ece5227bbdfcbd00136d90cf6d1c572806175d89388",
+    "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "e6d021d4c2563f0e1414041f2f3c10720448108c1a28d8b93438ae38bc6f112c",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "base": {
+    "passed": 29853,
+    "optional_skips": 1,
+    "warnings": 34,
+    "elapsed_s": 194.91
+  },
+  "focused_passed": 574,
+  "minimum": {
+    "passed": 916,
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "native_torch": false,
+    "artifacts": {
+      "stridetorch-0.29.0-py3-none-any.whl": "434118e36a88194ff7b1a83c7890e12e8a6e67133ea9ddb2c884fe1919148cc1",
+      "stridetorch-0.29.0.tar.gz": "8ca91cfa267c12f90beed47b0e7a4cc7beb958cd2536febcd2bb1f5a36ecf2da"
+    }
+  },
+  "node": {
+    "numpy_fenv_traps": false,
+    "library": "0.29.0",
+    "numpy": "2.2.5",
+    "passed": 904,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "e6d021d4c2563f0e1414041f2f3c10720448108c1a28d8b93438ae38bc6f112c",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "f9e5631580c05e8cfa159ece5227bbdfcbd00136d90cf6d1c572806175d89388",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835"
+    }
+  },
+  "chrome": {
+    "status": "success",
+    "library": "0.29.0",
+    "numpy": "2.2.5",
+    "passed": 904,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f9e5631580c05e8cfa159ece5227bbdfcbd00136d90cf6d1c572806175d89388",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "e6d021d4c2563f0e1414041f2f3c10720448108c1a28d8b93438ae38bc6f112c",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "ebd0a9a37b678135a7f2cc27c459560d32c100826487f98a2c7656ca5183835a",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "57cadb4f821678534577272fbca5b1ce5824b87baf0488d1013d8ef2ceee12cb"
+    }
+  },
+  "performance": {
+    "initial": {
+      "summary": {
+        "cpu/float32": {
+          "2/(True, True)/retained": {
+            "baseline": 12.759083998389542,
+            "candidate": 13.45470899832435,
+            "reduction_percent": -5.4519979649213735
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 36.02641599718481,
+            "candidate": 48.41204201511573,
+            "reduction_percent": -34.379289960174674
+          },
+          "2/(True, False)/retained": {
+            "baseline": 8.49229100276716,
+            "candidate": 11.470375000499189,
+            "reduction_percent": -35.068087006929446
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 30.78024998831097,
+            "candidate": 45.423250005114824,
+            "reduction_percent": -47.572713094808016
+          },
+          "2/(False, True)/retained": {
+            "baseline": 7.565083011286333,
+            "candidate": 10.4185419913847,
+            "reduction_percent": -37.71880593829964
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 29.419040991342627,
+            "candidate": 44.60879199905321,
+            "reduction_percent": -51.63237990042093
+          },
+          "2/no_grad": {
+            "baseline": 4.47766600700561,
+            "candidate": 10.149833004106767,
+            "reduction_percent": -126.67686665835886
+          },
+          "16/(True, True)/retained": {
+            "baseline": 16.035214939620346,
+            "candidate": 14.99479498306755,
+            "reduction_percent": 6.488344312629646
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 40.8493750001071,
+            "candidate": 51.946039966423996,
+            "reduction_percent": -27.164834140761762
+          },
+          "16/(True, False)/retained": {
+            "baseline": 10.239580005872995,
+            "candidate": 13.34624997980427,
+            "reduction_percent": -30.33981835338382
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 33.35187502671033,
+            "candidate": 48.0879150563851,
+            "reduction_percent": -44.1835429578493
+          },
+          "16/(False, True)/retained": {
+            "baseline": 8.969995033112355,
+            "candidate": 11.886874999618158,
+            "reduction_percent": -32.51818931602821
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 32.013960008043796,
+            "candidate": 47.04541504906956,
+            "reduction_percent": -46.95281382637128
+          },
+          "16/no_grad": {
+            "baseline": 5.777875994681381,
+            "candidate": 11.462584006949328,
+            "reduction_percent": -98.3875046383966
+          }
+        },
+        "cpu/float64": {
+          "2/(True, True)/retained": {
+            "baseline": 11.805749993072823,
+            "candidate": 12.780666002072394,
+            "reduction_percent": -8.257976067353745
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 33.78987600444816,
+            "candidate": 47.16704199381638,
+            "reduction_percent": -39.58927220569626
+          },
+          "2/(True, False)/retained": {
+            "baseline": 8.018749998882413,
+            "candidate": 11.108751001302153,
+            "reduction_percent": -38.53469683991144
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 29.0689580142498,
+            "candidate": 44.59183399740141,
+            "reduction_percent": -53.40018027320479
+          },
+          "2/(False, True)/retained": {
+            "baseline": 7.108876001439057,
+            "candidate": 9.764582995558158,
+            "reduction_percent": -37.35762156466793
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 27.844459007610567,
+            "candidate": 42.61050002241973,
+            "reduction_percent": -53.030446778561014
+          },
+          "2/no_grad": {
+            "baseline": 3.9711669960524887,
+            "candidate": 9.748083000886254,
+            "reduction_percent": -145.471495169462
+          },
+          "16/(True, True)/retained": {
+            "baseline": 17.343540021101944,
+            "candidate": 14.200000005075708,
+            "reduction_percent": 18.125134846758396
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 43.27853996073827,
+            "candidate": 49.709164959494956,
+            "reduction_percent": -14.858692101421322
+          },
+          "16/(True, False)/retained": {
+            "baseline": 12.275414992473088,
+            "candidate": 12.371874981909059,
+            "reduction_percent": -0.785798194970333
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 36.844789938186295,
+            "candidate": 46.06854003213812,
+            "reduction_percent": -25.034068885794447
+          },
+          "16/(False, True)/retained": {
+            "baseline": 8.12561993370764,
+            "candidate": 10.930414937320165,
+            "reduction_percent": -34.51792018941655
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 29.345204966375604,
+            "candidate": 44.521045056171715,
+            "reduction_percent": -51.714888709023946
+          },
+          "16/no_grad": {
+            "baseline": 5.189874995267019,
+            "candidate": 11.067542000091635,
+            "reduction_percent": -113.25257371680127
+          }
+        },
+        "wasm/float32": {
+          "2/(True, True)/retained": {
+            "baseline": 28.098124000000002,
+            "candidate": 31.443083000000094,
+            "reduction_percent": -11.904563450570915
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 81.00466699999998,
+            "candidate": 104.79491600000013,
+            "reduction_percent": -29.368985616594358
+          },
+          "2/(True, False)/retained": {
+            "baseline": 17.288334000000294,
+            "candidate": 24.051167000000095,
+            "reduction_percent": -39.117898809681066
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 68.5528750000004,
+            "candidate": 95.058501,
+            "reduction_percent": -38.66449948306246
+          },
+          "2/(False, True)/retained": {
+            "baseline": 15.997957999999812,
+            "candidate": 21.680166999999972,
+            "reduction_percent": -35.51833927805177
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 65.82483299999976,
+            "candidate": 91.36858299999994,
+            "reduction_percent": -38.80564345677912
+          },
+          "2/no_grad": {
+            "baseline": 9.770291000000153,
+            "candidate": 22.22666600000034,
+            "reduction_percent": -127.49236435230019
+          },
+          "16/(True, True)/retained": {
+            "baseline": 29.900830000000326,
+            "candidate": 30.169164999998,
+            "reduction_percent": -0.8974165600007522
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 84.11542000000159,
+            "candidate": 105.82875000000101,
+            "reduction_percent": -25.813733082470502
+          },
+          "16/(True, False)/retained": {
+            "baseline": 19.172704999999013,
+            "candidate": 25.3047900000003,
+            "reduction_percent": -31.983410791547673
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 70.61562499999897,
+            "candidate": 97.43813000000267,
+            "reduction_percent": -37.98381024030317
+          },
+          "16/(False, True)/retained": {
+            "baseline": 17.279584999998487,
+            "candidate": 23.132500000000444,
+            "reduction_percent": -33.87184935287779
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 68.29541999999967,
+            "candidate": 94.61895999999913,
+            "reduction_percent": -38.54363879744731
+          },
+          "16/no_grad": {
+            "baseline": 11.187249999999871,
+            "candidate": 23.566958000000415,
+            "reduction_percent": -110.65908064985308
+          }
+        },
+        "wasm/float64": {
+          "2/(True, True)/retained": {
+            "baseline": 26.0577919999998,
+            "candidate": 29.55279200000005,
+            "reduction_percent": -13.412494811533836
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 76.47295899999972,
+            "candidate": 101.19024999999971,
+            "reduction_percent": -32.32160926321692
+          },
+          "2/(True, False)/retained": {
+            "baseline": 16.443208999999737,
+            "candidate": 22.74437500000026,
+            "reduction_percent": -38.32078032943951
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 63.5002499999997,
+            "candidate": 90.94425099999981,
+            "reduction_percent": -43.218729060122186
+          },
+          "2/(False, True)/retained": {
+            "baseline": 14.763625000000502,
+            "candidate": 20.573333999999832,
+            "reduction_percent": -39.35150750577267
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 61.73041600000007,
+            "candidate": 87.73716699999977,
+            "reduction_percent": -42.12955733199606
+          },
+          "2/no_grad": {
+            "baseline": 8.900999999999826,
+            "candidate": 21.323583000000035,
+            "reduction_percent": -139.56390293225985
+          },
+          "16/(True, True)/retained": {
+            "baseline": 27.26958500000043,
+            "candidate": 28.54499999999982,
+            "reduction_percent": -4.677060541989797
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 80.5272900000009,
+            "candidate": 98.43687999999906,
+            "reduction_percent": -22.240398255048643
+          },
+          "16/(True, False)/retained": {
+            "baseline": 21.14541999999941,
+            "candidate": 23.847495000002276,
+            "reduction_percent": -12.778535493752031
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 78.23103999999859,
+            "candidate": 91.78541500000081,
+            "reduction_percent": -17.32608309949921
+          },
+          "16/(False, True)/retained": {
+            "baseline": 32.17604500000082,
+            "candidate": 22.207295000000737,
+            "reduction_percent": 30.981899733170525
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 72.94500000000204,
+            "candidate": 89.87687499999896,
+            "reduction_percent": -23.211837685922877
+          },
+          "16/no_grad": {
+            "baseline": 10.154458000000144,
+            "candidate": 22.644083999999953,
+            "reduction_percent": -122.99648095446977
+          }
+        }
+      },
+      "receipts": [
+        {
+          "name": "cpu-float32-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.9689940420066705,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.2156563339958666,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.217898167000385,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.8876250000030268,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float64-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.8487482080090558,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.1679157080070581,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.1658513330039568,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.8585480000037933,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float32-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.29978275000758,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.8399351249972824,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.777582500013523,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.1970794169901637,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float64-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.717558290998568,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.774842458005878,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.7130864999926416,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/candidate/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.1157326249958714,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        }
+      ],
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+        "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "63798086d793ed988f8c62201ec0eec7e0fbf08d402b1a92a7dd6fea7202090d",
+        "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "70aa00887e5632b9dd1c788241aa2cd5894e21c3e16d0a387d31de139c6430ca",
+        "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      }
+    },
+    "optimized": {
+      "summary": {
+        "cpu/float32": {
+          "2/(True, True)/retained": {
+            "baseline": 13.404541998170316,
+            "candidate": 11.200625012861565,
+            "reduction_percent": 16.44156872804442
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 38.217748995521106,
+            "candidate": 41.474707002635114,
+            "reduction_percent": -8.522108425317532
+          },
+          "2/(True, False)/retained": {
+            "baseline": 8.661375017254613,
+            "candidate": 9.609040993382223,
+            "reduction_percent": -10.94128789297002
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 32.66229199653026,
+            "candidate": 38.650167000014335,
+            "reduction_percent": -18.33268468765197
+          },
+          "2/(False, True)/retained": {
+            "baseline": 7.743459005723707,
+            "candidate": 8.542083000065759,
+            "reduction_percent": -10.313530345440402
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 30.598876008298248,
+            "candidate": 37.822500002221204,
+            "reduction_percent": -23.607481503451133
+          },
+          "2/no_grad": {
+            "baseline": 4.577209008857608,
+            "candidate": 5.487708011060022,
+            "reduction_percent": -19.89201280606714
+          },
+          "16/(True, True)/retained": {
+            "baseline": 16.18479502212722,
+            "candidate": 12.931044984725304,
+            "reduction_percent": 20.10374572525333
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 41.47145496972371,
+            "candidate": 44.63603996555321,
+            "reduction_percent": -7.630754691726649
+          },
+          "16/(True, False)/retained": {
+            "baseline": 10.425829968880862,
+            "candidate": 11.3347900332883,
+            "reduction_percent": -8.71834728861407
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 33.976669947151095,
+            "candidate": 41.629585102782585,
+            "reduction_percent": -22.52402948121517
+          },
+          "16/(False, True)/retained": {
+            "baseline": 9.076670030481182,
+            "candidate": 9.881664955173619,
+            "reduction_percent": -8.868835398765306
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 33.14520996354986,
+            "candidate": 40.49750503327232,
+            "reduction_percent": -22.18207420561782
+          },
+          "16/no_grad": {
+            "baseline": 5.9326249902369455,
+            "candidate": 6.802458010497503,
+            "reduction_percent": -14.66185746936648
+          }
+        },
+        "cpu/float64": {
+          "2/(True, True)/retained": {
+            "baseline": 12.108874987461604,
+            "candidate": 10.73875000292901,
+            "reduction_percent": 11.315047731117222
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 34.560375002911314,
+            "candidate": 40.19987498759292,
+            "reduction_percent": -16.317820579801424
+          },
+          "2/(True, False)/retained": {
+            "baseline": 8.198416006052867,
+            "candidate": 9.12016698566731,
+            "reduction_percent": -11.243037422520619
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 29.613625010824762,
+            "candidate": 37.00145799666643,
+            "reduction_percent": -24.947411818516542
+          },
+          "2/(False, True)/retained": {
+            "baseline": 7.1909999824129045,
+            "candidate": 7.8184580052038655,
+            "reduction_percent": -8.725601784529836
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 28.336541989119723,
+            "candidate": 35.103959002299234,
+            "reduction_percent": -23.882296632305987
+          },
+          "2/no_grad": {
+            "baseline": 4.013999991002493,
+            "candidate": 4.912916003377177,
+            "reduction_percent": -22.394519541346103
+          },
+          "16/(True, True)/retained": {
+            "baseline": 17.700000025797635,
+            "candidate": 12.086249989806674,
+            "reduction_percent": 31.716101852028
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 43.16854006901849,
+            "candidate": 42.61750502337236,
+            "reduction_percent": 1.2764736652319697
+          },
+          "16/(True, False)/retained": {
+            "baseline": 12.506040002335794,
+            "candidate": 10.775835035019554,
+            "reduction_percent": 13.834954685840472
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 37.225414998829365,
+            "candidate": 39.66478994698264,
+            "reduction_percent": -6.5529825476223325
+          },
+          "16/(False, True)/retained": {
+            "baseline": 8.266250006272458,
+            "candidate": 9.190835044137202,
+            "reduction_percent": -11.1850601804103
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 30.164790005073883,
+            "candidate": 38.30207999271806,
+            "reduction_percent": -26.976120126397184
+          },
+          "16/no_grad": {
+            "baseline": 5.250249989330769,
+            "candidate": 6.261832997552119,
+            "reduction_percent": -19.267330322880373
+          }
+        },
+        "wasm/float32": {
+          "2/(True, True)/retained": {
+            "baseline": 29.09800000000007,
+            "candidate": 25.845750000000002,
+            "reduction_percent": 11.176885009279191
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 81.43862500000009,
+            "candidate": 90.24983300000011,
+            "reduction_percent": -10.819445932442996
+          },
+          "2/(True, False)/retained": {
+            "baseline": 17.41520800000029,
+            "candidate": 19.939375000000314,
+            "reduction_percent": -14.49403877346731
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 68.27129099999985,
+            "candidate": 81.33229099999983,
+            "reduction_percent": -19.131028297091966
+          },
+          "2/(False, True)/retained": {
+            "baseline": 16.020040999999985,
+            "candidate": 17.876623999999897,
+            "reduction_percent": -11.58912764330573
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 65.91179200000008,
+            "candidate": 79.30095800000015,
+            "reduction_percent": -20.313764189570293
+          },
+          "2/no_grad": {
+            "baseline": 9.724041999999766,
+            "candidate": 12.277248999999824,
+            "reduction_percent": -26.25664307085591
+          },
+          "16/(True, True)/retained": {
+            "baseline": 29.310204999999367,
+            "candidate": 25.551870000002364,
+            "reduction_percent": 12.822615877292854
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 82.37749999999932,
+            "candidate": 90.35978999999861,
+            "reduction_percent": -9.689891050346722
+          },
+          "16/(True, False)/retained": {
+            "baseline": 18.718959999999285,
+            "candidate": 21.614795000000072,
+            "reduction_percent": -15.470063507806508
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 69.5645800000011,
+            "candidate": 83.82833499999798,
+            "reduction_percent": -20.504335683470877
+          },
+          "16/(False, True)/retained": {
+            "baseline": 17.105414999998292,
+            "candidate": 19.326875000003074,
+            "reduction_percent": -12.986881639556858
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 67.53583000000063,
+            "candidate": 82.42749999999965,
+            "reduction_percent": -22.0500288513503
+          },
+          "16/no_grad": {
+            "baseline": 11.1849580000003,
+            "candidate": 13.767291000000181,
+            "reduction_percent": -23.087552049813787
+          }
+        },
+        "wasm/float64": {
+          "2/(True, True)/retained": {
+            "baseline": 26.201792000000168,
+            "candidate": 24.28270900000018,
+            "reduction_percent": 7.3242433189301455
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 76.2721260000001,
+            "candidate": 84.80129200000007,
+            "reduction_percent": -11.182546557047534
+          },
+          "2/(True, False)/retained": {
+            "baseline": 16.19841700000002,
+            "candidate": 18.576666999999603,
+            "reduction_percent": -14.6819902216345
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 63.55079200000002,
+            "candidate": 77.26516699999975,
+            "reduction_percent": -21.580179520028196
+          },
+          "2/(False, True)/retained": {
+            "baseline": 14.77654099999981,
+            "candidate": 16.465500999999882,
+            "reduction_percent": -11.430009228818117
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 60.94512499999993,
+            "candidate": 73.60054200000032,
+            "reduction_percent": -20.765265474474614
+          },
+          "2/no_grad": {
+            "baseline": 8.534374999999983,
+            "candidate": 11.168249999999436,
+            "reduction_percent": -30.86195532771243
+          },
+          "16/(True, True)/retained": {
+            "baseline": 26.597705000002136,
+            "candidate": 23.450829999998035,
+            "reduction_percent": 11.831377932809794
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 75.90792000000013,
+            "candidate": 83.67125000000141,
+            "reduction_percent": -10.227299074986206
+          },
+          "16/(True, False)/retained": {
+            "baseline": 17.591460000001558,
+            "candidate": 19.972290000001003,
+            "reduction_percent": -13.534010252697804
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 65.76062499999979,
+            "candidate": 79.37833000000171,
+            "reduction_percent": -20.707992054518897
+          },
+          "16/(False, True)/retained": {
+            "baseline": 16.165415000000127,
+            "candidate": 17.944165000001178,
+            "reduction_percent": -11.003429234579109
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 63.25396000000038,
+            "candidate": 76.91145999999982,
+            "reduction_percent": -21.59153355773986
+          },
+          "16/no_grad": {
+            "baseline": 9.928124999999621,
+            "candidate": 12.583999999999929,
+            "reduction_percent": -26.751022977655992
+          }
+        }
+      },
+      "receipts": [
+        {
+          "name": "cpu-float32-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.9246645829989575,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.0145344999909867,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.0287415420025354,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.9403291249909671,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float64-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.8800595829961821,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 0.9782312500028638,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 0.9623483750037849,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.8571231250098208,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float32-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.1691631249996135,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.3925670000026003,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.3846823339990806,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.1768030840030406,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float64-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.096116125001572,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.2821162920008646,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.276509792005527,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-optimized/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.0262044580013026,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        }
+      ],
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+        "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "52ac4b5a7b5b77d1d6f390abecf1ec2f216989a168955b1f425d521ffcfd50d9",
+        "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "70aa00887e5632b9dd1c788241aa2cd5894e21c3e16d0a387d31de139c6430ca",
+        "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      }
+    },
+    "selective": {
+      "summary": {
+        "cpu/float32": {
+          "2/(True, True)/retained": {
+            "baseline": 13.608916007797234,
+            "candidate": 13.726207995205186,
+            "reduction_percent": -0.8618760475907816
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 38.83700000005774,
+            "candidate": 44.41933300404344,
+            "reduction_percent": -14.373749269967796
+          },
+          "2/(True, False)/retained": {
+            "baseline": 9.084083998459391,
+            "candidate": 8.843208008329384,
+            "reduction_percent": 2.65162662708599
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 33.36954100814182,
+            "candidate": 38.275792001513764,
+            "reduction_percent": -14.702782373227329
+          },
+          "2/(False, True)/retained": {
+            "baseline": 7.969875005073845,
+            "candidate": 7.884582999395207,
+            "reduction_percent": 1.0701799667415024
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 32.02954099106137,
+            "candidate": 36.40987499966286,
+            "reduction_percent": -13.675918770812023
+          },
+          "2/no_grad": {
+            "baseline": 4.640208004275337,
+            "candidate": 5.64124999800697,
+            "reduction_percent": -21.573213804409306
+          },
+          "16/(True, True)/retained": {
+            "baseline": 16.622709954390302,
+            "candidate": 12.96499503951054,
+            "reduction_percent": 22.004323752961263
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 43.551670023589395,
+            "candidate": 46.58937992644496,
+            "reduction_percent": -6.974956187007786
+          },
+          "16/(True, False)/retained": {
+            "baseline": 10.587084907456301,
+            "candidate": 10.458329998073168,
+            "reduction_percent": 1.2161507205109223
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 35.41229001712054,
+            "candidate": 40.84208499989472,
+            "reduction_percent": -15.333080634291306
+          },
+          "16/(False, True)/retained": {
+            "baseline": 9.434375024284236,
+            "candidate": 9.373124921694398,
+            "reduction_percent": 0.6492226822887526
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 33.91020502022002,
+            "candidate": 39.271665082196705,
+            "reduction_percent": -15.810756846736096
+          },
+          "16/no_grad": {
+            "baseline": 6.04124998790212,
+            "candidate": 7.107416997314431,
+            "reduction_percent": -17.64811937177504
+          }
+        },
+        "cpu/float64": {
+          "2/(True, True)/retained": {
+            "baseline": 12.326001015026122,
+            "candidate": 10.947292001219466,
+            "reduction_percent": 11.185371574494663
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 36.377209005877376,
+            "candidate": 41.851540983770974,
+            "reduction_percent": -15.048796011285859
+          },
+          "2/(True, False)/retained": {
+            "baseline": 8.378209007787518,
+            "candidate": 8.331707998877391,
+            "reduction_percent": 0.5550232617365425
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 30.52562498487532,
+            "candidate": 35.867998987669125,
+            "reduction_percent": -17.501276404466125
+          },
+          "2/(False, True)/retained": {
+            "baseline": 7.198374994914047,
+            "candidate": 7.486749003874138,
+            "reduction_percent": -4.006098725946328
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 29.76666700851638,
+            "candidate": 36.75437600759324,
+            "reduction_percent": -23.474945975905335
+          },
+          "2/no_grad": {
+            "baseline": 4.148332009208389,
+            "candidate": 5.463915993459523,
+            "reduction_percent": -31.713565387987884
+          },
+          "16/(True, True)/retained": {
+            "baseline": 17.71833500242792,
+            "candidate": 12.011870057904162,
+            "reduction_percent": 32.20655295061194
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 44.9450049927691,
+            "candidate": 44.33645495737437,
+            "reduction_percent": 1.3539881361513517
+          },
+          "16/(True, False)/retained": {
+            "baseline": 12.411880015861243,
+            "candidate": 9.723539915285073,
+            "reduction_percent": 21.659410960633828
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 37.99354002694599,
+            "candidate": 38.85958496539388,
+            "reduction_percent": -2.279453132910647
+          },
+          "16/(False, True)/retained": {
+            "baseline": 8.594790051574819,
+            "candidate": 8.479169919155538,
+            "reduction_percent": 1.3452350985361794
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 31.028125013108365,
+            "candidate": 36.70124497148208,
+            "reduction_percent": -18.283798830825294
+          },
+          "16/no_grad": {
+            "baseline": 5.323459001374431,
+            "candidate": 6.564249997609295,
+            "reduction_percent": -23.307984449856978
+          }
+        },
+        "wasm/float32": {
+          "2/(True, True)/retained": {
+            "baseline": 29.110458000000115,
+            "candidate": 24.914250000000138,
+            "reduction_percent": 14.414778359034964
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 83.06233400000008,
+            "candidate": 88.54924899999972,
+            "reduction_percent": -6.605779943529688
+          },
+          "2/(True, False)/retained": {
+            "baseline": 17.92962500000006,
+            "candidate": 17.2197500000002,
+            "reduction_percent": 3.959229487509397
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 69.03958299999991,
+            "candidate": 75.87150100000039,
+            "reduction_percent": -9.895653628151969
+          },
+          "2/(False, True)/retained": {
+            "baseline": 16.288999999999998,
+            "candidate": 16.003375000000375,
+            "reduction_percent": 1.7534839462190588
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 66.71516700000035,
+            "candidate": 73.82983399999964,
+            "reduction_percent": -10.664242210469554
+          },
+          "2/no_grad": {
+            "baseline": 9.914667000000321,
+            "candidate": 12.434959000000134,
+            "reduction_percent": -25.419835078674158
+          },
+          "16/(True, True)/retained": {
+            "baseline": 29.66625500000042,
+            "candidate": 24.47666499999945,
+            "reduction_percent": 17.49324274331524
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 83.9239600000008,
+            "candidate": 91.07395499999838,
+            "reduction_percent": -8.51961108603252
+          },
+          "16/(True, False)/retained": {
+            "baseline": 19.39125500000305,
+            "candidate": 19.084789999999074,
+            "reduction_percent": 1.5804289098561575
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 77.33395500000073,
+            "candidate": 78.59604000000076,
+            "reduction_percent": -1.6319933462604075
+          },
+          "16/(False, True)/retained": {
+            "baseline": 17.695625000000437,
+            "candidate": 17.56521000000122,
+            "reduction_percent": 0.7369900752260183
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 71.26000000000187,
+            "candidate": 77.71500000000043,
+            "reduction_percent": -9.058377771538574
+          },
+          "16/no_grad": {
+            "baseline": 12.133375000000335,
+            "candidate": 13.887875000000438,
+            "reduction_percent": -14.460115178176359
+          }
+        },
+        "wasm/float64": {
+          "2/(True, True)/retained": {
+            "baseline": 26.24083300000013,
+            "candidate": 23.906957999999978,
+            "reduction_percent": 8.8940583555413
+          },
+          "2/(True, True)/forward_backward": {
+            "baseline": 74.9923749999999,
+            "candidate": 85.66008300000027,
+            "reduction_percent": -14.225056880783393
+          },
+          "2/(True, False)/retained": {
+            "baseline": 16.370875000000005,
+            "candidate": 16.674208000000412,
+            "reduction_percent": -1.852882023718383
+          },
+          "2/(True, False)/forward_backward": {
+            "baseline": 62.917708000000516,
+            "candidate": 73.92866600000004,
+            "reduction_percent": -17.500570745519582
+          },
+          "2/(False, True)/retained": {
+            "baseline": 14.601499999999934,
+            "candidate": 15.444584000000372,
+            "reduction_percent": -5.773954730681385
+          },
+          "2/(False, True)/forward_backward": {
+            "baseline": 61.26816699999971,
+            "candidate": 71.8153749999999,
+            "reduction_percent": -17.214825441081416
+          },
+          "2/no_grad": {
+            "baseline": 8.48254199999987,
+            "candidate": 11.503084000000108,
+            "reduction_percent": -35.608924777505166
+          },
+          "16/(True, True)/retained": {
+            "baseline": 26.75915999999834,
+            "candidate": 23.438959999999565,
+            "reduction_percent": 12.407713844526436
+          },
+          "16/(True, True)/forward_backward": {
+            "baseline": 76.14812000000137,
+            "candidate": 86.15041500000143,
+            "reduction_percent": -13.135314437178325
+          },
+          "16/(True, False)/retained": {
+            "baseline": 17.73875000000036,
+            "candidate": 18.106664999997246,
+            "reduction_percent": -2.074075118014962
+          },
+          "16/(True, False)/forward_backward": {
+            "baseline": 65.49478999999803,
+            "candidate": 75.91791499999889,
+            "reduction_percent": -15.914433804583794
+          },
+          "16/(False, True)/retained": {
+            "baseline": 16.175619999998503,
+            "candidate": 16.385005000001396,
+            "reduction_percent": -1.2944480644507816
+          },
+          "16/(False, True)/forward_backward": {
+            "baseline": 64.1620849999991,
+            "candidate": 72.7210449999971,
+            "reduction_percent": -13.339591442513331
+          },
+          "16/no_grad": {
+            "baseline": 9.899166999999931,
+            "candidate": 12.847041999999753,
+            "reduction_percent": -29.77902080043546
+          }
+        }
+      },
+      "receipts": [
+        {
+          "name": "cpu-float32-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 1.0376250829867786,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.117272999996203,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.0644140420045005,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float32-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.9615208330069436,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "cpu-float64-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.8918356249923818,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 0.9726483749982435,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 1.0471834589989157,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "cpu-float64-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 0.9210004170017783,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench.py",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float32-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.3576435830036644,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.3097724160033977,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.3058009590022266,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float32-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.1591888330003712,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float32"
+          ]
+        },
+        {
+          "name": "wasm-float64-0-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.0489757080067648,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-1-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.2776549579866696,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-2-candidate",
+          "exit_code": 0,
+          "elapsed_s": 3.210711749998154,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/trial-selective/stridetorch",
+            "float64"
+          ]
+        },
+        {
+          "name": "wasm-float64-3-baseline",
+          "exit_code": 0,
+          "elapsed_s": 3.0178022499894723,
+          "command": [
+            "/opt/homebrew/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/bench-wasm.mjs",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-29/baseline/stridetorch",
+            "float64"
+          ]
+        }
+      ],
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+        "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "f9e5631580c05e8cfa159ece5227bbdfcbd00136d90cf6d1c572806175d89388",
+        "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "e6d021d4c2563f0e1414041f2f3c10720448108c1a28d8b93438ae38bc6f112c",
+        "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      }
+    }
+  },
+  "performance_children": 48,
+  "timing_scope": "Fresh-process ABBA;2x2/16x16 matrix RHS;retained backward,forward/square/mean/backward,andno-grad. No optimizer update in timed function. Shared host;actual BLAS thread count unverified. Full-flow/no-grad regressions remain;not a stable integration candidate yet.",
+  "new_independent_tests": 23,
+  "scope": "Dense batched/broadcast left/right solve,real VJP/JVP,native primal result layout and saved-value guards;complex inference only. No reusable LU backend,out buffers,sparse or half factorization.",
+  "processes": {
+    "full_base": {
+      "session": 62349,
+      "exit_code": 0
+    },
+    "focused": {
+      "session": 15673,
+      "exit_code": 0
+    },
+    "node": {
+      "session": 71742,
+      "exit_code": 0
+    },
+    "chrome": {
+      "session": 29057,
+      "exit_code": 0
+    },
+    "minimum": {
+      "session": 98536,
+      "exit_code": 0
+    },
+    "build": {
+      "session": 36547,
+      "exit_code": 0
+    },
+    "performance_initial": {
+      "session": 11017,
+      "exit_code": 0
+    },
+    "performance_optimized": {
+      "session": 37521,
+      "exit_code": 0
+    },
+    "performance_selective": {
+      "session": 7956,
+      "exit_code": 0
+    }
+  },
+  "failed_checks_retained": [
+    "native-initial.log:117failures;layout and JVP factor behavior plus complex-conjugate/nonleaf fixture mistakes",
+    "native-second.log:22failures;materialized zero derivative edges missing",
+    "focused-fourth.log:1failure;capability attribute typo;corrected to _browser_capabilities",
+    "All performance regressions and trial sources retained"
+  ],
+  "remaining": [
+    "Profile/optimize common unbatched forward and graph metadata without dropping native layouts or guards",
+    "Confirm complete-flow cost is suitable before stable main adoption",
+    "Latest-main full application/exported WASM/distribution/frontend gates when candidate is ready",
+    "Exact remote Quality/actual eligible Pages/live verification for any adopted candidate"
+  ],
+  "archive": {
+    "file": "iteration-29-harness.tar.gz",
+    "files": 483,
+    "bytes": 1358472,
+    "sha256": "944887edfa64b61283920d77a011bb42cd99cd32f8a7597b3c15a62673f88733"
+  }
+}

@@ -91,6 +91,25 @@ retains its explicit unsupported error. Axis lists and integer Tensor arguments
 are converted to immutable metadata at forward time and are not retained by the
 tape. Detached view writes still invalidate computations that saved those values.
 
+## Linear systems
+
+`torch.linalg.solve(A, B, *, left=True)` handles dense batched/broadcast systems,
+vector or matrix right-hand sides and right-sided matrix systems (`left=False`).
+Float32/64 values, real analytical VJP/JVP and complex64/128 inference are covered.
+The shared VJP solves one adjoint system even when both inputs require gradients;
+B is not saved, while mutations of A or the output invalidate backward.
+
+Vector classification follows native Torch's exact shape rule; a vector B is
+invalid for a right-sided solve. Outputs follow native CPU strides, including
+batched vectors and empty shapes. The reverse tape of a JVP holds its outer
+factorization constant, matching native saved-factor semantics. The NumPy backend
+still factorizes each invocation. Complex AD, half factorization, sparse systems
+and `out` buffers are explicit unsupported cases.
+
+Version0.29 is a development candidate: retained double-input backward can benefit,
+but complete small-system flows currently regress against0.28. See the
+[measurements and adoption boundary](../../docs/validation/torch-runtime-iteration-29.md).
+
 ## Gradient accumulation and storage
 
 The first `.grad` for a non-overlapping dense leaf follows the parameter's

@@ -53,7 +53,7 @@ def view_result(data, parent, backward):
     return value
 
 
-def joint_result(data, inputs, backward, *, saved=()):
+def joint_result(data, inputs, backward, *, saved=(), versioned=None):
     """Internal multi-input VJP, evaluated once per backward traversal.
 
     ``backward(seed, needs)`` returns one entry per input, using None only for
@@ -62,7 +62,7 @@ def joint_result(data, inputs, backward, *, saved=()):
     No gradients or seeds are cached across traversals.
     """
     inputs = tuple(inputs)
-    value = result(data, *((node, None) for node in inputs), saved=saved)
+    value = result(data, *((node, None) for node in inputs), saved=saved, versioned=versioned)
     if value.requires_grad:
         needs = tuple(node.requires_grad and _state._grad_enabled for node in inputs)
         value._grad_node.joint = (backward, needs)

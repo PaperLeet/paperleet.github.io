@@ -415,6 +415,16 @@ source-commit deployment was superseded and is not claimed as published.
   158 immutable live payloads match the frozen release. Version0.28 is positively
   verified on the site; remote receipts are archived separately.
 
+## Version0.29 candidate
+
+- Batched/broadcast left and right dense solve, native vector overload/strides,
+  shared single-adjoint VJP and real JVP with native saved-factor reverse rules.
+- Independent closed-form algebra, continued training/checkpoint and CPU/real
+  WASM tests complement native value/gradient/layout/error/retention contracts.
+- Initial and selective trials retain complete-flow/no-grad regressions. Further
+  forward/graph metadata work is required before adopting this candidate on main;
+  stable version0.28 remains positively verified on the site.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

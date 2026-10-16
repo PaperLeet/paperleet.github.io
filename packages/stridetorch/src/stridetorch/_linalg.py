@@ -3,17 +3,103 @@ from collections import namedtuple
 import numpy as np
 
 
-def solve(a, b):
-    a, b = _ops.wrap(a), _ops.wrap(b)
-    if a.ndim != 2 or b.ndim not in (1, 2): raise _errors.BrowserUnsupported('Batched linear solves require the server')
-    if a.dtype != b.dtype or a.dtype.kind != 'f': raise RuntimeError('solve expects matching floating dtypes')
-    a_data, b_ndim = a._data, b.ndim
-    value = np.linalg.solve(a_data, b._data)
-    def db(g): return np.linalg.solve(a_data.T, g)
-    def da(g):
-        incoming = db(g)
-        return -(incoming[:, None] @ value[None, :] if b_ndim == 1 else incoming @ value.T)
-    return _autograd.result(value, (a, da), (b, db))
+def _solve_geometry(a, b, left):
+    if a.ndim < 2 or a.shape[-2] != a.shape[-1]:
+        raise RuntimeError('linalg.solve expects square matrices')
+    if b.ndim < 1:raise RuntimeError('linalg.solve expects a vector or matrix right-hand side')
+    # Native Torch treats only an exact A.shape[:-1] batch as vectors, in
+    # addition to a single vector. Rank alone is not enough to disambiguate B.
+    vector = b.ndim == 1 or b.ndim == a.ndim-1 and b.shape == a.shape[:-1]
+    if vector and not left:raise RuntimeError('Vector right-hand sides require left=True')
+    matrix_shape = b.shape+(1,) if vector else b.shape
+    if matrix_shape[-2 if left else -1] != a.shape[-1]:
+        raise RuntimeError('linalg.solve matrix dimensions do not match')
+    a_batch,b_batch = a.shape[:-2],matrix_shape[:-2]
+    try:batch = a_batch if a_batch == b_batch else np.broadcast_shapes(a_batch,b_batch)
+    except ValueError:raise RuntimeError('linalg.solve batch dimensions cannot broadcast') from None
+    return vector, batch, matrix_shape
+
+
+def _solve_values(a, b, left):
+    # Equal-rank matrix operands behave consistently in NumPy1.26 and2.x.
+    # Vector classification has already happened before explicit promotion.
+    if not left:a,b = np.swapaxes(a,-1,-2),np.swapaxes(b,-1,-2)
+    try:value = np.linalg.solve(a,b)
+    except np.linalg.LinAlgError as error:raise RuntimeError('The matrix is singular') from error
+    return value if left else np.swapaxes(value,-1,-2)
+
+
+def solve(A, B, *, left=True, out=None):
+    if not isinstance(A,_tensor.Tensor) or not isinstance(B,_tensor.Tensor):
+        raise TypeError('linalg.solve inputs must be Tensors')
+    if type(left) is not bool:raise TypeError('left must be bool')
+    if out is not None:raise _errors.BrowserUnsupported('Solve output buffers require the server')
+    dtype = A.dtype
+    if dtype != B.dtype:raise RuntimeError('solve expects matching dtypes')
+    if dtype.char not in 'fdFD':
+        raise _errors.BrowserUnsupported('solve requires float32/64 or complex64/128 inputs')
+    vector,batch,bshape = _solve_geometry(A,B,left)
+    if any(isinstance(x,_autograd.ForwardTensor) for x in (A,B)):
+        a = A._primal if isinstance(A,_autograd.ForwardTensor) else A
+        b = B._primal if isinstance(B,_autograd.ForwardTensor) else B
+        value = solve(a,b,left=left)
+        residual = B._tangent if isinstance(B,_autograd.ForwardTensor) else None
+        # A materialized zero direction keeps native zero reverse edges when
+        # only B participates in JVP; omitting the product would yield None.
+        direction = A._tangent if isinstance(A,_autograd.ForwardTensor) else _tensor.Tensor(np.zeros_like(a._data))
+        product = (direction @ value.unsqueeze(-1)).squeeze(-1) if vector else (direction @ value if left else value @ direction)
+        residual = -product if residual is None else residual-product
+        # A broadcast vector result can look like a matrix to the public parser;
+        # make its matrix interpretation explicit for the tangent solve.
+        # Native JVP reuses a factorization whose reverse tape is constant.
+        # Keep differentiation through X/residual, not through that factor.
+        factor = a.detach()
+        tangent = solve(factor,residual.unsqueeze(-1),left=True).squeeze(-1) if vector else solve(factor,residual,left=left)
+        return _autograd.ForwardTensor(value,_layout.matching_tangent(tangent,value))
+    a_shape,b_shape = A.shape,B.shape
+    a_data = A._data
+    matrix_a = a_data if a_shape[:-2] == batch else np.broadcast_to(a_data,batch+a_shape[-2:])
+    matrix_b = B._data.reshape(bshape) if vector else B._data
+    if bshape[:-2] != batch:matrix_b = np.broadcast_to(matrix_b,batch+bshape[-2:])
+    values = _solve_values(matrix_a,matrix_b,left)
+    # LAPACK-style native result geometry: each left-solve matrix is column
+    # major; right-solve matrices and vector results are contiguous.
+    if vector:values = values[...,0]
+    def contiguous(data):
+        # NumPy keeps arbitrary singleton strides when an array is already
+        # contiguous; copy those descriptors to obtain native conventional ones.
+        return _layout.contiguous_empty(data.copy(order='C')) if not data.size or 1 in data.shape else np.ascontiguousarray(data)
+    if left and values.ndim >= 2:values = np.swapaxes(contiguous(np.swapaxes(values,-1,-2)),-1,-2)
+    else:values = contiguous(values)
+    if not _state._grad_enabled or not (A.requires_grad or B.requires_grad):
+        return _tensor.Tensor(values,_metadata_owned=True)
+    matrix_x = values[...,None] if vector else values
+    x_transpose = np.swapaxes(matrix_x,-1,-2) if A.requires_grad else None
+    coefficient = (matrix_a.T if matrix_a.ndim == 2 else np.swapaxes(matrix_a,-1,-2)) if left else matrix_a
+    def right_gradient(g):
+        incoming = g[...,None] if vector else g
+        db = np.linalg.solve(coefficient,incoming if left else np.swapaxes(incoming,-1,-2))
+        return db if left else np.swapaxes(db,-1,-2)
+    def reduce_a(da):return da if da.shape == a_shape else _ops.unbroadcast(da,a_shape)
+    def reduce_b(db):
+        if vector:db = db[...,0]
+        return db if db.shape == b_shape else _ops.unbroadcast(db,b_shape)
+    def left_gradient(g):
+        db = right_gradient(g)
+        return reduce_a(-(db @ x_transpose if left else x_transpose @ db))
+    def backward(g,needs):
+        db = right_gradient(g)
+        return reduce_a(-(db @ x_transpose if left else x_transpose @ db)),reduce_b(db)
+    if A.requires_grad and B.requires_grad:
+        output = _autograd.joint_result(values,(A,B),backward,versioned=())
+    elif A.requires_grad:output = _autograd.result(values,(A,left_gradient),versioned=())
+    else:output = _autograd.result(values,(B,lambda g:reduce_b(right_gradient(g))),versioned=())
+    if output.requires_grad:
+        # Native solve saves A and X, but not B. The shared pullback solves the
+        # adjoint system once, irrespective of which input gradients are active.
+        counters = {A._storage,output._storage}
+        output._grad_node.versions = tuple((counter,counter.version) for counter in counters)
+    return output
 
 
 def inv(input, *, out=None):
@@ -163,4 +249,4 @@ def linalg_norm(input, ord=None, dim=None, keepdim=False, *, out=None, dtype=Non
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _errors, _ops, _state, _tensor
+from . import _autograd, _errors, _layout, _ops, _state, _tensor
