@@ -127,3 +127,9 @@ version tag or explicit manual release runs all quality checks before Pages.
 The user plans to tag later. Local success does not assert remote Linux CI or a
 new live deployment. WebGPU remains a separate end-to-end evaluation; this
 version uses CPU/WASM.
+
+The final main sync preserves all eight incoming community-search/recovery files
+from `17e5fa5f` byte for byte. Its complete frontend check and both builds pass
+again; all 47 runtime resources and 161 active exports remain identical to the
+full core/native/WASM evidence above. See `iteration-33-main-sync.json`. The
+React source review is recorded separately and does not claim manual visual QA.

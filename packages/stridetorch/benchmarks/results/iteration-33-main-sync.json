@@ -1,0 +1,115 @@
+{
+  "status": "merged_latest_main_local_gates_passed_adoption_pending",
+  "version": "0.33.0",
+  "context": {
+    "upstream": "17e5fa5fda9c4de21587da6d5cdcdcae557b9b57",
+    "merged_head": "e4c97292740b010d9b90d5a442d72d5cd02e0d0d",
+    "incoming_files": {
+      "docs/validation/community-search-recovery.md": "8a9f0b8d8efcfef40a59089bacde2ac3abaf0f582a160fc35a4f2c721df23e75",
+      "web/package.json": "b7351beade5b193c3c43afafd41e056d2540443fcc696e52d302d894f422592f",
+      "web/scripts/check-community-feed-timeout.mjs": "d6e136aefe73c831f60f10e8dbfdccee0e81f979c933fe9d278fd23f38b83725",
+      "web/scripts/check-community-navigation.mjs": "3b7b815c7759fd81fc82ea43e766b0a97eee8f2a7c8fe8d3bdb3bc09c6f4f807",
+      "web/scripts/check-community-search.mjs": "b560ff59abf5a809454c563993e2b40acc90639c3153840999fadbb88493e3a9",
+      "web/src/Community.tsx": "1f2b2668ca53f28690b9d00db82a3d4100a3bd7dbf4531369dcfb1db479866da",
+      "web/src/CommunitySearch.tsx": "8c1407a8fbe3706b057b65d724303921163298dbf61aa39c42dcaf1ece0d30c1",
+      "web/src/community.css": "6a906799e14ed88030f5e620422bdf7f82f9d1c3b5f931f816a6d75899f30120"
+    },
+    "all8_incoming_files_exact": true,
+    "all47_runtime_hashes_unchanged": true,
+    "all161_active_export_hashes_unchanged": true,
+    "dependency_sets_and_lock_unchanged": true,
+    "scope": "Incoming community UI only;prior full native/core/exported WASM proofs retained for byte-identical runtime and catalogs. Fresh complete frontend and both builds required. No CI/tag/dispatch."
+  },
+  "frontend_receipts": [
+    {
+      "command": [
+        "/opt/homebrew/bin/node",
+        "web/scripts/check-wasm-cases.mjs"
+      ],
+      "log": "wasm-driver.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "exit_code": 0,
+      "elapsed_s": 0.08507070899941027,
+      "environment": {}
+    },
+    {
+      "command": [
+        "/opt/homebrew/bin/node",
+        "web/scripts/check-pages-release.cjs"
+      ],
+      "log": "pages-policy.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "exit_code": 0,
+      "elapsed_s": 0.10020270801032893,
+      "environment": {}
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "log": "frontend-check.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 79.71133520799049,
+      "environment": {}
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log": "frontend-build.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 11.548619207998854,
+      "environment": {}
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log": "pages-profile-build.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 11.001883457996882,
+      "environment": {
+        "VITE_PUBLIC_SITE": "0",
+        "VITE_APP_EDITION": "hosted",
+        "VITE_API_ORIGIN": "https://app.paperleet.com",
+        "VITE_HOSTED_APP_AVAILABLE": "1",
+        "VITE_HOSTED_APP_URL": "https://app.paperleet.com"
+      }
+    }
+  ],
+  "react_review": {
+    "skill": "/Users/david/.codex/plugins/cache/openai-curated-remote/vercel/0.54.1/skills/react-best-practices/SKILL.md",
+    "files": [
+      "web/src/Community.tsx",
+      "web/src/CommunitySearch.tsx"
+    ],
+    "scope": "Source review of preserved upstream code,not manual visual QA",
+    "findings": [],
+    "checked": [
+      "Search draft state isolated from feed rerenders;external applied query sync is intentional and scoped to one primitive prop.",
+      "Feed effect aborts stale requests,clears timeout on settle/unmount and ties error to request key;no extra waterfall or browser dependency introduced.",
+      "Native labeled form/buttons,hidden decorative icons,IME-aware Enter/Escape and Unicode bounds preserved.",
+      "No inline component definitions,unstable hook order or unsafe TypeScript cast beyond existing DOM input typing."
+    ]
+  },
+  "core_report": "iteration-33.json",
+  "application_report": "iteration-33-integration.json",
+  "all47_core_and161_exports_unchanged": true,
+  "canonical_release_policy_unchanged": true,
+  "archive": {
+    "file": "iteration-33-main-sync-harness.tar.gz",
+    "files": 19,
+    "bytes": 83549,
+    "sha256": "894d4ecee80ac3ad364e6f52fb6a13781d39774b7c90def2d08c2b9ef017bd0e"
+  },
+  "publication": "No CI,tag,workflow dispatch or deployment triggered. User will tag later."
+}
