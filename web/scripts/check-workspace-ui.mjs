@@ -29,7 +29,7 @@ let root;
 try {
   const {createRoot}=await import('react-dom/client');
   const {AccountProvider,useAccount}=await server.ssrLoadModule('/src/social.tsx');
-  const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
+  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
   const {default:Menu}=await server.ssrLoadModule('/src/HeaderAccountMenu.tsx');
   const {default:LayoutMenu}=await server.ssrLoadModule('/src/WorkspaceLayoutMenu.tsx');
   const {default:Split}=await server.ssrLoadModule('/src/ResizableSplit.tsx');
@@ -38,15 +38,16 @@ try {
   const button=(text)=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()===text);
   const click=async element=>{assert(element,'Expected an interactive control');await act(async()=>element.dispatchEvent(new dom.window.MouseEvent('click',{bubbles:true})));};
   const settle=async predicate=>{for(let i=0;i<60&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));assert(predicate(),'Component did not settle');};
-  let account,backupOpens=0,mounts=0;
+  let account,localeControl,backupOpens=0,mounts=0,layoutIntent=()=>{};
   function Draft(){useEffect(()=>{mounts++;},[]);return h('textarea',{'aria-label':'Draft',defaultValue:'private draft αβ'});}
   function Harness(){
     account=useAccount();
+    localeControl=useI18n();
     const [theme,setTheme]=useState('light'),[layout,setLayout]=useState(),[collapsed,setCollapsed]=useState(false),[lab,setLab]=useState(false);
     return h(React.Fragment,null,
       h('button',{className:'outside'},'Outside'),
       h(Menu,{theme,onTheme:setTheme,returnTo:'22',backupReady:true,onBackup(){backupOpens++;}}),
-      h(LayoutMenu,{onLayout:(ratio,reset)=>{setLayout({ratio});if(reset)setCollapsed(false);}}),
+      h(LayoutMenu,{onLayout:(ratio,reset)=>{setLayout({ratio});if(reset)setCollapsed(false);layoutIntent();}}),
       h('button',{onClick:()=>setCollapsed(value=>!value)},'Toggle results'),
       h('button',{onClick:()=>setLab(value=>!value)},'Toggle lab'),
       h('div',{hidden:lab},h(Split,{axis:'vertical',storageKey:'test.layout',initial:.5,minFirst:100,minSecond:100,label:'Resize',firstId:'code',secondId:'results',layout,secondCollapsed:collapsed},h('div',{id:'code'},h(Draft)),h('div',{id:'results'},h('button',{hidden:collapsed},'Result')))));
@@ -111,8 +112,33 @@ try {
   assert.equal(Number(localStorage.getItem('test.layout')),.52,'Collapsing results preserves the manually resized ratio');
   await click(button('Toggle lab'));await click(button('Toggle lab'));
   assert.equal(find('textarea'),draft);assert.equal(draft.value,'edited private draft 🧪');assert.equal(draft.selectionStart,4);assert.equal(draft.selectionEnd,9);assert.equal(draft.scrollTop,17);assert.equal(mounts,1);
-  await click(find('.workspace-layout-trigger'));await click(button('Reading'));
+  await click(find('.workspace-layout-trigger'));await act(async()=>button('Reading').focus());await click(button('Reading'));
   assert.equal(localStorage.getItem('test.layout'),'0.62');assert.equal(document.activeElement,find('.workspace-layout-trigger'));
+  const layoutTrigger=find('.workspace-layout-trigger');
+  const key=async(node,options)=>{const event=new dom.window.KeyboardEvent('keydown',{bubbles:true,cancelable:true,...options});await act(async()=>node.dispatchEvent(event));return event;};
+  await act(async()=>layoutTrigger.focus());await key(layoutTrigger,{key:'ArrowDown'});
+  await settle(()=>document.activeElement===button('Reading'));
+  const panel=find('.workspace-layout-popover'),preset=button('Reading'),controls=layoutTrigger.getAttribute('aria-controls');
+  await act(async()=>localeControl.setLocale('zh'));assert.equal(find('.workspace-layout-popover'),panel);assert.equal(document.activeElement,preset);assert.equal(preset.textContent.trim(),'阅读优先');assert(panel.textContent.includes('均分题面与代码')&&panel.textContent.includes('收起此面板'));
+  await act(async()=>localeControl.setLocale('en'));assert.equal(document.activeElement,preset);assert.equal(layoutTrigger.getAttribute('aria-controls'),controls);assert(panel.textContent.includes('Equal pane widths')&&panel.textContent.includes('Close this panel'));
+  for(const options of [{isComposing:true},{keyCode:229},{repeat:true},{altKey:true},{ctrlKey:true},{metaKey:true},{shiftKey:true}]){
+    const event=await key(button('Reading'),{key:'Escape',...options});
+    assert(find('.workspace-layout-popover'),'Composing, repeated or modified Escape must not close layout');assert(!event.defaultPrevented);
+  }
+  const consume=event=>event.preventDefault();button('Reading').addEventListener('keydown',consume);
+  await key(button('Reading'),{key:'Escape'});assert(find('.workspace-layout-popover'),'A consumed key keeps its original action');button('Reading').removeEventListener('keydown',consume);
+  let outerEscapes=0;const outer=event=>{if(event.key==='Escape')outerEscapes++;};document.addEventListener('keydown',outer);
+  const beforeKeys=JSON.stringify({...localStorage});const escaped=await key(button('Reading'),{key:'Escape'});
+  assert(escaped.defaultPrevented);assert(!find('.workspace-layout-popover'));assert.equal(document.activeElement,layoutTrigger);assert.equal(outerEscapes,0,'Closing layout must not also close an outer focus mode');document.removeEventListener('keydown',outer);assert.equal(JSON.stringify({...localStorage}),beforeKeys,'Reading the layout controls does not save a new layout');
+  draft.setSelectionRange(2,8,'backward');draft.scrollTop=23;draft.scrollLeft=11;
+  layoutIntent=()=>draft.focus();await click(layoutTrigger);await act(async()=>button('Coding').focus());await click(button('Coding'));
+  assert.equal(document.activeElement,draft,'Applying a layout yields to a newer focus choice');assert.equal(localStorage.getItem('test.layout'),'0.36');
+  const href=location.href;layoutIntent=()=>{location.hash='#/newer-work';};await click(layoutTrigger);await act(async()=>button('Balanced').focus());await click(button('Balanced'));
+  assert.notEqual(document.activeElement,layoutTrigger,'Applying a layout yields to a newer route');assert.equal(localStorage.getItem('test.layout'),'0.5');location.href=href;layoutIntent=()=>{};
+  await act(async()=>{layoutTrigger.focus();layoutTrigger.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}));location.hash='#/newer-reading';});
+  await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert.equal(document.activeElement,layoutTrigger,'A pending keyboard open cannot move focus after navigation');location.href=href;await click(layoutTrigger);
+  assert.equal(find('textarea'),draft);assert.equal(draft.value,'edited private draft 🧪');assert.equal(draft.selectionStart,2);assert.equal(draft.selectionEnd,8);assert.equal(draft.selectionDirection,'backward');assert.equal(draft.scrollTop,23);assert.equal(draft.scrollLeft,11);assert.equal(mounts,1);
+  console.log('PASS layout keyboard ownership: local Escape, IME/repeat/modifier/consumed exclusions, outer isolation, keyboard opening, newer route/focus priority and unchanged mounted draft/selection/direction/both scrolls');
   console.log('PASS isolated DOM: avatar panel focus/Escape/outside/Tab/route dismissal, live language/theme, private identity, backup handoff, logout failure/retry/duplicate guards, owner change, layout persistence, accessible collapse and mounted draft/cursor/scroll preservation');
 } finally {
   if(root)await act(async()=>root.unmount());

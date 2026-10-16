@@ -21,7 +21,7 @@ export function useWorkspaceShortcuts(actions: Actions) {
     };
     // Escape bubbles so editor completion menus can handle it first.
     const handleEscape = (event: KeyboardEvent) => {
-      if (blocked(event) || event.key !== "Escape" || event.defaultPrevented || event.isComposing || !latest.current.focused) return;
+      if (blocked(event) || event.key !== "Escape" || event.defaultPrevented || event.repeat || event.isComposing || event.keyCode===229 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !latest.current.focused) return;
       event.preventDefault();
       latest.current.onExitFocus();
     };

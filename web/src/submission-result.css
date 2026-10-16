@@ -50,7 +50,7 @@
 .submission-result-failure > div { display: flex; align-items: center; gap: 8px; color: var(--result-color); margin-bottom: 8px; font-size: var(--type-small); }
 .submission-result-failure > code { font-size: var(--type-small); overflow-wrap: anywhere; }
 .submission-result-failure p { font-size: var(--type-small); color: var(--muted); margin: 8px 0 0; }
-.submission-result-failure pre { margin: 12px 0 0; font-size: var(--type-meta); line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
+.submission-result-failure pre { margin: 12px 0 0; font-size: var(--type-small); line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
 .submission-result-details { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .submission-result-details-toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 18px 23px; font-size: var(--type-body); text-align: left; }
 .submission-result-details-toggle > span { display: inline-flex; align-items: center; gap: 10px; }
