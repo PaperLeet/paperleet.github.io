@@ -104,6 +104,18 @@ export function createHostedDraftCache(source: string) {
         }
       } catch { /* Keeping an acknowledged copy is safe; a future read clears it. */ }
     },
+    retireRecovery(owner: string, id: string) {
+      // Retire every recovered revision of this problem, including the source
+      // before any edits in this document. Unseen peer keys remain untouched.
+      try {
+        for (const journal of recoveredKeys.get(owner) || []) {
+          const entries = Object.entries(parse(localStorage.getItem(journal)));
+          if (entries.length && entries.every(([problem]) => problem === id)) localStorage.removeItem(journal);
+        }
+        const legacy = recoveredLegacy.get(owner)?.[id];
+        if (legacy) localStorage.setItem(legacyAckKey(owner, id), JSON.stringify(legacy));
+      } catch { /* Keep the remaining recovery copy if storage is unavailable. */ }
+    },
   };
 }
 
