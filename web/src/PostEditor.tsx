@@ -12,6 +12,8 @@ import InterviewMeta from './InterviewMeta';
 import PaperLinkField from './PaperLinkField';
 import PaperPreviewCard from './PaperPreviewCard';
 import { canonicalArxivUrl } from './communityPapers';
+import {affiliationRequired,canPublishCommunity} from './communityPublishing';
+import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 
 const categories=[['papers','论文讨论','Papers'],['implementation','代码实现','Implementation'],['questions','问题求助','Questions'],['career','学术与职业','Research & careers'],['lounge','闲聊','Lounge']] as const;
 
@@ -19,7 +21,8 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
 }) {
   const {t}=useI18n();
-  const {capabilities}=useAccount();
+  const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
+  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const [draft,setDraft]=useState(()=>readPostEdit(tabDraftStorage(),owner,post.id)||newPostEdit(post));
   const current=useRef(draft), mounted=useRef(true), saving=useRef(false);
   const [busy,setBusy]=useState(false), [error,setError]=useState(''), [saved,setSaved]=useState<boolean|null>(null);
@@ -39,7 +42,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
     setSaved(writePostEdit(tabDraftStorage(),owner,post.id,next));
   }
   async function save() {
-    if(busy||disabled||saving.current||needsReview||!canEditPost(post,owner)||!draft.title.trim()||!draft.body.trim())return;
+    if(busy||disabled||!canPublish||saving.current||needsReview||!canEditPost(post,owner)||!draft.title.trim()||!draft.body.trim())return;
     if(draft.category==='papers' && draft.paperUrl?.trim() && (!canonicalArxivUrl(draft.paperUrl) || !capabilities?.community_papers)) {
       setError(!capabilities?.community_papers ? t('论文链接暂时无法保存，请保留修改草稿并稍后重试。','Paper links cannot be saved right now. Keep your edit draft and try again shortly.') : t('请添加有效的 arXiv 论文链接，或清空此字段。','Add a valid arXiv paper link, or clear the field.'));
       return;
@@ -60,12 +63,14 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
           ? t('帖子已被更新，修改草稿已保留。请核对最新内容后继续。','The post has changed. Your edit draft is kept; review the latest content before continuing.')
           :errorMessage(e));
         if(e instanceof SocialError && e.code==='edit_conflict')await onRefresh();
+        if(affiliationRequired(e))void refreshAccount().catch(()=>{});
       }
     } finally {saving.current=false;if(mounted.current)setBusy(false);}
   }
   return <section className="social-panel community-composer" aria-label={t('编辑帖子','Edit post')}>
     <div className="panel-title"><h2>{t('编辑帖子','Edit post')}</h2><button type="button" disabled={busy} onClick={onClose}>{t('关闭编辑','Close editor')}</button></div>
     {error&&<SocialNotice error={error}/>}
+    <PublishingAffiliationNotice/>
     <p className="community-draft-status" role="status">{saved===false
       ?t('此标签页无法保存修改草稿，关闭或离开前请复制内容。','This tab cannot save your edit draft. Copy the text before closing or leaving.')
       :t('修改草稿按账号和帖子保存在本标签页；保存修改后才会公开更新。','Edit drafts stay in this tab, separately for your account and post. Changes become public only when saved.')}</p>
@@ -84,7 +89,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       <label>{t('标题','Title')}<input autoFocus required maxLength={180} value={draft.title} disabled={busy} onChange={e=>edit({title:e.target.value})}/></label>
       <MarkdownEditor submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
         label={t('正文','Post body')} modeLabel={t('帖子修改模式','Post edit mode')} rows={10} maxLength={20000} busy={busy} disabled={disabled}/>
-      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||needsReview||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
+      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||!canPublish||needsReview||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的帖子不会改变。','Discard unsaved edits? The published post will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedPostEdit(tabDraftStorage(),owner,post.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
   </section>;

@@ -37,7 +37,7 @@ try{
  const closed='```python\nx=1\n```';assert(model.insertCommunityOutline(closed,'questions',true).ok);
  for(const [text,position,prefix] of [['a😀b',2,'a😀'],['éx',1,'é'],['👩‍💻x',2,'👩‍💻']]){const result=model.insertCommunityOutline(text,'questions',true,position);assert(result.ok);assert(result.edit.after.startsWith(prefix+'\n\n## '));}
  let owner='writer-alice',topicId;
- const user=()=>({id:owner,username:owner,display_name:owner,avatar_color:'#48766b',affiliation:{kind:'institution',domain:'research.edu',name:'测试研究院',name_en:'Research Institute'}});
+ const user=()=>({can_publish_community:true,id:owner,username:owner,display_name:owner,avatar_color:'#48766b',affiliation:{kind:'institution',domain:'research.edu',name:'测试研究院',name_en:'Research Institute'}});
  const account={user:user(),loading:false,capabilities:{community_anonymous_posts:true,community_papers:true},refresh:async()=>{}};
  const requests=[];
  globalThis.__communityWriting={account,request(path,body){if(!body)return Promise.resolve({items:[],total:0});return new Promise((resolve,reject)=>requests.push({path,body,resolve,reject}));}};

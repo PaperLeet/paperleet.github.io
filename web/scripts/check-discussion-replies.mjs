@@ -20,7 +20,7 @@ try{
  const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
  const {default:Community}=await server.ssrLoadModule('/src/Community.tsx');
  const {writeReplyDraft,readReplyDraft}=await server.ssrLoadModule('/src/replyDrafts.ts');
- const alice={id:'alice',username:'alice',display_name:'Alice',avatar_color:'#48766b'},bob={...alice,id:'bob',username:'bob',display_name:'Bob'};
+ const alice={can_publish_community:true,id:'alice',username:'alice',display_name:'Alice',avatar_color:'#48766b'},bob={...alice,id:'bob',username:'bob',display_name:'Bob'};
  const replies=Array.from({length:53},(_,i)=>({id:id(i+1),post_id:postId,parent_id:i===52?id(1):null,body:`Reply ${i+1}\n\n**Markdown remains readable.**`,created_at:`2026-10-15T12:${String(Math.floor(i/2)).padStart(2,'0')}:00Z`,author:i%7===3||i===52?alice:bob,can_delete:false,can_edit:i===0,edit_version:'e'.repeat(64)}));
  const post={id:postId,title:'Long shared interview',body:'Actual shared experience.',category:'career',problem:null,problem_id:null,created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:alice,counts:{likes:0,reposts:0,replies:replies.length},viewer:{},replies};
  let requests=0,mutations=0,currentPost=post,allowPublication=false,failRefresh=false;

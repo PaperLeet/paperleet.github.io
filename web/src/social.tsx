@@ -43,6 +43,7 @@ export type AccountUser = PublicUser & {
   institution: Institution | null;
   institution_verified?: boolean;
   email_verified?: boolean;
+  can_publish_community?: boolean;
   login_username?: string;
   country: string;
   profile_edit_policy?: ProfileEditPolicy;

@@ -20,7 +20,7 @@ try{
  const drafts=await server.ssrLoadModule('/src/communityDrafts.ts'),receipts=await server.ssrLoadModule('/src/publicationRequests.ts'),interviews=await server.ssrLoadModule('/src/interviewDrafts.ts');
  const {canEditPost}=await server.ssrLoadModule('/src/communityEdits.ts'),{canEditReply}=await server.ssrLoadModule('/src/replyEdits.ts');
  const affiliation={kind:'institution',domain:'research.edu',name:'测试研究院',name_en:'Research Institute'};
- const alice={id:'alice',username:'alice',display_name:'Private Alice',avatar_color:'#123456',avatar_url:'/api/account/avatars/alice/personal.png',bio:'Private biography',created_at:'2020-01-01',affiliation};
+ const alice={can_publish_community:true,id:'alice',username:'alice',display_name:'Private Alice',avatar_color:'#123456',avatar_url:'/api/account/avatars/alice/personal.png',bio:'Private biography',created_at:'2020-01-01',affiliation};
  const postId='a'.repeat(32),anonymous={...alice,id:'anonymous:'+postId,username:'',display_name:'Anonymous',anonymous:true,avatar_url:null,avatar_color:'#6b7280',bio:'',created_at:''};
  const named={id:'b'.repeat(32),title:'Named report',body:'A public reflection',category:'career',problem:null,problem_id:null,created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:alice,counts:{likes:0,reposts:0,replies:1},viewer:{can_edit:true},edit_version:'e'.repeat(64)};
  const reply={id:'c'.repeat(32),post_id:postId,parent_id:null,body:'Anonymous follow-up',created_at:named.created_at,author:anonymous,can_edit:true,edit_version:'d'.repeat(64)};
@@ -58,22 +58,23 @@ try{
   {affiliation:null,institution:{id:'brown',name:'布朗大学',name_en:'Brown University'},label:'Brown University'},
   {affiliation:{kind:'email_domain',name:'brown.edu',domain:'brown.edu'},institution:null,label:'Brown University'},
   {affiliation:{kind:'email_domain',name:'research-lab.ac.uk',domain:'research-lab.ac.uk'},institution:null,label:'Research LAB'},
-  {affiliation:null,institution:null,label:'No affiliation listed'},
-  {affiliation:undefined,institution:undefined,label:'No affiliation listed'},
+  {affiliation:null,institution:null,label:'Affiliation not verified'},
+  {affiliation:undefined,institution:undefined,label:'Affiliation not verified'},
  ]){
   Object.assign(alice,{affiliation:fields.affiliation,institution:fields.institution,email:'fixture@private.example'});
   await render(UserProfile,{username:'alice'});
   const facts=document.querySelector('.profile-facts');assert(facts.textContent.includes(fields.label));
-  assert.equal(!!facts.querySelector('.profile-affiliation-empty'),fields.label==='No affiliation listed');
-  assert(!facts.textContent.includes('unverified')&&!facts.querySelector('.lucide-shield-check'),'Missing affiliation must not imply a verification decision');
+  assert.equal(!!facts.querySelector('.profile-affiliation-empty'),fields.label==='Affiliation not verified');
+  assert(!facts.textContent.includes('unverified')&&!facts.querySelector('.lucide-shield-check'),'Missing affiliation never displays a verified badge');
   assert(!document.body.innerHTML.includes(alice.email),'Public profile rendering must not expose a full mailbox');
   assert(!document.querySelector('.community-post-card .profile-affiliation-empty'),'Activity cards do not gain an empty affiliation placeholder');
   await stop();
  }
- localStorage.setItem('paperleet.locale','zh');await render(UserProfile,{username:'alice'});assert(document.querySelector('.profile-affiliation-empty').textContent.includes('暂无机构信息'));await stop();localStorage.setItem('paperleet.locale','en');
+ localStorage.setItem('paperleet.locale','zh');await render(UserProfile,{username:'alice'});assert(document.querySelector('.profile-affiliation-empty').textContent.includes('机构未认证'));await stop();localStorage.setItem('paperleet.locale','en');
+ alice.is_test_user=true;await render(UserProfile,{username:'alice'});assert(!document.querySelector('.profile-affiliation-empty'),'Explicit test accounts retain their test badge without an affiliation-verification prompt');await stop();delete alice.is_test_user;
  Object.assign(alice,{affiliation});delete alice.institution;delete alice.email;
  const withoutAffiliation=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Author,{user:{...anonymous,affiliation:undefined,institution:undefined}})));
- assert(!withoutAffiliation.includes('No affiliation listed')&&!withoutAffiliation.includes('暂无机构信息'),'Anonymous cards do not disclose or invent missing affiliation status');
+ assert(!withoutAffiliation.includes('Affiliation not verified')&&!withoutAffiliation.includes('机构未认证'),'Anonymous cards do not disclose or invent missing affiliation status');
  // Public profile rendering must drop owner-only anonymous history synchronously on account change.
  await render(UserProfile,{username:'alice'});assert(document.querySelector('.community-post-card'));holdProfile=true;account.user=undefined;await render(UserProfile,{username:'alice'});assert(!document.querySelector('.community-post-card'),'Previous owner-only history cannot survive the guest render while requests are pending');await stop();held.forEach(resolve=>resolve({items:[],total:0}));
  account.user=alice;holdProfile=false;localStorage.setItem('paperleet.locale','zh');post.replies=[reply,{...reply,id:'d'.repeat(32),parent_id:reply.id}];await render(Community,{postId,route:'community/'+postId});assert(document.querySelector('.anonymous-author').textContent.includes('匿名用户'));assert(document.querySelector('.reply-context').textContent.includes('匿名用户'));assert(!document.querySelector('.reply-context').textContent.includes('Anonymous'));await stop();
