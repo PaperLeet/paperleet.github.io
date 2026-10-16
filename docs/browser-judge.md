@@ -85,10 +85,12 @@ For a shorter maintainer check, use `npm run check:browser-wasm:smoke`; a single
 module can be checked with `node scripts/check-browser-wasm.mjs architecture/attention`
 from `web/`. The smoke subset is not the publication gate. CI runs the complete
 WASM catalog independently of the native/frontend job and requires both before
-its existing `pilot` quality check succeeds. Every pull request and main-branch
-push runs that complete gate. Feature-branch pushes use their pull request's
-merge-context checks; use `workflow_dispatch` to check a branch before opening a
-pull request. This avoids running both a branch push and its PR for one update.
+its existing `pilot` quality check succeeds. Ordinary branch pushes and pull
+requests do not start Actions, preserving the maintainer's CI quota. Explicit
+manual quality checks remain available through `workflow_dispatch` and do not
+publish. A newly created version tag (for example `v0.33.0`) reuses the complete
+quality workflow once, then builds and publishes that exact tested commit.
+See [tag-based releases](release-tags.md) for the release procedure and guards.
 This is a WASM execution gate; it
 does not replace browser CSP, UI or multi-browser verification.
 

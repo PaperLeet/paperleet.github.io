@@ -39,6 +39,7 @@ for name, window in [('old', 1800), ('current', 604800)]:
       paginate:async (method, input) => {
         calls.push({method, ...input});
         if (method === 'runs') {
+          assert.equal(input.branch, undefined, 'Tagged deployments must be eligible for history backfill');
           assert.equal(input.created, '>=2026-10-08T12:00:00.000Z');
           assert.equal(input.status, 'success');
           return [99, 5, 4, 3, 2, 1].map(id => ({id}));
