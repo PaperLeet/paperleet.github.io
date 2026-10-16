@@ -196,7 +196,18 @@ train/checkpoint/resume workflows are covered alongside independent NumPy and
 finite-difference contracts. Ill-conditioned float32 channels use a documented
 centered numerical policy. Complete local native/WASM/application, packaging and
 frontend gates pass. Balanced CPU/WASM costs retain the float64 eval-backward
-overhead as well as training gains; exact remote adoption follows publication.
+overhead as well as training gains; exact remote adoption subsequently passed for the published0.16commit.
+
+## Version 0.17 milestone
+
+GroupNorm adds independent per-sample/channel-group normalization, shared active
+VJPs, native full-statistics JVP reverse tapes, standard imports, selective
+mutation guards and common model/checkpoint lifecycle. Native and independent
+float64-math/finite-difference oracles cover strided inputs, empty batches,
+float32 cancellation and training continuation. Full native/application/WASM,
+Chrome Worker and isolated minimum-version wheel gates pass. Balanced same-source
+CPU/WASM measurements preserve all samples; the larger runtime transfer size is
+reported separately. See [validation](../../docs/validation/torch-runtime-iteration-17.md).
 
 ## Next implementation areas
 
@@ -209,7 +220,7 @@ overhead as well as training gains; exact remote adoption follows publication.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
    remaining retention corner cases, graph-node callbacks and forward-mode gaps. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
-4. Neural-network coverage: expand batch/group normalization, attention options,
+4. Neural-network coverage: expand instance normalization, attention options,
    weighted/smoothed/spatial losses and convolution, with masked/empty/non-contiguous
    cases and numerical checks. Optimize exact array erf and continue auditing
    low-precision/statistic accumulation behavior across numerical runtimes.

@@ -451,6 +451,23 @@ storage rebinding explicitly; convert model storage before constructing a graph.
 
 ## Batch normalization
 
+`nn.GroupNorm` and `nn.functional.group_norm` normalize each sample independently
+across channel groups and spatial dimensions. Standard
+`torch.nn.modules.normalization.GroupNorm` imports work. Float32/float64 inputs,
+optional per-channel affine parameters, non-contiguous arrays, empty batches,
+analytical VJPs and JVPs are supported. Train/eval produce the same behavior;
+there are no running buffers. Module conversion, reset and in-memory checkpoints
+use the common model lifecycle.
+
+GroupNorm's JVP statistics remain differentiable on the reverse tape, matching
+native PyTorch; this differs from LayerNorm/BatchNorm's saved-statistic rules.
+Input/weight mutations invalidate saved graphs; bias/output changes do not.
+Ill-conditioned float32 groups use selective float64 centering, following the
+LayerNorm numerical policy. Centered formulas avoid native CPU affine-expansion
+cancellation, so tiny groups and large offsets need not be bitwise identical to
+native float32. Zero channels, empty spatial dimensions and singleton validation
+follow the checked boundaries; float16/complex normalization is unsupported.
+
 `nn.BatchNorm1d`, `nn.BatchNorm2d`, `nn.BatchNorm3d` and
 `nn.functional.batch_norm` support dense real float32/float64 inputs. Ordinary
 `torch.nn.modules.batchnorm` imports and its `_BatchNorm` base alias work too.

@@ -50,6 +50,7 @@ def create_torch(name='torch', *, register=False):
     }.items(): setattr(torch.nn, name, cls)
     for module, names in (
         (_normalization,('LayerNorm','RMSNorm')),
+        (_groupnorm,('GroupNorm',)),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
@@ -66,7 +67,7 @@ def create_torch(name='torch', *, register=False):
         'container':('Sequential','ModuleList','ModuleDict','ParameterList','ParameterDict'),
         'linear':('Linear','Identity'),
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
-        'normalization':('LayerNorm','RMSNorm'),
+        'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
@@ -192,6 +193,7 @@ def create_torch(name='torch', *, register=False):
         'kl_div': _nn.kl_div, 'silu': _nn.silu, 'gelu': _activation.gelu, 'dropout': _activation.dropout,
         'layer_norm': _normalization.layer_norm, 'rms_norm': _normalization.rms_norm,
         'batch_norm': _batchnorm.batch_norm,
+        'group_norm': _groupnorm.group_norm,
         'embedding': _nn.embedding, 'mse_loss': _nn.mse_loss,
     }, reverse='analytic', forward=True)
     def relu(input, inplace=False):
@@ -221,4 +223,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _batchnorm, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor
+from . import _arithmetic, _activation, _autograd, _batchnorm, _construction, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor

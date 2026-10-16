@@ -3,8 +3,8 @@
 Repository integration version `paperleet-torch` **0.16.0** adds `nn.BatchNorm1d/2d/3d`,
 `nn.functional.batch_norm`, ordinary module aliases and the `_BatchNorm` base
 alias. NumPy remains the only runtime dependency. This is an in-repository
-integration; all local gates below passed before main publication. Exact remote
-Quality/Pages/live checks follow publication and remain a separate proof.
+integration. All local gates passed before publication; exact-commit remote
+Quality, Pages and live assets subsequently passed as recorded below.
 
 ## Behavior and independent oracles
 
@@ -109,7 +109,8 @@ latency or application-wide speedup claim follows from these samples.
   One prior attempt hit a real 5 s Python syntax-preflight child timeout and
   terminated. The unchanged standalone check passed in about 0.55 s, followed by
   a complete successful rerun at the original limits. Failed log retained.
-- All local release gates passed; exact remote adoption is pending publication.
+- All local release gates and exact remote adoption passed for commit
+  `7a6af99f5b3eb6e0a12597365e8f960420c69aff`.
 
 The [evidence record](../../packages/paperleet-torch/benchmarks/results/iteration-16.json)
 retains native semantic/range probes, initial failures, raw performance samples,
@@ -119,3 +120,15 @@ under `/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration
 Incoming UI work through `e73a8258` was fast-forwarded without changing Python,
 library, problem, test, catalog or real-WASM harness inputs from main. Final
 frontend checks include the new ordered interview-practice group.
+
+## Exact remote adoption
+
+[Remote evidence](../../packages/paperleet-torch/benchmarks/results/iteration-16-remote-adoption.json)
+records Quality run38841156443 and Pages run38841156368 as successful for the
+exact published commit. Remote infrastructure:17474 passed,1optional Docker
+skip,10warnings in509.57s. Native catalog:77problems/9987executions/3repetitions/
+336mutants,411.702s. Actual WASM:77/77,739.277s, no budget excess. Flow Matching
+calibration188.938s, learner37.742s, total229.878s stay within240/60/300s limits.
+These shared-runner observations are not controlled performance comparisons.
+Frozen live verification checked all77starters/details/manifests and156immutable
+assets byte-for-byte, including both0.16profiles and Apache-2.0 resources.

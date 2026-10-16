@@ -192,3 +192,14 @@ time excludes Python/JS conversion and autograd and is therefore a lower bound
 for integrating it with this library. Compare it to matmul-only WASM results in
 the same browser, not to a forward/backward benchmark or to native BLAS. Browser
 timer quantization, adapter/driver variation and batching affect the results.
+
+GroupNorm's first-order joint/composition benchmark uses the same library for
+both implementations and validates values and active gradients before timing:
+
+```sh
+PYTHONPATH=packages/paperleet-torch/src python packages/paperleet-torch/benchmarks/bench_groupnorm.py --implementation joint --dtype float32
+node packages/paperleet-torch/benchmarks/bench_wasm.mjs --benchmark groupnorm --implementation joint --dtype float32
+```
+
+Use separate fresh processes in balanced order; preserve all samples. Results
+measure these local kernels, not native Torch or application-wide acceleration.
