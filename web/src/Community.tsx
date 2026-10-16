@@ -1,6 +1,6 @@
 import AffiliationBadge from "./AffiliationBadge";
 import InterviewMeta from './InterviewMeta';
-import PostPreview from './PostPreview';
+import {InlinePostBody} from './InlineCommentBody';
 import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
@@ -249,7 +249,7 @@ function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: P
             </a>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact/>}
-          <PostPreview body={post.body} limit={190}/>
+          <InlinePostBody body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}/>
         </div>
