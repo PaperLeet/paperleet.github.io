@@ -2567,6 +2567,135 @@
           }
         }
       ]
+    },
+    {
+      "id": "rl/sdpo_feedback",
+      "source": "problems/rl/sdpo_feedback/README.md",
+      "functions": [
+        "select_feedback",
+        "feedback_reverse_kl"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "一次回答既有同题成功解，又有环境反馈时，教师应读取什么？为什么不能直接把学生轨迹换成成功解？",
+            "en": "If an attempt has both a successful same-question solution and environment feedback, what should the teacher read? Why keep the original student trajectory?"
+          },
+          "hint": {
+            "zh": "成功尝试优先使用自身；失败尝试再找同题成功解，没有成功解才使用丰富环境反馈。多个同题成功解取最小行索引是本题的确定性约定。成功解进入教师上下文，教师仍评分原学生回答的前缀；不能跨题借用答案。",
+            "en": "Use a successful attempt itself first; a failed attempt may use a successful same-question peer, then rich feedback if no solution exists. Choosing the lowest peer row is this exercise's deterministic rule. The solution augments teacher context; the teacher still scores prefixes of the original student answer, without borrowing across questions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么成功解索引为 -1 不一定代表没有监督？有效 token 的分子、分母与零反馈梯度应如何处理？",
+            "en": "Why can solution index -1 still provide supervision? How should the valid-token numerator, denominator and no-feedback gradients behave?"
+          },
+          "hint": {
+            "zh": "丰富反馈可以令 availability 为真，而解答索引仍为 -1。有效位置是 token_mask 与 feedback_available 的交集；先沿词表求 KL(student || teacher)，再按全部有效 token 数平均。固定 teacher logits，保留 student 梯度。没有有效位置时返回连着 student 计算图的标量零，不能返回 Python 数字。",
+            "en": "Rich feedback may make availability true while the solution index stays -1. Intersect token_mask with feedback_available, sum KL(student || teacher) over vocabulary, then average over all eligible tokens. Freeze teacher logits and retain student gradients. With no eligible positions, return a scalar zero connected to the student graph rather than a Python number."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "设计一个同时覆盖自身成功、同题借解、丰富反馈和无反馈的路由样例，再单独核对损失与梯度。",
+            "en": "Build one routing example covering self-success, a same-question peer, rich feedback and no feedback; then check loss and gradients separately."
+          },
+          "hint": {
+            "zh": "取 question_ids=[7,8,7,7,9,10]，success=[F,T,T,T,F,F]，rich_feedback=[T,F,F,T,T,F]：索引应为 [2,1,2,3,-1,-1]，availability 为 [T,T,T,T,T,F]。单个有效 token 的学生 [0.8,0.2]、教师 [0.4,0.6] 给出 KL=0.8·ln2+0.2·ln(1/3)。再检查不可用位置梯度为零、教师无梯度，以及全无反馈时可反传的零。",
+            "en": "Use question_ids=[7,8,7,7,9,10], success=[F,T,T,T,F,F], rich_feedback=[T,F,F,T,T,F]. Expect indices [2,1,2,3,-1,-1] and availability [T,T,T,T,T,F]. One eligible token with student [0.8,0.2] and teacher [0.4,0.6] gives KL=0.8·ln2+0.2·ln(1/3). Also check zero gradients at unavailable positions, no teacher gradient and a differentiable zero with no feedback."
+          }
+        }
+      ]
+    },
+    {
+      "id": "rl/sdpo_topk",
+      "source": "problems/rl/sdpo_topk/README.md",
+      "functions": [
+        "topk_tail_reverse_kl"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 Top-K 必须由学生选索引，并让教师复用这些索引？尾部桶保留了什么信息？",
+            "en": "Why select Top-K indices from the student and reuse them for the teacher? What information does the tail bin preserve?"
+          },
+          "hint": {
+            "zh": "学生与教师必须在同一分区上比较：k 个学生选中的 token 加上整个补集的一个桶。分别取各自 Top-K 会错配事件；丢掉尾部或重新归一化选中项会改变分布。细化同一排名下的分区使 KL 不减；k=V-1 时尾部仅剩一个 token，已经得到完整词表 KL。",
+            "en": "Compare both distributions on the same partition: k student-selected tokens plus one bin for their entire complement. Separate rankings mismatch events; dropping the tail or renormalizing selected tokens changes the distributions. Refining this partition cannot decrease KL. At k=V-1 the remaining bin is a singleton, so the result already equals full-vocabulary KL."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "当 Top-K 概率和在浮点数中已舍入成 1，怎样稳定计算尾部项，并保留正确的学生梯度和输出形状？",
+            "en": "If selected probabilities round to a sum of one, how can the tail stay numerically stable while preserving student gradients and output shape?"
+          },
+          "hint": {
+            "zh": "先用 log_softmax，再对未选中的完整补集求 logsumexp；不要用 1-sum(topk) 计算尾部概率。只移除词表轴，不对 batch/token 求平均。固定教师，保留学生选中概率及尾部质量的梯度；不要求对排序索引求导。k=V 时省略尾部项，并测试非连续输入和 V=1。",
+            "en": "Use log_softmax, then logsumexp over the complete unselected complement instead of 1-sum(topk). Remove only the vocabulary axis; do not average batch or token positions. Freeze the teacher and differentiate both selected student probabilities and tail mass, without differentiating ranking indices. Omit the tail at k=V; cover noncontiguous inputs and V=1."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "用三个 token 手算 k=1 的散度，怎样识别丢尾部、选错索引或把尾部梯度截断的实现？",
+            "en": "Hand-compute k=1 for three tokens. How would you expose a missing tail, wrong selection indices or a detached tail gradient?"
+          },
+          "hint": {
+            "zh": "学生 p=[0.6,0.25,0.15]，教师 q=[0.3,0.2,0.5]：两桶为 [0.6,0.4] 与 [0.3,0.7]，KL=0.6·ln2+0.4·ln(4/7)，约 0.19204。教师自己的最大项不同，可揭露索引错误；选中项各自归一化会错误地得到零。在无并列排名处做有限差分，并验证 k=2 与 k=3 都等于完整 KL。极端 logits 还应保持有限。",
+            "en": "For student p=[0.6,0.25,0.15] and teacher q=[0.3,0.2,0.5], the bins are [0.6,0.4] and [0.3,0.7]. KL=0.6·ln2+0.4·ln(4/7), about 0.19204. The teacher's largest entry differs, exposing wrong indices; separately normalizing singleton selections incorrectly gives zero. Use finite differences away from ranking ties, verify k=2 and k=3 equal full KL, and check finite values for extreme logits."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/distillm2",
+      "source": "problems/finetuning/distillm2/README.md",
+      "functions": [
+        "skew_kl",
+        "skew_reverse_kl",
+        "distillm2_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "两套回答来源为何需要各自的教师、学生 logits？SKL 与 SRKL 的混合方向和 alpha 端点分别是什么？",
+            "en": "Why does each response source need its own teacher and student logits? Explain the SKL/SRKL mixtures and alpha endpoints."
+          },
+          "hint": {
+            "zh": "令 p 为教师分布、q 为学生分布。教师回答来源使用 KL(p || alpha·p+(1-alpha)·q)；学生回答来源使用 KL(q || (1-alpha)·p+alpha·q)。两套 logits 评分不同回答上下文，不能混用。alpha=0 恢复对应方向的 KL，alpha=1 两者为零。此题对已给上下文计算完整条件词表散度，系数固定，不运行论文的采样或 curriculum。",
+            "en": "Let p be teacher and q student. Teacher responses use KL(p || alpha·p+(1-alpha)·q); student responses use KL(q || (1-alpha)·p+alpha·q). The pairs score different response contexts and cannot be interchanged. Alpha=0 recovers each KL direction; alpha=1 gives zero. This exercise uses full conditional vocabulary divergences on supplied contexts with fixed coefficients, without the paper's sampling or curriculum."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "有效回答长度不同，为什么不能把双源损失改成 token mean？SRKL 分母中的学生分布是否也需要梯度？",
+            "en": "Why must unequal response lengths not be reduced by a token mean? Should the student distribution inside the SRKL denominator receive gradients?"
+          },
+          "hint": {
+            "zh": "按两套 mask 分别求 token 散度之和，再用 (1-beta) 与 beta 加权并除以 2B。共同批大小 B 相同，但两套长度、词表大小可以不同。固定教师；SRKL 的学生概率权重和混合分母都要可微。使用已提供的 log-space helper，保留 dtype、前导维度、非连续输入，以及 alpha=1 时仍可求得的零学生梯度。",
+            "en": "Sum token divergences under each mask, weight by (1-beta) and beta, then divide by 2B. Batch size B is shared; response lengths and vocabulary sizes may differ across sources. Freeze teachers, while retaining gradients through both SRKL's student weights and mixture denominator. Use the supplied log-space helpers and preserve dtype, leading dimensions, noncontiguous inputs and obtainable zero student gradients at alpha=1."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用不等长的双源例子区分 2B 归约、方向错误和 mask 错误，再验证两个学生分支的梯度？",
+            "en": "How can unequal-length response sources expose the 2B reduction, a reversed direction and masking errors, then check both student gradients?"
+          },
+          "hint": {
+            "zh": "设 B=1、alpha_t=alpha_s=0、beta=0.5；教师来源有两个有效 token、学生来源有一个，均用教师 p=[0.8,0.2]、学生 q=[0.4,0.6]。损失应为 (2·KL(p||q)+KL(q||p))/4。追加全遮挡 padding 不改变损失；复制全部有效 token 则使其翻倍。分别令 beta=0/1 隔离分支，再做中心差分、教师无梯度与全遮挡零梯度检查。",
+            "en": "Take B=1, alpha_t=alpha_s=0 and beta=0.5, with two valid teacher-source tokens and one student-source token. Use teacher p=[0.8,0.2] and student q=[0.4,0.6] throughout. Expect (2·KL(p||q)+KL(q||p))/4. Masked padding leaves loss unchanged; duplicating all valid tokens doubles it. Isolate branches with beta=0/1, then check central differences, frozen teachers and zero gradients under an all-false mask."
+          }
+        }
+      ]
     }
   ]
 }
