@@ -148,6 +148,21 @@ in-place mutation. Read-only backing storage retains its existing write boundary
 See the [0.20 validation record](../../docs/validation/torch-runtime-iteration-20.md)
 for source identities, native/scalar contracts and measured compatibility costs.
 
+The 0.21 candidate also validates dimension types, ranges and duplicate axes for
+`flatten`, `permute`, `transpose`, `unsqueeze`, `squeeze` and `expand`, including
+their functional entries. Scalar/empty shapes and singleton strides retain their
+native contracts. A flatten of one axis returns its input; squeezing a
+non-singleton dimension returns a distinct view. Shape JVPs preserve the tested
+primal/tangent layout rules; empty tangents retain their independent strides.
+
+Views created under `no_grad` can report `requires_grad=True` without having a
+reverse edge. Graphless views follow subsequent base flag changes, while explicit
+`view.requires_grad_()` promotes an independent leaf accumulator. Mutating the
+base flag does not reconnect a previously graphless view. These rules are checked
+against native PyTorch; they do not establish every native view-mutation rule.
+The candidate's remaining validation costs and pending integration gates are in
+the [0.21 record](../../docs/validation/torch-runtime-iteration-21.md).
+
 ## Selection and joining tensors
 
 `torch.result_type` follows the category priority of dimensioned Tensors,

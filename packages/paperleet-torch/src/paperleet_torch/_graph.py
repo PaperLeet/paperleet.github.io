@@ -46,7 +46,18 @@ class Node:
             self.joint, self.versions, self.released = None, (), True
 
 
+class _StoppedView:
+    """A missing gradient edge for a view created while recording was disabled."""
+    __slots__ = ('shape','dtype')
+    _parents = ()
+    requires_grad = False
+    _backward_hooks = None
+    _post_accumulate_grad_hooks = None
+    def __init__(self,tensor):self.shape,self.dtype=tensor.shape,tensor.dtype
+
+
 def node_for(tensor):
+    if tensor._no_grad_view:return _StoppedView(tensor)
     node = tensor._grad_node
     # A leaf already owns exactly the storage/gradient information needed by
     # the engine. Use it directly, preserving graph ownership without a cached

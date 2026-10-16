@@ -136,8 +136,7 @@ def create_torch(name='torch', *, register=False):
         'trapezoid': _ops.trapezoid,
         'topk': lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out),
         'scatter': lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce),
-        'broadcast_to': lambda input,shape: input.expand(shape),
-        'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
+                'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
     }, reverse='analytic')
     registry.add('torch.nan_to_num', _ops.nan_to_num, reverse='analytic', unsupported_keywords=('out',))
     def outer(input, other):
@@ -179,14 +178,17 @@ def create_torch(name='torch', *, register=False):
     methods = {
         **dict.fromkeys(('sum','exp','log','sqrt','abs','sin','cos','tanh','rsqrt','sigmoid'), ('analytic',True,('out',))),
         **dict.fromkeys(('mean',), ('analytic',True,('out','dtype'))),
-        **dict.fromkeys(('relu','softmax','log_softmax','reshape','flatten'), ('analytic',True,())),
+        **dict.fromkeys(('relu','softmax','log_softmax','reshape'), ('analytic',True,())),
         **dict.fromkeys(('clamp','clamp_min','clamp_max','acos','var','std','cumsum','cumprod','norm','logsumexp','diag','triu','tril','amax','prod','round'), ('analytic',False,('out',))),
-        **dict.fromkeys(('transpose','repeat_interleave','flip','roll','chunk','erfinv'), ('analytic',False,())),
+        **dict.fromkeys(('repeat_interleave','flip','roll','chunk','erfinv'), ('analytic',False,())),
         **dict.fromkeys(('max','min'), ('analytic',False,('out',))),
         **dict.fromkeys(('all','any','argmax','argmin'), ('nondifferentiable',False,('out',))),
     }
     for name, (reverse, forward, keywords) in methods.items():
         registry.method(name, reverse=reverse, forward=forward, unsupported_keywords=keywords)
+    registry.group('torch', {'flatten':_ops.flatten,'transpose':_ops.transpose,'unsqueeze':_ops.unsqueeze,'squeeze':_ops.squeeze}, reverse='analytic', forward=True)
+    registry.add('torch.permute', _ops.permute, reverse='analytic', forward=True)
+    registry.add('torch.broadcast_to', _ops.broadcast_to, reverse='analytic', forward=True)
     registry.add('torch.logit', lambda input,eps=None: input.logit(eps), reverse='analytic')
 
     registry.group('torch.nn.functional', {

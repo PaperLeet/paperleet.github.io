@@ -7,10 +7,17 @@ import numpy as np
 
 from . import _arithmetic, _graph, _layout, _tensor
 
-def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
+def result(data, *edges, saved=(), saves_tensors=True, versioned=None, view_of=None):
     if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
         raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
     value = _tensor.Tensor(data, _metadata_owned=True)
+    if view_of is not None and value._storage is view_of._storage:
+        base=view_of._view_base
+        value._view_base=view_of if base is None else base
+        if not _state._grad_enabled:
+            value.__dict__.pop('requires_grad',None)
+            value._no_grad_view=True
+            return value
     if value.dtype.kind == 'c' and _state._grad_enabled and any(node.requires_grad for node, _ in edges):
         raise _errors.BrowserUnsupported('Complex autograd requires the server')
     parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
@@ -25,6 +32,9 @@ def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
             counters = ()
         value._grad_node = _graph.Node(value, parents, saved=saves_tensors,
                                       versions=tuple((counter, counter.version) for counter in counters))
+    if view_of is not None and value._view_base is not None and value._grad_node is None:
+        value.__dict__.pop('requires_grad',None)
+        value._no_grad_view=True
     return value
 
 
@@ -139,7 +149,11 @@ class ForwardTensor(_tensor.Tensor):
     def requires_grad_(self, *args): raise _errors.BrowserUnsupported('Changing gradient flags inside JVP requires the server')
     def backward(self, *args, **kwargs): raise _errors.BrowserUnsupported('Backward inside JVP requires the server')
     def mapped(self, name, *args, **kwargs):
-        return ForwardTensor(getattr(self._primal, name)(*args, **kwargs), getattr(self._tangent, name)(*args, **kwargs))
+        primal=getattr(self._primal,name)(*args,**kwargs)
+        tangent=self._tangent
+        if name in ('flatten','unsqueeze','squeeze','permute','transpose','expand'):
+            tangent=_layout.matching_tangent(tangent,self._primal)
+        return ForwardTensor(primal,getattr(tangent,name)(*args,**kwargs))
     def to(self, *args, **kwargs):
         primal = self._primal.to(*args, **kwargs)
         if primal.dtype.kind != 'f': raise _errors.BrowserUnsupported('Nonfloating casts inside JVP require the server')
@@ -247,7 +261,7 @@ def _backward_arguments(outputs, gradients, retain_graph, create_graph):
     seeds=[]
     for output,gradient in zip(outputs,gradients):
         if not isinstance(output,_tensor.Tensor):raise TypeError('Outputs must be Tensors')
-        if not output.requires_grad:raise RuntimeError('Tensor does not require grad and has no grad_fn')
+        if not output.requires_grad or output._no_grad_view:raise RuntimeError('Tensor does not require grad and has no grad_fn')
         if gradient is None:
             if output.numel()!=1:raise RuntimeError('Non-scalar outputs require grad_outputs')
             seed=np.ones_like(output._data)

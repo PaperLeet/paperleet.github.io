@@ -129,7 +129,7 @@ def stride(data, dim=None):
 
 def matching_tangent(tangent, primal):
     """Copy logical values into a nonoverlapping primal layout when required."""
-    if tangent._data.strides==primal._data.strides:return tangent
+    if tangent._data.strides==primal._data.strides or not primal._data.size:return tangent
     shape=primal.shape;strides=primal.stride()
     if primal.numel():
         extent=1
@@ -143,3 +143,91 @@ def matching_tangent(tangent, primal):
     data[...]=tangent._data
     from . import _autograd
     return _autograd.result(data,(tangent,lambda g:g),saves_tensors=False)
+
+
+class _UnspecifiedDimension:
+    def __repr__(self): return '<unspecified>'
+
+
+UNSPECIFIED_DIM = _UnspecifiedDimension()
+
+
+def integer(value, name='dimension'):
+    if type(value) is int:return value
+    if isinstance(value,(bool,np.bool_)):raise TypeError(name+' must be an integer')
+    try:return operator.index(value)
+    except TypeError:raise TypeError(name+' must be an integer') from None
+
+
+def dimension(value, ndim, *, insertion=False):
+    if type(value) is not int:value=integer(value)
+    extent=ndim+1 if insertion else (ndim or 1)
+    if not -extent<=value<extent:raise IndexError('Dimension out of range')
+    return value%extent
+
+
+def permutation(args, kwargs, ndim):
+    if kwargs:
+        if set(kwargs)!={'dims'} or args:raise TypeError('Invalid or duplicate permute dimensions')
+        args=(kwargs['dims'],)
+    if not args:raise TypeError('permute requires dimensions')
+    dims=args[0] if len(args)==1 and isinstance(args[0],(tuple,list)) else args
+    dims=tuple(v if type(v) is int else integer(v) for v in dims)
+    if len(dims)!=ndim:raise RuntimeError('Permutation rank must match the Tensor rank')
+    normalized=[]
+    for value in dims:
+        if not -ndim<=value<ndim:raise IndexError('Dimension out of range')
+        normalized.append(value+ndim if value<0 else value)
+    dims=tuple(normalized)
+    if len(set(dims))!=len(dims):raise RuntimeError('Permutation dimensions must be unique')
+    return dims
+
+
+def inverse_permutation(dims):
+    inverse=[0]*len(dims)
+    for source_axis,target_axis in enumerate(dims):inverse[target_axis]=source_axis
+    return tuple(inverse)
+
+
+def expansion(args, kwargs, shape, strides):
+    if kwargs:
+        options=dict(kwargs)
+        implicit=options.pop('implicit',False)
+        if type(implicit) is not bool:raise TypeError('implicit must be bool')
+        if 'size' in options:
+            if args:raise TypeError('expand received duplicate sizes')
+            args=(options.pop('size'),)
+        if options:raise TypeError('Unexpected expand arguments')
+    if not args:raise TypeError('expand requires a shape')
+    sizes=args[0] if len(args)==1 and isinstance(args[0],(tuple,list)) else args
+    sizes=tuple(v if type(v) is int else integer(v,'size') for v in sizes)
+    if len(sizes)<len(shape):raise RuntimeError('Expanded rank cannot be smaller than input rank')
+    if not shape:
+        if any(v<0 for v in sizes):raise RuntimeError('Expanded scalar dimensions must be nonnegative')
+        return sizes,(0,)*len(sizes)
+    offset=len(sizes)-len(shape);result=list(sizes);out_stride=[0]*len(sizes)
+    for axis in reversed(range(len(sizes))):
+        old=shape[axis-offset] if axis>=offset else 1
+        step=strides[axis-offset] if axis>=offset else (result[axis+1]*out_stride[axis+1] if axis+1<len(sizes) else 1)
+        size=sizes[axis]
+        if size==-1:
+            if axis<offset:raise RuntimeError('New leading expanded dimensions cannot be inferred')
+            size=old
+        if size<0:raise RuntimeError('Expanded dimensions must be nonnegative or -1')
+        if size!=old:
+            if old!=1:raise RuntimeError('Only singleton dimensions can be expanded')
+            step=0
+        result[axis]=size;out_stride[axis]=step
+    return tuple(result),tuple(out_stride)
+
+
+def metadata_view(data, shape, strides, candidate=None, *, writeable=None):
+    if candidate is not None and candidate.shape==shape and candidate.strides==strides:return candidate
+    if data.size and data.flags.c_contiguous:
+        # NumPy validates the bounds against this contiguous buffer. Unlike a
+        # stride-tricks wrapper, this descriptor keeps a direct ndarray base.
+        value=np.ndarray(shape=shape,dtype=data.dtype,buffer=data,strides=strides)
+        if writeable is False:value.flags.writeable=False
+        return value
+    return np.lib.stride_tricks.as_strided(data,shape=shape,strides=strides,
+        writeable=data.flags.writeable if writeable is None else writeable)

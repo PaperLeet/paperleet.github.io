@@ -1,0 +1,4416 @@
+{
+  "status": "fully verified0.20 exact main adoption",
+  "commit": "1770686e676e73c39790ef3e1538180d155a72c4",
+  "version": "0.20.0",
+  "remote": {
+    "status": "success",
+    "commit": "1770686e676e73c39790ef3e1538180d155a72c4",
+    "checked_utc": "2026-10-16T06:15:20.322328+00:00",
+    "elapsed_s": 1140.2349079999985,
+    "runs": {
+      "quality": {
+        "id": 38858241853,
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "1770686e676e73c39790ef3e1538180d155a72c4",
+        "event": "push",
+        "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38858241853",
+        "jobs": [
+          {
+            "name": "native",
+            "id": 116834421111,
+            "status": "completed",
+            "conclusion": "success",
+            "current_steps": [],
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Validate Pages release gating",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Install CPU-only dependencies",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Test judge infrastructure",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Reference, mutation, determinism, and CPU budgets",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Generate all visualization data and catalog",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Build static web app",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "name": "browser-wasm",
+            "id": 116834421214,
+            "status": "completed",
+            "conclusion": "success",
+            "current_steps": [],
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Install the public catalog exporter",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Export the current source into immutable browser bundles",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Execute every maintained suite and mutant on pinned WASM",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "name": "pilot",
+            "id": 116839462962,
+            "status": "completed",
+            "conclusion": "success",
+            "current_steps": [],
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Require both native/frontend and complete WASM checks",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ]
+          }
+        ]
+      },
+      "pages": {
+        "id": 38859875336,
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "1770686e676e73c39790ef3e1538180d155a72c4",
+        "event": "workflow_run",
+        "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38859875336",
+        "jobs": [
+          {
+            "name": "build",
+            "id": 116839497217,
+            "status": "completed",
+            "conclusion": "success",
+            "current_steps": [],
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Require complete quality checks on this main revision",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Check static asset retention",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Build public site",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Find the previous successful Pages deployment",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Download previous static assets",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Recover historical assets when extending the retention window",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Retain assets for cached pages",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Save lightweight assets for the next deployment",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/upload-pages-artifact@v3",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "name": "deploy",
+            "id": 116840242345,
+            "status": "completed",
+            "conclusion": "success",
+            "current_steps": [],
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Recheck the tested revision before publishing",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/deploy-pages@v4",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ]
+          }
+        ]
+      },
+      "ignored_skipped_pages": [
+        38858456712
+      ]
+    },
+    "errors": [],
+    "policy": "Pages is discovered after Quality;never invented or manually dispatched"
+  },
+  "native_catalog": {
+    "passed": true,
+    "duration_s": 307.16178129499997,
+    "repeats": 3,
+    "problems": 78,
+    "mutation": {
+      "rl/gae": {
+        "m1_no_done_mask": [
+          "test_reference",
+          "test_episode_isolation"
+        ],
+        "m2_trunc_as_term": [
+          "test_single_transition",
+          "test_reference",
+          "test_lambda_zero_is_td",
+          "test_termination_and_truncation_bootstrap"
+        ],
+        "m3_forward_loop": [
+          "test_reference",
+          "test_lambda_one_telescopes",
+          "test_bias_variance_tradeoff"
+        ],
+        "m4_returns_mc": [
+          "test_reference",
+          "test_returns_contract"
+        ]
+      },
+      "rl/ppo_clip": {
+        "m1_clip_only": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_four_quadrant_gradient"
+        ],
+        "m2_max_not_min": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ],
+        "m3_old_logp_grad": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_old_values_are_constants"
+        ],
+        "m4_ratio_no_exp": [
+          "test_core_function_contract",
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_on_policy_gradient",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ],
+        "m5_advantage_sign": [
+          "test_core_function_contract",
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_on_policy_gradient",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ]
+      },
+      "rl/dpo": {
+        "m1_omit_reference": [
+          "test_reference",
+          "test_policy_equals_reference",
+          "test_gradient_direction_and_rewards",
+          "test_closed_form_preference_optimum"
+        ],
+        "m2_omit_beta": [
+          "test_reference",
+          "test_beta_margin_scaling",
+          "test_gradient_direction_and_rewards",
+          "test_closed_form_preference_optimum"
+        ],
+        "m3_naive_logsigmoid": [
+          "test_extreme_margin_stability"
+        ],
+        "m4_reward_grad": [
+          "test_gradient_direction_and_rewards"
+        ],
+        "m5_batch_sum": [
+          "test_reference",
+          "test_policy_equals_reference",
+          "test_extreme_margin_stability"
+        ]
+      },
+      "rl/grpo": {
+        "m1_std_over_batch": [
+          "test_reference",
+          "test_group_advantage_invariants"
+        ],
+        "m2_mask_ignored": [
+          "test_reference",
+          "test_on_policy_token_gradient",
+          "test_padding_isolation",
+          "test_response_duplication_invariance"
+        ],
+        "m3_k1_kl": [
+          "test_reference",
+          "test_k3_nonnegative"
+        ],
+        "m4_old_logp_grad": [
+          "test_snapshots_no_gradient"
+        ],
+        "m5_token_mean": [
+          "test_reference",
+          "test_on_policy_token_gradient",
+          "test_response_duplication_invariance"
+        ]
+      },
+      "rl/dr_grpo": {
+        "m1_still_seq_mean": [
+          "test_reference",
+          "test_length_bias_removed",
+          "test_fixed_generation_limit"
+        ],
+        "m2_still_std": [
+          "test_reference",
+          "test_advantage_scales_with_reward"
+        ],
+        "m3_batch_max_len": [
+          "test_reference",
+          "test_fixed_generation_limit"
+        ]
+      },
+      "diffusion/schedules": {
+        "m1_offbyone": [
+          "test_reference",
+          "test_monotone"
+        ],
+        "m2_no_sqrt": [
+          "test_signal_and_noise",
+          "test_per_sample_time",
+          "test_variance_preserving"
+        ],
+        "m3_cosine_no_clip": [
+          "test_reference",
+          "test_monotone",
+          "test_cosine_clip"
+        ],
+        "m4_cumsum": [
+          "test_reference",
+          "test_monotone",
+          "test_linear_endpoints",
+          "test_cosine_clip"
+        ],
+        "m5_shared_t": [
+          "test_signal_and_noise",
+          "test_per_sample_time"
+        ]
+      },
+      "diffusion/param_conversion": {
+        "m1_v_sign": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_velocity_tangent",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ],
+        "m2_v_to_x0_swapped": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_endpoint_stability",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ],
+        "m3_no_clamp": [
+          "test_endpoint_stability"
+        ],
+        "m4_alpha_squared": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ]
+      },
+      "diffusion/ddpm_sampling": {
+        "m1_coef_swapped": [
+          "test_reference",
+          "test_precision_product",
+          "test_posterior_bounds",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ],
+        "m2_noise_at_last": [
+          "test_reference",
+          "test_last_step_no_noise"
+        ],
+        "m3_var_index": [
+          "test_reference",
+          "test_precision_product",
+          "test_posterior_bounds"
+        ],
+        "m4_x0_no_sqrt": [
+          "test_reference",
+          "test_point_oracle",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ],
+        "m5_ascending": [
+          "test_sampler_time_order",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ]
+      },
+      "diffusion/ddim": {
+        "m1_sigma_one_factor": [
+          "test_reference",
+          "test_eta_one_posterior"
+        ],
+        "m2_dir_no_sigma": [
+          "test_reference"
+        ],
+        "m3_no_final_jump": [
+          "test_point_final_jump",
+          "test_gmm_sampling"
+        ],
+        "m4_x0_uses_prev": [
+          "test_reference",
+          "test_point_final_jump",
+          "test_inversion_converges",
+          "test_gmm_sampling"
+        ],
+        "m5_invert_order": [
+          "test_inversion_converges"
+        ]
+      },
+      "diffusion/flow_matching": {
+        "m1_target_reversed": [
+          "test_reference",
+          "test_point_zero_loss",
+          "test_learns_eight_modes"
+        ],
+        "m2_sample_reversed": [
+          "test_reference",
+          "test_point_one_step",
+          "test_gaussian_transport",
+          "test_no_singular_endpoint",
+          "test_learns_eight_modes"
+        ],
+        "m3_interp_swapped": [
+          "test_reference",
+          "test_point_zero_loss",
+          "test_endpoints_and_time_distribution",
+          "test_learns_eight_modes"
+        ],
+        "m4_eval_at_one": [
+          "test_reference",
+          "test_point_one_step",
+          "test_no_singular_endpoint"
+        ]
+      },
+      "rl/gspo": {
+        "m1_arithmetic_ratio": [
+          "test_scalar_and_empty_response",
+          "test_reference",
+          "test_geometric_ratio_and_duplication",
+          "test_equal_gradient_within_response",
+          "test_cancellation_experiment"
+        ],
+        "m2_missing_length": [
+          "test_reference",
+          "test_geometric_ratio_and_duplication",
+          "test_equal_gradient_within_response",
+          "test_cancellation_experiment"
+        ],
+        "m3_old_gradient": [
+          "test_clipping_sign_and_snapshot_gradients"
+        ],
+        "m4_wrong_clipping": [
+          "test_reference",
+          "test_clipping_sign_and_snapshot_gradients",
+          "test_cancellation_experiment"
+        ]
+      },
+      "rl/opd": {
+        "m1_reverse_direction": [
+          "test_both_divergences",
+          "test_kl_direction_and_teacher_frozen"
+        ],
+        "m2_teacher_gradient": [
+          "test_kl_direction_and_teacher_frozen"
+        ],
+        "m3_bos_only": [
+          "test_sampling_distribution_and_prefix_dependency"
+        ],
+        "m4_mask_denominator": [
+          "test_both_divergences"
+        ]
+      },
+      "rl/dapo": {
+        "m1_symmetric_clip": [
+          "test_reference",
+          "test_upper_and_lower_clip_independent",
+          "test_group_and_clip_experiment"
+        ],
+        "m2_response_mean": [
+          "test_reference",
+          "test_token_average_gradient"
+        ],
+        "m3_keep_all_success": [
+          "test_groups_and_contract",
+          "test_group_and_clip_experiment"
+        ],
+        "m4_old_gradient": [
+          "test_sampling_snapshots_frozen"
+        ]
+      },
+      "finetuning/lora": {
+        "m1_missing_rank_scale": [
+          "test_reference",
+          "test_scaling_rank_and_merge",
+          "test_frozen_base_and_input_gradient"
+        ],
+        "m2_train_base": [
+          "test_frozen_base_and_input_gradient"
+        ],
+        "m3_detach_adapter": [
+          "test_frozen_base_and_input_gradient",
+          "test_zero_b_initialization",
+          "test_rank_two_regression"
+        ],
+        "m4_detach_base_input": [
+          "test_frozen_base_and_input_gradient"
+        ]
+      },
+      "finetuning/qlora": {
+        "m1_uniform_codebook": [
+          "test_reference",
+          "test_nf4_asymmetry_exact_zero_and_scale",
+          "test_quantized_adapter_regression"
+        ],
+        "m2_global_scale": [
+          "test_reference",
+          "test_nf4_asymmetry_exact_zero_and_scale",
+          "test_block_locality_and_positive_rescaling"
+        ],
+        "m3_train_scales": [
+          "test_frozen_base_and_adapter_gradients"
+        ],
+        "m4_missing_rank_scale": [
+          "test_reference",
+          "test_frozen_base_and_adapter_gradients"
+        ]
+      },
+      "diffusion/meanflow": {
+        "m1_wrong_jvp_time": [
+          "test_jvp_total_derivative",
+          "test_point_distribution_training"
+        ],
+        "m2_target_has_gradient": [
+          "test_target_is_frozen"
+        ],
+        "m3_reverse_sampling": [
+          "test_single_call_and_direction",
+          "test_point_distribution_training"
+        ]
+      },
+      "diffusion/jit": {
+        "m1_wrong_time_direction": [
+          "test_prediction_spaces",
+          "test_endpoints_are_finite"
+        ],
+        "m2_wrong_x_denominator": [
+          "test_prediction_spaces",
+          "test_v_loss_weight_and_gradient",
+          "test_same_raw_error_has_time_weight",
+          "test_embedded_manifold_denoising"
+        ],
+        "m3_clean_space_loss": [
+          "test_prediction_spaces",
+          "test_v_loss_weight_and_gradient",
+          "test_same_raw_error_has_time_weight"
+        ]
+      },
+      "diffusion/drifting": {
+        "m1_row_only_kernel": [
+          "test_scalar_pairwise_oracle"
+        ],
+        "m2_attraction_only": [
+          "test_scalar_pairwise_oracle",
+          "test_permutation_translation"
+        ],
+        "m3_unfrozen_target": [
+          "test_frozen_target_gradient",
+          "test_official_toy_adaptation"
+        ],
+        "m4_self_pairs_unmasked": [
+          "test_scalar_pairwise_oracle",
+          "test_mask_and_validation",
+          "test_distant_kernel_and_nonempty_contract"
+        ]
+      },
+      "diffusion/dmd": {
+        "m1_score_sign": [
+          "test_gradient_sign_and_scaling",
+          "test_gaussian_matching_with_fake_score_training",
+          "test_bimodal_mode_coverage"
+        ],
+        "m2_matching_target_not_frozen": [
+          "test_gradient_sign_and_scaling",
+          "test_frozen_matching_gradient",
+          "test_gaussian_matching_with_fake_score_training",
+          "test_bimodal_mode_coverage"
+        ],
+        "m3_fake_updates_generator": [
+          "test_fake_model_only_receives_gradient"
+        ],
+        "m4_drops_regression": [
+          "test_gradient_sign_and_scaling"
+        ]
+      },
+      "diffusion/dmd2": {
+        "m1_equal_update_frequency": [
+          "test_two_time_schedule",
+          "test_unpaired_adversarial_training"
+        ],
+        "m2_gan_wrong_sign": [
+          "test_stable_logistic_losses",
+          "test_gan_gradients_and_no_regression"
+        ],
+        "m3_no_gan_generator": [
+          "test_generator_gradient_routes"
+        ],
+        "m4_target_not_frozen": [
+          "test_generator_gradient_routes",
+          "test_unpaired_adversarial_training"
+        ]
+      },
+      "diffusion/consistency": {
+        "m1_no_boundary_shift": [
+          "test_coefficients_and_network_input",
+          "test_exact_boundary",
+          "test_point_consistency_distillation"
+        ],
+        "m2_unfrozen_target": [
+          "test_stopgrad_target",
+          "test_adjacent_target_depends_on_ema_but_is_frozen"
+        ],
+        "m3_ema_reversed": [
+          "test_ema_and_teacher_direction"
+        ],
+        "m4_skip_input_scaling": [
+          "test_coefficients_and_network_input"
+        ]
+      },
+      "architecture/attention": {
+        "m1_missing_scale": [
+          "test_independent_two_key_formula",
+          "test_gradients_against_independent_dense_expression"
+        ],
+        "m2_ignore_mask": [
+          "test_mask_broadcast_and_zero_rows",
+          "test_gradients_against_independent_dense_expression",
+          "test_causal_future_independence",
+          "test_prefix_averaging_experiment"
+        ],
+        "m3_wrong_softmax_axis": [
+          "test_independent_two_key_formula",
+          "test_mask_broadcast_and_zero_rows",
+          "test_key_permutation_and_shift",
+          "test_gradients_against_independent_dense_expression",
+          "test_prefix_averaging_experiment"
+        ]
+      },
+      "optimization/adamw": {
+        "m1_coupled_decay": [
+          "test_first_step_analytic_and_epsilon",
+          "test_zero_gradient_decay_and_jacobian",
+          "test_decay_does_not_enter_moments",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m2_no_bias_correction": [
+          "test_first_step_analytic_and_epsilon",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m3_epsilon_inside_sqrt": [
+          "test_first_step_analytic_and_epsilon",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m4_decay_no_lr": [
+          "test_first_step_analytic_and_epsilon",
+          "test_zero_gradient_decay_and_jacobian",
+          "test_decay_does_not_enter_moments",
+          "test_matches_independent_torch_optimizer"
+        ]
+      },
+      "architecture/flash_attention": {
+        "m1_no_numerator_rescale": [
+          "test_hand_calculated_two_blocks",
+          "test_dense_equivalence_and_block_partition",
+          "test_large_scores_stable_and_shift_invariant",
+          "test_dense_gradients",
+          "test_block_size_experiment"
+        ],
+        "m2_no_normalizer_rescale": [
+          "test_hand_calculated_two_blocks",
+          "test_dense_equivalence_and_block_partition",
+          "test_large_scores_stable_and_shift_invariant",
+          "test_dense_gradients",
+          "test_block_size_experiment"
+        ],
+        "m3_ignore_previous_max": [
+          "test_large_scores_stable_and_shift_invariant"
+        ],
+        "m4_detach_history": [
+          "test_dense_gradients"
+        ]
+      },
+      "representation/clip": {
+        "m1_omit_normalization": [
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_feature_scale_invariance_and_pair_permutation",
+          "test_encoder_gradients_against_independent_formula"
+        ],
+        "m2_one_direction": [
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_encoder_gradients_against_independent_formula"
+        ],
+        "m3_scale_not_exponentiated": [
+          "test_orthogonal_analytic_loss",
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_temperature_cap_and_gradients",
+          "test_encoder_gradients_against_independent_formula",
+          "test_learn_pair_retrieval"
+        ],
+        "m4_no_scale_cap": [
+          "test_temperature_cap_and_gradients"
+        ]
+      },
+      "diffusion/progressive_distillation": {
+        "m1_omits_ratio_term": [
+          "test_algebraic_two_step_endpoint",
+          "test_student_matches_two_step_teacher"
+        ],
+        "m2_wrong_ddim_sign": [
+          "test_algebraic_two_step_endpoint",
+          "test_student_matches_two_step_teacher"
+        ],
+        "m3_target_has_gradient": [
+          "test_target_stopgrad_and_weight"
+        ],
+        "m4_drops_loss_weight": [
+          "test_target_stopgrad_and_weight"
+        ]
+      },
+      "architecture/multihead_attention": {
+        "m1_reuse_query_projection": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_single_head_and_noncontiguous_inputs"
+        ],
+        "m2_ignore_mask": [
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_causal_future_independence"
+        ],
+        "m3_wrong_concatenation": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_causal_future_independence",
+          "test_two_head_routing_experiment"
+        ],
+        "m4_skip_output_projection": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_single_head_and_noncontiguous_inputs",
+          "test_two_head_routing_experiment"
+        ]
+      },
+      "architecture/layer_norm": {
+        "m1_unbiased_variance": [
+          "test_analytical_population_variance_and_affine",
+          "test_constant_single_feature_and_small_variance",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m2_sequence_statistics": [
+          "test_constant_single_feature_and_small_variance",
+          "test_token_independence_translation_and_scale",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m3_epsilon_outside_sqrt": [
+          "test_analytical_population_variance_and_affine",
+          "test_constant_single_feature_and_small_variance",
+          "test_token_independence_translation_and_scale",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m4_normalize_before_add": [
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ]
+      },
+      "architecture/positional_encoding": {
+        "m1_wrong_frequency": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m2_sine_for_cosine": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_origin_and_unit_pair_norm",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m3_ignore_offset": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_offset_matches_sliced_full_sequence",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m4_default_dtype": [
+          "test_shape_dtype_and_empty_sequence",
+          "test_relative_offset_rotation_experiment"
+        ]
+      },
+      "architecture/positionwise_ffn": {
+        "m1_missing_relu": [
+          "test_hand_computed_relu_and_both_biases",
+          "test_gradients_for_input_and_all_parameters",
+          "test_relu_gate_has_zero_negative_derivative",
+          "test_nonlinear_token_regression_experiment"
+        ],
+        "m2_missing_hidden_bias": [
+          "test_hand_computed_relu_and_both_biases",
+          "test_gradients_for_input_and_all_parameters"
+        ],
+        "m3_detach_hidden": [
+          "test_gradients_for_input_and_all_parameters",
+          "test_relu_gate_has_zero_negative_derivative"
+        ],
+        "m4_token_mixing": [
+          "test_shape_dtype_and_input_preservation",
+          "test_hand_computed_relu_and_both_biases",
+          "test_token_permutation_and_independence",
+          "test_gradients_for_input_and_all_parameters",
+          "test_nonlinear_token_regression_experiment"
+        ]
+      },
+      "optimization/muon_split": {
+        "m1_whole_matrix": [
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_head_scale_experiment"
+        ],
+        "m2_column_heads": [
+          "test_contract_and_no_mutation",
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_rank_deficiency_zero_and_relative_cutoff",
+          "test_head_permutation_and_input_basis",
+          "test_full_rank_autograd",
+          "test_head_scale_experiment"
+        ],
+        "m3_frobenius_only": [
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_rank_deficiency_zero_and_relative_cutoff",
+          "test_head_scale_experiment"
+        ],
+        "m4_nullspace_update": [
+          "test_rank_deficiency_zero_and_relative_cutoff"
+        ]
+      },
+      "rl/glm5_offpolicy": {
+        "m1_clamp_outliers": [
+          "test_scalar_loop_oracle",
+          "test_strict_boundary_and_asymmetric_widths",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_valid_token_reduction_and_replication",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m2_inclusive_bounds": [
+          "test_strict_boundary_and_asymmetric_widths",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m3_weight_gradient": [
+          "test_contract_and_empty_mask",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m4_retained_mean": [
+          "test_scalar_loop_oracle",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_valid_token_reduction_and_replication",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ]
+      },
+      "architecture/kimi_kda": {
+        "m1_unbounded_decay": [
+          "test_bounded_gate_and_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m2_skip_key_correction": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m3_read_old_state": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m4_shared_channel_decay": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_zero_write_and_noncontiguous_inputs",
+          "test_gate_curves_and_memory_overwrite"
+        ]
+      },
+      "architecture/block_attention_residual": {
+        "m1_drop_partial_block": [
+          "test_source_order_shapes_and_preservation",
+          "test_missing_partial_and_real_zero_source",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_selection_toy"
+        ],
+        "m2_normalize_values": [
+          "test_independent_tokenwise_oracle",
+          "test_missing_partial_and_real_zero_source",
+          "test_uniform_query_and_original_value_magnitudes",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ],
+        "m3_scale_attention": [
+          "test_independent_tokenwise_oracle",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ],
+        "m4_softmax_tokens": [
+          "test_independent_tokenwise_oracle",
+          "test_missing_partial_and_real_zero_source",
+          "test_uniform_query_and_original_value_magnitudes",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ]
+      },
+      "architecture/situ_glu": {
+        "m1_capped_sigmoid": [
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_global_bound_and_negative_gate_tail",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m2_uncapped_up": [
+          "test_finite_positive_caps",
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_global_bound_and_negative_gate_tail",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m3_hard_clamp": [
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m4_detached_up": [
+          "test_analytic_gradients_through_both_branches"
+        ]
+      },
+      "finetuning/opsd_alignment": {
+        "m1_causal_shift": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_gradients_only_reach_selected_student_positions",
+          "test_padding_invariance_and_no_mutation",
+          "test_two_context_training"
+        ],
+        "m2_teacher_context": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_padding_invariance_and_no_mutation",
+          "test_two_context_training"
+        ],
+        "m3_teacher_gradient": [
+          "test_gradients_only_reach_selected_student_positions"
+        ],
+        "m4_padding_leak": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_gradients_only_reach_selected_student_positions",
+          "test_padding_invariance_and_no_mutation"
+        ]
+      },
+      "finetuning/opsd_clipping": {
+        "m1_aggregate_clip": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_response_weighting_and_mask",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ],
+        "m2_remove_negative": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_response_weighting_and_mask",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ],
+        "m3_teacher_gradient": [
+          "test_finite_difference_gradient_and_teacher_stop"
+        ],
+        "m4_reverse_as_forward": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ]
+      },
+      "rl/sdpo_feedback": {
+        "m1_cross_question": [
+          "test_self_then_same_question_solution_before_rich_feedback",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_tiny_program_feedback_training"
+        ],
+        "m2_exclude_self": [
+          "test_interface_and_single_attempt",
+          "test_self_then_same_question_solution_before_rich_feedback",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_tiny_program_feedback_training"
+        ],
+        "m3_unavailable_leak": [
+          "test_reverse_kl_and_available_token_mean",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_analytic_reverse_kl_gradient_and_teacher_stop",
+          "test_tiny_program_feedback_training"
+        ],
+        "m4_teacher_gradient": [
+          "test_analytic_reverse_kl_gradient_and_teacher_stop"
+        ]
+      },
+      "rl/sdpo_topk": {
+        "m1_teacher_topk": [
+          "test_student_selection_and_shared_indices_scalar_oracle",
+          "test_tail_retains_mass_without_topk_renormalization",
+          "test_finite_difference_gradients_and_teacher_detach",
+          "test_vocabulary_information_curve"
+        ],
+        "m2_drop_tail": [
+          "test_student_selection_and_shared_indices_scalar_oracle",
+          "test_tail_retains_mass_without_topk_renormalization",
+          "test_refining_partition_and_full_kl",
+          "test_finite_difference_gradients_and_teacher_detach",
+          "test_vocabulary_information_curve"
+        ],
+        "m3_tail_detached": [
+          "test_finite_difference_gradients_and_teacher_detach"
+        ],
+        "m4_teacher_gradient": [
+          "test_finite_difference_gradients_and_teacher_detach"
+        ]
+      },
+      "representation/repa": {
+        "m1_positive_cosine": [
+          "test_scalar_dtype_inputs_and_strides",
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_zero_and_sub_epsilon_vectors",
+          "test_analytic_gradient_and_frozen_targets",
+          "test_patch_scaling_permutation_and_sign",
+          "test_submitted_projector_training"
+        ],
+        "m2_trainable_teacher": [
+          "test_analytic_gradient_and_frozen_targets"
+        ],
+        "m3_wrong_axis": [
+          "test_scalar_dtype_inputs_and_strides",
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_zero_and_sub_epsilon_vectors",
+          "test_analytic_gradient_and_frozen_targets",
+          "test_patch_scaling_permutation_and_sign",
+          "test_submitted_projector_training"
+        ],
+        "m4_missing_weight": [
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_analytic_gradient_and_frozen_targets"
+        ]
+      },
+      "representation/rotation_trick": {
+        "m1_ordinary_ste": [
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ],
+        "m2_missing_scale": [
+          "test_shape_dtype_strides_and_inputs",
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ],
+        "m3_live_rotation": [
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair"
+        ],
+        "m4_wrong_rotation_sign": [
+          "test_shape_dtype_strides_and_inputs",
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ]
+      },
+      "architecture/differential_attention": {
+        "m1_add_attention_maps": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches",
+          "test_common_mode_cancellation_causality_and_stability",
+          "test_submitted_common_mode_experiment"
+        ],
+        "m2_wrong_scale": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches"
+        ],
+        "m3_unmasked_second_branch": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches",
+          "test_common_mode_cancellation_causality_and_stability"
+        ],
+        "m4_lambda_sum": [
+          "test_lambda_parameterization_and_gradients",
+          "test_submitted_common_mode_experiment"
+        ]
+      },
+      "diffusion/block_diffusion": {
+        "m1_clean_target_leak": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m2_token_causal_within_block": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m3_noisy_to_clean_leak": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m4_ignores_mask": [
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ]
+      },
+      "finetuning/distillm2": {
+        "m1_same_direction": [
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction"
+        ],
+        "m2_reverse_mixture": [
+          "test_scalar_divergence_oracle",
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction",
+          "test_student_gradients_finite_difference_teacher_frozen",
+          "test_zero_and_empty_response_tokens"
+        ],
+        "m3_missing_half": [
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction"
+        ],
+        "m4_detached_student": [
+          "test_student_gradients_finite_difference_teacher_frozen",
+          "test_padding_and_sequence_sum_contract",
+          "test_zero_and_empty_response_tokens",
+          "test_two_source_toy"
+        ]
+      },
+      "rl/pkpo": {
+        "m1_sample_mean": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_native_gaussian_toy"
+        ],
+        "m2_raw_rewards": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_exact_binary_policy_gradient_is_pass_at_k",
+          "test_k_equals_n_and_ties",
+          "test_permutation_translation_and_frozen_rewards",
+          "test_large_group_stability_and_singleton"
+        ],
+        "m3_sorted_output": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_exact_binary_policy_gradient_is_pass_at_k",
+          "test_k_equals_n_and_ties",
+          "test_permutation_translation_and_frozen_rewards"
+        ],
+        "m4_double_normalization": [
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_native_gaussian_toy"
+        ]
+      },
+      "finetuning/svdquant": {
+        "m1_wrong_smoothing": [
+          "test_smoothing_orientation_and_linear_identity",
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_zero_weights_zero_activations_and_rank_zero",
+          "test_outlier_channel_toy"
+        ],
+        "m2_quantized_lowrank_input": [
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_outlier_channel_toy"
+        ],
+        "m3_quantize_full_weight": [
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_outlier_channel_toy"
+        ],
+        "m4_drop_singular_values": [
+          "test_known_spectrum_optimal_lowrank_and_residual",
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_zero_weights_zero_activations_and_rank_zero",
+          "test_repeated_singular_values_compare_products_not_signs",
+          "test_outlier_channel_toy"
+        ]
+      },
+      "representation/moge_alignment": {
+        "m1_ignore_depth_weights": [
+          "test_full_roe_arrangement_oracle",
+          "test_inverse_depth_weighting_and_z_only_shift"
+        ],
+        "m2_truncate_before_weight": [
+          "test_scalar_breakpoint_oracle",
+          "test_full_roe_arrangement_oracle",
+          "test_weight_then_truncation_and_not_l2"
+        ],
+        "m3_center_all_coordinates": [
+          "test_full_roe_arrangement_oracle",
+          "test_inverse_depth_weighting_and_z_only_shift"
+        ],
+        "m4_squared_residual": [
+          "test_scalar_breakpoint_oracle",
+          "test_full_roe_arrangement_oracle"
+        ]
+      },
+      "diffusion/daps": {
+        "m1_prior_standard_deviation": [
+          "test_score_from_scalar_energy_finite_differences",
+          "test_gaussian_posterior_stationary_point",
+          "test_batch_independence_and_unobserved_direction"
+        ],
+        "m2_reverse_likelihood": [
+          "test_score_from_scalar_energy_finite_differences",
+          "test_gaussian_posterior_stationary_point",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ],
+        "m3_langevin_half_variance": [
+          "test_explicit_noise_step_formula",
+          "test_noise_covariance_and_independent_renoising",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ],
+        "m4_renoise_variance_as_scale": [
+          "test_explicit_noise_step_formula",
+          "test_noise_covariance_and_independent_renoising",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ]
+      },
+      "diffusion/diffusion_nft": {
+        "m1_reciprocal_beta": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m2_negative_branch_sign": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_complement_symmetry_and_feature_reduction",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m3_drop_negative_examples": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_complement_symmetry_and_feature_reduction",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m4_train_old_policy": [
+          "test_exact_gradient_and_frozen_context"
+        ]
+      },
+      "architecture/var_next_scale": {
+        "m1_token_causal": [
+          "test_exact_scale_visibility",
+          "test_toy_attention_has_no_target_leakage"
+        ],
+        "m2_future_visible": [
+          "test_exact_scale_visibility",
+          "test_toy_attention_has_no_target_leakage"
+        ],
+        "m3_latest_only": [
+          "test_independent_prefix_reconstruction_oracle",
+          "test_all_prefix_scales_contribute"
+        ],
+        "m4_target_leak": [
+          "test_independent_prefix_reconstruction_oracle",
+          "test_target_and_future_perturbations_do_not_change_own_inputs",
+          "test_all_prefix_scales_contribute",
+          "test_toy_attention_has_no_target_leakage"
+        ]
+      },
+      "representation/var_tokenizer": {
+        "m1_original_features": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m2_add_residual": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m3_farthest_code": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m4_last_scale_only": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ]
+      },
+      "diffusion/fd_population": {
+        "m1_centered_second": [
+          "test_raw_moments_scalar_oracle",
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_affine_equivariance_and_replication",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ],
+        "m2_reverse_decay": [
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ],
+        "m3_train_history": [
+          "test_current_gradients_and_frozen_history"
+        ],
+        "m4_center_at_batch_mean": [
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_affine_equivariance_and_replication",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ]
+      },
+      "diffusion/fd_loss": {
+        "m1_drop_generated_correlation": [
+          "test_noncommuting_covariance_scalar_oracle",
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference",
+          "test_symmetry_rotation_and_common_translation"
+        ],
+        "m2_nonsymmetric_eigvalsh": [
+          "test_noncommuting_covariance_scalar_oracle",
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference",
+          "test_symmetry_rotation_and_common_translation",
+          "test_affine_generator_posttraining"
+        ],
+        "m3_differentiate_denominator": [
+          "test_stopped_normalization_gradient_and_weight_freeze",
+          "test_affine_generator_posttraining"
+        ],
+        "m4_train_reference": [
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference"
+        ]
+      },
+      "representation/vicreg": {
+        "m1_population_variance": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_autograd_both_views_and_analytic_variance_gradient",
+          "test_shared_translation_view_swap_and_permutations",
+          "test_covariance_targets_redundancy_not_diagonal"
+        ],
+        "m2_variance_view_sum": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_exact_collapse_stationary_but_nonconstant_gradient",
+          "test_autograd_both_views_and_analytic_variance_gradient"
+        ],
+        "m3_diagonal_penalty": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_one_dimension_and_satisfied_variance_floor",
+          "test_covariance_targets_redundancy_not_diagonal",
+          "test_noncollapsed_geometry_experiment"
+        ],
+        "m4_stop_second_view": [
+          "test_exact_collapse_stationary_but_nonconstant_gradient",
+          "test_autograd_both_views_and_analytic_variance_gradient",
+          "test_noncollapsed_geometry_experiment"
+        ]
+      },
+      "representation/sigreg": {
+        "m1_missing_imaginary": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m2_missing_sample_factor": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_slice_signs_joint_rotation_and_sample_count",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m3_missing_symmetry": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m4_standardize_features": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_exact_collapse_is_stationary_and_nearby_spread_improves",
+          "test_gaussian_target_retains_location_and_scale",
+          "test_fixed_slice_distribution_experiment"
+        ]
+      },
+      "representation/visreg": {
+        "m1_sample_std": [
+          "test_scalar_formula_oracle",
+          "test_shape_gradient_freezes_std_and_directions"
+        ],
+        "m2_trainable_std": [
+          "test_shape_gradient_freezes_std_and_directions"
+        ],
+        "m3_unsorted_projection": [
+          "test_scalar_formula_oracle",
+          "test_shape_gradient_freezes_std_and_directions",
+          "test_permutation_translation_and_projection_scaling"
+        ],
+        "m4_frozen_global_anchor": [
+          "test_global_anchor_receives_gradient"
+        ]
+      },
+      "representation/ijepa": {
+        "m1_wrong_norm_axis": [
+          "test_target_scalar_oracle_and_context_order",
+          "test_token_shift_invariance_and_feature_permutation",
+          "test_masked_prediction_experiment"
+        ],
+        "m2_trainable_targets": [
+          "test_target_and_loss_gradient_boundaries"
+        ],
+        "m3_squared_loss": [
+          "test_smooth_l1_and_ema_scalar_oracles",
+          "test_target_and_loss_gradient_boundaries"
+        ],
+        "m4_reverse_momentum": [
+          "test_smooth_l1_and_ema_scalar_oracles",
+          "test_ema_endpoints_freezing_and_recurrence",
+          "test_masked_prediction_experiment"
+        ]
+      },
+      "world_models/lewm_prediction": {
+        "m1_stop_future_target": [
+          "test_joint_encoder_gradients_analytic"
+        ],
+        "m2_regularizer_axes": [
+          "test_teacher_forcing_and_timewise_regularizer_oracle",
+          "test_tiny_joint_training"
+        ],
+        "m3_reuse_initial": [
+          "test_action_rollout_closed_form",
+          "test_rollout_gradient_and_causality",
+          "test_tiny_joint_training"
+        ],
+        "m4_convex_weighting": [
+          "test_teacher_forcing_and_timewise_regularizer_oracle",
+          "test_joint_encoder_gradients_analytic"
+        ]
+      },
+      "world_models/lewm_planning": {
+        "m1_all_time_cost": [
+          "test_terminal_l2_scalar_oracle",
+          "test_goal_translation_and_prefix_invariance"
+        ],
+        "m2_high_cost_elites": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites",
+          "test_cem_planning_experiment"
+        ],
+        "m3_bessel_variance": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites"
+        ],
+        "m4_standard_deviation": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites",
+          "test_affine_equivariance_and_monotone_costs",
+          "test_cem_planning_experiment"
+        ]
+      },
+      "world_models/causal_jepa": {
+        "m1_hide_anchor": [
+          "test_anchor_query_and_visible_context_oracle",
+          "test_object_interaction_experiment"
+        ],
+        "m2_leak_history": [
+          "test_anchor_query_and_visible_context_oracle",
+          "test_hidden_trajectory_independence_and_slot_permutation",
+          "test_object_interaction_experiment"
+        ],
+        "m3_train_target": [
+          "test_prediction_gradient_and_frozen_targets"
+        ],
+        "m4_visible_history_loss": [
+          "test_separately_normalized_loss_oracle",
+          "test_prediction_gradient_and_frozen_targets",
+          "test_empty_history_mask_and_per_example_masks"
+        ]
+      },
+      "architecture/rms_norm": {
+        "m1_centered_input": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_zero_constant_single_feature_and_epsilon",
+          "test_token_local_scale_sign_and_shift",
+          "test_full_values_and_both_gradients_against_library",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m2_epsilon_outside_sqrt": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_zero_constant_single_feature_and_epsilon",
+          "test_token_local_scale_sign_and_shift",
+          "test_full_values_and_both_gradients_against_library",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m3_partial_uses_all_features": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_partial_jacobian_includes_tail_to_prefix_coupling",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m4_detached_prefix_statistic": [
+          "test_partial_jacobian_includes_tail_to_prefix_coupling",
+          "test_partial_gradients_match_finite_differences"
+        ]
+      },
+      "architecture/gqa": {
+        "m1_cyclic_head_repetition": [
+          "test_hand_computed_groups_and_projection_means",
+          "test_contiguous_routing_and_scalar_softmax",
+          "test_mha_mqa_endpoints_and_group_permutation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_cache_capacity_and_conversion_experiment"
+        ],
+        "m2_sum_projection_heads": [
+          "test_hand_computed_groups_and_projection_means",
+          "test_projection_pooling_endpoints_and_analytical_gradient"
+        ],
+        "m3_detached_shared_kv": [
+          "test_boolean_masks_zero_rows_and_causal_isolation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_small_numerical_jacobians"
+        ],
+        "m4_ignored_visibility": [
+          "test_boolean_masks_zero_rows_and_causal_isolation",
+          "test_cache_capacity_and_conversion_experiment"
+        ],
+        "m5_scale_by_query_heads": [
+          "test_contiguous_routing_and_scalar_softmax",
+          "test_mha_mqa_endpoints_and_group_permutation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_cache_capacity_and_conversion_experiment"
+        ]
+      },
+      "architecture/rope": {
+        "m1_reverse_rotation": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m2_wrong_frequency": [
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m3_half_split": [
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m4_ignore_positions": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_batch_head_broadcast_and_token_reordering",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m5_detached_features": [
+          "test_independent_analytical_input_and_position_gradients",
+          "test_small_numerical_jacobians"
+        ],
+        "m6_float32_phase": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_small_numerical_jacobians",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ]
+      },
+      "retrieval/semantic_ids": {
+        "m1_original_latent": [
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m2_add_residual": [
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m3_last_reconstruction": [
+          "test_hand_computed_residual_levels",
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_exact_ties_choose_smallest_index",
+          "test_reconstruction_scaling_and_row_independence",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m4_global_suffix": [
+          "test_collision_groups_are_local_stable_and_noncontiguous",
+          "test_frozen_catalog_experiment"
+        ]
+      },
+      "retrieval/generative_retrieval": {
+        "m1_last_score": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_two_step_hand_probability",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring",
+          "test_generate_then_filter_toy_catalog"
+        ],
+        "m2_raw_logits": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring"
+        ],
+        "m3_truncate_first": [
+          "test_invalid_and_duplicate_ids_filtered_before_k",
+          "test_generate_then_filter_toy_catalog"
+        ],
+        "m4_duplicates": [
+          "test_invalid_and_duplicate_ids_filtered_before_k"
+        ],
+        "m5_first_parent": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_two_step_hand_probability",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring",
+          "test_generate_then_filter_toy_catalog"
+        ]
+      },
+      "retrieval/late_interaction": {
+        "m1_mean_document": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m2_mean_query": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_permutations_positive_token_scaling_and_duplicate_query_evidence",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m3_zero_padding": [
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m4_no_normalization": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_permutations_positive_token_scaling_and_duplicate_query_evidence",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m5_reversed_loss": [
+          "test_pairwise_loss_stability_and_both_score_gradients",
+          "test_pairwise_common_shift_and_positive_evidence_monotonicity",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m6_detached_documents": [
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients"
+        ]
+      },
+      "retrieval/sasrec": {
+        "m1_future_leak": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids",
+          "test_provided_encoder_causality_and_future_embedding_gradients",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m2_exclude_self": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids"
+        ],
+        "m3_padding_keys": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids"
+        ],
+        "m4_padding_denominator": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_batch_permutation_padding_extension_and_objective_direction",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m5_negative_sign": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_batch_permutation_padding_extension_and_objective_direction",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m6_detach_positive": [
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_all_padding_zero_loss_still_has_zero_gradients",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m7_pairwise_instead_of_binary": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_real_context_history_training_and_independent_objective_check"
+        ]
+      },
+      "retrieval/bpr": {
+        "m1_observed_as_negative": [
+          "test_hand_computed_history_and_global_prior",
+          "test_independent_scalar_history_for_all_users_and_item_columns",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m2_global_history": [
+          "test_hand_computed_history_and_global_prior",
+          "test_independent_scalar_history_for_all_users_and_item_columns",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m3_reversed_margin": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_disabled_prior_avoids_overflow_from_unused_factors",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m4_detached_positive": [
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_extreme_signed_margins_and_both_item_directions_remain_stable",
+          "test_disabled_prior_avoids_overflow_from_unused_factors"
+        ],
+        "m5_selected_prior": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_global_prior_changes_unselected_rows_once_not_per_occurrence",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_empty_triples_keep_the_global_prior_and_both_zero_gradient_graphs",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m6_feature_average": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m7_binary_instead_of_pairwise": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_disabled_prior_avoids_overflow_from_unused_factors",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m8_sum_instead_of_mean": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_extreme_signed_margins_and_both_item_directions_remain_stable",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ]
+      },
+      "retrieval/lightgcn": {
+        "m1_unnormalized_graph": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m2_random_walk_normalization": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m3_self_loops": [
+          "test_graph_contract_precision_empty_axes_strides_and_validation",
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m4_final_layer_only": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m5_omit_initial_layer": [
+          "test_propagation_contract_depth_precision_strides_and_supplied_validation",
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m6_detached_layers": [
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences"
+        ],
+        "m7_nonlinear_propagation": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m8_missing_reverse_edges": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ]
+      },
+      "representation/simclr": {
+        "m1_no_normalization": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_per_row_positive_scale_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m2_self_in_denominator": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m3_cross_view_only": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m4_interleaved_targets": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_paired_permutation_view_swap_and_orthogonal_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m5_first_direction_only": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_paired_permutation_view_swap_and_orthogonal_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m6_double_mean": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m7_ignore_temperature": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m8_detach_second_view": [
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_gradients_of_both_views_match_independent_finite_differences"
+        ]
+      },
+      "representation/moco": {
+        "m1_reverse_momentum": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_momentum_endpoints_arbitrary_shape_detachment_and_independent_storage",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m2_detach_query": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m3_train_key": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients"
+        ],
+        "m4_train_dictionary": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients"
+        ],
+        "m5_ignore_temperature": [
+          "test_precision_strides_shapes_and_inputs_unchanged",
+          "test_one_positive_plus_dictionary_hand_computation",
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_scalar_denominator_across_temperatures_and_zero_rows",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m6_negative_denominator": [
+          "test_precision_strides_shapes_and_inputs_unchanged",
+          "test_one_positive_plus_dictionary_hand_computation",
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_scalar_denominator_across_temperatures_and_zero_rows",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m7_ignore_pointer": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m8_unnormalized_enqueue": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m9_queue_keeps_graph": [
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment"
+        ]
+      },
+      "foundations/next_token_loss": {
+        "m1_unshifted": [
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_input_preservation_and_sequence_boundaries",
+          "test_prediction_confidence_experiment"
+        ],
+        "m2_wrong_direction": [
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_input_preservation_and_sequence_boundaries",
+          "test_prediction_confidence_experiment"
+        ],
+        "m3_wrong_denominator": [
+          "test_contract",
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_prediction_confidence_experiment"
+        ],
+        "m4_detached": [
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients"
+        ]
+      },
+      "foundations/sft_loss_mask": {
+        "m1_predictor_mask": [
+          "test_contract",
+          "test_independent_valid_token_oracle",
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients",
+          "test_no_mutation_and_masked_target_invariance",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m2_ignore_padding": [
+          "test_independent_valid_token_oracle",
+          "test_masked_analytic_gradients",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m3_dense_mean": [
+          "test_contract",
+          "test_independent_valid_token_oracle",
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m4_detached": [
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients"
+        ]
+      },
+      "foundations/top_k_sampling": {
+        "m1_smallest": [
+          "test_independent_scalar_oracle",
+          "test_extreme_and_empty_boundaries",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m2_wrong_temperature": [
+          "test_independent_scalar_oracle",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m3_too_many": [
+          "test_contract",
+          "test_independent_scalar_oracle",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m4_threshold_ties": [
+          "test_contract",
+          "test_ties_threshold_and_full_distribution"
+        ]
+      },
+      "foundations/top_p_sampling": {
+        "m1_drop_crossing": [
+          "test_independent_scalar_oracle",
+          "test_extreme_and_empty_boundaries",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m2_extra_boundary": [
+          "test_contract",
+          "test_ties_threshold_and_full_distribution"
+        ],
+        "m3_wrong_order": [
+          "test_independent_scalar_oracle",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m4_no_temperature": [
+          "test_independent_scalar_oracle",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides"
+        ]
+      },
+      "foundations/gradient_accumulation": {
+        "m1_equal_batches": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m2_sum_only": [
+          "test_contract",
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m3_double_divide": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m4_only_last": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ]
+      },
+      "foundations/gradient_clipping": {
+        "m1_per_parameter": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_input_preservation_and_partition_invariance",
+          "test_gradient_spike_experiment"
+        ],
+        "m2_value_clip": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_zero_empty_and_exact_threshold",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ],
+        "m3_amplify": [
+          "test_independent_global_norm_oracle",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ],
+        "m4_report_clipped": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ]
+      },
+      "architecture/group_norm": {
+        "m1_batch_statistics": [
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_other_samples_and_other_groups_cannot_change_the_anchor",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m2_channel_only": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m3_unbiased_variance": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m4_epsilon_outside": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m5_detached_statistics": [
+          "test_library_values_and_all_three_gradients",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_all_operand_gradients_match_finite_differences"
+        ],
+        "m6_group_affine": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients"
+        ]
+      }
+    },
+    "issues": [],
+    "tests_executed": 10218
+  },
+  "real_wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "passed": true,
+    "elapsed_ms": 994543,
+    "browser_budget_exceeded": [],
+    "results": [
+      {
+        "id": "rl/gae",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/1-9c4d063b524bcbfeb3b0.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "25a50f326a8b84c45cf7cd573751fcfb75517e4cacc215961dee50b5fa07659f",
+        "preparation_ms": 3880,
+        "calibration_ms": 3103,
+        "learner_ms": 247,
+        "elapsed_ms": 7714,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/ppo_clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/2-2c21c8021818531d1319.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "05edc7a05d1d250605c901d8b4f1004bef322e7f3debc45db2aaed30a893126d",
+        "preparation_ms": 3743,
+        "calibration_ms": 14183,
+        "learner_ms": 2302,
+        "elapsed_ms": 20688,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/3-8d48028eb027ee1418ef.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "c6b756183d137737326ab5d6da8ec120d5d03e8f3233b4ddfcfb00b78481ce95",
+        "preparation_ms": 3748,
+        "calibration_ms": 8489,
+        "learner_ms": 1390,
+        "elapsed_ms": 14041,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/4-77c038f2dabdc70c340d.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "a2d1d6c1a62321a6442416baffbfc2814fd0debfc5a83dd64ad317147f5b35fb",
+        "preparation_ms": 3707,
+        "calibration_ms": 5057,
+        "learner_ms": 781,
+        "elapsed_ms": 9968,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dr_grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/5-3590d74ddad2236d26eb.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "efbac2a496e6b6ef52170924e86551a0c6d44d495deb275bb91a27004c585ff4",
+        "preparation_ms": 3753,
+        "calibration_ms": 4257,
+        "learner_ms": 954,
+        "elapsed_ms": 9302,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/schedules",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/6-8a8a377351fd25b7c234.json",
+        "runtime_bundle_url": "browser-judge/runtime-84aabb0b7a555fa6f247.json",
+        "source_sha256": "0e7719dee009fa8c227b75c3ee140508abb71a188650faa925a74eb11d9b657d",
+        "preparation_ms": 3450,
+        "calibration_ms": 1039,
+        "learner_ms": 89,
+        "elapsed_ms": 4641,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/param_conversion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/7-74c0517be99f8dbbed6d.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "c9f3adca4a7b60f868bcc0dfdb2ab53fd500a1826f07a7f677ffa7c2b1a3c20b",
+        "preparation_ms": 3735,
+        "calibration_ms": 724,
+        "learner_ms": 74,
+        "elapsed_ms": 4906,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddpm_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/8-b365f7c9331f1d6d34c4.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "8f47d91ee3300666af2b1aec983c6675a2a44e43a4c58cd794d8b4a7b757b5b4",
+        "preparation_ms": 3839,
+        "calibration_ms": 79935,
+        "learner_ms": 13197,
+        "elapsed_ms": 97428,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddim",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/9-4dc01d3f1e60c90fc697.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "2b10ec799adee4a542dd175dddb73c81453a8d15b809132de8d2204498d7609d",
+        "preparation_ms": 3815,
+        "calibration_ms": 37703,
+        "learner_ms": 6231,
+        "elapsed_ms": 48172,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/flow_matching",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/10-590d97e6cc23a6f56adf.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+        "preparation_ms": 3784,
+        "calibration_ms": 227558,
+        "learner_ms": 45449,
+        "elapsed_ms": 277186,
+        "budgets": {
+          "calibration": 240000,
+          "run": 60000,
+          "total": 300000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/gspo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/11-7523c2df375d876d814f.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "f0d270baf3b9bee29979dbe96d7657032a7ca49b08553e9fcf636b9fb8c413f7",
+        "preparation_ms": 3715,
+        "calibration_ms": 661,
+        "learner_ms": 65,
+        "elapsed_ms": 4813,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/opd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/12-b24e364cfa1d4ddd37bd.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "eb48ffc65a5be9153ff2c22a2bd21b8c3ab3a7ae790be0d17ba06508a189e7b3",
+        "preparation_ms": 3700,
+        "calibration_ms": 2508,
+        "learner_ms": 427,
+        "elapsed_ms": 6982,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dapo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/13-521d2444e5b1b309ad1d.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "38d642f4d588c80abac04e7a28896abea78d35530a636f75b553f07abbe08eb5",
+        "preparation_ms": 3773,
+        "calibration_ms": 822,
+        "learner_ms": 107,
+        "elapsed_ms": 5060,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/lora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/14-4ccf2a1076bcbf468567.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "ed4b0a5f2b2cd6813b9f206688c62529299a098faa7fa59e3ecee87d242ae8de",
+        "preparation_ms": 3704,
+        "calibration_ms": 1694,
+        "learner_ms": 273,
+        "elapsed_ms": 6011,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/qlora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/15-ca9347b5de3082f0d246.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "2ff6164eb6a1094a6f31615817f3925b95276a3c68a795eec28e8b088d58e0f0",
+        "preparation_ms": 3702,
+        "calibration_ms": 1720,
+        "learner_ms": 285,
+        "elapsed_ms": 6043,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/meanflow",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/16-f76fd845d6bee489284d.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "52fde345843c7e239be748b635bb4b37923ba3a9319405b3bbd7c33f6469e64a",
+        "preparation_ms": 3721,
+        "calibration_ms": 1467,
+        "learner_ms": 266,
+        "elapsed_ms": 5727,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/jit",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/17-335b3f98bc6d356d6b53.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "6f349eb38ac66686b935a7524c2179ef62833a1a62878e63fa2405d28436e94b",
+        "preparation_ms": 3732,
+        "calibration_ms": 5449,
+        "learner_ms": 1223,
+        "elapsed_ms": 10674,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/drifting",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/18-88c893caba21c47c2c77.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "13ec07107fbe63752427e9fd63eaf2c825cf73fbe69d8e2e0c3b2c7e7740a62e",
+        "preparation_ms": 3723,
+        "calibration_ms": 17394,
+        "learner_ms": 3368,
+        "elapsed_ms": 24785,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/19-e41ff1d7b8119e369dd4.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "b50651427968f00c1b852e3b108eee87995ce548291dd48d016eb5c34b7326e7",
+        "preparation_ms": 3733,
+        "calibration_ms": 20824,
+        "learner_ms": 4085,
+        "elapsed_ms": 28939,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/20-210996d85606bb76197b.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "4f0403bbac9f29c4bc03bd75999144b8cc008afaba363a13a0177c7f072dc30a",
+        "preparation_ms": 3706,
+        "calibration_ms": 12517,
+        "learner_ms": 2195,
+        "elapsed_ms": 18693,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/consistency",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/21-a3f86e270a2ab2363ceb.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "b19ecdac39a8a529571721404abd6a4841edbe2e576c0c66dd8af7aac4167cea",
+        "preparation_ms": 3733,
+        "calibration_ms": 7780,
+        "learner_ms": 1455,
+        "elapsed_ms": 13265,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/22-e1681a537dc91110f50b.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "0b8e504a70eeb2210cd3da9d9f3d420f99dd399ba91dbddb17bff4381080778a",
+        "preparation_ms": 3696,
+        "calibration_ms": 580,
+        "learner_ms": 72,
+        "elapsed_ms": 25582,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/adamw",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/23-7025361c9f27011625c1.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "fecd6ea876a395637dd5b8dbb416d92a5c5373b968d200b6475caa138d1bfe40",
+        "preparation_ms": 3764,
+        "calibration_ms": 1052,
+        "learner_ms": 145,
+        "elapsed_ms": 5337,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/flash_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/24-546702cb1ba255402f52.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "8bf61fa76b4617d9a5ef8270940ed3af5c4b3a3dcdb205fe2782df28b51d4e31",
+        "preparation_ms": 3697,
+        "calibration_ms": 5578,
+        "learner_ms": 1082,
+        "elapsed_ms": 10742,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/25-8415898dd5a99a9271bb.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "f206405a0b6d79e32c340c568e1f307b5dd134211962beb5524d3f7a35556800",
+        "preparation_ms": 3732,
+        "calibration_ms": 1304,
+        "learner_ms": 198,
+        "elapsed_ms": 5599,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/progressive_distillation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/26-3bedf1ac41eb70121a07.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "f975bd08db33e1d987438366863557843ca10e55a482006f8164e5b2357da343",
+        "preparation_ms": 3700,
+        "calibration_ms": 2646,
+        "learner_ms": 437,
+        "elapsed_ms": 7053,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/multihead_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/27-7c6c43f3d9f7436d53a2.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "6e0e988e3ee97500cb1731674752a7f692dd7156da6337f39d39a6b72ada3a3b",
+        "preparation_ms": 3696,
+        "calibration_ms": 843,
+        "learner_ms": 85,
+        "elapsed_ms": 4990,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/layer_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/28-5b658b196d9958655388.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "ecef39593f996261e5b1833ac506b15660ecfbf8afb480fe09844f43bcc20072",
+        "preparation_ms": 3718,
+        "calibration_ms": 745,
+        "learner_ms": 68,
+        "elapsed_ms": 4879,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positional_encoding",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/29-0e7f12a707ac379e53f3.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "a553843f457624b2a208b850010c646ee01a89d1cae355b3ab8620e8f76be138",
+        "preparation_ms": 3779,
+        "calibration_ms": 590,
+        "learner_ms": 59,
+        "elapsed_ms": 4800,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positionwise_ffn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/30-112470d4da08e30875a8.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "d214bf2b95784b0d6141523b3ddae12e88763e1bcb01137df6623d4b7f292c71",
+        "preparation_ms": 3759,
+        "calibration_ms": 2228,
+        "learner_ms": 346,
+        "elapsed_ms": 6680,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/muon_split",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/31-b5c10bd3f84305d7c2c4.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "cf436e0bfd882c30712e2503978d10dc68562173bb88b6bcbd5197bc1f414065",
+        "preparation_ms": 3705,
+        "calibration_ms": 1259,
+        "learner_ms": 98,
+        "elapsed_ms": 5413,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/glm5_offpolicy",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/32-a7ead19208384e543106.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "17df18f4d320fb8ddbdb644660ac2c9b27c6c1a2226e1a39f5aecdd54b8a40bb",
+        "preparation_ms": 3713,
+        "calibration_ms": 1396,
+        "learner_ms": 191,
+        "elapsed_ms": 5664,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/kimi_kda",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/33-6ac8d9f65625cd5a5238.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "18f81ebb17d47d079fdf96e95d320dc073cbe76f785f0718b6fd337cc5dd54dd",
+        "preparation_ms": 3701,
+        "calibration_ms": 1071,
+        "learner_ms": 135,
+        "elapsed_ms": 5279,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/block_attention_residual",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/34-32a6f0cd0f250ff62fe6.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "e8c632232f68c6c575d4e51f17952150d8391e579d8b9097a6b4fee18d07829e",
+        "preparation_ms": 3713,
+        "calibration_ms": 1098,
+        "learner_ms": 107,
+        "elapsed_ms": 5268,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/situ_glu",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/35-679c4ba6b6ece548bfa1.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "2622bf643cb527fcd38f594696de750daf1c94d9ada46a73a75b51cd75f5cb61",
+        "preparation_ms": 3725,
+        "calibration_ms": 798,
+        "learner_ms": 94,
+        "elapsed_ms": 5019,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/36-d15d52c015f98eadd2aa.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "e070a4d81636282ba50b14686f67260b18358746131c09fdc049e1fb440b1270",
+        "preparation_ms": 3714,
+        "calibration_ms": 1157,
+        "learner_ms": 152,
+        "elapsed_ms": 5378,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/37-9458c1f10057faeddc38.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "5a5013861179fc5ddb2641f07b7213964ee524ce9611dca1b820769219a53d35",
+        "preparation_ms": 3748,
+        "calibration_ms": 678,
+        "learner_ms": 80,
+        "elapsed_ms": 4868,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_feedback",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/38-1b3d0ec9b42eed8bce57.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "4cd2c05edb9153e898f7b402259b51116a6d0baee003b6e36959da9706dd05d9",
+        "preparation_ms": 3766,
+        "calibration_ms": 881,
+        "learner_ms": 107,
+        "elapsed_ms": 5113,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_topk",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/39-5aa4fbbe17ca29b345a5.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "1cb07588fdf37f1bb2888f7b49e640fe44944f57dc6ee7bee8acd1b78eb1db72",
+        "preparation_ms": 3725,
+        "calibration_ms": 752,
+        "learner_ms": 83,
+        "elapsed_ms": 4917,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/repa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/40-9af1808822cf4b655138.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "7fd4ac2338c0bd7f1231d55dd81e8a7d0ddffa0901aa533c6fb0d7b1002cb778",
+        "preparation_ms": 3726,
+        "calibration_ms": 1210,
+        "learner_ms": 159,
+        "elapsed_ms": 5452,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/rotation_trick",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/41-7a88fd74fc732761c29c.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "31a297f9ddd6d1ac231dc27a43fb21bf9fabb71b289daea379685a5ba3ac245a",
+        "preparation_ms": 3749,
+        "calibration_ms": 797,
+        "learner_ms": 76,
+        "elapsed_ms": 4982,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/differential_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/42-ff7ad44e5fa3f01d5169.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "cfb222bcd2f5b64d48c4983004acb1f202c1b0ebdfe7f2411418ed49472e7d8d",
+        "preparation_ms": 3702,
+        "calibration_ms": 1054,
+        "learner_ms": 160,
+        "elapsed_ms": 5295,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/block_diffusion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/43-1dde90a48d2ef7782f45.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "b5dd58ba22dcc68245f9a2de0c6119a0b3ad8b4a8d1b87602d25a4c5b31e1bde",
+        "preparation_ms": 3690,
+        "calibration_ms": 968,
+        "learner_ms": 130,
+        "elapsed_ms": 5150,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/distillm2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/44-a4ee7f513e52f8631ed8.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "4e43d0ce0895ff110d60ec71b3a9a2757dc2fc5d43aac4174ccea4395fca751e",
+        "preparation_ms": 3740,
+        "calibration_ms": 1516,
+        "learner_ms": 232,
+        "elapsed_ms": 5922,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/pkpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/45-316f7e70c28df2b0f71c.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "8a37db197821e3c718ddb50b088175aa585dde32aa7df25dd4b80e42db72a05e",
+        "preparation_ms": 3685,
+        "calibration_ms": 2906,
+        "learner_ms": 539,
+        "elapsed_ms": 7549,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/svdquant",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/46-5ac8beabce50eaa44338.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "b7fe09800ec987d1713e7649a3199f27e8bf0720e63ff26d945bcccebef055fe",
+        "preparation_ms": 3712,
+        "calibration_ms": 991,
+        "learner_ms": 121,
+        "elapsed_ms": 5254,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moge_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/47-c9972dc0d0dee52579f3.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "0eba01b83339c1e6422e0ebbe62ec267f12c0121e421790b480c90877d0766fe",
+        "preparation_ms": 3690,
+        "calibration_ms": 922,
+        "learner_ms": 120,
+        "elapsed_ms": 5175,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/daps",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/48-67a7bdf3c6fc0573ca95.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "2125baa0591175807dea6f25f5afcc8aca92ca3a3b4b053023314512974a9016",
+        "preparation_ms": 3695,
+        "calibration_ms": 2593,
+        "learner_ms": 423,
+        "elapsed_ms": 7138,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/diffusion_nft",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/49-65d900076e2e290c3716.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "299c5cea5b1678606cc9667c9672e5f9ad2f0d8f95cf125c46b2b4ee205bcdba",
+        "preparation_ms": 3750,
+        "calibration_ms": 1256,
+        "learner_ms": 158,
+        "elapsed_ms": 5581,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/var_next_scale",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/50-5368618e688ba8c4bd05.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "2a84a9deb9a635805c485d47928314ef5f64ded3950c4cc5c0957eed0df35259",
+        "preparation_ms": 3692,
+        "calibration_ms": 925,
+        "learner_ms": 119,
+        "elapsed_ms": 5139,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/var_tokenizer",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/51-8ed612a0f1522e62eb2e.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "fbbaeb67561db1f3a0f3bec16437fefec9e29c0ee2560e40f4b7dbd5322835ca",
+        "preparation_ms": 3713,
+        "calibration_ms": 1197,
+        "learner_ms": 141,
+        "elapsed_ms": 5463,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_population",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/52-8fc1aeaad6fb0026d7c0.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "46ad9fc36fcebe12aa367837333a26ac579a5972ef0fee7d24d16652d71187af",
+        "preparation_ms": 3700,
+        "calibration_ms": 1122,
+        "learner_ms": 129,
+        "elapsed_ms": 5369,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/53-8c044ea98af72b515f9b.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "68e82e31bd7843760ce8d1f564ab11dfe7bc64c5f0277be601c7db572a983b02",
+        "preparation_ms": 3726,
+        "calibration_ms": 5994,
+        "learner_ms": 1109,
+        "elapsed_ms": 11261,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/vicreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/54-01ebfa1e8f2d9d9eba26.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "e03eaa0886474df5ee768d1cd3d0c5227be97d702c1c274e903fb08daa774e3d",
+        "preparation_ms": 3695,
+        "calibration_ms": 2394,
+        "learner_ms": 419,
+        "elapsed_ms": 6924,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/sigreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/55-b5813d896fcedab9f16d.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "68cd9211dd4f6028a24bf7284893fa6a7bec50ca0f36d9a783b934df9ab96ac2",
+        "preparation_ms": 3721,
+        "calibration_ms": 2665,
+        "learner_ms": 451,
+        "elapsed_ms": 7255,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/visreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/56-dd8b4e59e5d9652abb43.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "d4a4fa431d8f60ff173ccc3515167ede6fdccc5b572f39daa7d71ec407dd4b6d",
+        "preparation_ms": 3713,
+        "calibration_ms": 3627,
+        "learner_ms": 663,
+        "elapsed_ms": 8429,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/ijepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/57-17d9c5b6c64aa4add5f1.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "8c077d0f36f0bbfc7b6337105ae181924e53af17dc8d0291bfd1ee3dc18f1ae2",
+        "preparation_ms": 3745,
+        "calibration_ms": 953,
+        "learner_ms": 123,
+        "elapsed_ms": 5257,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_prediction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/58-450bda35cace894bb890.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "1e8a9bf0ecac0cd5cffed1cc655b2dfc7fef5be05a7a56e6de9e2d17821f670c",
+        "preparation_ms": 3719,
+        "calibration_ms": 1869,
+        "learner_ms": 307,
+        "elapsed_ms": 6295,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_planning",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/59-e67663ff156f523ddf74.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "2ff3e0fa13d8b6ce367544e70a3e626dc746fbc48df77f853567a2c93e9954e3",
+        "preparation_ms": 3696,
+        "calibration_ms": 731,
+        "learner_ms": 81,
+        "elapsed_ms": 4897,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/causal_jepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/60-05695f30c4ef21c635fe.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "95826dbfeeac9cbf31bdec420091ea4314e6e9b24faa10f60312b23501b81778",
+        "preparation_ms": 3737,
+        "calibration_ms": 1164,
+        "learner_ms": 164,
+        "elapsed_ms": 5465,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rms_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/61-3aa809aba5927391fece.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "5515508e289c7807f669f1aa3771eb0abbc4dbdb472f5ded68dc317f4a9acea2",
+        "preparation_ms": 3682,
+        "calibration_ms": 860,
+        "learner_ms": 88,
+        "elapsed_ms": 5035,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/gqa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/62-c55573b934c147a40bbd.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "64828f85c742a8ed4d5e8b5d2e3b90e90c1bdb774d0560614953898e70622fe0",
+        "preparation_ms": 3744,
+        "calibration_ms": 1213,
+        "learner_ms": 126,
+        "elapsed_ms": 5529,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rope",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/63-90695177b3b110e032c3.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "1a072292f8dda110c6fcda673d23c5ab770f5a128fb938cf443ab0f4af1649b4",
+        "preparation_ms": 3765,
+        "calibration_ms": 1315,
+        "learner_ms": 101,
+        "elapsed_ms": 5624,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/semantic_ids",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/64-2657c7af13dea40b43da.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "9aa1341620e45a665d4c3404339a441a85fc2750f6b46bbd768c3bbdc919740c",
+        "preparation_ms": 3728,
+        "calibration_ms": 760,
+        "learner_ms": 79,
+        "elapsed_ms": 4963,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/generative_retrieval",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/65-3f4d32918c26999f9124.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "b1e4f8ebab039a6f0ad10c330d60b0149f6c59e79fb8e61647fde3775141556a",
+        "preparation_ms": 3761,
+        "calibration_ms": 1125,
+        "learner_ms": 113,
+        "elapsed_ms": 5398,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/late_interaction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/66-50ed45d68ada4f223941.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "f3df6588563cffb2d741eaf079d5aeb5e61e5d3f635daf7e4ca667886c9ff2d8",
+        "preparation_ms": 3714,
+        "calibration_ms": 2902,
+        "learner_ms": 335,
+        "elapsed_ms": 7415,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/sasrec",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 7,
+        "packages": [],
+        "bundle_url": "browser-judge/67-84d5a35d3f3a6fdddc60.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "a4a16131a003ba657709dfd569c6b91900af30aca5943322a886df111c7247c4",
+        "preparation_ms": 3737,
+        "calibration_ms": 5453,
+        "learner_ms": 619,
+        "elapsed_ms": 10254,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/bpr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/68-4289965f97c1c1042475.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "3c2b074713c0eadc63f5c498a40ab5f16a5703a887776ae8c2df88ca2570adf7",
+        "preparation_ms": 3716,
+        "calibration_ms": 3204,
+        "learner_ms": 310,
+        "elapsed_ms": 7702,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/lightgcn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/69-3b01729040ee4d7c193f.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "d6c44f850fc34eea6cdb815f0680453f2da99fb6a2613b3dae49674fea595256",
+        "preparation_ms": 3747,
+        "calibration_ms": 3533,
+        "learner_ms": 307,
+        "elapsed_ms": 8047,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/simclr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/84-92139d3f8b1e9b6a607c.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "cbbfeb0603829bc630a7c0e04b369316b98c9f72ad1c93c9bb193d551a831db0",
+        "preparation_ms": 3737,
+        "calibration_ms": 3072,
+        "learner_ms": 270,
+        "elapsed_ms": 7487,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moco",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 9,
+        "packages": [],
+        "bundle_url": "browser-judge/85-3f489f9b5ec5760ffead.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "14ebf7608b5e5979ef203aa31bdca4a216dde5322ba2f95f48040b4326ba6408",
+        "preparation_ms": 3704,
+        "calibration_ms": 2294,
+        "learner_ms": 165,
+        "elapsed_ms": 6618,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/next_token_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/86-0416f71cee2281e2e1fd.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "06aedea8cf804c91446cf05acc0acdf61e834cd1309c4de45cdef6d729d1097f",
+        "preparation_ms": 3685,
+        "calibration_ms": 1475,
+        "learner_ms": 66,
+        "elapsed_ms": 5516,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/sft_loss_mask",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/87-525f336a662860cb3f03.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "d2e64961452dc19b49323c4bee1d4981439ff6b91bd18228bdaa767cdc9f9122",
+        "preparation_ms": 3691,
+        "calibration_ms": 1542,
+        "learner_ms": 70,
+        "elapsed_ms": 5586,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_k_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/88-7752508d5eee99141920.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "fcae9101590444259c76db04948209f9df98e45e0253d881bb7be0c3ed9b1828",
+        "preparation_ms": 3689,
+        "calibration_ms": 1239,
+        "learner_ms": 80,
+        "elapsed_ms": 5294,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_p_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/89-0f125a43c7609bc74eb8.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "8fc8a74602f77cff504ca798f5d056f4a004df2e7537b137eb3fdce4b757338c",
+        "preparation_ms": 3724,
+        "calibration_ms": 1308,
+        "learner_ms": 108,
+        "elapsed_ms": 5607,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_accumulation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/90-b2d12747b03cb944c640.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "ab380d9fd60ba33dd6ce4acb12bab440f900670afc8f367b48204675b69764d7",
+        "preparation_ms": 3673,
+        "calibration_ms": 1410,
+        "learner_ms": 71,
+        "elapsed_ms": 5420,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/91-0f87d38d066375b8a1a9.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "1d5114c22a037b660a7e9689d44a40ae2aecc7a54ac619f4f2843bbc4659bfeb",
+        "preparation_ms": 3680,
+        "calibration_ms": 1420,
+        "learner_ms": 79,
+        "elapsed_ms": 5475,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/group_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/92-d61ede4626808d63382d.json",
+        "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "source_sha256": "aae929eaf867bfd42966331fee926e546b9acc3502bd57965f733c76d7fc8911",
+        "preparation_ms": 3696,
+        "calibration_ms": 1524,
+        "learner_ms": 124,
+        "elapsed_ms": 5792,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      }
+    ]
+  },
+  "live": {
+    "status": "success",
+    "commit": "1770686e676e73c39790ef3e1538180d155a72c4",
+    "url": "https://paperleet.com/",
+    "modules": 78,
+    "starters_equal": true,
+    "manifests_equal": true,
+    "module_details_equal": true,
+    "immutable_assets_equal": 158,
+    "runtimes": [
+      {
+        "path": "browser-judge/runtime-84aabb0b7a555fa6f247.json",
+        "bytes": 37391,
+        "sha256": "84aabb0b7a555fa6f247689238e0a89a042a4096b439d704f7240000c3f24d49",
+        "package_python_modules": 3
+      },
+      {
+        "path": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+        "bytes": 441023,
+        "sha256": "84ec068fea120c2d35f6270aad73bb2eb8e0144059a220b64bbb6b4ea1f43967",
+        "package_python_modules": 36
+      }
+    ],
+    "license": "Apache-2.0 and NOTICE verified in both profiles",
+    "verified_sha256": {
+      "modules/1-e18976c6f5271ea8a90e.json": "e18976c6f5271ea8a90e0cb49d9e4c5f628fbc5d5dbb73148cf2894d150fda8f",
+      "browser-judge/1-9c4d063b524bcbfeb3b0.json": "9c4d063b524bcbfeb3b0ea4e73f440fa3ee872cda6164b00bbcbfcd9e910b7e4",
+      "modules/2-607dc58a46fbdb668ebb.json": "607dc58a46fbdb668ebb9c1dabba3a168de018902b8950f346b1de6f2bda44d8",
+      "browser-judge/2-2c21c8021818531d1319.json": "2c21c8021818531d1319f9d7689f6d93f47e5bbfe0eee2288de6e52b0cf6eda2",
+      "modules/3-f117ffb9c705e629a71e.json": "f117ffb9c705e629a71e381f5316ca826bd9322db4c44edd2b23b70b9cdcd21c",
+      "browser-judge/3-8d48028eb027ee1418ef.json": "8d48028eb027ee1418ef68bd77bd377a68bfac0fffa93e9c52f8fb7a717406cf",
+      "modules/4-4d6b0e291f08fa3f1667.json": "4d6b0e291f08fa3f1667d2ccece1b3d7b296372864a438863d9aeba26a99ccf4",
+      "browser-judge/4-77c038f2dabdc70c340d.json": "77c038f2dabdc70c340d2454a97276cdfd987c7a89b81d3c8b9223160e910258",
+      "modules/5-79243cbe21f1dfec6530.json": "79243cbe21f1dfec653043f1e0a3154c3cdb443d6d0ce6a14711fd2c4cbf14cb",
+      "browser-judge/5-3590d74ddad2236d26eb.json": "3590d74ddad2236d26eb174ae561eb7f1c35a67c6dca768431b19e573212806a",
+      "modules/6-dee91dc112aba9da66af.json": "dee91dc112aba9da66affadec0c18f52e704e3124f4bd775caa9fdd10c7e144c",
+      "browser-judge/6-8a8a377351fd25b7c234.json": "8a8a377351fd25b7c2345578a9ef46c163b2a9b70749e30e93968038ec9f404b",
+      "modules/7-ab2bc45a8a6e1c5b30b2.json": "ab2bc45a8a6e1c5b30b2b02ff1850d87d4ef47604311c6cbd23420a82aa935af",
+      "browser-judge/7-74c0517be99f8dbbed6d.json": "74c0517be99f8dbbed6df4699f2ff4253fbd8412389ae6f59202ecb999658db4",
+      "modules/8-ee2757bb41632d247543.json": "ee2757bb41632d247543bb56759992d3f2a74a64dbdc2dee2ff4ff39481f8fe7",
+      "browser-judge/8-b365f7c9331f1d6d34c4.json": "b365f7c9331f1d6d34c45f406118923f3a87d1f2d22bcd9192f294b0cf9a63b8",
+      "modules/9-b68398defa2fea6e78a8.json": "b68398defa2fea6e78a88e03d81d319943f1a6fe71f57893c156ea5860bc6abe",
+      "browser-judge/9-4dc01d3f1e60c90fc697.json": "4dc01d3f1e60c90fc697fc850c70e3d7b46cf539c23f6927c04980fa77159197",
+      "modules/10-25610306aab44ee587f5.json": "25610306aab44ee587f577d2a1e53ad77beed09223db695cd8fec2c8345bd81a",
+      "browser-judge/10-590d97e6cc23a6f56adf.json": "590d97e6cc23a6f56adfa8c3dd64812487c566186e998e84ebb762221b038941",
+      "modules/11-5239c6f0d45e214e641a.json": "5239c6f0d45e214e641aa1fa6e6b00a4aa0f891d04a66ac7c619f762a779849d",
+      "browser-judge/11-7523c2df375d876d814f.json": "7523c2df375d876d814fc041208d085cf394063e81eceb8acb33df5e3bef63cc",
+      "modules/12-b1e4fd6152e82c29f199.json": "b1e4fd6152e82c29f199bac4ce44c7ebd2ae5bbdd881504d63e306103279e920",
+      "browser-judge/12-b24e364cfa1d4ddd37bd.json": "b24e364cfa1d4ddd37bdc805ca4d89fcb44c35de4e7e819a53fabb9bd2cbf4e7",
+      "modules/13-9292d179d6001185b340.json": "9292d179d6001185b34050a1f9a8efec21e8b76360f0f581269879dac7f53d5c",
+      "browser-judge/13-521d2444e5b1b309ad1d.json": "521d2444e5b1b309ad1d5f03438f9437124618df5f0524ee8e5caf0785be7735",
+      "modules/14-7f4e5abb022096b549ef.json": "7f4e5abb022096b549ef267b645a335cac68d5483fb4b5313375d04bed8038f2",
+      "browser-judge/14-4ccf2a1076bcbf468567.json": "4ccf2a1076bcbf4685672e32934ca25d46146ba11c9d4f9d8647a6269039299a",
+      "modules/15-b66af6edd369c0e2d51e.json": "b66af6edd369c0e2d51ebfb0b6f3cd9dc3ca01cea6c83637a32d93033be39f70",
+      "browser-judge/15-ca9347b5de3082f0d246.json": "ca9347b5de3082f0d2460f40f519d06e508c21eb0b8ebb582f4c43ca4f1ad402",
+      "modules/16-95bf72ea230a8c9f0601.json": "95bf72ea230a8c9f06013a267da5d9614960c583b63e0abf55edc5bd35c61627",
+      "browser-judge/16-f76fd845d6bee489284d.json": "f76fd845d6bee489284de943fd8de0ae0bff91ddd2586451467071c9f082e20a",
+      "modules/17-761688d62596d65bc4ef.json": "761688d62596d65bc4ef88749c08beb7e798e444dc0ff09a622013ec38dab54e",
+      "browser-judge/17-335b3f98bc6d356d6b53.json": "335b3f98bc6d356d6b53fc9bf53f3f5a337f9e784447d59affa5912181d63cb5",
+      "modules/18-d9948ec7625ed6377d59.json": "d9948ec7625ed6377d59dad246f2d136d1a5366fee16f23a9e2784c7f33ab0b5",
+      "browser-judge/18-88c893caba21c47c2c77.json": "88c893caba21c47c2c7790a2299793aa32c2f86e3823ffaff1810b395f7da482",
+      "modules/19-4611052640a0a901f73a.json": "4611052640a0a901f73a585ed43b65e432df4aa1d942d4b7bd0cb8f78f43d16c",
+      "browser-judge/19-e41ff1d7b8119e369dd4.json": "e41ff1d7b8119e369dd419f23e188ce949ac81b7014eb1fc536d166dc2e84dcd",
+      "modules/20-2b5ab4cb5ca3c1b2d6e9.json": "2b5ab4cb5ca3c1b2d6e90a977e9b69e025070e6538f8b4d70d919a06113f9734",
+      "browser-judge/20-210996d85606bb76197b.json": "210996d85606bb76197b9b76ea3b4b0896e023e3078b8a5bd9ccf3157e32cb7a",
+      "modules/21-8a8c76700ef4d3aa07a4.json": "8a8c76700ef4d3aa07a4d9c4ff08edda08d241f71f47648b60766feeba76be56",
+      "browser-judge/21-a3f86e270a2ab2363ceb.json": "a3f86e270a2ab2363cebb7c92db74ee2f72daf5a23b1b7b721f14b1591d7325e",
+      "modules/22-e81a560c77152fb8fe52.json": "e81a560c77152fb8fe52f11589d5284f520a347b779038a3909ede5902b0033c",
+      "browser-judge/22-e1681a537dc91110f50b.json": "e1681a537dc91110f50bd2d18c3bdb293642a80f38863d3105a8816b1f3f15ae",
+      "modules/23-0aa604b4e9be10043a23.json": "0aa604b4e9be10043a23a81aae2b333704bf638a28ca8c8810e6b2096279b147",
+      "browser-judge/23-7025361c9f27011625c1.json": "7025361c9f27011625c1a6ec01811f09c73c68fe69c049257f7f5ed43ef73fae",
+      "modules/24-bd570b64fe006efc5b4c.json": "bd570b64fe006efc5b4c3345ea1acb076b99d83ad790a2135be27e29d2477b43",
+      "browser-judge/24-546702cb1ba255402f52.json": "546702cb1ba255402f52e7804efafb7f793f01276ef81cb95f35bf76436aa619",
+      "modules/25-a8fabb8c950018ce8b52.json": "a8fabb8c950018ce8b524a5437115556502075512670a73064e3d444c6a61272",
+      "browser-judge/25-8415898dd5a99a9271bb.json": "8415898dd5a99a9271bbe6ee1041bf59c850bda83e522d642aa17595e1aa3de4",
+      "modules/26-e4de754abc13dbdd1e17.json": "e4de754abc13dbdd1e1707e97cec8fdf6ca0f7147ef909d787732abf1f08b3cc",
+      "browser-judge/26-3bedf1ac41eb70121a07.json": "3bedf1ac41eb70121a072fdc3439a7a4d2eba3281c8b0a83b8967c433bc4ebc7",
+      "modules/27-a3700c3e03162b50d7a0.json": "a3700c3e03162b50d7a0fd5d7c59617db651ec86d1c088b809441bb6bb8612c1",
+      "browser-judge/27-7c6c43f3d9f7436d53a2.json": "7c6c43f3d9f7436d53a2b3ee68dc51cc4f13897c3793cc64be588c092b58732b",
+      "modules/28-d549dd5397b37dcd6a13.json": "d549dd5397b37dcd6a136ac0f8cc98026feb8236f3eddd560feddcaf552ddca7",
+      "browser-judge/28-5b658b196d9958655388.json": "5b658b196d9958655388ec723f60f52ba36687b6ef2461f9d133f02dd786966b",
+      "modules/29-2d836a31121d973653de.json": "2d836a31121d973653deb7694fe791ade5297a1a8471d7949c5a95a3f010f97c",
+      "browser-judge/29-0e7f12a707ac379e53f3.json": "0e7f12a707ac379e53f351d9d575377dd1cc1625298381ac429bcb562b3113c0",
+      "modules/30-fb0975e5c006e203d578.json": "fb0975e5c006e203d578df35689bc76782e8bc43c9b8deb6983648ee07d6ea13",
+      "browser-judge/30-112470d4da08e30875a8.json": "112470d4da08e30875a8f9ba5cffa4537ac2ade0985c5a7881266722a83b973a",
+      "modules/31-4598d924771c24e97256.json": "4598d924771c24e97256433ae5e7be867bd2ab577ee67af65488b10ea01d2f94",
+      "browser-judge/31-b5c10bd3f84305d7c2c4.json": "b5c10bd3f84305d7c2c43f9d947b62aaf91e06668c77ff11eb3de142bc898bf1",
+      "modules/32-291cf6f546032cbe21fc.json": "291cf6f546032cbe21fc09faaee9ae8e1bc59d05129295e2a793ed29d87abfbe",
+      "browser-judge/32-a7ead19208384e543106.json": "a7ead19208384e54310623c1dc6146f3154341dcd014af0f292d5adf404d8c6c",
+      "modules/33-d610eb8b8974237cffd1.json": "d610eb8b8974237cffd16a71277708fbc0bb7f96529325d2377f4fbb399c3b31",
+      "browser-judge/33-6ac8d9f65625cd5a5238.json": "6ac8d9f65625cd5a523814c2f4a0654d6dfb6030a5df12875e6e17292d54e9d8",
+      "modules/34-b61caec718147ffecba5.json": "b61caec718147ffecba5cb51dbd71b36b84e83bebaf0b30fe024dec84d8d1520",
+      "browser-judge/34-32a6f0cd0f250ff62fe6.json": "32a6f0cd0f250ff62fe60d285988daf0800a1fd9cb1290e48248e611c28933dd",
+      "modules/35-4af179e7c3ed6fc854f5.json": "4af179e7c3ed6fc854f59b2a5d97816626bf2f35d1373c239b92c9939dd81079",
+      "browser-judge/35-679c4ba6b6ece548bfa1.json": "679c4ba6b6ece548bfa1672b3f6555c03372928944547260ffde8019938f5240",
+      "modules/36-4d29e0c2b824abf05c7c.json": "4d29e0c2b824abf05c7c64d185e1d15a87fc5405f5f1456fcd0375ded94459f2",
+      "browser-judge/36-d15d52c015f98eadd2aa.json": "d15d52c015f98eadd2aa9d1955784166e625e2b7bddde4dc794331da775c6136",
+      "modules/37-98d04b4d03c7a21f9ba4.json": "98d04b4d03c7a21f9ba469cbc305440528bea55cb6d10629205dc4faea0f744f",
+      "browser-judge/37-9458c1f10057faeddc38.json": "9458c1f10057faeddc3853dd9dea27cd16447b1f021c89ad3e00e3197ba4b7bd",
+      "modules/38-8fa3f819bcae9223c9a3.json": "8fa3f819bcae9223c9a3349976ef9964b247b07a8b7ef01796f7c21f018de5a4",
+      "browser-judge/38-1b3d0ec9b42eed8bce57.json": "1b3d0ec9b42eed8bce571965bceaa177693adde5c41011b2e003c16c461bd2c6",
+      "modules/39-49b4ee25f005eff19ef4.json": "49b4ee25f005eff19ef47a063474f3958d1842c0db17a6d8af5cc38717593d50",
+      "browser-judge/39-5aa4fbbe17ca29b345a5.json": "5aa4fbbe17ca29b345a50eb1f26e33f694ea7fd4507d342f0dc68aefc811f058",
+      "modules/40-20fa58ffe106b92e732e.json": "20fa58ffe106b92e732e90ae9edf86fb4db9df95e5aa28a8e046fa1bef16a4b9",
+      "browser-judge/40-9af1808822cf4b655138.json": "9af1808822cf4b655138a82d5454629ee6ab29235a6d73fa673c2857fb8b8714",
+      "modules/41-92ad933c5efa944c761d.json": "92ad933c5efa944c761de7b64cfa4bc8b1540cfe70865a9071b1e44bec4efce3",
+      "browser-judge/41-7a88fd74fc732761c29c.json": "7a88fd74fc732761c29c4a905d534eda18b7602c4bec38410848d56495fce203",
+      "modules/42-6c104136d173401e9306.json": "6c104136d173401e9306814aba38d877d5de65e5e7e9c48e4f9b2083a6a3ed00",
+      "browser-judge/42-ff7ad44e5fa3f01d5169.json": "ff7ad44e5fa3f01d51691a9ca0396ddc78d2131b4ae335b52979548c1ba05281",
+      "modules/43-3484a1c84617aa4d0241.json": "3484a1c84617aa4d024139a1c0043f3db9473412c2cecc4e6b63ea36381bd8ea",
+      "browser-judge/43-1dde90a48d2ef7782f45.json": "1dde90a48d2ef7782f45186b79af5b5ce930c09460d1bf69f5392e2953349e8f",
+      "modules/44-bafa94f1e15458798241.json": "bafa94f1e15458798241cd1b0da8a1a44026ecdb259739b8e23af4e0de6db955",
+      "browser-judge/44-a4ee7f513e52f8631ed8.json": "a4ee7f513e52f8631ed8dbd68c9c09ddb533103a916ae0c3e25cf94f5c3b2884",
+      "modules/45-66aa5c3e3689ea673960.json": "66aa5c3e3689ea6739606e0c0833c2300521a641ad4f0882fd4d81364f7e8258",
+      "browser-judge/45-316f7e70c28df2b0f71c.json": "316f7e70c28df2b0f71c604efa85c4c292eda79d6d7b369c08a1d342be016e1f",
+      "modules/46-587a36bb788df840835d.json": "587a36bb788df840835d63d6b78fe1961d40e25053e2a3e85a082437a14f5b71",
+      "browser-judge/46-5ac8beabce50eaa44338.json": "5ac8beabce50eaa44338e9d795277fb37c7f5207699a95e250ba5b7991481d17",
+      "modules/47-95b0c8ddf24b0309dcc8.json": "95b0c8ddf24b0309dcc81f0382a37c1792760a32215c51b8409fa222461ca3de",
+      "browser-judge/47-c9972dc0d0dee52579f3.json": "c9972dc0d0dee52579f3f1b32d752f21530794da087cd69bf41090c307cdfe58",
+      "modules/48-9ea7d533bce36305714c.json": "9ea7d533bce36305714c1920cb736053b1145ab82f3572e2b96e88f589952213",
+      "browser-judge/48-67a7bdf3c6fc0573ca95.json": "67a7bdf3c6fc0573ca95a85496918fc14ecc9a6d25c0dbcdc91f069077f6b67b",
+      "modules/49-8049274c289f72b6b264.json": "8049274c289f72b6b2648e1a56f973263c62ce80540470f350eafe4ef2fefc1b",
+      "browser-judge/49-65d900076e2e290c3716.json": "65d900076e2e290c371683617085e7fe2fa897eb4dbf9fb3aa97e3e5b3408708",
+      "modules/50-954a4586162d27d2dc45.json": "954a4586162d27d2dc45e189b7af638440ba7199dadaac25cc6bf8cf17858845",
+      "browser-judge/50-5368618e688ba8c4bd05.json": "5368618e688ba8c4bd05beb3e971612c2eb2625bfabfbbc98953ed8d9d1ec987",
+      "modules/51-73441086a5a92b09c773.json": "73441086a5a92b09c773c20831058c67e0f29c9b7fca5ba828b5cf1aedfb2b41",
+      "browser-judge/51-8ed612a0f1522e62eb2e.json": "8ed612a0f1522e62eb2e22986eb6e3f887a30f3413b5f9401b8a18b93eaf299f",
+      "modules/52-62f9a93e3d06ff50b50a.json": "62f9a93e3d06ff50b50ad9b6db1199282387db591730d3009a0c95c102977ff9",
+      "browser-judge/52-8fc1aeaad6fb0026d7c0.json": "8fc1aeaad6fb0026d7c057541192cfac9d39ab14982939f91d0a208f82436b6f",
+      "modules/53-f1e6fcfbfff1c1268751.json": "f1e6fcfbfff1c12687518b36e3caedbb82810e169f587d9223cddb2aab47e3ff",
+      "browser-judge/53-8c044ea98af72b515f9b.json": "8c044ea98af72b515f9b8ebfccdc3a19f8b2a1bd7c47aca0569734e1ae08a0f8",
+      "modules/54-8ecb41c5e81592454295.json": "8ecb41c5e8159245429523d94b5e44e0ae5a057a4bbde6ffb48987b6bec3b7e8",
+      "browser-judge/54-01ebfa1e8f2d9d9eba26.json": "01ebfa1e8f2d9d9eba26092d9a4cc95a24432b8dd3521546dcdda885a6b97c5b",
+      "modules/55-bd6746a7d0da8e8c9ded.json": "bd6746a7d0da8e8c9ded5f094603ab98bcdd14b3d7130ddab9523dd86f7f1da1",
+      "browser-judge/55-b5813d896fcedab9f16d.json": "b5813d896fcedab9f16de5f0cb547c40900fcab892e740146d7723152733d222",
+      "modules/56-e5ec0302ee069d27db27.json": "e5ec0302ee069d27db278251c4443c28a2202363591367cdb6a5e17d74b0c1e6",
+      "browser-judge/56-dd8b4e59e5d9652abb43.json": "dd8b4e59e5d9652abb43a9e003552b093e1a7c761cb0f4b41064b6456e8f2c9f",
+      "modules/57-1f646e6e04a88f4fb82b.json": "1f646e6e04a88f4fb82b0d44be2dd2693c92400db5f9aa0876ff6233a1960834",
+      "browser-judge/57-17d9c5b6c64aa4add5f1.json": "17d9c5b6c64aa4add5f1a3de7e8333fd6bfc341ee3c8c93925eea8b3cc40c057",
+      "modules/58-f556173dc4268f0c753d.json": "f556173dc4268f0c753df297d572f3bb685efb030f4d75fe887b45422813d0c2",
+      "browser-judge/58-450bda35cace894bb890.json": "450bda35cace894bb8906eff0c56c94a28039b8bcadef2559c545f3757725859",
+      "modules/59-937dca6202f5da27488f.json": "937dca6202f5da27488f4850360ac7213ad0de606c58f70119a1adbf9ee5bc10",
+      "browser-judge/59-e67663ff156f523ddf74.json": "e67663ff156f523ddf746bb46066e5d48c45803abb10873abf847922bf7a8848",
+      "modules/60-01422e225a5b7ceb1621.json": "01422e225a5b7ceb16213d01ed869c16e9f60e10032887f64a07cf5bca97502c",
+      "browser-judge/60-05695f30c4ef21c635fe.json": "05695f30c4ef21c635feeb05ddeecad06be1a9c53e124dbd0c6cec68ca98cf30",
+      "modules/61-2dc5c294d25ab8f024d1.json": "2dc5c294d25ab8f024d1c15ec0b2b9ebe6b01ca6914548d6c1a2e049629328ff",
+      "browser-judge/61-3aa809aba5927391fece.json": "3aa809aba5927391fece3dfe06dc59a8d41cc92bf6979b5b69014dd229d67de2",
+      "modules/62-bf72b5fcd4ef74c69847.json": "bf72b5fcd4ef74c69847e1abdbfa4a614ab7f2b494a0756f086d829e1ae33529",
+      "browser-judge/62-c55573b934c147a40bbd.json": "c55573b934c147a40bbdbca0b9fa298f45cbd24b4f9ae79ce8e6b41ecad31154",
+      "modules/63-92b33e5b974604aaff16.json": "92b33e5b974604aaff16be9cceabd077f5d4056e3748ecf951bdf432e8e16664",
+      "browser-judge/63-90695177b3b110e032c3.json": "90695177b3b110e032c344f2c5c018cb4d7d8fb0b75f12eb056e22b1b52aac6c",
+      "modules/64-12e8987ec8b74c3c82b1.json": "12e8987ec8b74c3c82b1134c78f0b898395ffa4bfe25244b52f1c1fbc572621f",
+      "browser-judge/64-2657c7af13dea40b43da.json": "2657c7af13dea40b43da000b9c88a1950f08127ffa124290bbf579b9040249d7",
+      "modules/65-1274e448584caad2a0bb.json": "1274e448584caad2a0bbdcbe55c42e806883bbaf17538ca95df23f89100e2f9a",
+      "browser-judge/65-3f4d32918c26999f9124.json": "3f4d32918c26999f9124b0b4518ce79c05fe9b8f385bfa9b14bef915868c9005",
+      "modules/66-add396365bf39283912c.json": "add396365bf39283912c261e4c1456a4d622b72ab94e81af65ac457789c44a60",
+      "browser-judge/66-50ed45d68ada4f223941.json": "50ed45d68ada4f22394120d3366e91b7b4e4fa6afbe27bc7975c2758da1e89c2",
+      "modules/67-ff789357e08427af491b.json": "ff789357e08427af491b6152cc20c5cfdb610311e5b608ce2b8e131969482429",
+      "browser-judge/67-84d5a35d3f3a6fdddc60.json": "84d5a35d3f3a6fdddc60fc383ed60e4340f13f138019877e4df8cb492db7b0e4",
+      "modules/68-bd39892d91121f06a785.json": "bd39892d91121f06a785897597b87770a30bf3507999ab013131ba4d1c8bcb6c",
+      "browser-judge/68-4289965f97c1c1042475.json": "4289965f97c1c10424753a8b22f42c138c3c1ef468bb465d44c31b3d4301ca7e",
+      "modules/69-c4d285ce93dec9454235.json": "c4d285ce93dec9454235d8461ecd994e7d4e4406243a95c6bb816efedda557cf",
+      "browser-judge/69-3b01729040ee4d7c193f.json": "3b01729040ee4d7c193fd4d7c795276706dd1fc888469240bd861a34c216eb20",
+      "modules/84-167668d4c6a6fc4cae17.json": "167668d4c6a6fc4cae17f4b5bd6fb6a756444f3108dd3e201c0bb8444d50dc27",
+      "browser-judge/84-92139d3f8b1e9b6a607c.json": "92139d3f8b1e9b6a607ccad123414d3c09eab3900326cb61f67ae732c1844de1",
+      "modules/85-41bd819ad40824515fa4.json": "41bd819ad40824515fa4c407b83e5f677bfa9fc3cdaf4857399e91f0964a9f6f",
+      "browser-judge/85-3f489f9b5ec5760ffead.json": "3f489f9b5ec5760ffead4ae1be845ecc0497efd5e945341078dfd08de1eea315",
+      "modules/86-e5479b9f3e26a498c306.json": "e5479b9f3e26a498c3069986c1e03c3e3b9a9b21f5a461844dd28cd6a01123a6",
+      "browser-judge/86-0416f71cee2281e2e1fd.json": "0416f71cee2281e2e1fd816f0913588038b614c5019e4c1244c0eee2d9d93bc1",
+      "modules/87-5b7e3b3aad7ee82e1b39.json": "5b7e3b3aad7ee82e1b39ad39066aea0647c74a5aaa04f94b6f8a7f5011dff8d4",
+      "browser-judge/87-525f336a662860cb3f03.json": "525f336a662860cb3f039a18b3dcf291af9413a17921e223d5cfd07d31d50563",
+      "modules/88-44bed700a693285e10c3.json": "44bed700a693285e10c30f810fcdcac1c3b9eb5a98984f04a98ab6d4389b6279",
+      "browser-judge/88-7752508d5eee99141920.json": "7752508d5eee991419202cec3afee07a601e90b3612d19b6e7583b3fc0f078db",
+      "modules/89-1c94d2fc32417cba6f15.json": "1c94d2fc32417cba6f150c37e7a03d192a7b77e23d7e36ba517aa8b62c0a9303",
+      "browser-judge/89-0f125a43c7609bc74eb8.json": "0f125a43c7609bc74eb86fcf8354476ddfa02a7a5fada4891adbe24d6629fd29",
+      "modules/90-3eba15bb6642fc202120.json": "3eba15bb6642fc20212044e52800d6d12d0632ef892e747a8560e35da7606f7f",
+      "browser-judge/90-b2d12747b03cb944c640.json": "b2d12747b03cb944c640f962f4fd71103e479a475bffbd4abfd9ec8ecb094495",
+      "modules/91-838a591ed5e5afcd6bfe.json": "838a591ed5e5afcd6bfe7959c8d37700e17edbff192bd91fd7f0dae0dd40d739",
+      "browser-judge/91-0f87d38d066375b8a1a9.json": "0f87d38d066375b8a1a93db251f7a97e13034a7a479762a7df5936487e47d801",
+      "modules/92-f6db02bb1ec0890d3d34.json": "f6db02bb1ec0890d3d34a9b882d5dba42ac442fb06bcb9be918e51b70e383bbc",
+      "browser-judge/92-d61ede4626808d63382d.json": "d61ede4626808d63382d7ea381061f8111e878a0d972ae7524ca15b4a2ddb95d",
+      "browser-judge/runtime-84aabb0b7a555fa6f247.json": "84aabb0b7a555fa6f247689238e0a89a042a4096b439d704f7240000c3f24d49",
+      "browser-judge/runtime-84ec068fea120c2d35f6.json": "84ec068fea120c2d35f6270aad73bb2eb8e0144059a220b64bbb6b4ea1f43967"
+    },
+    "index_comparison": "Compressed starters decoded before comparison; runtime and module/manifest payloads compared byte-for-byte."
+  },
+  "native_infrastructure_summary": "21269 passed, 1 skipped, 13 warnings in 379.69s (0:06:19)",
+  "flow_matching": {
+    "id": "diffusion/flow_matching",
+    "pyodide": "0.29.4",
+    "numpy": "2.2.5",
+    "backend": "numpy-autograd-wasm",
+    "tests": 8,
+    "mutants": 4,
+    "packages": [
+      "pyyaml"
+    ],
+    "bundle_url": "browser-judge/10-590d97e6cc23a6f56adf.json",
+    "runtime_bundle_url": "browser-judge/runtime-84ec068fea120c2d35f6.json",
+    "source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+    "preparation_ms": 3784,
+    "calibration_ms": 227558,
+    "learner_ms": 45449,
+    "elapsed_ms": 277186,
+    "budgets": {
+      "calibration": 240000,
+      "run": 60000,
+      "total": 300000
+    },
+    "browser_budget_exceeded": [],
+    "passed": true
+  },
+  "scope": "Exact main source Quality and eligible Pages build/deploy succeeded;78nativecatalog/10218executions/342mutants and78realWASM modules passed;78live decodedstarters/manifests/details/158immutable payloads plus both0.20 Apache profiles match frozen20bytes. Current0.21working source is not used by the live verifier. Durations are correctness observations,not controlled speed comparisons.",
+  "producer_receipts": "Watcher69322,live8185,nativeartifact62964,WASM artifact99473,and exact observed-job logdownload31526 all polled terminal0. Pages38859875336 discovered through tested-main policy;no dispatch/bypass.",
+  "artifact_hashes": {
+    "remote-observer-terminal.json": "6b989324e7d9ba136fb3def110c0dd97c3c3dd201e9b688907c44b2bc99ef93a",
+    "remote-native/ci.json": "412f7f126c94a04fc32b0dcbbefd443c20063e1a2558e69ecff52491e09b913b",
+    "remote-wasm/browser-wasm.json": "1735c01cb0648354c345f3affe814307e7c8fbdb878f24501f8316e5c2288e30",
+    "live-assets.json": "cfdf92b89b692a7c4ce05648e11c2225257cd55ca5916139fec0305ebe80eafc",
+    "quality-native.log": "f52f15f6f63da35d4311e29d514826d266424f336578673b6a8e1d489ad9183c",
+    "quality-wasm.log": "d35d23928bb375537fb6b762591093e1bdc0d027b9b2154e38fe14e740a0911b"
+  }
+}

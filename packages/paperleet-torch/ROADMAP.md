@@ -239,6 +239,18 @@ Complete local native/catalog/WASM/distribution/frontend gates pass; exact remot
 adoption follows publication. Evidence is tracked in
 [iteration 20](../../docs/validation/torch-runtime-iteration-20.md).
 
+## Version 0.21 candidate
+
+Dimension validation and native shape/view identity rules cover functional and
+method entries, scalar/empty cases, singleton strides, VJP and JVP. Graphless
+views preserve base-dependent gradient flags without inventing gradient edges;
+explicit `requires_grad_()` creates a leaf accumulator. Checked `copy_` retains
+nonoverlapping singleton expansions. Source snapshots, rejected failures and two
+balanced CPU/WASM benchmark phases are retained. This candidate has remaining
+view/expansion overhead and has not been adopted on main; complete catalog,
+exported application and remote integration gates remain required. See
+[iteration 21](../../docs/validation/torch-runtime-iteration-21.md).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

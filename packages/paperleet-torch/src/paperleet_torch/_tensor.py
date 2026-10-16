@@ -2,9 +2,11 @@
 import copy
 import math
 import weakref
+import warnings
 from collections import namedtuple
 from statistics import NormalDist
 import numpy as np
+from . import _layout
 
 
 class StorageVersion:
@@ -64,6 +66,8 @@ class Tensor:
     __array_priority__ = 1000
     __hash__ = object.__hash__
     _retain_grad = False
+    _view_base = None
+    _no_grad_view = False
     _backward_hooks = None
     _post_accumulate_grad_hooks = None
 
@@ -114,10 +118,21 @@ class Tensor:
     device = property(lambda self: _device._CPU)
     is_leaf = property(lambda self: self._grad_node is None)
     _version = property(lambda self: self._storage.version)
-    T = property(lambda self: self.permute(*reversed(range(self.ndim))))
+    @property
+    def T(self):
+        if self.ndim==0:
+            if not getattr(_state,'_scalar_t_warning_emitted',False):
+                warnings.warn('Tensor.T is deprecated on 0-D tensors.',UserWarning,stacklevel=2)
+                _state._scalar_t_warning_emitted=True
+        elif self.ndim>2 and not getattr(_state,'_high_rank_t_warning_emitted',False):
+            warnings.warn('Tensor.T on tensors with more than two dimensions is deprecated.',UserWarning,stacklevel=2)
+            _state._high_rank_t_warning_emitted=True
+        return self.permute(tuple(reversed(range(self.ndim))))
     data = property(lambda self: self.detach())
 
     def __getattr__(self, name):
+        if name == 'requires_grad' and self._view_base is not None:
+            return self._view_base.requires_grad
         if name.startswith('_'): raise AttributeError(name)
         return _errors.unsupported(f'Tensor.{name}')
     def _real_only(self):
@@ -238,6 +253,11 @@ class Tensor:
         if requires_grad and self.dtype.kind == 'c': raise _errors.BrowserUnsupported('Complex autograd requires the server')
         if requires_grad and self.dtype.kind != 'f': raise RuntimeError('Only floating tensors can require grad')
         if self._parents and not requires_grad:raise RuntimeError('Only leaf tensors can change requires_grad flags')
+        if not requires_grad and self._grad_node is None and self._view_base is not None:
+            self.__dict__.pop('requires_grad',None)
+            self._no_grad_view = True
+            return self
+        if requires_grad:self._no_grad_view = False
         self.requires_grad = requires_grad
         return self
 
@@ -290,7 +310,7 @@ class Tensor:
                     position=int(key);position=position if position>=0 else position+original_shape[axis]
                     slices.append(slice(position,position+1));axis+=1
             data=original_data[tuple(slices)].reshape(()) if slices else original_data.view().reshape(())
-        return _autograd.result(data, (self, vjp), saved=saved, saves_tensors=not basic)
+        return _autograd.result(data, (self, vjp), saved=saved, saves_tensors=not basic, view_of=self if basic else None)
 
     def __setitem__(self, index, value):
         if _state._jvp_active: raise _errors.BrowserUnsupported('Tensor mutation during JVP requires the server')
@@ -565,7 +585,7 @@ class Tensor:
         original_data = self._data
         original_shape = self.shape
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
-        return _autograd.result(original_data.reshape(shape), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
+        return _autograd.result(original_data.reshape(shape), (self, lambda g: g.reshape(original_shape)), saves_tensors=False, view_of=self)
     def view(self, *shape, **kwargs):
         original_data = self._data
         original_shape = original_data.shape
@@ -592,7 +612,7 @@ class Tensor:
         if data is None:
             args = _layout.arguments(shape, kwargs)
             data = _layout.view(original_data, *args)
-        return _autograd.result(data, (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
+        return _autograd.result(data, (self, lambda g: g.reshape(original_shape)), saves_tensors=False, view_of=self)
     def view_as(self, other):
         if not isinstance(other, Tensor): raise TypeError('view_as requires a Tensor')
         return self.view(other.shape)
@@ -621,32 +641,53 @@ class Tensor:
             return tuple(self[tuple(index)] for _ in range(chunks))
         return self.split((size+chunks-1)//chunks,dim)
     def flatten(self, start_dim=0, end_dim=-1):
-        if not self.ndim: return self.reshape(1)
-        end_dim %= self.ndim
-        return self.reshape(*self.shape[:start_dim], -1, *self.shape[end_dim+1:])
+        start=_layout.dimension(start_dim,self.ndim);end=_layout.dimension(end_dim,self.ndim)
+        if start>end:raise RuntimeError('flatten start_dim cannot follow end_dim')
+        if not self.ndim:return self.reshape(1)
+        if start==end:return self
+        shape=(*self.shape[:start],math.prod(self.shape[start:end+1]),*self.shape[end+1:])
+        return self.reshape(shape)
     def unsqueeze(self, dim):
         original_data = self._data
         original_shape = self.shape
-        return _autograd.result(np.expand_dims(original_data, dim), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
-    def squeeze(self, dim=None):
+        axis=_layout.dimension(dim,self.ndim,insertion=True)
+        shape=(*original_shape[:axis],1,*original_shape[axis:])
+        step=original_data.itemsize if axis==self.ndim else original_data.strides[axis]*original_shape[axis]
+        strides=(*original_data.strides[:axis],step,*original_data.strides[axis:])
+        value=_layout.metadata_view(original_data,shape,strides,original_data.reshape(shape))
+        return _autograd.result(value,(self,lambda g:g.reshape(original_shape)),saves_tensors=False,view_of=self)
+    def squeeze(self, dim=_layout.UNSPECIFIED_DIM):
         original_data = self._data
         original_shape = self.shape
-        if dim is not None and original_data.shape[dim] != 1: return self
-        return _autograd.result(np.squeeze(original_data, axis=dim), (self, lambda g: g.reshape(original_shape)), saves_tensors=False)
-    def permute(self, *dims):
-        if len(dims) == 1 and isinstance(dims[0], (tuple, list)): dims = tuple(dims[0])
-        dims = tuple(d % self.ndim for d in dims)
-        return _autograd.result(self._data.transpose(dims), (self, lambda g: g.transpose(np.argsort(dims))), saves_tensors=False)
+        if dim is _layout.UNSPECIFIED_DIM:axes=None
+        elif type(dim) is int:
+            axis=_layout.dimension(dim,self.ndim)
+            axes=(axis,) if self.ndim and original_shape[axis]==1 else ()
+        else:
+            dims=dim if isinstance(dim,(tuple,list)) else (dim,)
+            dims=tuple(_layout.dimension(v,self.ndim) for v in dims)
+            if len(set(dims))!=len(dims):raise RuntimeError('Squeeze dimensions must be unique')
+            axes=tuple(v for v in dims if self.ndim and original_shape[v]==1)
+        return _autograd.result(np.squeeze(original_data,axis=axes),(self,lambda g:g.reshape(original_shape)),saves_tensors=False,view_of=self)
+    def permute(self, *dims, **kwargs):
+        dims=_layout.permutation(dims,kwargs,self.ndim)
+        return _autograd.result(self._data.transpose(dims),(self,lambda g:g.transpose(_layout.inverse_permutation(dims))),saves_tensors=False,view_of=self)
     def transpose(self, dim0, dim1):
-        dims = list(range(self.ndim)); dims[dim0], dims[dim1] = dims[dim1], dims[dim0]
-        return self.permute(*dims)
-    def expand(self, *shape):
+        dim0=_layout.dimension(dim0,self.ndim);dim1=_layout.dimension(dim1,self.ndim)
+        if not self.ndim:
+            return _autograd.result(self._data.view(),(self,lambda g:g),saves_tensors=False,view_of=self)
+        return _autograd.result(self._data.swapaxes(dim0,dim1),(self,lambda g:g.swapaxes(dim0,dim1)),saves_tensors=False,view_of=self)
+    def expand(self, *shape, **kwargs):
         original_data = self._data
         original_shape = self.shape
-        if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
-        leading = (1,) * (len(shape) - original_data.ndim) + original_data.shape
-        target = tuple(old if new == -1 else new for old, new in zip(leading, shape))
-        return _autograd.result(np.broadcast_to(original_data, target), (self, lambda g: _ops.unbroadcast(g, original_shape)), saves_tensors=False)
+        target,strides=_layout.expansion(shape,kwargs,original_shape,original_data.strides)
+        value=_layout.metadata_view(original_data,target,strides,np.broadcast_to(original_data,target))
+        if value.flags.writeable:
+            # Keep expansion read-only while retaining a writable ndarray base
+            # for copy_'s separately checked, nonoverlapping destinations.
+            value=value.view()
+            value.flags.writeable=False
+        return _autograd.result(value,(self,lambda g:_ops.unbroadcast(g,original_shape)),saves_tensors=False,view_of=self)
     def expand_as(self, other): return self.expand(other.shape)
     def repeat(self, *repeats):
         original_data = self._data
@@ -1108,4 +1149,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _autograd, _conversion, _device, _errors, _layout, _linalg, _ops, _random, _state, _tensor_hooks
+from . import _arithmetic, _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks

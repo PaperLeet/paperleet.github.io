@@ -516,3 +516,35 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
 from . import _layout, _autograd, _construction, _conversion, _device, _errors, _promotion, _state, _tensor
+
+
+def permute(input,dims):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('permute input must be a Tensor')
+    if not isinstance(dims,(tuple,list)):raise TypeError('permute dims must be a sequence')
+    return input.permute(dims)
+
+
+def broadcast_to(input,shape):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('broadcast_to input must be a Tensor')
+    if not isinstance(shape,(tuple,list)):raise TypeError('broadcast shape must be a sequence')
+    return input.expand(shape)
+
+
+def flatten(input,start_dim=0,end_dim=-1):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('flatten input must be a Tensor')
+    return input.flatten(start_dim,end_dim)
+
+
+def transpose(input,dim0,dim1):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('transpose input must be a Tensor')
+    return input.transpose(dim0,dim1)
+
+
+def unsqueeze(input,dim):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('unsqueeze input must be a Tensor')
+    return input.unsqueeze(dim)
+
+
+def squeeze(input,dim=_layout.UNSPECIFIED_DIM):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('squeeze input must be a Tensor')
+    return input.squeeze() if dim is _layout.UNSPECIFIED_DIM else input.squeeze(dim)

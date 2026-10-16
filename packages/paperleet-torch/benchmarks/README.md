@@ -243,3 +243,13 @@ cases. The CPU wrapper also accepts batchnorm/groupnorm/classification/convoluti
 records license hashes and can report older NumPy configuration APIs without
 claiming a verified thread count.
 These are local microbenchmarks, not native-Torch or application speed claims.
+
+`bench_shape_ops.py` retains those nine controls and adds six shape transformations,
+a shape-chain reverse pass and matching-layout JVP, for seventeen fixed cases.
+CPU/WASM wrappers accept `--benchmark shape_ops`; both releases must support the
+same successful values, aliases and analytical derivatives. The comparison omits
+scalar/empty and no-grad behavior corrected by 0.21. Defaults are eleven batches
+of 1,200 calls (120 for reverse/JVP), with three warmups. The standalone Python
+harness is byte-identical to the measured 0.21 fast-path comparison. All initial
+regressions remain in the validation evidence; native Torch, application latency,
+cold start and peak memory are outside this measurement.
