@@ -141,3 +141,7 @@ typed builds pass. The 47 computational resources, 161 exports, Python/catalog,
 lock and WASM driver inputs remain unchanged. See `iteration-35-main-sync.json`.
 An initial harness preparation used an unresolved relative template path; no UI
 test ran until the path was corrected. Both terminal logs are retained.
+
+Validated source was adopted non-force on remote `main` at `36abab82b95ccc88990a2a108b0c31131814d059`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-35-main-adoption.json`; no tag, dispatch or online release was created.
