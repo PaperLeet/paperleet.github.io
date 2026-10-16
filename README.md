@@ -61,6 +61,8 @@ For latent prediction and control, follow [Latent world models & planning](https
 
 For representation geometry, follow [Representation alignment & distribution](https://paperleet.com/#/interviews?track=representation-shape): VICReg, SIGReg, VISReg and REPA. The bilingual self-checks distinguish moment matching from distribution shape, frozen normalization geometry from live feature gradients, and patch alignment from velocity prediction.
 
+For policy distillation, follow [Policy distillation & context alignment](https://paperleet.com/#/interviews?track=policy-distillation): SFT loss masks, student-prefix OPD, OPSD causal alignment and vocabulary-wise clipping. The bilingual self-checks separate valid-token and equal-response reductions, teacher-context offsets and signed clipped contributions.
+
 For Transformer core and efficiency, use the [guided preparation path](https://paperleet.com/#/interviews?track=transformer): nine modules connecting positions, per-token FFNs, normalization, shared KV heads and online softmax.
 
 For diffusion practice, the [Training & experimentation path](https://paperleet.com/#/interviews?track=training) connects schedules, v-parameterization, DDPM, DDIM and Flow Matching alongside optimizer and policy objectives. Bilingual study prompts separate each core implementation from the supplied sampling and experiment helpers.

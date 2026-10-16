@@ -2312,6 +2312,133 @@
           }
         }
       ]
+    },
+    {
+      "id": "rl/opd",
+      "source": "problems/rl/opd/README.md",
+      "functions": [
+        "sample_student",
+        "distillation_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "本题的 on-policy 来自谁的回答？教师和学生需要看到同一批什么前缀？",
+            "en": "Whose responses make this exercise on-policy, and which prefixes must both models evaluate?"
+          },
+          "hint": {
+            "zh": "本题采用 GKD 的 lambda=1：从学生采样，再让两者在学生已生成的前缀上比较全词表分布。Markov toy 的首个前缀是 BOS，之后是上一步采到的 token；不对离散采样求导，也不是教师生成训练答案。",
+            "en": "This GKD exercise fixes lambda=1: sample the student, then compare both full-vocabulary distributions on its generated prefixes. The Markov toy begins at BOS and then uses the previous sampled token. Discrete sampling has no gradient; the teacher does not generate the training answers."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样同时写对 forward/reverse KL、教师梯度隔离和含 NaN 的 padding？",
+            "en": "How do you preserve KL direction, stop teacher gradients and handle NaN padding together?"
+          },
+          "hint": {
+            "zh": "令 p 为学生、q 为固定教师。forward 用 q 加权 log q-log p，reverse 用 p 加权 log p-log q。先清零无效位置，再做 log-softmax；沿词表求和后，只除以全部有效 token 数。全遮挡也要保留学生计算图中的零。",
+            "en": "Let p be the student and q the stopped teacher. Forward weights log q-log p by q; reverse weights log p-log q by p. Neutralize padding before log-softmax. Sum over vocabulary, then divide by the total valid-token count. An all-masked batch still returns graph-connected student zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用一个两状态转移表，区分每步都从 BOS 抽样和真正的学生前缀采样？",
+            "en": "How can a two-state transition table reveal sampling from BOS at every step?"
+          },
+          "hint": {
+            "zh": "让 BOS 按 1:3 选择两个 token，并让两个 token 各自几乎必然留在自身。首 token 的频率接近 0.75，后续应跟随首次选择。再用不等回答长度、空 mask 和需要梯度的教师检查损失；这里按有效 token 平均，不是下一道 OPSD 题的回答等权平均。",
+            "en": "Use a 1:3 BOS distribution and nearly absorbing token states. The first-token frequency approaches 0.75, while later tokens follow that first choice. Also test unequal lengths, an empty mask and a grad-enabled teacher. This loss averages valid tokens, unlike the later OPSD exercise that weights responses equally."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/opsd_alignment",
+      "source": "problems/finetuning/opsd_alignment/README.md",
+      "functions": [
+        "align_rollout_logits"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "同一段学生回答接到两个不同长度的 prompt 后，为什么不能直接按相同绝对位置对齐 logits？",
+            "en": "Why do unequal prompts require different absolute logit positions for the same student response?"
+          },
+          "hint": {
+            "zh": "教师上下文多了参考解，但两边附加的是同一段学生 rollout。回答第 j 个 token 的预测位于各自 prompt_length-1+j：该位置还没有读到要预测的 token。教师分支作为固定目标，不能把它改成另一段教师生成的回答。",
+            "en": "The teacher context includes a reference solution, but both contexts append the same student rollout. Token j is predicted at each branch’s own prompt_length-1+j, before that token is consumed. The teacher is a stopped target, not a separately generated answer to align against."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "批内最大回答长度拉长输出后，短行的 gather 为什么仍需要安全索引？",
+            "en": "Why do shorter rows need safe gather indices when another response makes the output wider?"
+          },
+          "hint": {
+            "zh": "输出 T 取批内最大回答长度。无效列可能越过短行的物理长度；先让 gather 索引落在范围内，再把 mask 外的结果精确清零。两边分别使用自己的 prompt 长度，教师 detach，学生只在有效选中位置保留梯度；全空回答返回 [B,0,V] 和 [B,0] mask。",
+            "en": "T is the batch maximum response length. Invalid columns may exceed a shorter row’s physical sequence, so make gathers safe before zeroing masked outputs. Use separate prompt lengths, detach teacher values and retain gradients only at valid student positions. All-empty responses return [B,0,V] logits and a [B,0] mask."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "学生 prompt 长 2、教师长 5、回答长 3 时，应检查哪些位置和梯度？",
+            "en": "With prompt lengths 2 and 5 and response length 3, which positions and gradients should you check?"
+          },
+          "hint": {
+            "zh": "从学生取 [1,2,3]，教师取 [4,5,6]。再加入一条空回答：它的输出和学生梯度必须为零。扰动未选中的 prompt/padding、打乱 batch 顺序、检查输入未改动，并确认教师无梯度，可分别抓住偏移、掩码和分支混用错误。",
+            "en": "Select student positions [1,2,3] and teacher positions [4,5,6]. Add an empty response with zero output and student gradient. Perturb unselected prompt/padding positions, permute the batch, check input immutability and confirm no teacher gradient to distinguish offset, masking and branch-mixing errors."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/opsd_clipping",
+      "source": "problems/finetuning/opsd_clipping/README.md",
+      "functions": [
+        "clipped_distillation_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么逐词表项截断后的损失可以为负，而“先求 KL 再截断”不等价？",
+            "en": "Why can vocabulary-wise clipping produce a negative loss, and why is clipping the summed KL different?"
+          },
+          "hint": {
+            "zh": "完整 KL 的非负性依赖所有有符号词表项的总和。本题对每一项只做上限 min(term,tau)，保留负项，再沿词表求和；截掉大的正项后，总和可能为负。不能把负项或最终损失 clamp 到零。",
+            "en": "KL nonnegativity concerns the complete sum of signed vocabulary terms. This exercise applies only an upper cap min(term,tau) to each term, retains negative contributions, then sums over vocabulary. Removing large positive terms can leave a negative total; do not clamp negative terms or the final loss to zero."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "这道题与前面的 OPD 在回答长度不同时，损失分母有什么区别？",
+            "en": "How does this exercise’s reduction differ from OPD when response lengths vary?"
+          },
+          "hint": {
+            "zh": "先用 q*(log q-log p) 或 p*(log p-log q) 构造 forward/reverse 词表项并逐项截断。每条回答内平均有效 token，再平均全部 B 条回答；空回答贡献零但仍计入 B。OPD 则除以总有效 token 数。教师必须固定，全空或 T=0 仍要得到可求导零。",
+            "en": "Build forward q*(log q-log p) or reverse p*(log p-log q) terms and cap them individually. Average valid tokens within each response, then average all B responses, including empty responses as zero. OPD instead divides by the total valid-token count. Stop the teacher and preserve differentiable zero for empty masks or T=0."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪一个小分布例子能同时暴露整体截断、丢弃负项和 KL 方向错误？",
+            "en": "Which small distributions expose aggregate clipping, discarded negative terms and reversed KL direction?"
+          },
+          "hint": {
+            "zh": "用学生 p=[0.03,0.17,0.8]、教师 q=[0.8,0.15,0.05]，tau=0.01，forward 结果约为 -0.147404。分别计算每个有符号项，并换成 reverse 再比较。梯度差分应避开恰好等于 tau 的拐点；再用不等长度与空回答检查回答等权平均。",
+            "en": "Use student p=[0.03,0.17,0.8], teacher q=[0.8,0.15,0.05] and tau=0.01: forward loss is about -0.147404. Calculate each signed term, then compare reverse KL. Keep finite differences away from clipping boundaries, and test unequal-length plus empty responses for equal response weighting."
+          }
+        }
+      ]
     }
   ]
 }

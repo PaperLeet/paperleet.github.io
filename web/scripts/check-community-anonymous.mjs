@@ -52,6 +52,28 @@ try{
  attempts=[];account.capabilities={};drafts.writePostDraft(sessionStorage,alice.id,'general',{...draft,anonymous:true});await render(Community,{route:'community?category=career'});await click(document.querySelector('.community-compose-button'));assert(document.querySelector('.community-composer .form-footer>.button').disabled);await submit('.community-composer form');assert.equal(attempts.length,0);assert(document.body.textContent.includes('Anonymous posting is unavailable'));await click(document.querySelector('.publishing-identity input'));assert(!document.querySelector('.community-composer .form-footer>.button').disabled);assert(!drafts.readPostDraft(sessionStorage,alice.id,'general').anonymous);await stop();
  // Anonymous interview confirmation accepts only the server-authorized thread identity.
  account.capabilities={community_anonymous_posts:true};attempts=[];const interview={company:'google',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]};interviews.writeInterviewDraft(sessionStorage,alice.id,{title:'An experience',body:'Actual experience with a coding round.',interview,anonymous:true});const card=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(InterviewCard,{post:{...post,interview},owner:alice.id,canSave:false,returnTo:'#/interviews',savedView:false,onReload(){}})));assert(card.includes('Research Institute')&&card.includes('Anonymous')&&!card.includes('#/u/alice'));await render(Composer,{owner:alice.id,company:'google',problems:[],onClose(){},onPublished:value=>published.push(value)});await submit('.interview-composer form');assert.equal(published.length,1);assert.equal(published[0].author.id,'anonymous:'+postId);assert.equal(interviews.readInterviewDraft(sessionStorage,alice.id),undefined);await stop();
+ // Only the public profile explains missing affiliation; existing institution/domain labels stay intact.
+ for(const fields of [
+  {affiliation,institution:null,label:'Research Institute'},
+  {affiliation:null,institution:{id:'brown',name:'布朗大学',name_en:'Brown University'},label:'Brown University'},
+  {affiliation:{kind:'email_domain',name:'brown.edu',domain:'brown.edu'},institution:null,label:'Brown University'},
+  {affiliation:{kind:'email_domain',name:'research-lab.ac.uk',domain:'research-lab.ac.uk'},institution:null,label:'Research LAB'},
+  {affiliation:null,institution:null,label:'No affiliation listed'},
+  {affiliation:undefined,institution:undefined,label:'No affiliation listed'},
+ ]){
+  Object.assign(alice,{affiliation:fields.affiliation,institution:fields.institution,email:'fixture@private.example'});
+  await render(UserProfile,{username:'alice'});
+  const facts=document.querySelector('.profile-facts');assert(facts.textContent.includes(fields.label));
+  assert.equal(!!facts.querySelector('.profile-affiliation-empty'),fields.label==='No affiliation listed');
+  assert(!facts.textContent.includes('unverified')&&!facts.querySelector('.lucide-shield-check'),'Missing affiliation must not imply a verification decision');
+  assert(!document.body.innerHTML.includes(alice.email),'Public profile rendering must not expose a full mailbox');
+  assert(!document.querySelector('.community-post-card .profile-affiliation-empty'),'Activity cards do not gain an empty affiliation placeholder');
+  await stop();
+ }
+ localStorage.setItem('paperleet.locale','zh');await render(UserProfile,{username:'alice'});assert(document.querySelector('.profile-affiliation-empty').textContent.includes('暂无机构信息'));await stop();localStorage.setItem('paperleet.locale','en');
+ Object.assign(alice,{affiliation});delete alice.institution;delete alice.email;
+ const withoutAffiliation=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Author,{user:{...anonymous,affiliation:undefined,institution:undefined}})));
+ assert(!withoutAffiliation.includes('No affiliation listed')&&!withoutAffiliation.includes('暂无机构信息'),'Anonymous cards do not disclose or invent missing affiliation status');
  // Public profile rendering must drop owner-only anonymous history synchronously on account change.
  await render(UserProfile,{username:'alice'});assert(document.querySelector('.community-post-card'));holdProfile=true;account.user=undefined;await render(UserProfile,{username:'alice'});assert(!document.querySelector('.community-post-card'),'Previous owner-only history cannot survive the guest render while requests are pending');await stop();held.forEach(resolve=>resolve({items:[],total:0}));
  account.user=alice;holdProfile=false;localStorage.setItem('paperleet.locale','zh');post.replies=[reply,{...reply,id:'d'.repeat(32),parent_id:reply.id}];await render(Community,{postId,route:'community/'+postId});assert(document.querySelector('.anonymous-author').textContent.includes('匿名用户'));assert(document.querySelector('.reply-context').textContent.includes('匿名用户'));assert(!document.querySelector('.reply-context').textContent.includes('Anonymous'));await stop();

@@ -626,6 +626,23 @@
       ],
       "description": "从 VICReg 的统计约束，练到 SIGReg 特征函数、VISReg 尺度与形状分离，再连接 REPA 逐 patch 对齐。",
       "description_en": "Connect VICReg statistics, SIGReg characteristic functions and VISReg scale/shape separation with REPA patch alignment."
+    },
+    {
+      "id": "policy-distillation",
+      "name": "策略蒸馏与上下文对齐",
+      "name_en": "Policy distillation & context alignment",
+      "description": "从有效 token 损失掩码，练到学生前缀采样、双上下文因果对齐和逐词表项散度截断。",
+      "description_en": "Connect valid-token loss masks, student-prefix sampling, dual-context causal alignment and vocabulary-wise divergence clipping.",
+      "modules": [
+        "foundations/sft_loss_mask",
+        "rl/opd",
+        "finetuning/opsd_alignment",
+        "finetuning/opsd_clipping"
+      ],
+      "roles": [
+        "llm",
+        "research"
+      ]
     }
   ]
 }

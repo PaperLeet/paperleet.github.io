@@ -1,4 +1,4 @@
-import {ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages} from './deferredPages';
+import {ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
@@ -144,6 +144,9 @@ function Workspace() {
   const [runNotice, setRunNotice] = useState<{owner:string; problem:string; message:string}>();
   const [latestRun, setLatestRun] = useState<{owner:string; problem:string; mode:"browser" | "server"}>();
   const lastServerProblem = useRef<string | undefined>(undefined);
+  const readingTabsContainer = useRef<HTMLDivElement>(null);
+  const readingTabsViewport = useRef<HTMLDivElement>(null);
+  const readingTabsContent = useRef<HTMLDivElement>(null);
   function selectReadingTab(nextTab: string) {
     setTab(nextTab); setMobilePane("read"); setFocusMode(false);
     requestAnimationFrame(() => {
@@ -710,34 +713,39 @@ function Workspace() {
             secondId="problem-editor-panel"
           >
             <section className="description-pane" id="problem-description-panel">
-              <div className="pane-tabs" role="tablist" aria-label={t('题目内容','Problem content')} onKeyDown={navigateTabs}>
-                {tabs.map(([key, label]) => (
-                  <button
-                    key={key}
-                    id={`reading-tab-${key}`}
-                    role="tab"
-                    tabIndex={tab === key ? 0 : -1}
-                    className={tab === key ? "selected" : ""}
-                    aria-selected={tab === key}
-                    aria-controls={key === "result" ? "problem-results-panel" : "problem-reading-content"}
-                    onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
-                  >
-                    {key === "description" ? (
-                      <FileCode2 size={14} />
-                    ) : key === "result" ? (
-                      <Terminal size={14} />
-                    ) : key === "lab" ? (
-                      <FlaskConical size={14} />
-                    ) : key === "notes" &&
-                      !notesUnlocked ? (
-                      <LockKeyhole size={12} />
-                    ) : null}
-                    {label}
-                  </button>
-                ))}
-                {hostedAppAvailable && <a className="module-discussion-tab" href={topicHref(problem.id)}>
-                  <MessageCircle size={14} />{t("讨论", "Discuss")}
-                </a>}
+              <div className="reading-tab-strip" ref={readingTabsContainer}>
+                <div className="reading-tab-scroll" ref={readingTabsViewport}>
+                  <div className="pane-tabs" id="problem-reading-tabs" ref={readingTabsContent} role="tablist" aria-label={t('题目内容','Problem content')} onKeyDown={navigateTabs}>
+                    {tabs.map(([key, label]) => (
+                      <button
+                        key={key}
+                        id={`reading-tab-${key}`}
+                        role="tab"
+                        tabIndex={tab === key ? 0 : -1}
+                        className={tab === key ? "selected" : ""}
+                        aria-selected={tab === key}
+                        aria-controls={key === "result" ? "problem-results-panel" : "problem-reading-content"}
+                        onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
+                      >
+                        {key === "description" ? (
+                          <FileCode2 size={14} />
+                        ) : key === "result" ? (
+                          <Terminal size={14} />
+                        ) : key === "lab" ? (
+                          <FlaskConical size={14} />
+                        ) : key === "notes" &&
+                          !notesUnlocked ? (
+                          <LockKeyhole size={12} />
+                        ) : null}
+                        {label}
+                      </button>
+                    ))}
+                    {hostedAppAvailable && <a className="module-discussion-tab" href={topicHref(problem.id)}>
+                      <MessageCircle size={14} />{t("讨论", "Discuss")}
+                    </a>}
+                  </div>
+                </div>
+                <ReadingTabControls container={readingTabsContainer} viewport={readingTabsViewport} content={readingTabsContent} controlsId="problem-reading-tabs" selectedKey={tab}/>
               </div>
               <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab === "result" ? "description" : tab}`} tabIndex={0} key={`${problem.id}:${tab}`} hidden={tab === "result"}>
                 {learningNotice}

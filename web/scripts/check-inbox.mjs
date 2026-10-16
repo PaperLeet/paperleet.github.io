@@ -16,21 +16,36 @@ try {
   const {default: Bell} = await server.ssrLoadModule('/src/InboxBell.tsx');
   const {default: Panel} = await server.ssrLoadModule('/src/InboxPanel.tsx');
   const {default: Messages, mergeMessages} = await server.ssrLoadModule('/src/Messages.tsx');
-  const {inboxRequest, inboxChanged} = await server.ssrLoadModule('/src/inbox.ts');
+  const {inboxRequest, inboxChanged, applyInboxReadAll} = await server.ssrLoadModule('/src/inbox.ts');
+  const {LocaleProvider} = await server.ssrLoadModule('/src/i18n.tsx');
   const {SocialError} = await server.ssrLoadModule('\0inbox-account');
   const alice = {id: 'alice', username: 'alice', display_name: 'Alice', avatar_color: '#48766b'};
   const bob = {id: 'bob', username: 'bob', display_name: 'Bob', avatar_color: '#48766b'};
   const account = {user: alice, loading: false, error: '', capabilities: {inbox_notifications: true, direct_messages: true}, refresh: async () => {}};
   const count = {user_id: 'alice', unread_count: 2, notification_unread_count: 1, message_unread_count: 1};
   const notification = {id: 'likes:post', kind: 'like', latest_event_id: 8, created_at: '2026-10-15T10:00:00Z', unread: true, actor_count: 3, actors: [bob], post: {id: 'a'.repeat(32), title: '<script>paper</script>'}, reply_id: null, preview: ''};
-  let snapshot = {...count, observed_event_id: 8, notifications: [notification], notifications_next_before: null, conversations: [], conversations_next_before: null};
+  let snapshot = {...count, observed_event_id: 8, observed_message_id: 40, notifications: [notification], notifications_next_before: null, conversations: [], conversations_next_before: null};
   let thread = {user_id: 'alice', peer: bob, conversation_id: null, messages: [], next_before: null, observed_message_id: 0, unread_count: 0, can_send: true, awaiting_reply: false, is_mutual_follow: false};
   let failSend = false, acknowledgeLost = false, sendRejection, deferRead = false, readRelease, deferThread = false, threadRelease, failThread = false;
+  let deferInbox = false, inboxRelease, deferReadAll = false, readAllRelease, failReadAll = false, loseReadAllResponse = false;
   const calls = [], sent = [];
   globalThis.__inboxFixture = {account, request: async (path, body, signal) => {
     calls.push({path, body, signal});
     if (path === 'inbox?summary=1') return {...snapshot};
-    if (path.startsWith('inbox?')) return structuredClone(snapshot);
+    if (path.startsWith('inbox?')) {
+      if (deferInbox) return new Promise(resolve => {inboxRelease = resolve;});
+      return structuredClone(snapshot);
+    }
+    if (path === 'inbox/read-all') {
+      assert.equal(body.expected_user_id, account.user.id);
+      if (deferReadAll) await new Promise(resolve => {readAllRelease = resolve;});
+      if (failReadAll) throw Error('Could not mark inbox read');
+      const notificationUnread = snapshot.observed_event_id > body.through_event_id ? 1 : 0;
+      const messageUnread = snapshot.observed_message_id > body.through_message_id ? 1 : 0;
+      snapshot = applyInboxReadAll(snapshot, {...count, notification_unread_count: notificationUnread, message_unread_count: messageUnread, unread_count: notificationUnread + messageUnread}, body);
+      if (loseReadAllResponse) { loseReadAllResponse = false; throw Error('Read acknowledgement response lost'); }
+      return {...snapshot};
+    }
     if (path === 'inbox/read') {
       assert.equal(body.expected_user_id, account.user.id);
       if (deferRead) await new Promise(resolve => {readRelease = resolve;});
@@ -81,13 +96,85 @@ try {
   assert(document.body.textContent.includes('<script>paper</script>'));
   assert(!document.querySelector('script'));
   assert(!calls.some(call => call.path === 'inbox/read'), 'Opening the inbox does not mark unseen notifications read');
-  deferRead = true; await click(button('Mark all as read'));
+  assert(!button('Mark all as read'), 'Older servers keep the notification-only action without advertising all-inbox support');
+  deferRead = true; await click(button('Mark notifications as read'));
   const mark = calls.findLast(call => call.path === 'inbox/read');
   assert.equal(mark.body.through_event_id, 8);
   snapshot = {...snapshot, observed_event_id: 9, notifications: [{...notification, latest_event_id: 9}]};
   await act(async () => readRelease());
   assert(document.querySelector('.inbox-row-dot'), 'A notification arriving after the displayed cutoff remains unread');
   deferRead = false; await stop();
+
+  account.capabilities.inbox_read_all = true;
+  const panelProps = {owner: 'alice', notifications: true, messages: true, onCounts() {}};
+  deferInbox = true; await render(Panel, panelProps);
+  assert(button('Mark all as read')?.disabled, 'The all-read control is visible but disabled while its snapshot loads');
+  deferInbox = false; await act(async () => inboxRelease(structuredClone(snapshot)));
+  assert(!button('Mark all as read').disabled);
+  const allReadControl = button('Mark all as read');
+  assert(allReadControl.closest('.inbox-panel-heading'), 'All-read belongs to the shared header');
+  await click([...document.querySelectorAll('[role=tab]')].find(node => node.textContent.startsWith('Messages')));
+  assert.equal(button('Mark all as read'), allReadControl, 'The same all-read action remains visible in the message tab');
+  deferReadAll = true; await click(allReadControl);
+  const allMark = calls.findLast(call => call.path === 'inbox/read-all');
+  assert.deepEqual(allMark.body, {expected_user_id: 'alice', through_event_id: 9, through_message_id: 40});
+  assert(button('Marking…').disabled, 'Repeated all-read requests are disabled in flight');
+  assert.equal(snapshot.unread_count, 2, 'Pending acknowledgement never clears unread counters optimistically');
+  snapshot = {...snapshot, observed_event_id: 10, observed_message_id: 41, notifications: [{...notification, latest_event_id: 10}]};
+  await act(async () => readAllRelease());
+  assert.equal(snapshot.notification_unread_count, 1); assert.equal(snapshot.message_unread_count, 1);
+  assert(document.body.textContent.includes('New messages remain unread.'));
+  assert(!button('Mark all as read').disabled);
+  deferReadAll = false;
+  failReadAll = true; await click(button('Mark all as read'));
+  const failedCutoff = calls.findLast(call => call.path === 'inbox/read-all').body;
+  assert(document.querySelector('.inbox-read-all-feedback[role=alert]'));
+  assert.equal(snapshot.unread_count, 2, 'Failed writes leave unread counts intact');
+  snapshot = {...snapshot, observed_event_id: 11, observed_message_id: 42};
+  await act(async () => inboxChanged('alice'));
+  failReadAll = false; await click(document.querySelector('.inbox-read-all-feedback button'));
+  assert.deepEqual(calls.findLast(call => call.path === 'inbox/read-all').body, failedCutoff, 'A retry keeps both original cutoffs despite later arrivals');
+  await click(button('Mark all as read'));
+  assert.equal(snapshot.unread_count, 0);
+  assert(button('Mark all as read').disabled, 'An empty inbox keeps a visible disabled all-read action');
+  assert(document.body.textContent.includes('All marked as read'));
+  await stop();
+
+  snapshot = {...snapshot, ...count, observed_event_id: 12, observed_message_id: 43, notifications: [{...notification, latest_event_id: 12}]};
+  await render(Panel, panelProps);
+  const writesBeforeLostResponse = calls.filter(call => call.path === 'inbox/read-all').length;
+  loseReadAllResponse = true; await click(button('Mark all as read'));
+  assert.equal(snapshot.unread_count, 0);
+  assert(button('Mark all as read').disabled);
+  assert(!document.querySelector('.inbox-read-all-feedback[role=alert]'), 'A later zero-unread snapshot clears an uncertain write error');
+  assert(document.body.textContent.includes('All marked as read'), 'Confirmed completion replaces a lost-response retry with success');
+  assert.equal(calls.filter(call => call.path === 'inbox/read-all').length, writesBeforeLostResponse + 1, 'Recovery needs no duplicate write');
+  await stop();
+
+  // Full-snapshot cutoffs, rather than the displayed rows, cover all conversation pages.
+  snapshot = {...snapshot, ...count, observed_event_id: 30, observed_message_id: 80, conversations_next_before: 4, conversations: [{id: 1, peer: bob, last_message: {id: 4, sender_id: 'bob', body: 'Visible preview', created_at: '2026-10-15T10:00:00Z'}, unread_count: 1}]};
+  await render(Messages);
+  assert(button('Mark all as read').closest('.messages-sidebar-heading'));
+  await click(button('Mark all as read'));
+  assert.equal(calls.findLast(call => call.path === 'inbox/read-all').body.through_message_id, 80);
+  assert.equal(snapshot.message_unread_count, 0);
+  await stop();
+
+  snapshot = {...snapshot, ...count}; delete snapshot.observed_message_id;
+  await render(Panel, panelProps);
+  assert(button('Mark all as read').disabled, 'Mixed-version responses without a message cutoff cannot mark all read');
+  await stop(); snapshot.observed_message_id = 80;
+  localStorage.setItem('paperleet.locale', 'zh');
+  await act(async () => {root = createRoot(document.querySelector('#root')); root.render(React.createElement(LocaleProvider, null, React.createElement(Panel, panelProps)));});
+  assert(button('全部标为已读'), 'The shared action is localized');
+  await stop(); localStorage.setItem('paperleet.locale', 'en');
+  deferReadAll = true; await render(Messages); await click(button('Mark all as read'));
+  const oldRead = calls.findLast(call => call.path === 'inbox/read-all');
+  account.user = bob; await render(Messages);
+  assert(oldRead.signal.aborted, 'Switching accounts cancels an in-flight all-read acknowledgement');
+  await stop(); account.user = alice; deferReadAll = false;
+  await act(async () => readAllRelease());
+  snapshot = {...snapshot, ...count, conversations: [], conversations_next_before: null};
 
   await render(Messages, {username: 'bob'});
   assert(document.body.textContent.includes('You can send one message until they reply.'));
