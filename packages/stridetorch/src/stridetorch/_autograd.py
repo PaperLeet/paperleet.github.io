@@ -8,12 +8,20 @@ import numpy as np
 from . import _arithmetic, _graph, _layout, _tensor
 
 def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
-    if any(isinstance(node, ForwardTensor) for node in (*[node for node, _ in edges], *saved)):
+    single = len(edges) == 1
+    if single:
+        node, vjp = edges[0]
+        forward = isinstance(node, ForwardTensor)
+    else:forward = any(isinstance(node, ForwardTensor) for node, _ in edges)
+    if forward or saved and any(isinstance(node, ForwardTensor) for node in saved):
         raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
     value = _tensor.Tensor(data, _metadata_owned=True)
-    if value.dtype.kind == 'c' and _state._grad_enabled and any(node.requires_grad for node, _ in edges):
+    if not _state._grad_enabled:return value
+    if value.dtype.kind == 'c' and any(node.requires_grad for node, _ in edges):
         raise _errors.BrowserUnsupported('Complex autograd requires the server')
-    parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad and _state._grad_enabled)
+    if single:
+        parents = ((_graph.node_for(node), vjp, node.dtype),) if node.requires_grad else ()
+    else:parents = tuple((_graph.node_for(node), vjp, node.dtype) for node, vjp in edges if node.requires_grad)
     if parents:
         value._requires_grad = True
         # Default to conservative guards for arrays captured by VJP closures.
@@ -58,14 +66,29 @@ def joint_result(data, inputs, backward, *, saved=(), versioned=None):
 
     ``backward(seed, needs)`` returns one entry per input, using None only for
     frozen inputs. Needs are captured at graph construction, not recomputed
-    from mutable leaf flags. All operands retain the normal version guards.
+    from mutable leaf flags. Normal guards cover all operands unless the caller
+    supplies an explicit, validated ``versioned`` selection.
     No gradients or seeds are cached across traversals.
     """
     inputs = tuple(inputs)
-    value = result(data, *((node, None) for node in inputs), saved=saved, versioned=versioned)
-    if value.requires_grad:
-        needs = tuple(node.requires_grad and _state._grad_enabled for node in inputs)
-        value._grad_node.joint = (backward, needs)
+    if any(isinstance(node, ForwardTensor) for node in (*inputs, *saved)):
+        raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
+    value = _tensor.Tensor(data, _metadata_owned=True)
+    if not _state._grad_enabled:return value
+    needs = tuple(node.requires_grad for node in inputs)
+    if not any(needs):return value
+    if value.dtype.kind == 'c':
+        raise _errors.BrowserUnsupported('Complex autograd requires the server')
+    # Build active edges and shared metadata once instead of constructing a
+    # temporary per-edge VJP list and then replacing its backward descriptor.
+    parents = tuple((_graph.node_for(node), None, node.dtype)
+                    for node, active in zip(inputs, needs) if active)
+    operands = (value, *inputs, *saved) if versioned is None else versioned
+    counters = {node._storage for node in operands}
+    value._requires_grad = True
+    value._grad_node = _graph.Node(value, parents, saved=True,
+        versions=tuple((counter, counter.version) for counter in counters),
+        joint=(backward, needs))
     return value
 
 

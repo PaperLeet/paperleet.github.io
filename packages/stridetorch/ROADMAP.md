@@ -421,9 +421,13 @@ source-commit deployment was superseded and is not claimed as published.
   shared single-adjoint VJP and real JVP with native saved-factor reverse rules.
 - Independent closed-form algebra, continued training/checkpoint and CPU/real
   WASM tests complement native value/gradient/layout/error/retention contracts.
-- Initial and selective trials retain complete-flow/no-grad regressions. Further
-  forward/graph metadata work is required before adopting this candidate on main;
-  stable version0.28 remains positively verified on the site.
+- Initial/selective regressions are retained. Refined ndarray metadata, ordinary
+  solve pullbacks and single/shared-node construction improve broader CPU/WASM
+  controls and actual SGD flows, with some tiny solve-only regressions remaining.
+  Refined core gates29853/one skip,minimal wheel916 and Node/Chrome904 pass;
+  public/private wheels coinstall and survive independent uninstall. Full
+  application adoption remains separate;stable0.28 stays verified on the site
+  until the candidate completes integration.
 
 ## Next implementation areas
 

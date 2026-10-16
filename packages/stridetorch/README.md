@@ -106,8 +106,9 @@ factorization constant, matching native saved-factor semantics. The NumPy backen
 still factorizes each invocation. Complex AD, half factorization, sparse systems
 and `out` buffers are explicit unsupported cases.
 
-Version0.29 is a development candidate: retained double-input backward can benefit,
-but complete small-system flows currently regress against0.28. See the
+Version0.29 remains a development candidate pending application integration.
+Refinements reduce graph/metadata overhead and improve broader inference and
+training controls; some tiny solve-only flows remain a few percent slower. See the
 [measurements and adoption boundary](../../docs/validation/torch-runtime-iteration-29.md).
 
 ## Gradient accumulation and storage

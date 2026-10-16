@@ -2,9 +2,9 @@
 
 This candidate expands the former unbatched-only `torch.linalg.solve` to dense
 batched and broadcast systems, vector/matrix right-hand sides and `left=False`.
-It is not yet adopted on main: initial performance measurements show regressions
-in the complete small-matrix forward/backward path despite savings in shared
-adjoint work. The verified stable runtime on main/site remains0.28.
+It is not yet adopted on main. Initial performance regressions prompted the
+metadata/graph refinements documented below; complete application gates remain
+separate. The verified stable runtime on main/site remains0.28.
 
 ## Compatibility and differentiation
 
@@ -58,8 +58,8 @@ saves about9–18% in double-input retained backward on WASM; one CPUfloat32 sma
 sample is0.9% slower and CPUfloat64 large samples show larger savings. Complete
 forward/backward is still mostly slower, with final observed regressions up to
 23.5%; no-grad forward is up to35.6% slower. These results are retained, not hidden
-by the reduced number of mathematical solves. The candidate needs further
-forward-path/graph-allocation work before stable application adoption.
+by the reduced number of mathematical solves. Those results motivated the subsequent refinement below and do not describe
+the adopted refined source.
 
 Initial native failures exposed vector result layout and the native JVP saved
 factor/zero-edge rules, plus two test-fixture errors: complex lazy-conjugate NumPy
@@ -74,9 +74,9 @@ Full exported-catalog/frontend/application distribution checks and main adoption
 are separate later gates, not implied by independent-package compatibility.
 
 
-## Verified local core gates
+## Original candidate core gates
 
-The final selective source passes29853 root/independent tests with one optional
+The original selective source passes29853 root/independent tests with one optional
 Docker skip in194.91s. Focused solve/model-conversion/joint-pullback tests pass574.
 The actual public wheel installs without native Torch in Python3.10.19 /
 NumPy1.26.4 and passes916 tests. Pinned Pyodide0.29.4 / NumPy2.2.5 under Node and
@@ -84,3 +84,57 @@ real headless Chrome155 Worker each pass904 tests in29 suites. All45 core/licens
 hashes match the timed selective source, both WASM executions and installed wheel.
 These gates establish local core compatibility. They do not waive the measured
 complete-flow performance concern or substitute for application adoption gates.
+
+
+## Metadata and graph refinement
+
+The refined implementation validates array metadata directly, uses ndarray axis
+methods, specializes ordinary result layouts and avoids column promotion for an
+unbatched vector. Ordinary unbatched left-solve pullbacks avoid constructing
+broadcast/reduction callbacks. All batched/right-side and native layout/guard
+contracts remain. The general result constructor builds a single active edge
+without temporary lists/generators; the joint constructor builds its shared
+node once. No numeric values, gradients or seeds are added to a cache.
+
+Five additional fresh-process ABBA phases preserve80 child receipts for metadata,
+joint-node, single-edge, unbatched and vector trials. They use the original
+14-case matrix-RHS recipe and retain every anomaly. The final fresh phase includes
+large outliers, including26% slower CPUfloat64 small full-flow and25% slower
+WASMfloat32 large single-input full-flow samples, alongside implausibly broad
+float64 WASM wins up to64%. These are not used to infer a general speedup or a
+particular cause of timing variance.
+
+Two additional paired phases preserve16 fresh processes. Each loads two isolated
+package namespaces in the same NumPy interpreter, alternates13 ABBA/BAAB blocks,
+warms1000 calls and leaves GC enabled. The final phase uses200 calls per full-flow
+sample and1500 per no-grad sample, includes vectors and real SGD updates, and
+checks final input/output values and dtypes across implementations. It supplements
+rather than replaces the original fresh-process evidence.
+
+Final paired process medians show no-grad small-vector solve about7–11% faster,
+LayerNorm about1.5–4.1%, attention2–3%, unary chains3.8–6.1% and no-grad exp27–29%.
+Actual SGD update flows range from1.5% slower to11.9% faster, depending on runtime,
+dtype and matrix size. Some tiny solve-only flows remain2–5.3% slower; no claim
+that every operation or training run accelerates is made. Both numerical runtimes
+and float32/64 are measured; actual BLAS threading remains unverified.
+
+The candidate's broad library value is native batch/right/JVP coverage plus reduced
+shared graph overhead. App adoption still requires complete final-source package,
+exported-WASM, catalog and frontend gates; the coarse fresh-process outliers and
+small paired regressions are retained for later performance work.
+
+
+The refined final source separately passes29853 tests/one optional Docker skip
+in185.67s, plus the2084 focused contracts. Its actual wheel/sdist match current
+README metadata and45 core/license hashes. The NumPy-only Python3.10.19 /
+NumPy1.26.4 installation passes916 tests; Node and real Chrome155 Worker each
+pass904 in29 unchanged standalone suites. Both public and private wheels execute
+batched right solve/VJP/JVP, matrix views, gradient retention and NaN workflows;
+each remains usable after uninstalling the other. The private wheel/sdist also
+match current application server/catalog bytes. Original proof folders remain
+separate; the adopted refined proof is `proof-refined`, source `trial-vector`.
+
+[Refinement evidence](../../packages/stridetorch/benchmarks/results/iteration-29-refinement.json)
+and its receipt archive preserve all96 additional timing children, five source
+trials, both paired recipes, original anomalies and exact final-source proofs.
+The broader main-branch adoption gates are still pending at this core milestone.
