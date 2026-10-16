@@ -17,7 +17,7 @@
 .card-comments>header>span{color:var(--text-secondary);font-size:var(--type-meta)}
 .card-comments>header>a{margin-inline-start:auto;font-size:var(--type-small)}
 .card-comment-list{list-style:none;margin:0;padding:0}
-.card-comment-list>li{padding:14px 0;border-bottom:1px solid var(--line)}
+.card-comment-list>li{padding:14px 0;border-bottom:1px solid var(--line);scroll-margin-top:100px}
 .card-comment-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;font-size:var(--type-small)}
 .card-comment-meta>time{font-size:var(--type-meta);color:var(--text-secondary)}
 .card-comment-meta .community-author-identity{flex-wrap:wrap}

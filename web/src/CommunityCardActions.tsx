@@ -65,7 +65,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     field.scrollTop=view.selection.scroll;field.scrollLeft=view.selection.left||0;
   },[open,writing,preview,accountLoading,focusTick]);
   const rowIdPrefix=regionId+'-reply-';
-  const replies=useDiscussionReplies({replies:detail?.replies,disabled:loading||accountLoading||accountRecovery||!!loadError,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'center'});
+  const replies=useDiscussionReplies({replies:detail?.replies,disabled:loading||accountLoading||accountRecovery||!!loadError,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'start'});
   function revealComment(id:string,trigger:HTMLElement){replies.reveal(id,trigger);}
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;readVersion.current++;request.current?.abort();};},[]);
   useEffect(()=>{

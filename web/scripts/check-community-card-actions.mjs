@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import React,{act} from 'react';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
+import {readFile} from 'node:fs/promises';
 const id='a'.repeat(32);
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/#/community?category=papers&q=old&page=2',pretendToBeVisual:true});
 dom.window.matchMedia=()=>({matches:false});
@@ -9,8 +10,10 @@ let viewport=240,scrollCalls=[];
 Object.defineProperty(dom.window,'scrollY',{get:()=>viewport});
 dom.window.scrollTo=options=>{viewport=options.top;scrollCalls.push(viewport);};
 function absoluteTop(node){const card=node.closest('.community-card-interaction'),index=[...document.querySelectorAll('.community-card-interaction')].indexOf(card),section=node.closest('.card-comments');const base=Math.max(0,index)*2200+300;if(node===section)return base;const notice=section?.querySelector('.reply-reading-notice')?34:0,row=node.closest('[data-card-reply]');if(row)return base+notice+[...row.parentElement.children].indexOf(row)*160;return base+notice+(section?.querySelectorAll('[data-card-reply]').length||0)*160+180;}
-dom.window.HTMLElement.prototype.scrollIntoView=function(options){viewport=Math.max(0,absoluteTop(this)-(options?.block==='center'?180:100));};
-dom.window.HTMLElement.prototype.getBoundingClientRect=function(){const top=absoluteTop(this)-viewport;return {top,bottom:top+40,left:0,right:500,width:500,height:40,x:0,y:top,toJSON(){return this;}};};
+const rowHeight=node=>node.matches('[data-card-reply]')&&node.querySelector('.inline-comment-body.is-open')?1400:40;
+dom.window.HTMLElement.prototype.scrollIntoView=function(options){const height=rowHeight(this),margin=parseFloat(dom.window.getComputedStyle(this).scrollMarginTop)||0;viewport=Math.max(0,absoluteTop(this)+(options?.block==='center'?(height>dom.window.innerHeight?height/2-dom.window.innerHeight/2:-180):-margin));};
+dom.window.HTMLElement.prototype.getBoundingClientRect=function(){const top=absoluteTop(this)-viewport,height=rowHeight(this);return {top,bottom:top+height,left:0,right:500,width:500,height,x:0,y:top,toJSON(){return this;}};};
+const cardStyle=dom.window.document.createElement('style');cardStyle.textContent=await readFile(new URL('../src/community-card-actions.css',import.meta.url),'utf8');dom.window.document.head.append(cardStyle);
 const values={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,requestAnimationFrame:dom.window.requestAnimationFrame.bind(dom.window),IS_REACT_ACT_ENVIRONMENT:true,__cardFixture:undefined};
 const previous=new Map(Object.keys(values).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value] of Object.entries(values))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
@@ -52,7 +55,7 @@ try{
  const submit=async()=>act(async()=>document.querySelector('form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
  await render();assert.equal(requests.length,0,'Closed previews make no per-card requests');const original=location.href;
  // Full comment reading is local to its row and never replaces the working composer.
- const plainBody=replies[7].body;
+ const plainBody=replies[7].body,originalBody=replies[0].body;replies[0].body='## Original context\n\n'+('A long original reply with important detail. '.repeat(150));
  replies[7].body='A long reply with **important** detail.\n\n```python\nanswer = x ** 2\n```\n\n$$\nx^2 + y^2\n$$\n\n| Name | Value |\n| --- | --- |\n| Result | 42 |\n\n[Source](https://example.org/paper)\n\n![pixel](https://tracker.invalid/pixel)\n\n<script>evil()</script>';
  await click(expand());
  const richRow=document.querySelector('.card-comment-list>li'),readingToggle=richRow.querySelector('.inline-comment-toggle');
@@ -67,7 +70,12 @@ try{
  await click(readingToggle);await click(richRow.querySelector('.inline-comment-collapse'));assert.equal(document.activeElement,readingToggle,'Bottom collapse returns to the still-visible reading control');assert.equal(readingToggle.getAttribute('aria-expanded'),'false');assert.equal(requests.length,readingRequests);assert.equal(JSON.stringify({...sessionStorage}),readingStorage);assert.equal(location.href,original);
  const shortRow=document.querySelectorAll('.card-comment-list>li')[1];assert(shortRow.querySelector('.inline-comment-body.is-complete'));assert(!shortRow.querySelector('.inline-comment-toggle'),'Short plain replies need no extra disclosure');
  await click(button('Write comment'));await frame();await edit('Draft remains while reading rich comments');const richEditor=document.querySelector('textarea');richEditor.setSelectionRange(2,9,'backward');richEditor.scrollTop=23;richEditor.scrollLeft=7;const beforeRichDraft=JSON.stringify({...sessionStorage});await click(readingToggle);assert.equal(document.querySelector('textarea'),richEditor);assert.equal(richEditor.selectionStart,2);assert.equal(richEditor.selectionEnd,9);assert.equal(richEditor.scrollTop,23);assert.equal(richEditor.scrollLeft,7);assert.equal(JSON.stringify({...sessionStorage}),beforeRichDraft);assert.equal(requests.length,readingRequests);assert.equal(location.href,original);await click(readingToggle);
- await stop();replies[7].body=plainBody;sessionStorage.clear();requests.length=0;await render();
+ while(document.querySelector('.card-more-comments'))await click(document.querySelector('.card-more-comments'));
+ const longOriginal=document.querySelector('[data-card-reply="'+replies[0].id+'"]');await click(longOriginal.querySelector('.inline-comment-toggle'));assert(longOriginal.querySelector('.community-prose'));
+ const referenceToLong=richRow.querySelector('.card-comment-context'),beforeLongRead=requests.length,longOriginTop=richRow.getBoundingClientRect().top;await click(referenceToLong);assert.equal(document.activeElement,longOriginal);assert(longOriginal.getBoundingClientRect().top>=100&&longOriginal.getBoundingClientRect().top<window.innerHeight,'Jumping to an expanded long reply must reveal its author and beginning below the sticky header');assert.equal(document.querySelector('textarea'),richEditor);assert.equal(richEditor.selectionStart,2);assert.equal(richEditor.scrollTop,23);assert.equal(requests.length,beforeLongRead);
+ await click(longOriginal.querySelector('.reply-reading-return'));assert.equal(document.activeElement,referenceToLong);assert.equal(richRow.getBoundingClientRect().top,longOriginTop);assert.equal(richEditor.selectionEnd,9);assert.equal(richEditor.scrollLeft,7);assert.equal(JSON.stringify({...sessionStorage}),beforeRichDraft);assert.equal(location.href,original);
+ console.log('PASS long inline reading: expanded original replies start below the sticky header, exact source reading return, editor/caret/scroll preservation and no extra request or draft write');
+ await stop();replies[7].body=plainBody;replies[0].body=originalBody;sessionStorage.clear();requests.length=0;await render();
  await click(like());assert.equal(mutations.length,1);assert.equal(like().getAttribute('aria-pressed'),'true');assert(like().textContent.includes('5'));assert.equal(location.href,original);
  await click(like());assert.equal(like().getAttribute('aria-pressed'),'false');
  failLike=true;await click(like());assert(like().disabled);assert.equal(like().getAttribute('aria-pressed'),'false');failLike=false;await click(button('Retry like action'));assert.equal(mutations.at(-1).body.active,true);assert.equal(like().getAttribute('aria-pressed'),'true');
