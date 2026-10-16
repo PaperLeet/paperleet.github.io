@@ -4,9 +4,18 @@
 .inbox-unread-dot { position:absolute; width:7px; height:7px; top:6px; right:7px; border-radius:50%; background:#e5484d; box-shadow:0 0 0 2px var(--surface); }
 .inbox-popover { position:absolute; top:calc(100% + 12px); right:0; z-index:80; width:390px; max-width:calc(100vw - 24px); max-height:calc(100dvh - 90px); overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box; border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); box-shadow:0 8px 24px #00000012,0 24px 64px #0000000d; scrollbar-width:thin; }
 .inbox-popover:focus { outline:none; }
-.inbox-panel-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 18px 12px; }
+.inbox-panel-heading { display:flex; flex-direction:column; gap:12px; padding:18px 18px 12px; }
+.inbox-panel-title { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; }
 .inbox-panel-heading h2 { margin:0; font-size:17px; font-weight:650; }
-.inbox-panel-heading > a { font-size:var(--type-meta); color:var(--accent); }
+.inbox-panel-title > a { font-size:var(--type-meta); color:var(--accent); }
+.inbox-read-all { width:100%; }
+.inbox-read-all-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; width:100%; min-height:36px; padding:7px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface2); color:var(--text-secondary); font-size:var(--type-meta); }
+.inbox-read-all-button:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+.inbox-read-all-button:disabled { opacity:.55; cursor:default; }
+.inbox-read-all-feedback { margin:8px 0 0; color:var(--muted); font-size:var(--type-caption); line-height:1.6; overflow-wrap:anywhere; }
+.inbox-read-all-feedback.error { color:var(--red); }
+.inbox-read-all-feedback p { margin:0; }
+.inbox-read-all-feedback button { min-height:28px; text-decoration:underline; }
 .inbox-tabs { display:flex; gap:20px; padding:0 18px; border-bottom:1px solid var(--line); }
 .inbox-tabs > button { display:flex; align-items:center; gap:6px; padding:12px 0; margin-bottom:-1px; border-bottom:2px solid transparent; font-size:var(--type-small); color:var(--muted); }
 .inbox-tabs > button[aria-selected="true"] { color:var(--text); border-bottom-color:var(--accent); }
@@ -54,7 +63,8 @@
 .messages-welcome small { display:block; margin-top:15px; color:var(--muted); font-size:var(--type-small); line-height:1.6; }
 .messages-layout { display:grid; grid-template-columns:290px minmax(0,1fr); min-height:min(420px,calc(100dvh - 180px)); height:min(720px,calc(100dvh - 180px)); border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--surface); }
 .messages-sidebar { min-width:0; overflow-y:auto; overscroll-behavior:contain; border-right:1px solid var(--line); }
-.messages-sidebar > h2 { margin:0; padding:20px 18px 12px; font-size:var(--type-body); font-weight:600; }
+.messages-sidebar-heading { padding:20px 18px 12px; }
+.messages-sidebar-heading h2 { margin:0 0 12px; font-size:var(--type-body); font-weight:600; }
 .messages-sidebar .inbox-item { gap:9px; padding:13px 10px; }
 .messages-sidebar .inbox-item[aria-current="page"] { box-shadow:inset 3px 0 0 var(--accent); background:color-mix(in srgb,var(--accent) 7%,var(--surface)); }
 .messages-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; gap:15px; text-align:center; color:var(--muted); }

@@ -1,4 +1,5 @@
 import AffiliationBadge from "./AffiliationBadge";
+import { resolveAffiliation } from './affiliationNames';
 import InterviewMeta from './InterviewMeta';
 import {InlinePostBody} from './InlineCommentBody';
 import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
@@ -21,6 +22,7 @@ import {
   BookOpen,
   Bookmark,
   BriefcaseBusiness,
+  Building2,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -1360,7 +1362,14 @@ function UserProfileContents({ username }: { username: string }) {
                 <span className="profile-handle">@{profile.username}</span>
                 <div className="profile-facts">
                   <TestAccountBadge isTestUser={profile.is_test_user} />
-                  <AffiliationBadge affiliation={profile.affiliation} institution={profile.institution} />
+                  {resolveAffiliation(profile.affiliation, profile.institution) ? (
+                    <AffiliationBadge affiliation={profile.affiliation} institution={profile.institution} />
+                  ) : (
+                    <span className="profile-affiliation-empty">
+                      <Building2 size={13} />
+                      {t("暂无机构信息", "No affiliation listed")}
+                    </span>
+                  )}
                   {profile.country && (
                     <span>
                       <Globe2 size={13} />

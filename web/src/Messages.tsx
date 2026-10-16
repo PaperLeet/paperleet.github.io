@@ -3,7 +3,8 @@ import { ArrowDown, ArrowLeft, ArrowRight, MessageCircle, Send } from 'lucide-re
 import { Avatar, DateLabel, errorMessage, profileHref, SocialError, useAccount } from './social';
 import { useI18n } from './i18n';
 import { signInHref } from './accountNavigation';
-import { inboxChanged, inboxRequest, inboxVisible, messagePath, messagesHref, newMessageRequestId, useInboxPolling, type Conversation, type DirectMessage, type InboxCounts, type InboxSnapshot, type MessageThread } from './inbox';
+import { applyInboxReadAll, inboxChanged, inboxRequest, inboxVisible, messagePath, messagesHref, newMessageRequestId, useInboxPolling, useInboxReadAll, type Conversation, type DirectMessage, type InboxCounts, type InboxSnapshot, type MessageThread } from './inbox';
+import InboxReadAll from './InboxReadAll';
 import './inbox.css';
 
 export default function Messages({username}: {username?: string}) {
@@ -23,26 +24,32 @@ export default function Messages({username}: {username?: string}) {
     </section>
   </main>;
   if (!capabilities?.direct_messages) return <main className="messages-page"><h1>{t('私信', 'Messages')}</h1><p>{t('私信暂时不可用，请稍后再试。', 'Messages are currently unavailable. Please try again later.')}</p></main>;
-  return <AccountMessages key={user.id} owner={user.id} username={username}/>;
+  return <AccountMessages key={user.id} owner={user.id} username={username} readAllAvailable={capabilities.inbox_read_all === true}/>;
 }
 
-function AccountMessages({owner, username}: {owner: string; username?: string}) {
+function AccountMessages({owner, username, readAllAvailable}: {owner: string; username?: string; readAllAvailable: boolean}) {
   const {t} = useI18n();
-  const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [more, setMore] = useState(false);
+  const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [more, setMore] = useState(false), [snapshotLoading, setSnapshotLoading] = useState(true);
   const alive = useRef(true), manual = useRef<AbortController | undefined>(undefined), revision = useRef(0);
   useEffect(() => { alive.current = true; return () => { alive.current = false; manual.current?.abort(); }; }, []);
   async function refresh(signal: AbortSignal) {
     const version = ++revision.current;
+    setSnapshotLoading(true);
     try {
       const next = await inboxRequest<InboxSnapshot>(owner, 'inbox?limit=20', undefined, signal);
       if (signal.aborted || !alive.current || version !== revision.current) return;
       setData(next); setError(''); setMore(false);
     } catch (e) { if (!signal.aborted && alive.current && version === revision.current) setError(errorMessage(e)); }
+    finally { if (!signal.aborted && alive.current && version === revision.current) setSnapshotLoading(false); }
   }
-  useInboxPolling(owner, refresh);
+  const readAll = useInboxReadAll({owner, snapshot: data, available: readAllAvailable, blocked: snapshotLoading || more, onRead: (counts, cutoff) => {
+    ++revision.current; manual.current?.abort(); setSnapshotLoading(false); setMore(false);
+    setData(current => current ? applyInboxReadAll(current, counts, cutoff) : current);
+  }});
+  useInboxPolling(owner, refresh, !readAll.busy);
   const retry = () => { manual.current?.abort(); manual.current = new AbortController(); setMore(false); void refresh(manual.current.signal); };
   async function loadMore() {
-    if (!data?.conversations_next_before || more) return;
+    if (!data?.conversations_next_before || more || readAll.busy || snapshotLoading) return;
     manual.current?.abort(); const controller = new AbortController(); manual.current = controller;
     const version = ++revision.current;
     setMore(true);
@@ -58,12 +65,12 @@ function AccountMessages({owner, username}: {owner: string; username?: string}) 
     <div className="messages-page-heading"><a className="social-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</a><h1>{t('私信', 'Messages')}</h1></div>
     <div className="messages-layout">
       <aside className="messages-sidebar" aria-label={t('对话列表', 'Conversations')}>
-        <h2>{t('对话', 'Conversations')}</h2>
+        <header className="messages-sidebar-heading"><h2>{t('对话', 'Conversations')}</h2>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
         {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
         {!data && !error && <p className="inbox-empty" role="status">{t('正在加载…', 'Loading…')}</p>}
         {data && (data.conversations.length ? <ul className="inbox-items">{data.conversations.map(item => <li key={item.id}><ConversationLink conversation={item} owner={owner} selected={item.peer.username === username}/></li>)}</ul>
           : <p className="inbox-empty">{t('还没有对话。前往对方的个人主页发起私信。', 'No conversations yet. Visit someone’s profile to send a message.')}</p>)}
-        {data?.conversations_next_before && <button type="button" className="inbox-more" disabled={more} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('更多对话', 'More conversations')}</button>}
+        {data?.conversations_next_before && <button type="button" className="inbox-more" disabled={more || readAll.busy || snapshotLoading} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('更多对话', 'More conversations')}</button>}
       </aside>
       {username ? <ConversationThread key={username} owner={owner} username={username}/>
         : <section className="messages-placeholder"><MessageCircle size={36}/><h2>{t('选择一段对话', 'Choose a conversation')}</h2><p>{t('互相关注可以直接聊天。其他人在收到回复前只能发送一条消息。', 'Mutual followers can chat freely. Everyone else can send one message until they get a reply.')}</p></section>}

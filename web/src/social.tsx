@@ -49,6 +49,7 @@ export type AccountUser = PublicUser & {
 };
 export type AccountCapabilities = {
   inbox_notifications?: boolean;
+  inbox_read_all?: boolean;
   direct_messages?: boolean;
   problem_bookmarks?: boolean;
   community_anonymous_posts?: boolean;

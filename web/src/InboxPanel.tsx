@@ -1,30 +1,39 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Bell, CheckCheck, Heart, MessageCircle, Repeat2, UserPlus } from 'lucide-react';
-import { Avatar, DateLabel, errorMessage, profileHref } from './social';
+import { Avatar, DateLabel, errorMessage, profileHref, useAccount } from './social';
 import { useI18n } from './i18n';
 import { communityPostHref } from './communityNavigation';
-import { inboxChanged, inboxRequest, messagesHref, useInboxPolling, type InboxCounts, type InboxNotification, type InboxSnapshot } from './inbox';
+import { applyInboxReadAll, inboxChanged, inboxRequest, messagesHref, useInboxPolling, useInboxReadAll, type InboxCounts, type InboxNotification, type InboxSnapshot } from './inbox';
+import InboxReadAll from './InboxReadAll';
 
 export type InboxPanelProps = {owner: string; notifications: boolean; messages: boolean; onCounts: (counts: InboxCounts) => void};
 export default function InboxPanel({owner, notifications, messages, onCounts}: InboxPanelProps) {
   const {t} = useI18n();
+  const {capabilities} = useAccount();
+  const readAllAvailable = capabilities?.inbox_read_all === true;
   const panelId = useId();
   const [tab, setTab] = useState<'notifications' | 'messages'>(notifications ? 'notifications' : 'messages');
-  const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [more, setMore] = useState(false);
+  const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [more, setMore] = useState(false), [snapshotLoading, setSnapshotLoading] = useState(true);
   const alive = useRef(true), manual = useRef<AbortController | undefined>(undefined), revision = useRef(0);
   useEffect(() => { alive.current = true; return () => { alive.current = false; manual.current?.abort(); }; }, []);
   async function refresh(signal?: AbortSignal) {
     const version = ++revision.current;
+    setSnapshotLoading(true);
     try {
       const next = await inboxRequest<InboxSnapshot>(owner, 'inbox?limit=20', undefined, signal);
       if (signal?.aborted || !alive.current || version !== revision.current) return;
       setData(next); onCounts(next); setError(''); setMore(false);
     } catch (e) { if (!signal?.aborted && alive.current && version === revision.current) setError(errorMessage(e)); }
+    finally { if (!signal?.aborted && alive.current && version === revision.current) setSnapshotLoading(false); }
   }
-  useInboxPolling(owner, refresh);
+  const readAll = useInboxReadAll({owner, snapshot: data, available: readAllAvailable, blocked: snapshotLoading || busy || more, onRead: (counts, cutoff) => {
+    ++revision.current; manual.current?.abort(); setSnapshotLoading(false); setMore(false); onCounts(counts);
+    setData(current => current ? applyInboxReadAll(current, counts, cutoff) : current);
+  }});
+  useInboxPolling(owner, refresh, !readAll.busy && !busy);
   const retry = () => { manual.current?.abort(); manual.current = new AbortController(); setMore(false); void refresh(manual.current.signal); };
   async function read(notification?: InboxNotification) {
-    if (!data || busy) return;
+    if (!data || busy || readAll.busy) return;
     const cutoff = notification?.latest_event_id ?? data.observed_event_id;
     ++revision.current;
     setBusy(true);
@@ -42,7 +51,7 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
   }
   async function loadMore() {
     const before = tab === 'notifications' ? data?.notifications_next_before : data?.conversations_next_before;
-    if (!before || more) return;
+    if (!before || more || busy || readAll.busy || snapshotLoading) return;
     manual.current?.abort(); const controller = new AbortController(); manual.current = controller;
     const version = ++revision.current;
     setMore(true);
@@ -56,7 +65,7 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
     finally { if (alive.current && version === revision.current) setMore(false); }
   }
   return <>
-    <header className="inbox-panel-heading"><h2>{t('收件箱', 'Inbox')}</h2>{messages && <a href={messagesHref()}>{t('打开私信', 'Open messages')}</a>}</header>
+    <header className="inbox-panel-heading"><div className="inbox-panel-title"><h2>{t('收件箱', 'Inbox')}</h2>{messages && <a href={messagesHref()}>{t('打开私信', 'Open messages')}</a>}</div>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
     <div className="inbox-tabs" role="tablist" aria-label={t('消息类型', 'Inbox sections')} onKeyDown={event => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       const tabs = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')], current = tabs.indexOf(event.target as HTMLButtonElement);
@@ -72,14 +81,14 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
     {!data && !error && <p className="inbox-empty" role="status">{t('正在加载…', 'Loading…')}</p>}
     {data && <div className="inbox-tab-content" role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${tab}`}>
       {tab === 'notifications' ? <>
-        {data.notification_unread_count > 0 && <button type="button" className="inbox-mark-read" disabled={busy} onClick={() => void read()}><CheckCheck size={14}/>{busy ? t('正在标记…', 'Marking…') : t('全部标为已读', 'Mark all as read')}</button>}
+        {!readAllAvailable && <button type="button" className="inbox-mark-read" disabled={busy || snapshotLoading || !data.notification_unread_count} onClick={() => void read()}><CheckCheck size={14}/>{busy ? t('正在标记…', 'Marking…') : t('将通知标为已读', 'Mark notifications as read')}</button>}
         {data.notifications.length ? <ul className="inbox-items">{data.notifications.map(item => <li key={item.id}><NotificationRow notification={item} onRead={() => { if (item.unread) void read(item); }}/></li>)}</ul>
           : <div className="inbox-empty"><Bell size={26}/><p>{t('还没有通知', 'No notifications yet')}</p><small>{t('回复、点赞和新关注会显示在这里。', 'Replies, likes and new followers will appear here.')}</small></div>}
       </> : data.conversations.length ? <ul className="inbox-items">{data.conversations.map(item => <li key={item.id}><a className={`inbox-item${item.unread_count ? ' unread' : ''}`} href={messagesHref(item.peer.username)}>
         <Avatar user={item.peer} size={36}/><span className="inbox-item-copy"><b>{item.peer.display_name}</b><span className="inbox-message-preview">{item.last_message.sender_id === owner ? t('你：', 'You: ') : ''}{item.last_message.body}</span><DateLabel value={item.last_message.created_at}/></span>
         {item.unread_count > 0 && <span className="inbox-count" aria-label={t(`${item.unread_count} 条未读`, `${item.unread_count} unread`)}>{item.unread_count}</span>}
       </a></li>)}</ul> : <div className="inbox-empty"><MessageCircle size={26}/><p>{t('还没有私信', 'No messages yet')}</p><small>{t('可以从对方的个人主页发起私信。', 'Start a conversation from someone’s profile.')}</small></div>}
-      {(tab === 'notifications' ? data.notifications_next_before : data.conversations_next_before) && <button type="button" className="inbox-more" disabled={more} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('加载更多', 'Load more')}</button>}
+      {(tab === 'notifications' ? data.notifications_next_before : data.conversations_next_before) && <button type="button" className="inbox-more" disabled={more || busy || readAll.busy || snapshotLoading} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('加载更多', 'Load more')}</button>}
     </div>}
   </>;
 }
