@@ -20,12 +20,12 @@ try {
   const brown = React.createElement(AffiliationBadge, { affiliation: affiliation('brown.edu') });
   const brownEnglish = english(brown), brownChinese = chinese(brown);
   assert(brownEnglish.includes('Brown University') && brownChinese.includes('布朗大学'));
-  assert(brownEnglish.includes('organization-logos/brown.png') && !brownEnglish.includes('brown.edu'), 'Show the school name and local logo, never the raw domain');
+  assert(!/<img|<svg/.test(brownEnglish + brownChinese) && !brownEnglish.includes('brown.edu'), 'Affiliations show only the localized school name, without a logo or raw domain');
   assert(!brownEnglish.includes('lucide-shield-check') && !brownEnglish.includes('verified institution'), 'Display enrichment must not imply additional identity verification');
   assert.equal(resolveAffiliation(affiliation('CS.BROWN.EDU.')).id, 'brown', 'Display-only subdomain matching is normalized');
   assert.equal(resolveAffiliation(affiliation('tsinghua.edu.cn')).name, '清华大学');
   assert.equal(resolveAffiliation(affiliation('google.com')).name_en, 'Google');
-  for (const domain of ['notbrown.edu', 'brown.edu.attacker.com']) assert.notEqual(resolveAffiliation(affiliation(domain)).id, 'brown', 'Suffix lookalikes cannot receive another organization’s logo');
+  for (const domain of ['notbrown.edu', 'brown.edu.attacker.com']) assert.notEqual(resolveAffiliation(affiliation(domain)).id, 'brown', 'Suffix lookalikes cannot receive another organization’s name');
   assert.equal(resolveAffiliation(affiliation('mail.research-institute.ac.uk')).name, 'Research Institute');
   assert.equal(resolveAffiliation({ ...affiliation('example.edu'), name: 'Example Research Institute' }).name, 'Example Research Institute', 'Preserve a readable server-provided organization name');
   assert.equal(resolveAffiliation(null, { id: 'mit', name: '麻省理工学院', name_en: 'Massachusetts Institute of Technology' }).id, 'mit', 'Older institution-only profiles remain supported');
@@ -58,7 +58,7 @@ try {
   assert(!unsafe.includes("<img") && !unsafe.includes("tracker.example"));
   assert(unsafe.includes(">F<"), "Unsafe image URLs must fall back to the letter avatar");
   const domain = renderToString(React.createElement(AffiliationBadge, { affiliation: { kind: "email_domain", name: "research.example", domain: "research.example" } }));
-  assert(domain.includes("Research") && !domain.includes("research.example") && !domain.includes("lucide-shield-check"), "A domain becomes a readable label without inventing a verified institution");
+  assert(domain.includes("Research") && !domain.includes("research.example") && !/<img|<svg/.test(domain), "A domain becomes a readable text-only label without inventing a verified institution");
 
   assert.deepEqual(avatarCrop(800, 400), { x: 200, y: 0, side: 400 });
   assert.deepEqual(avatarCrop(400, 800), { x: 0, y: 200, side: 400 });

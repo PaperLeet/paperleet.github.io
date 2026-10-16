@@ -164,11 +164,12 @@
 .institution-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  max-width: 100%;
   color: var(--text-secondary);
   font-size: var(--type-body);
   line-height: 1.6;
 }
+.affiliation-name { min-width: 0; overflow-wrap: anywhere; }
 .social-notice {
   padding: 12px 15px;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
