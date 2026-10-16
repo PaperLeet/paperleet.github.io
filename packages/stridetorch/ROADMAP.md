@@ -287,8 +287,8 @@ Final infrastructure passes 25,612 tests; real Node/Pyodide and Chrome Worker
 each pass 774 independent contracts. The installed wheel passes 794 tests on
 Python 3.10/NumPy 1.26 without native Torch. Balanced CPU/WASM comparisons retain
 all three phases, including an unstable middle phase and direct-method controls.
-Original native catalog, export/history and latest-curriculum packaging/frontend
-checks pass. Full exported WASM and remote adoption remain release gates.
+Original native catalog, export/history, latest-curriculum packaging/frontend and
+all 78 exported WASM modules pass. Main and remote adoption remain release gates.
 
 ## Next implementation areas
 

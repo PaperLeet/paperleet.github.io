@@ -51,7 +51,11 @@ files match exactly and all core/license hashes and 161 frozen export files
 remain unchanged. Fresh private wheels/source archives retain the latest
 application catalog metadata and identical standalone core bytes. Repeated
 frontend checks validate 48 bilingual guides/144 prompts; build and Pages policy
-also pass. Full exported WASM and main/remote adoption remain pending.
+also pass. Complete exported WASM passes all 78 modules without any browser
+budget violations (526.647s aggregate). Flow Matching takes 119.498s calibration,
+21.980s learner and 144.720s total, within unchanged 240/60/300s limits. These
+application timings are budget evidence, not controlled release comparisons.
+Main/remote adoption remains pending.
 
 ## Controlled dispatch measurements
 
@@ -90,3 +94,6 @@ snapshots. They explicitly distinguish completed gates from pending adoption.
 The [merged gates](../../packages/stridetorch/benchmarks/results/iteration-23-merged-gates.json)
 and [merged packaging/frontend archive](../../packages/stridetorch/benchmarks/results/iteration-23-merged-gates-harness.tar.gz)
 record the refreshed application metadata and repeated affected checks.
+The [complete local release gates](../../packages/stridetorch/benchmarks/results/iteration-23-local-gates.json)
+and [final WASM/archive receipts](../../packages/stridetorch/benchmarks/results/iteration-23-local-gates-harness.tar.gz)
+close the full exported catalog gate against the frozen source and 161 files.
