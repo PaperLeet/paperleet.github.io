@@ -57,14 +57,14 @@ validated. This is a bounded data loader, not a resource-isolation mechanism.
 An initial coinstall probe incorrectly equated the fresh namespace returned by
 `as_torch()` with `m.torch`; the corrected probe checks the yielded namespace and
 passes without a product change. A focused invocation with a nonexistent test
-path failed before tests and was corrected. Earlier full947/941-suite trials and
+path failed before tests and was corrected. Earlier947/941-contract trials and
 all failed probes stay separate from the final948-contract proof.
 
 ## Measured cost
 
 Two CPU and two actual Pyodide processes retain every sample. Numerical controls
-use nine ABBA/BAAB blocks,200 warmups and100 calls/sample with GC enabled; values,
-dtypes and gradients match0.29. Unary/LayerNorm/attention backward, JVP and
+use nine ABBA/BAAB blocks,200 warmups and100 calls/sample with GC enabled; float64 values
+and gradients match0.29. Unary/LayerNorm/attention backward, JVP and
 inference medians span about−2.14% to+1.04% latency change. This provides no basis
 for a broad computation-speedup claim.
 
@@ -100,3 +100,37 @@ and its receipt archive retain source variants, native fixtures, red/green
 boundary tests, final CPU/WASM/browser/package reports, all20 timing/import
 children and exact recipes. Full application integration and main/remote
 adoption remain separate pending gates.
+
+
+## Complete local application integration
+
+The original native catalog passes78 modules/10218 executions/342 mutants with
+three repeats in140.09s. Exported WASM passes78/342 in194947ms at concurrency2,
+including all30 independent suites948 contracts with exact frozen hashes. No
+original browser budget is exceeded. These durations are budget gates and are
+not controlled performance comparisons with prior releases.
+
+All15 incoming upstream UI/style/check/docs files through9d35c936 are preserved
+byte-for-byte. They change no Python/package/problem/judge/catalog/lockfile input,
+so the complete final29960-test core remains exact. All7546 previously committed
+immutable assets remain unchanged;158 new reachable payloads plus three mutable
+indexes are frozen. Full runtime source is507015 raw/118223 estimated gzip bytes;
+the small schedule profile is37343/11550. Both profiles retain Apache-2.0/NOTICE.
+
+The complete frontend check passes57 bilingual guides/171 prompts at acce1f3a.
+The later9d35 change removes affiliation badge logos and adjusts related CSS,
+profile-settings assertions and documentation. The targeted profile-settings
+check and both builds pass again, using the revalidated actual Pages variable.
+Latest default and hosted Pages-profile builds each have three initial JS assets:
+403778 raw/130431 gzip and405183 raw/130858 gzip bytes, within original budgets.
+The condensed React review preserves existing guards, unconditional hooks,
+localized accessible labels and deferred pages;no manual visual QA is claimed.
+
+Public/private wheel ownership, independent uninstall and checkpoint-resume
+proofs remain in the core record. The application wheel/sdist are checked again
+against all46 core/license hashes and current server/catalog bytes after UI
+integration. [Application evidence](../../packages/stridetorch/benchmarks/results/iteration-30-integration.json)
+and its219-file archive retain exports, real VM results, dependencies, initial
+frontend context and targeted latest-main follow-up. Main adoption uses a
+non-force push;remote Quality, actual Pages deployment and live-byte checks remain
+separate gates. The last positively verified site version is0.29 through033dc1bc.

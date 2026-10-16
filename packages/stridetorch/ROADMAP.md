@@ -435,7 +435,7 @@ source-commit deployment was superseded and is not claimed as published.
   and78-module/158-payload live verification. An earlier overall-success Pages
   run skipped its deploy action and is retained as unpublished evidence.
 
-## Version0.30 candidate
+## Version0.30 local integration verified
 
 - Modern ZIP CPU `torch.save/load` for model, optimizer and scheduler data;
   native-format storage sharing/strides and14 dense dtypes, with independent
@@ -448,7 +448,12 @@ source-commit deployment was superseded and is not claimed as published.
   namespace import about2ms;compute controls remain within about±2%. Small-tensor
   save metadata remains slower than native Torch.
 - [Core evidence and measured scope](../../docs/validation/torch-runtime-iteration-30.md)
-  precede full application integration and main adoption.
+  and complete application evidence now pass original78/10218/342/three-repeat
+  native CI and exported78/342/30suites948 WASM,with unchanged budgets.
+- All15 upstream UI/docs/style/check files through9d35 and7546 existing immutable
+  assets remain unchanged;latest profile-settings and both frontend builds pass.
+  Main adoption uses a non-force push;remote Quality/actual Pages/live are
+  tracked separately,with0.29 the last positively verified site version.
 
 ## Next implementation areas
 
