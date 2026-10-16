@@ -1,6 +1,6 @@
 import {communityFeedHref,communityPostReturn,readCommunityFeed} from './communityNavigation';
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
-import {libraryReturnHref} from './libraryNavigation';
+import {favoriteHref,readFavoriteRoute,libraryReturnHref} from './libraryNavigation';
 
 export type ReadingReturn={version:1;id:number;owner:string;href:string;post:string;link:'title'|'read'|'practice';practice?:string;top:number;focus:boolean;at:number;phase:'opening'|'reading'|'returning'};
 export const READING_RETURN_KEY='paperleet.reading.return.v1';
@@ -13,15 +13,16 @@ const notify=()=>{revision++;for(const listener of listeners)listener();};
 
 export function readingListHref(route:string){
  if(route.length>8192)return;
+ const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites);
  const feed=readCommunityFeed(route);
  if(feed)return communityFeedHref(feed.topicId,feed.state);
  const interviews=readInterviewRoute(route);
  return interviews?.view==='reports'?interviewHref(interviews):undefined;
 }
 const moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]{1,100}$/;
-/** Only an actual module carrying the exact interview-list scope can extend a reading journey. */
+/** Only a module carrying the exact interview/favorite list scope extends its reading journey. */
 export function readingPracticeTarget(route:string,href:string){
- if(readInterviewRoute(href)?.view!=='reports'||libraryReturnHref(route)!==href)return;
+ if((!readFavoriteRoute(href)&&readInterviewRoute(href)?.view!=='reports')||libraryReturnHref(route)!==href)return;
  try{
   const path=decodeURIComponent(route.replace(/^#\/?/,'').split('?')[0]);
   return moduleId.test(path)||/^[1-9]\d{0,7}$/.test(path)?path:undefined;
@@ -30,10 +31,14 @@ export function readingPracticeTarget(route:string,href:string){
 function valid(value:unknown):value is ReadingReturn{
  if(!value||typeof value!=='object'||Array.isArray(value))return false;
  const row=value as ReadingReturn;
+ const favorite=typeof row.href==='string'&&!!readFavoriteRoute(row.href);
+ // Keep the v1 row identifier for stored reading returns. Only favorite views
+ // may use a canonical module ID here, bound to the same practice ID and owner.
+ const itemValid=typeof row.post==='string'&&(favorite?moduleId.test(row.post)&&row.post===row.practice&&typeof row.owner==='string'&&row.owner.startsWith('account:'):/^[a-f0-9]{32}$/.test(row.post));
  return Object.keys(row).every(key=>['version','id','owner','href','post','link','practice','top','focus','at','phase'].includes(key))&&row.version===1
   &&Number.isSafeInteger(row.id)&&row.id>0&&typeof row.owner==='string'&&/^(?:guest|account:[a-zA-Z0-9_-]{1,160})$/.test(row.owner)
-  &&typeof row.href==='string'&&readingListHref(row.href)===row.href&&typeof row.post==='string'&&/^[a-f0-9]{32}$/.test(row.post)
-  &&(row.link==='practice'?typeof row.practice==='string'&&moduleId.test(row.practice)&&readInterviewRoute(row.href)?.view==='reports':['title','read'].includes(row.link)&&!Object.hasOwn(row,'practice'))&&Number.isFinite(row.top)&&Math.abs(row.top)<=1e5
+  &&typeof row.href==='string'&&readingListHref(row.href)===row.href&&itemValid
+  &&(row.link==='practice'?typeof row.practice==='string'&&moduleId.test(row.practice)&&(favorite||readInterviewRoute(row.href)?.view==='reports'):['title','read'].includes(row.link)&&!Object.hasOwn(row,'practice'))&&Number.isFinite(row.top)&&Math.abs(row.top)<=1e5
   &&typeof row.focus==='boolean'&&Number.isSafeInteger(row.at)&&row.at<=Date.now()&&Date.now()-row.at<=maxAge
   &&['opening','reading','returning'].includes(row.phase);
 }
@@ -54,7 +59,7 @@ export function currentReadingReturn():ReadingReturn|undefined{
  if(pending){const id=pending.id;if(!valid(pending)){discardReadingReturn(id);return;}}
  return pending?{...pending}:undefined;
 }
-const isPost=(route:string,row:ReadingReturn)=>communityPostReturn(route,row.post)===row.href;
+const isPost=(route:string,row:ReadingReturn)=>!readFavoriteRoute(row.href)&&communityPostReturn(route,row.post)===row.href;
 const isDestination=(route:string,row:ReadingReturn)=>isPost(route,row)||!!readingPracticeTarget(route,row.href);
 function navigation(event:HashChangeEvent){
  const row=currentReadingReturn();if(!row)return;

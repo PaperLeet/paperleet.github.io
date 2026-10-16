@@ -1,6 +1,6 @@
 export type FavoriteItem={problem_id:string;created_at:string};
 export type FavoriteSnapshot={owner_id:string;revision:number;items:FavoriteItem[]};
-export type FavoritePending={active:boolean;busy:boolean;error?:string};
+export type FavoritePending={active:boolean;busy:boolean;error?:string;accountError?:boolean};
 export type FavoriteState={snapshot?:FavoriteSnapshot;loading:boolean;error:string;pending:Record<string,FavoritePending>};
 type Request=(body?:{problem_id:string;active:boolean;expected_user_id:string},signal?:AbortSignal)=>Promise<unknown>;
 export function favoriteSnapshot(value:unknown,owner:string):FavoriteSnapshot {
@@ -33,7 +33,7 @@ export function createFavoriteStore(owner:string,request:Request,changed:()=>voi
       const snapshot=favoriteSnapshot(value,owner),ack=value as {problem_id:string;active:boolean};
       if(ack.problem_id!==id||ack.active!==active||snapshot.items.some(item=>item.problem_id===id)!==active)throw Error('Could not confirm the bookmark change.');
       const pending={...state.pending};delete pending[id];update({...state,snapshot:accept(snapshot),pending});changed();
-    }catch(error){update({...state,pending:{...state.pending,[id]:{active,busy:false,error:error instanceof Error?error.message:'Could not save the bookmark.'}}});}
+    }catch(error){update({...state,pending:{...state.pending,[id]:{active,busy:false,error:error instanceof Error?error.message:'Could not save the bookmark.',accountError:!!error&&typeof error==='object'&&(('status' in error&&error.status===401)||('code' in error&&error.code==='account_changed'))}}});}
   }
   return {getSnapshot:()=>state,subscribe:(listener:()=>void)=>{listeners.add(listener);return()=>{listeners.delete(listener);};},refresh,set};
 }

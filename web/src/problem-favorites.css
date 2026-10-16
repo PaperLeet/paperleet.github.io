@@ -45,3 +45,7 @@
 @media(max-width:650px){.problem-favorites-page{width:calc(100% - 28px);margin-top:20px}.favorites-heading{align-items:flex-start;flex-direction:column;gap:12px;margin:20px 0}.favorites-heading h1{font-size:24px}.favorite-problem-row{gap:12px;padding:16px 14px;flex-wrap:wrap}.favorite-problem-row>.problem-favorite-control{margin-left:auto}.problem-favorite-button{min-height:44px;min-width:44px}.favorites-toolbar{gap:8px}}
 
 @media(prefers-reduced-motion:no-preference){.problem-favorite-button[aria-pressed=true]>svg{animation:favorite-confirm .24s ease-out}@keyframes favorite-confirm{0%{transform:scale(.8)}65%{transform:scale(1.15)}100%{transform:scale(1)}}}
+
+.problem-favorite-button[aria-disabled=true]{color:var(--muted);cursor:default;background:var(--surface);border-color:var(--line)}
+.problem-favorite-button[aria-disabled=true]:hover{color:var(--muted);border-color:var(--line);background:var(--surface)}
+.favorite-problem-main{overflow-wrap:anywhere}

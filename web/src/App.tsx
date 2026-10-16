@@ -64,7 +64,7 @@ import { browserLearningView } from './browserLearning';
 import { submissionDestination } from './submissionNavigation';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
-import { libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
+import { readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
 const editorFontSizes = [13, 14, 15, 16, 17, 18, 20];
@@ -552,7 +552,11 @@ function Workspace() {
         <SubmissionResultPage runId={submissionResultId} problems={problems}
           nextProblemFor={entry => nextPractice(entry, papers.find(paper => paper.id === entry.paper_id)?.module_ids || [], problems, learningSaved)} />
       ) : path === 'favorites' ? (
-        <ProblemFavoritesPage key={user?.id||'guest'} route={id} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
+        <ProblemFavoritesPage key={user?.id||'guest'} route={id} onFilters={href=>{
+          if(!readFavoriteRoute(href))return;
+          try{window.history.replaceState(window.history.state,'',href);}catch{/* Explicit links keep the selected filters when history writes are unavailable. */}
+          setId(decodeProblemHash(href));
+        }} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
         <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={settingsReturn.current} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
       ) : settingsPage ? (
