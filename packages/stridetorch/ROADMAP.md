@@ -239,7 +239,7 @@ Complete local native/catalog/WASM/distribution/frontend gates pass; exact remot
 adoption follows publication. Evidence is tracked in
 [iteration 20](../../docs/validation/torch-runtime-iteration-20.md).
 
-## Version 0.21 candidate
+## Version 0.21
 
 Dimension validation and native shape/view identity rules cover functional and
 method entries, scalar/empty cases, singleton strides, VJP and JVP. Graphless
@@ -250,9 +250,24 @@ initial CPU/WASM benchmark phases are retained alongside newer improvements.
 A dedicated one-input metadata result path and validated expansion descriptors
 remove the initial view/expansion latency regression. Direct gradient-flag
 assignment follows native leaf rules; ordinary reverse microbenchmarks retain
-small costs. This candidate has not been adopted on main; complete catalog,
-exported application and remote integration gates remain required. See
+small costs. Version 0.21 is adopted on main at `9eee6fa0` with all 78 exported WASM modules
+within budget. Exact Quality passes; the runtime-identical curriculum descendant
+`abbf721b` passes Quality/eligible Pages and all 78 live module/158 immutable
+asset comparisons. See
 [iteration 21](../../docs/validation/torch-runtime-iteration-21.md).
+
+## Version 0.22 candidate
+
+Shared real statistics validate dimension/type/range/duplicate rules, scalar and
+empty reductions, fractional correction and unbiased overloads. Native values
+and VJP/JVP cover insufficient degrees of freedom and the distinct empty-dimension
+reverse convention. New `var_mean/std_mean` share moments; selective saved tensors
+retain input and standard-deviation guards without guarding unsaved means or
+variance outputs. Reverse-over-JVP and post-forward model dtype conversion are
+checked. Float32 paired accumulators retain their native rounding distinction.
+Independent directional derivatives, duality and continued optimizer updates
+supplement native references. Full correctness, actual WASM and balanced CPU/WASM
+performance gates remain pending; this candidate has not been adopted on main.
 
 ## Next implementation areas
 

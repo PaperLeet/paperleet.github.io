@@ -63,6 +63,21 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## Statistics
+
+`Tensor.var/std`, `torch.var/std` and `torch.var_mean/std_mean` support real
+floating inputs, scalar and multi-axis reductions, `keepdim`, fractional
+`correction` and the legacy boolean `unbiased` overload. Paired operations reuse
+the moments calculation. Their float32 accumulator follows the tested native CPU
+paired behavior, which can round differently from separately requested moments.
+
+The rules cover empty inputs, insufficient degrees of freedom, constant standard
+deviations, reverse gradients and JVP for float32/float64. Native comparisons also
+cover reverse differentiation of the JVP and storage/dtype conversion after the
+forward pass. Complex statistics and output buffers retain explicit unsupported
+errors. Floating reductions are tolerance-checked, not promised bitwise identical
+across platforms.
+
 ## NumPy imports and Tensor construction
 
 `torch.tensor(array)` copies storage. `torch.from_numpy(array)` and same-dtype

@@ -1,8 +1,9 @@
-# Torch runtime 0.21 candidate: shape contracts and graphless views
+# StrideTorch 0.21: shape contracts and graphless views
 
-This is an unpublished candidate on the development branch. The refinement below supersedes the initial microbenchmark costs. Main remains on
-0.20.0. Complete catalog, exported application and remote adoption gates are
-pending; the measurements below do not establish an application speedup.
+Version 0.21 is adopted on main at `9eee6fa0` and deployed through the
+runtime-identical curriculum descendant `abbf721b`. Exact Quality, eligible Pages
+and live payload checks pass. The refinement below supersedes the initial
+microbenchmark costs; the measurements do not establish an application speedup.
 
 ## Behavior
 
@@ -166,6 +167,31 @@ was copied and independently asserted without rerunning the suite.
 
 [Renaming proof](../../packages/stridetorch/benchmarks/results/iteration-21-stridetorch.json)
 and [integration proof](../../packages/stridetorch/benchmarks/results/iteration-21-stridetorch-integration.json)
-retain the canonical source, packaging, browser and merge checks. Remote adoption
-remains pending. Old proofs are retained as the before-renaming snapshot, not
+retain the canonical source, packaging, browser and merge checks. Old proofs are retained as the before-renaming snapshot, not
 reinterpreted as new namespace tests.
+
+## Remote adoption
+
+[Quality 38871804157](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38871804157)
+passes native, browser-WASM and pilot on the adopted commit. Remote Linux passes
+22,667 infrastructure tests (one optional Docker skip, 20 warnings, 545.81s).
+The native catalog passes 78 modules, 10,218 executions over three repetitions
+and 342 mutants (414.43s). Actual WASM passes 78/78 with no budget excess
+(774.63s total); Flow Matching uses 188.49s calibration, 37.67s learner execution
+and 229.69s total under unchanged budgets.
+
+The first Pages run was skipped after main advanced. The curriculum descendant
+preserves the entire library, packaging, workflow, runtime and exported bundle
+inputs byte-for-byte. Its
+[Quality 38873324652](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38873324652)
+and [eligible Pages 38874844442](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38874844442)
+pass, including actual build and deploy steps. Its separate WASM artifact also
+passes all 78 modules without budget excess (763.40s).
+
+Fresh live checks decode compressed starters and verify all 78 manifests/module
+details, 158 immutable assets and both profiles' LICENSE/NOTICE bytes against
+the frozen canonical snapshot. Both runtime payload hashes match exactly.
+[Remote proof](../../packages/stridetorch/benchmarks/results/iteration-21-remote-adoption.json)
+and its [archive](../../packages/stridetorch/benchmarks/results/iteration-21-remote-adoption-harness.tar.gz)
+retain the superseded/skipped run, source equivalence, both Quality/WASM results,
+eligible deployment and live verifier inputs. No public registry release occurred.

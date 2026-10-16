@@ -176,10 +176,11 @@ def create_torch(name='torch', *, register=False):
     # These declarations generate the top-level Tensor aliases and their guards.
     # Each tuple is (reverse-mode policy, validated JVP, unsupported native kwargs).
     methods = {
+        **dict.fromkeys(('var','std'), ('analytic',True,('out',))),
         **dict.fromkeys(('sum','exp','log','sqrt','abs','sin','cos','tanh','rsqrt','sigmoid'), ('analytic',True,('out',))),
         **dict.fromkeys(('mean',), ('analytic',True,('out','dtype'))),
         **dict.fromkeys(('relu','softmax','log_softmax','reshape'), ('analytic',True,())),
-        **dict.fromkeys(('clamp','clamp_min','clamp_max','acos','var','std','cumsum','cumprod','norm','logsumexp','diag','triu','tril','amax','prod','round'), ('analytic',False,('out',))),
+        **dict.fromkeys(('clamp','clamp_min','clamp_max','acos','cumsum','cumprod','norm','logsumexp','diag','triu','tril','amax','prod','round'), ('analytic',False,('out',))),
         **dict.fromkeys(('repeat_interleave','flip','roll','chunk','erfinv'), ('analytic',False,())),
         **dict.fromkeys(('max','min'), ('analytic',False,('out',))),
         **dict.fromkeys(('all','any','argmax','argmin'), ('nondifferentiable',False,('out',))),
@@ -189,6 +190,9 @@ def create_torch(name='torch', *, register=False):
     registry.group('torch', {'flatten':_ops.flatten,'transpose':_ops.transpose,'unsqueeze':_ops.unsqueeze,'squeeze':_ops.squeeze}, reverse='analytic', forward=True)
     registry.add('torch.permute', _ops.permute, reverse='analytic', forward=True)
     registry.add('torch.broadcast_to', _ops.broadcast_to, reverse='analytic', forward=True)
+    from . import _statistics
+    registry.add('torch.var_mean', _statistics.var_mean, reverse='analytic', forward=True, unsupported_keywords=('out',))
+    registry.add('torch.std_mean', _statistics.std_mean, reverse='analytic', forward=True, unsupported_keywords=('out',))
     registry.add('torch.logit', lambda input,eps=None: input.logit(eps), reverse='analytic')
 
     registry.group('torch.nn.functional', {

@@ -6,7 +6,7 @@ import warnings
 from collections import namedtuple
 from statistics import NormalDist
 import numpy as np
-from . import _layout
+from . import _layout, _statistics
 
 
 class StorageVersion:
@@ -1102,37 +1102,14 @@ class Tensor:
             grad = np.zeros_like(original_data); np.add.at(grad, tuple(coordinates), g)
             return grad
         return _autograd.result(np.take_along_axis(original_data[slices], index, axis=dim), (self, vjp), saved=(saved_index,))
-    def var(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
-        self._real_only()
-        dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
-        count = int(np.prod([self.shape[d] for d in dims]))
-        correction = int(unbiased) if correction is None else correction
-        centered = self - self.mean(dim, keepdim=True)
-        return centered.square().sum(dim, keepdim) / (count - correction)
-    def std(self, dim=None, unbiased=True, keepdim=False, *, correction=None):
-        self._real_only()
-        dims = tuple(range(self.ndim)) if dim is None else tuple(d % self.ndim for d in (dim if isinstance(dim, (list, tuple)) else (dim,)))
-        correction = int(unbiased) if correction is None else correction
-        count = int(np.prod([self.shape[d] for d in dims]))
-        source = self._data
-        value = np.std(source, axis=dims, ddof=correction, keepdims=True)
-        centered = source - source.mean(axis=dims, keepdims=True)
-        def vjp(g):
-            if self._data is not source:
-                saved = value if keepdim else value.squeeze(axis=dims)
-                with np.errstate(over='ignore',invalid='ignore',divide='ignore'):
-                    alpha = g / (saved * (count - correction))
-                    mask = saved == 0
-                    if not keepdim and alpha.ndim:
-                        for axis in sorted(dims):alpha,mask = np.expand_dims(alpha,axis),np.expand_dims(mask,axis)
-                    current = self._data - self._data.mean(axis=dims,keepdims=True)
-                    result = (Tensor(current) * Tensor(alpha))._data
-                return np.where(mask,0.,result)
-            if not keepdim:
-                for axis in sorted(dims): g = np.expand_dims(g, axis)
-            derivative = np.divide(centered, value * (count - correction), out=np.zeros_like(centered), where=value != 0)
-            return g * derivative
-        return _autograd.result(value if keepdim else value.squeeze(axis=dims), (self, vjp))
+    def var(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
+            keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
+        return _statistics.reduce(self, *args, dim=dim, unbiased=unbiased,
+                                  keepdim=keepdim, correction=correction)
+    def std(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
+            keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
+        return _statistics.reduce(self, *args, dim=dim, unbiased=unbiased,
+                                  keepdim=keepdim, correction=correction, kind='std')
 
     def _compare(self, other, op):
         if isinstance(other,(complex,np.complexfloating)): raise _errors.BrowserUnsupported('Complex comparisons require the server')

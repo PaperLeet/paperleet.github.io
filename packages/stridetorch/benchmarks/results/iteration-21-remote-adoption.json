@@ -1,0 +1,4382 @@
+{
+  "status": "fully_verified_remote_adoption",
+  "project": "StrideTorch",
+  "version": "0.21.0",
+  "adopted_commit": "9eee6fa030bb14008abbefa4aed7c05c56c44477",
+  "adopted_quality": {
+    "id": 38871804157,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "9eee6fa030bb14008abbefa4aed7c05c56c44477",
+    "event": "push",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38871804157",
+    "jobs": [
+      {
+        "name": "browser-wasm",
+        "id": 116877390594,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the public catalog exporter",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Export the current source into immutable browser bundles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Execute every maintained suite and mutant on pinned WASM",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "native",
+        "id": 116877390918,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Pages release gating",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install CPU-only dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test judge infrastructure",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Reference, mutation, determinism, and CPU budgets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Generate all visualization data and catalog",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build static web app",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "pilot",
+        "id": 116884772425,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require both native/frontend and complete WASM checks",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "original_pages": "Skipped aftermain advanced;not counted aspublication",
+  "deployed_descendant": "abbf721b874c7694dae7b5ceaa8e119c7ede749c",
+  "equivalence": {
+    "status": "success",
+    "adopted_commit": "9eee6fa030bb14008abbefa4aed7c05c56c44477",
+    "descendant": "abbf721b874c7694dae7b5ceaa8e119c7ede749c",
+    "protected_inputs_identical": [
+      "packages/stridetorch",
+      "pyproject.toml",
+      ".github/workflows",
+      "paperleet/browser",
+      "web/public/data",
+      "web/public/browser-judge",
+      "web/public/browser-runtime",
+      "web/src/browserBundles.ts",
+      "web/scripts/check-browser-wasm.mjs"
+    ],
+    "changed_files": [
+      "README.md",
+      "README.zh-CN.md",
+      "docs/browser-judge.md",
+      "docs/validation/policy-objective-guides.md",
+      "paperleet/interview_catalog.json",
+      "web/scripts/check-interview-study.mjs",
+      "web/scripts/check-preparation-guides.mjs",
+      "web/src/data/preparation-guides.json"
+    ],
+    "quality_adopted": 38871804157,
+    "quality_descendant": 38873324652,
+    "policy": "OriginalQualitypassed;originalPages skipped aftermainadvanced;followeligibledeployment of source-identicalruntime descendant"
+  },
+  "deployed_quality": {
+    "id": 38873324652,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "abbf721b874c7694dae7b5ceaa8e119c7ede749c",
+    "event": "push",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38873324652",
+    "jobs": [
+      {
+        "name": "native",
+        "id": 116882364109,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Pages release gating",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install CPU-only dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test judge infrastructure",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Reference, mutation, determinism, and CPU budgets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Generate all visualization data and catalog",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build static web app",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "browser-wasm",
+        "id": 116882364695,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the public catalog exporter",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Export the current source into immutable browser bundles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Execute every maintained suite and mutant on pinned WASM",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "pilot",
+        "id": 116887247839,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require both native/frontend and complete WASM checks",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "eligible_pages": {
+    "id": 38874844442,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "abbf721b874c7694dae7b5ceaa8e119c7ede749c",
+    "event": "workflow_run",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38874844442",
+    "jobs": [
+      {
+        "name": "build",
+        "id": 116887293330,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require complete quality checks on this main revision",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check static asset retention",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build public site",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Find the previous successful Pages deployment",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download previous static assets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Recover historical assets when extending the retention window",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain assets for cached pages",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Save lightweight assets for the next deployment",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-pages-artifact@v3",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "deploy",
+        "id": 116887849638,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Recheck the tested revision before publishing",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/deploy-pages@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "native": {
+    "passed": true,
+    "problems": 78,
+    "tests_executed": 10218,
+    "repeats": 3,
+    "mutants": 342,
+    "duration_s": 414.4348555270001,
+    "infrastructure": "22667passed1skip20warnings545.81s onremoteLinux"
+  },
+  "wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "passed": true,
+    "elapsed_ms": 774626,
+    "browser_budget_exceeded": [],
+    "results": [
+      {
+        "id": "rl/gae",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/1-2989194a1f438922ab9e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "25a50f326a8b84c45cf7cd573751fcfb75517e4cacc215961dee50b5fa07659f",
+        "preparation_ms": 3129,
+        "calibration_ms": 2110,
+        "learner_ms": 171,
+        "elapsed_ms": 5753,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/ppo_clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/2-9a46395881faa38508fe.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "05edc7a05d1d250605c901d8b4f1004bef322e7f3debc45db2aaed30a893126d",
+        "preparation_ms": 3139,
+        "calibration_ms": 9556,
+        "learner_ms": 1563,
+        "elapsed_ms": 14607,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/3-a11c34008f28d7b146c6.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "c6b756183d137737326ab5d6da8ec120d5d03e8f3233b4ddfcfb00b78481ce95",
+        "preparation_ms": 3129,
+        "calibration_ms": 6740,
+        "learner_ms": 1120,
+        "elapsed_ms": 11289,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/4-a3442be055caffd50d8d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "a2d1d6c1a62321a6442416baffbfc2814fd0debfc5a83dd64ad317147f5b35fb",
+        "preparation_ms": 3156,
+        "calibration_ms": 3474,
+        "learner_ms": 501,
+        "elapsed_ms": 7436,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dr_grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/5-e38189ad769b1840557b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "efbac2a496e6b6ef52170924e86551a0c6d44d495deb275bb91a27004c585ff4",
+        "preparation_ms": 3112,
+        "calibration_ms": 2883,
+        "learner_ms": 627,
+        "elapsed_ms": 6889,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/schedules",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/6-9e7c1e069638f22d4405.json",
+        "runtime_bundle_url": "browser-judge/runtime-6a79440dddb08e3ecb27.json",
+        "source_sha256": "0e7719dee009fa8c227b75c3ee140508abb71a188650faa925a74eb11d9b657d",
+        "preparation_ms": 2884,
+        "calibration_ms": 796,
+        "learner_ms": 65,
+        "elapsed_ms": 3796,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/param_conversion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/7-0d7941b7929f965eb93b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "c9f3adca4a7b60f868bcc0dfdb2ab53fd500a1826f07a7f677ffa7c2b1a3c20b",
+        "preparation_ms": 3102,
+        "calibration_ms": 578,
+        "learner_ms": 55,
+        "elapsed_ms": 4020,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddpm_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/8-7589e2768806856d2d53.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8f47d91ee3300666af2b1aec983c6675a2a44e43a4c58cd794d8b4a7b757b5b4",
+        "preparation_ms": 3254,
+        "calibration_ms": 54270,
+        "learner_ms": 9015,
+        "elapsed_ms": 66872,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddim",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/9-52f96c3587940b963810.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2b10ec799adee4a542dd175dddb73c81453a8d15b809132de8d2204498d7609d",
+        "preparation_ms": 3198,
+        "calibration_ms": 25979,
+        "learner_ms": 4327,
+        "elapsed_ms": 33816,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/flow_matching",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/10-38fbd132f34a18f1018b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+        "preparation_ms": 3233,
+        "calibration_ms": 188490,
+        "learner_ms": 37671,
+        "elapsed_ms": 229689,
+        "budgets": {
+          "calibration": 240000,
+          "run": 60000,
+          "total": 300000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/gspo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/11-3054038e1071f08a5f6b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f0d270baf3b9bee29979dbe96d7657032a7ca49b08553e9fcf636b9fb8c413f7",
+        "preparation_ms": 3165,
+        "calibration_ms": 515,
+        "learner_ms": 51,
+        "elapsed_ms": 3989,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/opd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/12-fd8e75a07c739be990e7.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "eb48ffc65a5be9153ff2c22a2bd21b8c3ab3a7ae790be0d17ba06508a189e7b3",
+        "preparation_ms": 3112,
+        "calibration_ms": 1736,
+        "learner_ms": 293,
+        "elapsed_ms": 5398,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dapo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/13-39fcf601c8a7a3f4586f.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "38d642f4d588c80abac04e7a28896abea78d35530a636f75b553f07abbe08eb5",
+        "preparation_ms": 3130,
+        "calibration_ms": 606,
+        "learner_ms": 71,
+        "elapsed_ms": 4079,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/lora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/14-5a3a9dc8213edf1e9692.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "ed4b0a5f2b2cd6813b9f206688c62529299a098faa7fa59e3ecee87d242ae8de",
+        "preparation_ms": 3159,
+        "calibration_ms": 1241,
+        "learner_ms": 187,
+        "elapsed_ms": 4828,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/qlora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/15-a336b8a57ba8d35e1d9d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2ff6164eb6a1094a6f31615817f3925b95276a3c68a795eec28e8b088d58e0f0",
+        "preparation_ms": 3155,
+        "calibration_ms": 1221,
+        "learner_ms": 185,
+        "elapsed_ms": 4809,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/meanflow",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/16-441d9ddaf719ac351113.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "52fde345843c7e239be748b635bb4b37923ba3a9319405b3bbd7c33f6469e64a",
+        "preparation_ms": 3122,
+        "calibration_ms": 1066,
+        "learner_ms": 176,
+        "elapsed_ms": 4562,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/jit",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/17-63674cf5f36931d64767.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "6f349eb38ac66686b935a7524c2179ef62833a1a62878e63fa2405d28436e94b",
+        "preparation_ms": 3154,
+        "calibration_ms": 3954,
+        "learner_ms": 864,
+        "elapsed_ms": 8166,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/drifting",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/18-9d43f17a04d9280a381e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "13ec07107fbe63752427e9fd63eaf2c825cf73fbe69d8e2e0c3b2c7e7740a62e",
+        "preparation_ms": 3145,
+        "calibration_ms": 12847,
+        "learner_ms": 2459,
+        "elapsed_ms": 18669,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/19-a682420e22a378ed89e2.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b50651427968f00c1b852e3b108eee87995ce548291dd48d016eb5c34b7326e7",
+        "preparation_ms": 3124,
+        "calibration_ms": 13431,
+        "learner_ms": 2581,
+        "elapsed_ms": 19346,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/20-ad745bb22d6451a56888.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "4f0403bbac9f29c4bc03bd75999144b8cc008afaba363a13a0177c7f072dc30a",
+        "preparation_ms": 3145,
+        "calibration_ms": 8260,
+        "learner_ms": 1404,
+        "elapsed_ms": 13008,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/consistency",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/21-99c11717634e39949372.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b19ecdac39a8a529571721404abd6a4841edbe2e576c0c66dd8af7aac4167cea",
+        "preparation_ms": 3204,
+        "calibration_ms": 5575,
+        "learner_ms": 1016,
+        "elapsed_ms": 10009,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/22-2c7241ca40b512469647.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "0b8e504a70eeb2210cd3da9d9f3d420f99dd399ba91dbddb17bff4381080778a",
+        "preparation_ms": 3164,
+        "calibration_ms": 459,
+        "learner_ms": 47,
+        "elapsed_ms": 18159,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/adamw",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/23-2a4c7b9774778cf0f1f5.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fecd6ea876a395637dd5b8dbb416d92a5c5373b968d200b6475caa138d1bfe40",
+        "preparation_ms": 3145,
+        "calibration_ms": 760,
+        "learner_ms": 101,
+        "elapsed_ms": 4272,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/flash_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/24-bcd79207e14d2f798815.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8bf61fa76b4617d9a5ef8270940ed3af5c4b3a3dcdb205fe2782df28b51d4e31",
+        "preparation_ms": 3078,
+        "calibration_ms": 3708,
+        "learner_ms": 679,
+        "elapsed_ms": 7754,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/25-97c56fd89e9f8d423c80.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f206405a0b6d79e32c340c568e1f307b5dd134211962beb5524d3f7a35556800",
+        "preparation_ms": 3114,
+        "calibration_ms": 965,
+        "learner_ms": 134,
+        "elapsed_ms": 4465,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/progressive_distillation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/26-390ef4a9020a99786997.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f975bd08db33e1d987438366863557843ca10e55a482006f8164e5b2357da343",
+        "preparation_ms": 3110,
+        "calibration_ms": 1780,
+        "learner_ms": 278,
+        "elapsed_ms": 5376,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/multihead_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/27-959cb75f5c57d7fe9185.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "6e0e988e3ee97500cb1731674752a7f692dd7156da6337f39d39a6b72ada3a3b",
+        "preparation_ms": 3130,
+        "calibration_ms": 655,
+        "learner_ms": 64,
+        "elapsed_ms": 4122,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/layer_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/28-3b6299f3feefd5a1e479.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "ecef39593f996261e5b1833ac506b15660ecfbf8afb480fe09844f43bcc20072",
+        "preparation_ms": 3109,
+        "calibration_ms": 578,
+        "learner_ms": 50,
+        "elapsed_ms": 3992,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positional_encoding",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/29-f59d907b0ec26ff925c9.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "a553843f457624b2a208b850010c646ee01a89d1cae355b3ab8620e8f76be138",
+        "preparation_ms": 3143,
+        "calibration_ms": 463,
+        "learner_ms": 44,
+        "elapsed_ms": 3932,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positionwise_ffn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/30-5823c70493d18746d1bd.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d214bf2b95784b0d6141523b3ddae12e88763e1bcb01137df6623d4b7f292c71",
+        "preparation_ms": 3121,
+        "calibration_ms": 1494,
+        "learner_ms": 220,
+        "elapsed_ms": 5085,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/muon_split",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/31-0e580f4d1f31f4b521f4.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "cf436e0bfd882c30712e2503978d10dc68562173bb88b6bcbd5197bc1f414065",
+        "preparation_ms": 3126,
+        "calibration_ms": 979,
+        "learner_ms": 73,
+        "elapsed_ms": 4440,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/glm5_offpolicy",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/32-68a80f2885ad64ed2860.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "17df18f4d320fb8ddbdb644660ac2c9b27c6c1a2226e1a39f5aecdd54b8a40bb",
+        "preparation_ms": 3115,
+        "calibration_ms": 1031,
+        "learner_ms": 136,
+        "elapsed_ms": 4545,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/kimi_kda",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/33-b36e8f1d47a0ddc62378.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "18f81ebb17d47d079fdf96e95d320dc073cbe76f785f0718b6fd337cc5dd54dd",
+        "preparation_ms": 3156,
+        "calibration_ms": 772,
+        "learner_ms": 94,
+        "elapsed_ms": 4273,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/block_attention_residual",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/34-0e1fc518b0bf61c062b1.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "e8c632232f68c6c575d4e51f17952150d8391e579d8b9097a6b4fee18d07829e",
+        "preparation_ms": 3158,
+        "calibration_ms": 832,
+        "learner_ms": 76,
+        "elapsed_ms": 4330,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/situ_glu",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/35-3353a7e7e057d7e02a31.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2622bf643cb527fcd38f594696de750daf1c94d9ada46a73a75b51cd75f5cb61",
+        "preparation_ms": 3146,
+        "calibration_ms": 648,
+        "learner_ms": 58,
+        "elapsed_ms": 4160,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/36-def90deed2bdf368137d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "e070a4d81636282ba50b14686f67260b18358746131c09fdc049e1fb440b1270",
+        "preparation_ms": 3108,
+        "calibration_ms": 844,
+        "learner_ms": 101,
+        "elapsed_ms": 4312,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/37-4f7c7f2f4fe84b9dbafb.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "5a5013861179fc5ddb2641f07b7213964ee524ce9611dca1b820769219a53d35",
+        "preparation_ms": 3087,
+        "calibration_ms": 539,
+        "learner_ms": 52,
+        "elapsed_ms": 3934,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_feedback",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/38-0e0d7cb9e872cc152c50.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "4cd2c05edb9153e898f7b402259b51116a6d0baee003b6e36959da9706dd05d9",
+        "preparation_ms": 3152,
+        "calibration_ms": 686,
+        "learner_ms": 77,
+        "elapsed_ms": 4180,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_topk",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/39-c748b476e69594fb64d2.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1cb07588fdf37f1bb2888f7b49e640fe44944f57dc6ee7bee8acd1b78eb1db72",
+        "preparation_ms": 3115,
+        "calibration_ms": 578,
+        "learner_ms": 62,
+        "elapsed_ms": 4025,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/repa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/40-bb87d7903e2beceeb2bb.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "7fd4ac2338c0bd7f1231d55dd81e8a7d0ddffa0901aa533c6fb0d7b1002cb778",
+        "preparation_ms": 3104,
+        "calibration_ms": 868,
+        "learner_ms": 106,
+        "elapsed_ms": 4328,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/rotation_trick",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/41-be8fa72905cc8635fc18.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "31a297f9ddd6d1ac231dc27a43fb21bf9fabb71b289daea379685a5ba3ac245a",
+        "preparation_ms": 3137,
+        "calibration_ms": 654,
+        "learner_ms": 53,
+        "elapsed_ms": 4101,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/differential_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/42-998f9a1c62e94379ee5c.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "cfb222bcd2f5b64d48c4983004acb1f202c1b0ebdfe7f2411418ed49472e7d8d",
+        "preparation_ms": 3157,
+        "calibration_ms": 753,
+        "learner_ms": 106,
+        "elapsed_ms": 4286,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/block_diffusion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/43-b27b1e0606cd76c1e7e1.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b5dd58ba22dcc68245f9a2de0c6119a0b3ad8b4a8d1b87602d25a4c5b31e1bde",
+        "preparation_ms": 3160,
+        "calibration_ms": 739,
+        "learner_ms": 93,
+        "elapsed_ms": 4258,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/distillm2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/44-58fe4cf49d02157c11f7.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "4e43d0ce0895ff110d60ec71b3a9a2757dc2fc5d43aac4174ccea4395fca751e",
+        "preparation_ms": 3189,
+        "calibration_ms": 1144,
+        "learner_ms": 162,
+        "elapsed_ms": 4827,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/pkpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/45-22e4f2e5607cf061c38e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8a37db197821e3c718ddb50b088175aa585dde32aa7df25dd4b80e42db72a05e",
+        "preparation_ms": 3142,
+        "calibration_ms": 2420,
+        "learner_ms": 459,
+        "elapsed_ms": 6327,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/svdquant",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/46-45cafe277b587c0b230e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b7fe09800ec987d1713e7649a3199f27e8bf0720e63ff26d945bcccebef055fe",
+        "preparation_ms": 3146,
+        "calibration_ms": 801,
+        "learner_ms": 91,
+        "elapsed_ms": 4356,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moge_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/47-16cf82322bc0d3d5c43d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "0eba01b83339c1e6422e0ebbe62ec267f12c0121e421790b480c90877d0766fe",
+        "preparation_ms": 3121,
+        "calibration_ms": 692,
+        "learner_ms": 86,
+        "elapsed_ms": 4218,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/daps",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/48-4201ce0c5d9d40e188de.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2125baa0591175807dea6f25f5afcc8aca92ca3a3b4b053023314512974a9016",
+        "preparation_ms": 3181,
+        "calibration_ms": 1863,
+        "learner_ms": 279,
+        "elapsed_ms": 5635,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/diffusion_nft",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/49-9f0382767d5d4b25764d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "299c5cea5b1678606cc9667c9672e5f9ad2f0d8f95cf125c46b2b4ee205bcdba",
+        "preparation_ms": 3152,
+        "calibration_ms": 961,
+        "learner_ms": 111,
+        "elapsed_ms": 4528,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/var_next_scale",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/50-5d19b65c85fd7656f465.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2a84a9deb9a635805c485d47928314ef5f64ded3950c4cc5c0957eed0df35259",
+        "preparation_ms": 3164,
+        "calibration_ms": 710,
+        "learner_ms": 84,
+        "elapsed_ms": 4261,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/var_tokenizer",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/51-2f2282b6b59659fadc96.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fbbaeb67561db1f3a0f3bec16437fefec9e29c0ee2560e40f4b7dbd5322835ca",
+        "preparation_ms": 3175,
+        "calibration_ms": 923,
+        "learner_ms": 102,
+        "elapsed_ms": 4502,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_population",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/52-d08ff0530230c66e2456.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "46ad9fc36fcebe12aa367837333a26ac579a5972ef0fee7d24d16652d71187af",
+        "preparation_ms": 3162,
+        "calibration_ms": 824,
+        "learner_ms": 84,
+        "elapsed_ms": 4369,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/53-2aeb26d93bbfd5a188a4.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "68e82e31bd7843760ce8d1f564ab11dfe7bc64c5f0277be601c7db572a983b02",
+        "preparation_ms": 3145,
+        "calibration_ms": 4219,
+        "learner_ms": 743,
+        "elapsed_ms": 8418,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/vicreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/54-89038ba4d9537c62b2b0.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "e03eaa0886474df5ee768d1cd3d0c5227be97d702c1c274e903fb08daa774e3d",
+        "preparation_ms": 3113,
+        "calibration_ms": 1646,
+        "learner_ms": 260,
+        "elapsed_ms": 5319,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/sigreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/55-6e40d6b6ceb735662ff4.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "68cd9211dd4f6028a24bf7284893fa6a7bec50ca0f36d9a783b934df9ab96ac2",
+        "preparation_ms": 3153,
+        "calibration_ms": 1924,
+        "learner_ms": 325,
+        "elapsed_ms": 5709,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/visreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/56-1e9aafc75993a157d84f.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d4a4fa431d8f60ff173ccc3515167ede6fdccc5b572f39daa7d71ec407dd4b6d",
+        "preparation_ms": 3142,
+        "calibration_ms": 2495,
+        "learner_ms": 443,
+        "elapsed_ms": 6382,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/ijepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/57-77fe528609cc81486bc6.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8c077d0f36f0bbfc7b6337105ae181924e53af17dc8d0291bfd1ee3dc18f1ae2",
+        "preparation_ms": 3135,
+        "calibration_ms": 705,
+        "learner_ms": 87,
+        "elapsed_ms": 4245,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_prediction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/58-c1f0ac5671b0e76bca14.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1e8a9bf0ecac0cd5cffed1cc655b2dfc7fef5be05a7a56e6de9e2d17821f670c",
+        "preparation_ms": 3108,
+        "calibration_ms": 1306,
+        "learner_ms": 208,
+        "elapsed_ms": 4920,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_planning",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/59-ea82f46f00bfe57f9e38.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2ff3e0fa13d8b6ce367544e70a3e626dc746fbc48df77f853567a2c93e9954e3",
+        "preparation_ms": 3164,
+        "calibration_ms": 572,
+        "learner_ms": 61,
+        "elapsed_ms": 4077,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/causal_jepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/60-1792b981bd8fda9b9d4d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "95826dbfeeac9cbf31bdec420091ea4314e6e9b24faa10f60312b23501b81778",
+        "preparation_ms": 3142,
+        "calibration_ms": 879,
+        "learner_ms": 113,
+        "elapsed_ms": 4424,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rms_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/61-84f3ee8f0ead2f6d12ed.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "5515508e289c7807f669f1aa3771eb0abbc4dbdb472f5ded68dc317f4a9acea2",
+        "preparation_ms": 3145,
+        "calibration_ms": 671,
+        "learner_ms": 65,
+        "elapsed_ms": 4187,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/gqa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/62-f002976233aef1d2b987.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "64828f85c742a8ed4d5e8b5d2e3b90e90c1bdb774d0560614953898e70622fe0",
+        "preparation_ms": 3134,
+        "calibration_ms": 936,
+        "learner_ms": 89,
+        "elapsed_ms": 4476,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rope",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/63-eeee665412096dcce682.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1a072292f8dda110c6fcda673d23c5ab770f5a128fb938cf443ab0f4af1649b4",
+        "preparation_ms": 3144,
+        "calibration_ms": 977,
+        "learner_ms": 77,
+        "elapsed_ms": 4516,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/semantic_ids",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/64-8db7b4391b54b6910bc3.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "9aa1341620e45a665d4c3404339a441a85fc2750f6b46bbd768c3bbdc919740c",
+        "preparation_ms": 3144,
+        "calibration_ms": 589,
+        "learner_ms": 63,
+        "elapsed_ms": 4091,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/generative_retrieval",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/65-1e7defc1d7db2ede416a.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b1e4f8ebab039a6f0ad10c330d60b0149f6c59e79fb8e61647fde3775141556a",
+        "preparation_ms": 3079,
+        "calibration_ms": 803,
+        "learner_ms": 77,
+        "elapsed_ms": 4240,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/late_interaction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/66-e898e29be95a5eaa253e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f3df6588563cffb2d741eaf079d5aeb5e61e5d3f635daf7e4ca667886c9ff2d8",
+        "preparation_ms": 3162,
+        "calibration_ms": 2135,
+        "learner_ms": 243,
+        "elapsed_ms": 5866,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/sasrec",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 7,
+        "packages": [],
+        "bundle_url": "browser-judge/67-cfd3e65a92651e8fdb14.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "a4a16131a003ba657709dfd569c6b91900af30aca5943322a886df111c7247c4",
+        "preparation_ms": 3136,
+        "calibration_ms": 3774,
+        "learner_ms": 414,
+        "elapsed_ms": 7646,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/bpr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/68-9ab6b0e4183053dff54b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "3c2b074713c0eadc63f5c498a40ab5f16a5703a887776ae8c2df88ca2570adf7",
+        "preparation_ms": 3138,
+        "calibration_ms": 2352,
+        "learner_ms": 234,
+        "elapsed_ms": 6080,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/lightgcn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/69-09e8390d4e7180ab6f5d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d6c44f850fc34eea6cdb815f0680453f2da99fb6a2613b3dae49674fea595256",
+        "preparation_ms": 3182,
+        "calibration_ms": 2546,
+        "learner_ms": 214,
+        "elapsed_ms": 6278,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/simclr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/84-a46b006a886a4978bca1.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "cbbfeb0603829bc630a7c0e04b369316b98c9f72ad1c93c9bb193d551a831db0",
+        "preparation_ms": 3137,
+        "calibration_ms": 2208,
+        "learner_ms": 188,
+        "elapsed_ms": 5848,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moco",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 9,
+        "packages": [],
+        "bundle_url": "browser-judge/85-69eb085d788d54e438a7.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "14ebf7608b5e5979ef203aa31bdca4a216dde5322ba2f95f48040b4326ba6408",
+        "preparation_ms": 3144,
+        "calibration_ms": 1662,
+        "learner_ms": 108,
+        "elapsed_ms": 5243,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/next_token_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/86-7dccfad0eca5e2a1fa12.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "06aedea8cf804c91446cf05acc0acdf61e834cd1309c4de45cdef6d729d1097f",
+        "preparation_ms": 3155,
+        "calibration_ms": 1187,
+        "learner_ms": 55,
+        "elapsed_ms": 4597,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/sft_loss_mask",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/87-01a2b47034bab50bec5d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d2e64961452dc19b49323c4bee1d4981439ff6b91bd18228bdaa767cdc9f9122",
+        "preparation_ms": 3138,
+        "calibration_ms": 1218,
+        "learner_ms": 62,
+        "elapsed_ms": 4627,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_k_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/88-02a0edc5a255f4bfc3ce.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fcae9101590444259c76db04948209f9df98e45e0253d881bb7be0c3ed9b1828",
+        "preparation_ms": 3138,
+        "calibration_ms": 962,
+        "learner_ms": 56,
+        "elapsed_ms": 4370,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_p_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/89-c277e2a021cd5a6194ff.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8fc8a74602f77cff504ca798f5d056f4a004df2e7537b137eb3fdce4b757338c",
+        "preparation_ms": 3130,
+        "calibration_ms": 1004,
+        "learner_ms": 80,
+        "elapsed_ms": 4566,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_accumulation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/90-c7137418f5afe19ce772.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "ab380d9fd60ba33dd6ce4acb12bab440f900670afc8f367b48204675b69764d7",
+        "preparation_ms": 3141,
+        "calibration_ms": 1109,
+        "learner_ms": 51,
+        "elapsed_ms": 4483,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/91-ee7b3143ec988bedee13.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1d5114c22a037b660a7e9689d44a40ae2aecc7a54ac619f4f2843bbc4659bfeb",
+        "preparation_ms": 3169,
+        "calibration_ms": 1111,
+        "learner_ms": 58,
+        "elapsed_ms": 4547,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/group_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/92-fa751b024945f46df895.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "aae929eaf867bfd42966331fee926e546b9acc3502bd57965f733c76d7fc8911",
+        "preparation_ms": 3098,
+        "calibration_ms": 1160,
+        "learner_ms": 88,
+        "elapsed_ms": 4686,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      }
+    ]
+  },
+  "deployed_wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "passed": true,
+    "elapsed_ms": 763398,
+    "browser_budget_exceeded": [],
+    "results": [
+      {
+        "id": "rl/gae",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/1-2989194a1f438922ab9e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "25a50f326a8b84c45cf7cd573751fcfb75517e4cacc215961dee50b5fa07659f",
+        "preparation_ms": 2935,
+        "calibration_ms": 1957,
+        "learner_ms": 163,
+        "elapsed_ms": 5394,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/ppo_clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/2-9a46395881faa38508fe.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "05edc7a05d1d250605c901d8b4f1004bef322e7f3debc45db2aaed30a893126d",
+        "preparation_ms": 2927,
+        "calibration_ms": 9144,
+        "learner_ms": 1500,
+        "elapsed_ms": 13892,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/3-a11c34008f28d7b146c6.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "c6b756183d137737326ab5d6da8ec120d5d03e8f3233b4ddfcfb00b78481ce95",
+        "preparation_ms": 2923,
+        "calibration_ms": 6698,
+        "learner_ms": 1099,
+        "elapsed_ms": 11010,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/4-a3442be055caffd50d8d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "a2d1d6c1a62321a6442416baffbfc2814fd0debfc5a83dd64ad317147f5b35fb",
+        "preparation_ms": 2982,
+        "calibration_ms": 3315,
+        "learner_ms": 501,
+        "elapsed_ms": 7098,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dr_grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/5-e38189ad769b1840557b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "efbac2a496e6b6ef52170924e86551a0c6d44d495deb275bb91a27004c585ff4",
+        "preparation_ms": 2919,
+        "calibration_ms": 2776,
+        "learner_ms": 614,
+        "elapsed_ms": 6544,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/schedules",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/6-9e7c1e069638f22d4405.json",
+        "runtime_bundle_url": "browser-judge/runtime-6a79440dddb08e3ecb27.json",
+        "source_sha256": "0e7719dee009fa8c227b75c3ee140508abb71a188650faa925a74eb11d9b657d",
+        "preparation_ms": 2729,
+        "calibration_ms": 787,
+        "learner_ms": 66,
+        "elapsed_ms": 3637,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/param_conversion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/7-0d7941b7929f965eb93b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "c9f3adca4a7b60f868bcc0dfdb2ab53fd500a1826f07a7f677ffa7c2b1a3c20b",
+        "preparation_ms": 2902,
+        "calibration_ms": 525,
+        "learner_ms": 56,
+        "elapsed_ms": 3743,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddpm_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/8-7589e2768806856d2d53.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8f47d91ee3300666af2b1aec983c6675a2a44e43a4c58cd794d8b4a7b757b5b4",
+        "preparation_ms": 3006,
+        "calibration_ms": 60130,
+        "learner_ms": 9970,
+        "elapsed_ms": 73429,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddim",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/9-52f96c3587940b963810.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2b10ec799adee4a542dd175dddb73c81453a8d15b809132de8d2204498d7609d",
+        "preparation_ms": 3025,
+        "calibration_ms": 28695,
+        "learner_ms": 4733,
+        "elapsed_ms": 36754,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/flow_matching",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/10-38fbd132f34a18f1018b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+        "preparation_ms": 2987,
+        "calibration_ms": 189299,
+        "learner_ms": 37793,
+        "elapsed_ms": 230349,
+        "budgets": {
+          "calibration": 240000,
+          "run": 60000,
+          "total": 300000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/gspo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/11-3054038e1071f08a5f6b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f0d270baf3b9bee29979dbe96d7657032a7ca49b08553e9fcf636b9fb8c413f7",
+        "preparation_ms": 2912,
+        "calibration_ms": 490,
+        "learner_ms": 44,
+        "elapsed_ms": 3705,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/opd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/12-fd8e75a07c739be990e7.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "eb48ffc65a5be9153ff2c22a2bd21b8c3ab3a7ae790be0d17ba06508a189e7b3",
+        "preparation_ms": 2919,
+        "calibration_ms": 1679,
+        "learner_ms": 282,
+        "elapsed_ms": 5117,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dapo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/13-39fcf601c8a7a3f4586f.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "38d642f4d588c80abac04e7a28896abea78d35530a636f75b553f07abbe08eb5",
+        "preparation_ms": 2921,
+        "calibration_ms": 567,
+        "learner_ms": 70,
+        "elapsed_ms": 3822,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/lora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/14-5a3a9dc8213edf1e9692.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "ed4b0a5f2b2cd6813b9f206688c62529299a098faa7fa59e3ecee87d242ae8de",
+        "preparation_ms": 2940,
+        "calibration_ms": 1194,
+        "learner_ms": 185,
+        "elapsed_ms": 4554,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/qlora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/15-a336b8a57ba8d35e1d9d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2ff6164eb6a1094a6f31615817f3925b95276a3c68a795eec28e8b088d58e0f0",
+        "preparation_ms": 2909,
+        "calibration_ms": 1148,
+        "learner_ms": 184,
+        "elapsed_ms": 4475,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/meanflow",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/16-441d9ddaf719ac351113.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "52fde345843c7e239be748b635bb4b37923ba3a9319405b3bbd7c33f6469e64a",
+        "preparation_ms": 2912,
+        "calibration_ms": 1023,
+        "learner_ms": 173,
+        "elapsed_ms": 4297,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/jit",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/17-63674cf5f36931d64767.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "6f349eb38ac66686b935a7524c2179ef62833a1a62878e63fa2405d28436e94b",
+        "preparation_ms": 2963,
+        "calibration_ms": 3920,
+        "learner_ms": 870,
+        "elapsed_ms": 7944,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/drifting",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/18-9d43f17a04d9280a381e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "13ec07107fbe63752427e9fd63eaf2c825cf73fbe69d8e2e0c3b2c7e7740a62e",
+        "preparation_ms": 2922,
+        "calibration_ms": 13035,
+        "learner_ms": 2523,
+        "elapsed_ms": 18688,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/19-a682420e22a378ed89e2.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b50651427968f00c1b852e3b108eee87995ce548291dd48d016eb5c34b7326e7",
+        "preparation_ms": 3006,
+        "calibration_ms": 13171,
+        "learner_ms": 2578,
+        "elapsed_ms": 18960,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/20-ad745bb22d6451a56888.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "4f0403bbac9f29c4bc03bd75999144b8cc008afaba363a13a0177c7f072dc30a",
+        "preparation_ms": 2934,
+        "calibration_ms": 8040,
+        "learner_ms": 1399,
+        "elapsed_ms": 12571,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/consistency",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/21-99c11717634e39949372.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b19ecdac39a8a529571721404abd6a4841edbe2e576c0c66dd8af7aac4167cea",
+        "preparation_ms": 2916,
+        "calibration_ms": 5391,
+        "learner_ms": 996,
+        "elapsed_ms": 9517,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/22-2c7241ca40b512469647.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "0b8e504a70eeb2210cd3da9d9f3d420f99dd399ba91dbddb17bff4381080778a",
+        "preparation_ms": 2949,
+        "calibration_ms": 437,
+        "learner_ms": 44,
+        "elapsed_ms": 17915,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/adamw",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/23-2a4c7b9774778cf0f1f5.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fecd6ea876a395637dd5b8dbb416d92a5c5373b968d200b6475caa138d1bfe40",
+        "preparation_ms": 2941,
+        "calibration_ms": 708,
+        "learner_ms": 94,
+        "elapsed_ms": 3996,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/flash_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/24-bcd79207e14d2f798815.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8bf61fa76b4617d9a5ef8270940ed3af5c4b3a3dcdb205fe2782df28b51d4e31",
+        "preparation_ms": 2911,
+        "calibration_ms": 3718,
+        "learner_ms": 704,
+        "elapsed_ms": 7604,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/25-97c56fd89e9f8d423c80.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f206405a0b6d79e32c340c568e1f307b5dd134211962beb5524d3f7a35556800",
+        "preparation_ms": 2923,
+        "calibration_ms": 903,
+        "learner_ms": 127,
+        "elapsed_ms": 4208,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/progressive_distillation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/26-390ef4a9020a99786997.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f975bd08db33e1d987438366863557843ca10e55a482006f8164e5b2357da343",
+        "preparation_ms": 2911,
+        "calibration_ms": 1696,
+        "learner_ms": 271,
+        "elapsed_ms": 5074,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/multihead_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/27-959cb75f5c57d7fe9185.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "6e0e988e3ee97500cb1731674752a7f692dd7156da6337f39d39a6b72ada3a3b",
+        "preparation_ms": 2911,
+        "calibration_ms": 620,
+        "learner_ms": 59,
+        "elapsed_ms": 3843,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/layer_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/28-3b6299f3feefd5a1e479.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "ecef39593f996261e5b1833ac506b15660ecfbf8afb480fe09844f43bcc20072",
+        "preparation_ms": 2927,
+        "calibration_ms": 542,
+        "learner_ms": 45,
+        "elapsed_ms": 3757,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positional_encoding",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/29-f59d907b0ec26ff925c9.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "a553843f457624b2a208b850010c646ee01a89d1cae355b3ab8620e8f76be138",
+        "preparation_ms": 2947,
+        "calibration_ms": 432,
+        "learner_ms": 40,
+        "elapsed_ms": 3671,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positionwise_ffn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/30-5823c70493d18746d1bd.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d214bf2b95784b0d6141523b3ddae12e88763e1bcb01137df6623d4b7f292c71",
+        "preparation_ms": 2898,
+        "calibration_ms": 1431,
+        "learner_ms": 207,
+        "elapsed_ms": 4784,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/muon_split",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/31-0e580f4d1f31f4b521f4.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "cf436e0bfd882c30712e2503978d10dc68562173bb88b6bcbd5197bc1f414065",
+        "preparation_ms": 2923,
+        "calibration_ms": 949,
+        "learner_ms": 68,
+        "elapsed_ms": 4185,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/glm5_offpolicy",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/32-68a80f2885ad64ed2860.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "17df18f4d320fb8ddbdb644660ac2c9b27c6c1a2226e1a39f5aecdd54b8a40bb",
+        "preparation_ms": 2896,
+        "calibration_ms": 997,
+        "learner_ms": 124,
+        "elapsed_ms": 4268,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/kimi_kda",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/33-b36e8f1d47a0ddc62378.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "18f81ebb17d47d079fdf96e95d320dc073cbe76f785f0718b6fd337cc5dd54dd",
+        "preparation_ms": 2886,
+        "calibration_ms": 728,
+        "learner_ms": 93,
+        "elapsed_ms": 3969,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/block_attention_residual",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/34-0e1fc518b0bf61c062b1.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "e8c632232f68c6c575d4e51f17952150d8391e579d8b9097a6b4fee18d07829e",
+        "preparation_ms": 2912,
+        "calibration_ms": 772,
+        "learner_ms": 70,
+        "elapsed_ms": 4001,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/situ_glu",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/35-3353a7e7e057d7e02a31.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2622bf643cb527fcd38f594696de750daf1c94d9ada46a73a75b51cd75f5cb61",
+        "preparation_ms": 2910,
+        "calibration_ms": 593,
+        "learner_ms": 52,
+        "elapsed_ms": 3824,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/36-def90deed2bdf368137d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "e070a4d81636282ba50b14686f67260b18358746131c09fdc049e1fb440b1270",
+        "preparation_ms": 2932,
+        "calibration_ms": 784,
+        "learner_ms": 100,
+        "elapsed_ms": 4067,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/37-4f7c7f2f4fe84b9dbafb.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "5a5013861179fc5ddb2641f07b7213964ee524ce9611dca1b820769219a53d35",
+        "preparation_ms": 2939,
+        "calibration_ms": 514,
+        "learner_ms": 49,
+        "elapsed_ms": 3756,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_feedback",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/38-0e0d7cb9e872cc152c50.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "4cd2c05edb9153e898f7b402259b51116a6d0baee003b6e36959da9706dd05d9",
+        "preparation_ms": 2897,
+        "calibration_ms": 619,
+        "learner_ms": 70,
+        "elapsed_ms": 3832,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_topk",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/39-c748b476e69594fb64d2.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1cb07588fdf37f1bb2888f7b49e640fe44944f57dc6ee7bee8acd1b78eb1db72",
+        "preparation_ms": 2954,
+        "calibration_ms": 555,
+        "learner_ms": 59,
+        "elapsed_ms": 3821,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/repa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/40-bb87d7903e2beceeb2bb.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "7fd4ac2338c0bd7f1231d55dd81e8a7d0ddffa0901aa533c6fb0d7b1002cb778",
+        "preparation_ms": 2926,
+        "calibration_ms": 847,
+        "learner_ms": 111,
+        "elapsed_ms": 4133,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/rotation_trick",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/41-be8fa72905cc8635fc18.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "31a297f9ddd6d1ac231dc27a43fb21bf9fabb71b289daea379685a5ba3ac245a",
+        "preparation_ms": 2948,
+        "calibration_ms": 583,
+        "learner_ms": 52,
+        "elapsed_ms": 3838,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/differential_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/42-998f9a1c62e94379ee5c.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "cfb222bcd2f5b64d48c4983004acb1f202c1b0ebdfe7f2411418ed49472e7d8d",
+        "preparation_ms": 2927,
+        "calibration_ms": 721,
+        "learner_ms": 102,
+        "elapsed_ms": 4004,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/block_diffusion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/43-b27b1e0606cd76c1e7e1.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b5dd58ba22dcc68245f9a2de0c6119a0b3ad8b4a8d1b87602d25a4c5b31e1bde",
+        "preparation_ms": 2885,
+        "calibration_ms": 674,
+        "learner_ms": 78,
+        "elapsed_ms": 3881,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/distillm2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/44-58fe4cf49d02157c11f7.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "4e43d0ce0895ff110d60ec71b3a9a2757dc2fc5d43aac4174ccea4395fca751e",
+        "preparation_ms": 2930,
+        "calibration_ms": 1067,
+        "learner_ms": 156,
+        "elapsed_ms": 4466,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/pkpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/45-22e4f2e5607cf061c38e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8a37db197821e3c718ddb50b088175aa585dde32aa7df25dd4b80e42db72a05e",
+        "preparation_ms": 2921,
+        "calibration_ms": 2245,
+        "learner_ms": 419,
+        "elapsed_ms": 5880,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/svdquant",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/46-45cafe277b587c0b230e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b7fe09800ec987d1713e7649a3199f27e8bf0720e63ff26d945bcccebef055fe",
+        "preparation_ms": 2922,
+        "calibration_ms": 732,
+        "learner_ms": 85,
+        "elapsed_ms": 4044,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moge_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/47-16cf82322bc0d3d5c43d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "0eba01b83339c1e6422e0ebbe62ec267f12c0121e421790b480c90877d0766fe",
+        "preparation_ms": 2940,
+        "calibration_ms": 650,
+        "learner_ms": 82,
+        "elapsed_ms": 3978,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/daps",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/48-4201ce0c5d9d40e188de.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2125baa0591175807dea6f25f5afcc8aca92ca3a3b4b053023314512974a9016",
+        "preparation_ms": 2938,
+        "calibration_ms": 1861,
+        "learner_ms": 304,
+        "elapsed_ms": 5392,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/diffusion_nft",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/49-9f0382767d5d4b25764d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "299c5cea5b1678606cc9667c9672e5f9ad2f0d8f95cf125c46b2b4ee205bcdba",
+        "preparation_ms": 2892,
+        "calibration_ms": 895,
+        "learner_ms": 100,
+        "elapsed_ms": 4180,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/var_next_scale",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/50-5d19b65c85fd7656f465.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2a84a9deb9a635805c485d47928314ef5f64ded3950c4cc5c0957eed0df35259",
+        "preparation_ms": 2917,
+        "calibration_ms": 658,
+        "learner_ms": 94,
+        "elapsed_ms": 3959,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/var_tokenizer",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/51-2f2282b6b59659fadc96.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fbbaeb67561db1f3a0f3bec16437fefec9e29c0ee2560e40f4b7dbd5322835ca",
+        "preparation_ms": 2894,
+        "calibration_ms": 866,
+        "learner_ms": 96,
+        "elapsed_ms": 4150,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_population",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/52-d08ff0530230c66e2456.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "46ad9fc36fcebe12aa367837333a26ac579a5972ef0fee7d24d16652d71187af",
+        "preparation_ms": 2904,
+        "calibration_ms": 776,
+        "learner_ms": 81,
+        "elapsed_ms": 4072,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/53-2aeb26d93bbfd5a188a4.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "68e82e31bd7843760ce8d1f564ab11dfe7bc64c5f0277be601c7db572a983b02",
+        "preparation_ms": 2946,
+        "calibration_ms": 4064,
+        "learner_ms": 742,
+        "elapsed_ms": 8055,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/vicreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/54-89038ba4d9537c62b2b0.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "e03eaa0886474df5ee768d1cd3d0c5227be97d702c1c274e903fb08daa774e3d",
+        "preparation_ms": 2983,
+        "calibration_ms": 1559,
+        "learner_ms": 256,
+        "elapsed_ms": 5098,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/sigreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/55-6e40d6b6ceb735662ff4.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "68cd9211dd4f6028a24bf7284893fa6a7bec50ca0f36d9a783b934df9ab96ac2",
+        "preparation_ms": 2922,
+        "calibration_ms": 1843,
+        "learner_ms": 308,
+        "elapsed_ms": 5358,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/visreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/56-1e9aafc75993a157d84f.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d4a4fa431d8f60ff173ccc3515167ede6fdccc5b572f39daa7d71ec407dd4b6d",
+        "preparation_ms": 2928,
+        "calibration_ms": 2421,
+        "learner_ms": 440,
+        "elapsed_ms": 6091,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/ijepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/57-77fe528609cc81486bc6.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8c077d0f36f0bbfc7b6337105ae181924e53af17dc8d0291bfd1ee3dc18f1ae2",
+        "preparation_ms": 2958,
+        "calibration_ms": 690,
+        "learner_ms": 82,
+        "elapsed_ms": 4041,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_prediction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/58-c1f0ac5671b0e76bca14.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1e8a9bf0ecac0cd5cffed1cc655b2dfc7fef5be05a7a56e6de9e2d17821f670c",
+        "preparation_ms": 3043,
+        "calibration_ms": 1254,
+        "learner_ms": 193,
+        "elapsed_ms": 4767,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_planning",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/59-ea82f46f00bfe57f9e38.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "2ff3e0fa13d8b6ce367544e70a3e626dc746fbc48df77f853567a2c93e9954e3",
+        "preparation_ms": 2994,
+        "calibration_ms": 550,
+        "learner_ms": 56,
+        "elapsed_ms": 3882,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/causal_jepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/60-1792b981bd8fda9b9d4d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "95826dbfeeac9cbf31bdec420091ea4314e6e9b24faa10f60312b23501b81778",
+        "preparation_ms": 2972,
+        "calibration_ms": 836,
+        "learner_ms": 113,
+        "elapsed_ms": 4216,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rms_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/61-84f3ee8f0ead2f6d12ed.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "5515508e289c7807f669f1aa3771eb0abbc4dbdb472f5ded68dc317f4a9acea2",
+        "preparation_ms": 3007,
+        "calibration_ms": 654,
+        "learner_ms": 59,
+        "elapsed_ms": 4000,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/gqa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/62-f002976233aef1d2b987.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "64828f85c742a8ed4d5e8b5d2e3b90e90c1bdb774d0560614953898e70622fe0",
+        "preparation_ms": 3005,
+        "calibration_ms": 888,
+        "learner_ms": 87,
+        "elapsed_ms": 4300,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rope",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/63-eeee665412096dcce682.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1a072292f8dda110c6fcda673d23c5ab770f5a128fb938cf443ab0f4af1649b4",
+        "preparation_ms": 2955,
+        "calibration_ms": 925,
+        "learner_ms": 67,
+        "elapsed_ms": 4247,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/semantic_ids",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/64-8db7b4391b54b6910bc3.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "9aa1341620e45a665d4c3404339a441a85fc2750f6b46bbd768c3bbdc919740c",
+        "preparation_ms": 2937,
+        "calibration_ms": 554,
+        "learner_ms": 55,
+        "elapsed_ms": 3834,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/generative_retrieval",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/65-1e7defc1d7db2ede416a.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "b1e4f8ebab039a6f0ad10c330d60b0149f6c59e79fb8e61647fde3775141556a",
+        "preparation_ms": 2926,
+        "calibration_ms": 777,
+        "learner_ms": 74,
+        "elapsed_ms": 4045,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/late_interaction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/66-e898e29be95a5eaa253e.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "f3df6588563cffb2d741eaf079d5aeb5e61e5d3f635daf7e4ca667886c9ff2d8",
+        "preparation_ms": 2929,
+        "calibration_ms": 2028,
+        "learner_ms": 223,
+        "elapsed_ms": 5493,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/sasrec",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 7,
+        "packages": [],
+        "bundle_url": "browser-judge/67-cfd3e65a92651e8fdb14.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "a4a16131a003ba657709dfd569c6b91900af30aca5943322a886df111c7247c4",
+        "preparation_ms": 2937,
+        "calibration_ms": 3599,
+        "learner_ms": 405,
+        "elapsed_ms": 7245,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/bpr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/68-9ab6b0e4183053dff54b.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "3c2b074713c0eadc63f5c498a40ab5f16a5703a887776ae8c2df88ca2570adf7",
+        "preparation_ms": 2896,
+        "calibration_ms": 2245,
+        "learner_ms": 224,
+        "elapsed_ms": 5697,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/lightgcn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/69-09e8390d4e7180ab6f5d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d6c44f850fc34eea6cdb815f0680453f2da99fb6a2613b3dae49674fea595256",
+        "preparation_ms": 2922,
+        "calibration_ms": 2430,
+        "learner_ms": 206,
+        "elapsed_ms": 5887,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/simclr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/84-a46b006a886a4978bca1.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "cbbfeb0603829bc630a7c0e04b369316b98c9f72ad1c93c9bb193d551a831db0",
+        "preparation_ms": 2930,
+        "calibration_ms": 2121,
+        "learner_ms": 181,
+        "elapsed_ms": 5517,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moco",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 9,
+        "packages": [],
+        "bundle_url": "browser-judge/85-69eb085d788d54e438a7.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "14ebf7608b5e5979ef203aa31bdca4a216dde5322ba2f95f48040b4326ba6408",
+        "preparation_ms": 2929,
+        "calibration_ms": 1614,
+        "learner_ms": 112,
+        "elapsed_ms": 4982,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/next_token_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/86-7dccfad0eca5e2a1fa12.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "06aedea8cf804c91446cf05acc0acdf61e834cd1309c4de45cdef6d729d1097f",
+        "preparation_ms": 2944,
+        "calibration_ms": 1161,
+        "learner_ms": 46,
+        "elapsed_ms": 4357,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/sft_loss_mask",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/87-01a2b47034bab50bec5d.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "d2e64961452dc19b49323c4bee1d4981439ff6b91bd18228bdaa767cdc9f9122",
+        "preparation_ms": 2947,
+        "calibration_ms": 1196,
+        "learner_ms": 50,
+        "elapsed_ms": 4399,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_k_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/88-02a0edc5a255f4bfc3ce.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "fcae9101590444259c76db04948209f9df98e45e0253d881bb7be0c3ed9b1828",
+        "preparation_ms": 2943,
+        "calibration_ms": 963,
+        "learner_ms": 55,
+        "elapsed_ms": 4163,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_p_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/89-c277e2a021cd5a6194ff.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "8fc8a74602f77cff504ca798f5d056f4a004df2e7537b137eb3fdce4b757338c",
+        "preparation_ms": 2957,
+        "calibration_ms": 985,
+        "learner_ms": 75,
+        "elapsed_ms": 4353,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_accumulation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/90-c7137418f5afe19ce772.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "ab380d9fd60ba33dd6ce4acb12bab440f900670afc8f367b48204675b69764d7",
+        "preparation_ms": 2940,
+        "calibration_ms": 1106,
+        "learner_ms": 48,
+        "elapsed_ms": 4271,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/91-ee7b3143ec988bedee13.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "1d5114c22a037b660a7e9689d44a40ae2aecc7a54ac619f4f2843bbc4659bfeb",
+        "preparation_ms": 2937,
+        "calibration_ms": 1101,
+        "learner_ms": 57,
+        "elapsed_ms": 4300,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/group_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/92-fa751b024945f46df895.json",
+        "runtime_bundle_url": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "source_sha256": "aae929eaf867bfd42966331fee926e546b9acc3502bd57965f733c76d7fc8911",
+        "preparation_ms": 2903,
+        "calibration_ms": 1088,
+        "learner_ms": 84,
+        "elapsed_ms": 4386,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      }
+    ]
+  },
+  "live": {
+    "status": "success",
+    "commit": "abbf721b874c7694dae7b5ceaa8e119c7ede749c",
+    "url": "https://paperleet.com/",
+    "modules": 78,
+    "starters_equal": true,
+    "manifests_equal": true,
+    "module_details_equal": true,
+    "immutable_assets_equal": 158,
+    "runtimes": [
+      {
+        "path": "browser-judge/runtime-6a79440dddb08e3ecb27.json",
+        "bytes": 37343,
+        "sha256": "6a79440dddb08e3ecb2757ef0f28d894d09774d58fed8ee45a16ec112b0fc8d6",
+        "package_python_modules": 3
+      },
+      {
+        "path": "browser-judge/runtime-6d9cf8bcfffcf62323d4.json",
+        "bytes": 450832,
+        "sha256": "6d9cf8bcfffcf62323d4725e53395ab705eeb8cac0647f9f7dbb03f744b85d6f",
+        "package_python_modules": 36
+      }
+    ],
+    "license": "Apache-2.0 and NOTICE verified in both profiles",
+    "verified_sha256": {
+      "modules/1-31dda81472f73084e97a.json": "31dda81472f73084e97a6ba9d638abf620b3702f40ba342c4ded7777d2b9e611",
+      "browser-judge/1-2989194a1f438922ab9e.json": "2989194a1f438922ab9e4e021f76c74d398b9e2f019adaa03ee133e7817f4cc7",
+      "modules/2-8aea2b0fb876b7cdd461.json": "8aea2b0fb876b7cdd4611672fc16f446380be6bad555adcd81947656eee704d3",
+      "browser-judge/2-9a46395881faa38508fe.json": "9a46395881faa38508fe2598417b705cfd2483e8a8c478d5b80fdc26527aeaff",
+      "modules/3-80b6a703e488eb658d92.json": "80b6a703e488eb658d9270deba7702f800278f8b89d03e4934c1d2b1c6f210d7",
+      "browser-judge/3-a11c34008f28d7b146c6.json": "a11c34008f28d7b146c676f2dab7d030266539d4eab302776d1f2399fc5c54cb",
+      "modules/4-11bd7c91573de4cd60a3.json": "11bd7c91573de4cd60a34d0791e02a2bb63c55e506f085e45977f24f857991b8",
+      "browser-judge/4-a3442be055caffd50d8d.json": "a3442be055caffd50d8df18888e73612b36568ca8440d99271c026ee30d5c011",
+      "modules/5-bf4e765f6aef90ecd40d.json": "bf4e765f6aef90ecd40dea012173e80acf3fb8385eb40e5b26e3c7bcc1478930",
+      "browser-judge/5-e38189ad769b1840557b.json": "e38189ad769b1840557b506e4fcf03fa30d96b100fee58640ad113619a3b2c5a",
+      "modules/6-fc6ae21d7359f89eda71.json": "fc6ae21d7359f89eda71ecc941051cebc3850efff596dfa25fea1c0cdc95eebe",
+      "browser-judge/6-9e7c1e069638f22d4405.json": "9e7c1e069638f22d4405361901ef6cf3efda51bb2a2b60119e3532d9232315bb",
+      "modules/7-e729cf4ee53a8a0ca7a7.json": "e729cf4ee53a8a0ca7a703c877c1eb66c7ed0a87b2263106ed48668c2399c581",
+      "browser-judge/7-0d7941b7929f965eb93b.json": "0d7941b7929f965eb93b8cfae536e47aed963d8aa499ec8e3329b50761425ccb",
+      "modules/8-74407d05d0f78210f659.json": "74407d05d0f78210f65942d73fe4ac226bbe22079e3908ea2d1ed8df64f3b41f",
+      "browser-judge/8-7589e2768806856d2d53.json": "7589e2768806856d2d53a3be42e34595243a5adc78e7a598a210d74191e32fff",
+      "modules/9-446709b5e451b8b278b6.json": "446709b5e451b8b278b6c6e2a918e61da2f02faa8722cf74c76f61cfad8fc174",
+      "browser-judge/9-52f96c3587940b963810.json": "52f96c3587940b963810fcabd3606b35b36d651ee37b455d16b5978f5bbab1c0",
+      "modules/10-1a522c86a33d00d8f7a9.json": "1a522c86a33d00d8f7a91b0acf4c815b2bfbada2cd967dd33af4cad775be3a8c",
+      "browser-judge/10-38fbd132f34a18f1018b.json": "38fbd132f34a18f1018b110189a5b1983792f315152a48c3dcd2cc0707a710a9",
+      "modules/11-32124f01152a2cd38e1f.json": "32124f01152a2cd38e1f5e8c6484475c7ad725707a25a68dff866873e0a7bccd",
+      "browser-judge/11-3054038e1071f08a5f6b.json": "3054038e1071f08a5f6bcc07b701f35bb829a31bfa96bb476af4f628b8bec134",
+      "modules/12-0f0ed5aba3b5269486be.json": "0f0ed5aba3b5269486beb0317df7cc16acb6f15752510e2192e2357bf1229f2b",
+      "browser-judge/12-fd8e75a07c739be990e7.json": "fd8e75a07c739be990e7c622c3d9cc2b58b95a368b4540c35bace52b3d8f844b",
+      "modules/13-2b9ae017dbfc851927cd.json": "2b9ae017dbfc851927cd80a69892610dd2c052dba26945e2bfb03851d6c94632",
+      "browser-judge/13-39fcf601c8a7a3f4586f.json": "39fcf601c8a7a3f4586feac454bc7319fda047318e977d722f8f918176b0417d",
+      "modules/14-378c00a924178768700e.json": "378c00a924178768700e6b3451c3d9f0a115d3b8c284940a9d3f1a0664d4cb87",
+      "browser-judge/14-5a3a9dc8213edf1e9692.json": "5a3a9dc8213edf1e96924f5ab095a26829b1272454e6d162278b59bdfc5e7c1c",
+      "modules/15-0b589dba7617896e4046.json": "0b589dba7617896e4046255b5bd2c8ed65cea5bba6fe806328fa71b4a24c64c1",
+      "browser-judge/15-a336b8a57ba8d35e1d9d.json": "a336b8a57ba8d35e1d9d03c3c64c31cf1683e863ddec06bd791b978d102e78fb",
+      "modules/16-c8431593edd85c87605b.json": "c8431593edd85c87605b103375b46d0c6af8446838a9aa7a4f72085d67a22595",
+      "browser-judge/16-441d9ddaf719ac351113.json": "441d9ddaf719ac351113af63afb1434630135f8435b2a3bf5aae6e92a954e930",
+      "modules/17-8d5747086344a25db8f1.json": "8d5747086344a25db8f1e29858fa1b5b0bb8915d2c253f4ac4e02387c4943bd8",
+      "browser-judge/17-63674cf5f36931d64767.json": "63674cf5f36931d64767779565376e0f7f1019f40f5ad902d5965445c1183344",
+      "modules/18-e46702228060107ae5e4.json": "e46702228060107ae5e4f90ffcea8bdda93a0b81e2d2a29867df11a8df5cac03",
+      "browser-judge/18-9d43f17a04d9280a381e.json": "9d43f17a04d9280a381ebb5b75eb3618a778e3bececed452834241256e29197d",
+      "modules/19-84001b533d94b4e645af.json": "84001b533d94b4e645afed2d7f089ca200062a6b6a43da228216c5bdb3a8d51f",
+      "browser-judge/19-a682420e22a378ed89e2.json": "a682420e22a378ed89e28a26340024126b775d74d70a4cf96beef4e67dfe6b34",
+      "modules/20-3a1457e0115618850ef3.json": "3a1457e0115618850ef3a11115e4b37c463352f55b012014dfe214f77a9e57b4",
+      "browser-judge/20-ad745bb22d6451a56888.json": "ad745bb22d6451a56888345f8edf4ac064a84acca7905d273ae4c7be8f7ee397",
+      "modules/21-60d7aa6ca80e19d4ee85.json": "60d7aa6ca80e19d4ee857847693dd7fa3a193503d1d2778964712e24aeb8fb67",
+      "browser-judge/21-99c11717634e39949372.json": "99c11717634e3994937255b6d0508e3bd318e2a06ef1c2446824d2c11788375e",
+      "modules/22-e4d7d59f9954bb13679e.json": "e4d7d59f9954bb13679e1dc2d9721c9066b2014775a4b4a4847bd859fcbe3247",
+      "browser-judge/22-2c7241ca40b512469647.json": "2c7241ca40b51246964748caf45cb8067640082c52b40dd26c323f6ce1949eb4",
+      "modules/23-fb7ac59e07b1902ff399.json": "fb7ac59e07b1902ff399280449f8cb459f5470c4d8af2e95843614ed3c297dd8",
+      "browser-judge/23-2a4c7b9774778cf0f1f5.json": "2a4c7b9774778cf0f1f57bbdf52906b946f2f4b87eb2a284282f21086e341299",
+      "modules/24-a681fce6bc9a6c65f5ec.json": "a681fce6bc9a6c65f5ec9acc9e02fde4df04b2a8e784d863f34661c97593a952",
+      "browser-judge/24-bcd79207e14d2f798815.json": "bcd79207e14d2f7988159b759318d29ede1ce682a3f75c1669fdc44d9aff0d66",
+      "modules/25-b4c2ef0352161824ccdd.json": "b4c2ef0352161824ccddf51d8398c19006b33478b9f5733a960853cc78af79f1",
+      "browser-judge/25-97c56fd89e9f8d423c80.json": "97c56fd89e9f8d423c80db16488e7b71252759259d521ebbbf09f3989af857c6",
+      "modules/26-ec42177558fc561c5722.json": "ec42177558fc561c5722a6972f09d47f206ee2f5e23a68155bdabed80d5a0af5",
+      "browser-judge/26-390ef4a9020a99786997.json": "390ef4a9020a99786997055859604085f451b1924bc45346c394836e7f1bd2a7",
+      "modules/27-664c851dcaab3734797d.json": "664c851dcaab3734797d50c647731d163e47266c2ebb37ec4ce4337c21ee6d53",
+      "browser-judge/27-959cb75f5c57d7fe9185.json": "959cb75f5c57d7fe91853e735dfba627b628d29d70b047c2eb9068a41b838f23",
+      "modules/28-b068c90c19349f6ae181.json": "b068c90c19349f6ae1810ab26da22030af4c54303ae45355a7965b28c3f2ec49",
+      "browser-judge/28-3b6299f3feefd5a1e479.json": "3b6299f3feefd5a1e47930ec0caaa99331aaa2fe4c08a4bc206e767e70bbd96d",
+      "modules/29-2d5efcd288520448d9ee.json": "2d5efcd288520448d9eeb9a37c2aef368f5661d17bcd3952b734e31a0b4699b2",
+      "browser-judge/29-f59d907b0ec26ff925c9.json": "f59d907b0ec26ff925c9d879d2fcf6ba254907d6b7fc80c5c098d4080f7f1c2c",
+      "modules/30-b6bb7d7a2dfe78634fa4.json": "b6bb7d7a2dfe78634fa471ce67d8007450fd5c0f43568b3b386a42b49081a5cb",
+      "browser-judge/30-5823c70493d18746d1bd.json": "5823c70493d18746d1bda0481d5e67068d055936b70032e6845e0edac2377ab1",
+      "modules/31-896a28ce3237294f3721.json": "896a28ce3237294f3721aad38a3f17c8a26fe94406808058b7009f21713785e8",
+      "browser-judge/31-0e580f4d1f31f4b521f4.json": "0e580f4d1f31f4b521f49fe40ee5314de4a2cb0aa37efe25eba1a40e6d34bb2c",
+      "modules/32-b993d3533708d3b74b02.json": "b993d3533708d3b74b021903d93bb1c9b8bfab30706e1b1bb55c79fd7a23ee33",
+      "browser-judge/32-68a80f2885ad64ed2860.json": "68a80f2885ad64ed2860427bbe56de806c24317557ba1cbb3b2d539396a74219",
+      "modules/33-73702e1f611dec75b3e1.json": "73702e1f611dec75b3e192be069301a627eba0dbc4a923aa439a75f97d5ecf08",
+      "browser-judge/33-b36e8f1d47a0ddc62378.json": "b36e8f1d47a0ddc623782344d539ea889d8f8625240d986823e98e275e0f5431",
+      "modules/34-3d17d55c67615c400571.json": "3d17d55c67615c40057118d9ceceb0eee7963d4aad5c6065c23c2fa94bd380d1",
+      "browser-judge/34-0e1fc518b0bf61c062b1.json": "0e1fc518b0bf61c062b16860778076cc297d7506f541fe97d03a6ae926913c29",
+      "modules/35-eb2c743e5550081a63b0.json": "eb2c743e5550081a63b07528212d634bba9ecae1978d99303d98e55e1aee5b42",
+      "browser-judge/35-3353a7e7e057d7e02a31.json": "3353a7e7e057d7e02a31a8c18f6d0f33026f430b5d97a5d52ea97d86902ee22d",
+      "modules/36-9d984a1b61fa224da7aa.json": "9d984a1b61fa224da7aaf64cdf5eb0f251745c82ae7351677d54b4a23c5cafda",
+      "browser-judge/36-def90deed2bdf368137d.json": "def90deed2bdf368137de75d650bd67c61718097cf2cda7e50fcc0ccc4252c2e",
+      "modules/37-cd936f1e971934d30238.json": "cd936f1e971934d3023824c98c54766cc5b4fa2d2ecb830ebd0464f0652dfe4d",
+      "browser-judge/37-4f7c7f2f4fe84b9dbafb.json": "4f7c7f2f4fe84b9dbafba3d771cf9c5d6b5abcc5de4eff40f0ea4a30871052d0",
+      "modules/38-fef847d856197786743b.json": "fef847d856197786743b30992f87f3eb53df7d1a1ee6571eb53a033b7cc76d23",
+      "browser-judge/38-0e0d7cb9e872cc152c50.json": "0e0d7cb9e872cc152c50342a57ac495f782ddb15eb74086ef9c3316ec097b58c",
+      "modules/39-1978a5d3842bb99b81cf.json": "1978a5d3842bb99b81cfd602260a7ac180cc70d472567540dd11fa2661a94dd7",
+      "browser-judge/39-c748b476e69594fb64d2.json": "c748b476e69594fb64d2c9b29b32563e77605b08e705ca915a5e81815d3486b7",
+      "modules/40-b900e5db5793ecdcd90f.json": "b900e5db5793ecdcd90fa461a40c38ecfb79a002e0fabef6a189bccca29846e9",
+      "browser-judge/40-bb87d7903e2beceeb2bb.json": "bb87d7903e2beceeb2bb1517ba4468ca26a9aa35d22b89f8fc47d33bbc7f15e7",
+      "modules/41-4c0ae1ff31c880a84c9d.json": "4c0ae1ff31c880a84c9ddb760891ef9c89cfe4d7198cb64bf45b7fb83941bb1e",
+      "browser-judge/41-be8fa72905cc8635fc18.json": "be8fa72905cc8635fc18d0b2ac7ab9f5a11c514e5b6eb92f71c458482543fd0a",
+      "modules/42-e2e004e4c433d04fb213.json": "e2e004e4c433d04fb21357250caabbf48108b4ad167641a7e9533433a04feb9a",
+      "browser-judge/42-998f9a1c62e94379ee5c.json": "998f9a1c62e94379ee5cc802153a2139ea8526aa3bae16267990f5627629ec07",
+      "modules/43-afafa7830296df277491.json": "afafa7830296df277491a86a6ae38df52dfaa121b9a763d078fb8315fc673d58",
+      "browser-judge/43-b27b1e0606cd76c1e7e1.json": "b27b1e0606cd76c1e7e1b4e5fa8f4036a6a7579c9ccc9453734669269a8369b7",
+      "modules/44-0bb82512ceff3e441ec6.json": "0bb82512ceff3e441ec61cdafb279f3edfcf4baa8047aa4276fb4a4789f3aa59",
+      "browser-judge/44-58fe4cf49d02157c11f7.json": "58fe4cf49d02157c11f7f691c1bad744725cbe61f045dcac629b1c8dff18c8e4",
+      "modules/45-f60a031e3143809ac494.json": "f60a031e3143809ac49451dc9f642c056bf70eaa256d8f998f8c5707b5d2ee95",
+      "browser-judge/45-22e4f2e5607cf061c38e.json": "22e4f2e5607cf061c38e5f17eb1cb4c59cfc4064681eeb77e7ddd8c56bb503c3",
+      "modules/46-9be618d829e294b6d627.json": "9be618d829e294b6d62783f42b7eb12b3e9509b5a97c2c8d259d114fce66f80d",
+      "browser-judge/46-45cafe277b587c0b230e.json": "45cafe277b587c0b230e2088e045e5ce21f9dcce28f07ca6a138d06734895396",
+      "modules/47-e952f8612f25fef55569.json": "e952f8612f25fef55569b5224c88e208c8dbe4c88b93d493e5227f6f078f6fb2",
+      "browser-judge/47-16cf82322bc0d3d5c43d.json": "16cf82322bc0d3d5c43da9b2ece44a8bd70afe1c761314e17785769a6715629a",
+      "modules/48-af6b5ea93b4c6e027945.json": "af6b5ea93b4c6e027945819c71549749b9b9ffdf9b03ec2b4a4a90a121008944",
+      "browser-judge/48-4201ce0c5d9d40e188de.json": "4201ce0c5d9d40e188defd69ae52979d39346418c68e426661f721303a039e5e",
+      "modules/49-03acdf4c5163a92a5ac7.json": "03acdf4c5163a92a5ac73b3e64121506cdc95e680013ba94405882bddcdf80bd",
+      "browser-judge/49-9f0382767d5d4b25764d.json": "9f0382767d5d4b25764da85c438ae2be6544be50d46f5cf7687033ba445eb5f0",
+      "modules/50-9f2131f0e81f8b67f61d.json": "9f2131f0e81f8b67f61d8fa3e40734a1f93583148ab677b289182e9e529d1385",
+      "browser-judge/50-5d19b65c85fd7656f465.json": "5d19b65c85fd7656f46594da5d48f7bc1f5d93b50bb43c02d3bb1974e5c6729f",
+      "modules/51-8d3ccf128b95b3a67afe.json": "8d3ccf128b95b3a67afeda929468a9873f10003c80b2455a4da4a811f8c9ef0e",
+      "browser-judge/51-2f2282b6b59659fadc96.json": "2f2282b6b59659fadc96fc35fa561c8bc271e8378655a191271e596e90e6fedc",
+      "modules/52-566ae6774e00af07978a.json": "566ae6774e00af07978a330689c68c3cf8f6ee11bb7cc3a1c063fc3480cfa921",
+      "browser-judge/52-d08ff0530230c66e2456.json": "d08ff0530230c66e2456366b37dfcf67461c6769c5b9dac03340bf50ee28e5d4",
+      "modules/53-67893b6bf10aaab70c0a.json": "67893b6bf10aaab70c0a94c46dc0cc219208a4c1f71ee9acdc8d41c98c8224a9",
+      "browser-judge/53-2aeb26d93bbfd5a188a4.json": "2aeb26d93bbfd5a188a450a163896c498b144dcae71fcd37bb052f4223e59ca3",
+      "modules/54-de483606f17d710c62a7.json": "de483606f17d710c62a7fd682a8ff94f15e677587a0dcdb1134ab81e514c3ad7",
+      "browser-judge/54-89038ba4d9537c62b2b0.json": "89038ba4d9537c62b2b0e2a451fb03f2a74e9a128601f0e008e2f75aa5974c36",
+      "modules/55-96b70908c401bca5507e.json": "96b70908c401bca5507eb2587f708b6026fa78ae9f43cac221c6e3e780a86791",
+      "browser-judge/55-6e40d6b6ceb735662ff4.json": "6e40d6b6ceb735662ff42fde047423d85a50500336f4195c2567168d9ea435ae",
+      "modules/56-75b6c2a8a42257805056.json": "75b6c2a8a42257805056cc90b6508472e64a104eb7c1d01ece82ccb633546354",
+      "browser-judge/56-1e9aafc75993a157d84f.json": "1e9aafc75993a157d84f2b1a514407f4ccf16ff425f9d34591645419af1f91e5",
+      "modules/57-83a7582d64bfdd9fa5a7.json": "83a7582d64bfdd9fa5a74602d343b819d3cc0a890fb9d872761280332eb94fc8",
+      "browser-judge/57-77fe528609cc81486bc6.json": "77fe528609cc81486bc646928f5475eef369649aa5b96b6843875928f4d2b7ce",
+      "modules/58-9a0140e7fcb00aca6f2d.json": "9a0140e7fcb00aca6f2d6a5d25a4020b0ca2f5cf998d1e912fa7b08e1161bc67",
+      "browser-judge/58-c1f0ac5671b0e76bca14.json": "c1f0ac5671b0e76bca14b7d27aa8ed53e31448e78dc315a009f17eb6127c5fc2",
+      "modules/59-ce6f45774eb081c07aca.json": "ce6f45774eb081c07aca90ebe2f238a852970f6b31a4e9a3e996f58839bff2f5",
+      "browser-judge/59-ea82f46f00bfe57f9e38.json": "ea82f46f00bfe57f9e38d131c2d5617ad163b8d4a9194077f76cf10afa2e9137",
+      "modules/60-fd167bd51c37f53cbfc0.json": "fd167bd51c37f53cbfc061ce9608d9cdeebaef2895e88e74a03d4bc778b48cf6",
+      "browser-judge/60-1792b981bd8fda9b9d4d.json": "1792b981bd8fda9b9d4d463339067187d4bbbd42c2405f3c5ea84a95475bf3e7",
+      "modules/61-cb857150f805f03ccf85.json": "cb857150f805f03ccf8563c0119b8337721878da5f1e0ed0fb3604695d8a00c0",
+      "browser-judge/61-84f3ee8f0ead2f6d12ed.json": "84f3ee8f0ead2f6d12edb84c84bddbda3c137c71e10a03349db4f45f1295d13d",
+      "modules/62-903ad68aa2effd46b388.json": "903ad68aa2effd46b38880209504bb815f7c7fb69026c21f454fcef22ac3bffe",
+      "browser-judge/62-f002976233aef1d2b987.json": "f002976233aef1d2b987c29c45dbd91e3213e8651153462e4954421e64f29fb3",
+      "modules/63-e7820129955c33fb4573.json": "e7820129955c33fb45733d720592576ab841843b606d777608416bc2dedcb7dd",
+      "browser-judge/63-eeee665412096dcce682.json": "eeee665412096dcce68229dcec1ba28e28c54c6ea6b3d51ff9afecc000ac6619",
+      "modules/64-fc3588078b5947f1d7df.json": "fc3588078b5947f1d7dfa64a1cab860970a3357676f854445bf348436fa19e8d",
+      "browser-judge/64-8db7b4391b54b6910bc3.json": "8db7b4391b54b6910bc3fe9066a57a0ce2208e66826ba4ce348d0ed7ba29b289",
+      "modules/65-aaeea81e654e368753fd.json": "aaeea81e654e368753fd6b4e0d9852237c56f8979dc7651b7031e86d95cafba1",
+      "browser-judge/65-1e7defc1d7db2ede416a.json": "1e7defc1d7db2ede416abde060b76d0033e3669c1180565a45a4c05e662972e1",
+      "modules/66-31bceed75152a5682cb0.json": "31bceed75152a5682cb0b90153e746caa63c7486ab8874b4800d476b8808955d",
+      "browser-judge/66-e898e29be95a5eaa253e.json": "e898e29be95a5eaa253eb820edcd77deb0adb25b90a1bb77deecda1191d489f3",
+      "modules/67-f917a75eb4673647e8b3.json": "f917a75eb4673647e8b3e3e600673dd9890123486182032082f8d71d77590e12",
+      "browser-judge/67-cfd3e65a92651e8fdb14.json": "cfd3e65a92651e8fdb14e13df3c46b7784f3916ede86c10d0ee509ae6363f0fd",
+      "modules/68-83943957e7037e1fafee.json": "83943957e7037e1fafee6638cf5384fbbb1607e05a49c3858b0dda7a45024553",
+      "browser-judge/68-9ab6b0e4183053dff54b.json": "9ab6b0e4183053dff54b2a999992be16adea5c666ec2dec515c8110ed0f414b5",
+      "modules/69-f0e08498b4dd90c44285.json": "f0e08498b4dd90c44285e81af130d969c7bd77d4d81074a8252456678e876c44",
+      "browser-judge/69-09e8390d4e7180ab6f5d.json": "09e8390d4e7180ab6f5df7cc0035d458fba7408982ed92fbb2154822c8cc99a8",
+      "modules/84-aee308ecaf4796b0269d.json": "aee308ecaf4796b0269daaa394955125cea93284efc314f8005830030ac11e3a",
+      "browser-judge/84-a46b006a886a4978bca1.json": "a46b006a886a4978bca13c5421a3e33a23335dba973fa1e648f284878aa14cf8",
+      "modules/85-12093b8c44c3a0ae210f.json": "12093b8c44c3a0ae210fc5fac505a4718cbbf42cb7570a1fc29e5daddc120b63",
+      "browser-judge/85-69eb085d788d54e438a7.json": "69eb085d788d54e438a7599615d4e08619ffddbf771cdc7b676787f482ddf56c",
+      "modules/86-f23719b91e56465b7546.json": "f23719b91e56465b7546aa2060e7f6bdda89f34ee2b79b39309dd58f0417be58",
+      "browser-judge/86-7dccfad0eca5e2a1fa12.json": "7dccfad0eca5e2a1fa1282fa3e4da352e68e1fa558e9365b75da315649afacd5",
+      "modules/87-1059901392a1d24eab6c.json": "1059901392a1d24eab6c88c8d62fa20a3dafb7819128d2642eb5684d3f8acb7c",
+      "browser-judge/87-01a2b47034bab50bec5d.json": "01a2b47034bab50bec5d2647bbfe09e1fa278ee4abc21a36dc505ef0188293ce",
+      "modules/88-111f6da61a782e59b589.json": "111f6da61a782e59b58907e32bdd17593a675967e36d0db7e8c8e5e365b67be5",
+      "browser-judge/88-02a0edc5a255f4bfc3ce.json": "02a0edc5a255f4bfc3cea9dfeb6f753372448a55d3b8847e98a90d417f13d088",
+      "modules/89-4ddf8832b28f78fefa39.json": "4ddf8832b28f78fefa39f74696403eb968d2ae7835afcd93dd9d3d4cdc42e9db",
+      "browser-judge/89-c277e2a021cd5a6194ff.json": "c277e2a021cd5a6194ffadb84810346a65c9238cb72b155d246ef75d37b6e75b",
+      "modules/90-a9880a840fbfe97ace1e.json": "a9880a840fbfe97ace1eed1c435e027b0a986460a18501b8c903fa4d6264f140",
+      "browser-judge/90-c7137418f5afe19ce772.json": "c7137418f5afe19ce772ef77cc2ef63904b7f08bcac2ed3ff8f0283b6d1f8c0b",
+      "modules/91-1ec4f95857dee8d1efe1.json": "1ec4f95857dee8d1efe1489d4e0f14b848e4df90350d1e9c4ed969b92e913318",
+      "browser-judge/91-ee7b3143ec988bedee13.json": "ee7b3143ec988bedee13c1e48d905074d96e8d57cfb5c7fe6bb82b23f9c46205",
+      "modules/92-ee390d7377de9c159f99.json": "ee390d7377de9c159f99b1792124571f28022f5757e3f8a166154dd2d549099d",
+      "browser-judge/92-fa751b024945f46df895.json": "fa751b024945f46df895124312e91b372cbbcebb529fe985e5c5b95a4445afbb",
+      "browser-judge/runtime-6a79440dddb08e3ecb27.json": "6a79440dddb08e3ecb2757ef0f28d894d09774d58fed8ee45a16ec112b0fc8d6",
+      "browser-judge/runtime-6d9cf8bcfffcf62323d4.json": "6d9cf8bcfffcf62323d4725e53395ab705eeb8cac0647f9f7dbb03f744b85d6f"
+    },
+    "index_comparison": "Compressed starters decoded before comparison; runtime and module/manifest payloads compared byte-for-byte."
+  },
+  "archive": {
+    "name": "iteration-21-remote-adoption-harness.tar.gz",
+    "sha256": "9a172f799732943b05887acd9a60fd82e5363f4271a8cc885887eb41f4d3cddb",
+    "members": 175
+  },
+  "publication_scope": "Repositorymain andwebsite;noPyPI/newrepository registration"
+}

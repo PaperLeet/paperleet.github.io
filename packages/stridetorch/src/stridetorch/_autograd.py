@@ -196,6 +196,16 @@ class ForwardTensor(_tensor.Tensor):
         derivative = result(slope,(primal,lambda g:g*curvature))
         return ForwardTensor(value,self._tangent*derivative)
     def relu(self): return ForwardTensor(self._primal.relu(), _ops.where(self._primal <= 0, 0., self._tangent))
+    def var(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
+            keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
+        from . import _statistics
+        return _statistics.reduce(self, *args, dim=dim, unbiased=unbiased,
+                                  keepdim=keepdim, correction=correction)
+    def std(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
+            keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
+        from . import _statistics
+        return _statistics.reduce(self, *args, dim=dim, unbiased=unbiased,
+                                  keepdim=keepdim, correction=correction, kind='std')
     def softmax(self, dim, dtype=None):
         p = self._primal.softmax(dim, dtype)
         t = self._tangent.to(dtype=p.dtype)
