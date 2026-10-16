@@ -56,6 +56,7 @@ export type AccountCapabilities = {
   community_anonymous_posts?: boolean;
   community_feed_sorting?: boolean;
   community_solutions?: boolean;
+  community_profile_solutions?: boolean;
   community_papers?: boolean;
   account_achievements?: boolean;
   community_bookmarks?: boolean;

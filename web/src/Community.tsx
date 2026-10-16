@@ -92,12 +92,13 @@ function CommunityWritingFailure({onRetry}:{onRetry:()=>void}){
   return <div className="community-writing-failure"><p role="alert">{t('写作提示暂时无法加载，正文仍可继续编辑。','Writing prompts could not load. You can keep editing your post.')}</p><button type="button" onClick={onRetry}>{t('重试写作提示','Retry writing prompts')}</button></div>;
 }
 type Profile = PublicUser & {
-  counts: Counts & { posts: number; followers: number; following: number; likes_received: number; reposts_received: number };
+  counts: Counts & { posts: number; solutions?:number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
 };
 type Connection = PublicUser & {
   viewer: { following: boolean; is_self: boolean };
 };
+type ProfileTab="posts"|"solutions"|"replies"|"likes"|"reposts"|"following"|"followers";
 type Activity = { kind: string; created_at: string; post: Post; reply?: Reply };
 type Page<T> = { items: T[]; total: number; limit?: number; offset?: number };
 const CATEGORIES = [
@@ -1259,10 +1260,11 @@ function ProfilePage({ username }: { username: string }) {
 function UserProfileContents({ username }: { username: string }) {
   const { t } = useI18n();
   const { user, capabilities } = useAccount();
+  const profileSolutionsAvailable=capabilities?.community_profile_solutions===true;
   const [profile, setProfile] = useState<Profile>(),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
-    [tab, setTab] = useState("posts"),
+    [selectedTab, setTab] = useState<ProfileTab>("posts"),
     [offset, setOffset] = useState(0),
     [activity, setActivity] = useState<Page<Activity>>({ items: [], total: 0 }),
     [connections, setConnections] = useState<Page<Connection>>({
@@ -1274,9 +1276,12 @@ function UserProfileContents({ username }: { username: string }) {
     [busy, setBusy] = useState(false),
     [revision, setRevision] = useState(0),
     [activityReveal, setActivityReveal] = useState(0);
+  const tab=selectedTab==="solutions"&&!profileSolutionsAvailable?"posts":selectedTab;
   const communityContent = useRef<HTMLElement>(null);
   const path = `community/profiles/${encodeURIComponent(username)}`;
   const connectionTab = tab === "following" || tab === "followers";
+  const solutionCount=typeof profile?.counts.solutions==="number"&&Number.isSafeInteger(profile.counts.solutions)&&profile.counts.solutions>=0?profile.counts.solutions:undefined;
+  useEffect(()=>{if(!profileSolutionsAvailable&&selectedTab==="solutions"){setTab("posts");setOffset(0);}},[profileSolutionsAvailable,selectedTab]);
   useEffect(() => {
     setProfile(undefined);
     setTab("posts");
@@ -1284,9 +1289,10 @@ function UserProfileContents({ username }: { username: string }) {
   }, [username]);
   useEffect(() => {
     let live = true;
+    const controller=new AbortController();
     setLoading(true);
     setError("");
-    socialApi<Profile>(path)
+    socialApi<Profile>(path,undefined,controller.signal)
       .then((data) => {
         if (live) setProfile(data);
       })
@@ -1300,11 +1306,13 @@ function UserProfileContents({ username }: { username: string }) {
         if (live) setLoading(false);
       });
     return () => {
-      live = false;
+      live = false; controller.abort();
     };
   }, [username, user?.id, revision]);
   useEffect(() => {
     let live = true;
+    const controller=new AbortController();
+    let redirected=false;
     setActivityLoading(true);
     setActivityError("");
     const params = new URLSearchParams({
@@ -1312,14 +1320,25 @@ function UserProfileContents({ username }: { username: string }) {
       limit: String(PAGE_SIZE),
       ...(connectionTab ? { kind: tab } : { tab }),
     });
+    const timer=setTimeout(()=>{
+      if(!live)return;live=false;controller.abort();
+      setActivity({items:[],total:0});setConnections({items:[],total:0});
+      setActivityError(t("社区动态加载超时，请重试。","Loading community activity timed out. Please retry."));setActivityLoading(false);
+    },COMMUNITY_FEED_TIMEOUT);
     const promise = connectionTab
-      ? socialApi<Page<Connection>>(`${path}/connections?${params}`).then(
+      ? socialApi<Page<Connection>>(`${path}/connections?${params}`,undefined,controller.signal).then(
           (data) => {
             if (live) setConnections(data);
           },
         )
-      : socialApi<Page<Activity>>(`${path}/activity?${params}`).then((data) => {
-          if (live) setActivity(data);
+      : socialApi<Page<Activity> & {solutions?:boolean}>(`${path}/activity?${params}`,undefined,controller.signal).then((data) => {
+          if(!live)return;
+          if(tab==="solutions"&&(!data||data.solutions!==true||!Array.isArray(data.items)||!Number.isSafeInteger(data.total)||data.total<0||data.items.some(item=>item.kind!=="solutions"||item.post?.solution!==true||!item.post.problem_id)))throw Error(t("暂时无法确认题解列表，请重试。","Could not confirm the solution list. Please retry."));
+          if(tab==="solutions"){
+            const lastOffset=Math.max(0,Math.floor((data.total-1)/PAGE_SIZE)*PAGE_SIZE);
+            if(offset>lastOffset){redirected=true;setOffset(lastOffset);return;}
+          }
+          setActivity(data);
         });
     promise
       .catch((e) => {
@@ -1330,10 +1349,11 @@ function UserProfileContents({ username }: { username: string }) {
         }
       })
       .finally(() => {
-        if (live) setActivityLoading(false);
+        clearTimeout(timer);
+        if (live&&!redirected) setActivityLoading(false);
       });
     return () => {
-      live = false;
+      live = false; clearTimeout(timer); controller.abort();
     };
   }, [username, tab, offset, user?.id, revision]);
   async function follow(target: string, active: boolean) {
@@ -1356,15 +1376,16 @@ function UserProfileContents({ username }: { username: string }) {
       setBusy(false);
     }
   }
-  const tabs = [
+  const tabs:readonly (readonly [ProfileTab,string])[] = [
     ["posts", t("帖子", "Posts")],
+    ...(profileSolutionsAvailable?[["solutions",t("题解","Solutions")]] as const:[]),
     ["replies", t("回复", "Replies")],
     ["likes", t("点赞", "Likes")],
     ["reposts", t("转发", "Reposts")],
     ["following", t("关注", "Following")],
     ["followers", t("粉丝", "Followers")],
   ] as const;
-  const chooseTab = (value: string, reveal = false) => {
+  const chooseTab = (value: ProfileTab, reveal = false) => {
     if (value !== tab || offset !== 0) setActivityLoading(true);
     setTab(value);
     setOffset(0);
@@ -1471,6 +1492,7 @@ function UserProfileContents({ username }: { username: string }) {
               <div><dt><MessageCircle size={16} />{t("回复", "Replies")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看回复", "View replies")} onClick={() => chooseTab("replies", true)}>{profile.counts.replies}</button></dd></div>
               <div><dt><Heart size={16} />{t("获赞", "Likes received")}</dt><dd>{profile.counts.likes_received}</dd></div>
               <div><dt><Repeat2 size={16} />{t("获转发", "Reposts received")}</dt><dd>{profile.counts.reposts_received}</dd></div>
+              {profileSolutionsAvailable&&<div className="profile-solution-contribution"><dt><Code2 size={16}/>{t("题解","Solutions")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看题解","View solutions")} onClick={()=>chooseTab("solutions",true)}>{solutionCount??"—"}</button></dd></div>}
             </dl>
             {profile.viewer.is_self && <a href="#/community">{t("加入讨论", "Join a discussion")}<ArrowRight size={14} /></a>}
           </section>
@@ -1491,6 +1513,7 @@ function UserProfileContents({ username }: { username: string }) {
                 tabIndex={tab === key ? 0 : -1}
                 className={tab === key ? "selected" : ""}
                 onKeyDown={(event) => {
+                  if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;
                   const index = tabs.findIndex(([value]) => value === key);
                   let next = index;
                   if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
@@ -1505,11 +1528,12 @@ function UserProfileContents({ username }: { username: string }) {
                 onClick={() => chooseTab(key)}
               >
                 {label}
-                <span>{profile.counts[key]}</span>
+                <span>{key==="solutions"?solutionCount??"—":profile.counts[key]}</span>
               </button>
             ))}
           </div>
           <section className="social-panel profile-activity" id="profile-community-panel" role="tabpanel" aria-labelledby={`profile-tab-${tab}`} aria-busy={activityLoading}>
+            {tab==="solutions"&&profile.viewer.is_self&&<p className="profile-solutions-note">{t("匿名题解仅在你自己的主页可见。","Anonymous solutions appear here only when you view your own profile.")}</p>}
             {activityLoading ? (
               <Loading />
             ) : activityError ? (
@@ -1586,6 +1610,7 @@ function UserProfileContents({ username }: { username: string }) {
                   ) : (
                     <PostCard
                       post={item.post}
+                      readInPlace={tab==="solutions"}
                       activity={
                         tab === "likes" ? (
                           <>
@@ -1606,21 +1631,17 @@ function UserProfileContents({ username }: { username: string }) {
                 </div>
               ))
             ) : (
-              <Empty title={t("还没有相关动态", "No activity here yet")}>
-                <p>
-                  {t(
-                    "发布、回复或互动后，记录会显示在这里。",
-                    "Posts and interactions will appear here as they happen.",
-                  )}
-                </p>
+              <Empty title={tab==="solutions"?t("还没有题解","No solutions yet"):t("还没有相关动态", "No activity here yet")}>
+                <p>{tab==="solutions"?t("发布的题解会按题目关联展示在这里。","Published solutions appear here with their practice modules."):t("发布、回复或互动后，记录会显示在这里。","Posts and interactions will appear here as they happen.")}</p>
+                {tab==="solutions"&&profile.viewer.is_self&&<a className="button subtle" href={solutionsHref()}>{t("去写一篇题解","Share a solution")}</a>}
               </Empty>
             )}
           </section>
-          <Pagination
+          {!activityLoading&&!activityError&&<Pagination
             offset={offset}
             total={connectionTab ? connections.total : activity.total}
             onChange={setOffset}
-          />
+          />}
           </section>
           </div>
         </div>
