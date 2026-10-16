@@ -2,7 +2,7 @@ import {useEffect,useMemo,useRef,useState,useSyncExternalStore} from 'react';
 import {ArrowLeft,ArrowRight,Bookmark,CheckCircle2,RefreshCw,Search} from 'lucide-react';
 import {useI18n} from './i18n';
 import {SocialError,SocialNotice,socialApi,useAccount} from './social';
-import {hostedAppHref} from './deployment';
+import {hostedAppAvailable,hostedAppHref} from './deployment';
 import {signInHref} from './accountNavigation';
 import {favoriteHref,readFavoriteRoute,withLibraryContext} from './libraryNavigation';
 import {status,type Problem,type Saved} from './types';
@@ -52,7 +52,7 @@ function useFavorites(refreshOnMount=false){
 type ButtonProps={problemId:string;returnTo?:string;label?:string;canSave?:boolean};
 export function ProblemFavoriteButton(props:ButtonProps){
   const {user}=useAccount();
-  return <FavoriteControl key={(user?.id||'guest')+':'+props.problemId} {...props}/>;
+  return hostedAppAvailable?<FavoriteControl key={(user?.id||'guest')+':'+props.problemId} {...props}/>:null;
 }
 function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:ButtonProps){
   const {t}=useI18n(),{user,loading,capabilities,state,store,refresh}=useFavorites();
@@ -101,7 +101,13 @@ function FavoriteProblemRow({id,problem,isSaved,returnTo,saved,progressReady,cat
     <ProblemFavoriteButton problemId={id} canSave={!!problem} returnTo={returnTo} label={label}/>
   </article>;
 }
-export function ProblemFavoritesPage({route='favorites',onFilters,problems,saved,progressReady,catalogReady,catalogError,onRetryCatalog}:{route?:string;onFilters?:(href:string)=>void;problems:Problem[];saved:Record<string,Saved>;progressReady:boolean;catalogReady:boolean;catalogError?:string;onRetryCatalog:()=>void}){
+type PageProps={route?:string;onFilters?:(href:string)=>void;problems:Problem[];saved:Record<string,Saved>;progressReady:boolean;catalogReady:boolean;catalogError?:string;onRetryCatalog:()=>void};
+export function ProblemFavoritesPage(props:PageProps){
+  const {t}=useI18n();
+  if(!hostedAppAvailable)return <main className="problem-favorites-page"><a className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</a><div className="favorites-empty"><Bookmark size={30}/><h1>{t('当前版本暂无题目收藏','Saved problems are unavailable here')}</h1><p>{t('可返回题库继续练习。','Return to papers to keep practicing.')}</p></div></main>;
+  return <AccountProblemFavoritesPage {...props}/>;
+}
+function AccountProblemFavoritesPage({route='favorites',onFilters,problems,saved,progressReady,catalogReady,catalogError,onRetryCatalog}:PageProps){
   const {t}=useI18n(),{user,loading,capabilities,state,store}=useFavorites(true);
   const filterControl=useRef<HTMLSelectElement>(null);
   const actionFocus=useRef<{owner:string;href:string;id?:string;opener:HTMLElement}|undefined>(undefined);

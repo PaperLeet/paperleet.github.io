@@ -7,7 +7,8 @@ const values={window:dom.window,document:dom.window.document,navigator:dom.windo
 const old=new Map(Object.keys(values).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value] of Object.entries(values))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
 localStorage.setItem('paperleet.locale','en');
-const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'favorite-account',enforce:'pre',resolveId(source){if(source==='./social')return '\0favorite-account';},load(name){if(name==='\0favorite-account')return "import React from 'react';export const useAccount=()=>globalThis.__favoriteFixture.account;export const socialApi=(...args)=>globalThis.__favoriteFixture.request(...args);export class SocialError extends Error{constructor(message,status,code){super(message);this.status=status;this.code=code;}};export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);";}}]});
+function createFavoriteServer(environment){return createServer({define:Object.fromEntries(Object.entries(environment).map(([key,value])=>['import.meta.env.'+key,JSON.stringify(value)])),server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'favorite-account',enforce:'pre',resolveId(source){if(source==='./social')return '\0favorite-account';},load(name){if(name==='\0favorite-account')return "import React from 'react';export const useAccount=()=>globalThis.__favoriteFixture.account;export const socialApi=(...args)=>globalThis.__favoriteFixture.request(...args);export class SocialError extends Error{constructor(message,status,code){super(message);this.status=status;this.code=code;}};export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);";}}]});}
+const server=await createFavoriteServer({VITE_APP_EDITION:'hosted',VITE_PUBLIC_SITE:'0'});
 let root;
 try{
  const {createFavoriteStore}=await server.ssrLoadModule('/src/problemFavoriteStore.ts');
@@ -81,5 +82,34 @@ try{
  await render({route:'favorites?state=started',progressReady:false});await click(button('View all statuses'));window.history.replaceState(null,'','#/settings');await act(async()=>new Promise(resolve=>window.requestAnimationFrame(resolve)));assert.notEqual(document.activeElement,document.querySelector('.favorites-toolbar select'),'A delayed filter focus request cannot act after navigation');
  account.user=null;await render();assert(!document.querySelector('.favorites-list'));assert(document.querySelector('.favorites-empty a').getAttribute('href').includes('account/continue/favorites'));
  account.user={id:'capability',display_name:'New'};account.capabilities.problem_bookmarks=false;const before=calls.length;await render();assert.equal(calls.length,before);assert(document.querySelector('[role=alert]').textContent.includes('currently unavailable'));
- console.log('PASS account problem favorites: real React page/buttons, deduped loads, save/remove/undo without row or focus jumps, search, read/write failure recovery, fixed-direction retry, revision races, strict owner DTOs, cross-tab refresh, account changes and late writes, truthful guest/capability states, practice/login continuations, no progress writes');
+ // Edition availability must not offer a dead login link or read account bookmarks.
+ for(const edition of [
+  {VITE_APP_EDITION:'local',VITE_PUBLIC_SITE:'1',VITE_HOSTED_APP_AVAILABLE:'0'},
+  {VITE_APP_EDITION:'local',VITE_PUBLIC_SITE:'0',VITE_HOSTED_APP_AVAILABLE:'0'},
+  {VITE_APP_EDITION:'local',VITE_PUBLIC_SITE:'1',VITE_HOSTED_APP_AVAILABLE:'1',VITE_HOSTED_APP_URL:'https://app.paperleet.com'},
+ ]){
+  const editionServer=await createFavoriteServer(edition);
+  try{
+   const view=await editionServer.ssrLoadModule('/src/ProblemFavorites.tsx');
+   const locale=await editionServer.ssrLoadModule('/src/i18n.tsx');
+   account.user=null;account.capabilities=undefined;
+   const before=calls.length;
+   const renderEdition=()=>act(async()=>root.render(React.createElement(locale.LocaleProvider,null,React.createElement(React.Fragment,null,React.createElement(view.ProblemFavoriteButton,{problemId:'architecture/attention',returnTo:filtered}),React.createElement(view.ProblemFavoritesPage,{problems,saved:{},progressReady:true,catalogReady:true,onRetryCatalog:()=>{}})))));
+   await renderEdition();
+   if(edition.VITE_HOSTED_APP_AVAILABLE==='1'){
+    assert.equal(document.querySelector('.problem-favorite-button').getAttribute('href'),'https://app.paperleet.com/'+signInHref(filtered));
+    assert.equal(document.querySelector('.favorites-empty a').getAttribute('href'),'https://app.paperleet.com/'+signInHref('favorites'));
+   }else{
+    assert(!document.querySelector('.problem-favorite-button'));
+    assert(document.querySelector('h1').textContent.includes('unavailable here'));
+    assert.equal(document.querySelector('.back-link').getAttribute('href'),'#');
+    assert(!document.querySelector('a[href*="account"]'));
+    account.user={id:'offline',display_name:'Offline'};account.capabilities={problem_bookmarks:true};
+    await renderEdition();
+    assert(!document.querySelector('.favorites-list'));
+   }
+   assert.equal(calls.length,before,'Offline editions and public guests never read private bookmarks');
+  }finally{await editionServer.close();}
+ }
+ console.log('PASS account problem favorites: real React page/buttons, deduped loads, save/remove/undo without row or focus jumps, search, read/write failure recovery, fixed-direction retry, revision races, strict owner DTOs, cross-tab refresh, account changes and late writes, truthful guest/capability/edition states, public hosted-login continuations, offline editions make no bookmark requests, no progress writes');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,value] of old){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}
