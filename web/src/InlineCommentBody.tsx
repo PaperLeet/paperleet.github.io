@@ -4,10 +4,14 @@ import CommunityMarkdown from './CommunityMarkdown';
 import {PostPreviewContent} from './PostPreview';
 import {postPreview} from './postExcerpt';
 import {useI18n} from './i18n';
+import {FeatureBoundary} from './deferredFeature';
+import './community-card-actions.css';
 
-const InlineCommentBody=memo(function InlineCommentBody({body}:{body:string}){
+const InlineCommentBody=memo(function InlineCommentBody({body,variant='reply',limit=280}:{body:string;variant?:'reply'|'post';limit?:number}){
  const {t,locale}=useI18n(),regionId=useId();
- const summary=useMemo(()=>postPreview(body,280,locale==='en'?'[formula]':'[公式]'),[body,locale]);
+ const post=variant==='post',fullLabel=post?t('完整正文','Full post'):t('完整回复','Full reply');
+ const collapseLabel=post?t('收起全文','Show less'):t('收起回复','Show less');
+ const summary=useMemo(()=>postPreview(body,limit,locale==='en'?'[formula]':'[公式]'),[body,limit,locale]);
  const expandable=summary.truncated||summary.rich||summary.unavailable||!summary.text;
  const [openedBody,setOpenedBody]=useState<string>();
  const open=!!expandable&&openedBody===body;
@@ -28,17 +32,20 @@ const InlineCommentBody=memo(function InlineCommentBody({body}:{body:string}){
   readingIntent.current={opener,href:location.href,body};
   setOpenedBody(value?body:undefined);
  }
- return <div className={'inline-comment-body'+(open?' is-open':!expandable?' is-complete':'')}>
+ return <div className={'inline-comment-body'+(post?' inline-post-body':'')+(open?' is-open':!expandable?' is-complete':'')}>
   {expandable&&<div className="inline-comment-controls">
    <button ref={toggle} className="inline-comment-toggle" type="button" aria-expanded={open} aria-controls={regionId} onClick={event=>change(!open,event.currentTarget)}>
-    {open?<ChevronUp size={15} aria-hidden="true"/>:<ChevronDown size={15} aria-hidden="true"/>}{open?t('收起回复','Show less'):t('展开回复','Read more')}
+    {open?<ChevronUp size={15} aria-hidden="true"/>:<ChevronDown size={15} aria-hidden="true"/>}{open?collapseLabel:post?t('展开全文','Read full post'):t('展开回复','Read more')}
    </button>
-   {open&&<span>{t('完整回复','Full reply')}</span>}
+   {open&&<span>{fullLabel}</span>}
   </div>}
-  <div className="inline-comment-content" id={regionId} role={open?'region':undefined} aria-label={open?t('完整回复','Full reply'):undefined}>
-   {open?<CommunityMarkdown body={body}/>:<PostPreviewContent summary={summary} reply/>}
+  <div className="inline-comment-content" id={regionId} role={open?'region':undefined} aria-label={open?fullLabel:undefined}>
+   {open?<FeatureBoundary fallback={<><p className="inline-reading-error" role="status">{t('暂时无法显示格式，以下为原始内容。可收起后重新展开。','Formatting is unavailable. The original text is shown below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{body}</pre></>}><CommunityMarkdown body={body}/></FeatureBoundary>:<PostPreviewContent summary={summary} reply={!post} inlinePost={post}/>}
   </div>
-  {open&&<button className="inline-comment-collapse" type="button" aria-controls={regionId} aria-expanded onClick={event=>change(false,event.currentTarget)}><ChevronUp size={15} aria-hidden="true"/>{t('收起回复','Show less')}</button>}
+  {open&&<button className="inline-comment-collapse" type="button" aria-controls={regionId} aria-expanded onClick={event=>change(false,event.currentTarget)}><ChevronUp size={15} aria-hidden="true"/>{collapseLabel}</button>}
  </div>;
 });
+export function InlinePostBody({body,limit=210}:{body:string;limit?:number}){
+ return <InlineCommentBody body={body} limit={limit} variant="post"/>;
+}
 export default InlineCommentBody;

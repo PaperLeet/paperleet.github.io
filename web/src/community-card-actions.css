@@ -43,6 +43,8 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .inline-comment-collapse{margin-top:8px}
 .inline-comment-content .post-content-signals{margin-bottom:4px}
 .inline-comment-content>.community-prose{min-width:0;font-size:var(--type-body);line-height:1.75}
+.inline-reading-error{margin:0 0 10px;color:var(--text-secondary);font-size:var(--type-small);line-height:1.7}
+.inline-reading-plain{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:var(--type-body);line-height:1.75}
 .inline-comment-content .community-prose>:first-child{margin-top:0}
 .inline-comment-content .community-prose>:last-child{margin-bottom:0}
 .inline-comment-content .community-prose h1{font-size:var(--type-title);line-height:1.4}

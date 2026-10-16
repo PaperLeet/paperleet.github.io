@@ -4,6 +4,10 @@
 .post-content-signals > li { display:inline-flex; align-items:center; gap:5px; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:var(--surface2); color:var(--muted); font-size:var(--type-caption); line-height:1.4; }
 .post-content-signals svg { flex:none; }
 .interview-report-card .post-excerpt { margin-bottom:15px; }
+.inline-post-body { margin:8px 0 14px; }
+.inline-post-body .post-excerpt { margin:0 0 8px; }
+.inline-post-body.is-complete .post-excerpt { margin-bottom:0; }
+.inline-post-body .post-content-signals > li { font-size:var(--type-meta); }
 .interview-report-card:focus-within { border-color:color-mix(in srgb,var(--accent) 45%,var(--line)); }
 .interview-report-card :is(a,button):focus-visible { outline:2px solid var(--accent); outline-offset:4px; border-radius:3px; }
 @media(pointer:coarse) { .interview-report-actions > a { min-height:44px; } }

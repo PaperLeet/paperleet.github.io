@@ -1,5 +1,5 @@
 // Pages must build the same first-party main revision that passed the full gate.
-const requiredJobs = ['native', 'browser-wasm', 'pilot'];
+const requiredJobs = ['native', 'infrastructure', 'browser-wasm', 'pilot'];
 module.exports = async function resolvePagesRelease({github, context}) {
   const repository = `${context.repo.owner}/${context.repo.repo}`;
   if (repository !== 'PaperLeet/paperleet.github.io') throw new Error('Pages releases are limited to the official repository.');

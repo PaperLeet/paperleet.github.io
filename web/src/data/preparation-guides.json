@@ -2183,6 +2183,135 @@
           }
         }
       ]
+    },
+    {
+      "id": "representation/sigreg",
+      "source": "problems/representation/sigreg/README.md",
+      "functions": [
+        "epps_pulley",
+        "sigreg_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "均值和方差匹配后，SIGReg 还在比较什么？",
+            "en": "What does SIGReg compare after mean and variance already match?"
+          },
+          "hint": {
+            "zh": "它在给定单位方向上比较经验特征函数和标准高斯目标。余弦误差与正弦均值的平方都要保留，再乘高斯窗口。不要预先标准化特征，否则会抹掉目标对位置与尺度的要求；有限切片和积分网格也不保证识别所有分布。",
+            "en": "It compares empirical characteristic functions with the standard Gaussian on supplied unit directions. Keep both squared cosine error and squared mean sine, with the Gaussian window. Do not standardize away location or scale. Finite slices and quadrature do not identify every distribution."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "样本、切片和积分节点分别在哪个轴归约？",
+            "en": "Which axes reduce samples, slices and quadrature nodes?"
+          },
+          "hint": {
+            "zh": "对 (N,M,K) 相位先沿 N 求 cos/sin 均值；按真实相邻节点间距做梯形积分，乘 2N，得到 (M,) 统计量，最后仅对 M 求均值。节点和方向是冻结支架，特征仍可求导。非均匀网格不能用固定步长代替。",
+            "en": "Average cosine and sine over N in (N,M,K) phases. Trapezoidal integration uses actual node gaps and a 2N factor, returning (M,); then average only over M. Freeze nodes and directions, retaining feature gradients. Nonuniform grids require their real spacings."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "什么小测试能发现漏项或错误的塌缩梯度预期？",
+            "en": "Which small tests expose missing factors or an incorrect collapse expectation?"
+          },
+          "hint": {
+            "zh": "复制整批样本两遍，经验特征函数不变，但含 N 的损失应翻倍；反转切片方向不改变统计量。非对称样本能发现漏掉正弦项。全零特征应有正损失和零梯度，不能用“正损失一定有非零梯度”作断言。",
+            "en": "Duplicating the batch preserves its empirical characteristic function but doubles this N-scaled loss. Slice sign reversal preserves it. Asymmetric samples expose a missing sine term. Exactly zero features have positive loss and zero gradient; positive loss alone does not imply an escape gradient."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/visreg",
+      "source": "problems/representation/visreg/README.md",
+      "functions": [
+        "visreg_terms",
+        "view_invariance"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "VISReg 怎样分别处理尺度、分布形状和中心？",
+            "en": "How does VISReg separate scale, shape and centering?"
+          },
+          "hint": {
+            "zh": "依次返回 scale、shape、center 三个标量。scale 用总体标准差到 1 的平方误差均值；center 用各维均值的平方均值。shape 将中心化特征除以 stopgrad(std)+eps，沿归一化方向投影，逐方向按样本排序，与 i/(N+1) 的高斯分位点比较并平均。",
+            "en": "Return scalar scale, shape and center in that order. Scale uses squared population-standard-deviation error from one; center uses squared feature means. For shape, center features, divide by stopgrad(std)+eps, project along normalized directions, sort each direction over samples, and average errors from Gaussian quantiles at i/(N+1)."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "哪些量冻结，哪些梯度必须继续流动？",
+            "en": "Which quantities are frozen, and which gradient paths remain live?"
+          },
+          "hint": {
+            "zh": "方向固定；只在 shape 分母里冻结标准差，scale 中的标准差不能冻结。中心化仍保留梯度。视图一致性以最前 G 个全局视图的均值为锚点，对所有 V*N*D 个误差取均值；这个全局均值不是冻结教师。",
+            "en": "Freeze supplied directions and only the shape denominator’s standard deviation. Scale and centering keep their gradient paths. View invariance anchors every view to the first G global views’ mean and averages all V*N*D errors. That anchor is differentiable, rather than a frozen teacher."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何区分样本排序、总体统计和全局视图锚点的错误？",
+            "en": "How can tests distinguish sorting, population statistics and the global-view anchor?"
+          },
+          "hint": {
+            "zh": "置换样本不改变三个正则项；给方向乘正数不改变结果。把特征整体平移只影响 center。视图 [[[0,2]],[[2,0]],[[5,-1]]]、G=2 时锚点是 [1,1]、损失为 4；还要检查全局视图收到锚点路径的梯度。塌缩点只检查有限前向值，不假设排序有唯一导数。",
+            "en": "Permuting samples preserves all terms; positive direction scaling also preserves them. Translating features affects only center. Views [[[0,2]],[[2,0]],[[5,-1]]] with G=2 yield anchor [1,1] and loss 4. Check anchor-path gradients into global views. At collapse, require finite forward values without assuming unique sorting derivatives."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/repa",
+      "source": "problems/representation/repa/README.md",
+      "functions": [
+        "repa_alignment",
+        "repa_objective"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "REPA 的逐 patch 对齐损失为什么可以是负数？",
+            "en": "Why can REPA’s patch alignment loss be negative?"
+          },
+          "hint": {
+            "zh": "沿 (B,N,D) 的最后一维分别归一化学生和教师 patch，再取负余弦并在 B*N 上平均。同向非零 patch 得到 -1，反向得到 +1；不是 1-cos，也不能先把所有 patch 池化。教师来自固定目标，不在本题训练。",
+            "en": "Normalize student and teacher patches independently along D, take negative cosine, and average B*N patches. Matching nonzero patches yield -1; opposite patches yield +1. This is not 1-cosine or pooled alignment. Teacher targets remain fixed."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样组合速度预测目标，并保留正确梯度边界？",
+            "en": "How is velocity prediction combined with the correct gradient boundaries?"
+          },
+          "hint": {
+            "zh": "总目标是全元素平均速度 MSE，加 weight 倍对齐损失，没有额外 1/2。学生投影和速度预测保留梯度，教师与速度目标都 detach。两个 patch 范数分别 clamp 到 eps，再相乘；不能只截断范数乘积。速度张量不用与 patch 特征同形。",
+            "en": "Use all-element mean velocity MSE plus weight times alignment, with no extra half factor. Keep projected-feature and velocity-prediction gradients; detach teacher and velocity targets. Clamp each patch norm separately at eps before multiplication. Velocity tensors need not share the feature shape."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些边界例子能快速验证符号、平均轴和零向量？",
+            "en": "Which edge cases quickly verify sign, reduction axes and zero vectors?"
+          },
+          "hint": {
+            "zh": "一个同向 patch 和一个反向 patch，平均对齐为 0；完美速度预测且全部同向时，总目标是 -weight，负值合理。零教师 patch 贡献 0。范数高于 eps 时，分别给各 patch 乘正数或同时重排两边 patch，不应改变损失；亚 eps 向量应另用标量公式核对。",
+            "en": "One aligned and one opposite patch average to zero. Perfect velocity prediction with fully aligned patches gives -weight, a valid negative objective. A zero teacher patch contributes zero. Above eps, positive independent patch scaling and joint patch permutation preserve loss; check sub-eps cases with a scalar formula."
+          }
+        }
+      ]
     }
   ]
 }
