@@ -2,7 +2,7 @@
 
 This candidate enables `torch.mean(dtype=...)` and repairs existing half-precision
 means. Main still uses 0.23. The candidate has not been integrated or deployed;
-original catalogs, exported WASM and remote adoption remain release gates.
+complete exported WASM and remote adoption remain release gates.
 
 ## Behavior and computation
 
@@ -116,3 +116,25 @@ The [development evidence](../../packages/stridetorch/benchmarks/results/iterati
 and [source/test/harness archive](../../packages/stridetorch/benchmarks/results/iteration-24-harness.tar.gz)
 retain all four phases, failed fixtures/prototypes, final source and distribution
 receipts. They explicitly leave original application/export/remote gates pending.
+
+## Application integration before full exported WASM
+
+The original native catalog passes 78 problems, 10,218 executions, 342 mutants
+and three repetitions in 126.96s, retaining its existing T3 limits and 600s
+aggregate budget. Export preserves all 6,598 published immutable assets; every
+one of the 158 new assets is reachable. The 161-file release snapshot is frozen.
+Autograd runtime is 462,797 raw bytes (107,060 with local gzip estimation);
+schedules is 37,343 raw bytes. Both include Apache-2.0/NOTICE.
+
+Upstream at `d968be6e` changes nine UI/documentation files; all are preserved
+byte-for-byte and all 43 core/license hashes remain identical to the numerical
+and timing evidence. Fresh private distributions retain current catalog/server
+and identical standalone core bytes. Complete frontend checks validate 48
+bilingual guides/144 prompts; production build (5.44s) and Pages policy pass.
+Initial JavaScript is 408,091 raw / 131,542 gzip bytes.
+
+The [integration gates](../../packages/stridetorch/benchmarks/results/iteration-24-integration-gates.json)
+and [integration snapshot archive](../../packages/stridetorch/benchmarks/results/iteration-24-integration-gates-harness.tar.gz)
+retain those receipts. The complete exported WASM catalog and main/remote
+adoption remain pending; none of these application times is a controlled
+performance comparison with another release.
