@@ -1,0 +1,70 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div><button id="newer-focus">Other task</button>',{url:'https://paperleet.test/preview/?oauth=private#/_account/alice'});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true};
+const originals=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+const originalTimeout=window.setTimeout.bind(window),originalClear=window.clearTimeout.bind(window),deadlines=new Map();let nextTimer=100000;
+window.setTimeout=(callback,delay,...args)=>{if(delay===8000){const id=nextTimer++;deadlines.set(id,()=>callback(...args));return id;}return originalTimeout(callback,delay,...args);};
+window.clearTimeout=id=>{if(deadlines.has(id))deadlines.delete(id);else originalClear(id);};
+let root;
+try{
+ const nav=await server.ssrLoadModule('/src/interviewNavigation.ts'),account=await server.ssrLoadModule('/src/accountNavigation.ts');
+ const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
+ const {default:ViewLink,interviewViewShareUrl}=await server.ssrLoadModule('/src/InterviewViewLink.tsx');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const full={...nav.emptyInterviewFilters(),company:'nvidia',role:'research',stage:'research',q:'视觉 & scale 😀 #/%? +=',days:'90',sort:'helpful',page:3,view:'questions',track:'visual-quantization',saved:true,concept:'architecture/var_next_scale',study:'started',queue:'41,51,50'};
+ const original=JSON.stringify(full),href=nav.interviewHref(full),url=interviewViewShareUrl(location.href,href);
+ assert.equal(url,'https://paperleet.test/preview/'+href);assert(!url.includes('oauth=')&&!url.includes('_account/alice'));
+ assert.deepEqual(nav.readInterviewRoute(new URL(url).hash),full);assert.equal(JSON.stringify(full),original);
+ assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(new URL(url).hash))),href,'A copied complete view also survives the existing exact login continuation');
+ for(const base of ['https://name:secret@paperleet.test/preview/?code=hidden#/u/alice','http://127.0.0.1:5185/?secret=hidden#/community']){
+  const result=interviewViewShareUrl(base,href),page=new URL(base);assert.equal(result,page.origin+page.pathname+href);assert(!result.includes('secret@')&&!result.includes('hidden')&&!result.includes('u/alice'));
+ }
+ assert.equal(interviewViewShareUrl('https://paperleet.test/',nav.interviewHref()),'https://paperleet.test/#/interviews');
+ for(const route of ['https://outside.test','interviews?saved=true','interviews?track=unknown','interviews?page=0','interviews?company=google&company=nvidia','interviews?q=%FF'])assert.throws(()=>interviewViewShareUrl(location.href,route));
+ for(const base of ['file:///tmp/index.html','javascript:alert(1)','not a URL'])assert.throws(()=>interviewViewShareUrl(base,href));
+ console.log('PASS interview sharing URLs: complete applied Unicode/company/role/stage/concept/track/study/queue/saved/page/sort scope, login continuation, subdirectory/local origins, stripped credentials/query/old hash and strict invalid routes');
+ const {createRoot}=await import('react-dom/client');let props={filters:full,owner:'alice'},setLocale;
+ function Harness(){setLocale=useI18n().setLocale;return React.createElement(ViewLink,props);}
+ root=createRoot(document.querySelector('#root'));
+ const render=async patch=>{props={...props,...patch};await act(async()=>root.render(React.createElement(LocaleProvider,null,React.createElement(Harness))));};
+ const button=()=>document.querySelector('.interview-view-copy'),status=()=>document.querySelector('[role="status"]'),input=()=>document.querySelector('.interview-view-link-fallback input');
+ const pending=[],writes=[];
+ const clipboard={writeText(value){writes.push(value);return new Promise((resolve,reject)=>pending.push({value,resolve,reject}));}};
+ Object.defineProperty(navigator,'clipboard',{value:clipboard,configurable:true});
+ const begin=async()=>{await act(async()=>{button().focus();button().click();});assert.equal(button().getAttribute('aria-busy'),'true');return pending.shift();};
+ const settle=async(item,error=false)=>act(async()=>error?item.reject(Error('Copy denied')):item.resolve());
+ const pageBefore=location.href,storageBefore=JSON.stringify({...localStorage});
+ await render();assert.equal(writes.length,0,'Rendering never accesses the clipboard');
+ const nativeButton=button();let first;
+ await act(async()=>{nativeButton.focus();nativeButton.click();nativeButton.click();first=pending.shift();});
+ assert.equal(writes.length,1,'Rapid duplicate commands start one native copy');assert.equal(first.value,url);
+ assert.equal(button(),nativeButton);assert.equal(document.activeElement,nativeButton);assert.equal(nativeButton.disabled,false,'Busy feedback preserves keyboard focus');assert.equal(nativeButton.getAttribute('aria-disabled'),'true');assert.equal(deadlines.size,1);
+ await act(async()=>setLocale('zh'));assert.equal(button(),nativeButton);assert.equal(document.activeElement,nativeButton);assert(status().textContent.includes('正在复制'));
+ await settle(first);assert(status().textContent.includes('筛选链接已复制'));assert(status().textContent.includes('自己的工作区'));assert.equal(nativeButton.getAttribute('aria-busy'),'false');assert.equal(deadlines.size,0);assert(!input());
+ await act(async()=>setLocale('en'));assert(status().textContent.includes('viewer’s own workspace'));
+ const older=await begin(),other={...full,company:'google',q:'A newer applied view',page:1};await render({filters:other});assert(!status().textContent);assert.equal(deadlines.size,0,'Changing scope retires its deadline');
+ const newer=await begin();await settle(older);assert.equal(button().getAttribute('aria-busy'),'true','An old acknowledgement cannot finish the newer copy');assert(!status().textContent.includes('copied.'));
+ await settle(newer);assert(status().textContent.includes('copied.'));
+ const aba=await begin();await render({filters:full});await render({filters:other});await settle(aba,true);assert(!input()&&!status().textContent,'An old failure cannot return after an A→B→A scope cycle');
+ const ownerPending=await begin();await render({owner:'bob'});assert.equal(deadlines.size,0);await settle(ownerPending,true);assert(!input()&&!status().textContent,'Changing account retires old feedback even for identical filters');
+ const newerFocus=document.querySelector('#newer-focus');const denied=await begin();newerFocus.focus();await settle(denied,true);assert(input());assert.equal(document.activeElement,newerFocus,'Clipboard failure must not steal focus for its fallback');
+ assert.equal(input().value,interviewViewShareUrl(location.href,nav.interviewHref(other)));assert(input().readOnly);input().focus();assert.equal(input().selectionStart,0);assert.equal(input().selectionEnd,input().value.length);
+ const field=input();await act(async()=>setLocale('zh'));assert.equal(input(),field);assert.equal(document.activeElement,field);assert.equal(field.selectionEnd,field.value.length,'Locale changes preserve the manual field and native selection');
+ await act(async()=>setLocale('en'));const timed=await begin();assert.equal(deadlines.size,1);await act(async()=>[...deadlines.values()][0]());assert(input());assert.equal(button().getAttribute('aria-busy'),'false','A bounded wait yields the manual link');
+ const retry=await begin();await settle(timed);assert.equal(button().getAttribute('aria-busy'),'true','A timeout acknowledgement cannot finish an explicit newer retry');await settle(retry);assert(status().textContent.includes('copied.'));assert(!input());
+ Object.defineProperty(navigator,'clipboard',{value:undefined,configurable:true});await render({owner:'guest'});await act(async()=>button().click());assert(input(),'Missing clipboard support still offers the exact manual link');
+ const oldLocation=globalThis.location;Object.defineProperty(globalThis,'location',{value:{href:'file:///tmp/index.html'},configurable:true});await act(async()=>button().click());assert(!input(),'Unsupported addresses cannot retain an older manual link');assert(document.querySelector('[role="alert"]'));
+ Object.defineProperty(globalThis,'location',{value:oldLocation,configurable:true});Object.defineProperty(navigator,'clipboard',{value:clipboard,configurable:true});const unmounted=await begin();await act(async()=>root.unmount());root=undefined;assert.equal(deadlines.size,0);await settle(unmounted);assert.equal(document.querySelector('#root').textContent,'');
+ assert.equal(location.href,pageBefore);assert.equal(JSON.stringify({...localStorage}),storageBefore,'Copying stores no view or account data');
+ assert(writes.every(value=>!value.includes('alice')&&!value.includes('bob')));
+ console.log('PASS filtered-link action: explicit copy only, single busy native request with retained focus, bilingual workspace context, manual selected-link fallback, bounded timeout/retry, newer-focus priority, locale/DOM continuity, stale route/ABA/account/unmount isolation and unchanged URL/storage');
+}finally{
+ if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
+ for(const [key,descriptor] of originals)if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];
+}

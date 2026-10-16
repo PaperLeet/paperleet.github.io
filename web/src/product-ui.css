@@ -11,7 +11,7 @@ button { transition: color .16s, background .16s, border-color .16s, box-shadow 
 button:disabled { box-shadow: none; }
 input, select, textarea { accent-color: var(--accent); }
 ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
-.button { min-height: 44px; border-radius: 8px; font-weight: 600; gap: 8px; }
+.button { min-height: 44px; border-radius: 8px; font-size: var(--type-control); font-weight: 600; gap: 8px; }
 .button:not(.subtle) { box-shadow: inset 0 1px 0 #ffffff26, 0 2px 4px #00000006; }
 .button.subtle { background: var(--surface); border-color: var(--line); }
 .button.subtle:hover:not(:disabled) { background: var(--surface2); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
@@ -179,8 +179,8 @@ input, select, textarea { accent-color: var(--accent); }
 .module-scope-card p { font-size: var(--type-body); line-height: 1.8; }
 .workspace .prose { font-size: var(--type-body); line-height: 1.9; }
 .workspace .prose h1 { font-size: 23px; line-height: 1.5; }
-.workspace .prose h2 { font-size: 18px; margin-top: 30px; }
-.workspace .prose h3 { font-size: var(--type-body); }
+.workspace .prose h2 { font-size: var(--type-title); margin-top: 30px; line-height: 1.45; }
+.workspace .prose h3 { font-size: var(--type-lead); }
 .workspace .prose table { display: block; max-width: 100%; overflow-x: auto; font-size: var(--type-body); border-radius: 8px; }
 .workspace .prose pre { border-radius: 8px; }
 .workspace .editor-tools { min-height: 44px; padding-inline: 14px; background: var(--surface2); border-bottom: 1px solid var(--line); }
@@ -278,7 +278,7 @@ input, select, textarea { accent-color: var(--accent); }
 @media (max-width: 600px) {
   .brand { font-size: 19px; }
   .brand-symbol { width: 29px; height: 29px; }
-  .topbar nav a, .topbar nav button { font-size: var(--type-small); padding-inline: 9px; }
+  .topbar nav a, .topbar nav button { font-size: var(--type-control); padding-inline: 9px; }
   .theme-switcher button { min-height: 28px; min-width: 30px; }
   .language-toggle { font-size: var(--type-small); min-height: 36px; }
   .paper-library .practice-start { padding: 20px; }

@@ -144,3 +144,31 @@ def test_quiet_backend_failure_still_reports_first_batch_and_minor(upper,kind):
         patch.setattr(np.linalg,'cholesky',quiet_backend)
         with pytest.raises(RuntimeError,match=rf'Batch element \(1,\).*leading minor of order {expected_minor}'):
             torch.linalg.cholesky(torch.tensor(data),upper=upper)
+
+
+@pytest.mark.parametrize('upper', [False, True])
+@pytest.mark.parametrize('batched', [False, True])
+def test_nan_factor_rejected_when_lapack_reports_success(monkeypatch, upper, batched):
+    from stridetorch import _cholesky
+    original = np.linalg.cholesky
+
+    def permissive_lapack(data):
+        # Reproduce the Linux LAPACK path without depending on the local BLAS.
+        if np.isnan(np.tril(data)).any():
+            return np.full_like(data, np.nan)
+        return original(data)
+
+    monkeypatch.setattr(_cholesky.np.linalg, 'cholesky', permissive_lapack)
+    data = np.broadcast_to(np.eye(3) * 4, (2, 3, 3)).copy() if batched else np.eye(3) * 4
+    row, col = (0, 1) if upper else (1, 0)
+    target = data[1] if batched else data
+    target[col, row] = np.nan  # An unused triangle must still be ignored.
+    factor = torch.linalg.cholesky(torch.tensor(data), upper=upper)
+    close(factor.numpy(), np.broadcast_to(np.eye(3) * 2, data.shape))
+    target[col, row] = 0
+    for index, minor in [((row, col), 2), ((0, 0), 1)]:
+        target[index] = np.nan
+        with pytest.raises(RuntimeError, match=f'leading minor of order {minor}') as error:
+            torch.linalg.cholesky(torch.tensor(data), upper=upper)
+        assert ('Batch element (1,)' in str(error.value)) == batched
+        target[index] = 0 if index != (0, 0) else 4

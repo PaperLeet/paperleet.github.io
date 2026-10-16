@@ -1,11 +1,13 @@
 :root {
   /* Shared readable scale. rem follows the browser's preferred base text size. */
-  --type-caption: .75rem;
-  --type-meta: .8125rem;
-  --type-small: .875rem;
-  --type-body: 1rem;
-  --type-lead: 1.125rem;
-  --type-title: 1.25rem;
+  --type-caption: .8125rem;
+  --type-meta: .875rem;
+  --type-small: .9375rem;
+  --type-control: 1rem;
+  --type-body: 1.0625rem;
+  --type-list-title: 1.125rem;
+  --type-lead: 1.1875rem;
+  --type-title: 1.375rem;
   font-family:
     var(--font-sans);
   color: var(--text);
@@ -47,6 +49,7 @@
 }
 body {
   margin: 0;
+  font-size: var(--type-body);
 }
 button,
 input,
