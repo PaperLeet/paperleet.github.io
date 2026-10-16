@@ -53,6 +53,8 @@ make dev
 
 对潜在预测与控制感兴趣，可选择[潜在世界模型与规划路径](https://paperleet.com/#/interviews?track=world-models)：从 I-JEPA 练到 Causal-JEPA 对象遮蔽、LeWM 联合预测与 CEM 规划。中英自测区分冻结目标与端到端梯度、递推展开、终态代价和精英统计。
 
+关注表征几何，可选择[表征对齐与分布正则路径](https://paperleet.com/#/interviews?track=representation-shape)：VICReg、SIGReg、VISReg 与 REPA。中英自测区分矩匹配与分布形状、冻结的归一化支架与可微特征，以及 patch 对齐和速度预测目标。
+
 1. 在题库中选择论文，例如 **6 · DDPM**，再打开“前向加噪”模块。
 2. 阅读模块目标，在右侧编辑器中补全标注为需要实现的函数；调度器等辅助函数已经提供。
 3. 点击 **Run tests / 运行测试**，在浏览器中检查代码并等待结果显示。

@@ -609,6 +609,23 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "representation-shape",
+      "name": "表征对齐与分布正则",
+      "name_en": "Representation alignment & distribution",
+      "modules": [
+        "representation/vicreg",
+        "representation/sigreg",
+        "representation/visreg",
+        "representation/repa"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ],
+      "description": "从 VICReg 的统计约束，练到 SIGReg 特征函数、VISReg 尺度与形状分离，再连接 REPA 逐 patch 对齐。",
+      "description_en": "Connect VICReg statistics, SIGReg characteristic functions and VISReg scale/shape separation with REPA patch alignment."
     }
   ]
 }
