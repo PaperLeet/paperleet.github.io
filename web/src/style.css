@@ -605,7 +605,7 @@ h3 {
   color: var(--green);
 }
 .difficulty.H {
-  color: #e47e80;
+  color: var(--chart-5);
 }
 .duration {
   font:
@@ -2088,7 +2088,7 @@ h3 {
   --text: #24272d;
   --muted: var(--text-secondary);
   --accent: #945c00;
-  --green: #17815d;
+  --green: #116d4c;
   --chart-1: #945c00;
   --chart-2: #596b88;
   --chart-3: #147d74;
