@@ -56,7 +56,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     if(location.href===intent.href&&(active===intent.opener||active===document.body&&intent.opener instanceof HTMLElement&&!!intent.opener.closest('[hidden]')))textarea.current?.focus();
   },[writing,preview,focusTick]);
   const rowIdPrefix=regionId+'-reply-';
-  const replies=useDiscussionReplies({replies:detail?.replies,disabled:loading||accountLoading||!!loadError,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'center'});
+  const replies=useDiscussionReplies({replies:detail?.replies,disabled:loading||accountLoading||accountRecovery||!!loadError,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'center'});
   function revealComment(id:string,trigger:HTMLElement){replies.reveal(id,trigger);}
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;readVersion.current++;request.current?.abort();};},[]);
   useEffect(()=>{
@@ -163,12 +163,12 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     </div>
     {error&&<div className="card-action-error"><SocialNotice error={error}/>{accountRecovery&&<div className="card-account-recovery"><p>{t('账号状态尚未确认，草稿已保留。确认账号后可重试原操作。','Your account is unconfirmed. Your draft is kept. Confirm your account before retrying.')}</p><button type="button" className="text-button" disabled={!!busy} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><a href={signInHref(returnTo||'community')}>{t('重新登录','Sign in again')}</a></div>}{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
     {open&&<section id={regionId} ref={replies.root} tabIndex={-1} className="card-comments" aria-label={t('评论预览','Comment preview')}>
-      <header><strong>{t('评论','Comments')}</strong><span role="status">{!loading&&!loadError&&detail?t(`最新回复 · ${replies.shown.length} / ${replies.total}`,`Newest replies · ${replies.shown.length} / ${replies.total}`):t('最新回复','Newest replies')}</span><a href={href}>{t('完整讨论','Full discussion')}</a></header>
+      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><a href={href}>{t('完整讨论','Full discussion')}</a></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
       {loading&&<p role="status">{t('正在加载评论…','Loading comments…')}</p>}
       {loadError&&<div><SocialNotice error={loadError}/><button type="button" className="text-button" disabled={!!busy} onClick={()=>void load()}>{t('重试加载评论','Retry loading comments')}</button></div>}
       {!loading&&!loadError&&detail&&<>
-        {replies.total?<ol className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
+        {replies.total?<ol id={regionId+'-list'} className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
           <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/></div>
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
           <PostPreview body={row.body} limit={280}/>
