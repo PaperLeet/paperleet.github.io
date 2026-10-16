@@ -8,7 +8,7 @@ import { JSDOM } from 'jsdom';
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const storage = globalThis.sessionStorage, localeStorage = globalThis.localStorage;
 try {
-  const { emptyLibraryFilters, libraryHref, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
+  const { emptyLibraryFilters, libraryHref, libraryTags, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const { signInHref, accountReturnHref } = await server.ssrLoadModule('/src/accountNavigation.ts');
   const { decodeProblemHash } = await server.ssrLoadModule('/src/reports.ts');
   const { collectionIdFromRoute, paperCollections, papersInCollection } = await server.ssrLoadModule('/src/paperCollections.ts');
@@ -77,6 +77,25 @@ try {
   for (const problem of catalog.problems) assert(withLibraryContext(problem.number, '#/collections/llm-basics').startsWith('#/' + problem.number + '?from='));
   const normalized = normalizeLibraryFilters({ ...emptyLibraryFilters(), category: 'retired-category', tag: 'retired-tag', query: 'keep query' }, catalog.papers);
   assert.deepEqual(normalized, { ...emptyLibraryFilters(), query: 'keep query' });
+  const originalMetadata = JSON.stringify(catalog.papers);
+  const tags = libraryTags(catalog.papers);
+  assert.equal(tags.filter(tag => tag.toLowerCase() === 'top-k').length, 1, 'Case aliases share one native topic option');
+  assert(tags.indexOf('Attention') < tags.indexOf('Diffusion') && tags.indexOf('Diffusion') < tags.indexOf('Flow Matching'), 'Topic names have a predictable alphabetical order');
+  for (const alias of ['Top-K', 'Top-k', 'tOp-k']) {
+    const filters = { ...emptyLibraryFilters(), tag: alias, sort: 'title' };
+    assert.equal(normalizeLibraryFilters(filters, catalog.papers).tag, alias, 'Existing link spelling must not be rewritten');
+    const selection = selectLibraryPractice(catalog.papers, catalog.problems, {}, { filters });
+    assert.deepEqual(selection.papers.map(paper => paper.id).sort(), ['llm-training-generation', 'sdpo'], 'Either spelling finds both maintained tagged papers');
+    assert(selection.problems.some(problem => problem.id === 'foundations/top_k_sampling') && selection.problems.some(problem => problem.id === 'rl/sdpo_topk'), 'Practice follows the same inclusive topic results');
+    const view = libraryHref(undefined, filters);
+    assert.equal(libraryReturnHref(withLibraryContext(selection.problems[0].number, view)), view, 'The exact original topic and sort survive a practice return');
+    const foundations = selectLibraryPractice(catalog.papers, catalog.problems, {}, { filters: { ...filters, category: 'foundations' } });
+    assert.deepEqual(foundations.papers.map(paper => paper.id), ['llm-training-generation'], 'Case matching cannot bypass the chosen category');
+    const done = selectLibraryPractice(catalog.papers, catalog.problems, {}, { filters: { ...filters, state: 'done' } });
+    assert.equal(done.papers.length, 0, 'Topic aliases cannot bypass the progress filter');
+  }
+  assert(!libraryTags(catalog.papers, 'architecture').some(tag => tag.toLowerCase() === 'top-k'), 'The topic picker stays within its category');
+  assert.equal(JSON.stringify(catalog.papers), originalMetadata, 'Topic matching must not rewrite source metadata');
   for (const runtime of ['browser','server']) assert.equal(normalizeLibraryFilters({...emptyLibraryFilters(),runtime},catalog.papers).runtime,'all','Retired runtime links must never create a hidden filter');
   const returnTo = libraryHref('diffusion', { ...emptyLibraryFilters(), query: 'DDPM', runtime: 'browser', difficulty: 'E' });
   const currentReturn = libraryHref('diffusion', {...readLibraryRoute(returnTo).filters,runtime:'all'});
@@ -208,7 +227,7 @@ try {
   globalThis.sessionStorage = { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); } };
   rememberLibraryPosition('#/?q=volatile', { y: 123 });
   assert.deepEqual(readLibraryPosition('#/?q=volatile'), { y: 123 });
-  console.log('PASS library navigation: scoped paper recommendations, matching draft/review/empty/loading/course actions, complete paper exploration, bibliography search, preserved collection/difficulty/progress boundaries, exact returns and bilingual results');
+  console.log('PASS library navigation: scoped paper recommendations, matching draft/review/empty/loading/course actions, complete paper exploration, bibliography search, sorted case-alias topics with unchanged metadata and exact legacy returns, preserved collection/difficulty/progress boundaries and bilingual results');
 } finally {
   if (storage === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = storage;
   if (localeStorage === undefined) delete globalThis.localStorage; else globalThis.localStorage = localeStorage;

@@ -21,6 +21,17 @@ function only(params: URLSearchParams, names: string[]) {
   return [...params.keys()].every(key => names.includes(key) && params.getAll(key).length === 1);
 }
 const bounded = (value: string, length: number) => Array.from(value).length <= length && !/[\u0000-\u001f\u007f]/.test(value);
+const topicOrder = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+export const sameLibraryTag = (left: string, right: string) => left.toLowerCase() === right.toLowerCase();
+
+/** Present one named topic for case aliases without changing catalog metadata or URLs. */
+export function libraryTags(papers: Paper[], category = 'all'): string[] {
+  const tags = new Map<string, string>();
+  for (const paper of papers) if (category === 'all' || paper.category === category) {
+    for (const tag of paper.tags) if (!tags.has(tag.toLowerCase())) tags.set(tag.toLowerCase(), tag);
+  }
+  return [...tags.values()].sort(topicOrder.compare);
+}
 
 export function readLibraryRoute(route: string): { collectionId?: string; filters: LibraryFilters } | undefined {
   const value = parts(route);
@@ -61,7 +72,7 @@ export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'
 /** Retire old runtime filters now that browser execution is the catalog baseline. */
 export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]): LibraryFilters {
   const category = filters.category === 'all' || papers.some(paper => paper.category === filters.category) ? filters.category : 'all';
-  const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.includes(filters.tag)) ? filters.tag : 'all';
+  const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.some(tag => sameLibraryTag(tag, filters.tag))) ? filters.tag : 'all';
   return { ...filters, category, tag, runtime: 'all' };
 }
 
