@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'https://paperleet.test/#/community?page=3',pretendToBeVisual:true});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+let root;
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Search}=await server.ssrLoadModule('/src/CommunitySearch.tsx');
+ const calls=[];let applied='old',owner='alice';
+ function Locale(){const {locale,setLocale}=useI18n();return React.createElement('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'locale');}
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),React.createElement(Search,{key:owner,applied,onApply:value=>calls.push(value)})));});
+ const field=()=>document.querySelector('.community-search input'),form=()=>document.querySelector('.community-search');
+ const edit=async value=>act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(field(),value);field().dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
+ const key=async(type,value,extra={})=>{const event=new dom.window.KeyboardEvent(type,{key:value,bubbles:true,cancelable:true,...extra});await act(async()=>field().dispatchEvent(event));return event;};
+ const submit=async()=>act(async()=>form().dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+ const composition=async type=>act(async()=>field().dispatchEvent(new dom.window.CompositionEvent(type,{bubbles:true,data:'中'})));
+ const click=async node=>{assert(node);await act(async()=>node.click());};
+ await render();assert.equal(field().type,'search');assert.equal(field().maxLength,400);assert.equal(field().getAttribute('enterkeyhint'),'search');
+ assert(document.getElementById(field().getAttribute('aria-describedby')).textContent.includes('200 characters'));
+ const original=field(),url=location.href;await edit('working search 😀');assert.equal(calls.length,0);
+ original.focus();original.setSelectionRange(2,7,'backward');original.scrollLeft=17;await click(document.querySelector('#locale'));
+ assert.equal(field(),original);assert.equal(field().value,'working search 😀');assert.deepEqual([field().selectionStart,field().selectionEnd,field().selectionDirection,field().scrollLeft],[2,7,'backward',17]);
+ const clear=document.querySelector('[aria-label="清空搜索"]');clear.focus();await click(clear);assert.deepEqual(calls,['']);assert.equal(document.activeElement,original);assert.equal(field().value,'');
+ applied='';await render();calls.length=0;await click(document.querySelector('#locale'));const storage=JSON.stringify({...localStorage});
+ await edit('not submitted');field().focus();let escaped=0;const escape=event=>{if(event.key==='Escape')escaped++;};window.addEventListener('keydown',escape);
+ const cancelled=await key('keydown','Escape');assert(cancelled.defaultPrevented);assert.equal(escaped,0);assert.equal(field().value,'');assert.equal(calls.length,0);assert.equal(location.href,url);assert.equal(JSON.stringify({...localStorage}),storage);assert.equal(document.activeElement,original);
+ const empty=await key('keydown','Escape');assert(!empty.defaultPrevented);assert.equal(escaped,1);window.removeEventListener('keydown',escape);
+ await edit('new text');const draftClear=document.querySelector('[aria-label="Clear search"]');draftClear.focus();await click(draftClear);assert.equal(calls.length,0,'Discarding an unapplied query cannot reset pagination');assert.equal(document.activeElement,field());
+ await edit('😀'.repeat(200)+'中');assert.equal(Array.from(field().value).length,200);assert.equal(field().value,'😀'.repeat(200));await submit();assert.equal(calls.pop(),'😀'.repeat(200));
+ await composition('compositionstart');await edit('中'.repeat(201));assert.equal(field().value.length,201,'Composition is not rewritten before it commits');
+ const composingEnter=await key('keydown','Enter',{isComposing:true,keyCode:229});assert(!composingEnter.defaultPrevented,'Native IME candidate confirmation must remain available');await submit();assert.equal(calls.length,0);
+ const composingEscape=await key('keydown','Escape',{isComposing:true});assert(!composingEscape.defaultPrevented);assert.equal(field().value.length,201);
+ await composition('compositionend');assert.equal(field().value.length,200);await submit();assert.equal(calls.length,0,'The same IME Enter cannot also apply a search');
+ await key('keyup','Enter');await key('keydown','Enter',{keyCode:13});await submit();assert.equal(calls.pop(),'中'.repeat(200));await key('keyup','Enter');
+ await edit('Safari candidate');await key('keydown','Enter',{keyCode:229});await submit();assert.equal(calls.length,0,'Legacy IME Enter is guarded even after compositionend');
+ await act(async()=>document.querySelector('[type="submit"]').dispatchEvent(new dom.window.Event('pointerdown',{bubbles:true})));await submit();assert.equal(calls.pop(),'Safari candidate','An explicit pointer search is not held by an earlier IME key');await key('keyup','Enter');
+ await edit('  a\u0000b\t  中 😀\u007f  ');await submit();assert.equal(calls.pop(),'a b   中 😀');assert.equal(field().value,'a b   中 😀');
+ applied='confirmed';await render();assert.equal(field().value,'confirmed');await edit('');assert.deepEqual(calls,['']);calls.length=0;
+ await edit('private unsubmitted');owner='bob';applied='new owner';await render();assert.notEqual(field(),original);assert.equal(field().value,'new owner');assert(!document.body.textContent.includes('private unsubmitted'));assert.equal(location.href,url);
+ console.log('PASS community search: explicit clear/Escape focus, no route or page change for unapplied cancellation, Unicode200 limits, native IME/legacy Enter protection, control normalization, locale/caret/scroll continuity and owner remount isolation');
+}finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

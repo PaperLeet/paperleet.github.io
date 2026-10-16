@@ -40,7 +40,6 @@ import {
   RefreshCw,
   Repeat2,
   Quote,
-  Search,
   Settings2,
   Trash2,
   UserPlus,
@@ -78,6 +77,7 @@ import ReplyEditor from './ReplyEditor';
 import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
 import CommunityCardActions from './CommunityCardActions';
+import CommunitySearch from './CommunitySearch';
 import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
@@ -113,6 +113,8 @@ const CATEGORIES = [
 ];
 const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
+export const COMMUNITY_FEED_TIMEOUT = 20_000;
+type FeedFailure = {requestKey:string;kind:'timeout'}|{requestKey:string;kind:'request';message:string};
 function TopicContext({ topic, discussion = false }: {
   topic: ProblemTopic;
   discussion?: boolean;
@@ -514,19 +516,20 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
-  const [query, setQuery] = useState(search);
   const boards = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
-    [error, setError] = useState(""),
+    [failure, setFailure] = useState<FeedFailure>(),
     [compose, setCompose] = useState(false),
     [retry, setRetry] = useState(0);
   const pending = loading || data.requestKey !== requestKey;
+  const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
+    ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
+    : failure.message : '';
   const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable)&&!sortingUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
     location.hash = communityFeedHref(topicId, { ...filters, page: 1, ...change });
   }
-  useEffect(() => { setQuery(search); }, [search]);
   useEffect(() => {
     const board = boards.current;
     if (!board) return;
@@ -546,7 +549,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     let redirected = false;
     const controller = new AbortController();
     setLoading(true);
-    setError("");
+    setFailure(undefined);
     const params = new URLSearchParams({
       category,
       q: search,
@@ -564,6 +567,11 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       setLoading(false);
       return;
     }
+    const timer=setTimeout(()=>{
+      if(!live)return;
+      live=false;controller.abort();
+      setFailure({requestKey,kind:'timeout'});setLoading(false);
+    },COMMUNITY_FEED_TIMEOUT);
     socialApi<Page<Post> & {sort?:string}>(`community/posts?${params}`,undefined,controller.signal)
       .then((data) => {
         if (!live) return;
@@ -577,13 +585,15 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         setData({ ...data, requestKey });
       })
       .catch((e) => {
-        if (live) setError(errorMessage(e));
+        if (live) setFailure({requestKey,kind:'request',message:errorMessage(e)});
       })
       .finally(() => {
-        if (live && !redirected) setLoading(false);
+        clearTimeout(timer);
+        if(!live)return;live=false;
+        if (!redirected) setLoading(false);
       });
     return () => {
-      live = false; controller.abort();
+      live = false; clearTimeout(timer); controller.abort();
     };
   }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable]);
   return (
@@ -658,30 +668,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>}
             </div>
             <div className="community-feed-controls">
-              <form
-                className="community-search"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  choose({ search: query.trim() });
-                }}
-              >
-                <Search size={14} />
-                <input
-                  aria-label={t("搜索讨论", "Search discussions")}
-                  placeholder={t("搜索讨论…", "Search discussions…")}
-                  value={query}
-                  maxLength={200}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    if (!e.target.value) {
-                      choose({ search: '' });
-                    }
-                  }}
-                />
-                <button type="submit" aria-label={t("搜索", "Search")}>
-                  <ArrowRight size={14} />
-                </button>
-              </form>
+              <CommunitySearch applied={search} onApply={query=>choose({search:query})}/>
               {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
                 <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
               </select></label>}
