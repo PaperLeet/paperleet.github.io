@@ -104,7 +104,7 @@ def test_native_mutation_guards(upper,mutated):
 
 
 @pytest.mark.parametrize('upper',[False,True])
-@pytest.mark.parametrize('kind',['unused-nan','used-nan','diagonal-nan','infinite-diagonal','negative','batched-negative'])
+@pytest.mark.parametrize('kind',['unused-nan','used-nan','diagonal-nan','infinite-diagonal','negative','zero','batched-negative'])
 def test_selected_triangle_and_failures(upper,kind):
     a=matrix((2,3,3) if kind=='batched-negative' else (3,3),'float64')
     row,col=(0,1) if upper else (1,0)
@@ -113,9 +113,14 @@ def test_selected_triangle_and_failures(upper,kind):
     if kind=='diagonal-nan':a[0,0]=np.nan
     if kind=='infinite-diagonal':a[0,0]=np.inf
     if kind=='negative':a[0,0]=-1
+    if kind=='zero':a[0,0]=0
     if kind=='batched-negative':a[1,1,1]=-1
-    if kind in ('used-nan','diagonal-nan','negative','batched-negative'):
-        for lib in (lite,native):
+    if kind in ('used-nan','diagonal-nan','negative','zero','batched-negative'):
+        # Native linalg deliberately makes no cross-backend guarantees for
+        # nonfinite inputs. The adapter rejects NaN factors consistently;
+        # finite non-positive-definite cases still compare both libraries.
+        libraries=(lite,) if kind in ('used-nan','diagonal-nan') else (lite,native)
+        for lib in libraries:
             with pytest.raises(RuntimeError,match='positive-definite'):
                 lib.linalg.cholesky(lib.tensor(a),upper=upper)
     else:

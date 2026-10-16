@@ -805,6 +805,8 @@ class Tensor:
         shape,dtype = self.shape,self.dtype
         return _autograd.result(np.trace(original_data), (self, lambda g: np.eye(*shape, dtype=dtype) * g), saves_tensors=False)
     def det(self): return _linalg.det(self)
+    def cholesky_solve(self, input2, upper=False):
+        return _cholesky.cholesky_solve(self, input2, upper)
     def prod(self, dim=None, keepdim=False, *, dtype=None):
         original_data = self._data
         if dim is None and keepdim: raise TypeError('prod keepdim requires an explicit dimension')
@@ -1137,4 +1139,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing
+from . import _arithmetic, _autograd, _cholesky, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing

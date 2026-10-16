@@ -89,3 +89,58 @@ def test_unsupported_options_and_discovery():
     with pytest.raises(TypeError):torch.linalg.cholesky(a,upper=1)
     with pytest.raises(UnsupportedOperation):torch.linalg.cholesky(a,out=torch.empty(2,2))
     assert 'torch.linalg.cholesky' in torch._browser_capabilities
+
+
+@pytest.mark.parametrize('dtype',['float32','float64','complex64','complex128'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('shape',[(0,0),(1,1),(2,3,3),(0,3,3)])
+def test_constructed_factors_empty_complex_and_real_tangent_boundaries(dtype,upper,shape):
+    n=shape[-1];lower=np.tril(np.full(shape,.03,dtype=dtype))
+    if np.dtype(dtype).kind=='c':lower+=np.tril(np.full(shape,.02j,dtype=dtype),-1)
+    lower[...,np.arange(n),np.arange(n)]=2
+    data=lower@lower.conj().swapaxes(-1,-2);target=lower.conj().swapaxes(-1,-2) if upper else lower
+    rows,cols=np.tril_indices(n,-1) if upper else np.triu_indices(n,1);data[...,rows,cols]=np.nan
+    real=np.dtype(dtype).kind=='f';a=torch.tensor(data,requires_grad=real);factor=torch.linalg.cholesky(a,upper=upper)
+    close(factor.numpy(),target,'float32' if dtype in ('float32','complex64') else 'float64');assert factor.dtype==np.dtype(dtype);assert factor.stride()[-2:]==(1,max(n,1))
+    if real:
+        factor.square().sum().backward();close(a.grad.numpy(),np.broadcast_to(np.eye(n),shape),'float32' if dtype=='float32' else 'float64')
+        direction=np.tril(np.full(shape,.02,dtype=dtype));da=direction@lower.swapaxes(-1,-2)+lower@direction.swapaxes(-1,-2)
+        _,tangent=torch.func.jvp(lambda v:torch.linalg.cholesky(v,upper=upper),(a,),(torch.tensor(da),));close(tangent.numpy(),direction.swapaxes(-1,-2) if upper else direction,'float32' if dtype=='float32' else 'float64');assert tangent.stride()==factor.stride()
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('kind',['negative','singular','used-nan','diagonal-nan'])
+def test_factor_failure_boundaries_in_numpy_only_runtimes(dtype,upper,kind):
+    data=np.broadcast_to(np.eye(2,dtype=dtype),(2,2,2)).copy()
+    if kind=='negative':data[1,1,1]=-1
+    elif kind=='singular':data[1,1,1]=0
+    elif kind=='diagonal-nan':data[1,0,0]=np.nan
+    else:data[1,0 if upper else 1,1 if upper else 0]=np.nan
+    with pytest.raises(RuntimeError,match='positive-definite'):torch.linalg.cholesky(torch.tensor(data),upper=upper)
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+def test_infinite_diagonal_does_not_contaminate_finite_block(dtype,upper):
+    data=np.diag(np.array([np.inf,4.,9.],dtype=dtype));a=torch.tensor(data,requires_grad=True);factor=torch.linalg.cholesky(a,upper=upper)
+    np.testing.assert_array_equal(factor.numpy(),np.diag(np.array([np.inf,2.,3.],dtype=dtype)))
+    factor.sum().backward();gradient=a.grad.numpy();assert np.isnan(gradient[0,0]);np.testing.assert_array_equal(gradient[0,1:],[0.,0.]);np.testing.assert_array_equal(gradient[1:,0],[0.,0.]);close(gradient[1:,1:],[[.25,.25],[.25,1/6]],dtype)
+
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('kind',['negative','used-nan','diagonal-nan'])
+def test_quiet_backend_failure_still_reports_first_batch_and_minor(upper,kind):
+    original=np.linalg.cholesky
+    def quiet_backend(data):
+        try:return original(data)
+        except np.linalg.LinAlgError:return np.full_like(data,np.nan)
+    data=np.broadcast_to(np.eye(2),(2,2,2)).copy()
+    if kind=='negative':data[1,1,1]=-1
+    elif kind=='diagonal-nan':data[1,0,0]=np.nan
+    else:data[1,0 if upper else 1,1 if upper else 0]=np.nan
+    expected_minor=1 if kind=='diagonal-nan' else 2
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(np.linalg,'cholesky',quiet_backend)
+        with pytest.raises(RuntimeError,match=rf'Batch element \(1,\).*leading minor of order {expected_minor}'):
+            torch.linalg.cholesky(torch.tensor(data),upper=upper)

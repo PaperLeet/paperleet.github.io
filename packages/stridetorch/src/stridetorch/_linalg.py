@@ -3,6 +3,25 @@ from collections import namedtuple
 import numpy as np
 
 
+def _numpy_error_flags_work():
+    # A runtime capability, not tensor data. WASM may not report IEEE status
+    # flags to NumPy's linalg error callbacks. Restore the caller's error mode.
+    with np.errstate(invalid='raise'):
+        try:np.divide(0., 0.)
+        except FloatingPointError:return True
+    return False
+
+
+_NUMPY_ERRORS_RAISE = _numpy_error_flags_work()
+
+
+def _check_singular(a):
+    # slogdet represents a zero pivot explicitly, independently of FPU flags.
+    # This extra factorization is used only for suspicious/empty results.
+    if np.any(np.linalg.slogdet(a)[0] == 0):
+        raise RuntimeError('The matrix is singular')
+
+
 def _solve_geometry(a, b, left):
     a_shape,b_shape = a.shape,b.shape
     if a.ndim < 2 or a_shape[-2] != a_shape[-1]:
@@ -27,6 +46,8 @@ def _solve_values(a, b, left):
     if not left:a,b = a.swapaxes(-1,-2),b.swapaxes(-1,-2)
     try:value = np.linalg.solve(a,b)
     except np.linalg.LinAlgError as error:raise RuntimeError('The matrix is singular') from error
+    if (not value.size and a.shape[-1]) or (not _NUMPY_ERRORS_RAISE and np.isnan(value).any()):
+        _check_singular(a)
     return value if left else value.swapaxes(-1,-2)
 
 
@@ -265,6 +286,7 @@ def inv(input, *, out=None):
     if input.shape[-1] != input.shape[-2]: raise RuntimeError('Inverse expects square matrices')
     try: value = np.linalg.inv(input._data)
     except np.linalg.LinAlgError as error: raise RuntimeError('The matrix is singular') from error
+    if not _NUMPY_ERRORS_RAISE and np.isnan(value).any():_check_singular(input._data)
     transpose = np.swapaxes(value, -1, -2)
     return _autograd.result(value, (input, lambda g: -transpose @ g @ transpose))
 

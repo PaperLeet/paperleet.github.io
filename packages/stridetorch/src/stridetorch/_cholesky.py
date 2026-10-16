@@ -15,19 +15,29 @@ def _phi(value):
                             (value, _phi_values), saves_tensors=False)
 
 
+def _factor_values(data):
+    values = np.linalg.cholesky(data)
+    # Some LAPACK/NumPy builds return NaN factors without raising, including
+    # finite non-positive-definite inputs under WASM's floating-point flags.
+    # Inspect only the result diagonal: unused input entries remain ignored.
+    if not (np.diagonal(values, axis1=-2, axis2=-1).real > 0).all():
+        raise np.linalg.LinAlgError('Cholesky factor has a non-positive or NaN diagonal')
+    return values
+
+
 def _factor_error(data):
     # NumPy does not expose the failing batch or leading minor. Resolve these
     # only on the exceptional path; successful batches use one LAPACK call.
     for index in np.ndindex(data.shape[:-2]):
         matrix = data[index]
         try:
-            np.linalg.cholesky(matrix)
+            _factor_values(matrix)
         except np.linalg.LinAlgError:
             lo, hi = 1, matrix.shape[-1]
             while lo < hi:
                 mid = (lo + hi) // 2
                 try:
-                    np.linalg.cholesky(matrix[:mid, :mid])
+                    _factor_values(matrix[:mid, :mid])
                     lo = mid + 1
                 except np.linalg.LinAlgError:
                     hi = mid
@@ -70,7 +80,7 @@ def cholesky(A, *, upper=False, out=None):
     # the requested upper triangle without inspecting the unused half.
     selected = (data.conj() if data.dtype.kind == 'c' else data).swapaxes(-1, -2) if upper else data
     try:
-        lower = np.linalg.cholesky(selected)
+        lower = _factor_values(selected)
     except np.linalg.LinAlgError as error:
         raise _factor_error(selected) from error
     values = lower.conj().swapaxes(-1, -2) if upper else lower
@@ -126,4 +136,86 @@ def cholesky(A, *, upper=False, out=None):
     return output
 
 
-from . import _autograd, _errors, _layout, _linalg, _state, _tensor
+def _solve_values(factor, rhs, upper):
+    transpose = (factor.conj() if factor.dtype.kind == 'c' else factor).swapaxes(-1, -2)
+    first, second = (transpose, factor) if upper else (factor, transpose)
+    intermediate = _linalg._triangular_values(first, rhs, False, True, False)
+    return _linalg._triangular_values(second, intermediate, True, True, False)
+
+
+def cholesky_solve(input, input2, upper=False, *, out=None):
+    if not isinstance(input, _tensor.Tensor) or not isinstance(input2, _tensor.Tensor):
+        raise TypeError('cholesky_solve inputs must be Tensors')
+    if type(upper) is not bool:
+        raise TypeError('upper must be bool')
+    if out is not None:
+        raise _errors.BrowserUnsupported('Cholesky solve output buffers require the server')
+    b, factor = input._data, input2._data
+    if b.dtype != factor.dtype:
+        raise RuntimeError('cholesky_solve expects matching dtypes')
+    if factor.dtype.char not in 'fdFD':
+        raise _errors.BrowserUnsupported('cholesky_solve requires float32/64 or complex64/128 inputs')
+    if factor.ndim < 2 or factor.shape[-1] != factor.shape[-2]:
+        raise RuntimeError('cholesky_solve expects square factors')
+    if b.ndim < 2 or b.shape[-2] != factor.shape[-1]:
+        raise RuntimeError('cholesky_solve requires matching matrix right-hand sides')
+    b_shape, f_shape = b.shape, factor.shape
+    try:
+        batch = b_shape[:-2] if b_shape[:-2] == f_shape[:-2] else np.broadcast_shapes(b_shape[:-2], f_shape[:-2])
+    except ValueError:
+        raise RuntimeError('cholesky_solve batch dimensions cannot broadcast') from None
+    if isinstance(input, _autograd.ForwardTensor) or isinstance(input2, _autograd.ForwardTensor):
+        primal_b = input._primal if isinstance(input, _autograd.ForwardTensor) else input
+        primal_f = input2._primal if isinstance(input2, _autograd.ForwardTensor) else input2
+        value = cholesky_solve(primal_b, primal_f, upper)
+        direction = input2._tangent if isinstance(input2, _autograd.ForwardTensor) else _tensor.Tensor(np.zeros_like(factor))
+        # Native differentiation extends the full factor, including its unused
+        # triangle. Only the primal factor solves select a triangle.
+        product = direction.transpose(-1, -2) @ primal_f if upper else direction @ primal_f.transpose(-1, -2)
+        coefficient_direction = product + product.transpose(-1, -2)
+        residual = -(coefficient_direction @ value)
+        if isinstance(input, _autograd.ForwardTensor):
+            residual = input._tangent + residual
+        tangent = cholesky_solve(residual, primal_f, upper)
+        return _autograd.ForwardTensor(value, _layout.matching_tangent(tangent, value))
+    matrix_f = factor if f_shape[:-2] == batch else np.broadcast_to(factor, batch + f_shape[-2:])
+    matrix_b = b if b_shape[:-2] == batch else np.broadcast_to(b, batch + b_shape[-2:])
+    values = _linalg._solve_layout(_solve_values(matrix_f, matrix_b, upper), True)
+    needs_b, needs_f = input.requires_grad, input2.requires_grad
+    if not _state._grad_enabled or not (needs_b or needs_f):
+        return _tensor.Tensor(values, _metadata_owned=True)
+    x_transpose = values.swapaxes(-1, -2) if needs_f else None
+    narrow = needs_f and factor.shape[-1] >= 64 and values.shape[-1] * 4 <= factor.shape[-1] and np.isfinite(matrix_f).all()
+
+    def right_gradient(g):
+        return _solve_values(matrix_f, g, upper)
+
+    def reduce_b(db):
+        return db if db.shape == b_shape else _ops.unbroadcast(db, b_shape)
+
+    def factor_gradient(db):
+        if narrow:
+            # Associate through the narrow RHS rather than materializing and
+            # multiplying a dense n-by-n common term: O(n*n*k), not O(n**3).
+            # Nonfinite factors retain the native evaluation order below.
+            if upper:
+                df = -((matrix_f @ db) @ x_transpose + (matrix_f @ values) @ db.swapaxes(-1, -2))
+            else:
+                df = -(db @ (x_transpose @ matrix_f) + values @ (db.swapaxes(-1, -2) @ matrix_f))
+            return df if df.shape == f_shape else _ops.unbroadcast(df, f_shape)
+        common = db @ x_transpose
+        common = common + common.swapaxes(-1, -2)
+        df = -(matrix_f @ common if upper else common @ matrix_f)
+        return df if df.shape == f_shape else _ops.unbroadcast(df, f_shape)
+
+    if needs_b and needs_f:
+        def backward(g, needs):
+            db = right_gradient(g)
+            return reduce_b(db), factor_gradient(db)
+        return _autograd.joint_result(values, (input, input2), backward)
+    if needs_b:
+        return _autograd.result(values, (input, lambda g: reduce_b(right_gradient(g))), saved=(input2,))
+    return _autograd.result(values, (input2, lambda g: factor_gradient(right_gradient(g))), saved=(input,))
+
+
+from . import _autograd, _errors, _layout, _linalg, _ops, _state, _tensor

@@ -225,6 +225,7 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)
     registry.add('torch.linalg.solve_triangular', _linalg.solve_triangular, reverse='analytic', forward=True)
     registry.add('torch.linalg.cholesky', _cholesky.cholesky, reverse='analytic', forward=True)
+    registry.add('torch.cholesky_solve', _cholesky.cholesky_solve, reverse='analytic', forward=True)
     registry.group('torch', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
     registry.group('torch.serialization', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
     torch.serialization.save,torch.serialization.load = torch.save,torch.load

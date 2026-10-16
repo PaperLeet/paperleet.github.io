@@ -167,6 +167,36 @@ leading minor. Version0.32 remains a development candidate until its validation
 and application integration gates pass; see its
 [validation report](../../docs/validation/torch-runtime-iteration-32.md).
 
+`torch.cholesky_solve(input, input2, upper=False)` solves from an existing
+Cholesky factor instead of constructing the positive-definite coefficient again.
+`input` is a matrix RHS and `input2` is the lower/upper factor; batches broadcast.
+The equivalent method is `input.cholesky_solve(input2, upper=False)`.
+
+```python
+b = torch.ones(2, 1, dtype=torch.float64)
+x = torch.cholesky_solve(b, torch.linalg.cholesky(a))
+```
+
+Float32/64 support VJP, JVP and reverse differentiation through both primal and
+direction. Complex64/128 support inference. Primal solves read the selected
+triangle; native differentiation extends the full factor and direction. For a
+trainable SPD system, compose the factorization with `A = M @ M.T + I`.
+Backward guards RHS, factor and output mutations, and shares one adjoint solve
+across both input gradients. Narrow matrix RHS gradients associate products
+through their columns to avoid a cubic factor-gradient multiplication. Output
+buffers, half factorization and complex AD remain explicit unsupported cases.
+Version0.33 validation and integration are tracked in its
+[validation report](../../docs/validation/torch-runtime-iteration-33.md).
+
+Factorization failures are checked across numerical runtimes. Cholesky verifies
+its returned diagonal because some WASM NumPy builds return NaN factors without
+raising. General solve/inverse use explicit singular-pivot diagnostics when the
+runtime cannot report floating-point error flags; empty-RHS solves also check
+the coefficient. Triangular solves retain their documented nonfinite-result
+behavior for zero pivots. Native linalg makes no general cross-backend guarantee
+for NaN inputs; StrideTorch consistently rejects a non-positive/NaN Cholesky
+factor diagonal while continuing to ignore unused input triangles.
+
 ## Gradient accumulation and storage
 
 The first `.grad` for a non-overlapping dense leaf follows the parameter's
