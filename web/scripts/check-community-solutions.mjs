@@ -58,7 +58,8 @@ try{
  await click(document.querySelector('[aria-label="Next page"]'));assert.equal(requests.at(-1).params.get('offset'),'20');
  const search=document.querySelector('input[type="search"]');await change(search,'mask gradient');await act(async()=>search.form.dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));assert.equal(requests.at(-1).params.get('offset'),'0');assert.equal(requests.at(-1).params.get('q'),'mask gradient');assert.equal(location.hash,initialHash);
  assert.equal(code,document.querySelector('[aria-label="Practice code"]'));assert.equal(code.value,'def solve(): return 1');assert.equal(code.selectionDirection,'backward');assert.equal(code.selectionStart,3);assert.equal(code.selectionEnd,10);assert.equal(code.scrollTop,111);assert.equal(code.scrollLeft,25);
- assert(nav.communityPostReturn(document.querySelector('.post-title').getAttribute('href'),id).includes('solutions=1'));
+ assert(document.querySelector('.solution-reading-card>details>summary .post-title'));
+ assert(nav.communityPostReturn(document.querySelector('.solution-reading-page').getAttribute('href'),id).includes('solutions=1'));
  await click(button('Share a solution'));assert(document.querySelector('.community-composer'));assert.equal(document.querySelector('.community-composer select').disabled,true);assert(!form().textContent.includes('Choose a practice module'));
  const guide=document.querySelector('.community-writing-guide');await act(async()=>{guide.open=true;guide.dispatchEvent(new dom.window.Event('toggle'));});
  for(let attempt=0;attempt<50&&!document.querySelector('.community-writing-panel');attempt++)await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));

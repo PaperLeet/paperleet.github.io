@@ -820,7 +820,7 @@ function Workspace() {
                       )}
                     </details>
                     </div>
-                    {hostedAppAvailable&&<ProblemSolutions key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)}/>}
+                    {hostedAppAvailable&&<ProblemSolutions key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} onCode={openEditor}/>}
                   </section>
                 ) : (
                   <>

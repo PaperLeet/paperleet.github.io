@@ -12,6 +12,7 @@ import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
+import SolutionReadingCard from './SolutionReadingCard';
 import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
@@ -233,7 +234,7 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean }) {
+function PostCard({ post, activity, returnTo, resumed, showActivity, readInPlace=false, onCode }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void }) {
   const { locale } = useI18n();
   return (
     <article className="community-post-card" data-reading-post={post.id} data-reading-resumed={resumed||undefined}>
@@ -247,7 +248,7 @@ function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: P
             <DateLabel value={post.created_at} />
             <Category value={post.solution ? "solutions" : post.category} />
           </div>
-          <a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
+          {readInPlace&&post.solution ? <SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode}/> : <><a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
             {post.title}
           </a>
           {post.problem && (
@@ -258,6 +259,7 @@ function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: P
           {post.interview && <InterviewMeta details={post.interview} compact/>}
           <InlinePostBody body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
+          </>}
           <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}/>
         </div>
       </div>
@@ -503,6 +505,7 @@ type CommunityProps = {
   reloadCatalog?: () => void;
   topics?:ProblemTopic[];
   embedded?:boolean;
+  onCode?:()=>void;
 };
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
@@ -512,10 +515,10 @@ export default function Community({ postId, route, ...scope }: CommunityProps) {
     <CommunityFeed key={`${scope.topicId || "all"}:${readCommunityFeed(route||"")?.state.solutions?"solutions":"posts"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
 }
-export function ProblemSolutions({topic}:{topic:ProblemTopic}) {
-  return <Community embedded topic={topic} topicId={topic.id} route={solutionsHref(topic.id)}/>;
+export function ProblemSolutions({topic,onCode}:{topic:ProblemTopic;onCode?:()=>void}) {
+  return <Community embedded onCode={onCode} topic={topic} topicId={topic.id} route={solutionsHref(topic.id)}/>;
 }
-function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false }: Omit<CommunityProps, "postId">) {
+function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false, onCode }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
   const { user, capabilities, loading: accountLoading } = useAccount();
   const solutions=embedded||readCommunityFeed(route||"")?.state.solutions===true;
@@ -771,7 +774,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {(category || following || search) && <button className="button subtle" onClick={() => choose({...emptyCommunityFeed(),...(solutions?{solutions:true}:{})})}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id}/>)
+              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode}/>)
             )}
           </div>
           {!pending && !error && !sortingUnavailable && !solutionUnavailable && (
