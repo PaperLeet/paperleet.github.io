@@ -35,7 +35,7 @@ import { PaperLibrary, paperModules } from "./PaperViews";
 import { collectionIdFromRoute } from "./paperCollections";
 import { decodeProblemHash } from "./reports";
 import { LocaleProvider, useI18n } from "./i18n";
-import { AccountNav, AccountProvider, useAccount } from "./social";
+import { AccountNav, AccountProvider, profileHref, useAccount } from "./social";
 import { usePracticeWorkspace } from "./PracticeWorkspace";
 import { BrowserRunProgress } from "./BrowserRunProgress";
 import Brand from "./Brand";
@@ -199,6 +199,7 @@ function Workspace() {
   const settingsPage = path === "settings";
   const achievementsPage = path === "achievements";
   const settingsReturn = useRef("#");
+  const achievementsReturn = id === "achievements?from=profile" && user ? profileHref(user) : settingsReturn.current;
   useEffect(() => {
     if (!settingsPage && !achievementsPage) settingsReturn.current = location.hash || "#";
   }, [id, settingsPage, achievementsPage]);
@@ -565,7 +566,7 @@ function Workspace() {
           setId(decodeProblemHash(href));
         }} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
-        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={settingsReturn.current} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
+        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={achievementsReturn} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
       ) : settingsPage ? (
         <SettingsPage theme={theme} onTheme={selectTheme} returnTo={settingsReturn.current}
           onBackup={() => setBackupOpen(true)}
