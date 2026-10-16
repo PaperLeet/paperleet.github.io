@@ -271,8 +271,8 @@ native and exported WASM problems pass within their existing budgets. Independen
 Node/Chrome contracts, minimum-dependency installed wheels and balanced CPU/WASM
 comparisons pass. Remaining standard-deviation reverse costs are documented.
 Main at `7eac78ab` passes exact remote Quality, including all 78 WASM modules.
-Runtime-identical curriculum descendant `db6408fd` awaits eligible publication
-and frozen live asset verification.
+Runtime-identical curriculum descendant `db6408fd` passes exact Quality and
+eligible Pages publication; all 78 live modules/158 immutable comparisons pass.
 
 ## Version 0.23 candidate
 

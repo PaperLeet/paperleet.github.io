@@ -3,8 +3,9 @@
 This version adds shared real `var/std/var_mean/std_mean` kernels, strict
 reduction/overload contracts and analytical VJP/JVP. Main includes 0.22 at
 `7eac78ab`; its exact Quality run passes native, complete WASM and pilot checks.
-All local release gates also pass. Publication/live verification is still
-pending on the runtime-identical curriculum descendant `db6408fd`.
+All local release gates also pass. Runtime-identical curriculum descendant
+`db6408fd` passes its exact Quality and eligible Pages deployment; all 78 live
+modules and 158 immutable asset comparisons pass.
 
 ## Correctness and computation
 
@@ -130,7 +131,7 @@ runtime/live-verification inputs. The independent project name **StrideTorch**
 is explicitly confirmed by the human; distribution, import and launcher use
 `stridetorch`, while host/launcher aliases preserve ordinary `import torch`.
 
-## Main quality and pending publication
+## Verified main quality and publication
 
 [Exact Quality 38879271337](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38879271337)
 passes all three required jobs. Linux infrastructure passes 25,605 tests with
@@ -146,6 +147,19 @@ Pages trigger is skipped/superseded rather than published. All 43 core/license
 hashes, library packaging inputs, problems, tests, workflows and browser bundles
 are identical in that descendant. Nine upstream curriculum/UI files differ,
 including private application catalog metadata; whole-application wheel identity
-is not claimed. Its actual Quality/eligible Pages and live asset checks remain
-pending. [Main-quality evidence](../../packages/stridetorch/benchmarks/results/iteration-22-main-quality.json)
-records this distinction.
+is not claimed. Its
+[Quality 38880784326](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38880784326)
+and eligible
+[Pages 38883159210](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38883159210)
+succeed, including every actual build/deploy step. The descendant WASM artifact
+also passes all 78 modules without budget violations (1,007.261s aggregate).
+
+Live verification decodes compressed starters and checks all 78 starters,
+manifests and module details, then compares all 158 immutable payloads exactly.
+Both runtime profiles carry the expected 0.22 version and Apache-2.0/NOTICE.
+The original skipped Pages observation remains separate from the actual eligible
+deployment. [Main-quality evidence](../../packages/stridetorch/benchmarks/results/iteration-22-main-quality.json),
+[remote adoption](../../packages/stridetorch/benchmarks/results/iteration-22-remote-adoption.json)
+and [remote/live archive](../../packages/stridetorch/benchmarks/results/iteration-22-remote-adoption-harness.tar.gz)
+retain both workflow histories and frozen verification inputs. This proves
+repository/site adoption; no public PyPI publication has occurred.
