@@ -643,6 +643,22 @@
         "llm",
         "research"
       ]
+    },
+    {
+      "id": "visual-quantization",
+      "name": "视觉量化与下一尺度生成",
+      "name_en": "Visual quantization & next-scale generation",
+      "description": "区分量化训练的替代梯度与冻结 tokenizer，练习残差码本、累计重建和尺度级信息流。",
+      "description_en": "Separate quantization-training surrogate gradients from a frozen tokenizer, then practice residual codes, cumulative reconstruction and scale-level information flow.",
+      "modules": [
+        "representation/rotation_trick",
+        "representation/var_tokenizer",
+        "architecture/var_next_scale"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
     }
   ]
 }

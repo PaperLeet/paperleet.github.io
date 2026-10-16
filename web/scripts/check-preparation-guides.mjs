@@ -177,6 +177,26 @@ try{
  }
  await stop();await render(Hub,{route:'interviews?role=llm&track=policy-distillation',problems:published});const distillationCard=document.getElementById('interview-path-policy-distillation')?.closest('article');assert(distillationCard);assert.equal(document.querySelector('.interview-path-grid>article'),distillationCard);assert(distillationCard.querySelector('details').open);assert.deepEqual([...distillationCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),distillationModules.map(id=>String(published.find(problem=>problem.id===id).number)));
  await stop();console.log('PASS policy-distillation handbook: four ordered concepts, three new bilingual guides and all native hints, source/role/company/stage/saved practice/login returns and deferred content');
+ const visualModules=['representation/rotation_trick','representation/var_tokenizer','architecture/var_next_scale'];
+ const visualFilters={...nav.emptyInterviewFilters(),company:'nvidia',role:'ml',stage:'research',track:'visual-quantization',q:'量化 & scale 😀',saved:true,page:2};
+ assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(visualFilters)),visualFilters);
+ const beforeVisual=loads.length;await render(Handbook,{filters:visualFilters,problems:published});assert.equal(loads.length,beforeVisual,'The new curriculum still defers bilingual prompts until deliberate opening');
+ assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),visualModules,'Curriculum order follows surrogate gradients, frozen residual tokens, then next-scale inputs rather than module number');
+ for(const [index,id] of visualModules.entries()){
+  if(index){const count=loads.length;await act(async()=>{const choice=document.querySelector('select');choice.value=id;choice.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await settle(()=>loads.length===count+1);}else await open();
+  const request=take();assert.equal(request.id,id);await reply(request);assert.equal(document.querySelectorAll('.preparation-prompt-list>li').length,3);assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
+  const hints=[...document.querySelectorAll('.preparation-hint')];assert(hints.every(hint=>!hint.open),'A new concept starts with its answers hidden');
+  for(const [promptIndex,hint] of hints.entries()){await click(hint.querySelector('summary'));assert(hint.open);assert(hint.textContent.includes(content(id).prompts[promptIndex].hint.en));}
+  await click(button('中文 fixture'));assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.zh);assert(hints.every(hint=>hint.open),'Changing language retains deliberate answer disclosure');
+  for(const [promptIndex,hint] of hints.entries())assert(hint.textContent.includes(content(id).prompts[promptIndex].hint.zh));
+  await click(button('EN fixture'));
+  const practice=document.querySelector('.preparation-guide-actions a');assert.deepEqual(nav.readInterviewRoute(libraryReturnHref(practice.getAttribute('href'))),{...visualFilters,view:'reports',concept:id,page:1,q:''});
+  assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'),'Sign-in returns retain the selected visual concept and interview scope');
+ }
+ await stop();await render(Hub,{route:'interviews?role=ml&track=visual-quantization',problems:published});const visualCard=document.getElementById('interview-path-visual-quantization')?.closest('article');assert(visualCard);assert.equal(document.querySelector('.interview-path-grid>article'),visualCard);
+ assert.deepEqual([...visualCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),visualModules.map(id=>String(published.find(problem=>problem.id===id).number)));
+ assert(!visualCard.querySelector('.interview-path-module-disclosure'),'All three steps remain directly available without an unnecessary extra disclosure');
+ await stop();console.log('PASS visual-quantization handbook: three ordered concepts, all nine bilingual prompts and native answer disclosures, deferred loading, exact practice/login/filter returns and directly available path steps');
  const scopeFilters={...postTrainingFilters,concept:'rl/dr_grpo',q:'保留范围 & λ 😀',page:3};location.hash=nav.interviewHref(scopeFilters);
  function ScopeReader({filters:scope,problems=published}){return React.createElement(React.Fragment,null,React.createElement(Draft),React.createElement(Handbook,{filters:scope,problems}));}
  await render(ScopeReader,{filters:scopeFilters});assert(document.querySelector('.preparation-handbook-scope'),'A scoped handbook needs an in-place way to browse related prompts');

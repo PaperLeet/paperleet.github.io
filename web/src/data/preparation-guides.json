@@ -2439,6 +2439,134 @@
           }
         }
       ]
+    },
+    {
+      "id": "representation/rotation_trick",
+      "source": "problems/representation/rotation_trick/README.md",
+      "functions": [
+        "rotation_quantize"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "前向同样得到已选码本向量 q，Rotation Trick 和 STE 的反向有什么区别？",
+            "en": "If both return the selected code q, how does Rotation Trick backward differ from STE?"
+          },
+          "hint": {
+            "zh": "把范数比 s 和旋转 R 当作常量，前向是 sR e，编码器接收 s Rᵀ g，而 STE 直接传回 g。q 和变换的构造不接收这条替代路径的梯度；独立的码本学习损失不在本题内。这是独立的量化训练方法，后续 VAR 练习的 tokenizer 已冻结。",
+            "en": "Treat the norm ratio s and rotation R as constants: forward is sR e, and the encoder receives s Rᵀ g instead of the STE gradient g. Stop the path into q and the transform construction. A separate codebook-learning loss is outside this task. This is an independent quantization-training method; the later VAR exercises use a frozen tokenizer."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样避免构造 D×D 矩阵，同时保留正确的批维、旋转方向和缩放？",
+            "en": "How can you avoid a D×D matrix while preserving batch shape, rotation direction and scaling?"
+          },
+          "hint": {
+            "zh": "用已提供的范数校验构造单位方向 u、v、中间方向 r 和比例 s，全部冻结。按末维计算 e−2r(r·e)+2v(u·e)，再乘 s；归约保留末维以广播到任意批前缀。不要 detach 整个输出，也不要让方向或比例参与求导。",
+            "en": "Use the provided norm validation to form unit directions u,v, midpoint direction r and ratio s, then freeze them. Compute e−2r(r·e)+2v(u·e) along the final axis and multiply by s. Keep reduced dimensions for arbitrary batch prefixes. Detaching the whole output or differentiating the directions/ratio gives the wrong path."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪一个二维手算例子能发现旋转反了、漏掉缩放或错误更新码本？",
+            "en": "Which two-dimensional example detects reversed rotation, missing scaling or unwanted codebook gradients?"
+          },
+          "hint": {
+            "zh": "取 e=(2,0)、q=(0,3)、上游 g=(1,0)：前向为 q，编码器梯度为 (0,−1.5)，不是 STE 的 (1,0)，q 梯度为 None 或零。再检查正向共线 q=3e 时梯度为 3g。零向量与完全反向向量按接口拒绝；用解析替代 Jacobian 检查，而非对最近码本选择做有限差分。",
+            "en": "Use e=(2,0), q=(0,3), upstream g=(1,0): forward is q and the encoder gradient is (0,−1.5), rather than STE’s (1,0); q has no gradient or a zero gradient. Positive-collinear q=3e gives 3g. Reject zero/antiparallel vectors as specified. Check the analytical surrogate Jacobian, not finite differences of nearest-code selection."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/var_tokenizer",
+      "source": "problems/representation/var_tokenizer/README.md",
+      "functions": [
+        "multiscale_quantize",
+        "decode_multiscale"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么每个尺度量化剩余残差，而不是重新量化原特征？",
+            "en": "Why does each scale quantize the remaining residual rather than the original feature map?"
+          },
+          "hint": {
+            "zh": "当前残差等于原特征减去较粗尺度贡献之和；新尺度补充此前尚未表达的部分。每次返回的是最大分辨率累计重建的独立快照，不是单尺度贡献。共享码本采用平方欧氏距离；题目用固定通道矩阵简化原 VAR 的已学习空间 Phi 卷积。",
+            "en": "The residual is the original feature map minus all earlier contributions, so each scale adds what remains unrepresented. Return independent snapshots of the full-resolution cumulative reconstruction, not separate contributions. The shared codebook uses squared Euclidean distance. Fixed channel matrices are a teaching replacement for VAR’s learned spatial Phi convolutions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "编码、解码的形状、插值顺序和冻结边界应怎样保持一致？",
+            "en": "How should encoding and decoding agree on shapes, interpolation order and freezing?"
+          },
+          "hint": {
+            "zh": "将 [B,C,H,H] 残差按 area 缩到 n_k，沿通道比较 [V,C] 码本，完全等距选最小索引，得到 int64 [B,n_k,n_k]。用已提供的 lift_codes 提升到 H 后更新残差与累计重建。两主函数保留 no_grad；解码把所有提升结果相加，得到与最后快照一致的 [B,C,H,H]，不做尺度平均。",
+            "en": "Area-resize the [B,C,H,H] residual to n_k, compare channels with the [V,C] codebook, and break exact ties by lowest index to obtain int64 [B,n_k,n_k]. Use the provided lift_codes at full H before updating residual and reconstruction. Keep both main functions under no_grad. Decoding sums all lifted contributions into [B,C,H,H], matching the final snapshot rather than averaging scales."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "零残差时一定保持重建不变吗？怎样检查等距选择和累计解码？",
+            "en": "Must zero residual leave reconstruction unchanged, and how can you check ties and cumulative decoding?"
+          },
+          "hint": {
+            "zh": "用全 1 的 2×2 特征、按顺序 [-1,+1] 的标量码本、尺度 [1,2] 和恒等投影：首尺度选索引 1，重建全 1；残差为零，末尺度等距选索引 0，累计重建变成全 0。解码也应得到全 0。任意冻结码本与投影不保证每一步误差下降；同时检查快照不共享存储、输出无梯度且输入未修改。",
+            "en": "Use an all-ones 2×2 feature map, scalar codebook [-1,+1], scales [1,2] and identity projections. The first scale chooses index1 and reconstructs ones. Zero residual ties choose index0 at the final scale, leaving cumulative zeros; decoding must also give zeros. Arbitrary frozen codebooks/projections do not guarantee monotonic improvement. Check independent snapshots, detached outputs and unchanged inputs."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/var_next_scale",
+      "source": "problems/architecture/var_next_scale/README.md",
+      "functions": [
+        "scale_causal_mask",
+        "next_scale_inputs"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "同尺度的所有位置互相可见，为什么不会直接读到自己的目标答案？",
+            "en": "Why does visibility between all positions in a scale not directly reveal their target tokens?"
+          },
+          "hint": {
+            "zh": "当前尺度输入来自严格更低尺度 token 的累计重建，不是当前目标图的码本嵌入。因此同尺度输入可以双向交流，同时屏蔽更细尺度。本题布尔 mask 的 True 表示可见；如果把当前目标本身放进输入，正确的尺度 mask 也救不了答案泄漏。",
+            "en": "Inputs for a scale come from cumulative reconstruction of strictly lower-scale tokens, not embeddings of its own targets. Positions within that scale may exchange information while finer scales remain blocked. True means visible in this task’s boolean mask. Feeding current targets into those inputs leaks answers even with the correct scale mask."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "下一尺度输入为什么先在最大分辨率累计，再缩到目标尺度？首尺度如何处理？",
+            "en": "Why accumulate at full resolution before resizing to each target scale, and what happens to the first scale?"
+          },
+          "hint": {
+            "zh": "对每个 k>0，把所有 j<k 的 lift_codes 结果累加在完整 H×H 网格，再按 area 缩到 n_k，按行优先展开为 [B,n_k²,C] 并拼接。首尺度 class/start embedding 另行提供，不在返回值中；K=1 返回 [B,0,C]。最后一个目标图不会进入输入，tokenizer 结果保持无梯度。",
+            "en": "For each k>0, accumulate lift_codes contributions from every j<k on the full H×H grid, area-resize to n_k, flatten in row-major order to [B,n_k²,C], then concatenate. The first-scale class/start embedding is supplied separately; K=1 returns [B,0,C]. The final target map enters no input, and tokenizer outputs stay detached."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "尺度 [1,2] 的可见性矩阵和目标扰动检查分别应得到什么？",
+            "en": "What should the visibility matrix and target-perturbation checks show for scales [1,2]?"
+          },
+          "hint": {
+            "zh": "完整 mask 是 5×5：行为 query、列为 key，第一行仅首项 True，后四行全部 True。用 [-1,0,1] 码本和恒等投影，首尺度索引 2 产生 [1,4,1] 的全 1 输入；改变 2×2 目标图不应改变这些输入，首尺度改为索引 0 则变成全 −1。输入长度 4 与 mask 长度 5 的差来自另行提供的首尺度起始嵌入。",
+            "en": "The full mask is 5×5: query rows, key columns; only the first entry of row1 is True, while the other four rows are all True. With codebook [-1,0,1] and identity projections, first-scale index2 yields ones of shape [1,4,1]. Changing the 2×2 target leaves inputs unchanged; first-scale index0 yields minus ones. The separately supplied start embedding explains input length4 versus mask length5."
+          }
+        }
+      ]
     }
   ]
 }
