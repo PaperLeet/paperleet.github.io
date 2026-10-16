@@ -154,3 +154,20 @@ and its229-file archive retain original/follow-up frontend contexts,all process
 receipts,exports and complete real VM results. Main adoption uses a non-force
 push;remote Quality,actual Pages and live-byte checks are separate gates. The last
 positively verified site version remains0.30 atb1a1631a.
+
+
+## Final main synchronization
+
+Pre-push revalidation finds newer main06a20555 and stops before pushing. Its six
+files add case-insensitive library topic filtering with derived canonical option
+labels,shared pure matching helpers and two relevant checks. No backend/catalog,
+Python/library,original problem,dependency or lock input changes. The merge
+preserves all29 upstream files and all46 library hashes/161 frozen exports.
+Catalog-workbench/library-navigation checks and both complete builds pass again.
+Latest default and hosted Pages builds retain three initial JS assets:
+404162 raw/130579 gzip and405564 raw/131014 gzip bytes,within original budgets.
+
+[Final synchronization evidence](../../packages/stridetorch/benchmarks/results/iteration-31-main-sync.json)
+and its13-file archive preserve the guard,merge scope,static React review,
+unchanged mathematical inputs and actual check/build receipts. The original full
+Python/native/WASM proof remains applicable;no case,test or budget is removed.

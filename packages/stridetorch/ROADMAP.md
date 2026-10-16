@@ -480,6 +480,9 @@ source-commit deployment was superseded and is not claimed as published.
   unchanged;backend catalog changes trigger a full infrastructure rerun and a
   rebuilt current application wheel. Non-force main adoption and actual remote
   deployment/live remain separately tracked.
+- Final main06a20555 adds only topic-filter UI/helpers/checks/docs. Pre-push
+  revalidation stops safely,then all29 incoming files and46 source/161 export
+  hashes are preserved;targeted library checks and both builds pass again.
 
 ## Next implementation areas
 
