@@ -1,9 +1,10 @@
 import {parsePostMarkdown} from './postExcerpt';
 
 type Text={zh:string;en:string};
-export type CommunityOutlineId='papers'|'implementation'|'questions'|'career'|'lounge';
+export type CommunityOutlineId='papers'|'implementation'|'questions'|'career'|'lounge'|'solution';
 export type CommunityOutline={name:Text;sections:readonly Text[]};
 export const communityOutlines:Record<CommunityOutlineId,CommunityOutline>= {
+ solution:{name:{zh:'题解',en:'Solution'},sections:[{zh:'解题思路与推导',en:'Approach and derivation'},{zh:'关键实现',en:'Key implementation'},{zh:'时间与空间复杂度',en:'Time and space complexity'},{zh:'边界情况与验证',en:'Edge cases and validation'}]},
  papers:{name:{zh:'论文讨论',en:'Paper discussion'},sections:[{zh:'我关注的问题',en:'The question I am exploring'},{zh:'论文中的依据',en:'Evidence in the paper'},{zh:'我的理解与验证',en:'My understanding and checks'},{zh:'想请大家讨论的地方',en:'What I would like to discuss'}]},
  implementation:{name:{zh:'实现与复现',en:'Implementation & reproduction'},sections:[{zh:'目标与参考方法',en:'Goal and reference method'},{zh:'最小实现与设置',en:'Minimal implementation and setup'},{zh:'观察结果与差异',en:'Observed results and differences'},{zh:'已尝试的排查',en:'Checks I have tried'}]},
  questions:{name:{zh:'问题求助',en:'Help with a question'},sections:[{zh:'问题背景与目标',en:'Context and goal'},{zh:'预期行为',en:'Expected behavior'},{zh:'实际结果与最小案例',en:'Actual result and minimal example'},{zh:'已尝试的方法',en:'What I have tried'}]},

@@ -4,6 +4,12 @@ import type {CommunityOutline,CommunityOutlineId} from './communityWriting';
 
 type Text={zh:string;en:string};
 const prompts:Record<CommunityOutlineId,readonly Text[]>={
+ solution:[
+  {zh:'从输入输出和核心公式开始，解释为什么这种方法能解决本题。',en:'Start from the input/output contract and key equations, and explain why the method solves this exercise.'},
+  {zh:'给出关键代码与张量形状，说明容易出错的索引、掩码或数值处理。',en:'Include key code and tensor shapes. Explain tricky indices, masks or numerical handling.'},
+  {zh:'定义规模变量，区分时间、额外空间和中间张量的开销。',en:'Define the size variables and distinguish runtime, extra space and intermediate tensor costs.'},
+  {zh:'说明你验证过的边界输入与结果；测试通过不等于对所有输入的正确性证明。',en:'Describe the edge cases and results you checked. Passing tests alone does not prove correctness for every input.'},
+ ],
  papers:[
   {zh:'指出你想理解的具体结论、公式或设计选择，让读者知道讨论的重点。',en:'Name the conclusion, equation or design choice you want to understand so readers can follow the question.'},
   {zh:'写出对应章节、公式编号或图表；区分作者的结论和你自己的推测。',en:'Cite the section, equation or figure. Separate the authors’ conclusions from your own interpretation.'},

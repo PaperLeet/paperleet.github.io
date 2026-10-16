@@ -23,7 +23,7 @@ try{
  const drafts=await server.ssrLoadModule('/src/communityDrafts.ts');
  const receipts=await server.ssrLoadModule('/src/publicationRequests.ts');
  assert.equal(loads,0,'Reading the feed must not load optional writing prompts');
- assert.equal(Object.keys(model.communityOutlines).length,5);
+ assert.deepEqual(Object.keys(model.communityOutlines).sort(),["career","implementation","lounge","papers","questions","solution"]);
  for(const id of Object.keys(model.communityOutlines))for(const en of [true,false]){
   const text=model.communityOutlineText(id,en);assert(!model.hasCommunityDraftContent(text));assert(model.hasCommunityDraftContent(text+'My actual observations.'));
   const result=model.insertCommunityOutline('',id,en);assert(result.ok);
@@ -57,7 +57,7 @@ try{
  await compose();assert.equal(loads,0);await edit(field('Title'),'A real question');const before=drafts.readPostDraft(sessionStorage,owner,'general');await open();assert.equal(loads,1);assert.deepEqual(drafts.readPostDraft(sessionStorage,owner,'general'),before);assert.equal(requests.length,0);
  for(const language of ['en','zh']){
   await click(button(language==='en'?'English':'Chinese'));
-  for(const category of Object.keys(model.communityOutlines)){
+  for(const category of ["papers","implementation","questions","career","lounge"]){
    await edit(field(language==='en'?'Category':'版块'),category);const items=[...document.querySelectorAll('.community-writing-panel li')];assert.equal(items.length,4);assert.deepEqual(items.map(node=>node.querySelector('b').textContent.replace(/^\d\. /,'')),model.communityOutlines[category].sections.map(section=>section[language]));assert(items.every(node=>node.querySelector('p').textContent.length>15));
   }
  }
@@ -78,5 +78,5 @@ try{
  await stop();location.hash='#/community?category=questions';owner='writer-failure';account.user=user();await compose();await edit(body(),'Keep this exact draft');const saved=body(),savedBody=saved.value;globalThis.__communityWriting.fail=true;await open();assert(document.querySelector('.community-writing-failure'));assert(caught>0);assert.equal(body(),saved);assert.equal(body().value,savedBody);globalThis.__communityWriting.fail=false;await click(button('Retry writing prompts'));await settle(()=>document.querySelector('.community-writing-panel'));assert.equal(body(),saved);assert.equal(body().value,savedBody);
  await stop();topicId='architecture/attention';location.hash='#/community/problem/architecture/attention';await compose();assert.equal(body().value,'');assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').body,savedBody);
  await open();const storageDescriptor=Object.getOwnPropertyDescriptor(dom.window.Storage.prototype,'setItem');try{Object.defineProperty(dom.window.Storage.prototype,'setItem',{...storageDescriptor,value(){throw Error('Storage fixture unavailable');}});await click(button('Insert outline'));assert(body().value.includes('## '));assert(document.body.textContent.includes('This tab cannot save your draft'));}finally{Object.defineProperty(dom.window.Storage.prototype,'setItem',storageDescriptor);}
- console.log('PASS community writing: five bilingual deferred guides, real Markdown/Unicode/block safety, explicit insertion, exact guarded undo/focus, repeat protection, mounted preview, blank-outline publication guard, account/topic drafts, captured retries, legacy receipts and local prompt failure recovery');
+ console.log('PASS community writing: six bilingual deferred guides, real Markdown/Unicode/block safety, explicit insertion, exact guarded undo/focus, repeat protection, mounted preview, blank-outline publication guard, account/topic drafts, captured retries, legacy receipts and local prompt failure recovery');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

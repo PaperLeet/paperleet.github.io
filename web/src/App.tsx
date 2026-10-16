@@ -5,7 +5,7 @@ import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { Highlight } from "./SyntaxHighlight";
-import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
+import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, ProblemSolutions, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -475,7 +475,7 @@ function Workspace() {
     ["explanation", t("讲解", "Explanation")],
     ["lab", t("实验", "Lab")],
     ["notes", t("坑点", "Notes")],
-    ["solution", t("参考解", "Solution")],
+    ["solution", t("题解", "Solutions")],
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
@@ -580,6 +580,7 @@ function Workspace() {
       ) : communityPage ? (
         <Community
           route={id}
+          topics={problems.map(topicFromProblem)}
           topicId={communityTopicId}
           topic={communityProblem ? topicFromProblem(communityProblem) : undefined}
           catalogLoading={!problems.length && !loadError}
@@ -791,6 +792,7 @@ function Workspace() {
                   )
                 ) : tab === "solution" ? (
                   <section className="solution-panel">
+                    <div className="reference-solution">
                     <h2>{t("参考实现", "Reference implementation")}</h2>
                     <p>
                       {t(
@@ -817,6 +819,8 @@ function Workspace() {
                         </div>
                       )}
                     </details>
+                    </div>
+                    {hostedAppAvailable&&<ProblemSolutions key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)}/>}
                   </section>
                 ) : (
                   <>

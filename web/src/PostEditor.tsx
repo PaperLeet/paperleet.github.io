@@ -82,7 +82,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
       {post.interview&&<InterviewFields value={draft.interview||post.interview} onChange={interview=>edit({interview,category:'career'})} problems={modules} disabled={busy}/>}
       {catalogError&&<p role="status">{t('暂时无法读取关联练习，现有关联会保留。','Related modules could not load. Existing links are preserved.')} <button type="button" onClick={()=>setCatalogRetry(value=>value+1)}>{t('重试加载','Retry loading')}</button></p>}
-      <label>{t('版块','Category')}<select value={draft.category} disabled={busy||!!post.interview} onChange={e=>edit({category:e.target.value})}>
+      <label>{t('版块','Category')}<select value={draft.category} disabled={busy||!!post.interview||post.solution===true} onChange={e=>edit({category:e.target.value})}>
         {categories.map(([value,zh,en])=><option key={value} value={value}>{t(zh,en)}</option>)}
       </select></label>
       {draft.category==='papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl=>edit({paperUrl})} owner={owner} available={capabilities?.community_papers===true} disabled={busy} initialPaper={post.paper} onUseTitle={title=>edit({title:title.slice(0,180)})}/>}

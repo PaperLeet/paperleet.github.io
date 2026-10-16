@@ -51,7 +51,7 @@ import ProfileProgress from "./ProfileProgress";
 import ProfileAchievements from "./ProfileAchievements";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
-import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
+import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, solutionsHref, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
 import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
 import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft, writeReplyDraft, type ReplyDraft } from "./replyDrafts";
 import {
@@ -115,9 +115,10 @@ const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
 export const COMMUNITY_FEED_TIMEOUT = 20_000;
 type FeedFailure = {requestKey:string;kind:'timeout'}|{requestKey:string;kind:'request';message:string};
-function TopicContext({ topic, discussion = false }: {
+function TopicContext({ topic, discussion = false, solutions=false }: {
   topic: ProblemTopic;
   discussion?: boolean;
+  solutions?:boolean;
 }) {
   const { t, locale } = useI18n();
   return (
@@ -130,7 +131,7 @@ function TopicContext({ topic, discussion = false }: {
       </div>
       <div className="problem-discussion-links">
         {discussion && (
-          <a href={topicHref(topic.id)}>{t("查看题目讨论", "All module discussions")}</a>
+          <a href={solutions?solutionsHref(topic.id):topicHref(topic.id)}>{solutions?t("查看本题题解","All module solutions"):t("查看题目讨论", "All module discussions")}</a>
         )}
         {!topic.retired && (
           <a className="button subtle" href={practiceHref(topic.id)}>
@@ -143,7 +144,7 @@ function TopicContext({ topic, discussion = false }: {
 }
 function Category({ value }: { value: string }) {
   const { t } = useI18n();
-  const c = CATEGORIES.find((c) => c.id === value);
+  const c = value === "solutions" ? {zh:"题解",en:"Solution"} : CATEGORIES.find((c) => c.id === value);
   return (
     <span className="community-category">{c ? t(c.zh, c.en) : value}</span>
   );
@@ -244,13 +245,13 @@ function PostCard({ post, activity, returnTo, resumed, showActivity }: { post: P
             <CommunityAuthor user={post.author} avatar={false}/>
             <span>·</span>
             <DateLabel value={post.created_at} />
-            <Category value={post.category} />
+            <Category value={post.solution ? "solutions" : post.category} />
           </div>
           <a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
             {post.title}
           </a>
           {post.problem && (
-            <a className="post-problem-link" href={topicHref(post.problem.id)}>
+            <a className="post-problem-link" href={post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id)}>
               <Code2 size={13} />{topicTitle(post.problem, locale === "en")}
             </a>
           )}
@@ -269,6 +270,9 @@ function Composer({
   owner,
   scope,
   papersAvailable,
+  solution=false,
+  topics=[],
+  returnTo,
   onDraftChange,
   onClose,
 }: {
@@ -277,14 +281,17 @@ function Composer({
   owner: string;
   scope: string;
   papersAvailable: boolean;
+  solution?:boolean;
+  topics?:ProblemTopic[];
+  returnTo?:string;
   onDraftChange: (available: boolean) => void;
   onClose: () => void;
 }) {
   const { t, locale } = useI18n();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
-  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
+  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading&&(!solution||capabilities?.community_solutions===true);
   const anonymousAvailable=capabilities?.community_anonymous_posts===true;
-  const initialCategory = category || (topic ? "questions" : "papers");
+  const initialCategory = solution ? "implementation" : category || (topic ? "questions" : "papers");
   const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
   const currentDraft = useRef(draft);
   const currentActor=useRef(user?.id);currentActor.current=user?.id;
@@ -339,8 +346,8 @@ function Composer({
     setWritingFocus({opener,href:location.href,source:operation.before,...operation.selection});
   }
   const contentReady=hasCommunityDraftContent(body);
-  const pendingMatches=!!publication&&samePublication(publication.receipt,postPublication(draft,topic?.id));
-  const outlineCategory=(Object.hasOwn(communityOutlines,board)?board:'questions') as CommunityOutlineId;
+  const pendingMatches=!!publication&&samePublication(publication.receipt,postPublication(draft,topic?.id,solution));
+  const outlineCategory=(solution?'solution':Object.hasOwn(communityOutlines,board)?board:'questions') as CommunityOutlineId;
   const draftExists = hasDraft(draft);
   const draftMessage = saved === false
     ? t("当前标签页无法保存草稿，离开前请复制内容。", "This tab cannot save your draft. Copy the text before leaving.")
@@ -356,7 +363,8 @@ function Composer({
   async function publish(previous?:PublicationReceipt) {
     if (busy || publishing.current || !canPublish) return;
     const submitted = { ...currentDraft.current };
-    previous ||= publication&&samePublication(publication.receipt,postPublication(submitted,topic?.id))?publication.receipt:undefined;
+    previous ||= publication&&samePublication(publication.receipt,postPublication(submitted,topic?.id,solution))?publication.receipt:undefined;
+    if(solution&&!previous&&!topic&&!topics.some(row=>row.id===submitted.problemId&&!row.retired)){setError(t("请选择题解对应的题目。","Choose the practice module for your solution."));return;}
     if(!previous&&!hasCommunityDraftContent(submitted.body)){setError(t('提纲已准备好，请补充自己的问题、观察或思考后再发布。','Your outline is ready. Add your own question, observations or thoughts before publishing.'));return;}
     const paperUrl = previous ? previous.payload.paper_url : (submitted.category === 'papers' ? submitted.paperUrl : undefined);
     if (paperUrl && !papersAvailable) {
@@ -373,16 +381,17 @@ function Composer({
     publishing.current = true;
     setError("");
     try {
-      const pending = preparePublication(tabDraftStorage(),owner,'post',scope,previous?.payload || postPublication(submitted,topic?.id),previous);
+      const pending = preparePublication(tabDraftStorage(),owner,'post',scope,previous?.payload || postPublication(submitted,topic?.id,solution),previous);
       setPublication(pending);
       const post = await socialApi<Post>(pending.receipt.payload.anonymous===true?"community/posts/anonymous":"community/posts", {
         ...pending.receipt.payload,
         request_id: pending.receipt.requestId,
         expected_user_id: owner,
       });
+      if(solution&&(post.solution!==true||post.problem_id!==pending.receipt.payload.problem_id))throw Error(t("暂时无法确认题解的题目关联，草稿已保留，请重试。","Could not confirm the linked solution. Your draft is kept; please retry."));
       clearPublication(tabDraftStorage(),pending.receipt);
-      if (samePublication(pending.receipt,postPublication(submitted,topic?.id))) clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
-      if (mounted.current && location.hash === submittedRoute) location.hash = postHref(post.id, submittedRoute);
+      if (samePublication(pending.receipt,postPublication(submitted,topic?.id,solution))) clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
+      if (mounted.current && location.hash === submittedRoute) location.hash = postHref(post.id, returnTo||submittedRoute);
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
       if (affiliationRequired(e)) void refreshAccount().catch(() => {});
@@ -394,7 +403,7 @@ function Composer({
   return (
     <section className="social-panel community-composer">
       <div className="panel-title">
-        <h2>{board === 'papers' ? t('发起论文讨论', 'Discuss a paper') : t("发布帖子", "Start a discussion")}</h2>
+        <h2>{solution?t("发布题解","Share a solution"):board === 'papers' ? t('发起论文讨论', 'Discuss a paper') : t("发布帖子", "Start a discussion")}</h2>
         <button
           className="icon-button"
           aria-label={t("关闭发帖", "Close composer")}
@@ -426,7 +435,7 @@ function Composer({
         </div>
       )}
       <PublishingAffiliationNotice/>
-      <PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id)} busy={busy} disabled={!canPublish} onRetry={() => void publish(publication?.receipt)} />
+      <PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id,solution)} busy={busy} disabled={!canPublish} onRetry={() => void publish(publication?.receipt)} />
       <form
         className="social-form"
         onSubmit={(e) => {
@@ -435,9 +444,10 @@ function Composer({
         }}
       >
         <PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
+        {solution&&!topic&&<label>{t("关联题目","Practice module")}<select required value={draft.problemId||""} disabled={busy} onChange={event=>edit({problemId:event.target.value})}><option value="">{t("选择一道题目","Choose a practice module")}</option>{topics.filter(row=>!row.retired).map(row=><option key={row.id} value={row.id}>{topicTitle(row,locale==="en")}</option>)}</select></label>}
         <label>
           {t("版块", "Category")}
-          <select value={board} disabled={busy} onChange={(e) => edit({ category: e.target.value })}>
+          <select value={board} disabled={busy||solution} onChange={(e) => edit({ category: e.target.value })}>
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
                 {t(c.zh, c.en)}
@@ -454,7 +464,7 @@ function Composer({
             minLength={3}
             value={title}
             disabled={busy}
-            placeholder={board === 'papers' ? t('这篇论文的哪个观点值得讨论？', 'What would you like to discuss about this paper?') : t("你想讨论什么？", "What would you like to discuss?")}
+            placeholder={solution?t("例如：推导思路、关键实现与复杂度分析","For example: derivation, implementation and complexity"):board === 'papers' ? t('这篇论文的哪个观点值得讨论？', 'What would you like to discuss about this paper?') : t("你想讨论什么？", "What would you like to discuss?")}
             onChange={(e) => edit({ title: e.target.value })}
           />
         </label>
@@ -463,7 +473,7 @@ function Composer({
         {writingNotice&&<p className="community-writing-hint" role="status">{writingNotice}</p>}
         <MarkdownEditor submitShortcut value={body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
           textareaRef={editor} describedBy={body.trim()&&!contentReady&&!pendingMatches?writingHint:undefined} label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} busy={busy}
-          placeholder={board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
+          placeholder={solution?t('分享解题思路、关键代码、复杂度与边界情况…','Explain your approach, key code, complexity and edge cases…'):board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
         {body.trim()&&!contentReady&&!pendingMatches&&<p id={writingHint} className="community-writing-hint" role="status">{t('提纲已准备好。补充自己的问题、观察或思考后，就可以发布。','Your outline is ready. Add your own question, observations or thoughts to publish.')}</p>}
         <PublishingRules action="post" />
         <div className="form-footer">
@@ -474,9 +484,9 @@ function Composer({
             )}
             {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
-          <button className="button" disabled={busy || !canPublish || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
+          <button className="button" disabled={busy || !canPublish || solution&&!topic&&!topics.some(row=>row.id===draft.problemId&&!row.retired) || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
-            {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
+            {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id,solution)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>
         </div>
       </form>
@@ -491,21 +501,30 @@ type CommunityProps = {
   catalogLoading?: boolean;
   catalogError?: string;
   reloadCatalog?: () => void;
+  topics?:ProblemTopic[];
+  embedded?:boolean;
 };
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
   return postId ? (
     <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} />
   ) : (
-    <CommunityFeed key={`${scope.topicId || "all"}:${user?.id || "guest"}`} route={route} {...scope} />
+    <CommunityFeed key={`${scope.topicId || "all"}:${readCommunityFeed(route||"")?.state.solutions?"solutions":"posts"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
 }
-function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog }: Omit<CommunityProps, "postId">) {
+export function ProblemSolutions({topic}:{topic:ProblemTopic}) {
+  return <Community embedded topic={topic} topicId={topic.id} route={solutionsHref(topic.id)}/>;
+}
+function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
   const { user, capabilities, loading: accountLoading } = useAccount();
-  const draftScope = topicId || "general";
+  const solutions=embedded||readCommunityFeed(route||"")?.state.solutions===true;
+  const solutionAvailable=capabilities?.community_solutions===true;
+  const solutionUnavailable=solutions&&!accountLoading&&!solutionAvailable;
+  const [localFilters,setLocalFilters]=useState<CommunityFeedState>(()=>({...emptyCommunityFeed(),solutions:true}));
+  const draftScope = (topicId || "general")+(solutions?":solutions":"");
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
-  const filters = readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
+  const filters = embedded?localFilters:readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
   const { category, following, search, page, sort } = filters;
   const saved = filters.saved === true;
   const sortingAvailable = capabilities?.community_feed_sorting === true;
@@ -515,7 +534,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const waitingForSavedAccount = saved && accountLoading;
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
-  const requestKey = JSON.stringify([topicId, user?.id, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
+  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
   const boards = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
@@ -526,9 +545,10 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
-  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable)&&!sortingUnavailable);
+  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable)&&!sortingUnavailable&&!solutionUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
-    location.hash = communityFeedHref(topicId, { ...filters, page: 1, ...change });
+    const next={...filters,page:1,...change,...(embedded?{solutions:true}:{})};
+    if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
   }
   useEffect(() => {
     const board = boards.current;
@@ -556,11 +576,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       ...(sort ? {sort} : {}),
       following: following ? "true" : "false",
       ...(saved ? {saved: 'true'} : {}),
+      ...(solutions ? {solutions:"true"} : {}),
       offset: String(offset),
       limit: String(PAGE_SIZE),
       ...(topicId ? { problem_id: topicId } : {}),
     });
-    if (waitingForSavedAccount || (sort && accountLoading)) return;
+    if (waitingForSavedAccount || (sort && accountLoading) || (solutions && accountLoading)) return;
+    if(solutionUnavailable){setData({items:[],total:0,requestKey});setLoading(false);return;}
     if (sortingUnavailable) { setData({items:[],total:0,requestKey});setLoading(false);return; }
     if ((saved && !savedGate) || ((following || saved) && !user)) {
       setData({ items: [], total: 0, requestKey });
@@ -572,14 +594,15 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       live=false;controller.abort();
       setFailure({requestKey,kind:'timeout'});setLoading(false);
     },COMMUNITY_FEED_TIMEOUT);
-    socialApi<Page<Post> & {sort?:string}>(`community/posts?${params}`,undefined,controller.signal)
+    socialApi<Page<Post> & {sort?:string;solutions?:boolean}>(`community/posts?${params}`,undefined,controller.signal)
       .then((data) => {
         if (!live) return;
-        if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort)) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
+        if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort) || (solutions && (data.solutions!==true || data.items.some(post=>post.solution!==true || !post.problem_id || (topicId && post.problem_id!==topicId))))) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
         const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
         if (page > lastPage) {
           redirected = true;
-          location.replace(communityFeedHref(topicId, { category, following, ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), search, page: lastPage }));
+          if(embedded){setLocalFilters(previous=>({...previous,page:lastPage}));return;}
+          location.replace(communityFeedHref(topicId, { category, following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), search, page: lastPage }));
           return;
         }
         setData({ ...data, requestKey });
@@ -595,36 +618,38 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     return () => {
       live = false; clearTimeout(timer); controller.abort();
     };
-  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable]);
+  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded]);
+  const FeedRoot=embedded?"section":"main";
   return (
-    <main ref={reading.container} className="social-page community-page">
-      {topicId && (
+    <FeedRoot ref={reading.container} className={embedded?"problem-solutions community-page":"social-page community-page"}>
+      {!embedded&&topicId && (
         <a className="social-back" href="#/community">
           <ArrowLeft size={14} />{t("所有社区讨论", "All community discussions")}
         </a>
       )}
       <div className="community-layout">
-        <aside className="community-sidebar">
+        {!embedded&&<aside className="community-sidebar">
           <div className="social-page-heading community-heading">
-            <h1>{topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
+            <h1>{solutions?t("社区题解","Community solutions"):topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
           </div>
           <div ref={boards} className="community-board-scroll">
             <section className="social-panel board-list">
               <span className="sidebar-label">{t("版块", "Boards")}</span>
               <button
-                className={!category ? "selected" : ""}
-                aria-pressed={!category}
-                onClick={() => choose({ category: '' })}
+                className={!category&&!solutions ? "selected" : ""}
+                aria-pressed={!category&&!solutions}
+                onClick={() => choose({ category: '',solutions:false })}
               >
                 <MessagesSquare size={17} />
                 {t("所有讨论", "All discussions")}
               </button>
+              <button type="button" className={solutions?"selected":""} aria-pressed={solutions} onClick={()=>choose({solutions:true,category:""})}><Code2 size={17}/>{t("题解","Solutions")}</button>
               {CATEGORIES.map((c) => (
                 <button
                   key={c.id}
-                  className={category === c.id ? "selected" : ""}
-                  aria-pressed={category === c.id}
-                  onClick={() => choose({ category: c.id })}
+                  className={!solutions&&category === c.id ? "selected" : ""}
+                  aria-pressed={!solutions&&category === c.id}
+                  onClick={() => choose({ category: c.id,solutions:false })}
                 >
                   <c.icon size={17} />
                   {t(c.zh, c.en)}
@@ -635,7 +660,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           {user && (!topicId || topic) ? (
             <button className="button community-compose-button" onClick={() => setCompose(true)}>
               <Plus size={16} />
-              {draftAvailable ? t("继续草稿", "Resume draft") : category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
+              {draftAvailable ? t("继续草稿", "Resume draft") : solutions?t("发布题解","Share a solution"):category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
             </button>
           ) : !user ? (
             <a className="button community-compose-button" href={signInHref(returnTo)}>
@@ -643,8 +668,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               {t("登录发帖", "Sign in to post")}
             </a>
           ) : null}
-        </aside>
+        </aside>}
         <section className="community-feed">
+          {embedded&&<div className="problem-solutions-heading"><div><h2>{t("社区题解","Community solutions")}</h2><p>{t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own.")}</p></div><div>{user?<button type="button" className="button" disabled={accountLoading||!solutionAvailable} onClick={()=>setCompose(true)}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):t("发布题解","Share a solution")}</button>:<a className="button" href={signInHref(returnTo)}>{t("登录写题解","Sign in to contribute")}</a>}<a href={returnTo}>{t("全部题解","All solutions")}<ArrowRight size={14}/></a></div></div>}
           <div className="community-feed-toolbar">
             <div className="social-tabs compact">
               <button
@@ -674,7 +700,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </select></label>}
             </div>
           </div>
-          {topicId && (
+          {!embedded&&topicId && (
             catalogLoading ? <Loading /> : catalogError ? (
               <div className="feed-error">
                 <SocialNotice error={catalogError} />
@@ -685,11 +711,11 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} />
           )}
           {compose && user && (
-            <Composer category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
+            <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
           )}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           <div className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={t('讨论列表','Discussion feed')}>
-            {sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
+            {solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
                 <button
@@ -726,7 +752,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                           "关注动态会显示在这里",
                           "Your following feed starts here",
                         )
-                      : topicId ? t("还没有这道题的讨论", "No discussions for this module yet") : t("这里还没有帖子", "No discussions yet")
+                      : solutions?t("还没有题解，分享第一篇吧","No solutions yet. Share the first approach."):topicId ? t("还没有这道题的讨论", "No discussions for this module yet") : t("这里还没有帖子", "No discussions yet")
                 }
               >
                 <p>
@@ -737,18 +763,18 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                           "关注其他研究者，查看他们发布的帖子。",
                           "Follow other members to see their posts here.",
                         )
-                      : t(
+                      : solutions?t("写下你的解题思路、关键代码和边界情况，帮助大家一起理解。","Share your approach, key code and edge cases to help others learn."):t(
                           topicId ? "可以分享你对公式、实现或测试结果的疑问。" : "分享一篇论文或一个实现问题，开启第一个讨论。",
                           topicId ? "Ask about the formulas, implementation, or test results." : "Share a paper or an implementation question to start the first discussion.",
                         )}
                 </p>
-                {(category || following || search) && <button className="button subtle" onClick={() => choose(emptyCommunityFeed())}>{t('清除筛选', 'Clear filters')}</button>}
+                {(category || following || search) && <button className="button subtle" onClick={() => choose({...emptyCommunityFeed(),...(solutions?{solutions:true}:{})})}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
               data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id}/>)
             )}
           </div>
-          {!pending && !error && !sortingUnavailable && (
+          {!pending && !error && !sortingUnavailable && !solutionUnavailable && (
             <Pagination
               offset={offset}
               total={data.total}
@@ -757,7 +783,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           )}
         </section>
       </div>
-    </main>
+    </FeedRoot>
   );
 }
 function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
@@ -946,7 +972,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
       );
       if (deleteTarget === "post") {
         if (mounted.current && location.hash === submittedRoute)
-          location.hash = returnTo || (post?.problem ? topicHref(post.problem.id) : '#/community');
+          location.hash = returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : '#/community');
       }
       else await refresh();
       setDeleteTarget(undefined);
@@ -958,9 +984,9 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
   }
   return (
     <main className="social-page discussion-page">
-      <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? topicHref(post.problem.id) : "#/community")}>
+      <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
-        {returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
+        {returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>
@@ -969,7 +995,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
         <Loading />
       ) : post ? (
         <>
-          {post.problem && <TopicContext topic={post.problem} discussion />}
+          {post.problem && <TopicContext topic={post.problem} discussion solutions={post.solution}/>}
           {postEdited&&<p role="status">{t('帖子修改已保存。','Post changes saved.')}</p>}
           {editingPost&&canEditPost(post,owner)&&<PostEditor post={post} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={closePostEditing} onSaved={confirmed=>{
             setPost(previous=>previous&&previous.id===confirmed.id?{...confirmed,replies:previous.replies}:previous);
@@ -977,7 +1003,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
           }}/>}
           <article className="social-panel discussion-post">
             <div className="discussion-heading">
-              <Category value={post.category} />
+              <Category value={post.solution ? "solutions" : post.category} />
               <h1>{post.title}</h1>
               <div className="discussion-author">
                 <CommunityAuthor user={post.author}/>

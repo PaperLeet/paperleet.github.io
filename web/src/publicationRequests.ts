@@ -14,7 +14,7 @@ export const publicationKey = (owner:string,kind:PublicationKind,scope:string) =
 export const publicationSignature = (payload:PublicationPayload) => JSON.stringify(payload,Object.keys(payload).sort());
 // This is also used during render. Invalid input stays visible in the draft;
 // preparePublication rejects it before a request can be sent.
-export const postPublication = (draft:PostDraft,topic?:string):PublicationPayload => ({title:draft.title.trim(),body:draft.body.trim(),category:draft.category,problem_id:topic || null,...(draft.anonymous?{anonymous:true}:{}),
+export const postPublication = (draft:PostDraft,topic?:string,solution=false):PublicationPayload => ({title:draft.title.trim(),body:draft.body.trim(),category:solution?'implementation':draft.category,problem_id:topic || (solution?draft.problemId:null) || null,...(solution?{solution:true}:{}),...(draft.anonymous?{anonymous:true}:{}),
   ...(draft.category==='papers'&&draft.paperUrl?.trim()?{paper_url:canonicalArxivUrl(draft.paperUrl)||draft.paperUrl}:{})});
 export const replyPublication = (draft:ReplyDraft):PublicationPayload => ({body:draft.body.trim(),parent_id:draft.parentId || null});
 export const samePublication = (receipt:PublicationReceipt,payload:PublicationPayload) => publicationSignature(receipt.payload)===publicationSignature(payload);
@@ -23,7 +23,8 @@ function valid(receipt:PublicationReceipt,owner:string,kind:PublicationKind,scop
   const p=receipt.payload;
   if(!p || typeof p!=='object' || Array.isArray(p) || typeof p.body!=='string' || !p.body.trim() || p.body.length>(kind==='reply'?10000:20000))return false;
   if(Object.hasOwn(p,'anonymous')&&(kind==='reply'||p.anonymous!==true))return false;
-  const keys=Object.keys(p).filter(key=>key!=='anonymous').sort().join(',');
+  if(Object.hasOwn(p,'solution')&&(kind!=='post'||p.solution!==true||p.category!=='implementation'||typeof p.problem_id!=='string'||!moduleId.test(p.problem_id)))return false;
+  const keys=Object.keys(p).filter(key=>key!=='anonymous'&&key!=='solution').sort().join(',');
   if(kind==='interview'){
     if(keys!=='body,category,interview,problem_id,title'||scope!=='general'||p.category!=='career'||p.problem_id!==null||typeof p.title!=='string'||!p.title.trim()||p.title.length>180||typeof p.interview!=='string'||p.interview.length>10000)return false;
     try{return !!readInterviewDetails(JSON.parse(p.interview));}catch{return false;}
@@ -31,7 +32,7 @@ function valid(receipt:PublicationReceipt,owner:string,kind:PublicationKind,scop
   return kind==='post' ? (keys==='body,category,problem_id,title'||keys==='body,category,paper_url,problem_id,title') && typeof p.title==='string' && !!p.title.trim() && p.title.length<=180
     && typeof p.category==='string' && ['papers','implementation','questions','career','lounge'].includes(p.category)
     && (!Object.hasOwn(p,'paper_url') || p.paper_url===null || (p.category==='papers' && typeof p.paper_url==='string' && canonicalArxivUrl(p.paper_url)===p.paper_url))
-    && (scope==='general'?p.problem_id===null:moduleId.test(scope)&&p.problem_id===scope)
+    && (p.solution===true ? scope==='general:solutions'||scope===p.problem_id+':solutions' : scope==='general'?p.problem_id===null:moduleId.test(scope)&&p.problem_id===scope)
     : keys==='body,parent_id' && token.test(scope) && (p.parent_id===null || typeof p.parent_id==='string' && token.test(p.parent_id));
 }
 export function readPublication(storage:DraftStorage|undefined,owner:string,kind:PublicationKind,scope:string):PendingPublication|undefined {

@@ -1458,13 +1458,13 @@ h3 {
 .solution-panel h2 {
   margin-bottom: 12px;
 }
-.solution-panel > p {
+.reference-solution > p {
   color: var(--muted);
   font-size: var(--type-body);
   line-height: 1.9;
   margin-bottom: 22px;
 }
-.solution-panel summary {
+.reference-solution summary {
   display: flex;
   align-items: center;
   gap: 7px;
