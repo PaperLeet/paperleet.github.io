@@ -363,7 +363,7 @@ including both runtime profiles and their licenses. Version0.26 is positively
 verified on the site through that runtime-equivalent descendant; the original
 source commit's skipped deploy remains separately recorded.
 
-## Version 0.27 candidate
+## Version 0.27 milestone
 
 - First dense non-overlapping leaf gradients preserve parameter layout, with
   ordinary C/F fast paths and bounded general dense allocation. Gapped and
@@ -379,7 +379,13 @@ source commit's skipped deploy remains separately recorded.
   improves in these samples; external contiguous seed conversion to F/permuted
   layout costs more than the former incorrect C copy. Initial generic-layout
   and incorrectly labeled float32 first-copy trials remain in the audit trail.
-  Immutable export/full exported WASM/latest-main adoption remain gates.
+  Latest-main f445118a UI/docs/dependency changes are preserved; owned npm
+  dependencies isolate the runtime from external node_modules changes.
+- All7072 published immutable files stay unchanged;158 reachable exports are
+  added. Full exported WASM78/342 and27/841 independent contracts pass unchanged
+  budgets. Latest application distributions, complete frontend/security checks
+  and both actual build profiles pass. Main adoption uses non-force revalidation;
+  exact remote Quality and eligible Pages/live proof remain separate gates.
 
 ## Next implementation areas
 

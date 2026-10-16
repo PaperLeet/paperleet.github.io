@@ -95,7 +95,46 @@ and34 warnings in193.61s. Official `paperleet ci --budget 600` passes78 modules,
 10218 test executions, three repeats and342 mutants in127.54s, with no issues.
 These durations are budget gates, not controlled speed comparisons.
 
-The original reference/mutant/determinism/budget catalog,
-immutable export, exported WASM, latest application packaging/frontend checks and
-non-force main adoption are tracked with their actual process receipts. Exact
-remote Quality and eligible Pages/live verification remain separate gates.
+The integration merges latest main `f445118aa4b17f3029a8a076231516422c9d0ea0`,
+preserving all16 upstream UI/docs/dependency files byte-for-byte. These merges
+change no Python/runtime/test source, so the complete base/native source gates
+remain applicable. Both actual application distributions contain the same45
+core/license hashes as the independently installed wheel; public/private installed
+paths remain disjoint. The current application catalog/server files match.
+
+All7072 previously published immutable files remain unchanged. Export adds158
+reachable immutable files and freezes161 current catalog/detail/manifest/runtime
+files. Full actual exported WASM passes78/78 modules and342 mutants without any
+calibration/run/total budget violations, using CI's two independent processes.
+It takes289863ms on this runner; that duration is a budget gate, not a controlled
+comparison with earlier versions. Attention's exported VM additionally passes all
+27 maintained independent suites/841 contracts, with exact frozen suite hashes.
+The canonical source, harness, driver and all161 export hashes remain unchanged.
+
+The autograd payload is474542 raw bytes /109955 local gzip-estimate bytes,
+containing39 package Python modules, LICENSE/NOTICE and four compatibility
+facades. The schedules profile is37343 /11550 bytes, with three package modules,
+the licenses and four facades. Gzip estimates do not assert network compression.
+
+The first exported attempt used the script's default one-process configuration;
+it was explicitly stopped to align with CI's configured two processes and its
+partial log is retained. During the next attempt an external shared dependency
+target lost Pyodide; later child startups failed to import it. Its failed full
+report/log is retained. The owned worktree symlink was then replaced by its own
+`npm ci` tree, leaving the original target untouched. All14 Pyodide package files
+match the pre-interruption hashes exactly. The final full run succeeds using this
+independent dependency tree and upstream's locked KaTeX0.18.2.
+
+Complete frontend checks pass54 bilingual guides/162 prompts and the upstream
+math-renderer security checks. Default and actual hosted Pages-profile builds
+pass existing budgets: three initial JavaScript assets, respectively401875 raw /
+129843 gzip and403239 raw /130323 gzip bytes. Actual profile settings come from
+the observed repository variable. Logs retain ephemeral Vite startup/shutdown
+messages; every complete command/assertion returns0. No application browser
+visual QA is claimed.
+
+[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-27-integration-gates.json)
+and the212-file receipt archive retain the frozen exports, actual reports,
+dependency interruption/recovery and process receipts. Main adoption uses a
+non-force push after latest-ref revalidation. Exact remote Quality and eligible
+Pages/live verification are tracked separately from these successful local gates.
