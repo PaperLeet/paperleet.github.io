@@ -1,0 +1,11 @@
+# Continue learning after completing a course
+
+A completed introductory course offers another core module as its primary action, labeled as belonging to another paper. The shared recommendation policy resumes an unfinished draft first, otherwise choosing an unsolved core module. The original course review action and library context remain available. Explore all papers explicitly opens the unfiltered library. Ordinary paper review, incomplete courses and unresolved progress retain their previous behavior; a fully completed catalog offers review rather than inventing a new target.
+
+When a passing course result has no remaining recommendation in the current scope, it links to the completed course overview with the original library context. This requires all core course modules to be completed. A narrower search finishing one exercise cannot claim course completion. Interview preparation batches and paths retain their own completion destinations.
+
+Local validation includes the full frontend check chain, course/result route checks and TypeScript/public production build. The initial JavaScript graph is 395,520 bytes raw / 127,815 bytes gzip, within the existing limits. Checks cover partial and complete courses, recent drafts, exhausted catalogs, unresolved progress, ordinary papers, immutable progress/code/context, Chinese/English labels and interview-batch precedence.
+
+The actual in-app browser completed all six introductory reference implementations through the normal editor and Run tests controls: 41/41 tests. The final result led to the completed course and then Attention. Browser Back preserved the 6/6 course and its original filters. Explore all papers showed the complete 57-entry library; returning and reviewing retained the first module's 7/7 result and byte-exact source download. Reload retained the final module's 7/7 result and byte-exact source. English and Chinese 390px viewport checks had matching viewport/document widths, and console errors/warnings were empty. This is browser UI and viewport evidence, not a physical-device or cross-browser compatibility claim.
+
+The change adds no network requests, stored progress schema, grading rules or runtime operations. Browser practice remains local; no account submissions or community records were created by this verification.
