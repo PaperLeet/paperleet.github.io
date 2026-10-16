@@ -58,6 +58,7 @@ try {
   } else {
     const started = performance.now();
     const id = selection;
+    const independentContracts = [];
     const entry = catalog.find(p => p.id === id);
     assert(entry, `Unknown catalog module: ${id}`);
     const read = relative => {
@@ -129,13 +130,33 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
       if (id === 'architecture/attention') {
         // Run the independent NumPy-only model/checkpoint suite against the
         // exported library, including ordinary torch aliases in a real VM.
-        for (const suite of ['module_lifecycle', 'optimizer_lifecycle', 'conversion_modes', 'scheduler_lifecycle', 'nn_workflows', 'module_hooks', 'graph_lifecycle', 'tensor_hooks', 'numpy_inputs', 'construction', 'promotion', 'linear_wasm', 'arithmetic', 'ieee', 'batchnorm', 'groupnorm', 'classification', 'convolution', 'layout', 'shape_ops']) {
-          const testPath = `/judge/test_lightweight_${suite}.py`;
-          py.FS.writeFile(testPath, fs.readFileSync(path.join(web,
-            `../packages/stridetorch/tests/test_${suite}.py`), 'utf8'));
-          const exitCode = py.runPython(`__import__('pytest').main([
-            '${testPath}', '-q', '--noconftest', '-p', 'no:cacheprovider', '--import-mode=importlib'])`);
-          assert.equal(Number(exitCode), 0, `Standalone ${suite} contracts must pass on WASM`);
+        const contracts = path.join(web, '../packages/stridetorch/tests');
+        // Launcher/install contracts need host processes; every other maintained
+        // NumPy-only suite also runs against the actual exported VM library.
+        const suites = fs.readdirSync(contracts).filter(name =>
+          /^test_[a-z0-9_]+\.py$/.test(name) && name !== 'test_standalone.py').sort();
+        assert(suites.length, 'Independent WASM contracts must not be empty');
+        for (const suite of suites) {
+          const testPath = `/judge/test_lightweight_${suite}`;
+          const source = fs.readFileSync(path.join(contracts, suite), 'utf8');
+          py.FS.writeFile(testPath, source);
+          py.globals.set('library_contract_path', testPath);
+          const result = JSON.parse(py.runPython(`
+import pytest
+class _LibraryContractResults:
+    passed = 0
+    def pytest_runtest_logreport(self, report):
+        if report.when == 'call' and report.passed: self.passed += 1
+_library_contract_record = _LibraryContractResults()
+_library_contract_exit = pytest.main([
+    library_contract_path, '-q', '--noconftest', '-p', 'no:cacheprovider', '--import-mode=importlib'
+], plugins=[_library_contract_record])
+json.dumps(dict(exit_code=int(_library_contract_exit), passed=_library_contract_record.passed))
+`));
+          assert.equal(result.exit_code, 0, `Standalone ${suite} contracts must pass on WASM`);
+          assert(result.passed > 0, `Standalone ${suite} must execute contracts`);
+          independentContracts.push({suite, passed:result.passed,
+            source_sha256:createHash('sha256').update(source).digest('hex')});
         }
       }
       if (id === 'architecture/attention') py.runPython(`
@@ -202,6 +223,9 @@ for dtype in (np.float32,np.float64):
     }
     const result = {id, pyodide:py.version, numpy:'2.2.5', backend:runtime.backend,
       tests:report.tests.length, mutants:Object.keys(calibration.mutants_caught).length,
+      ...(independentContracts.length ? {independent_contracts:{
+        passed:independentContracts.reduce((total,suite) => total + suite.passed,0), suites:independentContracts,
+      }} : {}),
       packages:manifest.packages, bundle_url:entry.browser_judge.bundle_url,
       runtime_bundle_url:manifest.runtime_bundle_url, source_sha256:report.source_sha256,
       preparation_ms:Math.round(prepared-started), calibration_ms:Math.round(calibrated-prepared),
