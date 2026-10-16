@@ -128,8 +128,21 @@ remote budget/compatibility gates, not comparative timing evidence.
 completed its build, but the actual deploy action was skipped after main advanced.
 The successor `3c85b1783093be12ab079a713b581946fc00bfc2` changes only four UI/docs
 files; all45 core/resource hashes and161 frozen exports match byte-for-byte.
-Its Quality/eligible deployment/live verification is followed separately.
+Its actual [Quality38904656048](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38904656048)
+passed all four required jobs and
+[Pages38906085493](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38906085493)
+completed every actual deploy step successfully. Downloaded descendant reports
+pass native78/10218/342/three repeats in414.18s and exported WASM78/342/no budget
+violations in324561ms, with the same frozen26/821 independent suite hashes.
+All original per-module source hashes, inputs, counts, packages and budgets agree.
 [Remote quality evidence](../../packages/stridetorch/benchmarks/results/iteration-26-remote-quality.json)
 preserves the original reports and this distinction. The0.27 candidate addresses
 the broader leaf-gradient layout/ownership audit; full memory-format compatibility
-is not claimed. Main's deployed0.25 remains the last positively verified site.
+is not claimed.
+
+[Remote adoption and live evidence](../../packages/stridetorch/benchmarks/results/iteration-26-remote-adoption.json)
+and its13-file archive preserve the distinction between source and deployed
+commits. Frozen live verification succeeds for all78 decoded starters, current
+manifest/detail references and158 immutable payloads, including both exact
+runtime byte sequences and LICENSE/NOTICE. Version0.26 is now positively verified
+on the site through3c85b178, without treating the earlier skipped deploy as success.

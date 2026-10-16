@@ -376,7 +376,7 @@
     "source_files": 45,
     "exported_files": 161
   },
-  "descendant_status": "Following actualQuality38904656048 then eligiblePages/live;no publication inferred from workflow success alone",
+  "descendant_status": "ActualQuality38904656048 and Pages38906085493 succeeded;all frozen live assets verified. See iteration-26-remote-adoption.json for complete later evidence.",
   "archive": {
     "file": "iteration-26-remote-quality-harness.tar.gz",
     "files": 7,
@@ -391,5 +391,6 @@
     "direct-proof/chrome-contracts/plan.json": "2d54d4f611145630601dd8f3bcb98c65886fd151cd76aab20b92aed43f887e25",
     "descendant-3c85/equivalence.json": "8bac331bd931535cb48fae246c705d0ac7f344b6ce29d1de561ecb48a47aa726",
     "descendant-3c85/publication.json": "21f5e0284cf6b52e704ec7042f2f6c7713ec8f342e8bf185990f06a7c6979b0c"
-  }
+  },
+  "descendant_verification_report": "iteration-26-remote-adoption.json"
 }

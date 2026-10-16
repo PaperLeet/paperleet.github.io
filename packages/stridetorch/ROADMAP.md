@@ -357,8 +357,11 @@ Quality38903517940 passed all four required jobs:26803 base tests,78 original
 modules/342 mutants, and821 independent contracts in exported WASM. Pages built
 successfully but its deploy action was skipped after main advanced. Runtime and
 all161 frozen export hashes are identical on descendant3c85b178; its actual
-Quality/Pages/live verification is being followed separately. This is not yet
-positive evidence of0.26 site publication.
+Quality38904656048 and actual Pages38906085493 both passed. Frozen live checks
+verify78 decoded starters/manifests/details and all158 immutable payload bytes,
+including both runtime profiles and their licenses. Version0.26 is positively
+verified on the site through that runtime-equivalent descendant; the original
+source commit's skipped deploy remains separately recorded.
 
 ## Version 0.27 candidate
 
