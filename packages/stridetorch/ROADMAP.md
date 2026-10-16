@@ -494,7 +494,7 @@ source-commit deployment was superseded and is not claimed as published.
   with licenses. Pinned46 resources/161 exports and all receipts are retained in
   [remote evidence](benchmarks/results/iteration-31-remote-adoption.json).
 
-## Version0.32 core candidate validated
+## Version0.32 core and complete local integration validated
 
 - Cholesky selected lower/upper factors,batched/strided/empty layouts,real
   float32/64 VJP/JVP and reverse through primal/direction;complex inference.
@@ -507,8 +507,13 @@ source-commit deployment was superseded and is not claimed as published.
   Node/Chrome1128 checks in32 suites pass. Public/private ownership,aliases,
   checkpoint resume and independent uninstall pass. Source gzip grows1791bytes.
 - [Measurements and adoption boundary](../../docs/validation/torch-runtime-iteration-32.md)
-  retain all initial regressions/failed probes. Full original application gates
-  and non-force main adoption remain separate from core validation.
+  retain all initial regressions/failed probes. Original native78/10218/342/
+  three repeats146.10s and actual exported WASM78/342/1128 checks243138ms
+  pass within original budgets. Full frontend60 guides/180 prompts and both
+  builds pass;all7862 previous immutable assets remain unchanged and158 new
+  assets are reachable. No frontend/backend/dependency/lock edits accompany
+  this release. Non-force adoption and exact remote deployment are tracked
+  separately from these complete local gates.
 
 ## Next implementation areas
 

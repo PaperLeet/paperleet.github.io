@@ -1,8 +1,9 @@
-# StrideTorch 0.32 Cholesky candidate
+# StrideTorch 0.32 Cholesky factors
 
-This candidate adds `torch.linalg.cholesky(A, *, upper=False)` on the existing
-NumPy CPU/Pyodide backend. It is not yet adopted on main. The 0.31 release and its
-remote verification retain their own pinned source and export identities.
+This release adds `torch.linalg.cholesky(A, *, upper=False)` on the existing
+NumPy CPU/Pyodide backend. Complete local integration is verified below;
+remote Quality, actual deployment and live checks remain separate. The 0.31
+release retains its own pinned source/export identities and verified live state.
 
 The API follows the [official Cholesky contract](https://docs.pytorch.org/docs/2.14/generated/torch.linalg.cholesky.html).
 Native differentiation is checked against [PyTorch's primary implementation](https://github.com/pytorch/pytorch/blob/v2.14.0/torch/csrc/autograd/FunctionsManual.cpp#L2125).
@@ -98,3 +99,31 @@ source/tests, exact package hashes, all process receipts and all timing blocks.
 The autograd browser JSON contains41 package Python modules plus4 compatibility
 modules,521360 raw bytes and121635 local gzip estimate bytes. The schedules
 profile retains its small source closure and explicit unsupported-AD behavior.
+
+
+## Complete application integration
+
+The original78-case catalog passes native CI with10218 tests,342 mutants,three
+repeats and the original600s limit in146.10s. The actual exported runtime passes
+all78 cases/342 mutants under pinned Pyodide in243138ms at concurrency2,
+including1128 independent contracts across32 suites. No browser calibration,
+learner or total budget is exceeded; no original test,mutant or budget is removed.
+
+Full frontend checks pass60 maintained bilingual guides/180 prompts and the
+existing navigation/offline/editor/workspace contracts. Default and actual
+hosted Pages-profile builds each have three initial JS assets:404162 raw/130579
+gzip and405564 raw/131014 gzip bytes,within original budgets. No TSX,backend,
+judge/problem,dependency or lockfile edits accompany this release.
+
+All7862 previously published immutable assets from main b3b56a19 remain
+byte-identical. All158 new payloads are reachable;161 active payload/index
+files are frozen. Both profiles carry version0.32.0 and redistribution notices.
+Public/private distribution hashes agree on all47 resources;the application
+wheel/sdist also match current server/catalog bytes and preserve disjoint wheel
+ownership.
+
+[Application integration evidence](../../packages/stridetorch/benchmarks/results/iteration-32-integration.json)
+and its206-file archive retain actual full results,all gate receipts,exports,
+dependency identities and source hashes. Core source is5c5ed0f4;non-force main
+adoption revalidates ancestry and exact remote ref. The last positively verified
+live site remains0.31 atb3b56a19 until0.32's exact-source remote gates pass.
