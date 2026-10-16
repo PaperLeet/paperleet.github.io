@@ -3042,6 +3042,309 @@
           }
         }
       ]
+    },
+    {
+      "id": "diffusion/block_diffusion",
+      "source": "problems/diffusion/block_diffusion/README.md",
+      "functions": [
+        "block_diffusion_mask",
+        "block_diffusion_attention"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "双流 Block Diffusion 的四个注意力分区分别允许什么？同一块内可以看见未来 token 吗？",
+            "en": "Which dependencies belong in each quadrant of two-stream Block Diffusion attention, including later tokens within a block?"
+          },
+          "hint": {
+            "zh": "按 [noisy, clean] 排列行与列。noisy→noisy 只看同块，noisy→clean 只看更早的块；clean→noisy 全禁，clean→clean 看当前及更早块。同块内部是双向的，但 noisy 读取当前 clean 块会泄露监督目标。这是训练依赖掩码，不是完整离散去噪概率或采样器。",
+            "en": "Arrange both axes as [noisy, clean]. Noisy queries see their noisy block and strictly earlier clean blocks; clean queries see current/earlier clean blocks and no noisy keys. Within-block access is bidirectional. A current-block clean key would reveal the noisy query’s target. This exercise isolates training dependencies rather than the full diffusion sampler."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何把块索引变成布尔掩码，并区分 key 维、查询维和 value 宽度？",
+            "en": "How do block indices produce an allowed-position mask without confusing key normalization or value width?"
+          },
+          "hint": {
+            "zh": "令 b(i)=floor(i/block_size)，组合 ==、<、≤ 三种块关系和一个零分区，得到 True 表示允许的 [2L,2L] 布尔张量。QKᵀ 除以 sqrt(D)，禁用位置填 −∞，沿 key 轴 softmax 后乘 V，输出 [B,H,2L,Dv]。保留浮点精度、Q/K/V 梯度与输入值；末尾不足一块是本题教学扩展。",
+            "en": "Use local block indices and assemble equality, strictly-earlier, earlier-or-equal and zero quadrants into a Boolean [2L,2L] allowed mask. Scale QKᵀ by sqrt(D), mask forbidden logits, normalize over keys and multiply V to obtain [B,H,2L,Dv]. Preserve gradients and inputs. A partial final block is an explicit local extension."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "不用复制掩码实现，怎样验证无泄漏、块内双向性与注意力梯度？",
+            "en": "How can independent visible-key lists detect leakage, incorrect token causality and gradient mistakes?"
+          },
+          "hint": {
+            "zh": "取 L=5、块宽 2，noisy 查询 2 可见 key [2,3,5,6]。Q/K 为零、V 的标量值等于 key 索引时输出 4；每个可见 V 的导数为 1/4，禁用 V 的导数为零。逐 token 扰动还应验证单块双流隔离、块宽 1 的双流约定、非整块尾部及 D≠Dv；不能把它当成普通拼接序列的因果三角。",
+            "en": "With L=5 and block size 2, noisy query 2 sees keys [2,3,5,6]. Zero Q/K and scalar V equal to key indices give output 4, V derivatives 1/4 on those keys and zero elsewhere. Independently perturb tokens and check one-block stream isolation, block size 1, a partial tail and D≠Dv. Ordinary token causality over the concatenation is a different dependency graph."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion/daps",
+      "source": "problems/diffusion/daps/README.md",
+      "functions": [
+        "posterior_score",
+        "langevin_step",
+        "renoise"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DAPS 在哪里做测量条件化，为什么去噪估计不能在内层 MCMC 里不断重算？",
+            "en": "Where does DAPS apply measurement conditioning, and which estimate stays fixed during inner MCMC?"
+          },
+          "hint": {
+            "zh": "外层 ODE 提供 x0_hat，内层在 clean 空间拟合 N(x0_hat,r²I) 与测量似然的乘积，再围绕 MCMC 后的 clean 样本独立加噪到下一层。一次内层循环保持 x0_hat 固定；外层才重算。r 和 beta 都是标准差，局部高斯近似不等于已知全局数据先验。",
+            "en": "The outer ODE supplies x0_hat. Inner clean-space MCMC combines its local Gaussian approximation with the measurement likelihood, then independently re-noises the resulting clean sample. Keep x0_hat fixed within that loop and recompute it at the next outer level. Both r and beta are standard deviations; the local approximation is not a known global data prior."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "行向量 batch 下，如何实现后验 score、Langevin 更新和独立重新加噪？",
+            "en": "How do row-batched scores, Langevin noise and decoupled re-noising fit together?"
+          },
+          "hint": {
+            "zh": "预测测量用 x@Aᵀ，score=(x0_hat−x)/r²+(y−x@Aᵀ)@A/beta²，输出 [B,D]，不除以 B 或 D。Langevin 是 x+eta·score+sqrt(2eta)·noise；下一层是 x0+sigma_next·fresh_noise。调用方提供独立噪声。保持形状、精度、梯度和输入值，不隐式混合不同样本。",
+            "en": "Compute predicted measurements as x@Aᵀ and return (x0_hat−x)/r²+(y−x@Aᵀ)@A/beta² per sample, without batch/feature averaging. Update by eta times the score plus sqrt(2eta) noise; re-noise the clean result with sigma_next times fresh noise. The caller owns independent draws. Preserve shape, precision, differentiability and sample independence."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些确定性小例子能发现符号、方差和有限步长后验采样的误解？",
+            "en": "Which explicit-noise checks expose sign, variance and finite-step sampling errors?"
+          },
+          "hint": {
+            "zh": "一维 x=0、x0_hat=2、A=1、y=1、r=beta=1，score=3；eta=1/8、noise=2 时更新为 11/8，再用 sigma_next=1/4、fresh_noise=−2 得 7/8。用独立能量梯度检查 score，并测 eta=0、sigma_next=0 与不同 r/beta。该高斯的真方差为 1/2，但此步长 ULA 的平稳方差为 4/7；有限步长不能声称精确无偏采样。",
+            "en": "For scalar x=0, x0_hat=2, A=1, y=1 and r=beta=1, the score is 3. With eta=1/8 and noise=2, get 11/8; re-noising at sigma_next=1/4 with fresh noise −2 gives 7/8. Check an independent energy gradient, zero endpoints and unequal r/beta. The true conditional variance is 1/2, while stable ULA at this step size has stationary variance 4/7, so finite-step sampling is biased."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/svdquant",
+      "source": "problems/finetuning/svdquant/README.md",
+      "functions": [
+        "smooth_inputs",
+        "split_weight",
+        "svdquant_linear"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "平滑与高精度低秩分支分别搬走什么误差？为什么先量化完整权重再加低秩项不对？",
+            "en": "What do smoothing and the high-precision low-rank branch address, and which weight branch is quantized?"
+          },
+          "hint": {
+            "zh": "在本题 x[B,M]、W[M,N] 布局下，xs=x/scale，Ws=scale[:,None]·W，乘积保持不变。对 Ws 作低秩分解，把主成分留在高精度分支，只量化剩余 R。输出 (xs·L1)·L2+Q(xs)·Q(R)；高精度分支仍读取未量化 xs。这与量化全 Ws 后再重复叠加主成分不同。",
+            "en": "For x[B,M] and W[M,N], divide activation channels and multiply weight rows by the same positive scale. Split the smoothed weight into a dominant low-rank component and residual. Evaluate (xs·L1)·L2+Q(xs)·Q(R), keeping xs unquantized in the high-precision branch. Quantizing the full smoothed weight would include the retained component again."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "截断 SVD 的形状、奇异值和本题 fake quantizer 应怎样处理？",
+            "en": "Which factor shapes, singular values and fake-quantization conventions define the local implementation?"
+          },
+          "hint": {
+            "zh": "可取 L1=U[:,:r]·S[:r]、L2=Vh[:r]，R=Ws−L1·L2。比较乘积，不要求奇异向量符号固定。支持 r=0 与满秩；Q 使用每个 tensor 一个对称 INT 网格，qmax=2^(bits−1)−1，round ties-to-even，零输入映回零。输入浮点类型就是这里的高精度；SVD/舍入梯度不在约定内。",
+            "en": "One factorization is U[:,:r] scaled by its singular values and Vh[:r], with residual Ws−L1·L2. Compare products rather than arbitrary vector signs. Support zero and full rank. The supplied per-tensor symmetric INT fake quantizer uses qmax=2^(bits−1)−1, ties-to-even rounding and a zero special case. High precision means the input float dtype; SVD/rounding gradients are outside scope."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用小矩阵证明高精度分支保留了激活，而不是只观察误差曲线？",
+            "en": "Which small matrix exposes accidentally quantized high-precision activations?"
+          },
+          "hint": {
+            "zh": "取 x=[1,3]、W=diag(6,2)、scale=[2,1]、rank=1、bits=2，正确两分支输出 [6,6]；若高精度分支也用 Q(xs)，第一项会丢失。再检查非方阵的行缩放、秩零/满秩、重复奇异值、零张量与输入不变。任意矩阵的量化误差不保证随 rank 单调改善；本题不证明 FP4、打包存储或融合 kernel 的速度收益。",
+            "en": "Use x=[1,3], W=diag(6,2), scale=[2,1], rank=1 and bits=2: expect [6,6]. Quantizing xs in the high-precision branch loses the first component. Also check nonsquare row scaling, zero/full rank, repeated singular values, zero tensors and immutability. Error need not improve monotonically for every matrix; this numerical toy does not establish FP4 storage or fused-kernel speedups."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/moge_alignment",
+      "source": "problems/representation/moge_alignment/README.md",
+      "functions": [
+        "optimal_scale_1d",
+        "roe_align"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "MoGe 的对齐究竟优化哪两个自由度？逆深度权重与截断顺序是什么？",
+            "en": "Which two parameters does MoGe alignment fit, and where do depth weights and truncation enter?"
+          },
+          "hint": {
+            "zh": "拟合共享 xyz 尺度 s 和仅沿 z 的平移 t；旋转及 x/y 平移固定。每个坐标误差先乘目标深度的倒数，再可选截断，最后求和。min(w·abs(residual),tau) 与 w·min(abs(residual),tau) 不同。本题允许实数尺度，返回 detached 标量，不要求求解器梯度。",
+            "en": "Fit one shared xyz scale and one z-only shift, with rotation and x/y translations fixed. Weight each absolute coordinate residual by inverse target depth, optionally cap that weighted value, then sum. Capping before weighting changes the estimator. The local optimization permits real scales and returns detached scalar tensors without solver-gradient guarantees."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么可以枚举一维零残差断点和深度锚点，而不直接做普通最小二乘？",
+            "en": "Why do zero-residual breakpoints and depth anchors solve this objective rather than ordinary least squares?"
+          },
+          "hint": {
+            "zh": "一维候选来自 x≠0 且 w>0 的 y/x；逐个计算完整加权截断 L1 目标。截断边界的斜率向下跳，不能制造严格局部极小；无有效系数时返回 s=0，相同最小值选最小有效尺度。点图枚举有效深度锚点，以 t=z_k−s·z_hat_k 消掉平移，只对 z 做锚点差分，再调用一维求解器。先 mask 再检查有限性和正深度。",
+            "en": "Evaluate active y/x breakpoints against the full capped weighted L1 objective. Saturation kinks decrease slope, so they cannot create a strict local minimum. With no active coefficient use zero; break equal scalar minima by the smallest active scale. For point maps, anchor a valid depth to eliminate the z shift and difference only z coordinates. Select masked points before finite/depth validation."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检验截断顺序、常量残差、平局和 masked NaN，而不依赖某个特定锚点？",
+            "en": "How can value-based checks distinguish cap ordering, constant residuals, ties and masked invalid points?"
+          },
+          "hint": {
+            "zh": "一维 x=[1,1,0]、y=[2,10,3]、w=[2,.1,1]、tau=1，最优 s=2、目标 1.8，x=0 的常量项仍要计入。再测相同最小值选最小断点、全无有效系数、带 masked NaN 的已知尺度/z-shift 点图。全对齐只比较达到的目标值，可用独立二维直线排列 oracle；无需强制某个锚点。此小枚举不代表生产求解复杂度或单目重建质量。",
+            "en": "For x=[1,1,0], y=[2,10,3], w=[2,.1,1] and cap=1, expect scale 2 and objective 1.8; the zero-coefficient constant still contributes. Check tied minima, no active coefficient and a known scale/z-shift point map with masked NaNs. Compare achieved full objectives against an independent line-arrangement oracle rather than a chosen anchor. Tiny enumeration does not establish production solver cost or reconstruction quality."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion/diffusion_nft",
+      "source": "problems/diffusion/diffusion_nft/README.md",
+      "functions": [
+        "implicit_velocities",
+        "nft_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DiffusionNFT 为什么同时拟合隐式正、负分支，而不是给低奖励样本一个负 MSE？",
+            "en": "Why does DiffusionNFT fit implicit positive and negative branches instead of a negatively weighted MSE?"
+          },
+          "hint": {
+            "zh": "冻结 old 后，v+=(1−beta)·old+beta·current，v−=(1+beta)·old−beta·current。以 r 和 1−r 加权两个非负平方误差。两分支围绕 old 反射，beta 不是倒数；低奖励通过负分支改变 current 的方向，不是丢掉样本或最小化负平方误差。这里只实现基础 Eq.(5) 的输出空间目标。",
+            "en": "Freeze old and form positive=(1−beta)·old+beta·current and negative=(1+beta)·old−beta·current. Weight their nonnegative squared errors by r and 1−r. The branches reflect around old and use beta itself. Low rewards act through the negative branch rather than omitted examples or negative loss weights. This local module implements the basic output-space objective."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何处理 batch/特征归约与冻结路径，使数值和训练方向都正确？",
+            "en": "Which reduction and stopped paths preserve both the objective value and its intended training direction?"
+          },
+          "hint": {
+            "zh": "每个样本先对全部非 batch 坐标求平方误差之和，再对 B 个样本取均值。old 在隐式分支里 detach，target 与 rewards 在 loss 内 detach；current 的两条路径都保留。令 d=current−old、e=old−target，则梯度为 (2beta/B)·[beta·d+(2r−1)·e]，r 按所有特征轴广播。",
+            "en": "Sum squared errors over every non-batch axis before averaging examples. Detach old inside the implicit branches, and target/rewards inside the loss; retain both current paths. With d=current−old and e=old−target, the current gradient is (2beta/B)[beta·d+(2r−1)·e], broadcasting each reward across its feature axes."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些标量数值、梯度和对称性检查能发现奖励方向与归约错误？",
+            "en": "Which scalar values, derivatives and symmetries expose reward-direction and reduction mistakes?"
+          },
+          "hint": {
+            "zh": "old=1、target=3、current=2、beta=.5、r=.75 时 v+=1.5、v−=.5，loss=13/4，current 梯度 −1/2。闭式最优 current=old+(2r−1)(target−old)/beta；r=.5 锚定 old，r=0/1 朝相反方向。复制特征应让特征求和的损失成倍增加，复制 batch 不改变均值；同时检查冻结上下文无梯度。此固定输出 toy 不证明在线奖励或图像质量提升。",
+            "en": "For old=1, target=3, current=2, beta=.5 and r=.75, expect branches 1.5 and .5, loss 13/4 and current gradient −1/2. The quadratic optimum is old+(2r−1)(target−old)/beta; neutral reward anchors old. Duplicating features scales the summed loss, while duplicating the batch preserves its mean. Verify frozen-context gradients. Fixed-output optimization does not establish online reward or image-quality gains."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion/fd_population",
+      "source": "problems/diffusion/fd_population/README.md",
+      "functions": [
+        "batch_moments",
+        "ema_population_stats"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 FD-loss 的 EMA 需要原始二阶矩，不能直接平均两个协方差？",
+            "en": "Why does FD-loss EMA store raw second moments rather than average covariances directly?"
+          },
+          "hint": {
+            "zh": "分别混合总体均值 mu 与 M=E[xxᵀ]，再用 Sigma=M−mu·muᵀ 还原协方差。直接平均协方差会漏掉 beta(1−beta)(mu_old−mu_batch)(mu_old−mu_batch)ᵀ 的均值漂移项。这里是总体矩约定，除以 B；官方 FIFO 队列的 N−1 样本协方差属于另一条分支。",
+            "en": "Mix the mean and raw second moment E[xxᵀ], then recover covariance as M−mu·muᵀ. Direct covariance averaging drops the between-mean term beta(1−beta)(mu_old−mu_batch)(mu_old−mu_batch)ᵀ. This module uses population moments divided by B; the official FIFO sample-covariance branch uses a different estimator."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "历史状态由谁保存，哪些张量需要停止梯度，beta 端点怎样处理？",
+            "en": "Who persists history, which paths are stopped, and what happens at the decay endpoints?"
+          },
+          "hint": {
+            "zh": "batch_moments 返回 [D] 均值和 [D,D] 原始二阶矩；EMA 返回混合后的 mu、M、Sigma。内部 detach 两个历史张量，保留当前 X 的梯度，不原地改状态；外层循环保存返回值的 detached 版本。支持 B=1、beta=0/1 和输入 float32/64；beta=1 时当前梯度为零，不自行加入无偏校正或 Bessel 因子。",
+            "en": "Return batch mean/raw second, then mixed mean/raw second/covariance. Detach both historical tensors internally while preserving current-feature gradients and input values. The caller persists detached returned moments. Support B=1, beta=0/1 and caller float32/64; current gradients vanish at beta=1. Do not introduce zero-initialization bias correction or a Bessel factor."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用不同均值的一维总体检查 EMA 值、梯度和多步权重？",
+            "en": "How does a shifted scalar population reveal missing between-mean variance and gradient leakage?"
+          },
+          "hint": {
+            "zh": "当前 X=[4]、历史 mu=2、M=5、beta=1/4，得到 mu=3.5、M=13.25、Sigma=1；直接平均协方差只得 .25。对 mu²+Sigma 求当前 X 梯度应为 6，历史无梯度。再按显式几何权重展开多次 EMA，检查 batch 复制、beta 端点与输入不变。历史更大不保证在分布漂移时总是更准；此统计量 toy 不证明生成模型收敛。",
+            "en": "With current X=[4], historical mean 2, raw second 5 and beta=1/4, expect mean 3.5, raw second 13.25 and covariance 1; direct covariance mixing gives only .25. The current gradient of mu²+Sigma is 6 and history receives none. Expand multi-step geometric weights and test batch duplication, endpoints and immutability. Longer history need not always help under distribution shift; this statistics toy does not establish generator convergence."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion/fd_loss",
+      "source": "problems/diffusion/fd_loss/README.md",
+      "functions": [
+        "frechet_distance",
+        "normalized_fd_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 Fréchet 协方差项需要对称 sandwich，而不能逐元素开根号或直接 eigvalsh(Sigma_r·Sigma_g)？",
+            "en": "Why use a symmetric covariance sandwich instead of an elementwise root or eigvalsh on the covariance product?"
+          },
+          "hint": {
+            "zh": "FD 是均值差平方和加两个协方差的 trace，再减两倍 trace-sqrt。用冻结参考协方差的平方根构造 A=Sigma_r^(1/2)·Sigma_g·Sigma_r^(1/2)，再对称化 A；协方差一般不交换，原始乘积不保证对称。参考特征统计固定，生成均值/协方差参与训练；本题不除以特征维数。",
+            "en": "Add squared mean distance and both covariance traces, then subtract twice the trace-square-root term. Build and symmetrize A=Sigma_r^(1/2)·Sigma_g·Sigma_r^(1/2) using frozen reference statistics. Covariances need not commute, so their raw product is not generally symmetric. Generated statistics retain gradients and the scalar is not divided by feature width."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何避免错误的谱梯度，并实现停止分母的多表征加权归一化？",
+            "en": "How do spectral differentiation and stopped-denominator representation weights preserve the local objective?"
+          },
+          "hint": {
+            "zh": "detach 参考统计后，用 eigh 构建参考平方根；生成侧只对对称 sandwich 使用 eigvalsh，数值负特征值 clamp 到零再开根。不加 diagonal jitter，也不 clamp 最终 FD。归一化是 sum_i stopgrad(w_i)·d_i/(stopgrad(d_i)+eps)，不是均值或按权重和归一化。PSD 只保证前向值；梯度要求两侧 SPD，包含重复正特征值。",
+            "en": "Detach references before constructing their root with eigh; use eigvalsh on the symmetric generated sandwich and clamp numerical negative eigenvalues before sqrt. Add no diagonal jitter or final-distance clamp. Sum stopgrad(w_i)·d_i/(stopgrad(d_i)+eps) without averaging. Forward values cover PSD; gradients require both covariances SPD, including repeated positive spectra."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样分别验证原始距离、非交换协方差和停止分母后的训练梯度？",
+            "en": "How do independent values and derivatives separate raw FD progress from its normalized training value?"
+          },
+          "hint": {
+            "zh": "一维生成均值 2、方差 9，参考均值 0、方差 4，FD=5，生成均值梯度 4、方差梯度 1/3。再令 d=[5,2]、w=[.5,2]、eps=.5，归一化和为 113/55，d 的梯度是 [1/11,4/5]。有限差分必须固定分母；非交换 2D SPD 用独立 trace/determinant 恒等式验证。跟踪 raw FD，而不是仅凭接近常数的归一化值判断改善；零特征值处不要求有限梯度。",
+            "en": "Scalar generated mean 2/variance 9 against reference mean 0/variance 4 gives FD=5, mean gradient 4 and variance gradient 1/3. For d=[5,2], w=[.5,2], eps=.5, the normalized sum is 113/55 with d gradients [1/11,4/5]. Freeze denominators for finite differences; use an independent 2D trace/determinant identity for noncommuting SPD matrices. Track raw FD, not just the normalized value. Zero-eigenvalue derivatives are outside scope."
+          }
+        }
+      ]
     }
   ]
 }

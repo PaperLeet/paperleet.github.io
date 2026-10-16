@@ -18,7 +18,7 @@ export default function PreparationHandbook({filters,problems,catalogError,onRet
  const paths=selectedPath?[selectedPath]:rolePreparationPaths(filters.role),ids=paths.flatMap(path=>path.modules);
  const byId=new Map(problems.map(problem=>[problem.id,problem]));
  const candidates=selectedPath?selectedPath.modules.flatMap(id=>byId.has(id)?[byId.get(id)!]:[]):problems;
- const related=candidates.filter(problem=>hasPreparationGuide(problem.id)&&ids.includes(problem.id));
+ const related=candidates.filter(problem=>hasPreparationGuide(problem.id)&&(!filters.role||ids.includes(problem.id)));
  const concept=byId.get(filters.concept);
  const focused=concept&&hasPreparationGuide(concept.id)?[concept]:[];
  const offered=filters.concept&&!scopeExpanded?focused

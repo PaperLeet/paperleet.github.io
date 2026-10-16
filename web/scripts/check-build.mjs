@@ -46,6 +46,7 @@ assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('di
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('failure-frame-link')), 'Interactive traceback controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('has-live-preview')), 'Live writing controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('discussion-reply-search')), 'Reply search controls must remain deferred');
+for (const marker of ['Where does DAPS apply measurement conditioning', 'Which two parameters does MoGe alignment fit']) assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Individual exercise handbook content must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.discussion-reply-search')), 'Reply search styles must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.has-live-preview')), 'Live writing layout must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.failure-frame-link')), 'Interactive traceback styles must remain deferred');
