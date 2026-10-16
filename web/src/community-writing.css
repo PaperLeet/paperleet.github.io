@@ -1,21 +1,21 @@
 .community-writing-guide { border:1px solid var(--line); border-radius:9px; background:var(--surface); }
-.community-writing-guide > summary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; list-style:none; cursor:pointer; color:var(--text); font-size:12px; }
+.community-writing-guide > summary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; list-style:none; cursor:pointer; color:var(--text); font-size:var(--type-small); }
 .community-writing-guide > summary::-webkit-details-marker { display:none; }
 .community-writing-guide > summary > span { display:flex; align-items:center; gap:8px; }
 .community-writing-guide > summary svg { flex:none; color:var(--accent); }
 .community-writing-guide[open] > summary > svg { transform:rotate(180deg); }
 .community-writing-panel { padding:0 14px 14px; }
-.community-writing-panel > p,.community-writing-hint,.community-writing-failure { color:var(--muted); font-size:11px; line-height:1.85; }
+.community-writing-panel > p,.community-writing-hint,.community-writing-failure { color:var(--muted); font-size:var(--type-meta); line-height:1.85; }
 .community-writing-panel > p { margin:0 0 12px; }
 .community-writing-panel ol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0 0 14px; padding:0; list-style:none; }
 .community-writing-panel li { min-width:0; padding:12px; border:1px solid var(--line); border-radius:7px; background:var(--surface2); }
-.community-writing-panel li b { color:var(--text); font-size:12px; font-weight:550; }
+.community-writing-panel li b { color:var(--text); font-size:var(--type-small); font-weight:550; }
 .community-writing-panel li b > span { color:var(--muted); }
-.community-writing-panel li p { margin:6px 0 0; color:var(--muted); font-size:11px; line-height:1.8; }
+.community-writing-panel li p { margin:6px 0 0; color:var(--muted); font-size:var(--type-meta); line-height:1.8; }
 .community-writing-panel a,.community-writing-failure button { color:var(--accent); }
 .community-writing-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px 16px; }
-.community-writing-actions > button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; font-size:11px; }
-.community-writing-panel > small { display:block; margin-top:10px; color:var(--muted); font-size:11px; line-height:1.8; }
+.community-writing-actions > button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; font-size:var(--type-meta); }
+.community-writing-panel > small { display:block; margin-top:10px; color:var(--muted); font-size:var(--type-meta); line-height:1.8; }
 .community-writing-hint { margin:0; }
 .community-writing-failure { padding:0 14px 14px; }
 .community-writing-guide :is(summary,button,a):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }

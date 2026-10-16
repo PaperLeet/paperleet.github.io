@@ -1,4 +1,4 @@
-.workspace-backup-dialog { width: min(740px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 24px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-sizing: border-box; overflow: auto; font-size: 14px; line-height: 1.7; }
+.workspace-backup-dialog { width: min(740px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 24px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-sizing: border-box; overflow: auto; font-size: var(--type-body); line-height: 1.7; }
 .workspace-backup-dialog::backdrop { background: #0006; }
 .backup-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .backup-dialog-heading h2 { margin: 0; font-size: 21px; }
@@ -9,7 +9,7 @@
 .backup-source-label select { padding: 8px; border: 1px solid var(--line); border-radius: 6px; }
 .backup-source-review { min-width: 0; margin-top: 18px; }
 .backup-source-review h3 { overflow-wrap: anywhere; }
-.backup-source-review pre { max-height: 240px; overflow: auto; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font: 13px/1.7 var(--font-mono); white-space: pre; }
+.backup-source-review pre { max-height: 240px; overflow: auto; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font: var(--type-body)/1.7 var(--font-mono); white-space: pre; }
 .backup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .backup-actions .button { white-space: normal; }
 @media (max-width: 520px) { .workspace-backup-dialog { padding: 16px; } .backup-dialog-heading h2 { font-size: 18px; } }

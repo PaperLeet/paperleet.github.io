@@ -1,6 +1,6 @@
 .post-bookmark { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; max-width: 100%; }
-.post-bookmark > button, .post-bookmark-signin { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; color: var(--text-secondary); background: none; border: 1px solid var(--line); border-radius: 5px; font: inherit; font-size: 14px; text-decoration: none; }
+.post-bookmark > button, .post-bookmark-signin { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; color: var(--text-secondary); background: none; border: 1px solid var(--line); border-radius: 5px; font: inherit; font-size: var(--type-body); text-decoration: none; }
 .post-bookmark > button.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
-.post-bookmark-recovery { flex-basis: 100%; max-width: 520px; padding: 8px 0; font-size: 12px; overflow-wrap: anywhere; }
+.post-bookmark-recovery { flex-basis: 100%; max-width: 520px; padding: 8px 0; font-size: var(--type-small); overflow-wrap: anywhere; }
 .post-bookmark-recovery p { margin: 6px 0; }
 .post-bookmark-recovery > button { margin: 4px 12px 4px 0; font: inherit; }

@@ -1,0 +1,9 @@
+# Readable product typography
+
+The product used a 15 px root but repeatedly overrode actual content to 9–13 px, including 13 px paper titles, 12 px pane labels, and 9–11 px interview metadata. This change updates the owning stylesheets to a shared rem scale: body and primary navigation 16 px, secondary copy 14 px, metadata 13 px, and compact captions 12 px at the normal 16 px browser base. The root follows the browser's preferred font size. No page zoom, transform scaling, new font download or font dependency is introduced.
+
+The catalog now uses 16 px titles, 14 px supporting text, larger section headings, 84 px minimum comfortable rows and 60 px minimum compact rows. The header and catalog share a 1480 px maximum container. Filters gain 44 px controls and enough width for readable labels; collection cards, progress sidebar, navigation, workspace tabs and run controls receive matching space. Existing grid alignment, native wrapping/scrolling, active-tab underline, hidden panels, reduced-motion rules and light/dark color tokens retain their behavior. Small numbered/count circles gain enough height for the enlarged text.
+
+The new scale also reaches community comments and editors, affiliation labels, interview ranking and guides, settings, achievements, inbox, saved problems, submission diagnostics and source context. The workspace editor defaults to 16 px; a previously selected valid editor size remains the user's preference.
+
+Verification covers the existing complete frontend checks, local and hosted builds with unchanged asset budgets, CSS parsing and undefined-variable review, and real loopback HTTP/React/account/session/SQLite flows for comments and source returns. The local preview on 127.0.0.1:5185 serves the current source and catalog. These checks do not constitute browser visual QA; browser automation remains unavailable in this session. No production records are created.

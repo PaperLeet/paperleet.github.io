@@ -1,7 +1,7 @@
 .post-excerpt { margin:8px 0 14px; overflow-wrap:anywhere; white-space:normal; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; }
 .community-post-card .post-excerpt { -webkit-line-clamp:3; }
 .post-content-signals { display:flex; align-items:center; flex-wrap:wrap; gap:6px; list-style:none; margin:0 0 14px; padding:0; }
-.post-content-signals > li { display:inline-flex; align-items:center; gap:5px; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:var(--surface2); color:var(--muted); font-size:10px; line-height:1.4; }
+.post-content-signals > li { display:inline-flex; align-items:center; gap:5px; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:var(--surface2); color:var(--muted); font-size:var(--type-caption); line-height:1.4; }
 .post-content-signals svg { flex:none; }
 .interview-report-card .post-excerpt { margin-bottom:15px; }
 .interview-report-card:focus-within { border-color:color-mix(in srgb,var(--accent) 45%,var(--line)); }

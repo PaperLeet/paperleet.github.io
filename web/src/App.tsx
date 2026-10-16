@@ -91,7 +91,7 @@ function initialEditorFontSize() {
   } catch {
     // The editor remains usable when browser storage is unavailable.
   }
-  return 15;
+  return 16;
 }
 function getId() {
   return decodeProblemHash(location.hash);

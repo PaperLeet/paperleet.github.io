@@ -29,9 +29,9 @@
 .avatar-cropper-frame:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .avatar-cropper-frame canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
 .avatar-cropper-grid { position: absolute; inset: 0; pointer-events: none; border: 1px solid rgb(255 255 255 / 80%); background-image: linear-gradient(to right, transparent calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 + 0.5px), transparent calc(100% / 3 + 0.5px), transparent calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 + 0.5px), transparent calc(200% / 3 + 0.5px)), linear-gradient(to bottom, transparent calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(100% / 3 + 0.5px), transparent calc(100% / 3 + 0.5px), transparent calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 - 0.5px), rgb(255 255 255 / 32%) calc(200% / 3 + 0.5px), transparent calc(200% / 3 + 0.5px)); }
-.avatar-cropper-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-secondary); font-size: 14px; }
-.avatar-cropper > p { margin: 12px 0 18px; text-align: center; color: var(--text-secondary); font-size: 13px; }
-.avatar-cropper-zoom { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.avatar-cropper-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-secondary); font-size: var(--type-body); }
+.avatar-cropper > p { margin: 12px 0 18px; text-align: center; color: var(--text-secondary); font-size: var(--type-body); }
+.avatar-cropper-zoom { display: flex; align-items: center; gap: 12px; font-size: var(--type-body); }
 .avatar-cropper-zoom input { min-width: 0; flex: 1; height: 24px; accent-color: var(--accent); cursor: pointer; }
 .avatar-cropper-zoom output { min-width: 40px; text-align: right; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .avatar-cropper footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
