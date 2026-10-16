@@ -676,3 +676,15 @@ papers:
     scope: 实现可微的分组统计与逐通道仿射参数；提供标量基准、梯度检查和无需训练的合成实验。
     scope_en: Implement differentiable grouped moments and per-channel affine; scalar oracles, gradient checks and a training-free synthetic experiment are supplied.
     module_ids: [architecture/group_norm]
+
+  - id: graphsage
+    number: 61
+    category: representation
+    short_title: GraphSAGE
+    year: 2017
+    tags: [GraphSAGE, Inductive Learning, Neighbor Aggregation, Graph Neural Networks]
+    summary: 聚合采样邻域并学习共享特征变换，将编码器迁移到训练时未见的图。
+    summary_en: Aggregate sampled neighborhoods with shared feature transformations and transfer the encoder to an unseen graph.
+    scope: 实现 Algorithm 1 均值编码、逐跳归一化与梯度；提供 100 次真实合成训练和独立图评估，不复现完整 TensorFlow 配置或论文数据基准。
+    scope_en: Algorithm 1 mean encoding, per-hop normalization and gradients; 100 actual synthetic training updates and evaluation on a distinct graph, without reproducing the full TensorFlow configuration or paper benchmarks.
+    module_ids: [representation/graphsage_mean]
