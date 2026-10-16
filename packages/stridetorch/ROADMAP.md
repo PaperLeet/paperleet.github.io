@@ -515,6 +515,16 @@ source-commit deployment was superseded and is not claimed as published.
   this release. Non-force adoption and exact remote deployment are tracked
   separately from these complete local gates.
 
+## Version0.32 remote failure;local-first iteration
+
+- Quality38948582658 native/exported WASM jobs pass,but infrastructure fails4
+  NaN exception cases;Pages38949910058 build/deploy are skipped.0.32 was not
+  deployed;last verified live remains0.31. Exact failed evidence is retained.
+-0.33 adds full-factor Cholesky solve AD and portable failure reporting;expanded
+  browser tests catch silent invalid factors. Complete local validation and
+  measured efficiency remain required. Automatic CI/deployment is being moved
+  to user-created release tags to preserve the user's Actions quota.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

@@ -127,3 +127,22 @@ and its206-file archive retain actual full results,all gate receipts,exports,
 dependency identities and source hashes. Core source is5c5ed0f4;non-force main
 adoption revalidates ancestry and exact remote ref. The last positively verified
 live site remains0.31 atb3b56a19 until0.32's exact-source remote gates pass.
+
+
+## Remote failure retained;source not deployed
+
+[Quality38948582658](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38948582658)
+for exact main93e8cbba passes native78/10218/342/three repeats in222.50s and
+exported WASM78/342/1128 contracts in394757ms. Infrastructure fails four
+used/diagonal-NaN exception assertions:31038 pass,one optional skip,37warnings,
+559.71s. The pilot fails as well.
+
+[Pages38949910058](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38949910058)
+skips both build and deploy;0.32 is not claimed deployed. The last verified live
+source remains0.31 atb3b56a19. Pinned47 resources/161exports and all artifact/log
+receipts are retained in
+[remote failure evidence](../../packages/stridetorch/benchmarks/results/iteration-32-remote-failure.json)
+and its12-file archive.0.33's expanded real WASM tests additionally expose quiet
+finite-factor failures and add explicit status handling under separate validation.
+The user's updated release policy requires local iteration without automatic CI
+and online publication only when they explicitly create a release tag.
