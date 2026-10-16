@@ -509,7 +509,7 @@ function Workspace() {
                 if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number, practiceReturn).slice(1);
               }}
             >
-              {problem ? <BilingualText zh="工作区" en="Workspace" /> : progressReady && problems.length > 0 && !resumeProblem ? <BilingualText zh="核心模块已完成" en="Core modules complete" /> : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? <BilingualText zh="继续练习" en="Continue" /> : <BilingualText zh="开始练习" en="Start practice" />}
+              {problem ? <BilingualText zh="工作区" en="Workspace" /> : progressReady && problems.length > 0 && !resumeProblem ? idlePracticeLabel : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? <BilingualText zh="继续练习" en="Continue" /> : <BilingualText zh="开始练习" en="Start practice" />}
             </button>
             {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} aria-current={submissionPage ? 'page' : undefined} href={hostedAppHref("#/submit")}>
               <BilingualText zh="提交论文" en="Submit paper" />

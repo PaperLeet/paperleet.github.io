@@ -12,6 +12,7 @@ try {
   const { decodeProblemHash } = await server.ssrLoadModule('/src/reports.ts');
   const { collectionIdFromRoute, paperCollections, papersInCollection } = await server.ssrLoadModule('/src/paperCollections.ts');
   const { PaperLibrary, PaperDetail } = await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { matchingPaperModules, selectLibraryPractice } = await server.ssrLoadModule('/src/libraryPractice.ts');
   const { PracticeNextStep } = await server.ssrLoadModule('/src/PracticeJourney.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
@@ -78,9 +79,42 @@ try {
   const returnTo = libraryHref('diffusion', { ...emptyLibraryFilters(), query: 'DDPM', runtime: 'browser', difficulty: 'E' });
   const currentReturn = libraryHref('diffusion', {...readLibraryRoute(returnTo).filters,runtime:'all'});
   const ddpm = catalog.papers.find(p => p.id === 'ddpm');
+  const transformer = catalog.papers.find(p => p.id === 'transformer');
+  const bibliographyQueries = ['1706.03762', ' arXiv:1706.03762v3 ', 'https://arxiv.org/pdf/1706.03762v2.pdf?download=1#page=2',
+    'HTTPS://EXPORT.ARXIV.ORG/ABS/1706.03762v2', 'Ashish Vaswani', 'NeurIPS', '2017', 'Vaswani 2017', '2017 Vaswani'];
+  for (const query of bibliographyQueries) {
+    assert.deepEqual(matchingPaperModules(transformer, catalog.problems, query).map(p => p.id), transformer.module_ids,
+      `A paper metadata match retains all its modules: ${query}`);
+    const view = { filters: { ...emptyLibraryFilters(), query } };
+    assert(selectLibraryPractice(catalog.papers, catalog.problems, {}, view).papers.some(p => p.id === transformer.id),
+      'The list and practice entry use the same bibliography results');
+  }
+  const legacy = { ...transformer, authors: ['Ada Lovelace', 'Grace Hopper'], arxiv: 'hep-th/9901001', url: 'https://arxiv.org/abs/hep-th/9901001' };
+  for (const query of ['Grace Hopper', 'arXiv:hep-th/9901001v2', 'https://arxiv.org/pdf/hep-th/9901001v2.pdf']) {
+    assert.equal(matchingPaperModules(legacy, catalog.problems, query).length, transformer.module_ids.length);
+  }
+  assert.equal(matchingPaperModules({ ...transformer, arxiv: undefined }, catalog.problems, 'arXiv:1706.03762v2').length, transformer.module_ids.length, 'The source URL supports catalog entries without a separate identifier');
+  for (const query of ['https://evil.test/abs/1706.03762', 'https://arxiv.org.evil.test/abs/1706.03762', '1706.037620', 'arXiv:1706.03762v0']) {
+    assert.equal(matchingPaperModules(transformer, catalog.problems, query).length, 0, `Unknown or invalid reference stays unmatched: ${query}`);
+  }
+  const queryFilters = { ...emptyLibraryFilters(), query: '1706.03762' };
+  assert.equal(selectLibraryPractice(catalog.papers, catalog.problems, {}, { collectionId: 'retrieval', filters: queryFilters }).problems.length, 0, 'Metadata search stays within the selected collection');
+  assert.equal(selectLibraryPractice(catalog.papers, catalog.problems, {}, { filters: { ...queryFilters, state: 'done' } }).problems.length, 0, 'Metadata matches cannot bypass progress filters');
+  const attention = catalog.problems.find(p => p.id === 'architecture/attention');
+  assert.deepEqual(matchingPaperModules(transformer, catalog.problems, '1706.03762', attention.difficulty).map(p => p.id),
+    catalog.problems.filter(p => transformer.module_ids.includes(p.id) && p.difficulty === attention.difficulty).map(p => p.id));
+  assert.equal(matchingPaperModules(transformer, catalog.problems, '1706.03762', 'all', 'server').length, 0, 'Metadata matches preserve runtime boundaries');
+  assert.equal(matchingPaperModules(transformer, catalog.problems, 'Scaled Dot-Product Attention').length, 1, 'A module title match stays specific to that module');
+  assert.deepEqual(matchingPaperModules(transformer, catalog.problems, 'Vaswani Scaled Dot-Product').map(p => p.id), [attention.id], 'Author and implementation terms narrow to the matching module');
+  assert.equal(matchingPaperModules(transformer, catalog.problems, 'Vaswani missing-paper').length, 0, 'Every query term must match the paper or the same module');
   for (const en of [false, true]) {
     globalThis.localStorage = { getItem: () => en ? 'en' : 'zh' };
     const render = (Component, props) => renderToString(React.createElement(LocaleProvider, null, React.createElement(Component, props)));
+    for (const query of bibliographyQueries) {
+      const results = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query }) });
+      assert(results.includes('data-paper-id="transformer"'), 'Bibliography queries render the linked paper in both languages');
+      assert(!results.includes(en ? 'No matching papers' : '没有符合条件的论文'));
+    }
     const library = render(PaperLibrary, { ...catalog, saved: {}, collectionId: 'diffusion', route: decodeProblemHash(returnTo) });
     assert(library.includes('value="DDPM"') && library.includes('value="E" selected=""'));
     assert(library.includes('collection-page-header') && !library.includes('featured-collections') && !library.includes('practice-start'), 'A collection opens its own page, without homepage sections');
@@ -127,7 +161,7 @@ try {
   globalThis.sessionStorage = { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); } };
   rememberLibraryPosition('#/?q=volatile', { y: 123 });
   assert.deepEqual(readLibraryPosition('#/?q=volatile'), { y: 123 });
-  console.log('PASS library navigation: complete filter URLs, reserved Unicode, paper/module/auth round trips, legacy collections, safe public-only context, source-independent routing, bounded scroll persistence and bilingual output');
+  console.log('PASS library navigation: bibliography and versioned arXiv searches, combined paper/module terms, preserved collection/progress/runtime boundaries, complete filter/login/practice returns, bounded scroll persistence and bilingual results');
 } finally {
   if (storage === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = storage;
   if (localeStorage === undefined) delete globalThis.localStorage; else globalThis.localStorage = localeStorage;
