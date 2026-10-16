@@ -1,6 +1,6 @@
 import {useEffect,useId,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
-import {ChevronDown,ChevronUp,Heart,MessageCircle,Repeat2,X} from 'lucide-react';
+import {ChevronDown,ChevronUp,Heart,MessageCircle,PenLine,Repeat2,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import {DateLabel,SocialError,SocialNotice,errorMessage,socialApi,useAccount} from './social';
 import CommunityAuthor from './CommunityAuthor';
@@ -60,6 +60,15 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     const restored=busy||!saved?current.current:readReplyDraft(tabDraftStorage(),owner,initial.id)||{body:''};
     current.current=restored;setDraft(restored);setPublication(readPublication(tabDraftStorage(),owner,'reply',initial.id));
     setOpen(true);if(!busy)void load();
+  }
+  function focusReply(){
+    const opener=document.activeElement,source=location.href;
+    requestAnimationFrame(()=>{if(mounted.current&&location.href===source&&document.activeElement===opener)textarea.current?.focus();});
+  }
+  function writeComment(){
+    if(!owner){location.hash=signInHref(returnTo||'community');return;}
+    if(!open)expand();
+    setPreview(false);focusReply();
   }
   function edit(change:Partial<ReplyDraft>){
     const next={...current.current,...change};current.current=next;setDraft(next);
@@ -127,6 +136,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       <button type="button" onClick={()=>void like(!post.viewer.liked)} className={post.viewer.liked?'is-liked':''} aria-pressed={!!post.viewer.liked} disabled={!!busy||loading||accountLoading||accountRecovery||pendingLike!==undefined}>
         <Heart size={15} fill={post.viewer.liked?'currentColor':'none'}/><span>{post.counts.likes} {busy==='like'?t('确认中…','Confirming…'):t('赞','likes')}</span>
       </button>
+      <button type="button" onClick={writeComment} aria-controls={regionId} disabled={!!busy||accountLoading||accountRecovery}><PenLine size={15}/>{t('写评论','Write comment')}</button>
       <span className="card-reposts"><Repeat2 size={13}/>{post.counts.reposts} {t('转发','reposts')}</span>
       {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
       {children&&<div className="card-actions-extras">{children}</div>}
@@ -142,7 +152,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
           {row.parent_id&&<span className="card-comment-context">{t('回复评论','In reply to a comment')}</span>}
           <PostPreview body={row.body} limit={280}/>
           <div className="card-comment-links"><a href={communityPostHref(post.id,returnTo,row.id)}>{t('查看完整回复','Read full reply')}</a>
-            {owner&&<button type="button" disabled={!!busy||accountLoading} onClick={()=>{const opener=document.activeElement,source=location.href;edit({parentId:row.id});setPreview(false);requestAnimationFrame(()=>{if(mounted.current&&location.href===source&&document.activeElement===opener)textarea.current?.focus({preventScroll:true});});}}>{t('回复','Reply')}</button>}
+            {owner&&<button type="button" disabled={!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}
           </div>
         </li>)}</ol>:<p className="card-comments-empty">{t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}</p>}
         {replies.length>limit&&<button type="button" className="card-more-comments" onClick={()=>setLimit(value=>value+3)}><ChevronDown size={14}/>{t('再展开','Show')} {Math.min(3,replies.length-limit)} {t('条评论','more comments')}</button>}
