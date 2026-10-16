@@ -11,7 +11,7 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     if(params.getAll(key).length!==1||!['company','role','stage','q','days','sort','page','view','track','saved','concept','study','queue'].includes(key))return;
     if(key==='saved'){if(!['0','1'].includes(value))return;filters.saved=value==='1';}
     else if(key==='concept'){if(!/^[a-z0-9_-]{1,80}\/[a-z0-9_-]{1,80}$/.test(value))return;filters.concept=value;}
-    else if(key==='track'){if(!['training-generation','llm','normalization','recommendation','training','representation','transformer','post-training'].includes(value))return;filters.track=value;}
+    else if(key==='track'){if(!['training-generation','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation'].includes(value))return;filters.track=value;}
     else if(key==='study'){if(!['all','todo','started','done'].includes(value))return;filters.study=value as InterviewStudyState;}
     else if(key==='queue'){if(!/^[1-9]\d{0,4}(?:,[1-9]\d{0,4}){0,79}$/.test(value)||new Set(value.split(',')).size!==value.split(',').length)return;filters.queue=value;}
     else if(key==='page'){if(!/^[1-9]\d{0,3}$/.test(value)||Number(value)>5000)return;filters.page=Number(value);}

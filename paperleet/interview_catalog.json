@@ -572,6 +572,26 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "few-step-generation",
+      "name": "少步生成与蒸馏",
+      "name_en": "Few-step generation",
+      "description": "从 DDIM 走到两步压一步、一致性、平均速度和分布匹配。",
+      "description_en": "From DDIM to progressive distillation, consistency, MeanFlow and distribution matching.",
+      "modules": [
+        "diffusion/ddim",
+        "diffusion/progressive_distillation",
+        "diffusion/consistency",
+        "diffusion/flow_matching",
+        "diffusion/meanflow",
+        "diffusion/dmd",
+        "diffusion/dmd2"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
     }
   ]
 }

@@ -1834,6 +1834,226 @@
           }
         }
       ]
+    },
+    {
+      "id": "diffusion/progressive_distillation",
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "学生应该预测教师终点，还是让一步 DDIM 命中终点的干净数据目标？",
+            "en": "Should the student predict the teacher endpoint or the clean target that makes one DDIM step reach it?"
+          },
+          "hint": {
+            "zh": "把一步写成 r*x_t+c*x0，再用教师两步的终点解出 x0。r=sigma_s/sigma_t，c=alpha_s-r*alpha_t；alpha、sigma 是幅度系数。本题要求时间严格下降，目标整体冻结。",
+            "en": "Write one step as r*x_t+c*x0 and solve for x0 from the two-step teacher endpoint. Here r=sigma_s/sigma_t and c=alpha_s-r*alpha_t; alpha and sigma are amplitudes. This exercise uses strictly decreasing time and freezes the entire target."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "教师两次调用之间需要更新什么？加权损失又应怎样归约？",
+            "en": "What changes between the two teacher calls, and how is the weighted loss reduced?"
+          },
+          "hint": {
+            "zh": "先得到中间样本，再在中间时间重新调用教师，不能复用第一次预测。每样本权重广播到坐标后，对全部元素取均值，不除以权重和；仅 target 停止梯度。",
+            "en": "Obtain the intermediate sample, then evaluate the teacher again at its intermediate time. Do not reuse the first prediction. Broadcast sample weights over coordinates and average all elements, without dividing by their weight sum; stop gradients through the target."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用小实验揭露“直接用教师第一次预测作目标”的错误？",
+            "en": "How can a small experiment expose using the first teacher prediction as the student target?"
+          },
+          "hint": {
+            "zh": "用依赖输入的仿射教师：两次调用得到的目标通常不同于首次预测，再把解出的目标代回学生一步核对终点。另测干净端点、两次调用次数和不同样本权重；toy 不代表完整的多阶段减半。",
+            "en": "Use an input-dependent affine teacher, then substitute the solved target into the student step and compare endpoints. Also test the clean endpoint, exactly two teacher calls and unequal sample weights. The toy does not reproduce repeated multistage halving."
+          }
+        }
+      ],
+      "source": "problems/diffusion/progressive_distillation/README.md",
+      "functions": [
+        "ddim_step",
+        "distilled_target",
+        "distillation_loss"
+      ]
+    },
+    {
+      "id": "diffusion/consistency",
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 sigma_min 处的输出必须与网络参数无关？",
+            "en": "Why must the output at sigma_min be independent of the network parameters?"
+          },
+          "hint": {
+            "zh": "本题用 skip 与网络分支相加；边界处系数必须分别为 1 和 0。网络接收缩放后的 noisy 和原始 sigma；这与论文实现的时间嵌入约定不同。",
+            "en": "This exercise combines a skip branch with a network branch, with boundary coefficients 1 and 0. Feed scaled noisy input and raw sigma to the network; raw sigma is the exercise convention rather than the paper implementation’s time embedding."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样让相邻低噪声目标使用 EMA 网络，同时只训练在线预测？",
+            "en": "How can a lower-noise target depend on the EMA network while only the online prediction learns?"
+          },
+          "hint": {
+            "zh": "教师 Euler 先走向更低 sigma，EMA 网络预测这个相邻点；在平方误差内部冻结目标，不要冻结整个在线预测。EMA 在 no_grad 下原地更新参数，本题不更新 buffers；这里是带教师蒸馏。",
+            "en": "Step toward lower sigma with the teacher Euler helper and evaluate the adjacent point using the EMA network. Detach that target inside the MSE while keeping the online prediction trainable. Update parameters in place under no_grad; this exercise omits buffer updates and uses teacher distillation."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "只测边界恒等够不够？怎样同时检查内部时间和梯度隔离？",
+            "en": "Is the boundary identity sufficient, and how do you check interior times and gradient isolation?"
+          },
+          "hint": {
+            "zh": "在边界使用任意网络输出，结果仍应严格等于输入。再改变内部时间的 EMA 参数：目标数值应变化，但 backward 不应更新目标网络；在线分支仍有梯度。另用可手算参数检查 EMA 方向。",
+            "en": "At the boundary, arbitrary network outputs must still yield the exact input. At an interior time, changing EMA parameters must change target values, while backward leaves that network untouched and trains the online branch. Check EMA direction with hand-computable parameters."
+          }
+        }
+      ],
+      "source": "problems/diffusion/consistency/README.md",
+      "functions": [
+        "consistency_function",
+        "consistency_loss",
+        "update_ema"
+      ]
+    },
+    {
+      "id": "diffusion/meanflow",
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "平均速度目标中的全导数为什么不能只对时间 t 求偏导？",
+            "en": "Why is the total derivative in the average-velocity target more than a partial derivative in t?"
+          },
+          "hint": {
+            "zh": "沿轨迹 z 也随 t 变化，而 r 固定。本题 (z,r,t) 的 JVP 方向为 (v,0,1)，目标是冻结的 v-(t-r)*du/dt。MeanFlow 这道题从数据训练，不需要蒸馏教师。",
+            "en": "Along the trajectory, z changes with t while r stays fixed. For arguments (z,r,t), use JVP direction (v,0,1) and freeze v-(t-r)*du/dt. This MeanFlow exercise trains from data and does not require a distillation teacher."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样保留 prediction 的训练梯度，并保证一步采样的方向正确？",
+            "en": "How do you preserve prediction gradients and choose the correct direction for one-step sampling?"
+          },
+          "hint": {
+            "zh": "用 JVP 返回原预测与导数，只冻结修正目标。训练插值为 (1-t)*clean+t*noise，v=noise-clean；本题是无自适应权重的元素均值 MSE。采样从 noise 减去 model(noise,0,1)，仅调用一次。",
+            "en": "Use the JVP’s original prediction and derivative, detaching only the corrected target. Training uses (1-t)*clean+t*noise and v=noise-clean, with an unweighted elementwise mean MSE. Sampling subtracts model(noise,0,1) from noise in one call."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何分别检查固定 r、r=t 退化情况，以及采样调用次数？",
+            "en": "How do you separately check fixed r, the r=t case and the sampling call count?"
+          },
+          "hint": {
+            "zh": "用同时含 z、r、t 项的仿射模型，手算导数应包含 z 与 t 项而没有 r 项。r=t 时 target 等于 v，但未训练 prediction 无须等于 v；再记录一次采样调用的 r=0、t=1 与减法方向。",
+            "en": "Use an affine model with z, r and t terms: its derivative includes z and t contributions, with no r contribution. At r=t, the target equals v; an untrained prediction need not. Record one sampling call at r=0,t=1 and verify the subtraction direction."
+          }
+        }
+      ],
+      "source": "problems/diffusion/meanflow/README.md",
+      "functions": [
+        "meanflow_target",
+        "meanflow_loss",
+        "one_step"
+      ]
+    },
+    {
+      "id": "diffusion/dmd",
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "分数差应该是 fake-real 还是 real-fake？它与 epsilon 预测有什么区别？",
+            "en": "Should the score difference be fake-real or real-fake, and how does it differ from epsilon prediction?"
+          },
+          "hint": {
+            "zh": "本题输入是 VE 加噪后的 log-density 梯度。下降梯度目标为逐样本 weight*(s_fake-s_real)，整体冻结；权重由调用方给定，不能把 epsilon 输出直接当作 score。",
+            "en": "Inputs here are log-density gradients under VE corruption. Freeze the sample-weighted descent gradient weight*(s_fake-s_real). The caller supplies weights; epsilon predictions cannot be used directly as scores."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "替代匹配损失为什么要冻结 generated-gradient，而 fake-score 训练又该冻结谁？",
+            "en": "Why freeze generated-gradient in the matching surrogate, and what is frozen during fake-score training?"
+          },
+          "hint": {
+            "zh": "匹配目标由 (generated-gradient).detach() 构造，平方误差带 1/2，再对全部元素取均值；DMD 另有冻结配对目标的 MSE 回归。训练 fake score 时冻结生成样本，但保留模型参数梯度。",
+            "en": "Build the matching target as (generated-gradient).detach(), use one-half squared error and average every element. DMD also includes MSE against a frozen paired target. For fake-score training, detach generated samples while keeping model parameters trainable."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分分数符号、均值缩放和两个模型间的梯度串线？",
+            "en": "How do you distinguish a score-sign error, wrong mean scaling and gradients leaking between the models?"
+          },
+          "hint": {
+            "zh": "先关闭回归，检查 generated 梯度等于传入分数差除以元素数；再开启回归核对额外项。单独训练 fake score 时，生成样本不应得到梯度。解析条件分数可使 DSM 误差为零；高斯 toy 是教学改编。",
+            "en": "With regression off, generated gradients should equal the supplied score difference divided by the element count. Then enable regression and check its extra term. Fake-score training must leave generated samples without gradients. An exact conditional score gives zero DSM error; the Gaussian toy is a teaching adaptation."
+          }
+        }
+      ],
+      "source": "problems/diffusion/dmd/README.md",
+      "functions": [
+        "score_difference",
+        "dmd_loss",
+        "fake_score_loss"
+      ]
+    },
+    {
+      "id": "diffusion/dmd2",
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "双时间尺度里的计数是已完成还是即将执行的 critic 更新？",
+            "en": "Does the two-time-scale counter count completed or upcoming critic updates?"
+          },
+          "hint": {
+            "zh": "本题默认 critic 更新 5 次再更新生成器 1 次：已完成计数 0 不触发，5、10、15 触发。接口只返回 bool，不执行优化；训练循环负责冻结与更新各自参数。",
+            "en": "The exercise default is five critic updates per generator update: completed count 0 does not trigger, while 5,10,15 do. The helper returns a bool without optimizing; the training loop controls parameter freezing and updates."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么判别器与生成器在 fake logits 上的方向相反？如何稳定计算损失？",
+            "en": "Why do discriminator and generator gradients oppose each other on fake logits, and how are losses computed stably?"
+          },
+          "hint": {
+            "zh": "判别器对 real 用 softplus(-logit)，对 fake 用 softplus(logit)，两组分别均值再相加；生成器用 softplus(-fake)。生成器另加冻结目标的 DM 替代损失，没有配对回归；调用方冻结 critic 参数时仍需保留输入梯度。",
+            "en": "Use softplus(-real) and softplus(fake) for the discriminator, averaging each group separately before adding. The generator uses softplus(-fake), plus its frozen-target DM surrogate without paired regression. Freezing critic parameters must still allow gradients through its input."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "用哪些反例检查数值稳定性、更新比例，以及意外残留的配对回归？",
+            "en": "Which counterexamples check numerical stability, update cadence and an accidentally retained regression term?"
+          },
+          "hint": {
+            "zh": "用极大正负 logits 和不等长 real/fake 批次；分别检查判别器 fake 梯度为正、生成器为负。遍历已完成计数验证节奏。令 DM 梯度和 GAN 权重都为零，generated 梯度也应为零；本题不覆盖完整多步 backward simulation。",
+            "en": "Use extreme logits and unequal real/fake batch lengths. Discriminator fake gradients should be positive and generator gradients negative. Enumerate completed counts. With zero DM gradient and zero GAN weight, generated gradients must vanish. Full multistep backward simulation is outside this exercise."
+          }
+        }
+      ],
+      "source": "problems/diffusion/dmd2/README.md",
+      "functions": [
+        "generator_due",
+        "adversarial_losses",
+        "generator_loss"
+      ]
     }
   ]
 }

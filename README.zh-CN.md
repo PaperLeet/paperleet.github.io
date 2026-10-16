@@ -49,6 +49,8 @@ make dev
 
 入门可先做[训练与生成专题](https://paperleet.com/#/papers/llm-training-generation)：六道独立练习涵盖标签错位、SFT 掩码、采样、梯度累积与裁剪，均可直接使用浏览器 CPU/WASM 运行。
 
+也可沿着[少步生成与蒸馏路径](https://paperleet.com/#/interviews?track=few-step-generation)，从 DDIM 练到渐进蒸馏、一致性模型、Flow Matching、MeanFlow、DMD 和 DMD2。中英自测问题围绕各题的目标构造、梯度隔离与更新节奏整理。
+
 1. 在题库中选择论文，例如 **6 · DDPM**，再打开“前向加噪”模块。
 2. 阅读模块目标，在右侧编辑器中补全标注为需要实现的函数；调度器等辅助函数已经提供。
 3. 点击 **Run tests / 运行测试**，在浏览器中检查代码并等待结果显示。
