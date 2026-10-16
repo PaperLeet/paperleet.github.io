@@ -62,9 +62,11 @@ not a controlled comparison with earlier releases.
 Export preserves all 6,282 published immutable assets byte-for-byte. All 158
 new immutable assets are reachable; the release freezes 161 files including
 the three catalog indexes. Both runtime profiles carry Apache-2.0/NOTICE.
-The frontend check, production build and Pages policy check pass. A later
-upstream handbook UI change will be preserved and its affected frontend gates
-repeated before main integration.
+The frontend check, production build and Pages policy check pass, including a
+repeat after preserving the latest upstream handbook UI at `2ebe451f`. Its four
+changed files match upstream exactly; numerical, packaging and exported runtime
+inputs remain identical to the validated snapshots. The repeated production
+build takes 5.38s; its initial JavaScript is 407,693 raw / 131,367 gzip bytes.
 
 The current source also passes 4,031 focused native/statistics/model-conversion/IEEE
 and standalone contracts. Its actual Node/Pyodide and Chrome Worker runs each

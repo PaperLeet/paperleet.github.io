@@ -2026,19 +2026,34 @@
     "build": "passed",
     "pages_policy": "passed",
     "initial_js_raw_bytes": 407693,
-    "initial_js_gzip_bytes": 131369,
-    "upstream": "ac360bd855bafa83734a19c2f8df40933bcb940f"
+    "initial_js_gzip_bytes": 131367,
+    "upstream": "2ebe451f933adcde1980002e4cd8e335bdd81b02",
+    "build_elapsed_s": 5.38,
+    "repeated_after_latest_ui": true
   },
   "performance": "iteration-22.json retains all three phases, including remaining std reverse costs",
   "pending": [
-    "merge latest unrelated handbook UI and repeat affected frontend gates",
     "nonforce main adoption",
     "exact remote Quality, eligible Pages and live frozen asset checks"
   ],
   "archive": {
     "path": "iteration-22-local-gates-harness.tar.gz",
-    "files": 341,
-    "bytes": 4409981,
-    "sha256": "ecd3989f7df142844de9bda120f0f59c3cf46e6e5f4f712f7ed602feeee8ad82"
+    "files": 347,
+    "bytes": 4426780,
+    "sha256": "fc5cb61a8c20f1f0eb29e796875f0e3b24758d6f3c480f20bb3a0120adcc282b"
+  },
+  "latest_upstream": {
+    "status": "success",
+    "upstream": "2ebe451f933adcde1980002e4cd8e335bdd81b02",
+    "head": "58818096ea2d1c877982b98d77ee824bf79ba4a6",
+    "protected_numerical_packaging_and_runtime_inputs_unchanged": true,
+    "upstream_files_preserved": [
+      "docs/validation/handbook-related-prompts.md",
+      "web/scripts/check-preparation-guides.mjs",
+      "web/src/PreparationHandbook.tsx",
+      "web/src/preparation-guides.css"
+    ],
+    "source_and_161_export_hashes_identical": true,
+    "initial_probe_correction": "Initial assertion compared pre-export3890 with exportedHEAD and failed on intentionally added assets; corrected pre-rebase exported checkpoint9b0c774d."
   }
 }
