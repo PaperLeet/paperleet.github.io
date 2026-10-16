@@ -206,6 +206,18 @@ try{
   sessionStorage.clear();assert.equal(recovering.read(owner)[otherId].code,'another problem','retirement is scoped to one problem');
   console.log('PASS recovery retirement preserves newer unsynced edits, unseen peer revisions and other problems');
 
+  localStorage.clear();sessionStorage.clear();
+  const sessionDraft={...recovered[id],code:'this tab session source'};
+  const sessionWriter=createHostedDraftCache('session-writer');sessionWriter.write(owner,{[id]:sessionDraft});
+  localStorage.setItem(legacy,JSON.stringify(recovered));
+  const sessionReader=createHostedDraftCache('session-reader');
+  assert.equal(sessionReader.read(owner)[id].code,sessionDraft.code,'the tab session takes precedence over another window\'s legacy source');
+  sessionReader.retireRecovery(owner,id);
+  sessionStorage.clear();
+  assert.equal(createHostedDraftCache('fresh-reader').read(owner)[id]?.code,recovered[id].code,
+    'retiring session recovery must not acknowledge a legacy source the tab never recovered');
+  console.log('PASS session recovery retirement preserves ignored legacy drafts from other windows');
+
   for(const keepLocal of [true,false]){
     localStorage.clear();sessionStorage.clear();
     localStorage.setItem(legacy,JSON.stringify(recovered));

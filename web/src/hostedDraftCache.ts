@@ -38,8 +38,12 @@ export function createHostedDraftCache(source: string) {
         let session: string | null = null;
         try { session = sessionStorage.getItem(sessionKey(owner)); } catch { /* Use the durable recovery journal. */ }
         const legacy = parse(localStorage.getItem(base(owner)));
-        recoveredLegacy.set(owner, legacy);
         const recovered = session !== null ? parse(session) : {...legacy};
+        // A tab session may deliberately ignore another window's legacy draft.
+        // Only adopted legacy source belongs to this document's retirement set.
+        recoveredLegacy.set(owner, session === null ? legacy : Object.fromEntries(
+          Object.entries(legacy).filter(([id, draft]) => JSON.stringify(recovered[id]) === JSON.stringify(draft)),
+        ));
         if (session === null) for (const [id, draft] of Object.entries(recovered)) {
           if (localStorage.getItem(legacyAckKey(owner, id)) === JSON.stringify(draft)) delete recovered[id];
         }
