@@ -18,6 +18,13 @@ def test_reciprocal_real_integer_complex_values_and_signed_zero():
     z=torch.reciprocal(torch.tensor([complex(-0.,0.),1+1j],dtype=torch.complex128)).numpy()
     assert np.isneginf(z.real[0]) and np.isnan(z.imag[0])
     assert z[1]==.5-.5j
+    for dtype in (torch.complex64, torch.complex128):
+        zeros = [complex(0.,0.),complex(0.,-0.),complex(-0.,0.),complex(-0.,-0.)]
+        for reciprocal in (torch.reciprocal, lambda value: value.reciprocal()):
+            result = reciprocal(torch.tensor(zeros, dtype=dtype)).numpy()
+            np.testing.assert_array_equal(result.real, [np.inf,np.inf,-np.inf,-np.inf])
+            np.testing.assert_array_equal(np.isnan(result.imag), [True,True,True,True])
+
     with pytest.raises(TypeError):torch.reciprocal(2)
     with pytest.raises(UnsupportedOperation):torch.reciprocal(x,out=torch.zeros_like(x))
 

@@ -180,6 +180,12 @@ y.sum().backward()
 assert x.grad.tolist() == [1., 1.]
 ```
 
+Complex reciprocal at the singular zero uses a portable signed-real-infinity
+and NaN-imaginary convention: `(+0 ± 0j)` maps to `(+inf + nanj)` and
+`(-0 ± 0j)` maps to `(-inf + nanj)`. Native CPU builds differ at that singularity
+(PyTorch 2.14.1 Linux and macOS disagree on the real infinity sign). Real
+reciprocal signs and every nonzero complex value retain strict native checks.
+
 `torch.reciprocal(x)` and `x.reciprocal()` preserve floating/complex storage;
 integer and boolean inputs produce float32. Python `number / tensor` follows
 native reciprocal-then-multiply order, while functional `torch.div(number,
