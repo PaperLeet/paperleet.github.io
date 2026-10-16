@@ -135,6 +135,130 @@ def solve(A, B, *, left=True, out=None):
     return output
 
 
+
+_triangular_masks = {}
+
+
+def _triangular_part(data, upper, unit):
+    rows,columns=data.shape[-2:]
+    if max(rows,columns)>64:return np.triu(data,k=int(unit)) if upper else np.tril(data,k=-int(unit))
+    # Only small read-only shape masks are cached,never tensor values. Sixteen
+    # entries bound this structural metadata to64KiB,including rectangular use.
+    key=(rows,columns,upper,unit);mask=_triangular_masks.get(key)
+    if mask is None:
+        mask=np.tri(rows,columns,k=int(unit)-1 if upper else -int(unit),dtype=bool)
+        if upper:np.logical_not(mask,out=mask)
+        mask.flags.writeable=False;_triangular_masks[key]=mask
+        while len(_triangular_masks)>16:_triangular_masks.pop(next(iter(_triangular_masks)),None)
+    return np.where(mask,data,0)
+
+
+def _triangular_rows(a, b, upper, unit):
+    out=b.copy();n=a.shape[-1]
+    with np.errstate(all='ignore'):
+        for i in (range(n-1,-1,-1) if upper else range(n)):
+            section=slice(i+1,n) if upper else slice(0,i)
+            out[...,i,:]-=(a[...,i,section,None]*out[...,section,:]).sum(-2)
+            if not unit:out[...,i,:]/=a[...,i,i,None]
+    return out
+
+
+def _triangular_values(a, b, upper, left, unit):
+    if not left:a,b,upper=a.swapaxes(-1,-2),b.swapaxes(-1,-2),not upper
+    n=a.shape[-1]
+    if not b.size:out=b.copy()
+    elif n<=2:
+        # Direct tiny solves avoid projection/factorization, and never access
+        # the ignored half or the unit diagonal, including NaN payloads there.
+        with np.errstate(all='ignore'):
+            if n==1:out=b.copy() if unit else b/a[...,0,0,None,None]
+            elif upper:
+                last=b[...,1,:] if unit else b[...,1,:]/a[...,1,1,None]
+                first=b[...,0,:]-a[...,0,1,None]*last
+                if not unit:first=first/a[...,0,0,None]
+                out=np.stack((first,last),axis=-2)
+            else:
+                first=b[...,0,:] if unit else b[...,0,:]/a[...,0,0,None]
+                last=b[...,1,:]-a[...,1,0,None]*first
+                if not unit:last=last/a[...,1,1,None]
+                out=np.stack((first,last),axis=-2)
+    else:
+        with np.errstate(all='ignore'):
+            # Small unbatched systems amortize dispatch with one LAPACK call;
+            # return it directly instead of copying B and assigning it back.
+            block=32 if n>64 or n>=64 and a.ndim>2 else n
+            if block==n:
+                diagonal=_triangular_part(a,upper,unit)
+                if unit:
+                    indices=np.arange(n);diagonal[...,indices,indices]=1
+                try:out=np.linalg.solve(diagonal,b)
+                except np.linalg.LinAlgError:out=_triangular_rows(diagonal,b,upper,unit)
+            else:
+                out=b.copy()
+                for start in (reversed(range(0,n,block)) if upper else range(0,n,block)):
+                    stop=min(start+block,n);section=slice(stop,n) if upper else slice(0,start)
+                    rhs=out[...,start:stop,:]
+                    if section.start!=section.stop:rhs-=a[...,start:stop,section]@out[...,section,:]
+                    diagonal=_triangular_part(a[...,start:stop,start:stop],upper,unit)
+                    if unit:
+                        indices=np.arange(stop-start);diagonal[...,indices,indices]=1
+                    try:out[...,start:stop,:]=np.linalg.solve(diagonal,rhs)
+                    except np.linalg.LinAlgError:
+                        # Native triangular solve propagates singular diagonals.
+                        out[...,start:stop,:]=_triangular_rows(diagonal,rhs,upper,unit)
+    return out if left else out.swapaxes(-1,-2)
+
+
+def solve_triangular(A, B, *, upper, left=True, unitriangular=False, out=None):
+    if not isinstance(A,_tensor.Tensor) or not isinstance(B,_tensor.Tensor):
+        raise TypeError('linalg.solve_triangular inputs must be Tensors')
+    if any(type(flag) is not bool for flag in (upper,left,unitriangular)):
+        raise TypeError('upper,left and unitriangular must be bool')
+    if out is not None:raise _errors.BrowserUnsupported('Triangular solve output buffers require the server')
+    a_data,b_data=A._data,B._data;dtype=a_data.dtype
+    if dtype!=b_data.dtype:raise RuntimeError('solve_triangular expects matching dtypes')
+    if dtype.char not in 'fdFD':raise _errors.BrowserUnsupported('solve_triangular requires float32/64 or complex64/128')
+    a_shape,b_shape=a_data.shape,b_data.shape
+    if a_data.ndim<2 or a_shape[-2]!=a_shape[-1]:raise RuntimeError('solve_triangular expects square matrices')
+    if b_data.ndim<2:raise RuntimeError('solve_triangular requires matrix right-hand sides')
+    if b_shape[-2 if left else -1]!=a_shape[-1]:raise RuntimeError('solve_triangular matrix dimensions do not match')
+    try:batch=a_shape[:-2] if a_shape[:-2]==b_shape[:-2] else np.broadcast_shapes(a_shape[:-2],b_shape[:-2])
+    except ValueError:raise RuntimeError('solve_triangular batch dimensions cannot broadcast') from None
+    if isinstance(A,_autograd.ForwardTensor) or isinstance(B,_autograd.ForwardTensor):
+        a=A._primal if isinstance(A,_autograd.ForwardTensor) else A
+        b=B._primal if isinstance(B,_autograd.ForwardTensor) else B
+        value=solve_triangular(a,b,upper=upper,left=left,unitriangular=unitriangular)
+        direction=A._tangent if isinstance(A,_autograd.ForwardTensor) else _tensor.Tensor(np.zeros_like(a._data))
+        direction=direction.triu(int(unitriangular)) if upper else direction.tril(-int(unitriangular))
+        product=direction@value if left else value@direction
+        residual=B._tangent-product if isinstance(B,_autograd.ForwardTensor) else -product
+        # Unlike generic solve's saved LU, the triangular outer coefficient
+        # remains differentiable on native Torch's reverse-of-JVP tape.
+        tangent=solve_triangular(a,residual,upper=upper,left=left,unitriangular=unitriangular)
+        return _autograd.ForwardTensor(value,_layout.matching_tangent(tangent,value))
+    matrix_a=a_data if a_shape[:-2]==batch else np.broadcast_to(a_data,batch+a_shape[-2:])
+    matrix_b=b_data if b_shape[:-2]==batch else np.broadcast_to(b_data,batch+b_shape[-2:])
+    values=_solve_layout(_triangular_values(matrix_a,matrix_b,upper,left,unitriangular),True)
+    needs_a,needs_b=A.requires_grad,B.requires_grad
+    if not _state._grad_enabled or not (needs_a or needs_b):return _tensor.Tensor(values,_metadata_owned=True)
+    coefficient=matrix_a.swapaxes(-1,-2);x_transpose=values.swapaxes(-1,-2) if needs_a else None
+    def right_gradient(g):return _solve_layout(_triangular_values(coefficient,g,not upper,left,unitriangular),True)
+    def reduce_b(db):return db if db.shape==b_shape else _ops.unbroadcast(db,b_shape)
+    def left_gradient(db):
+        da=_triangular_part(-(db@x_transpose if left else x_transpose@db),upper,unitriangular)
+        return da if da.shape==a_shape else _ops.unbroadcast(da,a_shape)
+    if needs_a and needs_b:
+        def backward(g,needs):
+            db=right_gradient(g);return left_gradient(db),reduce_b(db)
+        output=_autograd.joint_result(values,(A,B),backward,versioned=())
+    elif needs_a:output=_autograd.result(values,(A,lambda g:left_gradient(right_gradient(g))),versioned=())
+    else:output=_autograd.result(values,(B,lambda g:reduce_b(right_gradient(g))),versioned=())
+    if output.requires_grad:
+        a_counter,x_counter=A._storage,output._storage
+        output._grad_node.versions=((a_counter,a_counter.version),(x_counter,x_counter.version))
+    return output
+
+
 def inv(input, *, out=None):
     if out is not None: raise _errors.BrowserUnsupported('Inverse output buffers require the server')
     real_matrix(input)

@@ -458,6 +458,23 @@ source-commit deployment was superseded and is not claimed as published.
   [Exact remote evidence](../../docs/validation/torch-runtime-iteration-30.md)
   separates budget checks from comparative benchmarks.
 
+## Version0.31 candidate
+
+- Dense triangular left/right/broadcast/unit solves with native matrix-only B
+  interpretation,F final axes,A/output guards and analytical real VJP/JVP.
+  Reverse of JVP retains its native outer coefficient edge;complex inference
+  and empty/singleton/zero-batch boundaries are covered.
+-32-row block substitution accelerates larger CPU/WASM systems. Direct tiny
+  formulas,local small solves,equal-batch metadata and bounded read-only masks
+  reduce small-flow overhead without caching tensor values or factorizations.
+- Final core30879/one optional skip,NumPy-only wheel1125 and Node/Chrome1113 in
+  31 suites pass. Public/private ownership,independent uninstall and actual
+  training/checkpoint resume pass. Earlier regressions/failed probes are retained.
+- [Measured complete flows](../../docs/validation/torch-runtime-iteration-31.md)
+  improve selected large/small workloads;CPU JVP remains about1% slower and
+  controls are within about±2%. Source gzip grows1530 bytes. Complete application
+  integration and main/remote adoption remain separate pending gates.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

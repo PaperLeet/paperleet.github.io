@@ -223,6 +223,7 @@ def create_torch(name='torch', *, register=False):
         'svdvals': lambda input,*,driver=None,out=None: _linalg.svd(input,False,driver=driver,out=out).S,
     }, reverse='analytic')
     registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)
+    registry.add('torch.linalg.solve_triangular', _linalg.solve_triangular, reverse='analytic', forward=True)
     registry.group('torch', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
     registry.group('torch.serialization', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
     torch.serialization.save,torch.serialization.load = torch.save,torch.load

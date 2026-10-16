@@ -107,6 +107,38 @@ factorization constant, matching native saved-factor semantics. The NumPy backen
 still factorizes each invocation. Complex AD, half factorization, sparse systems
 and `out` buffers are explicit unsupported cases.
 
+## Triangular systems
+
+`torch.linalg.solve_triangular(A, B, *, upper, left=True, unitriangular=False)`
+solves dense batched/broadcast triangular systems. B must be a matrix or matrix
+batch; this API does not apply generic solve's vector-overload rule. Only the
+selected triangle is used. With `unitriangular=True`, diagonal input values are
+ignored and treated as ones, including uninitialized/NaN values there.
+
+```python
+a = torch.tensor([[2., .5], [99., 3.]], dtype=torch.float64, requires_grad=True)
+b = torch.ones(2, 1, dtype=torch.float64)
+x = torch.linalg.solve_triangular(a, b, upper=True)  # Ignores the lower99.
+x.square().sum().backward()
+```
+
+Float32/64 support analytical VJP/JVP and reverse differentiation of the tangent;
+complex64/128 support inference. Results use column-major final axes on both
+left and right solves. Backward computes one adjoint solve for both active input
+gradients, projects A's gradient onto its used triangle, and zeros the unit
+diagonal's gradient. A and the output carry native mutation guards; B is not
+saved. The JVP's outer triangular coefficient remains differentiable, matching
+native Torch rather than generic solve's saved-LU behavior.
+
+Larger systems use32-row block substitution with NumPy matrix updates and small
+LAPACK calls; tiny systems use direct formulas and small unbatched systems use
+one local solve. A bounded cache retains only small read-only triangular masks
+(up to64KiB of structural mask data), never tensor values. Singular diagonals
+propagate nonfinite values rather than
+raising the generic singular-matrix exception. Output buffers, half factorization,
+sparse systems and complex differentiation remain explicit unsupported cases.
+Version0.31 is a development candidate pending complete validation and integration.
+
 Version0.29 passed application integration and actual Pages/live verification.
 Refinements reduce graph/metadata overhead and improve broader inference and
 training controls; some tiny solve-only flows remain a few percent slower. See the
@@ -119,6 +151,10 @@ strides, including transposes, dense permutations and singleton/empty layouts.
 Sliced layouts with gaps and overlapping/broadcast leaves receive C-contiguous
 gradients. Existing leaf gradients retain their object, storage and layout during
 accumulation; resetting `.grad = None` selects the first-allocation rule again.
+
+Native accumulation can adopt different positive strides on singleton axes,
+which do not change any addressable value. StrideTorch keeps its owned-buffer
+allocation rule; meaningful non-singleton strides follow the same layout contract.
 
 Gradient allocations own their bytes: changing a supplied backward seed or a
 hook's returned tensor after backward cannot change the stored gradient.

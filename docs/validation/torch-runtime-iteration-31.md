@@ -1,0 +1,119 @@
+# StrideTorch0.31 triangular systems
+
+`torch.linalg.solve_triangular` adds structured dense left/right solves with
+batch broadcasting, required `upper` and optional `unitriangular`. B is always a
+matrix/batch, including shapes that generic solve would classify as vectors.
+Only the selected triangle participates; unit diagonals ignore input values.
+Float32/64 cover values, analytical reverse gradients, JVP and reverse through
+both JVP channels. Complex64/128 cover inference. Out buffers, half factorization,
+sparse systems and complex AD remain explicit unsupported cases.
+
+The API follows [native triangular solve](https://docs.pytorch.org/docs/2.14/generated/torch.linalg.solve_triangular.html).
+Values use column-major final axes for both solve sides, including empty and
+singleton layouts. Backward solves the adjoint system once for both active
+inputs, masks A's gradient and removes the unit diagonal gradient. A/output
+mutation guards match native; B values are not retained. Non-leaf wrappers can
+be collected while required arrays survive until backward, then are released.
+
+Native JVP probes establish a material difference from generic solve: the outer
+triangular coefficient remains differentiable when reversing the tangent.
+The implementation keeps that edge and explicit zero paths. It does not reuse
+generic solve's detached saved-LU rule. Small, empty, singleton and zero-batch
+cases retain native values, gradients and layouts; singular diagonals propagate
+nonfinite values instead of a generic singular-matrix exception.
+
+## Numerical kernels and measured refinement
+
+Tiny1x1/2x2 systems use direct formulas. Small unbatched systems use one local
+NumPy solve. Larger/batched systems perform32-row block substitution, rectangular
+NumPy matrix updates and small LAPACK solves, avoiding a full dense factorization.
+The same algorithm runs on CPU and pinned WASM without SciPy or native Torch.
+
+Initial full proofs passed30831 tests and1097 actual VM contracts, but complete
+small SGD flows were3–14% slower and JVP19–24% slower than the prior projected
+composition. A CPU B-only float32 process also showed a−28% anomaly, retained
+without a causal attribution. Profiling showed repeated mask construction,
+unnecessary B copies/output assignments and general batch parsing.
+
+The final source returns local solves directly, bypasses broadcasting for equal
+batch shapes and caches only small read-only shape masks. Sixteen masks bound
+mask data to64KiB; Python object overhead is additional. Values, factors and
+user tensors are never cached. A separate284-call measurement verifies the bound,
+readonly boolean masks, input-array release and backward after cache churn.
+
+## Final compatibility evidence
+
+The refined source retains44 Python modules/two license resources.
+
+- Complete root/independent suite:30879 passed, one optional Docker skip,
+  34 warnings in192.27s. Focused native/independent triangular tests:919 passed.
+- A fresh Python3.10.19/NumPy1.26.4 installation without native Torch passes1125
+  tests. Wheel/sdist source and current README metadata match.
+- Real Pyodide0.29.4/NumPy2.2.5 under Node and Chrome155 Worker each pass1113
+  checks in31 standalone suites, with all46 final resource/source hashes equal.
+- Native2.14.1 grids cover float32/64 gradients, complex inference, broadcasts,
+  block boundaries, ignored NaNs, native return/gradient layouts, mutations and
+  reverse through all four primal/direction inputs. Independent2x2 algebra,
+  constructed large systems/adjoint seeds and real SGD/StepLR ZIP-resume flows
+  provide mathematical checks without native Torch.
+- Public/private wheels match all46 hashes, use disjoint installed paths and
+  survive uninstalling either owner. Both namespaces execute aliases, checkpoint
+  resume and triangular VJP/JVP/full tangent reverse. Private wheel/sdist also
+  match the current application server/catalog.
+
+The first native grid's80 failures were strict singleton-gradient stride
+assertions. Native probes show the same1x1 parameter produces strides(4,2) after
+sum/explicit-seed backward and(1,1) after square/matmul/triangular backward.
+Native's [gradient layout contract](https://raw.githubusercontent.com/pytorch/pytorch/v2.14.0/torch/csrc/autograd/utils/grad_layout_contract.h)
+compares non-singleton axes and permits different positive singleton strides.
+The new assertion checks that actual contract and contiguity. Product allocation
+and all previous gradient-layout tests remain unchanged. Four later scalar JVP
+fixture failures mixed default float32 A with explicit float64 B; explicit fixture
+dtypes correct them. Failed logs/probes remain archived.
+
+## Complete-flow performance
+
+The baseline is StrideTorch0.30 generic solve with the mathematically required
+triu/tril projection and identity addition. The frozen-A batched B-only case
+instead starts with a valid triangle and adds no baseline projection. These are
+comparisons with the prior NumPy library composition, not native PyTorch speed
+claims. Each operator retains its own native output layout.
+
+Two fresh processes per runtime/dtype retain nine ABBA/BAAB blocks with GC enabled,
+20/100 warmups and5/60/100 calls per sample depending on size. Values, float32/64
+dtypes, gradients/JVP channels and actual SGD parameter states match. JVP compares
+forward channels only; its retained reverse tape intentionally follows the two
+different native operators. Baseline projection of primal/direction is inside the
+timed work because0.30 triu/tril lack forward-mode rules. Timing processes run
+sequentially after compatibility gates; shared-host and actual BLAS-thread-count
+uncertainty remain explicit.
+
+Final process-median latency reductions across float32/64:
+
+| Complete flow | CPU | WASM |
+| --- | --- | --- |
+|2x2 solve/loss/backward |10–12% |8–11% |
+|16x16 solve/loss/backward/real SGD |4–12% |11–12% |
+|4 batches64x64, frozen A/B gradient |−0.1–8% |14–17% |
+|256x256,4 RHS,loss/backward |39–46% |73% |
+|256x256,64 RHS,right/unit,loss/backward |21–34% |34–35% |
+|256x256,4 RHS,no-grad inference |54–55% |89–90% |
+
+The small JVP is0.5–1.1% slower on CPU and approximately unchanged on WASM
+(−0.2% to+0.8% reduction). Unchanged unary/attention controls fluctuate roughly
+within±2%, providing no general speedup claim. Every initial/regressed sample and
+both final processes remain available; no case is dropped to select only wins.
+
+Sorted concatenated source/license data grows489518→497125 raw and
+115361→116891 gzip (+1530 bytes). This is source footprint, not network transfer.
+Four fresh CPU processes per variant/preload condition show namespace medians
+79.50→80.09ms including NumPy and56.83→57.68ms with NumPy preloaded. Ordinary
+namespace import still leaves zipfile unloaded. Earlier cold samples, including
+a123.9ms baseline outlier, are retained separately from the refined phase.
+
+[Core evidence](../../packages/stridetorch/benchmarks/results/iteration-31.json)
+and its receipt archive preserve all source/proof phases, native contracts,
+profiles, kernel selection,48 import/performance children and bounded-cache
+measurements. Full application catalog/exported-WASM/frontend integration and
+main/remote adoption remain pending. Version0.30 remains the last positively
+verified site release.
