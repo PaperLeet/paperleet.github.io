@@ -2,8 +2,8 @@
 
 This development candidate adds shared real `var/std/var_mean/std_mean` kernels,
 strict reduction/overload contracts and analytical VJP/JVP. It is not adopted on
-main. Final infrastructure, full application, packaging/export and integration
-gates remain pending. Version 0.21 is already deployed and independently verified.
+main. Final infrastructure passes 25,605 tests; full application, export and
+integration gates remain pending. Version 0.21 is already deployed and independently verified.
 
 ## Correctness and computation
 
@@ -43,7 +43,18 @@ finite boundary matrix passes after the implementation. A pre-cache complete
 infrastructure run passed 25,389 tests with one optional Docker skip and 17
 warnings (188.04s); this is not reused as the final source's complete result.
 
-The current source passes 4,031 focused native/statistics/model-conversion/IEEE
+After merging main at `ac360bd8`, the final source passes 25,605 infrastructure
+tests with one optional Docker skip and 17 warnings (202.29s). All 16 upstream
+UI/catalog files remain byte-identical; numerical source hashes still match the
+timed/runtime snapshots. Fresh private and standalone wheels/source archives
+contain identical core/license bytes and have disjoint installed paths; the
+private distribution retains current curriculum metadata.
+
+The original native catalog also passes 78 problems, 10,218 test executions over
+three repetitions and 342 mutants (135.72s), retaining its existing per-module
+limits and 600s aggregate budget. Exported WASM application budgets remain pending.
+
+The current source also passes 4,031 focused native/statistics/model-conversion/IEEE
 and standalone contracts. Its actual Node/Pyodide and Chrome Worker runs each
 pass 767 independent contracts, and the independently installed wheel passes
 787 tests on Python 3.10.19/NumPy 1.26.4 without native Torch. All 41 Python
