@@ -664,3 +664,15 @@ papers:
     - foundations/top_p_sampling
     - foundations/gradient_accumulation
     - foundations/gradient_clipping
+
+  - id: groupnorm
+    number: 60
+    category: architecture
+    short_title: GroupNorm
+    year: 2018
+    tags: [GroupNorm, Normalization, Computer Vision]
+    summary: 在每个样本内按连续通道分组归一化，研究批次组成与组数的影响。
+    summary_en: Normalize contiguous channel groups within each sample and explore batch composition and group counts.
+    scope: 实现可微的分组统计与逐通道仿射参数；提供标量基准、梯度检查和无需训练的合成实验。
+    scope_en: Implement differentiable grouped moments and per-channel affine; scalar oracles, gradient checks and a training-free synthetic experiment are supplied.
+    module_ids: [architecture/group_norm]
