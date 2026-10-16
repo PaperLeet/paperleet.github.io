@@ -2,8 +2,8 @@
 
 This candidate adds real `nansum` and `nanmean` with method/functional entry
 points, dtype casts, analytic VJP and float32/float64 JVP including reverse over
-the tangent. It is developed in the owned library checkout; main integration,
-exported catalog budgets and publication are still separate gates.
+the tangent. Core and complete local application integration gates have passed;
+exact main adoption, remote Quality and publication remain separately verified.
 
 The implementation uses a boolean mask with NumPy's `sum(where=...)`, and
 retains output-sized valid counts for means. Integer-output floating nansum
@@ -79,6 +79,41 @@ the [reproducibility archive](../../packages/stridetorch/benchmarks/results/iter
 retain frozen sources, all timing children, original failed test fixtures,
 the corrected validation-order audit, distribution artifacts and final gates.
 
-Original catalog, immutable export/history, latest upstream integration, complete
-exported WASM budgets, main adoption and actual eligible Pages/live verification
-remain release gates. No 0.25 deployment or publication is claimed here.
+## Complete application integration
+
+Original native CI passes 78 problems / 10,218 executions / 342 mutants / three
+repeats in 127.91s, within its unchanged 600s aggregate and per-module T3 limits.
+All visualization data regenerates without changing prior immutable resources.
+The export preserves all 6,756 published hashes and creates 158 reachable assets.
+The autograd profile carries 38 Python modules plus LICENSE/NOTICE, 467,986 raw
+bytes / 108,275 gzip-estimated bytes; schedules carries three modules and both
+notices, 37,343 raw / 11,550 gzip-estimated bytes. These are payload sizes, not
+measured HTTP transfer or startup times.
+
+The complete maintained exported WASM check passes all 78 problems and every
+mutant in 383,839ms, with zero calibration/run/total budget violations. The CI
+harness now discovers all NumPy-only library suites, excluding only host
+launcher/install contracts. Its actual exported attention VM additionally passes
+25 suites / 806 tests, with per-suite pass counts and source hashes retained.
+The earlier partial run was intentionally stopped before this coverage change;
+it is preserved as partial and does not substitute for the final complete run.
+
+All 34 upstream UI/curriculum files through `1305e09d` are preserved byte-for-byte.
+Their changes do not touch the 44 library/resource or 161 frozen export hashes.
+The full frontend sequence passes with 51 bilingual guides / 153 prompts; the
+26 affected Python catalog/publication tests pass. Later company-source changes
+pass their four affected flow checks and production build. The actual Pages
+repository variable selects the hosted profile, which also builds successfully:
+three initial JavaScript assets, 403,136 raw / 130,255 gzip bytes, within unchanged
+caps. Full logs retain ephemeral Vite shutdown/HMR diagnostics; all commands and
+assertions pass. No application browser visual QA is claimed.
+
+Rebuilt private wheel/sdist contain the exact new core and latest application
+catalog/server, with paths disjoint from the standalone wheel.
+[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-25-integration-gates.json)
+and its [202-file archive](../../packages/stridetorch/benchmarks/results/iteration-25-integration-gates-harness.tar.gz)
+retain reports, harnesses, frozen export bytes and distribution artifacts.
+
+Main revalidation/non-force adoption, exact remote Quality and actual eligible
+Pages/live verification remain release gates. No 0.25 deployment or public
+package publication is claimed here.

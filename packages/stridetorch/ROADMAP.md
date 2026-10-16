@@ -327,7 +327,13 @@ public/private wheel coinstallation and uninstall ownership pass. Final merged
 infrastructure passes 26,466 tests with one optional Docker skip. All 16 balanced
 CPU/WASM timing children complete: small/casted nanmean improves 51–56% against
 the matching where/sum composition, with ordinary controls and all regressions
-retained. Catalog/export, latest upstream, main and deployment gates remain pending.
+retained. Original native catalog passes 78 / 10,218 executions / 342 mutants /
+three repeats, and complete exported WASM passes 78/78 without budget violations.
+The maintained exported-VM harness now discovers all independent NumPy-only
+suites (25 / 806), excluding only host launcher/install tests. All 6,756 published
+immutable assets stay unchanged; 158 reachable new assets are frozen. Latest
+upstream's 34 UI/curriculum files remain exact; frontend and actual hosted Pages
+profile builds pass. Main revalidation/adoption and remote deployment gates remain.
 
 ## Next implementation areas
 
