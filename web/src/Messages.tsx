@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, MessageCircle, Send } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, MessageCircle, Send } from 'lucide-react';
 import { Avatar, DateLabel, errorMessage, profileHref, SocialError, useAccount } from './social';
 import { useI18n } from './i18n';
 import { signInHref } from './accountNavigation';
@@ -11,7 +11,17 @@ export default function Messages({username}: {username?: string}) {
   const {t} = useI18n();
   if (loading) return <main className="messages-page"><p role="status">{t('正在检查账号…', 'Checking account…')}</p></main>;
   if (error) return <main className="messages-page"><div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={() => void refresh()}>{t('重试', 'Retry')}</button></div></main>;
-  if (!user) return <main className="messages-page"><h1>{t('私信', 'Messages')}</h1><p>{t('登录后查看私信。', 'Sign in to view your messages.')}</p><a className="button primary" href={signInHref(messagesHref(username))}>{t('登录', 'Sign in')}</a></main>;
+  if (!user) return <main className="messages-page">
+    <a className="social-back messages-welcome-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</a>
+    <section className="messages-welcome" aria-labelledby="messages-welcome-title">
+      <div className="messages-welcome-icon" aria-hidden="true"><MessageCircle size={34}/></div>
+      <span className="messages-welcome-eyebrow">{t('社区交流', 'Community conversations')}</span>
+      <h1 id="messages-welcome-title">{t('私信', 'Messages')}</h1>
+      <p>{t('与社区成员讨论论文和实现。', 'Discuss papers and implementations with the community.')}</p>
+      <a className="button primary" href={signInHref(messagesHref(username))}>{t('登录', 'Sign in')}<ArrowRight size={15} aria-hidden="true"/></a>
+      <small>{username ? t('登录后回到当前对话。', 'Return to this conversation after signing in.') : t('登录后回到消息页。', 'Return here after signing in.')}</small>
+    </section>
+  </main>;
   if (!capabilities?.direct_messages) return <main className="messages-page"><h1>{t('私信', 'Messages')}</h1><p>{t('私信暂时不可用，请稍后再试。', 'Messages are currently unavailable. Please try again later.')}</p></main>;
   return <AccountMessages key={user.id} owner={user.id} username={username}/>;
 }
@@ -80,6 +90,7 @@ function ConversationThread({owner, username}: {owner: string; username: string}
   const alive = useRef(true), manual = useRef<AbortController | undefined>(undefined), sendController = useRef<AbortController | undefined>(undefined), readController = useRef<AbortController | undefined>(undefined);
   const revision = useRef(0), loadedOlder = useRef(false), lastRead = useRef(0), readingThrough = useRef(0), scroll = useRef<HTMLDivElement>(null), shouldScroll = useRef(true);
   const editor = useRef<HTMLTextAreaElement>(null);
+  const [atLatest, setAtLatest] = useState(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; manual.current?.abort(); sendController.current?.abort(); readController.current?.abort(); }; }, []);
   function receive(next: MessageThread) {
     setThread(current => ({...next, messages: mergeMessages(current?.messages || [], next.messages), next_before: current && loadedOlder.current ? current.next_before : next.next_before}));
@@ -114,20 +125,28 @@ function ConversationThread({owner, username}: {owner: string; username: string}
   }
   useEffect(() => {
     if (!thread) return;
-    if (shouldScroll.current && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
+    if (shouldScroll.current && scroll.current) { scroll.current.scrollTop = scroll.current.scrollHeight; setAtLatest(true); }
     void readVisible(thread);
   }, [thread]);
   function historyScrolled() {
     const box = scroll.current;
     if (!box) return;
-    shouldScroll.current = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    const remaining = box.scrollHeight - box.scrollTop - box.clientHeight;
+    shouldScroll.current = remaining < 80; setAtLatest(remaining <= 1);
+    if (thread) void readVisible(thread);
+  }
+  function jumpToLatest() {
+    const box = scroll.current;
+    if (!box) return;
+    shouldScroll.current = true; box.scrollTop = box.scrollHeight; setAtLatest(true);
+    box.focus({preventScroll: true});
     if (thread) void readVisible(thread);
   }
   async function loadOlder() {
     if (!thread?.next_before || more) return;
     manual.current?.abort(); const controller = new AbortController(); manual.current = controller;
     const version = ++revision.current, height = scroll.current?.scrollHeight || 0;
-    shouldScroll.current = false; setMore(true);
+    shouldScroll.current = false; setAtLatest(false); setMore(true);
     try {
       const next = await inboxRequest<MessageThread>(owner, `${messagePath(username)}?limit=50&before=${thread.next_before}`, undefined, controller.signal);
       if (controller.signal.aborted || !alive.current || version !== revision.current) return;
@@ -169,7 +188,7 @@ function ConversationThread({owner, username}: {owner: string; username: string}
     </header>
     {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
     {readError && <div className="inbox-error" role="alert"><p>{t('未能标为已读。', 'Could not mark messages as read.')}</p><button type="button" onClick={() => thread && void readVisible(thread)}>{t('重试', 'Retry')}</button></div>}
-    <div className="message-history" ref={scroll} onScroll={historyScrolled}>
+    <div className="message-history" ref={scroll} onScroll={historyScrolled} role="region" aria-label={t('对话消息', 'Conversation messages')} tabIndex={0}>
       {!thread && !error && <p className="inbox-empty" role="status">{t('正在加载对话…', 'Loading conversation…')}</p>}
       {thread?.next_before && <button type="button" className="inbox-more" disabled={more} onClick={() => void loadOlder()}>{more ? t('正在加载…', 'Loading…') : t('加载更早的消息', 'Load earlier messages')}</button>}
       {thread?.messages.length === 0 && <div className="inbox-empty"><MessageCircle size={28}/><p>{t('发送第一条消息', 'Send the first message')}</p></div>}
@@ -177,6 +196,7 @@ function ConversationThread({owner, username}: {owner: string; username: string}
         <p>{message.body}</p><time dateTime={message.created_at}>{new Date(message.created_at).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</time>
       </li>)}</ol>
     </div>
+    {thread && thread.messages.length > 0 && !atLatest && <div className="message-jump"><button type="button" onClick={jumpToLatest}><ArrowDown size={15} aria-hidden="true"/>{thread.unread_count > 0 ? t('有新消息 · 查看最新消息', 'New messages · Jump to latest') : t('回到最新消息', 'Back to latest messages')}</button></div>}
     {thread && <form className="message-composer" onSubmit={event => { event.preventDefault(); void send(); }}>
       {!thread.is_mutual_follow && <p className="message-permission" role="status">{thread.awaiting_reply ? t('消息已发出，等待对方回复后即可继续聊天。', 'Message sent. You can send more after they reply.') : thread.messages.length === 0 ? t('你们尚未互相关注。在对方回复前，只能发送一条消息。', 'You are not mutual followers. You can send one message until they reply.') : ''}</p>}
       <label className="sr-only" htmlFor="message-body">{t('消息内容', 'Message')}</label>
