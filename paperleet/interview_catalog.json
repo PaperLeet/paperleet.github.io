@@ -659,6 +659,22 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "feedback-distillation",
+      "name": "反馈与分布蒸馏",
+      "name_en": "Feedback & distribution distillation",
+      "description": "从成功解与环境反馈的路由，练到学生 Top-K 的尾部概率，再比较不同回答来源的非对称蒸馏目标。",
+      "description_en": "Connect solution and environment-feedback routing, student Top-K tail probability and asymmetric distillation across distinct response sources.",
+      "modules": [
+        "rl/sdpo_feedback",
+        "rl/sdpo_topk",
+        "finetuning/distillm2"
+      ],
+      "roles": [
+        "llm",
+        "research"
+      ]
     }
   ]
 }

@@ -1,0 +1,16 @@
+# Feedback and distribution distillation preparation
+
+Add a curated `feedback-distillation` path for LLM and research roles, ordered as feedback selection, student Top-K/tail compression, and asymmetric two-source distillation. The three existing executable modules receive nine original bilingual explain/implement/verify prompts. Existing sixty guides and thirteen curricula remain unchanged as parsed objects. This is preparation material, not evidence of company interview frequency.
+
+The small route allowlist gains the new curriculum without loading deferred catalog metadata into the initial page. A cross-catalog route/practice/login check now covers every maintained curriculum, so future path additions cannot silently leave routing behind. Unknown and malformed routes retain their existing rejection checks.
+
+Content is checked against the maintained Chinese and English READMEs, notes, reference implementations and all 298 lines of the three original test suites. Primary references reviewed on 2026-10-16:
+
+- [SDPO v2](https://arxiv.org/html/2601.20802v2), Section 2, Table 2 and Appendix A.3: feedback context scores the original student trajectory; successful self/peer solutions take precedence over environment feedback; vocabulary compression uses student-selected indices and a complementary tail. The lowest-index peer tie-break is an exercise convention. The maintained exercise uses masked reverse KL and a categorical teaching teacher, without claiming the full paper's training setup or benchmarks.
+- [DistiLLM-2 v2](https://arxiv.org/html/2503.07067v2), Section 2.2 and Equation (2): distinct response sources, asymmetric SKL/SRKL mixtures and the one-half reduction. The maintained task provides full conditional vocabulary logits with fixed coefficients; no sampling, curriculum or autoregressive sequence-equivalence claim is added.
+
+The new hand examples are independently checked against the actual native reference functions: routing [2,1,2,3,-1,-1] with five eligible attempts; two-bin KL 0.1920419931617982; full three-token KL 0.29107827551562926 (already reached at k=2); unequal-length dual-source loss 0.26287476860138903. Checks include independent finite differences, frozen teachers, unavailable zero gradients and padding invariance, alpha/beta endpoints and doubled valid-token sums. Existing exercise tests, mutants, budgets and runtime payloads remain unchanged by this content addition.
+
+Mounted React validation covers every new prompt and native answer disclosure in both languages, deferred content loading, the selected path card and three direct practice links, preserved company/role/stage/saved filters and login return URLs. Complete frontend checks and both builds retain the existing bundle budgets. These are source/DOM/native execution checks; no browser visual QA or language-model benchmark is claimed.
+
+The user has requested that ordinary development must not trigger GitHub CI or deployments, to conserve Actions minutes. The reviewed main branch now admits only explicit manual releases or vMAJOR.MINOR.PATCH tags. Commit reviewed work to main after local validation; do not dispatch CI, create release tags or deploy. Production publication waits for the user's chosen release. This content change does not alter workflow settings or release admission guards.

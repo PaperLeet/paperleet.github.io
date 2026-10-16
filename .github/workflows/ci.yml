@@ -1,8 +1,7 @@
 name: PaperLeet quality gate
 on:
   push:
-    branches: [main]
-  pull_request:
+    tags: ['v*']
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,6 +16,10 @@ jobs:
       PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify explicit current-main release request
+        run: node web/scripts/check-release-request.cjs
       - name: Validate Pages release gating
         run: node web/scripts/check-pages-release.cjs
       - uses: actions/setup-python@v5
@@ -64,6 +67,10 @@ jobs:
       PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify explicit current-main release request
+        run: node web/scripts/check-release-request.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -83,6 +90,10 @@ jobs:
       PAPERLEET_WASM_CONCURRENCY: '2'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify explicit current-main release request
+        run: node web/scripts/check-release-request.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

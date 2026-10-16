@@ -8,6 +8,12 @@ try {
  const community=await server.ssrLoadModule('/src/communityNavigation.ts');
  const account=await server.ssrLoadModule('/src/accountNavigation.ts');
  const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
+ for(const path of models.interviewCatalog.paths){
+  const filters={...nav.emptyInterviewFilters(),track:path.id,role:path.roles[0],company:'nvidia',saved:true,q:'课程 & feedback 😀'};
+  const href=nav.interviewHref(filters);assert.deepEqual(nav.readInterviewRoute(href),filters,'Every maintained curriculum must be accepted by deferred-metadata-free routing: '+path.id);
+  const practice=library.withLibraryContext(path.modules[0],href);assert.equal(library.libraryReturnHref(practice),href);
+  assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice))),practice);
+ }
  for(const q of ['数学 & optimization 😀','#/%? +=','注意力，复盘与准备']){
   const filters={...nav.emptyInterviewFilters(),company:'amazon',role:'ml',stage:'technical',q,days:'90',sort:'helpful',page:3,track:'llm',saved:true,concept:'architecture/attention'};
   const href=nav.interviewHref(filters);assert.deepEqual(nav.readInterviewRoute(href),filters);
