@@ -16,7 +16,7 @@ try{
  const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx'),{default:Community}=await server.ssrLoadModule('/src/Community.tsx'),{default:Markdown}=await server.ssrLoadModule('/src/CommunityMarkdown.tsx');
  const {quoteReplyDraft}=await server.ssrLoadModule('/src/replyQuotes.ts'),drafts=await server.ssrLoadModule('/src/replyDrafts.ts');
  const affiliation={kind:'institution',domain:'research.edu',name:'测试大学',name_en:'Research University'};
- const alice={id:'alice',username:'alice',display_name:'Private Alice',avatar_color:'#48766b',affiliation},bob={...alice,id:'bob',username:'bob',display_name:'Bob'};
+ const alice={can_publish_community:true,id:'alice',username:'alice',display_name:'Private Alice',avatar_color:'#48766b',affiliation},bob={...alice,id:'bob',username:'bob',display_name:'Bob'};
  const anonymous={...alice,id:'anonymous:'+postId,username:'',display_name:'Anonymous',anonymous:true};
  const row={id:replyId,post_id:postId,parent_id:null,body:'A **visible** explanation. [Paper](https://hidden.invalid/private?token=secret)\n\n```python\nx = "```"\n```\n\n![remote](https://hidden.invalid/pixel)',created_at:'2026-10-15T00:00:00Z',author:anonymous,can_delete:false,can_edit:false};
  const privateDraft={body:'My private response 😀\n```python\nunfinished = 1',parentId:otherId};

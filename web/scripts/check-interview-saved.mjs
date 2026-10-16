@@ -22,7 +22,7 @@ try{
  const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
  const requests=[],pending=[];let refreshes=0;
  globalThis.__savedFixture={account:{},request(path,body,signal){return new Promise((resolve,reject)=>{const request={path,body,signal,resolve,reject};requests.push(request);pending.push(request);});}};
- const identity=(owner,capable=true,loading=false)=>{globalThis.__savedFixture.account={user:owner?{id:owner,username:owner,display_name:owner}:null,loading,capabilities:{community_bookmarks:capable},refresh:async()=>{refreshes++;}};};
+ const identity=(owner,capable=true,loading=false)=>{globalThis.__savedFixture.account={user:owner?{id:owner,username:owner,display_name:owner,can_publish_community:true}:null,loading,capabilities:{community_bookmarks:capable},refresh:async()=>{refreshes++;}};};
  const modules=[{id:'architecture/attention',number:1,title:'Attention',starter:'',module:{optional:false}}];
  const details={company:'amazon',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'Remote',questions:['architecture/attention']};
  const post={id:'a'.repeat(32),title:'A useful experience',body:'Personal reflection without a module identifier in the text.',category:'career',problem_id:null,problem:null,created_at:'2026-10-15',updated_at:'2026-10-15',author:{id:'author',username:'author',display_name:'Author',avatar_color:'#527ad9'},counts:{likes:1,replies:0,reposts:0},viewer:{liked:false,reposted:false,can_delete:false,bookmarked:true},interview:details};

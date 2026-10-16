@@ -2,16 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import CommunityMarkdown from './CommunityMarkdown';
 import MarkdownEditor from './MarkdownEditor';
 import { useI18n } from './i18n';
-import { SocialError, SocialNotice, errorMessage, socialApi } from './social';
+import { SocialError, SocialNotice, errorMessage, socialApi, useAccount } from './social';
 import type { Reply } from './communityDiscussion';
 import { tabDraftStorage } from './communityDrafts';
 import { canEditReply, clearSavedReplyEdit, newReplyEdit, readReplyEdit, writeReplyEdit, type ReplyEditDraft } from './replyEdits';
+import {affiliationRequired,canPublishCommunity} from './communityPublishing';
+import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 
 
 export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefresh}:{
   reply:Reply;owner:string;disabled:boolean;onSaved:(reply:Reply)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
 }) {
   const {t}=useI18n();
+  const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
+  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const [draft,setDraft]=useState(()=>readReplyEdit(tabDraftStorage(),owner,reply.id)||newReplyEdit(reply));
   const current=useRef(draft), mounted=useRef(true), saving=useRef(false);
   const [busy,setBusy]=useState(false), [error,setError]=useState(''), [saved,setSaved]=useState<boolean|null>(null);
@@ -23,7 +27,7 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
     setSaved(writeReplyEdit(tabDraftStorage(),owner,reply.id,next));
   }
   async function save() {
-    if(busy||disabled||saving.current||needsReview||!canEditReply(reply,owner)||!draft.body.trim())return;
+    if(busy||disabled||!canPublish||saving.current||needsReview||!canEditReply(reply,owner)||!draft.body.trim())return;
     const submitted={...current.current};saving.current=true;setBusy(true);setError('');
     try {
       const confirmed=await socialApi<Reply>(`community/replies/${encodeURIComponent(reply.id)}/edit`,{
@@ -37,12 +41,14 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
           ? t('回复已被更新，修改草稿已保留。请核对最新内容后继续。','The reply has changed. Your edit draft is kept; review the latest content before continuing.')
           :errorMessage(e));
         if(e instanceof SocialError && e.code==='edit_conflict')await onRefresh();
+        if(affiliationRequired(e))void refreshAccount().catch(()=>{});
       }
     } finally {saving.current=false;if(mounted.current)setBusy(false);}
   }
   return <section className="social-panel community-composer" aria-label={t('编辑回复','Edit reply')}>
     <div className="panel-title"><h2>{t('编辑回复','Edit reply')}</h2><button type="button" disabled={busy} onClick={onClose}>{t('关闭编辑','Close editor')}</button></div>
     {error&&<SocialNotice error={error}/>}
+    <PublishingAffiliationNotice/>
     <p className="community-draft-status" role="status">{saved===false
       ?t('此标签页无法保存修改草稿，关闭或离开前请复制内容。','This tab cannot save your edit draft. Copy the text before closing or leaving.')
       :t('修改草稿按账号和回复保存在本标签页；保存修改后才会公开更新。','Edit drafts stay in this tab, separately for your account and reply. Changes become public only when saved.')}</p>
@@ -54,7 +60,7 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
       <MarkdownEditor submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
         label={t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={6} maxLength={10000} busy={busy} disabled={disabled} autoFocus/>
-      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
+      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||!canPublish||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的回复不会改变。','Discard unsaved edits? The published reply will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedReplyEdit(tabDraftStorage(),owner,reply.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
   </section>;

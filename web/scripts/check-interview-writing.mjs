@@ -38,7 +38,7 @@ try{
  const unicode=model.insertInterviewOutline('a😀b','technical','en',2);assert(unicode.after.startsWith('a😀\n\n## '),'Insertion cannot split a surrogate pair');assert(unicode.after.endsWith('b'));
  assert.equal(model.defaultInterviewOutline('assessment'),'technical');assert.equal(model.defaultInterviewOutline('research'),'research');assert.equal(model.defaultInterviewOutline('system-design'),'system');assert.equal(model.defaultInterviewOutline('behavioral'),'behavioral');
  const requests=[];
- globalThis.__writingFixture={account:{user:{id:'writer-alice'}},request(path,body){return new Promise((resolve,reject)=>requests.push({path,body,resolve,reject}));}};
+ globalThis.__writingFixture={account:{user:{id:'writer-alice',can_publish_community:true}},request(path,body){return new Promise((resolve,reject)=>requests.push({path,body,resolve,reject}));}};
  let owner='writer-alice',published=[],closed=0;
  function LocaleButtons(){const {setLocale}=useI18n();return React.createElement(React.Fragment,null,React.createElement('button',{className:'outside',onClick:()=>setLocale('zh')},'Chinese'),React.createElement('button',{onClick:()=>setLocale('en')},'English'));}
  const render=async()=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(LocaleButtons),React.createElement(Composer,{key:owner,owner,company:'google',problems:[],onClose:()=>closed++,onPublished:post=>published.push(post)})));});
@@ -80,9 +80,9 @@ try{
  await openGuide();const pendingFocus=document.querySelector('.interview-writing-actions .button');
  await act(async()=>{pendingFocus.click();document.querySelector('.outside').focus();});assert.equal(document.activeElement,document.querySelector('.outside'),'Late insertion focus never steals a newer external focus');
  const aliceBody=body().value,staleProps=globalThis.__writingFixture.guideProps;
- owner='writer-bob';globalThis.__writingFixture.account={user:{id:owner}};await render();assert.equal(body().value,'');
+ owner='writer-bob';globalThis.__writingFixture.account={user:{id:owner,can_publish_community:true}};await render();assert.equal(body().value,'');
  await act(async()=>staleProps.onInsert('technical',pendingFocus));assert.equal(drafts.readInterviewDraft(window.sessionStorage,'writer-alice').body,aliceBody);assert.equal(body().value,'');assert.equal(requests.length,0);
- owner='writer-blank';globalThis.__writingFixture.account={user:{id:owner}};await render();await edit(field('Title'),'A future reflection');await openGuide();await click(button('Insert outline'));
+ owner='writer-blank';globalThis.__writingFixture.account={user:{id:owner,can_publish_community:true}};await render();await edit(field('Title'),'A future reflection');await openGuide();await click(button('Insert outline'));
  assert(publishButton().disabled);assert(document.body.textContent.includes('Your outline is ready'));await submit();assert.equal(requests.length,0,'A manual form submission cannot publish a blank scaffold');
  const blank=body().value;await stop();await render();assert.equal(body().value,blank);assert(publishButton().disabled);
  await edit(body(),blank+'I discussed an approach and its limitations.');await submit();assert.equal(requests.length,1);const first=requests[0];assert.equal(first.body.expected_user_id,owner);assert.equal(first.path,'community/posts');assert(publishButton().disabled);
@@ -92,12 +92,12 @@ try{
  await click(button('Retry previous publication'));assert.equal(requests.length,2);assert.equal(requests[1].body.request_id,first.body.request_id);assert.equal(requests[1].body.body,first.body.body,'Retry confirms the captured payload, not the newer outline edit');
  await act(async()=>requests[1].resolve({id:'a'.repeat(32),author:{id:owner},interview:first.body.interview}));assert.equal(body().value,newer);assert.equal(published.length,0,'Acknowledging an older publication cannot discard newer writing');
  // Old versions allowed empty outlines. Their pending receipts must remain confirmable.
- owner='writer-legacy';globalThis.__writingFixture.account={user:{id:owner}};
+ owner='writer-legacy';globalThis.__writingFixture.account={user:{id:owner,can_publish_community:true}};
  const legacy={title:'Legacy pending report',body:model.interviewOutlineText('technical','en'),interview:{company:'google',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]}};
  drafts.writeInterviewDraft(window.sessionStorage,owner,legacy);const receipt=receipts.preparePublication(window.sessionStorage,owner,'interview','general',drafts.interviewPublication(legacy));await render();assert.equal(publishButton().disabled,false);
  await submit();assert.equal(requests.at(-1).body.request_id,receipt.receipt.requestId);await act(async()=>requests.at(-1).resolve({id:'b'.repeat(32),author:{id:owner},interview:legacy.interview}));assert.equal(published.length,1);
  // Optional prompt failures leave the user's form and exact draft mounted.
- owner='writer-recovery';globalThis.__writingFixture.account={user:{id:owner}};await render();await edit(field('Title'),'Keep this draft');await edit(body(),'Actual notes that must survive.');const fieldBefore=body(),savedBefore=fieldBefore.value;
+ owner='writer-recovery';globalThis.__writingFixture.account={user:{id:owner,can_publish_community:true}};await render();await edit(field('Title'),'Keep this draft');await edit(body(),'Actual notes that must survive.');const fieldBefore=body(),savedBefore=fieldBefore.value;
  globalThis.__writingFixture.failGuide=true;const previousError=console.error;console.error=()=>{};
  try{await act(async()=>{const details=document.querySelector('.interview-writing-guide');details.open=true;details.dispatchEvent(new dom.window.Event('toggle'));});await settle(()=>document.querySelector('.interview-writing-failure'));}finally{console.error=previousError;}
  assert.equal(body(),fieldBefore);assert.equal(body().value,savedBefore);assert(!button('Reload page'));

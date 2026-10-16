@@ -36,7 +36,8 @@ try{
  assert.equal(formatMarkdown('`x`','code',0,3,99).after,'`` `x` ``');
  assert.equal(formatMarkdown(' x ','code',0,3,99).after,'`  x  `');
  const link=formatMarkdown('[literal] \\','link',0,11,999,true);assert.equal(link.after.slice(link.start,link.end),'https://');assert(link.after.startsWith('[\\[literal\\] \\\\]('));
- const render=async(Component,props={})=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
+ let lastComponent,lastProps;
+ const render=async(Component,props={})=>act(async()=>{lastComponent=Component;lastProps=props;root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;};
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
  const named=name=>[...document.querySelectorAll('button')].find(element=>(element.getAttribute('aria-label')||element.textContent.trim())===name);
@@ -62,28 +63,46 @@ try{
  await render(Harness);await act(async()=>setText('exact source'));field.focus();field.setSelectionRange(0,5);
  await act(async()=>{named('Bold').click();document.querySelector('#outside').focus();});assert.equal(document.activeElement,document.querySelector('#outside'));assert.equal(field.value,'**exact** source');await click(document.querySelector('#outside'));assert(document.body.textContent.includes('撤销格式'));await stop();localStorage.setItem('paperleet.locale','en');
  const owner='alice',postId='a'.repeat(32),replyId='b'.repeat(32),version='c'.repeat(64);
- const user={id:owner,username:owner,display_name:'Alice',avatar_color:'#48766b',affiliation:'student',institution:'Example'};
+ const user={can_publish_community:true,id:owner,username:owner,display_name:'Alice',avatar_color:'#48766b',affiliation:'student',institution:'Example'};
  const post={id:postId,title:'Actual discussion',body:'Existing post',category:'questions',problem:null,problem_id:null,created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',edit_version:version,author:user,counts:{likes:0,reposts:0,replies:0},viewer:{can_edit:true,can_delete:true},replies:[]};
  const reply={id:replyId,post_id:postId,parent_id:null,body:'Existing reply',author:user,can_edit:true,edit_version:version},mutations=[];
  globalThis.__formatFixture={account:{user,loading:false,capabilities:{community_bookmarks:true},refresh:async()=>{}},request:async(path,payload)=>{if(payload){mutations.push({path,payload});throw Error('No publication during formatting');}return path.includes('?')?{items:[],total:0}:post;}};
  const {default:Community}=await server.ssrLoadModule('/src/Community.tsx'),{default:Interview}=await server.ssrLoadModule('/src/InterviewComposer.tsx');
  const {default:PostEditor}=await server.ssrLoadModule('/src/PostEditor.tsx'),{default:ReplyEditor}=await server.ssrLoadModule('/src/ReplyEditor.tsx');
+ const {default:CardActions}=await server.ssrLoadModule('/src/CommunityCardActions.tsx');
  const drafts=await server.ssrLoadModule('/src/communityDrafts.ts'),replies=await server.ssrLoadModule('/src/replyDrafts.ts'),interviews=await server.ssrLoadModule('/src/interviewDrafts.ts'),postEdits=await server.ssrLoadModule('/src/communityEdits.ts'),replyEdits=await server.ssrLoadModule('/src/replyEdits.ts');
- for(const kind of ['post','reply','interview','edit-post','edit-reply']){
+ for(const kind of ['post','reply','interview','edit-post','edit-reply','inline-reply']){
   sessionStorage.clear();
-  if(kind==='post'){await render(Community,{route:'community'});await click(named('New post'));}
+  if(kind==='post'){await render(Community,{route:'community?category=questions'});await click(named('New post'));}
   if(kind==='reply')await render(Community,{postId,route:'community/'+postId});
   if(kind==='interview')await render(Interview,{owner,company:'google',problems:[],onClose(){},onPublished(){}});
   if(kind==='edit-post')await render(PostEditor,{owner,post,disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true});
   if(kind==='edit-reply')await render(ReplyEditor,{owner,reply,disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true});
+  if(kind==='inline-reply'){await render(CardActions,{post});await click(named('Write comment'));}
   field=document.querySelector('.markdown-editor textarea');assert(field,kind);assert.equal(field.getAttribute('aria-keyshortcuts'),'Control+Enter Meta+Enter',kind+' opts in to native validated shortcut submission');assert(field.getAttribute('aria-describedby').split(' ').some(id=>document.getElementById(id)?.classList.contains('markdown-submit-shortcut')));await input(field,'A concrete reflection 😀');field.focus();field.setSelectionRange(2,10);field.scrollTop=17;
   await click(named('Bold'));assert.equal(field.value,'A **concrete** reflection 😀');
-  const draft=kind==='post'?drafts.readPostDraft(sessionStorage,owner,'general'):kind==='reply'?replies.readReplyDraft(sessionStorage,owner,postId):kind==='interview'?interviews.readInterviewDraft(sessionStorage,owner):kind==='edit-post'?postEdits.readPostEdit(sessionStorage,owner,postId):replyEdits.readReplyEdit(sessionStorage,owner,replyId);
+  const draft=kind==='post'?drafts.readPostDraft(sessionStorage,owner,'general'):['reply','inline-reply'].includes(kind)?replies.readReplyDraft(sessionStorage,owner,postId):kind==='interview'?interviews.readInterviewDraft(sessionStorage,owner):kind==='edit-post'?postEdits.readPostEdit(sessionStorage,owner,postId):replyEdits.readReplyEdit(sessionStorage,owner,replyId);
   assert.equal(draft.body,field.value,'Existing scoped draft path: '+kind);
   await click(named('Preview'));await click(named('Write'));assert.equal(document.querySelector('textarea'),field);assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);
-  await click(named('Undo formatting'));assert.equal(field.value,'A concrete reflection 😀');assert.equal(mutations.length,0);await stop();
+  await click(named('Undo formatting'));assert.equal(field.value,'A concrete reflection 😀');assert.equal(mutations.length,0);
+  if(kind==='post'||kind==='interview')await input(document.querySelector(`input[maxlength="${kind==='post'?160:180}"]`),'A complete publishing title');
+  const form=field.closest('form'),publish=form.querySelector('button.button:not([type="button"])');
+  assert(publish&&!publish.disabled,kind+' starts with an eligible publish control');
+  user.can_publish_community=false;await render(lastComponent,lastProps);
+  assert(document.querySelector('.publishing-affiliation-notice'),kind+' explains affiliation verification');
+  assert.equal(document.querySelector('textarea'),field,kind+' preserves the mounted draft editor');
+  assert(!field.disabled,kind+' can keep editing an unpublished draft');
+  assert(publish.disabled,kind+' blocks publication and edits without affiliation');
+  await act(async()=>form.dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+  await act(async()=>field.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Enter',metaKey:true,bubbles:true,cancelable:true})));
+  assert.equal(mutations.length,0,kind+' protects direct form submission and the keyboard shortcut');
+  assert.equal(field.value,'A concrete reflection 😀');
+  assert.equal(document.querySelector('.publishing-affiliation-actions a').getAttribute('href'),'#/account');
+  user.can_publish_community=true;await render(lastComponent,lastProps);
+  assert(!document.querySelector('.publishing-affiliation-notice'));assert(!publish.disabled,kind+' resumes after account verification');
+  await stop();
  }
- console.log('PASS Markdown editing: seven bilingual tools, exact source/Unicode/fence/length safety, shortcuts, mounted preview selection/scroll, guarded undo/focus, disabled state and five real account-scoped authoring surfaces without publication');
+ console.log('PASS Markdown editing: seven bilingual tools, exact source/Unicode/fence/length safety, shortcuts, mounted preview selection/scroll, guarded undo/focus, affiliation gates across six real authoring surfaces, direct/shortcut publish prevention, preserved editable drafts and verified-account recovery');
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
  for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,{...descriptor});else delete globalThis[key];}

@@ -4,7 +4,7 @@ import {readInterviewDetails} from './interviewModels';
 import InterviewMeta from './InterviewMeta';
 import PaperPreviewCard from './PaperPreviewCard';
 
-export default function PublicationRecovery({pending,payload,busy,onRetry}:{pending?:PendingPublication;payload:PublicationPayload;busy:boolean;onRetry:()=>void}) {
+export default function PublicationRecovery({pending,payload,busy,disabled=false,onRetry}:{pending?:PendingPublication;payload:PublicationPayload;busy:boolean;disabled?:boolean;onRetry:()=>void}) {
   const {t}=useI18n();
   if(!pending||busy)return null;
   const changed=!samePublication(pending.receipt,payload);
@@ -25,6 +25,6 @@ export default function PublicationRecovery({pending,payload,busy,onRetry}:{pend
       <PaperPreviewCard url={typeof pending.receipt.payload.paper_url==='string'?pending.receipt.payload.paper_url:undefined} compact/>
       {pending.receipt.payload.parent_id&&<small>{t('这份发布包含指定回复对象。','This publication targets a specific reply.')}</small>}
     </details>
-    {changed&&<button className="button subtle" type="button" onClick={onRetry}>{t('重试此前发布','Retry previous publication')}</button>}
+    {changed&&<button className="button subtle" type="button" disabled={disabled} onClick={onRetry}>{t('重试此前发布','Retry previous publication')}</button>}
   </div>;
 }

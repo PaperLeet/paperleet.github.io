@@ -28,7 +28,7 @@ try{
  const {SocialError}=await server.ssrLoadModule('\0card-account');
  const drafts=await server.ssrLoadModule('/src/replyDrafts.ts');
  const publications=await server.ssrLoadModule('/src/publicationRequests.ts');
- const user={id:'alice',username:'alice',display_name:'Alice',avatar_color:'#48766b',affiliation:{kind:'institution',domain:'research.edu',name:'测试大学',name_en:'Research University'}};
+ const user={can_publish_community:true,id:'alice',username:'alice',display_name:'Alice',avatar_color:'#48766b',affiliation:{kind:'institution',domain:'research.edu',name:'测试大学',name_en:'Research University'}};
  const anonymous={...user,id:'anonymous:'+id,username:'',display_name:'Anonymous',anonymous:true};
  let refreshes=0,refreshFailure=false,delayRefresh=false,refreshRelease;const account={user,loading:false,capabilities:{},refresh:async()=>{refreshes++;if(refreshFailure)throw Error('Account refresh unavailable');if(delayRefresh)return new Promise(resolve=>refreshRelease=resolve);}};
  let post={id,title:'Useful discussion',body:'A paper explanation',category:'papers',created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:anonymous,anonymous:true,counts:{likes:4,replies:8,reposts:2},viewer:{liked:false,can_edit:true},problem_id:null,problem:null};

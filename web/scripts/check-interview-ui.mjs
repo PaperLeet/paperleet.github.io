@@ -31,7 +31,7 @@ try {
  const drafts=await server.ssrLoadModule('/src/interviewDrafts.ts'),publications=await server.ssrLoadModule('/src/publicationRequests.ts');
  const pending=[],requests=[];
  globalThis.__interviewFixture={account:{user:null},request(path,body,signal){return new Promise((resolve,reject)=>{const item={path,body,signal,resolve,reject};pending.push(item);requests.push(item);});}};
- const user=id=>({id,username:'researcher',display_name:'Researcher',avatar_color:'#48766b'});
+ const user=id=>({can_publish_community:true,id,username:'researcher',display_name:'Researcher',avatar_color:'#48766b'});
  const account=id=>{globalThis.__interviewFixture.account={user:id?user(id):null};};
  const modules=[{id:'architecture/attention',number:1,title:'Attention',translations:{en:{title:'Attention'}}},{id:'finetuning/lora',number:2,title:'LoRA'}];
  const details={company:'amazon',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:['architecture/attention']};

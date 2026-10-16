@@ -1,4 +1,5 @@
 import AffiliationBadge from "./AffiliationBadge";
+import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -805,6 +806,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           {!user.is_test_user && <div className="public-affiliation-setting">
             <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
             <p>{t("根据已验证的注册邮箱显示所属学校或公司，机构名称固定公开，不能隐藏，完整邮箱不公开。", "Your school or company is identified from your verified registration email. Its name is always public and cannot be hidden; your full email stays private.")}</p>
+            <PublishingAffiliationNotice/>
           </div>}
           <label>
             {t("国家／地区代码（选填）", "Country / region code (optional)")}
@@ -879,7 +881,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               </>
             ) : (
               <>
-                <h3>{t("邮箱已验证", "Email verified")}</h3>
+                <h3>{user.email_verified === true ? t("邮箱已验证", "Email verified") : t("邮箱尚未验证", "Email not verified")}</h3>
                 <p className="private-email">{user.email}</p>
                 <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
                 <p>

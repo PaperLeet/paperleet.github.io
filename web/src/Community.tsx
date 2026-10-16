@@ -6,6 +6,8 @@ import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
 import { PublishingRules } from './PublishingRules';
+import { affiliationRequired, canPublishCommunity } from './communityPublishing';
+import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
@@ -277,7 +279,8 @@ function Composer({
   onClose: () => void;
 }) {
   const { t, locale } = useI18n();
-  const {user,capabilities}=useAccount();
+  const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
+  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const anonymousAvailable=capabilities?.community_anonymous_posts===true;
   const initialCategory = category || (topic ? "questions" : "papers");
   const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
@@ -349,7 +352,7 @@ function Composer({
     setPreview(false);
   }
   async function publish(previous?:PublicationReceipt) {
-    if (busy || publishing.current) return;
+    if (busy || publishing.current || !canPublish) return;
     const submitted = { ...currentDraft.current };
     previous ||= publication&&samePublication(publication.receipt,postPublication(submitted,topic?.id))?publication.receipt:undefined;
     if(!previous&&!hasCommunityDraftContent(submitted.body)){setError(t('提纲已准备好，请补充自己的问题、观察或思考后再发布。','Your outline is ready. Add your own question, observations or thoughts before publishing.'));return;}
@@ -380,6 +383,7 @@ function Composer({
       if (mounted.current && location.hash === submittedRoute) location.hash = postHref(post.id, submittedRoute);
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
+      if (affiliationRequired(e)) void refreshAccount().catch(() => {});
     } finally {
       publishing.current = false;
       if (mounted.current) setBusy(false);
@@ -419,7 +423,8 @@ function Composer({
           <button type="button" onClick={() => setDiscardRequested(false)}>{t("保留草稿", "Keep draft")}</button>
         </div>
       )}
-      <PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id)} busy={busy} onRetry={() => void publish(publication?.receipt)} />
+      <PublishingAffiliationNotice/>
+      <PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id)} busy={busy} disabled={!canPublish} onRetry={() => void publish(publication?.receipt)} />
       <form
         className="social-form"
         onSubmit={(e) => {
@@ -467,7 +472,7 @@ function Composer({
             )}
             {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
-          <button className="button" disabled={busy || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
+          <button className="button" disabled={busy || !canPublish || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
             {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>
@@ -771,6 +776,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
 function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
   const { t,locale } = useI18n();
   const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
+  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   useReadingOrigin(accountLoading?undefined:user?'account:'+user.id:'guest',id,returnTo);
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
@@ -896,7 +902,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
     }
   }
   async function reply(previous?:PublicationReceipt) {
-    if (!user || busy || publishing.current || loading || !previous && (!currentDraft.current.body.trim() || missingTarget)) return;
+    if (!user || !canPublish || busy || publishing.current || loading || !previous && (!currentDraft.current.body.trim() || missingTarget)) return;
     const submitted = { ...currentDraft.current };
     const submittedRoute = location.hash;
     setBusy(true);
@@ -933,6 +939,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
       }
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
+      if (affiliationRequired(e)) void refreshAccount().catch(() => {});
     } finally {
       publishing.current = false;
       if (mounted.current) setBusy(false);
@@ -1155,7 +1162,8 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 <button type="button" disabled={busy} onClick={() => setDiscardReply(false)}>{t("保留草稿", "Keep draft")}</button>
               </div>}
               {quoteNotice&&<div className="reply-quote-notice" role="status"><span>{quoteNotice}</span>{quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={busy||loading} onClick={undoQuote}>{t('撤销引用','Undo quote')}</button>}</div>}
-              <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={busy || loading} onRetry={() => void reply(publication?.receipt)} />
+              <PublishingAffiliationNotice/>
+              <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={busy || loading} disabled={!canPublish} onRetry={() => void reply(publication?.receipt)} />
               {replyNotice && <div className="reply-publication-notice" role="status"><p>{replyNotice === 'posted'
                 ? t('回复已发布。','Reply posted.')
                 : t('回复已发布并已显示。暂未获取到讨论的最新状态，可重试加载讨论，无需再次发布。','Your reply is posted and visible. The latest discussion could not load; retry loading without posting again.')}</p>
@@ -1180,7 +1188,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                       "Replies appear publicly on your profile.",
                     )}
                   </small>
-                  <button className="button" disabled={busy || loading || !body.trim() || missingTarget}>
+                  <button className="button" disabled={busy || loading || !canPublish || !body.trim() || missingTarget}>
                     <MessageCircle size={14} />
                     {publication ? samePublication(publication.receipt,replyPublication(draft)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布回复", "Post reply")}
                   </button>
@@ -1362,14 +1370,14 @@ function UserProfileContents({ username }: { username: string }) {
                 <span className="profile-handle">@{profile.username}</span>
                 <div className="profile-facts">
                   <TestAccountBadge isTestUser={profile.is_test_user} />
-                  {resolveAffiliation(profile.affiliation, profile.institution) ? (
+                  {!profile.is_test_user && (resolveAffiliation(profile.affiliation, profile.institution) ? (
                     <AffiliationBadge affiliation={profile.affiliation} institution={profile.institution} />
                   ) : (
                     <span className="profile-affiliation-empty">
                       <Building2 size={13} />
-                      {t("暂无机构信息", "No affiliation listed")}
+                      {t("机构未认证", "Affiliation not verified")}
                     </span>
-                  )}
+                  ))}
                   {profile.country && (
                     <span>
                       <Globe2 size={13} />
