@@ -18,6 +18,7 @@ def fixture(dtype=torch.float64):
 
 @pytest.mark.t0
 def test_mean_contract_padding_empty_samples_and_validation(impl):
+    """Support both precisions, strided and empty inputs, ignored padding, and supplied validation."""
     for dtype in (torch.float32,torch.float64):
         for nodes,samples in ((0,2),(3,0),(3,2)):
             x=torch.randn(nodes,6,dtype=dtype)[:,::2];ids=torch.full((nodes,samples),99,dtype=torch.long);mask=torch.zeros(nodes,samples,dtype=torch.bool)
@@ -31,6 +32,7 @@ def test_mean_contract_padding_empty_samples_and_validation(impl):
 
 @pytest.mark.t0
 def test_encoder_contract_precision_empty_batch_identity_and_validation(impl):
+    """Preserve shape and precision at zero depth or zero nodes; reject incompatible per-hop inputs."""
     for dtype in (torch.float32,torch.float64):
         for nodes in (0,3):
             x=torch.randn(nodes,6,dtype=dtype)[:,::2];ids=torch.zeros(nodes,0,dtype=torch.long);mask=torch.zeros(nodes,0,dtype=torch.bool);w=torch.randn(6,8,dtype=dtype)[:,::2]
@@ -45,6 +47,7 @@ def test_encoder_contract_precision_empty_batch_identity_and_validation(impl):
 
 @pytest.mark.t1
 def test_hand_mean_concatenation_relu_and_feature_axis_normalization(impl):
+    """Match hand-computed duplicate means and own-first projection, ReLU and row normalization."""
     x=torch.tensor([[1.,2.],[-3.,4.],[5.,-2.]],dtype=torch.float64)
     ids=torch.tensor([[1,1,99],[0,2,-99],[-1,99,99]]);mask=torch.tensor([[True,True,False],[True,True,False],[False,False,False]])
     close(impl.masked_neighbor_mean(x,ids,mask),torch.tensor([[-3.,4.],[3.,0.],[0.,0.]],dtype=x.dtype),atol=1e-12,rtol=1e-12)
@@ -55,6 +58,7 @@ def test_hand_mean_concatenation_relu_and_feature_axis_normalization(impl):
 
 @pytest.mark.t2
 def test_independent_scalar_multihop_and_input_preservation(impl):
+    """Match independent scalar calculations at depths zero through two without mutating inputs."""
     for dtype in (torch.float32,torch.float64):
         x,ids,masks,weights=fixture(dtype);before=[v.clone() for v in [x,*ids,*masks,*weights]]
         for depth in (0,1,2):
@@ -66,6 +70,7 @@ def test_independent_scalar_multihop_and_input_preservation(impl):
 
 @pytest.mark.t2
 def test_strided_sampling_weights_and_neighbor_order(impl):
+    """Accept int32 sampled IDs and strided tensors; reordering sampled slots must preserve results."""
     for dtype in (torch.float32,torch.float64):
         x,ids,masks,weights=fixture(dtype)
         def strided(t):
@@ -79,6 +84,7 @@ def test_strided_sampling_weights_and_neighbor_order(impl):
 
 @pytest.mark.t2
 def test_repeated_neighbor_gradient_counts_and_empty_context_paths(impl):
+    """Repeated sampled IDs accumulate analytical gradients; empty means keep a zero gradient path."""
     x=torch.tensor([[1.,2.],[-3.,4.],[5.,-2.]],dtype=torch.float64,requires_grad=True)
     ids=torch.tensor([[1,1,99],[0,2,-99],[-1,99,99]]);mask=torch.tensor([[True,True,False],[True,True,False],[False,False,False]])
     coeff=torch.tensor([[1.,2.],[3.,4.],[5.,6.]],dtype=x.dtype)
@@ -91,6 +97,7 @@ def test_repeated_neighbor_gradient_counts_and_empty_context_paths(impl):
 
 @pytest.mark.t2
 def test_feature_and_every_layer_gradient_against_scalar_finite_differences(impl):
+    """Compare feature and both layer gradients with 60 independent scalar finite differences."""
     x,ids,masks,weights=fixture();values=[x.tolist(),*[w.tolist() for w in weights]]
     x=x.requires_grad_();weights=[w.requires_grad_() for w in weights]
     coeff=[[.2,-.5,.7],[-.3,.4,.1],[.8,.2,-.6],[-.4,.9,.3]]
@@ -112,6 +119,7 @@ def test_feature_and_every_layer_gradient_against_scalar_finite_differences(impl
 
 @pytest.mark.t2
 def test_node_relabeling_equivariance_and_shared_weights_on_unseen_graphs(impl):
+    """Renumbering nodes preserves embeddings; shared weights also accept an unseen graph size."""
     x,ids,masks,weights=fixture();wanted=impl.graphsage_encode(x,ids,masks,weights)
     order=torch.tensor([2,0,3,1]);inverse=torch.tensor([1,3,0,2])
     remapped=[]
@@ -127,6 +135,7 @@ def test_node_relabeling_equivariance_and_shared_weights_on_unseen_graphs(impl):
 
 @pytest.mark.t2
 def test_normalize_each_hop_not_only_the_last(impl):
+    """Two-hop encoding must equal two normalized one-hop calls and the scalar oracle."""
     x,ids,masks,weights=fixture();first=impl.graphsage_encode(x,ids[:1],masks[:1],weights[:1]);second=impl.graphsage_encode(first,ids[1:],masks[1:],weights[1:])
     close(impl.graphsage_encode(x,ids,masks,weights),second,atol=1e-12,rtol=1e-12)
     expected=torch.tensor(scalar_encode(x.tolist(),[v.tolist() for v in ids],[v.tolist() for v in masks],[v.tolist() for v in weights]),dtype=x.dtype)
@@ -135,6 +144,7 @@ def test_normalize_each_hop_not_only_the_last(impl):
 
 @pytest.mark.t2
 def test_zero_relu_eps_boundary_and_empty_node_gradients(impl):
+    """Keep zero vectors finite, clamp small norms by eps, and preserve empty-batch gradients."""
     for dtype in (torch.float32,torch.float64):
         x=torch.tensor([[1.,0.],[0.,0.]],dtype=dtype,requires_grad=True);index=torch.zeros(2,0,dtype=torch.long);mask=torch.zeros(2,0,dtype=torch.bool)
         weight=torch.tensor([[1e-9,-1.],[0.,-1.],[0.,0.],[0.,0.]],dtype=dtype,requires_grad=True)
@@ -147,8 +157,11 @@ def test_zero_relu_eps_boundary_and_empty_node_gradients(impl):
 
 
 @pytest.mark.t3
-def test_actual_training_and_inductive_held_out_queries(impl):
-    metrics=run(impl.graphsage_encode)['metrics']
+def test_actual_training_and_inductive_held_out_queries(impl, artifact):
+    """Train shared weights on one synthetic graph and classify another using frozen weights."""
+    result=run(impl.graphsage_encode)
+    artifact('graphsage_inductive_training',result)
+    metrics=result['metrics']
     assert metrics['updates']==100 and metrics['train_nodes']!=metrics['held_out_nodes']
     assert metrics['trainable_parameters']==80 and metrics['feature_only_accuracy_ceiling']==.5
     assert metrics['final_loss']<metrics['initial_loss']*.3

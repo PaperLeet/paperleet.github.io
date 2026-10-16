@@ -18,6 +18,10 @@ Initial native calibration: all 11 tests pass, all 8 mutants are caught consiste
 
 Initial exact exported WASM calibration (StrideTorch 0.31, Pyodide 0.29.4, NumPy 2.2.5): all 11 tests pass and all 8 mutants are caught. VM preparation 1,671 ms, calibration 1,867 ms, subsequent full learner suite 149 ms. These are local harness measurements with runtime packages already available; they exclude first-download/network time and are not a controlled browser/server speed comparison.
 
+After rebasing on main `93e8cbba` (StrideTorch 0.32), the unchanged numerical suite and all eight mutants also pass on its exact exported WASM runtime. Training artifacts are returned with the learner's T3 result. Actual browser QA covers initial-code failure, reference acceptance and rendering the learner's training curves.
+
+Oracle's current PyTorch 2.6.0+cpu worker image also passes all 11 tests and catches all eight mutants in a disposable, network-free, unprivileged container with no persistent volumes. The new T3 takes approximately 0.805 seconds under the existing two-CPU limit; the eight-second native budget has headroom. This compatibility check transports only the independently authored exercise, not account data or production submissions.
+
 ## Release validation
 
 The feature must also pass the current main branch's complete native, infrastructure, frontend and exported WASM gates before publication. A successful quality check alone does not establish an actual Pages or Oracle deployment.
