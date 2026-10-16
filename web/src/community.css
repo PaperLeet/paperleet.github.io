@@ -1496,6 +1496,7 @@
 .profile-sidebar .profile-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 22px; padding: 17px 0 20px; gap: 15px; }
 .profile-sidebar .profile-stats button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: var(--type-small); }
 .profile-sidebar .profile-stats b { font-size: 22px; font-weight: 550; }
+.profile-sidebar .profile-workspace-settings { display: flex; justify-content: center; min-width: 0; min-height: 40px; margin: 0 18px 18px; padding: 4px 0; text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .profile-community-summary { padding: 22px; }
 .profile-community-summary h2, .profile-community-content > h2 { font-size: var(--type-body); font-weight: 550; line-height: 1.5; margin: 0; }
 .profile-community-summary dl { display: grid; gap: 18px; margin: 22px 0 0; }
@@ -1510,11 +1511,14 @@
 .profile-community-summary dd button:hover { color: var(--accent); }
 .profile-community-summary > a { display: inline-flex; align-items: center; gap: 6px; margin-top: 23px; color: var(--text-secondary); font-size: var(--type-small); }
 .profile-community-summary > a:hover { color: var(--accent); }
-.profile-community-content { min-width: 0; }
+.profile-community-content { min-width: 0; scroll-margin-top: 88px; }
 .profile-community-content > h2 { margin-bottom: 15px; }
 .profile-community-content .profile-tabs { margin: 0 0 15px; gap: 22px; overflow-x: auto; scrollbar-width: thin; }
 .profile-community-content .profile-tabs button { flex-shrink: 0; white-space: nowrap; font-size: var(--type-body); padding: 0 0 13px; }
 .profile-community-content .profile-activity { border-radius: 12px; }
+@media (max-width: 1200px) {
+  .profile-community-content { scroll-margin-top: 112px; }
+}
 @media (max-width: 1100px) and (min-width: 901px) {
   .profile-dashboard { grid-template-columns: 215px minmax(0, 1fr); gap: 20px; }
   .profile-sidebar .profile-header-inner, .profile-community-summary { padding: 21px 18px; }

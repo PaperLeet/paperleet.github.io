@@ -1,7 +1,12 @@
-.publishing-affiliation-notice { display:flex; align-items:flex-start; gap:10px; margin:12px 0; padding:13px 15px; border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line)); border-radius:9px; background:color-mix(in srgb,var(--accent) 5%,var(--surface)); color:var(--text-secondary); font-size:var(--type-meta); line-height:1.7; }
+.publishing-affiliation-notice { display:flex; align-items:flex-start; gap:12px; margin:12px 0; padding:16px; border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line)); border-radius:9px; background:color-mix(in srgb,var(--accent) 5%,var(--surface)); color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; }
 .publishing-affiliation-notice > svg { flex:none; margin-top:2px; color:var(--accent); }
-.publishing-affiliation-notice strong { color:var(--text); font-weight:600; }
+.publishing-affiliation-notice strong { font-size:var(--type-body); color:var(--text); font-weight:600; }
 .publishing-affiliation-notice p { margin:5px 0 0; }
 .publishing-affiliation-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-top:8px; }
-.publishing-affiliation-actions > :is(a,button) { min-height:28px; display:inline-flex; align-items:center; color:var(--accent); text-decoration:underline; font-size:inherit; }
+.publishing-affiliation-actions > :is(a,button) { min-height:40px; padding:6px 10px; display:inline-flex; align-items:center; color:var(--accent); text-decoration:underline; font-size:inherit; }
 .publishing-affiliation-notice .publishing-affiliation-error { color:var(--red); }
+.publishing-affiliation-notice > div { min-width:0; overflow-wrap:anywhere; }
+.publishing-affiliation-actions > button { border:1px solid var(--line); border-radius:7px; background:var(--surface); text-decoration:none; }
+.publishing-affiliation-actions > button:hover:not(:disabled) { border-color:var(--accent); color:var(--text); }
+.publishing-affiliation-actions > :is(a,button):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media(pointer:coarse) { .publishing-affiliation-actions > :is(a,button) { min-height:44px; } }

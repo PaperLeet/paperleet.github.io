@@ -1256,7 +1256,9 @@ function UserProfileContents({ username }: { username: string }) {
     [activityLoading, setActivityLoading] = useState(true),
     [activityError, setActivityError] = useState(""),
     [busy, setBusy] = useState(false),
-    [revision, setRevision] = useState(0);
+    [revision, setRevision] = useState(0),
+    [activityReveal, setActivityReveal] = useState(0);
+  const communityContent = useRef<HTMLElement>(null);
   const path = `community/profiles/${encodeURIComponent(username)}`;
   const connectionTab = tab === "following" || tab === "followers";
   useEffect(() => {
@@ -1346,10 +1348,21 @@ function UserProfileContents({ username }: { username: string }) {
     ["following", t("关注", "Following")],
     ["followers", t("粉丝", "Followers")],
   ] as const;
-  const chooseTab = (value: string) => {
+  const chooseTab = (value: string, reveal = false) => {
+    if (value !== tab || offset !== 0) setActivityLoading(true);
     setTab(value);
     setOffset(0);
+    if (reveal) setActivityReveal((value) => value + 1);
   };
+  useLayoutEffect(() => {
+    if (!activityReveal) return;
+    const section = communityContent.current;
+    const selected = section?.querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]');
+    // Commit the selection before moving focus; repeated shortcuts reveal the same tab too.
+    selected?.focus({ preventScroll: true });
+    selected?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
+    section?.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
+  }, [activityReveal]);
   return (
     <main className="social-page profile-page">
       <a className="social-back" href="#/community">
@@ -1424,11 +1437,11 @@ function UserProfileContents({ username }: { username: string }) {
               </a>}
             </div>
             <div className="profile-stats">
-              <button onClick={() => chooseTab("following")}>
+              <button type="button" aria-controls="profile-community-panel" onClick={() => chooseTab("following", true)}>
                 <b>{profile.counts.following}</b>
                 {t("关注", "Following")}
               </button>
-              <button onClick={() => chooseTab("followers")}>
+              <button type="button" aria-controls="profile-community-panel" onClick={() => chooseTab("followers", true)}>
                 <b>{profile.counts.followers}</b>
                 {t("粉丝", "Followers")}
               </button>
@@ -1438,8 +1451,8 @@ function UserProfileContents({ username }: { username: string }) {
           <section className="social-panel profile-community-summary">
             <h2>{t("社区贡献", "Community")}</h2>
             <dl>
-              <div><dt><MessagesSquare size={16} />{t("帖子", "Posts")}</dt><dd><button aria-label={t("查看帖子", "View posts")} onClick={() => chooseTab("posts")}>{profile.counts.posts}</button></dd></div>
-              <div><dt><MessageCircle size={16} />{t("回复", "Replies")}</dt><dd><button aria-label={t("查看回复", "View replies")} onClick={() => chooseTab("replies")}>{profile.counts.replies}</button></dd></div>
+              <div><dt><MessagesSquare size={16} />{t("帖子", "Posts")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看帖子", "View posts")} onClick={() => chooseTab("posts", true)}>{profile.counts.posts}</button></dd></div>
+              <div><dt><MessageCircle size={16} />{t("回复", "Replies")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看回复", "View replies")} onClick={() => chooseTab("replies", true)}>{profile.counts.replies}</button></dd></div>
               <div><dt><Heart size={16} />{t("获赞", "Likes received")}</dt><dd>{profile.counts.likes_received}</dd></div>
               <div><dt><Repeat2 size={16} />{t("获转发", "Reposts received")}</dt><dd>{profile.counts.reposts_received}</dd></div>
             </dl>
@@ -1449,7 +1462,7 @@ function UserProfileContents({ username }: { username: string }) {
           <div className="profile-main">
           <ProfileAchievements username={username} userId={profile.id} isSelf={profile.viewer.is_self} isPublic={profile.show_progress !== false} />
           <ProfileProgress username={username} isSelf={profile.viewer.is_self} />
-          <section className="profile-community-content" aria-labelledby="profile-community-title">
+          <section ref={communityContent} className="profile-community-content" aria-labelledby="profile-community-title">
           <h2 id="profile-community-title">{t("社区动态", "Community activity")}</h2>
           <div className="social-tabs profile-tabs" role="tablist" aria-label={t("社区动态分类", "Community activity categories")}>
             {tabs.map(([key, label]) => (

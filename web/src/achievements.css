@@ -19,10 +19,10 @@
 [data-theme="dark"] .achievement-medal[data-tier="silver"][data-earned="true"] { --medal-color: #82b3d9; }
 [data-theme="dark"] .achievement-medal[data-tier="gold"][data-earned="true"] { --medal-color: #e4bc5a; }
 [data-theme="dark"] .achievement-medal[data-tier="prism"][data-earned="true"] { --medal-color: #c1a1ef; }
-.achievements-page { max-width: 1240px; margin: 0 auto; padding: 28px var(--page-gutter) 64px; }
+.achievements-page { width: 100%; max-width: 1160px; min-width: 0; margin: 0 auto; padding: 28px var(--page-gutter) 64px; }
 .achievement-back { display: inline-flex; margin-bottom: 26px; font-size: var(--type-small); }
 .achievement-back:hover { color: var(--accent); }
-.achievement-heading { margin-bottom: 28px; }
+.achievement-heading { margin-bottom: 28px; text-align: center; }
 .achievement-heading h1 { margin: 0; font-size: clamp(28px,3vw,36px); line-height: 1.3; font-weight: 650; letter-spacing: -.04em; }
 .achievement-hero { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 36px; align-items: center; padding: 28px 32px; margin-bottom: 32px; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(ellipse at 0 0,color-mix(in srgb,var(--accent) 7%,transparent),transparent 65%),var(--surface); box-shadow: var(--shadow-panel); }
 .achievement-totals { padding-right: 30px; border-right: 1px solid var(--line); }

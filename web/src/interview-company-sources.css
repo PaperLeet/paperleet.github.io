@@ -1,5 +1,5 @@
 .interview-company-tags.company-source-list{align-items:flex-start;gap:6px;margin-top:8px;min-width:0}
-.interview-company-tags .interview-company-source,.interview-company-more>summary{display:inline-flex;align-items:center;gap:6px;min-height:32px;max-width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);color:var(--text-secondary);font:inherit;font-size:var(--type-small);line-height:1.5;text-decoration:none}
+.interview-company-tags .interview-company-source,.interview-company-more>summary{display:inline-flex;align-items:center;gap:6px;min-height:40px;max-width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);color:var(--text-secondary);font:inherit;font-size:var(--type-small);line-height:1.5;text-decoration:none}
 .interview-company-source>.organization-logo,.interview-company-source>small{flex:none}
 .interview-company-source>span:not(.organization-logo){min-width:0;overflow-wrap:anywhere}
 .interview-company-tags .interview-company-source>small{font-size:var(--type-meta);font-family:var(--font-mono);color:var(--accent)}

@@ -141,7 +141,7 @@ function Workspace() {
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number}}>();
-  const [runNotice, setRunNotice] = useState<{owner:string; problem:string; message:string}>();
+  const [runNotice, setRunNotice] = useState<{owner:string; problem:string; message:string; stopped?:boolean}>();
   const [latestRun, setLatestRun] = useState<{owner:string; problem:string; mode:"browser" | "server"}>();
   const lastServerProblem = useRef<string | undefined>(undefined);
   const readingTabsContainer = useRef<HTMLDivElement>(null);
@@ -274,8 +274,12 @@ function Workspace() {
   const serverProblem = judge.pending?.problem || judge.job?.problem || lastServerProblem.current;
   const judgeError = !latestBrowserRun && serverProblem === problem?.id ? judge.error : "";
   const currentRunNotice = runNotice?.owner === practice.owner && runNotice.problem === problem?.id ? runNotice.message : "";
+  const browserRunStopped = latestBrowserRun && runNotice?.owner === practice.owner && runNotice.problem === problem?.id && runNotice.stopped === true;
   const runFailed = !!(currentRunNotice || judgeError || (problem && browser.reasons[problem.id]));
-  const runCancelled = !latestBrowserRun && !judge.active && judge.job?.problem === problem?.id && judge.job?.status === "cancelled";
+  const runCancelled = browserRunStopped || (!runFailed && !latestBrowserRun && !judge.active && judge.job?.problem === problem?.id && judge.job?.status === "cancelled");
+  const completedBrowserReport = !running && !runFailed && !runCancelled && report?.runtime === 'browser-numpy-wasm';
+  const retryMode = latestRun?.owner === practice.owner && latestRun.problem === problem?.id ? latestRun.mode : judgeError || runCancelled ? 'server' : browserAvailable ? 'browser' : 'server';
+  const canRetryRun = canRun && !!problem && (retryMode === 'browser' || publicSite || (!judge.reloadRequired && (!hosted || (!!user && online && !practice.conflicts[problem.id]))));
   const workspaceAttention = !!(judgeError || practice.error || (!health && healthError) || (problem && practice.conflicts[problem.id]));
   useEffect(() => { if (problem && workspaceAttention) showTests(); }, [workspaceAttention, problem?.id, practice.owner]);
   useEffect(() => { if (problem && judge.pending?.problem === problem.id) showTests(); }, [judge.pending?.id, problem?.id]);
@@ -438,8 +442,8 @@ function Workspace() {
       await judge.submit(problem.id, submittedCode);
     } catch (e) {
       if (!ownsRun()) return;
-      if (e instanceof DOMException && e.name === "AbortError") {
-        showRunError(t("浏览器运行已停止", "Browser run stopped"));
+      if (mode === 'browser' && e instanceof DOMException && e.name === "AbortError") {
+        setRunNotice({owner:runOwner, problem:problem.id, message:'', stopped:true});
         return;
       }
       showRunError(e instanceof Error ? e.message : t("暂时无法运行，请稍后重试。", "Unable to run. Please try again shortly."));
@@ -936,18 +940,18 @@ function Workspace() {
               <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
                 <div className="workspace-result-heading" role="status">
                   <Terminal size={17} aria-hidden="true" /><h2>{t("结果", "Result")}</h2>
-                  <span>{running ? t("运行中…", "Running…") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
+                  <span>{running ? t("运行中…", "Running…") : browserRunStopped ? t("已停止", "Stopped") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
                 </div>
                 <div id="problem-results-content">
                   {currentRunNotice && <div className="practice-notice" role="alert">{currentRunNotice}</div>}
                   {preparingRun && !browser.active && !judge.active && <p className="practice-notice" role="status">{t("正在准备运行…", "Preparing your run…")}</p>}
-                  {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || report?.runtime === "browser-numpy-wasm") && <div className="browser-judge-panel">
+                  {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || completedBrowserReport) && <div className="browser-judge-panel">
                     {browser.active && (browserHere
                       ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
                       : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
-                    {(report?.runtime === "browser-numpy-wasm" || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"}
+                    {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
                       calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
                       diagnostics={browser.diagnostics[problem.id]}
                       measurement={report?.browser_run?.measurements ?? (report && report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined)}/>}
@@ -971,7 +975,16 @@ function Workspace() {
                       {browserWorkspace ? t('重试本机保存','Retry browser save') : t("重试同步", "Retry sync")}
                     </button>
                   </div>}
-                  {runCancelled && <div className="practice-notice" role="status">{t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
+                  {runCancelled && <div className="practice-notice" role="status">{browserRunStopped
+                    ? t('浏览器运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Browser run stopped. No new result was produced. Your code is preserved and you can run it again.')
+                    : t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
+                  {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
+                    <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
+                    <div className="feedback-actions">
+                      <button className="button subtle" type="button" onClick={openEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
+                      <button className="button feedback-rerun" type="button" data-retry-run disabled={!canRetryRun} onClick={() => void run(retryMode)}><Play size={13} aria-hidden="true"/>{retryMode === 'browser' ? t('重新运行当前代码', 'Run current code again') : t('重新提交当前代码', 'Resubmit current code')}</button>
+                    </div>
+                  </section>}
                   {(practice.conflicts[problem.id] ||
                     (!health && healthError) ||
                     (hosted && !browserAvailable && (!user || !online))) && (
