@@ -49,6 +49,8 @@ The online practice site is https://paperleet.com/, with the public frontend pub
 
 For an introduction, start with [LLM Training & Generation](https://paperleet.com/#/papers/llm-training-generation): six standalone exercises on shifted losses, SFT masks, sampling, gradient accumulation, and clipping, all runnable on browser CPU/WASM.
 
+To compare normalization methods, follow [Normalization foundations](https://paperleet.com/#/interviews?track=normalization): LayerNorm, RMSNorm and GroupNorm, with bilingual study prompts, implementation checks and synthetic experiments.
+
 1. Choose a paper, such as **6 · DDPM**, then open its **Forward Noising** module.
 2. Read the goal and complete only the required functions in the Python editor. Schedules and other supporting functions are already implemented.
 3. Click **Run tests** to check your code in the browser and wait for the results.
@@ -126,7 +128,7 @@ paperleet ci
 
 `init` does not overwrite existing code by default. Use `--force` when you intend to reset it.
 
-`paperleet ci` checks that every reference solution passes, every mutant triggers at least one genuine test failure, each mutant changes at most 10 lines, results remain consistent across three runs, and the per-test T3 CPU budget and total runtime meet the limits. The CLI defaults to a 300-second total budget (override with `--budget`); publication CI uses `paperleet ci --budget 600` for the 77-module catalog. Individual T3 limits stay in each package. Results are written to `reports/ci.json`, with full reference reports for each problem also saved under `reports/`. Import and syntax errors do not count as valid mutant detections.
+`paperleet ci` checks that every reference solution passes, every mutant triggers at least one genuine test failure, each mutant changes at most 10 lines, results remain consistent across three runs, and the per-test T3 CPU budget and total runtime meet the limits. The CLI defaults to a 300-second total budget (override with `--budget`); publication CI uses `paperleet ci --budget 600` for the maintained catalog. Individual T3 limits stay in each package. Results are written to `reports/ci.json`, with full reference reports for each problem also saved under `reports/`. Import and syntax errors do not count as valid mutant detections.
 
 ## Papers and selected core modules
 
@@ -186,6 +188,10 @@ paperleet ci
 | 52 | SASRec | Causal/padding history visibility, sampled next-item binary loss and history-dependent synthetic training. | 67 |
 | 53 | BPR | Per-user unobserved candidates, paired matrix-factorization objective/global prior and personalized synthetic training. | 68 |
 | 54 | LightGCN | Symmetric bipartite normalization, linear neighbor propagation, uniform layer aggregation and actual initial-embedding training. | 69 |
+| 57 | SimCLR | NT-Xent, positive-pair mapping, self masking and actual synthetic vector training. | 84 |
+| 58 | MoCo | Query-only InfoNCE, parameter EMA and a circular negative dictionary with synthetic SGD. | 85 |
+| 59 | LLM Training & Generation (course) | Six standalone exercises covering losses, masks, sampling, token-weighted accumulation and clipping. | 86–91 |
+| 60 | GroupNorm | Per-sample grouped population moments, per-channel affine and independent forward/gradient checks. | 92 |
 
 RMSNorm, GQA and RoPE are part of LLM Basics. Each includes independent gradient checks, complete CPU/WASM judging and supplied synthetic experiments. See [public-core validation](docs/validation/llm-foundations-public.md).
 

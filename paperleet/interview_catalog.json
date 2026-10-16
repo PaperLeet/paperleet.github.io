@@ -446,6 +446,24 @@
       ]
     },
     {
+      "id": "normalization",
+      "name": "归一化基础",
+      "name_en": "Normalization foundations",
+      "description": "从逐 token 的 LayerNorm、不去均值的 RMSNorm，练到样本内分组统计与梯度耦合。",
+      "description_en": "Compare token-local LayerNorm, uncentered RMSNorm and per-sample grouped moments, including gradient coupling.",
+      "modules": [
+        "architecture/layer_norm",
+        "architecture/rms_norm",
+        "architecture/group_norm"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research",
+        "software"
+      ]
+    },
+    {
       "id": "recommendation",
       "name": "推荐与检索准备",
       "name_en": "Recommendation & retrieval",
