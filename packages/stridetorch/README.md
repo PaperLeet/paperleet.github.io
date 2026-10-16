@@ -163,8 +163,7 @@ factor.square().sum().backward()
 Backward reuses the returned factor and triangular systems. It saves no input
 array: changing A after forward is permitted, while changing the factor
 invalidates backward. A failed factorization reports the first failing batch and
-leading minor. Version0.32 remains a development candidate until its validation
-and application integration gates pass; see its
+leading minor. Factorization and browser behavior are covered by the
 [validation report](../../docs/validation/torch-runtime-iteration-32.md).
 
 `torch.cholesky_solve(input, input2, upper=False)` solves from an existing
@@ -197,6 +196,25 @@ cross-call caches. Output
 buffers, half factorization and complex AD remain explicit unsupported cases.
 Version 0.35 validation and integration are tracked in its
 [validation report](../../docs/validation/torch-runtime-iteration-35.md).
+
+`torch.cholesky_inverse(input, upper=False)` and the matching Tensor method invert
+a matrix from its existing Cholesky factor. They read the selected factor triangle
+and return column-major final axes, including empty batches. A zero diagonal
+reports its first singular batch/element. Float32/64 provide full-factor VJP,
+JVP and reverse differentiation through both JVP channels. Input/output saved
+values retain native alias mutation guards; an unneeded direction source is not
+guarded or copied. No factor, inverse or gradient is cached across calls.
+
+The JVP preserves native PyTorch's ordered factor/inverse expression. For a
+non-diagonal factor this can differ from the mathematical inverse-system JVP;
+interchanging them would change compatibility, including its reverse graph.
+Independent closed-form and native-reference tests distinguish these contracts.
+Complex64/128 inference requires real factor diagonals. Non-real diagonals do not
+form Cholesky factors and native POTRI results there vary with LAPACK blocking;
+they raise an explicit unsupported error here. Half, complex AD and output
+buffers retain explicit unsupported errors. CPU and WASM choose measured
+factor-inversion paths; performance and adoption are tracked in the
+[0.36 validation report](../../docs/validation/torch-runtime-iteration-36.md).
 
 Factorization failures are checked across numerical runtimes. Cholesky verifies
 its returned diagonal because some WASM NumPy builds return NaN factors without

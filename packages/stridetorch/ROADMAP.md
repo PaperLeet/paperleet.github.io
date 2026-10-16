@@ -564,6 +564,20 @@ source-commit deployment was superseded and is not claimed as published.
   include the older 0.32 composition baseline and frozen/no-reverse workflows.
   Main adoption is separate from online publication; no CI/tag/dispatch occurs.
 
+## Version 0.36: inverse from an existing Cholesky factor
+
+- Adds torch.cholesky_inverse and Tensor method, real full-factor VJP/native
+  ordered JVP/both-channel reverse, complex inference with real diagonals,
+  singular diagnostics, empty strides and native saved-value mutation behavior.
+- Scalar/small LAPACK/CPU Gram/large WASM solve paths improve selected complete
+  workflows; all initial regressions and remaining inference costs are retained
+  in the [validation record](../../docs/validation/torch-runtime-iteration-36.md).
+- Full core 32,463 passes; Node/Chrome 1,532 each; minimum wheel 1,544.
+  Original native/exported WASM catalogs and full application gates pass.
+  A bounded actual-state wait repairs an upstream mounted navigation check.
+- Quiet main adoption is separate from publication. No CI, tag, dispatch or
+  online release; browser-oriented naming remains pending user choice.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

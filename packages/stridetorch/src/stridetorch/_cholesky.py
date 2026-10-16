@@ -145,6 +145,156 @@ def _solve_values(factor, rhs, upper, *, save_intermediate=False):
     return (value, intermediate) if save_intermediate else value
 
 
+def _inverse_values(factor, upper):
+    n = factor.shape[-1]
+    diagonal = np.diagonal(factor, axis1=-2, axis2=-1)
+    zero = diagonal == 0
+    if zero.any():
+        index = tuple(np.argwhere(zero)[0])
+        batch = (f' (Batch element {np.ravel_multi_index(index[:-1], factor.shape[:-2])}):'
+                 if factor.ndim > 2 else '')
+        raise RuntimeError(f'cholesky_inverse:{batch} The diagonal element {index[-1] + 1} '
+                           'is zero, the inversion could not be completed because the input matrix is singular.')
+    if n and n <= 2:
+        with np.errstate(all='ignore'):
+            first = 1 / factor[..., 0, 0]
+            if n == 1:
+                values = (first.conj() * first)[..., None, None]
+            else:
+                last = 1 / factor[..., 1, 1]
+                cross = -(factor[..., 0, 1] if upper else factor[..., 1, 0]) * first * last
+                corner = first.conj() * first + cross.conj() * cross
+                off = cross * last.conj() if upper else cross.conj() * last
+                values = np.empty_like(factor)
+                values[..., 0, 0] = corner
+                values[..., 0, 1], values[..., 1, 0] = off, off.conj()
+                values[..., 1, 1] = last.conj() * last
+        return _linalg._solve_layout(values, True)
+    if n <= 64:
+        # NumPy's inverse entry avoids constructing/broadcasting an identity
+        # and the general blocked-solve dispatch for these small factors.
+        selected = _linalg._triangular_part(factor, upper, False)
+        try:
+            inverse = np.linalg.inv(selected)
+        except np.linalg.LinAlgError:
+            identity = np.broadcast_to(np.eye(n, dtype=factor.dtype), factor.shape)
+            inverse = _linalg._triangular_rows(selected, identity, upper, False)
+    else:
+        identity = np.broadcast_to(np.eye(n, dtype=factor.dtype), factor.shape)
+        inverse = None
+    if sys.platform == 'emscripten' and n > 64:
+        # On measured WASM builds a dense Gram product loses to the blocked
+        # second triangular solve. CPU BLAS benefits from the Gram route.
+        values = _solve_values(factor, identity, upper)
+        if np.isfinite(values).all():
+            transpose = values.swapaxes(-1, -2)
+            if factor.dtype.kind == 'c':transpose = transpose.conj()
+            mask = np.tri(n, k=-1, dtype=bool)
+            np.copyto(values, transpose, where=mask if upper else mask.T)
+            return _linalg._solve_layout(values, True)
+    if inverse is None:inverse = _linalg._triangular_values(factor, identity, upper, True, False)
+    finite_inverse = np.isfinite(inverse).all()
+    if not finite_inverse:
+        # Solve only each column's structural range. A NaN in one diagonal
+        # must not enter an unrelated column through a mathematical zero.
+        inverse = np.zeros_like(factor)
+        for column in range(n):
+            section = slice(0, column + 1) if upper else slice(column, n)
+            block = factor[..., section, section]
+            rhs = np.zeros(block.shape[:-1] + (1,), dtype=factor.dtype)
+            rhs[..., -1 if upper else 0, 0] = 1
+            inverse[..., section, column] = _linalg._triangular_rows(block, rhs, upper, False)[..., 0]
+    adjoint = (inverse.conj() if factor.dtype.kind == 'c' else inverse).swapaxes(-1, -2)
+    with np.errstate(all='ignore'):
+        values = inverse @ adjoint if upper else adjoint @ inverse
+        if not finite_inverse:
+            # The exceptional triangular product omits structural zero terms,
+            # preserving finite trailing blocks instead of a dense NaN cloud.
+            for row in range(n):
+                for column in range(row + 1):
+                    if upper:
+                        tail = inverse[..., column, row:] * inverse[..., row, row:].conj()
+                        value = tail.sum(-1)
+                        i, j = column, row
+                    else:
+                        tail = inverse[..., row:, row].conj() * inverse[..., row:, column]
+                        value = tail.sum(-1)
+                        i, j = row, column
+                    values[..., i, j] = value
+        transpose = values.swapaxes(-1, -2)
+        if factor.dtype.kind == 'c':transpose = transpose.conj()
+        mask = np.tri(n, k=-1, dtype=bool)
+        np.copyto(values, transpose, where=mask if upper else mask.T)
+    return _linalg._solve_layout(values, True)
+
+
+def _inverse_tangent(value, factor, direction, upper):
+    x, f, df = value._data, factor._data, direction._data
+    transpose = lambda a: a.swapaxes(-1, -2)
+    cf = f if upper else transpose(f)
+    dcf = transpose(df) if upper else df
+    xd = x @ dcf
+    middle = xd @ x
+    partial = -(middle @ cf)
+    values = partial + transpose(partial)
+    if not values.size:values = _layout.contiguous_empty(values)
+    if not _state._grad_enabled or not any(t.requires_grad for t in (value, factor, direction)):
+        return _tensor.Tensor(values, _metadata_owned=True)
+    saved_direction = dcf if value.requires_grad else None
+    saved_xd = xd if value.requires_grad else None
+    saved_middle = middle if factor.requires_grad else None
+
+    def backward(g, needs):
+        h = -(g + transpose(g))
+        right = h @ transpose(cf) if needs[0] or needs[2] else None
+        dx = (right @ transpose(x) @ transpose(saved_direction)
+              + transpose(saved_xd) @ right) if needs[0] else None
+        if needs[1]:
+            dc = transpose(saved_middle) @ h
+            dfactor = dc if upper else transpose(dc)
+        else:dfactor = None
+        if needs[2]:
+            dd = transpose(x) @ right @ transpose(x)
+            ddirection = transpose(dd) if upper else dd
+        else:ddirection = None
+        return dx, dfactor, ddirection
+
+    guarded = [value, factor]
+    if value.requires_grad:guarded.append(direction)
+    return _autograd.joint_result(values, (value, factor, direction), backward, versioned=guarded)
+
+
+def cholesky_inverse(input, upper=False, *, out=None):
+    if not isinstance(input, _tensor.Tensor):
+        raise TypeError('cholesky_inverse input must be a Tensor')
+    if type(upper) is not bool:
+        raise TypeError('upper must be bool')
+    if out is not None:
+        raise _errors.BrowserUnsupported('Cholesky inverse output buffers require the server')
+    factor = input._data
+    if factor.ndim < 2 or factor.shape[-1] != factor.shape[-2]:
+        raise RuntimeError('cholesky_inverse expects square factors')
+    if factor.dtype.char not in 'fdFD':
+        raise _errors.BrowserUnsupported('cholesky_inverse requires float32/64 or complex64/128 inputs')
+    if factor.dtype.kind == 'c' and np.any(np.diagonal(factor, axis1=-2, axis2=-1).imag != 0):
+        raise _errors.BrowserUnsupported('Complex Cholesky factors require real diagonals')
+    if isinstance(input, _autograd.ForwardTensor):
+        value = cholesky_inverse(input._primal, upper)
+        # Preserve native's ordered JVP expression and its full-factor reverse
+        # edges; replacing it by an inverse-system derivative changes behavior.
+        tangent = _inverse_tangent(value, input._primal, input._tangent, upper)
+        return _autograd.ForwardTensor(value, _layout.matching_tangent(tangent, value))
+    values = _inverse_values(factor, upper)
+    if not _state._grad_enabled or not input.requires_grad:
+        return _tensor.Tensor(values, _metadata_owned=True)
+
+    def backward(g):
+        common = values @ ((g + g.swapaxes(-1, -2)) @ values)
+        return -(factor @ common if upper else common @ factor)
+
+    return _autograd.result(values, (input, backward))
+
+
 def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper, intermediate=None):
     """Fuse the real JVP without projecting any full-factor reverse edge."""
     x, f, df = value._data, factor._data, factor_direction._data

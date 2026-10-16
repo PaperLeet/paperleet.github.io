@@ -91,6 +91,7 @@ try{
  const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Journey)));});
  const stop=async()=>{await act(async()=>root.unmount());root=undefined;};
  const wait=async()=>act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+ const waitFor=async(predicate,message)=>{const deadline=Date.now()+2000;while(!predicate()&&Date.now()<deadline)await wait();assert(predicate(),message);};
  const navigate=async href=>act(async()=>{location.hash=href;await new Promise(resolve=>setTimeout(resolve,10));});
  const click=async(node,{keyboard=false}={})=>act(async()=>{assert(node);if(keyboard)node.focus();node.dispatchEvent(new dom.window.MouseEvent('click',{bubbles:true,cancelable:true,button:0,detail:keyboard?0:1}));await new Promise(resolve=>setTimeout(resolve,10));});
  const anchor=()=>document.querySelector('.solution-reading-page');
@@ -105,9 +106,12 @@ try{
  await navigate(scope);viewport=1250;
  // Full thread navigation retains the exact source and restores the actual full-page link after delayed data.
  base=1500;viewport=1250;await click(anchor(),{keyboard:true});
+ await waitFor(()=>model.currentReadingReturn()?.phase==='reading'&&!!document.querySelector('.social-back'),'Full thread navigation did not settle');
  const origin=model.currentReadingReturn();assert(origin);assert.equal(origin.href,scope);assert.equal(origin.link,'read');assert.equal(origin.phase,'reading');assert(document.querySelector('.social-back').textContent.includes('Back to profile'));
  assert.equal(document.querySelector('.social-back').getAttribute('href'),scope);
- hold=true;base=1800;await click(document.querySelector('.social-back'));assert.equal(location.hash,scope);assert.equal(model.currentReadingReturn().phase,'returning');assert.equal(document.querySelector('#profile-community-panel').getAttribute('aria-busy'),'true');assert(!anchor());
+ hold=true;base=1800;await click(document.querySelector('.social-back'));
+ await waitFor(()=>model.currentReadingReturn()?.phase==='returning'&&!!document.querySelector('#profile-community-panel'),'Profile return navigation did not settle');
+ assert.equal(location.hash,scope);assert.equal(model.currentReadingReturn().phase,'returning');assert.equal(document.querySelector('#profile-community-panel').getAttribute('aria-busy'),'true');assert(!anchor());
  scrolls=[];hold=false;await act(async()=>held.resolve(held.result));assert.equal(anchor().getBoundingClientRect().top,origin.top);assert.equal(document.activeElement,anchor());assert(document.querySelector('[data-reading-resumed="true"]'));assert.equal(scrolls.length,1);
  // Anonymous self-profile context remains in the current account session, never a public post URL.
  anonymous=true;await stop();await render();const privateLink=anchor();assert.equal(privateLink.getAttribute('href'),'#/community/'+id);assert.equal(community.communityPostReturn(privateLink.getAttribute('href'),id),undefined);

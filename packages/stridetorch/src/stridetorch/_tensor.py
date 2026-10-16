@@ -807,6 +807,9 @@ class Tensor:
     def det(self): return _linalg.det(self)
     def cholesky_solve(self, input2, upper=False):
         return _cholesky.cholesky_solve(self, input2, upper)
+
+    def cholesky_inverse(self, upper=False):
+        return _cholesky.cholesky_inverse(self, upper)
     def prod(self, dim=None, keepdim=False, *, dtype=None):
         original_data = self._data
         if dim is None and keepdim: raise TypeError('prod keepdim requires an explicit dimension')

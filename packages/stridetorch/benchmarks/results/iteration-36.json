@@ -1,0 +1,1620 @@
+{
+  "status": "complete_local_core_and_application_gates_passed_main_adoption_pending",
+  "version": "0.36.0",
+  "baseline_main": "cc5694bf360674369a14042a73635ed85e3bf49c",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "09ce99637c799045f4def97e16eb9fd466033e79c50dd1ce10e20fdd1f65ed6e",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "a054a470f9bb550f5cc1b02348fabdced2e2165dc247f787edf5dce54bbe307e",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+    "_tensor.py": "9b64801feb185f7b3c2a733428b97d0290f7ecc9f961fcbed8957d0f06494fa4",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "standalone_test_hashes": {
+    "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+    "test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+    "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+    "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+    "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+    "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+    "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+  },
+  "native_test_hashes": {
+    "test_torch_classification.py": "19cf93bb1afd2e1ed3d41856f3af26c14d7ff2bb178aea877e4707b75d37f76e",
+    "test_torch_nan_reductions.py": "38c389a42a326312114dd9451be4d545ab2ca570759eee8158c38e8c9e009e16",
+    "test_torch_mean.py": "cac51d9c31426b84da8f579e86852b6384cbe13a504a52cfcc1dbe097100fd19",
+    "test_torch_cholesky.py": "3750adc3d1a9201355f4c1073ad7dbde3f44a90afe0f4e60d54259d8a241171e",
+    "test_torch_batchnorm.py": "f12ddcfd8dc9fe273304e9b5dd31f717a1f41a61c8af6cb40d8b565a6f691388",
+    "test_torch_numpy_inputs.py": "80cbb33b4f1c88e910597a4bb25948dd2f4bd51129d751f121e7c4b250c604ab",
+    "test_torch_triangular.py": "e5c94a60ee79e60ff3093173d64abe17796a654205522b74f0f3a47cda013e39",
+    "test_torch_promotion.py": "ad2aa7259e3d44411571b66b654e2a562407b6fe8251f9618ef2eab3ccf41681",
+    "test_torch_graph_lifecycle.py": "5353e27e7584858d0851439e8ecff3099c4549b9ddfe3819393694145a6bc23e",
+    "test_torch_layout.py": "30d1b207c370cd49f9af8bae03e051a64924ae0e5043d5bdaf9e8d3a26b9a1e4",
+    "test_torch_arithmetic.py": "01d81d88df00ab1531320e1d347afe9f78854189b84e6144a9fdc7ed36128a5f",
+    "test_torch_ieee.py": "9eaf11ec3b7d6a197f6d7f2fb728d37c41232708900a38fac513e84ef0fa34c7",
+    "test_torch_nn_blocks.py": "4d575ebd244dfa1257acdbc3ef78a56b67555b0a67d9b6868d70deebf7588e4a",
+    "test_torch_groupnorm.py": "1e9aea2c5c333dcbf65c0bc98959c4d788cda38d501b76c7f625596ccdc2c9ae",
+    "test_torch_indexing.py": "15fc385d0a304075e4b25b888234af77059830227848f66f28396986ddcebce1",
+    "test_torch_grad_mode.py": "4e7172a8f2401b65cbf0e2ced4a82b3f6f469361879b85439393653f784c8472",
+    "test_torch_axis_transforms.py": "26979a38d6b1a2b40ae537da78548b9c38c6a1e9eb1b0e93cf3ed79886502ac5",
+    "test_torch_module_hooks.py": "86d4dda744002d7442767d7e62283d005a68fb14166ee5b9cd4aee2df849321d",
+    "test_torch_statistics.py": "41d6d1d6d4d5bd839d17a56206d5408645e269d573790902c088500f3ce93ce1",
+    "test_torch_convolution.py": "ae8cc0f07e4525922a2cb20731c9fc43ddc1dff3f9815d8129398d329ae3ac24",
+    "test_torch_gradient_layout.py": "ee4ccbc10272a1011e0dcd671545c8a9b5d9ad82b061af5a96a7c07d7cb7befe",
+    "test_torch_tensor_hooks.py": "1f628581360bfba9984c911cd558b74e5f762759cbeb3c10f2fd32d1e013aea5",
+    "test_torch_model_conversion.py": "801f1251aec3a4613bf164ed89b91fe4ab4d2aa6565fb7f598510d749d1f7437",
+    "test_torch_schedulers.py": "cc590cb167efc7cc352fa5f43ac18ba3169b35d1e614258836bc471b0925abf3",
+    "test_torch_runtime_kernels.py": "346caa072254dd65cab730db575ccb9be9e37a935bc20845c7c37a62a4870566",
+    "test_torch_optimizer_lifecycle.py": "f3062b539fc44f6f8339cae53056d912a610c0800b7292dad48b0899a2d5d7b0",
+    "test_torch_linalg_failures.py": "88839ae303566cafdc752cb83b7df0e6cce991fe09712fccb3d0fc1492005370",
+    "test_torch_shape_ops.py": "251aaee06b85150332b52ecdc9d04192f537da2c62d59f7e1e1eb1863c5487c3",
+    "test_torch_cholesky_solve.py": "a8bb1e156463d6d56e5a756de5700faef4ac14fcfaa09c7ee37c402f31030992",
+    "test_torch_serialization.py": "93645d53407fd4e394f7358cdfdb543c0acdc5319649bd4e580bfd9cbc533707",
+    "test_torch_cholesky_inverse.py": "6aec3c89ffea7356289d872ce5cb3b74ef969c018334e2c7494c302af0b02eeb",
+    "test_torch_module_lifecycle.py": "0fce9c352d14e24dd4ac767dacb75b06da105714879550944a68d45baf913bbe",
+    "test_torch_copy.py": "c7547370826a04052b4f48cd603385c5cbdb92053dcbab9e246351ffe432a7bf",
+    "test_torch_construction.py": "a4daf4138d21e631920b866646f3783bb019985ebf9098c48917ba90d5f03687",
+    "test_torch_solve.py": "6007d3d4cde762c534c6153146ad693be1a1240f207f3a8551780b2e1ae7834b"
+  },
+  "full_cpu": {
+    "exit_code": 0,
+    "elapsed_s": 392.63839329099574,
+    "passed": 32463,
+    "skipped": 1,
+    "warnings": 34,
+    "duration_s": 389.36
+  },
+  "focused_passed": 1314,
+  "minimal_passed": 1544,
+  "minimal_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.36.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "09ce99637c799045f4def97e16eb9fd466033e79c50dd1ce10e20fdd1f65ed6e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "a054a470f9bb550f5cc1b02348fabdced2e2165dc247f787edf5dce54bbe307e",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "9b64801feb185f7b3c2a733428b97d0290f7ecc9f961fcbed8957d0f06494fa4",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 45,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.36.0-py3-none-any.whl": "15da235fb550f83a2ab778e4c017abbe1e72d56aa2746f39e56925a5292018d8",
+      "stridetorch-0.36.0.tar.gz": "df287563359fd0d02ead23f39f00e02d1a79554da6a4266c1088033952e2bdfb"
+    },
+    "receipts": {
+      "python310-stride036-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.07110320799984038,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/python310-stride036-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride036-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.39862583299691323,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/python310-stride036-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/dist-preflight/stridetorch-0.36.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride036-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 13.470862292000675,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/python310-stride036-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/python310-stride036-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "node_wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.36.0",
+    "numpy": "2.2.5",
+    "passed": 1532,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "a054a470f9bb550f5cc1b02348fabdced2e2165dc247f787edf5dce54bbe307e",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "09ce99637c799045f4def97e16eb9fd466033e79c50dd1ce10e20fdd1f65ed6e",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "9b64801feb185f7b3c2a733428b97d0290f7ecc9f961fcbed8957d0f06494fa4",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835"
+    }
+  },
+  "actual_chrome_worker": {
+    "status": "success",
+    "library": "0.36.0",
+    "numpy": "2.2.5",
+    "passed": 1532,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "09ce99637c799045f4def97e16eb9fd466033e79c50dd1ce10e20fdd1f65ed6e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "a054a470f9bb550f5cc1b02348fabdced2e2165dc247f787edf5dce54bbe307e",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "9b64801feb185f7b3c2a733428b97d0290f7ecc9f961fcbed8957d0f06494fa4",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+      "test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+      "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+      "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "8457f98c3946518eaf37cc580f4279c7b05e2b5ce7166a89201cfe7b674c2867",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "5620df3bd5ef5709d45a2894a2350dfd26a50bb8b561678e9c17d5dcd2b7e1ca"
+    }
+  },
+  "coinstall": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "09ce99637c799045f4def97e16eb9fd466033e79c50dd1ce10e20fdd1f65ed6e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "a054a470f9bb550f5cc1b02348fabdced2e2165dc247f787edf5dce54bbe307e",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "9b64801feb185f7b3c2a733428b97d0290f7ecc9f961fcbed8957d0f06494fa4",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.36.0-py3-none-any.whl": "15da235fb550f83a2ab778e4c017abbe1e72d56aa2746f39e56925a5292018d8",
+      "paperleet-0.1.0-py3-none-any.whl": "b8a5de09397744cca1412d28943ae8e59797ca0304367bf5180a829ffaec113c"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.07720949999929871
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/dist-preflight/stridetorch-0.36.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.2606993330118712
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.36.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.6028798749903217
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.016089750002720393
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.36.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.13343624999106396
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.020179749990347773
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013117292008246295
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.36.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.20362866698997095
+      }
+    ],
+    "scope": "ZIP checkpoint alias/shared-storage/model-optimizer-scheduler resume verified in each namespace. Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP,matrix views and batched right-solve VJP/JVP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "gate_receipts": {
+    "build-public": {
+      "exit_code": 0,
+      "elapsed_s": 1.7333346249943133,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/dist-preflight"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch"
+    },
+    "build-private": {
+      "exit_code": 0,
+      "elapsed_s": 1.9190537500107894,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/private-dist"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "node-wasm": {
+      "exit_code": 0,
+      "elapsed_s": 15.187410291997367,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/wasm-contracts.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "chrome-worker": {
+      "exit_code": 0,
+      "elapsed_s": 15.556299832998775,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/chrome-contracts/run.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "coinstall": {
+      "exit_code": 0,
+      "elapsed_s": 3.3671744160092203,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/check-coinstall.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "minimal-wheel": {
+      "exit_code": 0,
+      "elapsed_s": 14.092283791993395,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/proof/check-wheel.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    }
+  },
+  "pilot_reports": {
+    "performance-first": {
+      "cpu-float32": {
+        "exit_code": 0,
+        "elapsed_s": 1.143602042007842
+      },
+      "cpu-float64": {
+        "exit_code": 0,
+        "elapsed_s": 1.0912395830091555
+      },
+      "wasm-float32": {
+        "exit_code": 0,
+        "elapsed_s": 4.560224415996345
+      },
+      "wasm-float64": {
+        "exit_code": 0,
+        "elapsed_s": 4.56933516600111
+      }
+    },
+    "performance-optimized": {
+      "cpu-float32": {
+        "exit_code": 0,
+        "elapsed_s": 1.1564185000024736
+      },
+      "cpu-float64": {
+        "exit_code": 0,
+        "elapsed_s": 1.0734320000046864
+      },
+      "wasm-float32": {
+        "exit_code": 0,
+        "elapsed_s": 4.550314958003582
+      },
+      "wasm-float64": {
+        "exit_code": 0,
+        "elapsed_s": 4.510320374989533
+      }
+    },
+    "performance-small": {
+      "cpu-float32": {
+        "exit_code": 0,
+        "elapsed_s": 1.1172074999922188
+      },
+      "cpu-float64": {
+        "exit_code": 0,
+        "elapsed_s": 1.027900667002541
+      },
+      "wasm-float32": {
+        "exit_code": 0,
+        "elapsed_s": 4.305748291008058
+      },
+      "wasm-float64": {
+        "exit_code": 0,
+        "elapsed_s": 4.2855425419984385
+      }
+    }
+  },
+  "final_performance": {
+    "summary": {
+      "cpu": {
+        "tiny-inference": {
+          "median_reductions_percent": [
+            21.804985179105408,
+            23.83631851164306,
+            22.326357336893597,
+            22.76292140520241
+          ],
+          "baseline_median_us": [
+            12.179183249827474,
+            12.499299918999895,
+            12.149316413948934,
+            12.114583175086105
+          ],
+          "candidate_median_us": [
+            9.541683054218689,
+            9.583350038155913,
+            9.468066855333745,
+            9.572233102517202
+          ]
+        },
+        "small-inference": {
+          "median_reductions_percent": [
+            -2.6469470347073143,
+            -2.485839499537823,
+            -8.199641953470383,
+            -7.5560003101031725
+          ],
+          "baseline_median_us": [
+            19.41250011441298,
+            19.38124987646006,
+            18.005533396111183,
+            18.097217010411747
+          ],
+          "candidate_median_us": [
+            19.782633413948737,
+            19.868050003424287,
+            19.60971664326886,
+            19.590966985560954
+          ]
+        },
+        "large-inference": {
+          "median_reductions_percent": [
+            31.0423171906131,
+            29.208607058618952,
+            26.29812132711494,
+            27.3538868188233
+          ],
+          "baseline_median_us": [
+            218.99999410379678,
+            233.83300140267238,
+            217.58300135843456,
+            225.499999942258
+          ],
+          "candidate_median_us": [
+            149.9170102761127,
+            166.97899991413578,
+            162.66699822153896,
+            163.4580039535649
+          ]
+        },
+        "upper-inference": {
+          "median_reductions_percent": [
+            31.843461104960113,
+            31.451837763397727,
+            28.049227250208443,
+            26.957830416747687
+          ],
+          "baseline_median_us": [
+            222.7709992439486,
+            219.24950124230236,
+            218.5835037380457,
+            221.8334993813187
+          ],
+          "candidate_median_us": [
+            152.62499800883234,
+            150.29150381451473,
+            158.00000255694613,
+            160.60399502748623
+          ]
+        },
+        "batch-inference": {
+          "median_reductions_percent": [
+            39.112061854118316,
+            40.23102590757838,
+            38.331833613902155,
+            38.04027713319494
+          ],
+          "baseline_median_us": [
+            238.4443335661975,
+            239.27083384478465,
+            236.6320016638686,
+            237.86800011293963
+          ],
+          "candidate_median_us": [
+            146.31266579575217,
+            143.04166688816622,
+            145.52783492642143,
+            147.19449973199517
+          ]
+        },
+        "tiny-backward": {
+          "median_reductions_percent": [
+            26.445234810639228,
+            26.18369350383537,
+            26.77207588184367,
+            26.88838342171136
+          ],
+          "baseline_median_us": [
+            56.445833373193935,
+            56.393749885804326,
+            55.41598366107792,
+            56.19929991856528
+          ],
+          "candidate_median_us": [
+            41.774299946458385,
+            42.63403340398024,
+            41.14235004332537,
+            41.08821667614393
+          ]
+        },
+        "small-backward": {
+          "median_reductions_percent": [
+            16.881670555154393,
+            17.625933860651323,
+            15.653440005511044,
+            14.755304206763252
+          ],
+          "baseline_median_us": [
+            77.8819499828387,
+            77.56874983897433,
+            73.14373336460753,
+            73.55346679105423
+          ],
+          "candidate_median_us": [
+            63.78471662173979,
+            63.896533295822636,
+            62.3326336305278,
+            63.07431685854681
+          ]
+        },
+        "large-backward": {
+          "median_reductions_percent": [
+            55.40177188176683,
+            56.12422912939012,
+            50.02455145738196,
+            50.84269706806768
+          ],
+          "baseline_median_us": [
+            523.5205026110634,
+            516.9790019863285,
+            541.0420053522103,
+            541.6665007942356
+          ],
+          "candidate_median_us": [
+            233.58299949904904,
+            227.54150268156081,
+            267.1249967534095,
+            267.6244985195808
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            23.457130060599173,
+            23.364998754199352,
+            21.303738096014946,
+            21.259537466770272
+          ],
+          "baseline_median_us": [
+            83.79585002937044,
+            84.25625007172737,
+            78.96875007039247,
+            79.14999999532786
+          ],
+          "candidate_median_us": [
+            64.11873328033835,
+            64.85555010537306,
+            62.826400001843766,
+            62.787499822055295
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            30.687773185998214,
+            31.279880308163342,
+            28.237350597837917,
+            28.486256657150722
+          ],
+          "baseline_median_us": [
+            302.2708333446644,
+            298.6181668044689,
+            298.5278309400504,
+            301.2776651303284
+          ],
+          "candidate_median_us": [
+            209.89583572372794,
+            206.67349842066568,
+            213.31949877397466,
+            215.94450178478536
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            9.850733890250318,
+            8.890308314228557,
+            6.469842054482699,
+            6.794201731052141
+          ],
+          "baseline_median_us": [
+            52.66041650126378,
+            50.693050191815324,
+            48.433333237577855,
+            50.342366739641875
+          ],
+          "candidate_median_us": [
+            47.410416785472385,
+            46.80904991497906,
+            45.226383372209966,
+            46.761116633812584
+          ]
+        },
+        "large-jvp": {
+          "median_reductions_percent": [
+            30.411880013676896,
+            29.670135183609414,
+            24.67951391932267,
+            23.321867425426245
+          ],
+          "baseline_median_us": [
+            308.3750052610412,
+            307.5205022469163,
+            331.31250529550016,
+            334.89599445601925
+          ],
+          "candidate_median_us": [
+            216.31200070260093,
+            217.12500165449455,
+            247.8125024936162,
+            256.7919946159236
+          ]
+        },
+        "jvp-backward": {
+          "median_reductions_percent": [
+            16.952457459090432,
+            17.060598621894506,
+            15.889298331728696,
+            15.768680419521175
+          ],
+          "baseline_median_us": [
+            186.93403326324187,
+            183.90140006279884,
+            180.50553311089365,
+            181.83053325628862
+          ],
+          "candidate_median_us": [
+            154.1930500631376,
+            152.46456653888646,
+            151.66804999656352,
+            152.45693333175342
+          ]
+        },
+        "large-jvp-backward": {
+          "median_reductions_percent": [
+            31.470627222855274,
+            32.302854735037116,
+            28.20206298912713,
+            28.461862182158924
+          ],
+          "baseline_median_us": [
+            307.84733341230697,
+            315.18049945589155,
+            326.34033414069563,
+            324.54866595799103
+          ],
+          "candidate_median_us": [
+            211.78483196611828,
+            213.27783421535668,
+            234.54166512237862,
+            230.8194986350524
+          ]
+        },
+        "fixed-factor-jvp": {
+          "median_reductions_percent": [
+            18.71048926319573,
+            18.561133852749556,
+            13.60191580464617,
+            13.887147633973406
+          ],
+          "baseline_median_us": [
+            401.6250022687018,
+            405.2084987051785,
+            454.58299427991733,
+            462.2080086846836
+          ],
+          "candidate_median_us": [
+            327.1664972999133,
+            324.7079948778264,
+            395.2709957957268,
+            398.02050014259294
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            0.3391767217605368,
+            0.9337845930516009,
+            2.337234585630066,
+            0.6633339556946338
+          ],
+          "baseline_median_us": [
+            44.637516839429736,
+            44.849316570131734,
+            42.43611668546994,
+            41.01388331037015
+          ],
+          "candidate_median_us": [
+            44.772916832395524,
+            44.51666682143696,
+            41.798600189698234,
+            41.22918350428033
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            0.19605910405353644,
+            0.19476471069472812,
+            -0.44211427490423727,
+            -0.9832909209094742
+          ],
+          "baseline_median_us": [
+            67.89859980926849,
+            67.82706647451657,
+            65.34375012658225,
+            63.889566566407055
+          ],
+          "candidate_median_us": [
+            66.94028318937248,
+            68.20973333863853,
+            66.29235019014838,
+            65.23539996123873
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            0.7396888736925455,
+            0.70994147364839,
+            0.6109703313344261,
+            -2.389916183650187
+          ],
+          "baseline_median_us": [
+            29.882650172415502,
+            29.890983326671023,
+            28.588183340616524,
+            29.714566577846803
+          ],
+          "candidate_median_us": [
+            30.188900079034887,
+            29.970133133853473,
+            28.716666808274265,
+            29.605549934785813
+          ]
+        }
+      },
+      "wasm": {
+        "tiny-inference": {
+          "median_reductions_percent": [
+            19.89141810570143,
+            18.634373873516154,
+            17.593563688890036,
+            18.328043042700017
+          ],
+          "baseline_median_us": [
+            32.81319999999995,
+            32.738899999999276,
+            34.1701333333333,
+            32.77221666666552
+          ],
+          "candidate_median_us": [
+            26.20625000000487,
+            27.731250000003392,
+            27.989583333335823,
+            27.734016666669525
+          ]
+        },
+        "small-inference": {
+          "median_reductions_percent": [
+            6.8368517388658905,
+            7.884800254754443,
+            2.255583180193066,
+            2.455783022397384
+          ],
+          "baseline_median_us": [
+            41.68681666666396,
+            41.5583333333321,
+            38.54583333332921,
+            38.655566666663994
+          ],
+          "candidate_median_us": [
+            39.199316666671535,
+            38.5451333333305,
+            37.60486666666655,
+            38.17569999999826
+          ]
+        },
+        "large-inference": {
+          "median_reductions_percent": [
+            -4.049006861566973,
+            -3.9166138662235506,
+            -4.3850778249269196,
+            -4.159000357940923
+          ],
+          "baseline_median_us": [
+            1200.7500000000837,
+            1208.833500000006,
+            1201.8334999999158,
+            1202.5210000000675
+          ],
+          "candidate_median_us": [
+            1256.5414999999857,
+            1262.0000000000964,
+            1257.833500000083,
+            1263.3745000000251
+          ]
+        },
+        "upper-inference": {
+          "median_reductions_percent": [
+            -3.583001477013825,
+            -3.946566245466787,
+            -4.437428142753519,
+            -3.718849957476511
+          ],
+          "baseline_median_us": [
+            1194.2920000000968,
+            1221.2294999999208,
+            1197.6870000000029,
+            1203.3129999999837
+          ],
+          "candidate_median_us": [
+            1237.7915000000294,
+            1271.9380000000278,
+            1260.1045000000256,
+            1252.8334999999392
+          ]
+        },
+        "batch-inference": {
+          "median_reductions_percent": [
+            -0.2487709003901939,
+            0.37352712747991124,
+            -1.1063473747112917,
+            -1.5864640454420265
+          ],
+          "baseline_median_us": [
+            732.2430000000029,
+            748.1596666666737,
+            724.1109999999902,
+            721.4096666667094
+          ],
+          "candidate_median_us": [
+            737.4653333333351,
+            746.9446666666564,
+            729.3471666666532,
+            736.9998333333442
+          ]
+        },
+        "tiny-backward": {
+          "median_reductions_percent": [
+            23.314206645429714,
+            22.544751770688485,
+            23.790384319245195,
+            22.510004792991477
+          ],
+          "baseline_median_us": [
+            117.49583333333277,
+            119.68819999999731,
+            117.9277833333307,
+            116.09930000000176
+          ],
+          "candidate_median_us": [
+            90.69653333332687,
+            93.04653333333339,
+            90.40348333333448,
+            90.73195000000034
+          ]
+        },
+        "small-backward": {
+          "median_reductions_percent": [
+            23.75746685786372,
+            24.261550879218664,
+            19.360900106435032,
+            20.423119782759468
+          ],
+          "baseline_median_us": [
+            143.22638333333543,
+            148.28333333333592,
+            139.06666666666882,
+            137.69651666666329
+          ],
+          "candidate_median_us": [
+            109.13609999999944,
+            113.11804999999768,
+            112.2784833333279,
+            108.90973333333628
+          ]
+        },
+        "large-backward": {
+          "median_reductions_percent": [
+            8.628993734107038,
+            8.556046003578043,
+            5.410691834397985,
+            5.084021954125417
+          ],
+          "baseline_median_us": [
+            4443.708000000157,
+            4468.812499999864,
+            4554.979499999945,
+            4532.562500000115
+          ],
+          "candidate_median_us": [
+            4075.1455000000988,
+            4105.937499999879,
+            4321.417000000105,
+            4296.999999999995
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            22.823631630517138,
+            23.3058374675144,
+            20.61132986359423,
+            20.426042926659704
+          ],
+          "baseline_median_us": [
+            149.09583333333475,
+            151.75140000000346,
+            144.3090333333267,
+            142.67916666666676
+          ],
+          "candidate_median_us": [
+            116.46806666666029,
+            116.75208333334167,
+            114.56458333333568,
+            113.26251666666417
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            12.366245946912057,
+            11.567626828297517,
+            11.152813311272524,
+            11.144292816513811
+          ],
+          "baseline_median_us": [
+            1588.3611666666447,
+            1586.8125000000343,
+            1564.6666666666588,
+            1554.423499999939
+          ],
+          "candidate_median_us": [
+            1405.3886666666554,
+            1413.5206666666309,
+            1385.0833333333144,
+            1383.2570000000082
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            12.17860638522642,
+            12.210451957909896,
+            11.413025601521065,
+            11.227639560588775
+          ],
+          "baseline_median_us": [
+            96.30973333332923,
+            96.59306666667254,
+            92.17708333333351,
+            92.1027666666611
+          ],
+          "candidate_median_us": [
+            83.699316666667,
+            84.79861666666662,
+            81.30693333333235,
+            81.59096666666699
+          ]
+        },
+        "large-jvp": {
+          "median_reductions_percent": [
+            0.2999567072855758,
+            0.16165254358461167,
+            0.2153269991075124,
+            -0.12578520306607555
+          ],
+          "baseline_median_us": [
+            4054.9370000000363,
+            4037.5415000002413,
+            4181.7079999999505,
+            4215.333499999919
+          ],
+          "candidate_median_us": [
+            4041.958499999998,
+            4044.166499999946,
+            4194.16650000004,
+            4218.9164999999475
+          ]
+        },
+        "jvp-backward": {
+          "median_reductions_percent": [
+            17.413835283947666,
+            18.085153634684293,
+            16.492140507145347,
+            16.43478412767292
+          ],
+          "baseline_median_us": [
+            342.5534666666656,
+            336.7770833333283,
+            328.13609999999824,
+            330.713199999999
+          ],
+          "candidate_median_us": [
+            282.84166666666295,
+            278.7875000000032,
+            275.88610000000017,
+            277.47639999999114
+          ]
+        },
+        "large-jvp-backward": {
+          "median_reductions_percent": [
+            6.617364735892995,
+            5.769761562478415,
+            5.239772836954848,
+            5.313315430223076
+          ],
+          "baseline_median_us": [
+            1993.7015000000001,
+            1933.6250000000127,
+            1918.4164999999825,
+            1915.1041666666629
+          ],
+          "candidate_median_us": [
+            1861.7710000000304,
+            1814.5070000000392,
+            1818.680500000003,
+            1817.9306666666523
+          ]
+        },
+        "fixed-factor-jvp": {
+          "median_reductions_percent": [
+            -0.9034415405234641,
+            -0.2176378362040099,
+            -0.6195301825856703,
+            -0.5112500750590554
+          ],
+          "baseline_median_us": [
+            6890.687499999882,
+            6939.791499999792,
+            7293.833499999902,
+            7399.9165000000485
+          ],
+          "candidate_median_us": [
+            6915.375000000167,
+            6950.937499999865,
+            7339.020999999946,
+            7422.125000000168
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -0.07809092808583884,
+            0.7712880902433605,
+            -0.6732900008048048,
+            0.3148421699545434
+          ],
+          "baseline_median_us": [
+            83.57778333332918,
+            83.61664999999203,
+            77.26181666667387,
+            75.7125000000025
+          ],
+          "candidate_median_us": [
+            83.33681666665704,
+            83.64789999999455,
+            76.98471666667632,
+            77.3923500000014
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -0.20445380571392224,
+            -0.22698003027135094,
+            0.3660117590456702,
+            0.07931166897342523
+          ],
+          "baseline_median_us": [
+            135.4208333333329,
+            136.73890000000335,
+            130.97708333333162,
+            129.3541666666768
+          ],
+          "candidate_median_us": [
+            136.8340333333477,
+            137.11458333331984,
+            130.81389999999675,
+            129.3395833333359
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            1.083065913596648,
+            0.7748560759191947,
+            0.3082620572916639,
+            0.6936679127142575
+          ],
+          "baseline_median_us": [
+            67.28193333332595,
+            65.83678333331733,
+            64.65278333333362,
+            64.40625000000051
+          ],
+          "candidate_median_us": [
+            66.40346666667205,
+            66.42916666666684,
+            64.45348333333396,
+            64.52984999999838
+          ]
+        }
+      }
+    },
+    "source_footprint": {
+      "previous_035": {
+        "raw_bytes": 517869,
+        "local_gzip_estimate_bytes": 122185
+      },
+      "candidate_036": {
+        "raw_bytes": 525692,
+        "local_gzip_estimate_bytes": 123816
+      }
+    },
+    "receipts": {
+      "cpu-float32-1": {
+        "exit_code": 0,
+        "elapsed_s": 1.0943834579957183,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library.py"
+        ]
+      },
+      "cpu-float64-1": {
+        "exit_code": 0,
+        "elapsed_s": 1.03398275001382,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library.py"
+        ]
+      },
+      "wasm-float32-1": {
+        "exit_code": 0,
+        "elapsed_s": 4.323658624998643,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library-wasm.mjs"
+        ]
+      },
+      "wasm-float64-1": {
+        "exit_code": 0,
+        "elapsed_s": 4.314227499999106,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library-wasm.mjs"
+        ]
+      },
+      "wasm-float32-2": {
+        "exit_code": 0,
+        "elapsed_s": 4.342764375003753,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library-wasm.mjs"
+        ]
+      },
+      "wasm-float64-2": {
+        "exit_code": 0,
+        "elapsed_s": 4.270059708011104,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library-wasm.mjs"
+        ]
+      },
+      "cpu-float32-2": {
+        "exit_code": 0,
+        "elapsed_s": 1.0898707500018645,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library.py"
+        ]
+      },
+      "cpu-float64-2": {
+        "exit_code": 0,
+        "elapsed_s": 1.0325370840000687,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-36/bench-library.py"
+        ]
+      }
+    },
+    "scope": "Eight sequential children after heavy compatibility/application/native gates. Two dtypes and two fresh processes per CPU/WASM; 18 workflows, nine ABBA/BAAB blocks, GC enabled and actual SGD. Baseline reuses an identity Tensor with existing 0.35 cholesky_solve; inverse API includes per-call structural RHS generation and singular-diagonal validation. Ordered native inverse JVP used on both sides. Shared host; no verified vendor thread count or cross-runtime throughput claim."
+  },
+  "cold_namespace_imports": {
+    "scope": "16fresh alternating CPU processes after all compatibility gates;NumPy included/preloaded reported separately;shared host;no browser wire-size or nativeTorch import comparison.",
+    "summary": {
+      "0": {
+        "previous_035": {
+          "samples_ms": [
+            88.42025000194553,
+            82.45879100286402,
+            82.70758400612976,
+            81.8357499956619
+          ],
+          "median_ms": 82.58318750449689
+        },
+        "candidate_036": {
+          "samples_ms": [
+            83.17320799687877,
+            82.76541699888185,
+            83.95016699796543,
+            82.24891599093098
+          ],
+          "median_ms": 82.96931249788031
+        }
+      },
+      "1": {
+        "previous_035": {
+          "samples_ms": [
+            58.77620899991598,
+            60.479958992800675,
+            59.262750000925735,
+            68.53166699875146
+          ],
+          "median_ms": 59.871354496863205
+        },
+        "candidate_036": {
+          "samples_ms": [
+            61.558083005365916,
+            65.53695800539572,
+            69.0706669993233,
+            65.99312499747612
+          ],
+          "median_ms": 65.76504150143592
+        }
+      }
+    },
+    "receipts": [
+      {
+        "name": "0-0-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.1159374170092633
+      },
+      {
+        "name": "0-0-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10822808400553185
+      },
+      {
+        "name": "0-1-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.1086391669959994
+      },
+      {
+        "name": "0-1-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.10759149999648798
+      },
+      {
+        "name": "0-2-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.1078698329947656
+      },
+      {
+        "name": "0-2-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.1083791669952916
+      },
+      {
+        "name": "0-3-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10698187501111533
+      },
+      {
+        "name": "0-3-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.10629874998994637
+      },
+      {
+        "name": "1-0-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.1059464999998454
+      },
+      {
+        "name": "1-0-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.1092232080118265
+      },
+      {
+        "name": "1-1-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.11406987499503884
+      },
+      {
+        "name": "1-1-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.11181324999779463
+      },
+      {
+        "name": "1-2-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.10675391599943396
+      },
+      {
+        "name": "1-2-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.11948587499500718
+      },
+      {
+        "name": "1-3-candidate_036",
+        "exit_code": 0,
+        "elapsed_s": 0.1205587089934852
+      },
+      {
+        "name": "1-3-previous_035",
+        "exit_code": 0,
+        "elapsed_s": 0.12198349999380298
+      }
+    ]
+  },
+  "archive": {
+    "file": "iteration-36-harness.tar.gz",
+    "files": 548,
+    "bytes": 1331891,
+    "sha256": "0691dfe47ef9d713d8868245bd82111345e3d866c8eeaa295ed46010134c708d"
+  },
+  "scope": "New torch.cholesky_inverse and Tensor method; real float32/64 full VJP, native-ordered JVP and reverse through both channels; complex inference with real factor diagonals. Scalar formulas, small LAPACK inverse, CPU Gram and large Emscripten two-solve primal dispatch. Native mutation guards, explicit singular errors and empty strides. No cached tensor/factor/inverse/seed values or native Torch runtime dependency.",
+  "retained_findings": [
+    "Native 2.14.1 inverse JVP matches its ordered source expression but differs from mathematical inverse-system differentiation for noncommuting factors. Both contracts are distinguished in independent and native tests.",
+    "First inference prototype regressed small CPU/WASM by up to48percent and large WASM by34percent. Three whole-flow pilots and source snapshots retain these regressions and measured refinements; final data includes remaining inference costs.",
+    "Initial native tests found zero-batch tangent strides, overly conservative direction guards, upper nonfinite contamination and invalid complex-diagonal backend-dependent results. Empty C tangent metadata, selective analytical tangent pullback and structural nonfinite solves fix valid contracts. Non-real complex diagonals are invalid Cholesky factors; their vendor-dependent POTRI artifacts are explicitly unsupported.",
+    "First standalone collection omitted two parameter names; corrected test signatures, original error retained."
+  ],
+  "primary_sources": [
+    "https://docs.pytorch.org/docs/2.14/generated/torch.cholesky_inverse.html",
+    "https://github.com/pytorch/pytorch/blob/v2.14.0/torch/csrc/autograd/FunctionsManual.cpp#L2170",
+    "https://github.com/pytorch/pytorch/blob/v2.14.0/tools/autograd/derivatives.yaml#L391"
+  ],
+  "release_policy": "No CI, agent tag, dispatch, package upload or online publication. User will explicitly release later."
+}
