@@ -458,7 +458,7 @@ source-commit deployment was superseded and is not claimed as published.
   [Exact remote evidence](../../docs/validation/torch-runtime-iteration-30.md)
   separates budget checks from comparative benchmarks.
 
-## Version0.31 candidate
+## Version0.31 local integration verified
 
 - Dense triangular left/right/broadcast/unit solves with native matrix-only B
   interpretation,F final axes,A/output guards and analytical real VJP/JVP.
@@ -473,7 +473,13 @@ source-commit deployment was superseded and is not claimed as published.
 - [Measured complete flows](../../docs/validation/torch-runtime-iteration-31.md)
   improve selected large/small workloads;CPU JVP remains about1% slower and
   controls are within about±2%. Source gzip grows1530 bytes. Complete application
-  integration and main/remote adoption remain separate pending gates.
+  original application78/10218/342/three-repeat native CI and exported78/342/
+  31suites1113 WASM now pass. Merged infrastructure30879,full frontend60 guides/
+  180 prompts,and latest offline/navigation/workspace/source checks/builds pass.
+- All23 incoming files through769915be and7704 prior immutable assets remain
+  unchanged;backend catalog changes trigger a full infrastructure rerun and a
+  rebuilt current application wheel. Non-force main adoption and actual remote
+  deployment/live remain separately tracked.
 
 ## Next implementation areas
 

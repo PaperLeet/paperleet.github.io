@@ -117,3 +117,40 @@ profiles, kernel selection,48 import/performance children and bounded-cache
 measurements. Full application catalog/exported-WASM/frontend integration and
 main/remote adoption remain pending. Version0.30 remains the last positively
 verified site release.
+
+
+## Complete application integration
+
+The merged application reruns all30879 infrastructure/core tests with one optional
+skip in218.65s because incoming0ac530d0 adds a preparation topic to the backend
+catalog. Original native78/10218/342/three-repeat CI passes in142.34s. Actual
+exported WASM passes all78/342 in207101ms at concurrency2,including1113 checks
+in31 standalone suites with frozen hashes. No original browser budget is exceeded.
+Catalog timings are compatibility/budget gates,not performance comparisons.
+
+All23 upstream files through769915be are preserved byte-for-byte. The initial19
+files add editor navigation,profile/achievement returns and visual-quantization
+guides;later six-file overlap adds diagnostic/editor CSS and hosted-offline test
+coverage. Python/library/original problem/judge inputs do not change in the later
+follow-up. All7704 prior immutable assets remain unchanged;158 new reachable
+payloads plus three indexes are frozen. Both runtime profiles retain version0.31
+and Apache-2.0/NOTICE;the full runtime is514747 raw/119781 estimated gzip bytes,
+and the schedule profile is37343/11550.
+
+Full npm check passes60 maintained bilingual guides/180 prompts at0ac530d0.
+After769915be,the new hosted-offline check and existing Python navigation,
+workspace-action and source-location checks pass again with both builds. Latest
+default/actual hosted Pages builds each contain three initial JS assets:
+403879 raw/130426 gzip and405281 raw/130879 gzip bytes. Original size budgets and
+new deferred-editor-style assertions remain intact. The condensed React review
+preserves source/read-only/stale-navigation guards,native labels/buttons and
+unconditional hooks;no manual visual QA is claimed.
+
+The application wheel/sdist are rebuilt after the backend catalog change and
+match all46 core/resource hashes and current server/catalog bytes. Source library
+hashes remain the same as the refined core/NumPy-only/Chrome/performance proofs.
+[Application evidence](../../packages/stridetorch/benchmarks/results/iteration-31-integration.json)
+and its229-file archive retain original/follow-up frontend contexts,all process
+receipts,exports and complete real VM results. Main adoption uses a non-force
+push;remote Quality,actual Pages and live-byte checks are separate gates. The last
+positively verified site version remains0.30 atb1a1631a.
