@@ -27,7 +27,7 @@ def create_torch(name='torch', *, register=False):
     modules = {'torch': torch}
     for name in ('nn', 'nn.functional', 'nn.parameter', 'nn.modules', 'nn.modules.module',
                  'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
-                 'nn.modules.normalization', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
+                 'nn.modules.normalization', 'nn.modules.batchnorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
                  'nn.modules.flatten', 'nn.modules.distance',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
@@ -50,6 +50,7 @@ def create_torch(name='torch', *, register=False):
     }.items(): setattr(torch.nn, name, cls)
     for module, names in (
         (_normalization,('LayerNorm','RMSNorm')),
+        (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
     ):
@@ -66,6 +67,7 @@ def create_torch(name='torch', *, register=False):
         'linear':('Linear','Identity'),
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm'),
+        'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
         'loss':('MSELoss','SmoothL1Loss','CrossEntropyLoss','BCEWithLogitsLoss','KLDivLoss'),
@@ -77,6 +79,7 @@ def create_torch(name='torch', *, register=False):
         for name in names:
             setattr(child,name,getattr(torch.nn,name))
             setattr(torch.nn.modules,name,getattr(torch.nn,name))
+    modules['torch.nn.modules.batchnorm']._BatchNorm = _batchnorm._BatchNorm
     torch.optim.Optimizer = _optim.Optimizer
     torch.optim.Adam, torch.optim.AdamW, torch.optim.SGD = _optim.Adam, _optim.AdamW, _optim.SGD
     for name, cls in (('optimizer', _optim.Optimizer), ('sgd', _optim.SGD),
@@ -188,6 +191,7 @@ def create_torch(name='torch', *, register=False):
         'cosine_similarity': _nn.cosine_similarity, 'binary_cross_entropy_with_logits': _nn.binary_cross_entropy_with_logits,
         'kl_div': _nn.kl_div, 'silu': _nn.silu, 'gelu': _activation.gelu, 'dropout': _activation.dropout,
         'layer_norm': _normalization.layer_norm, 'rms_norm': _normalization.rms_norm,
+        'batch_norm': _batchnorm.batch_norm,
         'embedding': _nn.embedding, 'mse_loss': _nn.mse_loss,
     }, reverse='analytic', forward=True)
     def relu(input, inplace=False):
@@ -217,4 +221,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor
+from . import _arithmetic, _activation, _autograd, _batchnorm, _construction, _conversion, _device, _errors, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor

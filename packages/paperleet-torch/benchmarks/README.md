@@ -175,6 +175,18 @@ case repeats a matmul with the same resident inputs; it does not model a neural
 network computation chain. GPU validation errors fail the run, and all buffers
 and the device are released. No adapter is a reported unsupported result.
 
+`bench_batchnorm.py` compares the joint NumPy BN kernel with a first-order Tensor
+composition in this same library. It validates values/gradients before timing
+tiny/MLP/vision training backward, eval backward, frozen-input affine/bias cases
+and no-grad training forward. Select `--implementation joint` or `composite`;
+the reference is not the native saved-statistic JVP tape and is not native Torch
+or a previous unsupported BN API. Imports/fixtures are excluded, each backward
+clears gradients, and all process/batch samples must be retained. Use
+`bench_wasm.mjs --benchmark batchnorm --implementation composite --dtype float64`
+for the same reference on pinned WASM. The iteration 16 record includes eval
+backward costs as well as the training gains; preserve dynamic running-buffer
+semantics when considering further optimizations.
+
 The GPU probe is an experiment, not a torch device implementation. Its roundtrip
 time excludes Python/JS conversion and autograd and is therefore a lower bound
 for integrating it with this library. Compare it to matmul-only WASM results in

@@ -449,6 +449,49 @@ half/complex neural-network kernels and arbitrary live graphs through storage
 rebinding remain outside this contract. Normalization/GELU reject backward after
 storage rebinding explicitly; convert model storage before constructing a graph.
 
+## Batch normalization
+
+`nn.BatchNorm1d`, `nn.BatchNorm2d`, `nn.BatchNorm3d` and
+`nn.functional.batch_norm` support dense real float32/float64 inputs. Ordinary
+`torch.nn.modules.batchnorm` imports and its `_BatchNorm` base alias work too.
+
+```python
+layer = torch.nn.BatchNorm1d(128, momentum=0.1)
+normalized = layer(torch.randn(32, 128))
+layer.eval()  # Subsequent calls use the saved running statistics.
+```
+
+Training normalizes with biased batch variance and updates running variance
+with the unbiased estimate. `momentum=None` uses a cumulative average. Affine
+parameters, untracked statistics, train/eval changes, resets, dtype conversion,
+version-2 checkpoints and legacy missing batch counters are supported. Empty
+inputs preserve running statistics and yield zero affine gradients; a rejected
+single-observation training call still counts as an attempted batch, as in the
+native module. Functional evaluation requires both running buffers.
+
+Input/weight/bias VJPs and JVPs are checked independently, including native
+saved-statistic reverse-over-forward behavior. Running buffers are
+nondifferentiable: their forward tangents are ignored and strict independence
+checks remain effective. Functional training updates their primal storage.
+Tracked training modules reject captured batch-counter mutation during JVP
+before changing state; use evaluation or untracked modules for that transform.
+Automatic running-statistic updates preserve native storage-version behavior;
+explicit writes to saved input/weight/statistic storage invalidate backward.
+
+Float32 output uses the centered normalization expression. Finite channels
+with a large mean relative to their variance are selectively recomputed with
+float64 statistics; inverse scale is rounded once into the input dtype.
+This improves agreement with high-precision centered mathematics, and can
+differ from native CPU's expanded affine expression on ill-conditioned input.
+Ordinary conditioned inputs retain strict native-reference comparisons. Storage-
+dtype reduction overflow and non-finite inputs can still yield non-finite
+results; this is not a bitwise equivalence promise across numerical backends.
+See the [native CPU transformation](https://github.com/pytorch/pytorch/blob/main/aten/src/ATen/native/cpu/batch_norm_kernel.cpp)
+and the independent numerical/gradient contracts in `tests/test_batchnorm.py`.
+The [0.16 validation record](../../docs/validation/torch-runtime-iteration-16.md)
+records supported behavior, complete release gates and measured costs, including
+the eval-backward tradeoff.
+
 ## Optimizers and training checkpoints
 
 `torch.optim.Optimizer`, `SGD`, `Adam` and `AdamW` share parameter groups,

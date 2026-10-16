@@ -13,13 +13,15 @@ const {values} = parseArgs({options: {
   cache: {type:'string', default:path.resolve(here, '../../../web/public/browser-runtime/pyodide-0.29.4')},
   output: {type:'string'}, repeat: {type:'string', default:'11'}, iterations: {type:'string', default:'30'},
   benchmark: {type:'string', default:'runtime'},
+  implementation: {type:'string', default:'joint'},
   dtype: {type:'string', default:'float32'}, case: {type:'string', multiple:true},
 }});
 const repeat = Number(values.repeat), iterations = Number(values.iterations);
 if (!Number.isInteger(repeat) || !Number.isInteger(iterations) || Math.min(repeat,iterations) < 1) {
   throw new Error('repeat and iterations must be positive integers');
 }
-if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection'].includes(values.benchmark)) throw new Error('Unknown benchmark');
+if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm'].includes(values.benchmark)) throw new Error('Unknown benchmark');
+if (!['joint','composite'].includes(values.implementation) || values.benchmark !== 'batchnorm' && values.implementation !== 'joint') throw new Error('Implementation selection is for batchnorm');
 if (values.benchmark === 'schedulers' && (values.case || values.dtype !== 'float32')) {
   throw new Error('Scheduler suite uses fixed float32 fixtures and all cases');
 }
@@ -38,6 +40,7 @@ for (const name of fs.readdirSync(values.source).filter(name => name.endsWith('.
 py.runPython('import sys\nsys.path.insert(0,"/runtime")');
 py.FS.writeFile('/runtime/bench_runtime.py',fs.readFileSync(path.join(here,`bench_${values.benchmark}.py`),'utf8'));
 const options = values.benchmark === 'schedulers' ? {repeat,iterations} : {repeat,iterations,dtype:values.dtype,cases:values.case};
+if (values.benchmark === 'batchnorm') options.implementation = values.implementation;
 py.globals.set('benchmark_options_json',JSON.stringify(options));
 const report = JSON.parse(py.runPython('import json, bench_runtime\njson.dumps(bench_runtime.run_benchmarks(**json.loads(benchmark_options_json)))'));
 report.pyodide = py.version;

@@ -186,6 +186,18 @@ saved-storage tests, independent wheel/source identity, and actual Python
 native catalog, full WASM catalog, visualization and frontend/build gates pass;
 exact remote adoption checks follow publication. See the iteration 15 record.
 
+## Version 0.16 milestone
+
+BatchNorm1d/2d/3d and functional batch normalization add stateful channel
+normalization, affine gradients, train/eval and tracking modes, cumulative
+statistics, checkpoint/counter compatibility and standard module aliases.
+Native VJP/JVP conventions, selective storage guards and complete Adam
+train/checkpoint/resume workflows are covered alongside independent NumPy and
+finite-difference contracts. Ill-conditioned float32 channels use a documented
+centered numerical policy. Complete local native/WASM/application, packaging and
+frontend gates pass. Balanced CPU/WASM costs retain the float64 eval-backward
+overhead as well as training gains; exact remote adoption follows publication.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

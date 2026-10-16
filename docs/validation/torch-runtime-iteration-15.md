@@ -2,8 +2,9 @@
 
 Repository integration version: `paperleet-torch` **0.15.0**. Apache-2.0 and
 ordinary `import torch` launcher/host aliases remain available. All local
-integration gates below passed before preparing main publication. Exact remote
-CI, Pages and live-source verification are tracked after publication.
+integration gates below passed before main publication. Exact remote Quality,
+Pages and live-source verification also succeeded for `7d94e9bc`; the final
+adoption proof is appended below.
 
 ## Why this kernel
 
@@ -119,3 +120,31 @@ results, package identity and raw artifact attestations. Its accompanying
 `iteration-15-harness.tar.gz` contains the exact diagnostic/experimental runners
 and frozen input plans. Full local reports live under
 `/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-15`.
+
+## Exact remote adoption proof
+
+Commit `7d94e9bc0bc8a4ec810b014c519389694fd88cc3` passed
+[Quality38833400470](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38833400470)
+with successful native/frontend, browser-WASM and pilot jobs. Linux reports
+**17,103 passed**, one optional Docker skip and ten warnings in 494.53 s.
+The native catalog passes 77 modules, 9,987 executions, three repetitions and
+336 mutants in 403.027 s. The real pinned WASM catalog passes **77/77** in
+980.910 s, including the 206 standalone in-VM contracts.
+
+This runner observed no browser-budget excess. Flow Matching preparation was
+3.811 s, calibration **228.354 s**, learner **45.724 s**, and total **278.296 s**;
+the unchanged calibration/run/total budgets are 240/60/300 seconds. These are
+remote device observations, not a controlled comparison against another CI run.
+Calibration still has limited headroom; no universal deadline guarantee follows.
+
+Exact [Pages38833400206](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38833400206)
+also succeeded. The public deployment's 77 starters, 77 module details and
+77 judge manifests match the frozen source expectations; all 156 immutable
+assets and both 0.15 runtime/resource profiles match byte-for-byte. LICENSE and
+NOTICE are checked in both runtime profiles. The remote observer, downloads and
+live verifier were all observed terminal before starting the next iteration.
+
+See the [remote adoption record](../../packages/paperleet-torch/benchmarks/results/iteration-15-remote-adoption.json)
+for exact run IDs/jobs, raw catalog results, Flow Matching budgets, live payload
+hashes, log attestations and process receipts. Subsequent main UI changes through
+`0a6f0ecf` preserve all 35 numerical modules and two license resources unchanged.
