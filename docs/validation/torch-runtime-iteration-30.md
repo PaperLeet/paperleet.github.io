@@ -134,3 +134,25 @@ and its219-file archive retain exports, real VM results, dependencies, initial
 frontend context and targeted latest-main follow-up. Main adoption uses a
 non-force push;remote Quality, actual Pages deployment and live-byte checks remain
 separate gates. The last positively verified site version is0.29 through033dc1bc.
+
+
+## Exact remote adoption
+
+Mainb1a1631a completes Quality38935475320 with all four required jobs successful.
+Infrastructure passes29960/one optional skip in419.70s;native78/10218/342/three
+repeats passes in437.53s, and exported WASM78/342/948 independent checks passes
+in407682ms. All original budgets remain satisfied. These runner durations are
+compatibility/budget evidence, not comparisons with local benchmark timings.
+
+Pages38937107666 completes the actual deploy action for the same source revision.
+Live requests verify78 decoded starters, current detail/manifest references,
+158 immutable payloads and version0.30/LICENSE/NOTICE in both runtime profiles.
+All46 runtime/resource hashes and161 exports are checked against pinned Gitb1,
+so later0.31 working-copy changes cannot substitute for deployment evidence.
+
+[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-30-remote-adoption.json)
+and its22-file receipt archive retain source jobs, actual deploy steps, artifact
+reports, pinned hashes and live results. The initial artifact commands ran outside
+a Git repository and failed repository discovery;corrected commands in the owned
+checkout download all three requested reports/logs successfully. Failed receipts
+remain archived. Version0.30 is now positively verified on the site.

@@ -435,7 +435,7 @@ source-commit deployment was superseded and is not claimed as published.
   and78-module/158-payload live verification. An earlier overall-success Pages
   run skipped its deploy action and is retained as unpublished evidence.
 
-## Version0.30 local integration verified
+## Version0.30 adopted
 
 - Modern ZIP CPU `torch.save/load` for model, optimizer and scheduler data;
   native-format storage sharing/strides and14 dense dtypes, with independent
@@ -452,8 +452,11 @@ source-commit deployment was superseded and is not claimed as published.
   native CI and exported78/342/30suites948 WASM,with unchanged budgets.
 - All15 upstream UI/docs/style/check files through9d35 and7546 existing immutable
   assets remain unchanged;latest profile-settings and both frontend builds pass.
-  Main adoption uses a non-force push;remote Quality/actual Pages/live are
-  tracked separately,with0.29 the last positively verified site version.
+  Non-force mainb1a1631a passes all four Quality jobs38935475320 and actual
+  Pages38937107666;78 decoded modules/158 immutable assets and both runtime
+  licenses/version0.30 match pinned source in live requests.
+  [Exact remote evidence](../../docs/validation/torch-runtime-iteration-30.md)
+  separates budget checks from comparative benchmarks.
 
 ## Next implementation areas
 
