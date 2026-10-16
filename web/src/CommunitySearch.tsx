@@ -1,6 +1,7 @@
 import {useEffect,useId,useRef,useState} from 'react';
 import {ArrowRight,Search,X} from 'lucide-react';
 import {useI18n} from './i18n';
+import './community-search.css';
 
 const bounded=(value:string)=>Array.from(value).slice(0,200).join('');
 

@@ -1,0 +1,6 @@
+.preparation-concept-picker { display:grid; gap:10px; min-width:0; padding:14px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+.preparation-concept-picker .community-search { min-width:0; width:100%; box-sizing:border-box; }
+.preparation-concept-status { margin:0; color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }
+.preparation-concept-picker .preparation-guide-selector { min-width:0; padding:0; border:0; background:transparent; }
+.preparation-concept-picker .preparation-guide-selector select { min-height:44px; font-size:var(--type-body); }
+.preparation-concept-picker select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
