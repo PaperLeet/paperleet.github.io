@@ -1,6 +1,7 @@
 """Shape-only storage views and forward-tangent layout materialization."""
 import math
 import operator
+from functools import lru_cache
 import numpy as np
 from . import _errors
 
@@ -197,6 +198,47 @@ def dimension(value, ndim, *, insertion=False):
     return value%extent
 
 
+def _scalar_axis(value):
+    return (isinstance(value,(int,np.integer)) and not isinstance(value,(bool,np.bool_))
+            or isinstance(value,_tensor.Tensor) and value.ndim==0 and value.dtype.kind in 'iu')
+
+
+def transpose_dimensions(dim0, dim1, ndim):
+    if not _scalar_axis(dim0) or not _scalar_axis(dim1):
+        raise TypeError('Transpose axes must be integers')
+    dim0,dim1=integer(dim0),integer(dim1)
+    if any(v < -(1<<63) or v >= 1<<63 for v in (dim0,dim1)):
+        raise ValueError('Dimension integers must fit signed int64')
+    return dimension(dim0,ndim),dimension(dim1,ndim)
+
+
+def movement(source, destination, ndim):
+    """Normalize Torch's scalar/list overloads into one immutable permutation."""
+    sequences=isinstance(source,(tuple,list)) and isinstance(destination,(tuple,list))
+    if sequences:
+        # List elements use __index__, whereas the scalar overload accepts only
+        # native integer forms. Convert before rank/duplicate validation.
+        source=tuple(integer(v) for v in source)
+        destination=tuple(integer(v) for v in destination)
+        if any(v < -(1<<63) or v >= 1<<63 for v in (*source,*destination)):
+            raise TypeError('Dimension list elements must fit signed int64')
+    elif _scalar_axis(source) and _scalar_axis(destination):
+        source=(integer(source),);destination=(integer(destination),)
+        if any(v < -(1<<63) or v >= 1<<63 for v in (*source,*destination)):
+            raise ValueError('Dimension integers must fit signed int64')
+    else:
+        raise TypeError('movedim requires two integers or two integer sequences')
+    if len(source)!=len(destination):raise RuntimeError('Source and destination must have equal lengths')
+    source=tuple(dimension(v,ndim) for v in source)
+    destination=tuple(dimension(v,ndim) for v in destination)
+    if len(set(source))!=len(source) or len(set(destination))!=len(destination):
+        raise RuntimeError('Source and destination dimensions must be unique')
+    if not ndim:return ()
+    selected=set(source);order=[axis for axis in range(ndim) if axis not in selected]
+    for target,axis in sorted(zip(destination,source)):order.insert(target,axis)
+    return tuple(order)
+
+
 def permutation(args, kwargs, ndim):
     if kwargs:
         if set(kwargs)!={'dims'} or args:raise TypeError('Invalid or duplicate permute dimensions')
@@ -214,7 +256,10 @@ def permutation(args, kwargs, ndim):
     return dims
 
 
+@lru_cache(maxsize=32)
 def inverse_permutation(dims):
+    # Public parsers supply tuples of plain integers, never tensors/user objects.
+    # Geometry is independent of values; the bounded cache holds no graph state.
     inverse=[0]*len(dims)
     for source_axis,target_axis in enumerate(dims):inverse[target_axis]=source_axis
     return tuple(inverse)
@@ -262,3 +307,7 @@ def metadata_view(data, shape, strides, candidate=None, *, writeable=None):
         return value
     return np.lib.stride_tricks.as_strided(data,shape=shape,strides=strides,
         writeable=data.flags.writeable if writeable is None else writeable)
+
+
+# Bind the module once; Tensor is resolved only when layout parsers are called.
+from . import _tensor

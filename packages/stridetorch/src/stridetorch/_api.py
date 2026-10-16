@@ -186,6 +186,8 @@ def create_torch(name='torch', *, register=False):
         registry.method(name, reverse=reverse, forward=forward, unsupported_keywords=keywords)
     registry.method('argsort',reverse='nondifferentiable',forward=True)
     registry.group('torch', {'flatten':_ops.flatten,'transpose':_ops.transpose,'unsqueeze':_ops.unsqueeze,'squeeze':_ops.squeeze}, reverse='analytic', forward=True)
+    registry.group('torch', {'t':_ops.t,'swapaxes':_ops.swapaxes,'swapdims':_ops.swapdims,
+                            'movedim':_ops.movedim,'moveaxis':_ops.moveaxis}, reverse='analytic', forward=True)
     registry.add('torch.permute', _ops.permute, reverse='analytic', forward=True)
     registry.add('torch.broadcast_to', _ops.broadcast_to, reverse='analytic', forward=True)
     from . import _statistics

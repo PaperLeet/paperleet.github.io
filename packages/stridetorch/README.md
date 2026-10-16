@@ -63,6 +63,34 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## Matrix and axis views
+
+`Tensor.t()` / `torch.t` transpose a matrix and return a view for scalars or
+vectors; ranks above two raise an error. `Tensor.mT` swaps the last two axes of
+a matrix batch. As in native Torch, a scalar `.mT` returns the original object
+with a deprecation warning, while a vector `.mT` is invalid. Neither operation
+conjugates complex values.
+
+`movedim` / `moveaxis` and `swapaxes` / `swapdims` are available as Tensor methods
+and top-level Torch functions. Movement accepts two integers or two integer
+sequences with equal lengths and unique normalized axes. Unmoved axes keep their
+relative order. `swapaxes` uses `axis0/axis1` keywords; `swapdims` uses `dim0/dim1`.
+
+```python
+x = torch.arange(24, dtype=torch.float32).reshape(2, 3, 4)
+assert x.movedim((0, 2), (2, 0)).shape == (4, 3, 2)
+assert x.mT.shape == (2, 4, 3)
+assert torch.swapaxes(x, axis0=0, axis1=2).shape == (4, 3, 2)
+```
+
+Ordinary primal views share storage and mutation versions with their input;
+their reordered strides do not require a value copy. Real floating reverse-mode gradients,
+float32/64 JVP and reverse differentiation of the tangent use the existing view
+engine, including its tangent-layout materialization rules. Complex transposes are available for inference; complex differentiation
+retains its explicit unsupported error. Axis lists and integer Tensor arguments
+are converted to immutable metadata at forward time and are not retained by the
+tape. Detached view writes still invalidate computations that saved those values.
+
 ## Gradient accumulation and storage
 
 The first `.grad` for a non-overlapping dense leaf follows the parameter's

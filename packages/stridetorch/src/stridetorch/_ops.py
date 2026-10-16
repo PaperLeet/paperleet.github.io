@@ -540,6 +540,31 @@ def transpose(input,dim0,dim1):
     return input.transpose(dim0,dim1)
 
 
+def t(input):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('t input must be a Tensor')
+    return input.t()
+
+
+def swapaxes(input,axis0,axis1):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('swapaxes input must be a Tensor')
+    return input.swapaxes(axis0,axis1)
+
+
+def swapdims(input,dim0,dim1):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('swapdims input must be a Tensor')
+    return input.swapdims(dim0,dim1)
+
+
+def movedim(input,source,destination):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('movedim input must be a Tensor')
+    return input.movedim(source,destination)
+
+
+def moveaxis(input,source,destination):
+    if not isinstance(input,_tensor.Tensor):raise TypeError('moveaxis input must be a Tensor')
+    return input.moveaxis(source,destination)
+
+
 def unsqueeze(input,dim):
     if not isinstance(input,_tensor.Tensor):raise TypeError('unsqueeze input must be a Tensor')
     return input.unsqueeze(dim)

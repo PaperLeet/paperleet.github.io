@@ -139,6 +139,15 @@ class Tensor:
             warnings.warn('Tensor.T on tensors with more than two dimensions is deprecated.',UserWarning,stacklevel=2)
             _state._high_rank_t_warning_emitted=True
         return self.permute(tuple(reversed(range(self.ndim))))
+    @property
+    def mT(self):
+        if self.ndim==0:
+            if not getattr(_state,'_scalar_mt_warning_emitted',False):
+                warnings.warn('Tensor.mT is deprecated on 0-D tensors.',UserWarning,stacklevel=2)
+                _state._scalar_mt_warning_emitted=True
+            return self
+        if self.ndim==1:raise RuntimeError('Tensor.mT requires a matrix or a batch of matrices')
+        return self.transpose(-2,-1)
     data = property(lambda self: self.detach())
 
     def __getattr__(self, name):
@@ -689,10 +698,21 @@ class Tensor:
         dims=_layout.permutation(dims,kwargs,self.ndim)
         return _autograd.view_result(self._data.transpose(dims),self,lambda g:g.transpose(_layout.inverse_permutation(dims)))
     def transpose(self, dim0, dim1):
-        dim0=_layout.dimension(dim0,self.ndim);dim1=_layout.dimension(dim1,self.ndim)
-        if not self.ndim:
+        ndim=self.ndim;extent=ndim or 1
+        if type(dim0) is int and type(dim1) is int and -extent<=dim0<extent and -extent<=dim1<extent:
+            dim0%=extent;dim1%=extent
+        else:dim0,dim1=_layout.transpose_dimensions(dim0,dim1,ndim)
+        if not ndim:
             return _autograd.view_result(self._data.view(),self,lambda g:g)
         return _autograd.view_result(self._data.swapaxes(dim0,dim1),self,lambda g:g.swapaxes(dim0,dim1))
+    def t(self):
+        if self.ndim>2:raise RuntimeError('t() expects a tensor with at most two dimensions')
+        return self.transpose(0,1 if self.ndim==2 else 0)
+    def swapdims(self, dim0, dim1):return self.transpose(dim0,dim1)
+    def swapaxes(self, axis0, axis1):return self.transpose(axis0,axis1)
+    def movedim(self, source, destination):
+        return self.permute(_layout.movement(source,destination,self.ndim))
+    def moveaxis(self, source, destination):return self.movedim(source,destination)
     def expand(self, *shape, **kwargs):
         original_data = self._data
         original_shape = self.shape

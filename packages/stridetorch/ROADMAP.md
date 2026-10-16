@@ -387,6 +387,27 @@ source commit's skipped deploy remains separately recorded.
   and both actual build profiles pass. Main adoption uses non-force revalidation;
   exact remote Quality and eligible Pages/live proof remain separate gates.
 
+Main adoptedf1b33b0b without force. Actual sourceQuality38908465541 passed all four
+jobs. Runtime/export-identical descendant9f18e510 then passedQuality38908787448 and
+actualPages38910349850. Frozen live verification succeeds for78 decoded starters,
+current detail/manifest references and158 immutable payloads, including both
+runtime profiles and licenses. Version0.27 is positively verified on the site;
+source-commit deployment was superseded and is not claimed as published.
+
+## Version 0.28 candidate
+
+- Matrix `t/mT`, movement `movedim/moveaxis` and swap `swapaxes/swapdims` preserve
+  ordinary views, storage versions and real VJP/JVP routing. Scalar aliases,
+  keyword names, native scalar/sequence parsing and error priority are tested.
+- Existing transpose rejects nonnative scalar axis forms and uses an inline
+  path for ordinary valid Python integer axes. Inverse permutations use a
+  bounded32-entry cache of integer tuples, with no numerical or graph state.
+- Native and independent NumPy/CPU/WASM contracts cover complex inference,
+  strided/singleton/empty views, multiple batch axes, dynamic seeds, argument
+  ownership and retained graph/value release. Eager and per-node metadata trials
+  were rejected using timing evidence; all trials and anomalies are preserved.
+  Full final-source and application integration outcomes are recorded separately.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization

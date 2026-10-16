@@ -138,3 +138,31 @@ and the212-file receipt archive retain the frozen exports, actual reports,
 dependency interruption/recovery and process receipts. Main adoption uses a
 non-force push after latest-ref revalidation. Exact remote Quality and eligible
 Pages/live verification are tracked separately from these successful local gates.
+
+## Actual remote adoption
+
+Main adopted `f1b33b0be7b47bb9e06ff92ba60a5032fb8cea06` by non-force push.
+Its actual [Quality38908465541](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38908465541)
+passes all four required jobs. The infrastructure log reports27059 passed/one
+optional Docker skip in541.01s; native original CI passes78/10218/342/three repeats
+in316.31s; exported WASM passes78/342/no budget violations in296387ms, including
+the same27/841 independent suite hashes. These are runner budget/compatibility
+gates rather than comparative performance evidence.
+
+Main advanced before an eligible source-commit deployment was observed. Descendant
+`9f18e510b8f72cf65222a2b94d9e70b9720f10d0` changes only ten UI/docs/build-script
+files: all45 source/resource and161 frozen export hashes match the original
+commit. Its actual [Quality38908787448](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38908787448)
+passes all four required jobs and
+[Pages38910349850](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38910349850)
+completes the actual deployment steps successfully. Downloaded descendant reports
+pass native78/10218/342/three repeats in416.25s and exported WASM78/342/no budget
+violations in524859ms, with identical per-case source hashes, counts, packages,
+budgets and27/841 standalone contracts.
+
+[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-27-remote-adoption.json)
+and its14-file archive retain both runs, byte equivalence and actual live checks.
+All78 decoded starters/current detail/manifest references and158 immutable payloads
+match the frozen version, including both runtime byte sequences and LICENSE/NOTICE.
+Version0.27 is positively verified on the site through that runtime-equivalent
+descendant; the original commit's absent eligible deployment is kept distinct.
