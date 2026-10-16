@@ -182,3 +182,7 @@ typed builds pass again, including community code blocks and resilient sharing.
 All 47 computational resources and 161 exports remain unchanged; see
 `iteration-37-main-sync.json`. The full exported WASM retry ran after these
 checks against this same source and catalog.
+
+Validated source was adopted non-force on remote `main` at `724b7e8a7eabf76b2369c21fe5492add166e3652`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-37-main-adoption.json`; no tag, dispatch or online release was created.
