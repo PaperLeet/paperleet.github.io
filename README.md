@@ -53,6 +53,8 @@ To compare normalization methods, follow [Normalization foundations](https://pap
 
 For Transformer core and efficiency, use the [guided preparation path](https://paperleet.com/#/interviews?track=transformer): nine modules connecting positions, per-token FFNs, normalization, shared KV heads and online softmax.
 
+For diffusion practice, the [Training & experimentation path](https://paperleet.com/#/interviews?track=training) connects schedules, v-parameterization, DDPM, DDIM and Flow Matching alongside optimizer and policy objectives. Bilingual study prompts separate each core implementation from the supplied sampling and experiment helpers.
+
 1. Choose a paper, such as **6 · DDPM**, then open its **Forward Noising** module.
 2. Read the goal and complete only the required functions in the Python editor. Schedules and other supporting functions are already implemented.
 3. Click **Run tests** to check your code in the browser and wait for the results.
@@ -250,6 +252,6 @@ The Oral/Spotlight expansion adds 12 papers and 14 modules. See the [candidate e
 
 VAR and FD-Loss add four focused modules with CPU experiments. See the [source and validation record](docs/validation/var-and-fd-loss.md).
 
-As of 2026-10-15, browser judging covers all **77 maintained teaching modules**, with **608 learner tests** and **336 maintained mutants**. This includes Schedules, Attention, LoRA, retrieval and representation learning, RL and diffusion, and the six introductory LLM exercises. The complete suites run on CPU/WASM without a GPU, preserving the original precision, gradients, model sizes and training steps. For example, LoRA retains its 300-step training experiment and Flow Matching retains all 2000 training steps.
+As of 2026-10-15, browser judging covers all **78 maintained teaching modules**, with **619 learner tests** and **342 maintained mutants**. This includes Schedules, Attention, LoRA, retrieval and representation learning, RL and diffusion, and the six introductory LLM exercises. The complete suites run on CPU/WASM without a GPU, preserving the original precision, gradients, model sizes and training steps. For example, LoRA retains its 300-step training experiment and Flow Matching retains all 2000 training steps.
 
 **Run tests** stays in the browser. Unsupported APIs, timeouts and runtime failures are shown without automatically sending source to the server; signed-in users choose **Submit** for server judging and saved account results. Runtime assets load on demand, and live steps show preparation, reference/mutant calibration and learner tests, with Stop available throughout. CI executes every exported module in a fresh pinned Pyodide process, checks every reference and mutant, and verifies the exact test counts and source identities. This WASM gate is separate from actual browser UI and device compatibility checks. See [implementation and compatibility notes](docs/browser-judge.md).
