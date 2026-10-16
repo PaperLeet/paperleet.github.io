@@ -43,10 +43,10 @@ const fixture = {
     applyReport(entry,report,owner){calls.appliedReports.push({report,owner});this.saved={...this.saved,[entry.id]:{...this.saved[entry.id],report}};notify();},
     retry:noop,resolveConflict:noop},
   browser:{active:false,reports:{},syntaxErrors:{},reasons:{},calibrations:{},diagnostics:{},measurements:{},
-    clear(id){delete this.reports[id];delete this.syntaxErrors[id];notify();},
+    clear(id){for(const name of ['reports','syntaxErrors','reasons','diagnostics','calibrations','measurements'])delete this[name][id];notify();},
     run(entry,source){calls.runs.push({id:entry.id,source});this.active=true;this.problem=entry.id;this.stage='running';delete this.syntaxErrors[entry.id];this.reasons[entry.id]='';this.diagnostics[entry.id]='';notify();return new Promise((resolve,reject)=>{runResolve=resolve;runReject=reject;});},
     stop(){calls.stops++;fixture.browser.active=false;fixture.browser.problem=undefined;notify();runReject?.(new DOMException('Stopped','AbortError'));runResolve=undefined;runReject=undefined;}},
-  judge:{active:false,async submit(id,source){calls.submits.push({id,source});if(this.submitError)throw Error(this.submitError);this.error='';this.active=true;this.pending={problem:id,source};this.job={problem:id,status:'queued',ahead:2};notify();},stopWaiting:noop,
+  judge:{active:false,async submit(id,source){calls.submits.push({id,source});if(this.submitException)throw this.submitException;if(this.submitError)throw Error(this.submitError);this.error='';this.active=true;this.pending={problem:id,source};this.job={problem:id,status:'queued',ahead:2};notify();},stopWaiting:noop,
     cancel(){this.active=false;this.pending=undefined;this.job={...this.job,status:'cancelled'};notify();}},
   learning:{ready:true,records:{},retry:noop,dismiss:noop,record:noop},
 };
@@ -74,12 +74,13 @@ const mocks = {
     export const InboxBell=()=>null,Messages=()=>null;
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
     export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
+    export {default as JudgeRuntimeDetails} from '/src/JudgeRuntimeDetails.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
     export {default as ReadingTabControls} from '/src/ReadingTabControls.tsx';
     export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content})=>React.createElement('article',null,content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
-    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','Achievements','AchievementObserver','BrowserResultActions','JudgeRuntimeDetails','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
+    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','Achievements','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
 };
 mocks['/src/ReportView.tsx']=mocks['./ReportView'];
 const server = await createServer({
@@ -151,11 +152,17 @@ try {
   await settle(()=>!action('Run tests').disabled);
   assert(resultSelected(),'Stopping tests keeps feedback in the selected Result tab');
   assert(find('#problem-results-panel').textContent.includes('Browser run stopped'),'The browser AbortError is shown inline');
+  assert.equal(find('.workspace-result-heading > span').textContent,'Stopped','An intentional stop is distinct from a failed run');
+  assert.equal(find('#problem-results-panel [role="alert"]'),null,'Stopping is a neutral status, not an error announcement');
+  assert(find('.run-recovery button[data-retry-run]'),'The result panel offers a direct retry after stopping');
+  assert.equal(calls.appliedReports.length,0,'Stopping cannot fabricate a completed report');
   assertInline('Stopping tests keeps the current problem URL');
 
   const report={problem:problem.id,source_sha256:createHash('sha256').update(source).digest('hex'),runtime:'browser-numpy-wasm',summary:{T0:[1,1]},tests:[{id:'output',layer:'T0',passed:true}]};
-  await click(find('#reading-tab-description'));
-  await click(action('Run tests'));
+  await click(find('.run-recovery button[data-retry-run]'));
+  assert.equal(calls.runs.length,2,'One retry starts exactly one browser run');
+  assert.deepEqual(calls.runs.at(-1),{id:problem.id,source},'Retry executes the current draft in the same browser mode');
+  assert.equal(find('.run-recovery'),null,'A new run clears the stopped recovery card');
   await finishBrowser({type:'result',report});
   await settle(()=>find('.workspace-test-results > .result-head h3')?.textContent==='Tests passed');
   assert(resultSelected()&&!find('#problem-results-panel').hidden,'Successful tests stay in the left Result tab');
@@ -286,7 +293,52 @@ try {
   assertInline('Syntax errors keep the current problem URL');
   assert.equal(editor.value,pendingEdit);
 
+  // Recovery is an action on the current editor, never a replay of an old source snapshot.
+  await click(action('Run tests'));await click(action('Stop'));
+  await settle(()=>find('.run-recovery button[data-retry-run]'));
+  assert.equal(find('.workspace-test-results'),null,'A stopped attempt must not present an earlier report as its new verdict');
+  assert.equal(find('.judge-runtime-details'),null,'A stopped attempt must not present calibration or timing from the previous result');
+  assert.equal(find('#problem-results-panel [role="alert"]'),null);
+  const recoverySource=pendingEdit+'# changed after stopping\n';
+  await change(()=>{fixture.practice.saved={[problem.id]:{...fixture.practice.saved[problem.id],code:recoverySource}};});
+  editor.setSelectionRange(7,12);editor.scrollTop=52;
+  await click(find('.run-recovery .button.subtle'));
+  assert.equal(document.activeElement,editor);assert.equal(editor.value,recoverySource);
+  assert.equal(editor.selectionStart,7);assert.equal(editor.selectionEnd,12);assert.equal(editor.scrollTop,52);
+  const retryButton=find('.run-recovery button[data-retry-run]'),beforeRetry=calls.runs.length;
+  await click(retryButton);await click(retryButton);
+  assert.equal(calls.runs.length,beforeRetry+1,'A repeated retry cannot start overlapping browser work');
+  assert.equal(calls.runs.at(-1).source,recoverySource,'Retry runs edits made after stopping');
+  await change(()=>{fixture.browser.reasons[problem.id]='runtime_failed';});
+  await finishBrowser({type:'unsupported',reason:'runtime_failed'});
+  await settle(()=>find('.run-recovery button[data-retry-run]'));
+  assert.equal(find('.run-recovery button[data-retry-run]').textContent.trim(),'Run current code again','A browser failure keeps the browser retry mode');
+
+  await change(()=>{fixture.judge.submitError='Temporary server connection failure';});
+  await click(action('Submit'));
+  await settle(()=>find('.run-recovery button[data-retry-run]')?.textContent.includes('Resubmit'));
+  assert(find('#problem-results-panel [role="alert"]').textContent.includes('Temporary server connection failure'));
+  await change(()=>{fixture.account.health.judge.ready=false;});
+  assert(find('.run-recovery button[data-retry-run]').disabled,'An unavailable server cannot be retried just because browser execution is available');
+  await change(()=>{fixture.account.health.judge.ready=true;fixture.judge.reloadRequired=true;});
+  assert(find('.run-recovery button[data-retry-run]').disabled,'A required reload must not be bypassed through recovery');
+  await change(()=>{fixture.judge.reloadRequired=false;fixture.judge.submitError='';});
+  await change(()=>{fixture.judge.submitException=new DOMException('Server connection aborted','AbortError');});
+  await click(find('.run-recovery button[data-retry-run]'));
+  await settle(()=>find('#problem-results-panel [role="alert"]')?.textContent.includes('Server connection aborted'));
+  assert.equal(find('.workspace-result-heading > span').textContent,'Run incomplete','A server AbortError is a connection failure, not an intentional browser stop');
+  await change(()=>{fixture.judge.submitException=undefined;});
+  const runsBeforeServerRetry=calls.runs.length,submitsBeforeRetry=calls.submits.length;
+  await click(find('.run-recovery button[data-retry-run]'));
+  assert.equal(calls.submits.length,submitsBeforeRetry+1);assert.equal(calls.runs.length,runsBeforeServerRetry,'A server retry must not silently become a browser result');
+  assert.equal(calls.submits.at(-1).source,recoverySource);
+  await finishSubmission({...accepted,source_sha256:createHash('sha256').update(recoverySource).digest('hex')});
+  await settle(()=>!action('Run tests').disabled);
+  await click(action('Run tests'));await click(action('Stop'));
+  await settle(()=>find('.run-recovery'));
+
   await change(()=>{fixture.account.user=undefined;fixture.practice.owner='anonymous';});
+  assert.equal(find('.run-recovery'),null,'A new workspace owner cannot inherit the previous owner’s stopped state or retry action');
   assert(action('Sign in to submit'),'Guests keep a sign-in entry in the same top action area');
   assert.equal(action('Submit'),undefined);
   assert(!action('Run tests').disabled,'Guest browser practice stays available');
@@ -300,6 +352,9 @@ try {
   const practiceHref=libraryNav.withLibraryContext(problem.number,origin);window.history.replaceState(null,'',practiceHref);assert.equal(reading.currentReadingReturn().phase,'opening');
   await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
   await settle(()=>find('#problem-editor-panel textarea')&&reading.currentReadingReturn()?.phase==='reading');
+  await change(()=>{fixture.judge.job={problem:problem.id,status:'cancelled'};});
+  assert.equal(find('.run-recovery button[data-retry-run]').textContent.trim(),'Resubmit current code','A reconnected cancelled server job retains server retry mode without an in-memory latestRun');
+  await change(()=>{fixture.judge.job=undefined;});
   assert.equal(location.hash,practiceHref);assert.equal(find('#problem-editor-panel textarea').value,fixture.practice.saved[problem.id].code,'Re-arming a reading return never changes learner code');reading.discardReadingReturn();
   await act(async()=>root.unmount());root=undefined;
   const savedOrigin='#/favorites?'+new URLSearchParams({q:'Attention',state:'todo'});
@@ -353,7 +408,7 @@ try {
   await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-practice-ids')==='');
   assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),emptyView,'Changing a return view must retire the old recommendation scope');
   await act(async()=>root.unmount());root=undefined;
-  console.log('PASS actual App workspace: source-safe inline judging, retained editor/diagnostics, exact practice returns, live paper recommendation scope and bilingual empty/filtered-complete/all-complete/optional/loading states');
+  console.log('PASS actual App workspace: source-safe inline judging, neutral stops, current-source/mode recovery with offline/reload/owner guards, retained editor/diagnostics, exact practice returns, live paper recommendation scope and bilingual empty/filtered-complete/all-complete/optional/loading states');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();
