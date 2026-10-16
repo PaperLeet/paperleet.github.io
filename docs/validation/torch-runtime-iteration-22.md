@@ -2,8 +2,9 @@
 
 This development candidate adds shared real `var/std/var_mean/std_mean` kernels,
 strict reduction/overload contracts and analytical VJP/JVP. It is not adopted on
-main. Final infrastructure passes 25,605 tests; full application, export and
-integration gates remain pending. Version 0.21 is already deployed and independently verified.
+main. All local release gates pass, including 25,605 infrastructure tests and
+the complete native and exported WASM catalogs. Remote integration remains
+pending. Version 0.21 is already deployed and independently verified.
 
 ## Correctness and computation
 
@@ -52,7 +53,18 @@ private distribution retains current curriculum metadata.
 
 The original native catalog also passes 78 problems, 10,218 test executions over
 three repetitions and 342 mutants (135.72s), retaining its existing per-module
-limits and 600s aggregate budget. Exported WASM application budgets remain pending.
+limits and 600s aggregate budget. All 78 exported WASM modules pass with no
+browser budget violations (540.251s aggregate). Flow Matching takes 128.446s
+calibration, 40.101s learner execution and 171.204s total, within its unchanged
+240/60/300s limits. These application times are correctness/budget evidence,
+not a controlled comparison with earlier releases.
+
+Export preserves all 6,282 published immutable assets byte-for-byte. All 158
+new immutable assets are reachable; the release freezes 161 files including
+the three catalog indexes. Both runtime profiles carry Apache-2.0/NOTICE.
+The frontend check, production build and Pages policy check pass. A later
+upstream handbook UI change will be preserved and its affected frontend gates
+repeated before main integration.
 
 The current source also passes 4,031 focused native/statistics/model-conversion/IEEE
 and standalone contracts. Its actual Node/Pyodide and Chrome Worker runs each
@@ -109,3 +121,9 @@ Maintained CPU and WASM entry points both execute all 13 statistics cases.
 [Evidence](../../packages/stridetorch/benchmarks/results/iteration-22.json) and
 [source/harness archive](../../packages/stridetorch/benchmarks/results/iteration-22-harness.tar.gz)
 retain all phases, numerical inputs, rejected failures and current source.
+The [final local gates](../../packages/stridetorch/benchmarks/results/iteration-22-local-gates.json)
+and [release snapshot archive](../../packages/stridetorch/benchmarks/results/iteration-22-local-gates-harness.tar.gz)
+retain full native/WASM results, packaging receipts, history checks and frozen
+runtime/live-verification inputs. The independent project name **StrideTorch**
+is explicitly confirmed by the human; distribution, import and launcher use
+`stridetorch`, while host/launcher aliases preserve ordinary `import torch`.

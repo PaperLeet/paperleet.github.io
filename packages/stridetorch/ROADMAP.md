@@ -266,8 +266,11 @@ retain input and standard-deviation guards without guarding unsaved means or
 variance outputs. Reverse-over-JVP and post-forward model dtype conversion are
 checked. Float32 paired accumulators retain their native rounding distinction.
 Independent directional derivatives, duality and continued optimizer updates
-supplement native references. Full correctness, actual WASM and balanced CPU/WASM
-performance gates remain pending; this candidate has not been adopted on main.
+supplement native references. Local infrastructure passes 25,605 tests; all 78
+native and exported WASM problems pass within their existing budgets. Independent
+Node/Chrome contracts, minimum-dependency installed wheels and balanced CPU/WASM
+comparisons pass. Remaining standard-deviation reverse costs are documented.
+This candidate awaits main integration and exact remote deployment verification.
 
 ## Next implementation areas
 
