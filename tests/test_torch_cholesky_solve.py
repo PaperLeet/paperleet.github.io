@@ -101,3 +101,26 @@ def test_unused_nan_is_ignored_only_in_primal_solves(upper):
     for lib in (lite,native):
         F=lib.tensor(f,requires_grad=True);B=lib.ones(2,2,dtype=lib.float64,requires_grad=True);x=lib.cholesky_solve(B,F,upper);x.sum().backward();reports.append((x.detach().numpy(),B.grad.numpy(),F.grad.numpy()))
     for a,b in zip(*reports):close(a,b,'float64')
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('active',[(0,1),(0,),(1,)])
+@pytest.mark.parametrize('triangular',[False,True])
+def test_large_narrow_jvp_and_all_reverse_edges(dtype,upper,active,triangular):
+    f,b=arrays(dtype,(),(),65,4)
+    if triangular:f=np.triu(f) if upper else np.tril(f)
+    df=np.full_like(f,.013);db=np.full_like(b,.027);reports=[]
+    for lib in (lite,native):
+        args=tuple(lib.tensor(v,requires_grad=True) for v in (b,f,db,df))
+        def function(*values):
+            inputs=list(args[:2])
+            for index,value in zip(active,values):inputs[index]=value
+            return lib.cholesky_solve(*inputs,upper)
+        x,t=lib.func.jvp(function,tuple(args[i] for i in active),tuple(args[2+i] for i in active))
+        gradients=lib.autograd.grad(.17*x.square().mean()+.23*t.square().mean(),args,allow_unused=True)
+        reports.append((x.detach().numpy(),t.detach().numpy(),[None if g is None else g.numpy() for g in gradients]))
+    a,b=reports;close(a[0],b[0],dtype);close(a[1],b[1],dtype)
+    for x,y in zip(a[2],b[2]):
+        if y is None:assert x is None
+        else:close(x,y,dtype)

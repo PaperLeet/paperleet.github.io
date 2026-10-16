@@ -522,8 +522,23 @@ source-commit deployment was superseded and is not claimed as published.
   deployed;last verified live remains0.31. Exact failed evidence is retained.
 -0.33 adds full-factor Cholesky solve AD and portable failure reporting;expanded
   browser tests catch silent invalid factors. Complete local validation and
-  measured efficiency remain required. Automatic CI/deployment is being moved
-  to user-created release tags to preserve the user's Actions quota.
+  measured efficiency remain required. Ordinary pushes/PRs now start no CI; explicit user releases run all gates
+  under the canonical release policy, preserving Actions quota.
+
+## Version 0.33: full-factor Cholesky solve and quiet-WASM status
+
+- Adds real Cholesky-solve VJP/JVP/full tangent reverse and complex inference;
+  reuses graph-local triangular intermediates and associates narrow products.
+- Quiet NumPy Cholesky/solve/inverse failures now produce explicit diagnostics.
+  Finite native comparisons remain strict; nonfinite backend assumptions are
+  documented and independently tested.
+- Full merged core 31,655 passes; Chrome/Node 1,375 checks each;
+  minimum Python/NumPy wheel 1,387 passes. Complete original native/WASM catalogs,
+  current frontend/builds and immutable assets all pass unchanged gates.
+- Initial regressions and final paired measurements are retained in the
+  [validation record](../../docs/validation/torch-runtime-iteration-33.md).
+  Main adoption is separate from online publication; no CI/tag/dispatch is
+  triggered. The user will explicitly tag a release later.
 
 ## Next implementation areas
 

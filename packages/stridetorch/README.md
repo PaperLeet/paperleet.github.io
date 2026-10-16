@@ -183,7 +183,11 @@ triangle; native differentiation extends the full factor and direction. For a
 trainable SPD system, compose the factorization with `A = M @ M.T + I`.
 Backward guards RHS, factor and output mutations, and shares one adjoint solve
 across both input gradients. Narrow matrix RHS gradients associate products
-through their columns to avoid a cubic factor-gradient multiplication. Output
+through their columns to avoid a cubic factor-gradient multiplication. Finite
+triangular factors needing gradients reuse one forward and one adjoint
+intermediate; finite narrow JVPs associate products through the RHS while keeping
+the full native factor/direction rules. These are saved graph values, not
+cross-call caches. Output
 buffers, half factorization and complex AD remain explicit unsupported cases.
 Version0.33 validation and integration are tracked in its
 [validation report](../../docs/validation/torch-runtime-iteration-33.md).

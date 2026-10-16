@@ -1,0 +1,2615 @@
+{
+  "status": "complete_local_core_and_application_gates_passed_main_adoption_pending",
+  "version": "0.33.0",
+  "baseline_main": "bbe623fca182336bdc3b2f12fe41c981f4f9040a",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "9497f18de40d66812d5b4e7bbf0c976975943b0c3c8e3cec26cd5e43726c8fbf",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "ea17bd4c26f8fe51ca93f96c77104e96b2405ee17f613c9632092920e3bfd5f1",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+    "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "standalone_test_hashes": {
+    "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+    "test_cholesky_solve.py": "c24f714dbe992c15fc0ce9877416bdb8c84312f3fc0de95e581be70cd4facb12",
+    "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+    "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+    "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+    "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+  },
+  "native_test_hashes": {
+    "test_torch_classification.py": "19cf93bb1afd2e1ed3d41856f3af26c14d7ff2bb178aea877e4707b75d37f76e",
+    "test_torch_nan_reductions.py": "38c389a42a326312114dd9451be4d545ab2ca570759eee8158c38e8c9e009e16",
+    "test_torch_mean.py": "cac51d9c31426b84da8f579e86852b6384cbe13a504a52cfcc1dbe097100fd19",
+    "test_torch_cholesky.py": "3750adc3d1a9201355f4c1073ad7dbde3f44a90afe0f4e60d54259d8a241171e",
+    "test_torch_batchnorm.py": "f12ddcfd8dc9fe273304e9b5dd31f717a1f41a61c8af6cb40d8b565a6f691388",
+    "test_torch_numpy_inputs.py": "80cbb33b4f1c88e910597a4bb25948dd2f4bd51129d751f121e7c4b250c604ab",
+    "test_torch_triangular.py": "e5c94a60ee79e60ff3093173d64abe17796a654205522b74f0f3a47cda013e39",
+    "test_torch_promotion.py": "ad2aa7259e3d44411571b66b654e2a562407b6fe8251f9618ef2eab3ccf41681",
+    "test_torch_graph_lifecycle.py": "5353e27e7584858d0851439e8ecff3099c4549b9ddfe3819393694145a6bc23e",
+    "test_torch_layout.py": "30d1b207c370cd49f9af8bae03e051a64924ae0e5043d5bdaf9e8d3a26b9a1e4",
+    "test_torch_arithmetic.py": "01d81d88df00ab1531320e1d347afe9f78854189b84e6144a9fdc7ed36128a5f",
+    "test_torch_ieee.py": "9eaf11ec3b7d6a197f6d7f2fb728d37c41232708900a38fac513e84ef0fa34c7",
+    "test_torch_nn_blocks.py": "4d575ebd244dfa1257acdbc3ef78a56b67555b0a67d9b6868d70deebf7588e4a",
+    "test_torch_groupnorm.py": "1e9aea2c5c333dcbf65c0bc98959c4d788cda38d501b76c7f625596ccdc2c9ae",
+    "test_torch_indexing.py": "15fc385d0a304075e4b25b888234af77059830227848f66f28396986ddcebce1",
+    "test_torch_grad_mode.py": "4e7172a8f2401b65cbf0e2ced4a82b3f6f469361879b85439393653f784c8472",
+    "test_torch_axis_transforms.py": "26979a38d6b1a2b40ae537da78548b9c38c6a1e9eb1b0e93cf3ed79886502ac5",
+    "test_torch_module_hooks.py": "86d4dda744002d7442767d7e62283d005a68fb14166ee5b9cd4aee2df849321d",
+    "test_torch_statistics.py": "41d6d1d6d4d5bd839d17a56206d5408645e269d573790902c088500f3ce93ce1",
+    "test_torch_convolution.py": "ae8cc0f07e4525922a2cb20731c9fc43ddc1dff3f9815d8129398d329ae3ac24",
+    "test_torch_gradient_layout.py": "ee4ccbc10272a1011e0dcd671545c8a9b5d9ad82b061af5a96a7c07d7cb7befe",
+    "test_torch_tensor_hooks.py": "1f628581360bfba9984c911cd558b74e5f762759cbeb3c10f2fd32d1e013aea5",
+    "test_torch_model_conversion.py": "801f1251aec3a4613bf164ed89b91fe4ab4d2aa6565fb7f598510d749d1f7437",
+    "test_torch_schedulers.py": "cc590cb167efc7cc352fa5f43ac18ba3169b35d1e614258836bc471b0925abf3",
+    "test_torch_runtime_kernels.py": "346caa072254dd65cab730db575ccb9be9e37a935bc20845c7c37a62a4870566",
+    "test_torch_optimizer_lifecycle.py": "f3062b539fc44f6f8339cae53056d912a610c0800b7292dad48b0899a2d5d7b0",
+    "test_torch_linalg_failures.py": "88839ae303566cafdc752cb83b7df0e6cce991fe09712fccb3d0fc1492005370",
+    "test_torch_shape_ops.py": "251aaee06b85150332b52ecdc9d04192f537da2c62d59f7e1e1eb1863c5487c3",
+    "test_torch_cholesky_solve.py": "5422c0ebe1b2cea87d3d1602b09080f226a95e2aa0ea8785e9c515c378452791",
+    "test_torch_serialization.py": "93645d53407fd4e394f7358cdfdb543c0acdc5319649bd4e580bfd9cbc533707",
+    "test_torch_module_lifecycle.py": "0fce9c352d14e24dd4ac767dacb75b06da105714879550944a68d45baf913bbe",
+    "test_torch_copy.py": "c7547370826a04052b4f48cd603385c5cbdb92053dcbab9e246351ffe432a7bf",
+    "test_torch_construction.py": "a4daf4138d21e631920b866646f3783bb019985ebf9098c48917ba90d5f03687",
+    "test_torch_solve.py": "6007d3d4cde762c534c6153146ad693be1a1240f207f3a8551780b2e1ae7834b"
+  },
+  "full_cpu": {
+    "passed": 31655,
+    "skipped": 1,
+    "warnings": 34,
+    "duration_s": 390.81,
+    "evidence": "Complete pytest success summary and process terminal;original exec handle unavailable after output truncation",
+    "log": "final-merged-full.log"
+  },
+  "focused_passed": 776,
+  "minimal_passed": 1387,
+  "minimal_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.33.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "9497f18de40d66812d5b4e7bbf0c976975943b0c3c8e3cec26cd5e43726c8fbf",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "ea17bd4c26f8fe51ca93f96c77104e96b2405ee17f613c9632092920e3bfd5f1",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 45,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.33.0-py3-none-any.whl": "9f1cbad7dcb370d0e80b94ec18d0f752d429819268cad8cfd172b3decd102a75",
+      "stridetorch-0.33.0.tar.gz": "5ce7842cb5305b9a1bd04159e213f619aaecbeb17e8dd5e3ce1c2b6f974b67ad"
+    },
+    "receipts": {
+      "python310-stride033-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.021131791989319026,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/python310-stride033-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride033-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.3103367080038879,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/python310-stride033-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/dist-preflight/stridetorch-0.33.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride033-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 7.343577874999028,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/python310-stride033-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/python310-stride033-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "node_wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.33.0",
+    "numpy": "2.2.5",
+    "passed": 1375,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "ea17bd4c26f8fe51ca93f96c77104e96b2405ee17f613c9632092920e3bfd5f1",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_cholesky.py": "9497f18de40d66812d5b4e7bbf0c976975943b0c3c8e3cec26cd5e43726c8fbf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835"
+    }
+  },
+  "actual_chrome_worker": {
+    "status": "success",
+    "library": "0.33.0",
+    "numpy": "2.2.5",
+    "passed": 1375,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "9497f18de40d66812d5b4e7bbf0c976975943b0c3c8e3cec26cd5e43726c8fbf",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "ea17bd4c26f8fe51ca93f96c77104e96b2405ee17f613c9632092920e3bfd5f1",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+      "test_cholesky_solve.py": "c24f714dbe992c15fc0ce9877416bdb8c84312f3fc0de95e581be70cd4facb12",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+      "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "51f7f6aceae61997322c32fbf8c3839b5c4e0d986cd6f8d2bad8254df98e36cb",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "23c840631457ec7dafee0be0c76480a6ae9344461000f1cb104393623d81e0e8"
+    }
+  },
+  "coinstall": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "9497f18de40d66812d5b4e7bbf0c976975943b0c3c8e3cec26cd5e43726c8fbf",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "ea17bd4c26f8fe51ca93f96c77104e96b2405ee17f613c9632092920e3bfd5f1",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.33.0-py3-none-any.whl": "9f1cbad7dcb370d0e80b94ec18d0f752d429819268cad8cfd172b3decd102a75",
+      "paperleet-0.1.0-py3-none-any.whl": "be9c9e7ccaecbfb94dab233457c0fb4bfe5c2feb1fcb7b73c2359c90892028ae"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.025456541989115067
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/dist-preflight/stridetorch-0.33.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.2619468340126332
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.33.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.7283863330085296
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013892374990973622
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.33.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.09057949999987613
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013650124994455837
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.011119415998109616
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.33.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.15813066699774936
+      }
+    ],
+    "scope": "ZIP checkpoint alias/shared-storage/model-optimizer-scheduler resume verified in each namespace. Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP,matrix views and batched right-solve VJP/JVP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "gate_receipts": {
+    "build-public": {
+      "exit_code": 0,
+      "elapsed_s": 1.4594450000004144,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/dist-preflight"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch"
+    },
+    "build-private": {
+      "exit_code": 0,
+      "elapsed_s": 1.6245485410036054,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/private-dist"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "node-wasm": {
+      "exit_code": 0,
+      "elapsed_s": 10.936663250002312,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/wasm-contracts.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "chrome-worker": {
+      "exit_code": 0,
+      "elapsed_s": 12.474200166994706,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/chrome-contracts/run.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "coinstall": {
+      "exit_code": 0,
+      "elapsed_s": 3.335151916995528,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/check-coinstall.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "minimal-wheel": {
+      "exit_code": 0,
+      "elapsed_s": 7.777732542002923,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/proof-final/check-wheel.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    }
+  },
+  "initial_performance": {
+    "scope": "16sequential paired children after local heavy gates;2dtypes and2fresh processes/runtime/lane;release composition and initial-formula lanes separated;GC enabled;all numerical/state assertions passed;shared host;effective vendor threads unverified;no cloud CI run or cross-runtime throughput claim.",
+    "summary": {
+      "release/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            22.145385475733992,
+            20.7218558434347,
+            22.892216446365776,
+            22.282507574934694
+          ],
+          "baseline_median_us": [
+            78.02290987456217,
+            79.03125006123446,
+            76.6854100220371,
+            77.32957994448952
+          ],
+          "candidate_median_us": [
+            60.769580013584346,
+            62.161659880075604,
+            60.01374000334181,
+            60.38457984686829
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            10.325100518520724,
+            9.857642999320227,
+            14.969999687065815,
+            15.948970726349575
+          ],
+          "baseline_median_us": [
+            97.55749997566454,
+            99.56207999493927,
+            99.30792017257772,
+            100.11875012423843
+          ],
+          "candidate_median_us": [
+            87.48459003982134,
+            89.52749994932674,
+            84.16541997576132,
+            83.3758398948703
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            5.038924988871452,
+            5.201241797905243,
+            4.786663585407858,
+            4.643459764249725
+          ],
+          "baseline_median_us": [
+            312.2604375676019,
+            313.88806291943183,
+            303.1510623259237,
+            300.6015622304403
+          ],
+          "candidate_median_us": [
+            297.86975028400775,
+            297.44531184405787,
+            287.85675112885656,
+            287.0338748834911
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            15.39111301918309,
+            15.617562403061436,
+            16.31405907777208,
+            16.89589521305619
+          ],
+          "baseline_median_us": [
+            671.7500000377186,
+            692.2920001670718,
+            698.7709930399433,
+            676.9170067855157
+          ],
+          "candidate_median_us": [
+            570.020500163082,
+            582.0410078740679,
+            588.1670003873296,
+            565.7710062223487
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            14.583778937577097,
+            15.113056835421402,
+            15.185511478462754,
+            14.768112950647305
+          ],
+          "baseline_median_us": [
+            679.5210065320134,
+            688.1669978611171,
+            785.3955030441284,
+            697.500494425185
+          ],
+          "candidate_median_us": [
+            581.4165051560849,
+            585.5625058757141,
+            613.9375036582351,
+            585.4370028828271
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            11.264235793800903,
+            10.695955092956389,
+            12.937747328963711,
+            12.151834285756458
+          ],
+          "baseline_median_us": [
+            1184.4170003314503,
+            1201.5415049972944,
+            1475.7079989067279,
+            1379.1040037176572
+          ],
+          "candidate_median_us": [
+            1052.5210018386133,
+            1070.8544941735454,
+            1303.0835034442134,
+            1194.5000005653128
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            6.2899717542096445,
+            5.4232606308856735,
+            6.331812452300767,
+            5.2646387501742105
+          ],
+          "baseline_median_us": [
+            294.42449977068463,
+            294.40624984999886,
+            292.2343755926704,
+            291.7031242759549
+          ],
+          "candidate_median_us": [
+            277.9531250780565,
+            278.9401260088198,
+            274.6276250036317,
+            277.15106352843577
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            17.27229757639247,
+            18.356315995814054,
+            16.897418559080858,
+            19.357430120769713
+          ],
+          "baseline_median_us": [
+            92.96749994973652,
+            95.1875101600308,
+            89.29124989663251,
+            90.84832985536195
+          ],
+          "candidate_median_us": [
+            77.0054099848494,
+            78.33417010260746,
+            73.75375003903173,
+            73.57290989602916
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            8.84890390809996,
+            8.447091742441026,
+            7.169611965257383,
+            4.7321412590248135
+          ],
+          "baseline_median_us": [
+            337.3749932507053,
+            334.8539976286702,
+            330.2080003777519,
+            324.12500149803236
+          ],
+          "candidate_median_us": [
+            306.81249336339533,
+            305.7294961763546,
+            309.37499832361937,
+            304.95849932776764
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            0.7319225874877322,
+            -1.5794575539712197,
+            -2.1013155137856065,
+            1.0905421418911043
+          ],
+          "baseline_median_us": [
+            43.89124995213933,
+            43.749169853981584,
+            40.86832996108569,
+            40.61373998411
+          ],
+          "candidate_median_us": [
+            43.56999997980893,
+            43.58459002105519,
+            41.277509881183505,
+            40.60042992932722
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -0.6630105832835298,
+            -1.2533896918323295,
+            -0.6775876394998326,
+            0.20746414734363894
+          ],
+          "baseline_median_us": [
+            67.33083006110974,
+            68.3133301208727,
+            64.93624998256564,
+            66.32791992160492
+          ],
+          "candidate_median_us": [
+            67.78459006454796,
+            69.13708013598807,
+            64.81457996414974,
+            65.7133299682755
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            0.11865759213918192,
+            -3.528001614915155,
+            -1.6786091588206764,
+            -0.9111852775104845
+          ],
+          "baseline_median_us": [
+            29.077920044073835,
+            29.35665994300507,
+            28.903740021632984,
+            29.760819888906553
+          ],
+          "candidate_median_us": [
+            29.395839956123382,
+            30.28042003279552,
+            29.43166997283697,
+            29.524169949581847
+          ]
+        }
+      },
+      "release/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            20.996356297133577,
+            20.333751223913964,
+            20.59842788275603,
+            20.711129276944863
+          ],
+          "baseline_median_us": [
+            167.23706999999922,
+            163.30667000000074,
+            165.00665999999998,
+            163.0908299999989
+          ],
+          "candidate_median_us": [
+            133.02001000000007,
+            129.7445900000005,
+            130.43875000000372,
+            128.19833999999864
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            16.698208536953608,
+            16.6476864517894,
+            16.51153253032136,
+            17.108564968013905
+          ],
+          "baseline_median_us": [
+            187.31499999999903,
+            193.08165999999625,
+            181.05457999999965,
+            181.32000000000036
+          ],
+          "candidate_median_us": [
+            156.3524999999988,
+            159.7787499999992,
+            151.91415999999515,
+            150.29874999999748
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            7.987188772668585,
+            5.8372903698218455,
+            9.44416336206002,
+            7.797163120778572
+          ],
+          "baseline_median_us": [
+            462.2265625000288,
+            432.9843750000006,
+            427.2916874999977,
+            412.04168750000326
+          ],
+          "candidate_median_us": [
+            427.13799999999355,
+            408.7943124999882,
+            387.5443125000155,
+            382.3880624999887
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            -8.791722049162388,
+            -7.728653998087709,
+            -7.803814899126249,
+            -8.716969635845695
+          ],
+          "baseline_median_us": [
+            1471.50000000007,
+            1505.000499999909,
+            1493.3955000000497,
+            1446.0420000002027
+          ],
+          "candidate_median_us": [
+            1666.520499999935,
+            1633.583500000091,
+            1565.6454999999348,
+            1579.7080000001795
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            -3.242518437269193,
+            -5.575144852028457,
+            -6.604441588013166,
+            -6.851443269409518
+          ],
+          "baseline_median_us": [
+            1589.29200000002,
+            1522.5004999999126,
+            1435.708499999855,
+            1436.0414999998738
+          ],
+          "candidate_median_us": [
+            1643.083000000045,
+            1614.2919999999617,
+            1557.7085000000325,
+            1534.8334999998326
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            -27.987250305427192,
+            -28.355159227419158,
+            6.688871213098279,
+            7.565738000320077
+          ],
+          "baseline_median_us": [
+            19544.666999999907,
+            19398.000000000025,
+            31883.29150000002,
+            30790.02100000006
+          ],
+          "candidate_median_us": [
+            24979.22949999998,
+            24980.229500000118,
+            29976.77100000029,
+            28392.354000000174
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            1.288101614877546,
+            0.8231312536438606,
+            0.8950861223522399,
+            0.4035762894380457
+          ],
+          "baseline_median_us": [
+            1109.7733750000116,
+            1095.4635000000046,
+            1101.7864375000297,
+            1079.419249999991
+          ],
+          "candidate_median_us": [
+            1099.5677500000024,
+            1090.8489375000274,
+            1091.9245000000078,
+            1074.9843749999766
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            24.188425686756474,
+            21.709030242439496,
+            23.80147820819306,
+            23.81470096509789
+          ],
+          "baseline_median_us": [
+            184.28542000000547,
+            182.8595900000085,
+            177.89333999999712,
+            174.60208999999338
+          ],
+          "candidate_median_us": [
+            140.6599999999969,
+            142.19708000000162,
+            138.2812599999994,
+            132.34374999999687
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -141.49644227772754,
+            -143.75390010694642,
+            -169.72293738212997,
+            -170.4240468560793
+          ],
+          "baseline_median_us": [
+            602.5625000001255,
+            589.1459999993742,
+            565.8749999999379,
+            565.5624999998388
+          ],
+          "candidate_median_us": [
+            1471.3335000000604,
+            1412.666499999826,
+            1528.6665000000532,
+            1529.4169999999774
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            1.671495836764192,
+            -1.643241606957857,
+            -3.2750968218502985,
+            -2.7134505154518207
+          ],
+          "baseline_median_us": [
+            90.49666999999317,
+            86.03667000000037,
+            82.08082999999533,
+            84.2495800000087
+          ],
+          "candidate_median_us": [
+            89.10457999999011,
+            87.39417000000138,
+            85.52000999999976,
+            84.0187499999967
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -3.7126282460175464,
+            -3.7340626660854914,
+            -4.677928450222968,
+            -3.865684560339955
+          ],
+          "baseline_median_us": [
+            135.30833999999993,
+            132.71582999999865,
+            126.7695900000021,
+            125.95667000000253
+          ],
+          "candidate_median_us": [
+            139.80999999999355,
+            137.86459000001196,
+            132.42499999999603,
+            129.66166999999194
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            0.18325978228309614,
+            2.2662361825225186,
+            0.7006954675646826,
+            -1.697598247245602
+          ],
+          "baseline_median_us": [
+            67.47167000000331,
+            66.36833000000841,
+            64.88208999999578,
+            64.85666999999751
+          ],
+          "candidate_median_us": [
+            67.85542000000255,
+            65.2683399999976,
+            64.33833000000888,
+            64.55875000000333
+          ]
+        }
+      },
+      "formula/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            0.08169582275909804,
+            2.9277835518878748,
+            0.11842421412801007,
+            1.4868381912020223
+          ],
+          "baseline_median_us": [
+            61.30624999059364,
+            62.239580001914874,
+            59.514170134207234,
+            62.24833006854169
+          ],
+          "candidate_median_us": [
+            60.63875000108965,
+            60.79333004890941,
+            59.3879098596517,
+            61.275410116650164
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            7.186082623209044,
+            8.337527154107626,
+            15.604054442948879,
+            14.25451005174445
+          ],
+          "baseline_median_us": [
+            616.9790067360736,
+            615.7499956316315,
+            663.4374949499033,
+            670.207999064587
+          ],
+          "candidate_median_us": [
+            571.916505577974,
+            566.9790043612011,
+            562.0000083581544,
+            576.8335031461902
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            7.211580827568909,
+            6.5818956270912725,
+            13.107685687871552,
+            12.127124658700117
+          ],
+          "baseline_median_us": [
+            617.375502770301,
+            623.7500056158751,
+            651.0210005217232,
+            658.792007016018
+          ],
+          "candidate_median_us": [
+            576.812497456558,
+            579.3334930785932,
+            571.5420047636144,
+            586.2500038347207
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            -0.6308043196537216,
+            0.045840394904894666,
+            0.20892619714377725,
+            -0.23442075307467114
+          ],
+          "baseline_median_us": [
+            1070.062498911284,
+            1050.8539999136701,
+            1184.7084970213473,
+            1260.8335091499612
+          ],
+          "candidate_median_us": [
+            1068.271005351562,
+            1049.8955016373657,
+            1179.582999611739,
+            1210.1044922019355
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -1.8442209950511268,
+            -3.381484071538976,
+            -1.4011550910774107,
+            -2.7236777539983326
+          ],
+          "baseline_median_us": [
+            295.2499999082647,
+            293.2084971689619,
+            295.16649374272674,
+            299.5624963659793
+          ],
+          "candidate_median_us": [
+            299.31300377938896,
+            301.7295020981692,
+            301.72949482221156,
+            306.83349177706987
+          ]
+        }
+      },
+      "formula/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            0.40964894235565597,
+            2.329177916913705,
+            -0.5563849804836929,
+            0.25023152073466726
+          ],
+          "baseline_median_us": [
+            130.09873999999976,
+            133.06041999999962,
+            132.02292000000114,
+            127.23083000000024
+          ],
+          "candidate_median_us": [
+            129.33791000000028,
+            130.17708999999877,
+            136.24000000000302,
+            127.71584000000001
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            85.25220642407139,
+            85.26353851143158,
+            85.92673877059337,
+            85.86790041495537
+          ],
+          "baseline_median_us": [
+            11619.749999999929,
+            11463.228999999854,
+            11963.624999999922,
+            11723.166500000048
+          ],
+          "candidate_median_us": [
+            1785.0830000000205,
+            1684.0000000000189,
+            1702.3750000000337,
+            1658.3749999998788
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            85.99823602723407,
+            86.04749588627368,
+            86.22707579439984,
+            86.65918895961663
+          ],
+          "baseline_median_us": [
+            11514.916999999736,
+            11611.229000000334,
+            12027.97950000023,
+            11764.999999999804
+          ],
+          "candidate_median_us": [
+            1612.2914999998627,
+            1616.354000000042,
+            1656.6045000001582,
+            1570.0624999999136
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            0.021164488595137865,
+            -0.05911794984034824,
+            -0.10497007313743367,
+            -0.7595106718444544
+          ],
+          "baseline_median_us": [
+            25076.562500000233,
+            24878.22950000007,
+            29076.645499999777,
+            28778.64550000031
+          ],
+          "candidate_median_us": [
+            25113.166500000174,
+            24863.708500000303,
+            29137.437499999975,
+            28831.312499999927
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -2.299576506118428,
+            -0.6313137585524098,
+            1.2093809086179075,
+            -0.684971596779782
+          ],
+          "baseline_median_us": [
+            1419.166999999888,
+            1417.145500000272,
+            1569.2499999999663,
+            1529.7919999999187
+          ],
+          "candidate_median_us": [
+            1438.0004999998696,
+            1436.1874999999636,
+            1573.292000000004,
+            1561.4999999999934
+          ]
+        }
+      }
+    },
+    "source_footprint": {
+      "previous_032": {
+        "raw_bytes": 503990,
+        "local_gzip_estimate_bytes": 118818
+      },
+      "candidate_033": {
+        "raw_bytes": 509916,
+        "local_gzip_estimate_bytes": 120210
+      }
+    },
+    "receipts": {
+      "release-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.3756709170120303,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.246593791001942,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.955025458009914,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.369011999995564,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.862860458000796,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.215850042004604,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.3149864159931894,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.234837249998236,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.4336150830058614,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.43684583400317933,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.716270667006029,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.9194318750087405,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.7082700839964673,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.8617212910030503,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.49164395799743943,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.4505997079977533,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      }
+    }
+  },
+  "final_performance": {
+    "scope": "16sequential paired children after local heavy gates;2dtypes and2fresh processes/runtime/lane;release composition and initial-formula lanes separated;GC enabled;all numerical/state assertions passed;shared host;effective vendor threads unverified;no cloud CI run or cross-runtime throughput claim.",
+    "summary": {
+      "release/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            20.925705280932572,
+            18.71718989465928,
+            20.439885535443082,
+            20.14965060583256
+          ],
+          "baseline_median_us": [
+            78.5083300434053,
+            77.55334008834325,
+            75.82709004054777,
+            75.94583003083244
+          ],
+          "candidate_median_us": [
+            62.15540997800417,
+            62.209170137066394,
+            60.408339923014864,
+            60.792080039391294
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            11.5299390455616,
+            10.328731589299167,
+            15.57905467693913,
+            14.531156877304996
+          ],
+          "baseline_median_us": [
+            97.86875001736917,
+            98.87624997645617,
+            99.3908201053273,
+            98.68875000393018
+          ],
+          "candidate_median_us": [
+            87.61417004279792,
+            88.62291986588389,
+            83.90666989726014,
+            84.29791996604763
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            4.565527781036883,
+            4.416196276335105,
+            4.176624859755817,
+            4.268948535343631
+          ],
+          "baseline_median_us": [
+            309.2838114753249,
+            309.4088124271366,
+            302.8490000360762,
+            302.28900050133234
+          ],
+          "candidate_median_us": [
+            295.59637459897203,
+            294.21875115076546,
+            289.07293835800374,
+            289.0130626838072
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            9.163891490123444,
+            8.427712244915709,
+            10.319454509696168,
+            9.769885004387724
+          ],
+          "baseline_median_us": [
+            671.0205052513629,
+            677.937496220693,
+            679.0209954488091,
+            675.1670007361099
+          ],
+          "candidate_median_us": [
+            618.0210039019585,
+            622.3755044629797,
+            610.3124978835694,
+            612.8329987404868
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            8.943568513286914,
+            9.599403751763791,
+            9.526176816890963,
+            9.429104347403793
+          ],
+          "baseline_median_us": [
+            676.2289995094761,
+            674.6459985151887,
+            676.1045005987398,
+            672.2710022586398
+          ],
+          "candidate_median_us": [
+            615.7499956316315,
+            608.6044959374703,
+            612.1875048847869,
+            609.5415010349825
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            10.323791613205502,
+            10.989570595079002,
+            12.43421184650283,
+            11.956215041358343
+          ],
+          "baseline_median_us": [
+            1187.4170013470575,
+            1197.2290085395798,
+            1353.8540006265976,
+            1331.0834983712994
+          ],
+          "candidate_median_us": [
+            1056.4789990894496,
+            1064.8539901012555,
+            1182.3750028270297,
+            1171.3125059031881
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            3.2490806372963754,
+            4.367242859405329,
+            3.2363547368520207,
+            3.245457589333034
+          ],
+          "baseline_median_us": [
+            292.7655623352621,
+            296.23956379509764,
+            290.4036246036412,
+            289.82812455069507
+          ],
+          "candidate_median_us": [
+            283.20306319074007,
+            283.30206259852275,
+            279.33593719353667,
+            280.42187568644295
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            16.63184400855907,
+            16.131791160235874,
+            18.40897150049511,
+            17.486887610441205
+          ],
+          "baseline_median_us": [
+            91.23832991463132,
+            91.41792004811577,
+            92.84874991863035,
+            89.41457999753766
+          ],
+          "candidate_median_us": [
+            76.0445900959894,
+            76.3512599223759,
+            76.68875987292267,
+            74.2575000913348
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -1.5401401539654636,
+            -2.4213483433303873,
+            -3.4463573524837976,
+            -2.8953750908687903
+          ],
+          "baseline_median_us": [
+            332.7294980408624,
+            337.2709979885258,
+            325.97949757473543,
+            325.2085007261485
+          ],
+          "candidate_median_us": [
+            338.56249501695856,
+            342.47900475747883,
+            337.66649721655995,
+            335.7914974913001
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -0.4155982198004837,
+            1.7245138901137436,
+            -0.626555792052752,
+            0.2939074104073125
+          ],
+          "baseline_median_us": [
+            42.65166004188359,
+            43.58167003374547,
+            40.26292008347809,
+            40.972090064315125
+          ],
+          "candidate_median_us": [
+            42.681659979280084,
+            43.547079840209335,
+            40.606239781482145,
+            41.03624989511445
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -1.6157608907132026,
+            0.05188590092304324,
+            -1.6867407266862866,
+            -1.4284394651129517
+          ],
+          "baseline_median_us": [
+            67.6908298919443,
+            66.94832991342992,
+            63.447499996982515,
+            64.71957996836863
+          ],
+          "candidate_median_us": [
+            68.59166009235196,
+            68.1770799565129,
+            64.72790992120281,
+            65.75749997864477
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            -1.9086761566275312,
+            -0.9974195210772585,
+            0.09167533633377412,
+            0.7563062635993933
+          ],
+          "baseline_median_us": [
+            29.59166988148354,
+            29.422499937936664,
+            28.386670019244775,
+            28.646660066442564
+          ],
+          "candidate_median_us": [
+            29.996669909451157,
+            29.554589855251834,
+            28.34958999301307,
+            28.728739853249863
+          ]
+        }
+      },
+      "release/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            20.152707474813734,
+            21.218243242115708,
+            20.707594960345677,
+            21.629107611623223
+          ],
+          "baseline_median_us": [
+            161.71084000000224,
+            167.47917,
+            160.42958000000107,
+            160.67000000000053
+          ],
+          "candidate_median_us": [
+            130.64500000000032,
+            132.03501000000006,
+            126.8954099999986,
+            128.15665999999837
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            15.921551275864044,
+            15.6357276174787,
+            17.051707465964927,
+            17.65021106211997
+          ],
+          "baseline_median_us": [
+            187.55666999999755,
+            189.53125000000125,
+            188.5666699999966,
+            179.6887399999969
+          ],
+          "candidate_median_us": [
+            159.19624999999994,
+            159.83374000000163,
+            152.9779100000006,
+            148.22790999999836
+          ]
+        },
+        "batch-b-only": {
+          "median_reductions_percent": [
+            5.094071458542948,
+            5.173890547282179,
+            8.007565303479014,
+            6.53513894237795
+          ],
+          "baseline_median_us": [
+            429.24993749998697,
+            428.33337499997845,
+            424.3385625000151,
+            405.981750000034
+          ],
+          "candidate_median_us": [
+            405.9947499999994,
+            406.17187499999983,
+            386.94268749997485,
+            381.32287500000643
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            6.414759750777266,
+            7.103134916044517,
+            6.730252173152551,
+            7.321546039009785
+          ],
+          "baseline_median_us": [
+            1450.8125000001205,
+            1493.0209999997057,
+            1455.062000000007,
+            1441.2500000000605
+          ],
+          "candidate_median_us": [
+            1353.9164999998297,
+            1368.6250000000123,
+            1355.0419999999176,
+            1332.791999999916
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            8.749810329750051,
+            8.886151524305042,
+            7.271957625547676,
+            6.813190264325641
+          ],
+          "baseline_median_us": [
+            1500.916499999949,
+            1506.8330000000963,
+            1498.728999999921,
+            1432.874999999889
+          ],
+          "candidate_median_us": [
+            1372.8959999999015,
+            1359.3749999998295,
+            1403.2499999998558,
+            1337.083499999947
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            5.168057823033201,
+            5.261781526413412,
+            27.209667924849402,
+            28.123959302117353
+          ],
+          "baseline_median_us": [
+            18901.27100000005,
+            18983.979000000152,
+            30654.666499999817,
+            29968.812500000164
+          ],
+          "candidate_median_us": [
+            17977.83350000004,
+            17963.208499999884,
+            22028.417000000023,
+            21506.687500000065
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            0.13992828432346505,
+            0.8257296863355745,
+            0.7479885296432731,
+            0.9971668035156478
+          ],
+          "baseline_median_us": [
+            1188.338562500002,
+            1092.6900625000126,
+            1072.7421875000032,
+            1063.4843750000068
+          ],
+          "candidate_median_us": [
+            1169.197937500005,
+            1080.9375624999952,
+            1063.4505625000124,
+            1052.4635624999946
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            22.82137224552413,
+            22.779693379301047,
+            23.698564948222767,
+            21.62419148116389
+          ],
+          "baseline_median_us": [
+            189.7679200000013,
+            179.30709000000266,
+            175.62000000000745,
+            173.52042000000176
+          ],
+          "candidate_median_us": [
+            146.1141700000024,
+            139.3562500000023,
+            135.27791000000457,
+            136.61166999999529
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -15.997469614302995,
+            -15.54118520081964,
+            -18.684101106408924,
+            -16.283878837148414
+          ],
+          "baseline_median_us": [
+            585.7495000003432,
+            591.4579999997117,
+            567.3540000001864,
+            588.4580000001804
+          ],
+          "candidate_median_us": [
+            699.0210000004104,
+            681.8129999999201,
+            673.5834999993529,
+            691.4579999999225
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -0.2770623042243958,
+            -1.167644878574725,
+            -2.486950532241905,
+            -2.026300597382713
+          ],
+          "baseline_median_us": [
+            88.73000000000351,
+            89.47875000000494,
+            79.99584000000226,
+            82.2258299999934
+          ],
+          "candidate_median_us": [
+            89.61457999999922,
+            90.10708000000812,
+            81.83583000000105,
+            84.02833000000776
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -4.009862691409993,
+            -4.152987081837578,
+            -3.577466385358008,
+            -3.1624922158515867
+          ],
+          "baseline_median_us": [
+            138.4387500000006,
+            132.18959000000473,
+            126.11000000000594,
+            128.4983399999984
+          ],
+          "candidate_median_us": [
+            141.71583999999626,
+            136.96000000000373,
+            130.56707999999696,
+            131.16249999999496
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            1.204320385950175,
+            -1.3026797322137185,
+            1.3536482104948844,
+            -0.19888083191064165
+          ],
+          "baseline_median_us": [
+            66.84249000000086,
+            64.66624999999837,
+            66.1479099999962,
+            65.67500000000948
+          ],
+          "candidate_median_us": [
+            67.17958000000301,
+            65.89332999999975,
+            65.4804100000117,
+            65.3437400000012
+          ]
+        }
+      },
+      "formula/cpu": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            -1.1320291122125292,
+            -0.37642356968088375,
+            -0.553197003903394,
+            -7.045757125404051
+          ],
+          "baseline_median_us": [
+            61.41874997410923,
+            77.13250000961125,
+            60.26791990734637,
+            69.90375011810102
+          ],
+          "candidate_median_us": [
+            61.54833987238817,
+            75.7454099948518,
+            60.843750106869265,
+            71.69333010097034
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            0.757365503357188,
+            2.708368068597189,
+            7.884166524981051,
+            9.461605371751357
+          ],
+          "baseline_median_us": [
+            614.0205005067401,
+            953.0835086479783,
+            666.3129970547743,
+            720.1874977909029
+          ],
+          "candidate_median_us": [
+            611.8954988778569,
+            1127.5004944764078,
+            615.3959984658286,
+            665.5830002273433
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            -0.21198748418995716,
+            7.447318143728587,
+            7.847933589862932,
+            9.11189798397346
+          ],
+          "baseline_median_us": [
+            613.9580000308342,
+            678.6669982830063,
+            661.832993500866,
+            707.9165006871335
+          ],
+          "candidate_median_us": [
+            620.6879988894798,
+            678.6250014556572,
+            608.5415006964467,
+            673.3545014867559
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            -0.80809208152266,
+            -2.041879682935299,
+            0.780543357951069,
+            3.213924550244207
+          ],
+          "baseline_median_us": [
+            1061.3954946165904,
+            1239.6044985507615,
+            1174.3750001187436,
+            1425.8960000006482
+          ],
+          "candidate_median_us": [
+            1070.1664941734634,
+            1306.1669960734434,
+            1166.9789964798838,
+            1415.2290023048408
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            -14.220513728341523,
+            -15.40613541011977,
+            -12.356645784063968,
+            -15.91669236612625
+          ],
+          "baseline_median_us": [
+            296.50000942638144,
+            316.64549896959215,
+            300.5420003319159,
+            316.4795052725822
+          ],
+          "candidate_median_us": [
+            339.81249725911766,
+            369.3959952215664,
+            344.4169997237623,
+            366.8749923235737
+          ]
+        }
+      },
+      "formula/wasm": {
+        "tiny-backward": {
+          "median_reductions_percent": [
+            -0.13383095830701297,
+            -2.6910308377988024,
+            -0.9223397883786344,
+            -1.2446374674910388
+          ],
+          "baseline_median_us": [
+            132.11249999999896,
+            127.97123999999994,
+            125.67792000000021,
+            126.81041999999866
+          ],
+          "candidate_median_us": [
+            132.80750000000285,
+            133.4941699999992,
+            130.45626000000033,
+            128.6016599999984
+          ]
+        },
+        "narrow-backward": {
+          "median_reductions_percent": [
+            87.62026243381605,
+            87.25492181869352,
+            87.8154563799403,
+            88.15609965218978
+          ],
+          "baseline_median_us": [
+            11430.66650000013,
+            11487.479499999954,
+            11700.47899999993,
+            11703.479000000018
+          ],
+          "candidate_median_us": [
+            1411.6459999999886,
+            1469.2499999999775,
+            1420.4995000000054,
+            1378.0624999999436
+          ]
+        },
+        "upper-narrow-backward": {
+          "median_reductions_percent": [
+            87.75828626244615,
+            87.55425038298577,
+            88.23849848957633,
+            88.067210298304
+          ],
+          "baseline_median_us": [
+            11458.603999999761,
+            11501.416500000028,
+            11742.229500000034,
+            11784.291499999934
+          ],
+          "candidate_median_us": [
+            1402.7294999998662,
+            1431.437499999966,
+            1381.0624999999186,
+            1418.395999999822
+          ]
+        },
+        "wide-backward": {
+          "median_reductions_percent": [
+            26.26478655839245,
+            26.33716947747382,
+            23.857458186016522,
+            23.55638074148787
+          ],
+          "baseline_median_us": [
+            24556.978999999978,
+            24568.645500000042,
+            28630.562499999847,
+            30772.916999999732
+          ],
+          "candidate_median_us": [
+            18081.041500000116,
+            18089.958499999837,
+            21765.22949999993,
+            23559.5420000001
+          ]
+        },
+        "narrow-jvp": {
+          "median_reductions_percent": [
+            50.584187705468445,
+            50.88083359089048,
+            55.029108611702185,
+            51.41700977730588
+          ],
+          "baseline_median_us": [
+            1418.917000000075,
+            1410.3540000001135,
+            1519.5835000001434,
+            1750.0414999997993
+          ],
+          "candidate_median_us": [
+            700.521000000176,
+            689.7710000000056,
+            685.186999999976,
+            800.8335000000421
+          ]
+        }
+      }
+    },
+    "source_footprint": {
+      "previous_032": {
+        "raw_bytes": 503990,
+        "local_gzip_estimate_bytes": 118818
+      },
+      "candidate_033": {
+        "raw_bytes": 512093,
+        "local_gzip_estimate_bytes": 120643
+      }
+    },
+    "receipts": {
+      "release-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.2869107919977978,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.22481324999535,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.686327749994234,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.8501250830013305,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.644440124990069,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.8395348339981865,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.2452689579949947,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "release-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 1.222448416010593,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float32-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.42909062500984874,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float64-1": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.43138708399783354,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float32-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.510434208990773,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float64-1": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.6506577500113053,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float32-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.454914750007447,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-wasm-float64-2": {
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library-wasm.mjs"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.833664541001781,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float32-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.6811659590021009,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      },
+      "formula-cpu-float64-2": {
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-33/bench-library.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.5512851669918746,
+        "requested_thread_environment": {
+          "OMP_NUM_THREADS": "2",
+          "MKL_NUM_THREADS": "2",
+          "OPENBLAS_NUM_THREADS": "2",
+          "VECLIB_MAXIMUM_THREADS": "2"
+        }
+      }
+    }
+  },
+  "cold_namespace_imports": {
+    "scope": "16fresh alternating CPU processes after all compatibility gates;NumPy included/preloaded reported separately;shared host;no browser wire-size or nativeTorch import comparison.",
+    "summary": {
+      "0": {
+        "previous_032": {
+          "samples_ms": [
+            98.34312499151565,
+            127.8301249985816,
+            98.84691699699033,
+            94.46483400824945
+          ],
+          "median_ms": 98.59502099425299
+        },
+        "candidate_033": {
+          "samples_ms": [
+            107.0355839910917,
+            109.71145800431259,
+            99.75254199525807,
+            95.41483399516437
+          ],
+          "median_ms": 103.39406299317488
+        }
+      },
+      "1": {
+        "previous_032": {
+          "samples_ms": [
+            73.78345800680108,
+            61.54641699686181,
+            62.13504199695308,
+            62.58704198990017
+          ],
+          "median_ms": 62.361041993426625
+        },
+        "candidate_033": {
+          "samples_ms": [
+            69.8773330077529,
+            64.27687499672174,
+            64.90516700432636,
+            62.30125000001863
+          ],
+          "median_ms": 64.59102100052405
+        }
+      }
+    },
+    "receipts": [
+      {
+        "name": "0-0-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.13192116600112058
+      },
+      {
+        "name": "0-0-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.14127858300344087
+      },
+      {
+        "name": "0-1-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.14950712499557994
+      },
+      {
+        "name": "0-1-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.16422341599536594
+      },
+      {
+        "name": "0-2-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.12955279099696781
+      },
+      {
+        "name": "0-2-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.13019116700161248
+      },
+      {
+        "name": "0-3-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.12594570800138172
+      },
+      {
+        "name": "0-3-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.1238092499988852
+      },
+      {
+        "name": "1-0-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.13417166699946392
+      },
+      {
+        "name": "1-0-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.12705254099273589
+      },
+      {
+        "name": "1-1-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.11825045899604447
+      },
+      {
+        "name": "1-1-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.11254933300369885
+      },
+      {
+        "name": "1-2-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.113756500009913
+      },
+      {
+        "name": "1-2-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.11747933400329202
+      },
+      {
+        "name": "1-3-candidate_033",
+        "exit_code": 0,
+        "elapsed_s": 0.11810404100106098
+      },
+      {
+        "name": "1-3-previous_032",
+        "exit_code": 0,
+        "elapsed_s": 0.11338024999713525
+      }
+    ]
+  },
+  "archive": {
+    "file": "iteration-33-harness.tar.gz",
+    "files": 1121,
+    "bytes": 2679591,
+    "sha256": "046aac6193eb8122286e28544f3ebca24bfb7c83883dec2cf4ec7a49b0b97b4b"
+  },
+  "scope": "Cholesky solve full unmasked factor VJP/JVP and reverse through both JVP channels;float32/64 AD;complex64/128 inference;no out,half,complexAD. Reuse graph-local intermediates for actual finite triangular factors;associate narrow JVP/VJP through RHS. Quiet NumPy backend factor/singularity status guards. No nativeTorch/SciPy runtime dependency or cross-call tensor-value caches.",
+  "retained_failures": [
+    "0.32 remote infrastructure4NaN cases failed and Pages skipped;frozen separately in iteration-32-remote-failure.json.",
+    "Initial0.33 native31337 passed,Node/Chrome12invalid-factor failures1203passes;quiet-WASM NumPy factor/solve/inv failure reporting corrected.",
+    "Initial16paired performance children passed correctness but WASM narrow JVP and some backwards regressed;raw full evidence retained before graph-local intermediate and JVP reassociation refinement.",
+    "First final integration private wheel contained premerge application catalog;identity check failed. Prior wheel/log retained and rebuilt from merged catalog;final identity gate must pass.",
+    "First final native catalog concurrent with full root/frontend passed all numerical/mutation tests but flow_matching T3 took11.54s and exceeded its unchanged per-test budget;failure report retained and whole native catalog rerun in isolation."
+  ],
+  "primary_sources": [
+    "https://docs.pytorch.org/docs/2.14/generated/torch.cholesky_solve.html",
+    "https://github.com/pytorch/pytorch/blob/v2.14.0/torch/csrc/autograd/FunctionsManual.cpp#L4719",
+    "https://docs.pytorch.org/docs/2.14/notes/numerical_accuracy.html#non-finite-values"
+  ],
+  "release_policy": "Local-only verification. Ordinary pushes and PRs trigger no CI. User will later create a stable current-main release tag. No agent tag,dispatch or online publication."
+}

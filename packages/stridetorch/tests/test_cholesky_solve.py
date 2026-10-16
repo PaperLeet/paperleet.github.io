@@ -102,6 +102,21 @@ def test_constructed_large_system_and_adjoint_seed(dtype,upper,n,width):
     common=z@target.swapaxes(-1,-2)+target@z.swapaxes(-1,-2);df=-(f@common if upper else common@f);close(F.grad.numpy(),df.sum(0),dtype)
 
 
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('width',[0,3])
+def test_constructed_narrow_tangent_and_empty_reverse_edges(dtype,upper,width):
+    n=65;rng=np.random.default_rng(331);f=np.tril((rng.normal(size=(n,n))*.02).astype(dtype));f[np.diag_indices(n)]=2
+    if upper:f=f.T.copy()
+    target=(rng.normal(size=(n,width))*.1).astype(dtype);tangent=(rng.normal(size=target.shape)*.1).astype(dtype);df=(rng.normal(size=f.shape)*.01).astype(dtype)
+    a=f.T@f if upper else f@f.T;partial=df.T@f if upper else df@f.T;da=partial+partial.T;b=a@target;db=da@target+a@tangent
+    args=tuple(torch.tensor(v,requires_grad=True) for v in (b,f,db,df));x,t=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),args[:2],args[2:]);close(x.numpy(),target,dtype);close(t.numpy(),tangent,dtype)
+    gradients=torch.autograd.grad(.17*x.square().sum()+.23*t.square().sum(),args)
+    for g,source in zip(gradients,args):
+        assert g.shape==source.shape and np.isfinite(g.numpy()).all()
+        if not width:close(g.numpy(),np.zeros(g.shape),dtype)
+
+
 def test_invalid_inputs_and_capability_metadata():
     b=torch.ones(2,2);f=torch.eye(2)
     for bad in (torch.ones(2),torch.ones(3,2)):

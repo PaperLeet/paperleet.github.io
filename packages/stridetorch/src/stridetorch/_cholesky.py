@@ -136,11 +136,12 @@ def cholesky(A, *, upper=False, out=None):
     return output
 
 
-def _solve_values(factor, rhs, upper):
+def _solve_values(factor, rhs, upper, *, save_intermediate=False):
     transpose = (factor.conj() if factor.dtype.kind == 'c' else factor).swapaxes(-1, -2)
     first, second = (transpose, factor) if upper else (factor, transpose)
     intermediate = _linalg._triangular_values(first, rhs, False, True, False)
-    return _linalg._triangular_values(second, intermediate, True, True, False)
+    value = _linalg._triangular_values(second, intermediate, True, True, False)
+    return (value, intermediate) if save_intermediate else value
 
 
 def cholesky_solve(input, input2, upper=False, *, out=None):
@@ -171,21 +172,41 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
         direction = input2._tangent if isinstance(input2, _autograd.ForwardTensor) else _tensor.Tensor(np.zeros_like(factor))
         # Native differentiation extends the full factor, including its unused
         # triangle. Only the primal factor solves select a triangle.
-        product = direction.transpose(-1, -2) @ primal_f if upper else direction @ primal_f.transpose(-1, -2)
-        coefficient_direction = product + product.transpose(-1, -2)
-        residual = -(coefficient_direction @ value)
+        narrow_direction = f_shape[-1] >= 64 and value.shape[-1] * 4 <= f_shape[-1] and all(
+            np.isfinite(t._data).all() for t in (primal_f, direction, value))
+        if narrow_direction:
+            # Preserve the full factor/direction rule without forming dA's
+            # n-by-n products. Tensor operations retain all reverse edges.
+            if upper:
+                contribution = direction.transpose(-1, -2) @ (primal_f @ value) + primal_f.transpose(-1, -2) @ (direction @ value)
+            else:
+                contribution = direction @ (primal_f.transpose(-1, -2) @ value) + primal_f @ (direction.transpose(-1, -2) @ value)
+        else:
+            product = direction.transpose(-1, -2) @ primal_f if upper else direction @ primal_f.transpose(-1, -2)
+            coefficient_direction = product + product.transpose(-1, -2)
+            contribution = coefficient_direction @ value
+        residual = -contribution
         if isinstance(input, _autograd.ForwardTensor):
             residual = input._tangent + residual
         tangent = cholesky_solve(residual, primal_f, upper)
         return _autograd.ForwardTensor(value, _layout.matching_tangent(tangent, value))
     matrix_f = factor if f_shape[:-2] == batch else np.broadcast_to(factor, batch + f_shape[-2:])
     matrix_b = b if b_shape[:-2] == batch else np.broadcast_to(b, batch + b_shape[-2:])
-    values = _linalg._solve_layout(_solve_values(matrix_f, matrix_b, upper), True)
     needs_b, needs_f = input.requires_grad, input2.requires_grad
+    finite_factor = _state._grad_enabled and needs_f and f_shape[-1] >= 64 and np.isfinite(factor).all()
+    triangular_factor = finite_factor and not np.any(_linalg._triangular_part(factor, not upper, True))
+    if triangular_factor:
+        values, forward_intermediate = _solve_values(matrix_f, matrix_b, upper, save_intermediate=True)
+    else:
+        values, forward_intermediate = _solve_values(matrix_f, matrix_b, upper), None
+    values = _linalg._solve_layout(values, True)
+    finite_values = finite_factor and np.isfinite(values).all()
+    triangular_factor = triangular_factor and finite_values and np.isfinite(forward_intermediate).all()
+    if not triangular_factor:forward_intermediate = None
     if not _state._grad_enabled or not (needs_b or needs_f):
         return _tensor.Tensor(values, _metadata_owned=True)
     x_transpose = values.swapaxes(-1, -2) if needs_f else None
-    narrow = needs_f and factor.shape[-1] >= 64 and values.shape[-1] * 4 <= factor.shape[-1] and np.isfinite(matrix_f).all()
+    narrow = finite_values and values.shape[-1] * 4 <= f_shape[-1]
 
     def right_gradient(g):
         return _solve_values(matrix_f, g, upper)
@@ -193,7 +214,15 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
     def reduce_b(db):
         return db if db.shape == b_shape else _ops.unbroadcast(db, b_shape)
 
-    def factor_gradient(db):
+    def factor_gradient(db, adjoint_intermediate=None):
+        if triangular_factor:
+            # Actual triangular factors permit two narrow products, reusing
+            # one forward/adjoint intermediate. Full unmasked gradients remain.
+            if upper:
+                df = -(adjoint_intermediate @ x_transpose + forward_intermediate @ db.swapaxes(-1, -2))
+            else:
+                df = -(db @ forward_intermediate.swapaxes(-1, -2) + values @ adjoint_intermediate.swapaxes(-1, -2))
+            return df if df.shape == f_shape else _ops.unbroadcast(df, f_shape)
         if narrow:
             # Associate through the narrow RHS rather than materializing and
             # multiplying a dense n-by-n common term: O(n*n*k), not O(n**3).
@@ -208,14 +237,21 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
         df = -(matrix_f @ common if upper else common @ matrix_f)
         return df if df.shape == f_shape else _ops.unbroadcast(df, f_shape)
 
+    def factor_pullback(g):
+        if triangular_factor:
+            db, intermediate = _solve_values(matrix_f, g, upper, save_intermediate=True)
+            return db, factor_gradient(db, intermediate)
+        db = right_gradient(g)
+        return db, factor_gradient(db)
+
     if needs_b and needs_f:
         def backward(g, needs):
-            db = right_gradient(g)
-            return reduce_b(db), factor_gradient(db)
+            db, df = factor_pullback(g)
+            return reduce_b(db), df
         return _autograd.joint_result(values, (input, input2), backward)
     if needs_b:
         return _autograd.result(values, (input, lambda g: reduce_b(right_gradient(g))), saved=(input2,))
-    return _autograd.result(values, (input2, lambda g: factor_gradient(right_gradient(g))), saved=(input,))
+    return _autograd.result(values, (input2, lambda g: factor_pullback(g)[1]), saved=(input,))
 
 
 from . import _autograd, _errors, _layout, _linalg, _ops, _state, _tensor
