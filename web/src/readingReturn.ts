@@ -1,3 +1,4 @@
+import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import {communityFeedHref,communityPostReturn,readCommunityFeed} from './communityNavigation';
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
 import {favoriteHref,readFavoriteRoute,libraryReturnHref} from './libraryNavigation';
@@ -13,6 +14,7 @@ const notify=()=>{revision++;for(const listener of listeners)listener();};
 
 export function readingListHref(route:string){
  if(route.length>8192)return;
+ const profile=readProfileRoute(route);if(profile&&['posts','solutions','likes','reposts'].includes(profile.tab))return profileFeedHref(profile.username,profile);
  const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites);
  const feed=readCommunityFeed(route);
  if(feed)return communityFeedHref(feed.topicId,feed.state);

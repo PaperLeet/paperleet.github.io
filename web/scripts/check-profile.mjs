@@ -72,6 +72,7 @@ try {
   const { createRoot } = await import('react-dom/client');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const { UserProfile } = await server.ssrLoadModule('/src/Community.tsx');
+ function ProfileRoute(){const [route,setRoute]=React.useState(location.hash);React.useEffect(()=>{const change=()=>setRoute(location.hash);window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change);},[]);return React.createElement(UserProfile,{username:'alice',route});}
   const alice = { id: 'alice', username: 'alice', display_name: 'Alice', created_at: '2026-01-01', avatar_color: '#123456' };
   const member = username => ({ ...alice, id: username, username, display_name: username, viewer: { is_self: false, following: false } });
   const profile = { ...alice, counts: { posts: 0, replies: 0, likes: 0, reposts: 0, following: 21, followers: 1, likes_received: 0, reposts_received: 0 }, viewer: { is_self: true, following: false } };
@@ -98,10 +99,10 @@ try {
   };
   const render = async () => act(async () => {
     root ??= createRoot(document.querySelector('#root'));
-    root.render(React.createElement(LocaleProvider, null, React.createElement(UserProfile, { username: 'alice' })));
+    root.render(React.createElement(LocaleProvider, null, React.createElement(ProfileRoute)));
   });
   const stop = async () => { await act(async () => root.unmount()); root = undefined; };
-  const click = async node => { assert(node); await act(async () => { node.focus(); node.click(); }); };
+  const click = async node => { assert(node); await act(async () => { node.focus(); node.click(); await new Promise(resolve=>setTimeout(resolve,5)); }); };
   const counter = kind => document.querySelector(`.profile-stats button:nth-child(${kind === 'following' ? 1 : 2})`);
   const panel = () => document.querySelector('#profile-community-panel');
   const assertRevealed = kind => {
@@ -126,7 +127,7 @@ try {
   await act(async () => held.resolve({ items: [member('following_bob')], total: 21 }));
   holdKind = '';
   assert(panel().querySelector('a[href="#/u/following_bob"]'));
-  assert.equal(location.hash, '#/u/alice', 'Opening connections stays on the current profile');
+  assert.equal(location.hash, '#/u/alice?tab=following', 'Opening connections keeps a reloadable category on the current profile');
 
   const previousScrolls = scrolls.length, previousRequests = requests.length;
   await click(counter('following'));
@@ -157,6 +158,7 @@ try {
   await click(document.querySelector('#profile-tab-following'));
   assert.equal(scrolls.length, scrollCount);
   await act(async () => document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })));
+  await act(async()=>new Promise(resolve=>setTimeout(resolve,5)));
   assert.equal(document.activeElement.id, 'profile-tab-followers');
   assert.equal(document.activeElement.getAttribute('aria-selected'), 'true');
   assert.equal(scrolls.length, scrollCount, 'Arrow navigation must not force the whole section back to the top');
@@ -167,6 +169,7 @@ try {
   }
 
   await stop();
+  location.hash='#/u/alice';await new Promise(resolve=>setTimeout(resolve,5));
   localStorage.setItem('paperleet.locale', 'zh');
   Object.defineProperty(dom.window, 'innerWidth', { value: 390, configurable: true });
   profile.counts.followers = 0; emptyFollowers = true;

@@ -1,3 +1,4 @@
+import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import { communityContinuation } from './communityNavigation';
 import { favoriteHref,readFavoriteRoute,libraryContinuation } from './libraryNavigation';
 import {readInterviewRoute,interviewHref} from './interviewNavigation';
@@ -10,6 +11,7 @@ const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", 
 function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
   const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites).slice(2);
+  const profile=readProfileRoute(route);if(profile)return profileFeedHref(profile.username,profile).slice(2);
   const interviews=readInterviewRoute(route);
   if(interviews)return interviewHref(interviews).slice(2);
   if (/^submit\?(?:proposal=[a-f0-9]{32}|view=pool)$/.test(route)) return route;

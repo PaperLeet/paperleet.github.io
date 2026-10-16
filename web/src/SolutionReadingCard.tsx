@@ -47,6 +47,6 @@ export default function SolutionReadingCard({id,title,body,returnTo,onCode}:{id:
       </div>
     </details>
     {!open&&<PostPreviewContent summary={preview} inlinePost/>}
-    <a className="solution-reading-page" href={communityPostHref(id,returnTo)}>{t('在独立页面打开','Open full page')}<ArrowUpRight size={14} aria-hidden="true"/></a>
+    <a data-reading-link="read" className="solution-reading-page" href={communityPostHref(id,returnTo)}>{t('在独立页面打开','Open full page')}<ArrowUpRight size={14} aria-hidden="true"/></a>
   </div>;
 }

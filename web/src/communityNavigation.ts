@@ -1,3 +1,4 @@
+import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import { topicHref } from './communityTopics';
 import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
@@ -65,9 +66,11 @@ export function communityPostHref(id: string, returnTo?: string, replyId?: strin
   const base = `#/community/${encodeURIComponent(id)}`;
   const feed = returnTo ? readCommunityFeed(returnTo) : undefined;
   const interviews = returnTo ? readInterviewRoute(returnTo) : undefined;
+  const profile=returnTo?readProfileRoute(returnTo):undefined;
   const params = new URLSearchParams();
   if (feed) params.set('from', communityFeedHref(feed.topicId, feed.state).slice(2));
   else if(interviews) params.set('from',interviewHref(interviews).slice(2));
+  else if(profile)params.set('from',profileFeedHref(profile.username,profile).slice(2));
   if (replyId !== undefined) {
     if (!/^[a-f0-9]{32}$/.test(replyId)) throw Error('Invalid reply link');
     params.set('reply',replyId);
@@ -80,10 +83,11 @@ function readCommunityPost(route: string, id: string): {returnTo?:string;replyId
   if (!value || value.path !== `community/${id}` || !knownParameters(value.params, ['from','reply'])) return;
   const feed = value.params.has('from') ? readCommunityFeed(value.params.get('from') || '') : undefined;
   const interviews=value.params.has('from')?readInterviewRoute(value.params.get('from')||''):undefined;
-  if(value.params.has('from')&&!feed&&!interviews)return;
+  const profile=value.params.has('from')?readProfileRoute(value.params.get('from')||''):undefined;
+  if(value.params.has('from')&&!feed&&!interviews&&!profile)return;
   const replyId=value.params.get('reply')??undefined;
   if(replyId!==undefined&&!/^[a-f0-9]{32}$/.test(replyId))return;
-  return {returnTo:feed?communityFeedHref(feed.topicId,feed.state):interviews?interviewHref(interviews):undefined,replyId};
+  return {returnTo:feed?communityFeedHref(feed.topicId,feed.state):interviews?interviewHref(interviews):profile?profileFeedHref(profile.username,profile):undefined,replyId};
 }
 export function communityPostReturn(route: string, id: string): string | undefined {
   return readCommunityPost(route,id)?.returnTo;
@@ -98,7 +102,7 @@ export function communityShareUrl(pageUrl:string,id:string,replyId?:string):stri
   return page.origin+page.pathname+communityPostHref(id,undefined,replyId);
 }
 
-/** Account continuations accept only canonical community filters and feed-only return targets. */
+/** Account continuations accept only canonical community filters and public list return targets. */
 export function communityContinuation(route: string): string | undefined {
   const feed = readCommunityFeed(route);
   if (feed) return communityFeedHref(feed.topicId, feed.state).slice(2);

@@ -61,7 +61,7 @@ try{
   await stop();await navigate(nav.communityPostHref(id,scope));await render(Thread,{scope});assert.equal(model.currentReadingReturn().phase,'reading');await stop();return record;
  }
  async function returnLoading(scope=community,props={}){await navigate(scope);base=1800;await render(List,{scope,ready:false,...props});assert.equal(scrolls.length,0,'A pending response cannot restore against missing or stale rows');}
- for(const scope of [community,activeCommunity,interview]){
+ for(const scope of [community,activeCommunity,interview,'#/u/alice?tab=solutions&page=2']){
   for(const link of ['title','read']){
    await depart(scope,{link});scrolls=[];await returnLoading(scope);assert.equal(model.currentReadingReturn().phase,'returning');
    await render(List,{scope,ready:true});assert.equal(scrolls.length,1);assert.equal(viewport,1592,'Measure after the status notice is committed, retaining the exact viewport offset');

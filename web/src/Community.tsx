@@ -1,3 +1,4 @@
+import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
 import { resolveAffiliation } from './affiliationNames';
 import InterviewMeta from './InterviewMeta';
@@ -99,7 +100,6 @@ type Profile = PublicUser & {
 type Connection = PublicUser & {
   viewer: { following: boolean; is_self: boolean };
 };
-type ProfileTab="posts"|"solutions"|"replies"|"likes"|"reposts"|"following"|"followers";
 type Activity = { kind: string; created_at: string; post: Post; reply?: Reply };
 type Page<T> = { items: T[]; total: number; limit?: number; offset?: number };
 const CATEGORIES = [
@@ -991,7 +991,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
     <main className="social-page discussion-page">
       <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
-        {returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
+        {returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>
@@ -1249,45 +1249,52 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
     </main>
   );
 }
-export function UserProfile({ username }: { username: string }) {
+export function UserProfile({ username,route=profileFeedHref(username) }: { username: string;route?:string }) {
   const {user}=useAccount();
-  return <ProfilePage key={`${username}:${user?.id||'guest'}`} username={username}/>;
+  return <ProfilePage key={`${username}:${user?.id||'guest'}`} username={username} route={route}/>;
 }
-function ProfilePage({ username }: { username: string }) {
+function ProfilePage({ username,route }: { username: string;route:string }) {
   const { user } = useAccount();
   // Account changes must remove a previous viewer's private progress immediately.
-  return <UserProfileContents key={`${username}:${user?.id || "guest"}`} username={username} />;
+  return <UserProfileContents key={`${username}:${user?.id || "guest"}`} username={username} route={route}/>;
 }
-function UserProfileContents({ username }: { username: string }) {
+function UserProfileContents({ username,route }: { username: string;route:string }) {
   const { t } = useI18n();
-  const { user, capabilities } = useAccount();
+  const { user, capabilities,loading:accountLoading } = useAccount();
   const profileSolutionsAvailable=capabilities?.community_profile_solutions===true;
   const [profile, setProfile] = useState<Profile>(),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
-    [selectedTab, setTab] = useState<ProfileTab>("posts"),
-    [offset, setOffset] = useState(0),
     [activity, setActivity] = useState<Page<Activity>>({ items: [], total: 0 }),
     [connections, setConnections] = useState<Page<Connection>>({
       items: [],
       total: 0,
     }),
     [activityLoading, setActivityLoading] = useState(true),
+    [loadedActivityKey,setLoadedActivityKey]=useState<string>(),
     [activityError, setActivityError] = useState(""),
     [busy, setBusy] = useState(false),
     [revision, setRevision] = useState(0),
     [activityReveal, setActivityReveal] = useState(0);
-  const tab=selectedTab==="solutions"&&!profileSolutionsAvailable?"posts":selectedTab;
+  const requested=readProfileRoute(route),view=requested?.username===username?requested:{username,tab:'posts' as ProfileTab,page:1};
+  const waitingForSolutions=view.tab==='solutions'&&accountLoading;
+  const unavailableSolutions=view.tab==='solutions'&&!accountLoading&&!profileSolutionsAvailable;
+  const tab=unavailableSolutions?'posts':view.tab,page=unavailableSolutions?1:view.page,offset=(page-1)*PAGE_SIZE;
+  const returnTo=profileFeedHref(username,{tab,page}),activityKey=JSON.stringify([username,tab,offset,user?.id]);
+  function currentProfileHref(){
+    const actual=readProfileRoute(location.hash);
+    return actual?.username===username?profileFeedHref(username,actual):undefined;
+  }
+  const activityPending=activityLoading||loadedActivityKey!==activityKey||waitingForSolutions;
+  const revealIntent=useRef<{href:string;active:Element|null;top:number}|undefined>(undefined);
   const communityContent = useRef<HTMLElement>(null);
   const path = `community/profiles/${encodeURIComponent(username)}`;
   const connectionTab = tab === "following" || tab === "followers";
   const solutionCount=typeof profile?.counts.solutions==="number"&&Number.isSafeInteger(profile.counts.solutions)&&profile.counts.solutions>=0?profile.counts.solutions:undefined;
-  useEffect(()=>{if(!profileSolutionsAvailable&&selectedTab==="solutions"){setTab("posts");setOffset(0);}},[profileSolutionsAvailable,selectedTab]);
-  useEffect(() => {
-    setProfile(undefined);
-    setTab("posts");
-    setOffset(0);
-  }, [username]);
+  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!!profile&&!loading&&!activityPending&&!activityError&&!connectionTab&&tab!=='replies');
+  useEffect(()=>{
+    if(unavailableSolutions&&currentProfileHref()===profileFeedHref(username,view))location.replace(returnTo);
+  },[unavailableSolutions,route,returnTo,username]);
   useEffect(() => {
     let live = true;
     const controller=new AbortController();
@@ -1316,6 +1323,7 @@ function UserProfileContents({ username }: { username: string }) {
     let redirected=false;
     setActivityLoading(true);
     setActivityError("");
+    if(waitingForSolutions)return;
     const params = new URLSearchParams({
       offset: String(offset),
       limit: String(PAGE_SIZE),
@@ -1324,12 +1332,13 @@ function UserProfileContents({ username }: { username: string }) {
     const timer=setTimeout(()=>{
       if(!live)return;live=false;controller.abort();
       setActivity({items:[],total:0});setConnections({items:[],total:0});
+      setLoadedActivityKey(activityKey);
       setActivityError(t("社区动态加载超时，请重试。","Loading community activity timed out. Please retry."));setActivityLoading(false);
     },COMMUNITY_FEED_TIMEOUT);
     const promise = connectionTab
       ? socialApi<Page<Connection>>(`${path}/connections?${params}`,undefined,controller.signal).then(
           (data) => {
-            if (live) setConnections(data);
+            if (live){setConnections(data);setLoadedActivityKey(activityKey);}
           },
         )
       : socialApi<Page<Activity> & {solutions?:boolean}>(`${path}/activity?${params}`,undefined,controller.signal).then((data) => {
@@ -1337,16 +1346,16 @@ function UserProfileContents({ username }: { username: string }) {
           if(tab==="solutions"&&(!data||data.solutions!==true||!Array.isArray(data.items)||!Number.isSafeInteger(data.total)||data.total<0||data.items.some(item=>item.kind!=="solutions"||item.post?.solution!==true||!item.post.problem_id)))throw Error(t("暂时无法确认题解列表，请重试。","Could not confirm the solution list. Please retry."));
           if(tab==="solutions"){
             const lastOffset=Math.max(0,Math.floor((data.total-1)/PAGE_SIZE)*PAGE_SIZE);
-            if(offset>lastOffset){redirected=true;setOffset(lastOffset);return;}
+            if(offset>lastOffset){redirected=true;if(currentProfileHref()===returnTo)location.replace(profileFeedHref(username,{tab,page:lastOffset/PAGE_SIZE+1}));return;}
           }
-          setActivity(data);
+          setActivity(data);setLoadedActivityKey(activityKey);
         });
     promise
       .catch((e) => {
         if (live) {
           setActivity({ items: [], total: 0 });
           setConnections({ items: [], total: 0 });
-          setActivityError(errorMessage(e));
+          setLoadedActivityKey(activityKey);setActivityError(errorMessage(e));
         }
       })
       .finally(() => {
@@ -1356,10 +1365,10 @@ function UserProfileContents({ username }: { username: string }) {
     return () => {
       live = false; clearTimeout(timer); controller.abort();
     };
-  }, [username, tab, offset, user?.id, revision]);
+  }, [username, tab, offset, user?.id, revision,waitingForSolutions]);
   async function follow(target: string, active: boolean) {
     if (!user) {
-      location.hash = signInHref(`u/${username}`);
+      location.hash = signInHref(returnTo);
       return;
     }
     setBusy(true);
@@ -1388,21 +1397,23 @@ function UserProfileContents({ username }: { username: string }) {
   ] as const;
   const chooseTab = (value: ProfileTab, reveal = false) => {
     if (value !== tab || offset !== 0) setActivityLoading(true);
-    setTab(value);
-    setOffset(0);
+    const href=profileFeedHref(username,{tab:value,page:1});
+    revealIntent.current=reveal?{href,active:document.activeElement,top:window.scrollY}:undefined;
+    if(href!==returnTo)location.hash=href;
     if (reveal) setActivityReveal((value) => value + 1);
   };
   useLayoutEffect(() => {
-    if (!activityReveal) return;
+    const pending=revealIntent.current;if(!pending||pending.href!==returnTo)return;
+    revealIntent.current=undefined;if(pending.active!==document.activeElement||pending.top!==window.scrollY||currentProfileHref()!==returnTo)return;
     const section = communityContent.current;
     const selected = section?.querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]');
     // Commit the selection before moving focus; repeated shortcuts reveal the same tab too.
     selected?.focus({ preventScroll: true });
     selected?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
     section?.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
-  }, [activityReveal]);
+  }, [activityReveal,returnTo]);
   return (
-    <main className="social-page profile-page">
+    <main ref={reading.container} className="social-page profile-page">
       <a className="social-back" href="#/community">
         <ArrowLeft size={14} />
         {t("社区", "Community")}
@@ -1533,9 +1544,10 @@ function UserProfileContents({ username }: { username: string }) {
               </button>
             ))}
           </div>
-          <section className="social-panel profile-activity" id="profile-community-panel" role="tabpanel" aria-labelledby={`profile-tab-${tab}`} aria-busy={activityLoading}>
+          <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
+          <section data-reading-list="" tabIndex={-1} className="social-panel profile-activity" id="profile-community-panel" role="tabpanel" aria-labelledby={`profile-tab-${tab}`} aria-busy={activityPending}>
             {tab==="solutions"&&profile.viewer.is_self&&<p className="profile-solutions-note">{t("匿名题解仅在你自己的主页可见。","Anonymous solutions appear here only when you view your own profile.")}</p>}
-            {activityLoading ? (
+            {activityPending ? (
               <Loading />
             ) : activityError ? (
               <div className="feed-error">
@@ -1603,7 +1615,7 @@ function UserProfileContents({ username }: { username: string }) {
                       <div className="activity-label">
                         <MessageCircle size={13} />
                         {t("回复了", "Replied to")}
-                        <a href={postHref(item.post.id)}>{item.post.title}</a>
+                        <a href={postHref(item.post.id,returnTo,item.reply.id)}>{item.post.title}</a>
                         <DateLabel value={item.created_at} />
                       </div>
                       <CommunityMarkdown body={item.reply.body} />
@@ -1611,6 +1623,8 @@ function UserProfileContents({ username }: { username: string }) {
                   ) : (
                     <PostCard
                       post={item.post}
+                      returnTo={returnTo}
+                      resumed={reading.resumedPost===item.post.id}
                       readInPlace={tab==="solutions"}
                       activity={
                         tab === "likes" ? (
@@ -1638,10 +1652,10 @@ function UserProfileContents({ username }: { username: string }) {
               </Empty>
             )}
           </section>
-          {!activityLoading&&!activityError&&<Pagination
+          {!activityPending&&!activityError&&<Pagination
             offset={offset}
             total={connectionTab ? connections.total : activity.total}
-            onChange={setOffset}
+            onChange={next=>{setActivityLoading(true);revealIntent.current=undefined;location.hash=profileFeedHref(username,{tab,page:Math.floor(next/PAGE_SIZE)+1});}}
           />}
           </section>
           </div>

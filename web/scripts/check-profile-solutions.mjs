@@ -49,6 +49,7 @@ try {
  const {createRoot}=await import('react-dom/client');
  const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
  const {UserProfile}=await server.ssrLoadModule('/src/Community.tsx');
+ function ProfileRoute(){const [route,setRoute]=React.useState(location.hash);React.useEffect(()=>{const change=()=>setRoute(location.hash);window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change);},[]);return React.createElement(UserProfile,{username:'alice',route});}
  const alice={id:'alice',username:'alice',display_name:'Alice',created_at:'2026-01-01',avatar_color:'#123456'};
  const counts={posts:24,solutions:21,replies:0,likes:0,reposts:0,following:0,followers:0,likes_received:0,reposts_received:0};
  const topic={id:'architecture/attention',title:'注意力',title_en:'Attention',number:1};
@@ -70,14 +71,14 @@ try {
   assert.equal(url.pathname,'/community/profiles/alice');
   return {...alice,counts,viewer:{is_self:account.user?.id==='alice',following:false}};
  }};
- const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(UserProfile,{username:'alice'})));});
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(ProfileRoute)));});
  const stop=async()=>{await act(async()=>root.unmount());root=undefined;};
- const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
+ const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();await new Promise(resolve=>setTimeout(resolve,5));});};
  const panel=()=>document.querySelector('#profile-community-panel');
  const tab=()=>document.querySelector('#profile-tab-solutions');
  const counter=()=>document.querySelector('[aria-label="View solutions"]');
  const lastParams=()=>new URL(requests.at(-1).path,'https://fixture.test/').searchParams;
- const key=async(key,extra={})=>act(async()=>document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key,bubbles:true,cancelable:true,...extra})));
+ const key=async(key,extra={})=>act(async()=>{document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key,bubbles:true,cancelable:true,...extra}));await new Promise(resolve=>setTimeout(resolve,5));});
  // Feed support alone must not expose a profile operation an older server lacks.
  await render();assert(!tab());assert(!counter());assert(!requests.some(row=>row.path.includes('tab=solutions')));
  account.capabilities.community_profile_solutions=true;await render();
@@ -86,11 +87,11 @@ try {
  await click(counter());
  assert.equal(lastParams().get('tab'),'solutions');assert.equal(lastParams().get('offset'),'0');
  assert.equal(document.activeElement,tab());assert.equal(tab().getAttribute('aria-selected'),'true');assert.equal(panel().getAttribute('aria-labelledby'),tab().id);
- assert.equal(location.hash,'#/u/alice');assert(panel().textContent.includes('Anonymous solutions appear here only'));
+ assert.equal(location.hash,'#/u/alice?tab=solutions');assert(panel().textContent.includes('Anonymous solutions appear here only'));
  assert(document.querySelector('.solution-reading-card'));assert(document.querySelector('.community-card-interaction'));assert.equal(document.querySelectorAll('.profile-tabs [tabindex="0"]').length,1);
  const oldCount=requests.length;await click(counter());assert.equal(requests.length,oldCount);
  const disclosure=document.querySelector('.solution-reading-card>details');await act(async()=>{disclosure.open=true;disclosure.dispatchEvent(new dom.window.Event('toggle'));});
- assert(document.querySelector('.discussion-reading'));assert(panel().textContent.includes('clear'));assert.equal(location.hash,'#/u/alice');
+ assert(document.querySelector('.discussion-reading'));assert(panel().textContent.includes('clear'));assert.equal(location.hash,'#/u/alice?tab=solutions');
  await click(document.querySelector('.solution-reading-collapse'));assert(!document.querySelector('.solution-reading-card>details').open);
  const selected=tab();await click(selected);const navigationCount=requests.length;
  await key('ArrowRight',{ctrlKey:true});await key('ArrowRight',{isComposing:true});await key('ArrowRight',{keyCode:229});assert.equal(document.activeElement,selected);assert.equal(requests.length,navigationCount);
@@ -98,7 +99,7 @@ try {
  await key('ArrowLeft');assert.equal(document.activeElement,tab());
  await click(document.querySelector('[aria-label="Next page"]'));assert.equal(lastParams().get('offset'),'20');assert(panel().textContent.includes('Second-page solution'));
  await click(counter());assert.equal(lastParams().get('offset'),'0');assert(!panel().textContent.includes('Second-page solution'));
- mode='shrink';await click(document.querySelector('[aria-label="Next page"]'));assert.equal(lastParams().get('offset'),'0');assert(!panel().textContent.includes('Second-page solution'));assert(!document.querySelector('[aria-label="Next page"]'));mode='normal';
+ mode='shrink';await click(document.querySelector('[aria-label="Next page"]'));for(let attempt=0;attempt<20&&lastParams().get('offset')!=='0';attempt++)await act(async()=>new Promise(resolve=>setTimeout(resolve,5)));assert.equal(lastParams().get('offset'),'0');assert(!panel().textContent.includes('Second-page solution'));assert(!document.querySelector('[aria-label="Next page"]'));mode='normal';
  // Reject a silently unfiltered response rather than presenting ordinary posts as solutions.
  for(const failure of ['no-ack','wrong-kind','ordinary','missing-module']){
   await click(document.querySelector('#profile-tab-posts'));mode=failure;await click(tab());
@@ -123,12 +124,12 @@ try {
  mode='hold';await click(tab());const secondHeld=held,secondSignal=requests.at(-1).signal;account.capabilities.community_profile_solutions=false;mode='normal';await render();assert(secondSignal.aborted);assert(!tab());
  await act(async()=>secondHeld.resolve({items:[{kind:'solutions',post}],total:1,solutions:true}));assert.equal(document.querySelector('#profile-tab-posts').getAttribute('aria-selected'),'true');assert(!panel().querySelector('.solution-reading-card'));
  account.capabilities.community_profile_solutions=true;await render();mode='hold';await click(tab());const thirdHeld=held,thirdSignal=requests.at(-1).signal;
- account.user={...alice,id:'bob',username:'bob'};mode='empty';await render();assert(thirdSignal.aborted);assert.equal(tab().getAttribute('aria-selected'),'false');
+ account.user={...alice,id:'bob',username:'bob'};mode='empty';await render();assert(thirdSignal.aborted);assert.equal(tab().getAttribute('aria-selected'),'true');
  await act(async()=>thirdHeld.resolve({items:[{kind:'solutions',post}],total:1,solutions:true}));assert(!panel().querySelector('.solution-reading-card'));
  await click(tab());assert(panel().textContent.includes('No solutions yet'));assert(!panel().querySelector('.profile-solutions-note'));assert(!panel().querySelector('a[href="#/community?solutions=1"]'));
  account.user=undefined;await render();await click(tab());assert(!panel().querySelector('.profile-solutions-note'));
  // Empty self view, bilingual counter/tab and contribution entry use the same canonical feed.
- await stop();localStorage.setItem('paperleet.locale','zh');account.user=alice;counts.solutions=0;await render();
+ await stop();location.hash='#/u/alice';await new Promise(resolve=>setTimeout(resolve,5));localStorage.setItem('paperleet.locale','zh');account.user=alice;counts.solutions=0;await render();
  assert(document.querySelector('[aria-label="查看题解"]'));assert.equal(tab().textContent,'题解0');await click(tab());assert(panel().textContent.includes('还没有题解'));assert(panel().querySelector('a[href="#/community?solutions=1"]'));
  assert.equal(document.querySelectorAll('.profile-tabs [tabindex="0"]').length,1);assert.deepEqual(errors,[]);
  console.log('PASS profile solutions: deferred capability-gated contribution counts/tab, scoped server acknowledgement, native in-place reading and actions, first-page shortcuts/pagination, private anonymous notice, owner/visitor empty states, bilingual/keyboard/IME controls, bounded timeout/retry, request abort and stale tab/account/capability isolation');

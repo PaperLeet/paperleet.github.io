@@ -1,3 +1,4 @@
+import {readProfileRoute,sameProfilePage} from './profileNavigation';
 import {ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {loadCatalogIndex} from './catalogIndex';
@@ -203,7 +204,7 @@ function Workspace() {
   useEffect(() => {
     if (!settingsPage && !achievementsPage) settingsReturn.current = location.hash || "#";
   }, [id, settingsPage, achievementsPage]);
-  const profileUsername = id.startsWith("u/") ? id.slice(2) : "";
+  const profileUsername = readProfileRoute(id)?.username || "";
   const current = problem ? saved[problem.id] || {} : {};
   const selectedPaper = papers.find((paper) =>
     sourceProblem ? paper.id === sourceProblem.paper_id : path === `papers/${paper.id}`,
@@ -322,8 +323,10 @@ function Workspace() {
   }
   useEffect(() => {
     void loadCatalog();
+    let previous=getId();
     const h = () => {
-      setId(getId());
+      const next=getId(),sameProfile=sameProfilePage(previous,next);previous=next;setId(next);
+      if(sameProfile)return;
       setTab("description");
       setRightTab("code");
       setMobilePane("read");
@@ -593,7 +596,7 @@ function Workspace() {
       ) : accountPage ? (
         <Account returnTo={accountReturnHref(id)} />
       ) : profileUsername ? (
-        <UserProfile key={profileUsername} username={profileUsername} />
+        <UserProfile key={profileUsername} username={profileUsername} route={id} />
       ) : submissionPage ? (
         <Submissions
           key={`${health?.mode || "pending"}:${user?.id || "anonymous"}`}
