@@ -1,0 +1,100 @@
+import {useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import {ArrowDown,ArrowRight,ArrowUp,BookOpen,CheckCircle2,Layers3,X} from 'lucide-react';
+import {useI18n} from './i18n';
+import {interviewHref,type InterviewFilters} from './interviewNavigation';
+import {withLibraryContext} from './libraryNavigation';
+import {status,type Problem,type Saved} from './types';
+import './interview-practice-group.css';
+
+export const PRACTICE_GROUP_LIMIT=6;
+type Source='reports'|'curated';
+type Change={kind:'add'|'remove'|'move'|'clear';number?:number;position?:number};
+type Selection={scope:string;source:Source;numbers:number[];change?:Change};
+type Focus={scope:string;source:Source;href:string;opener:HTMLElement;number?:number;action?:'up'|'down'|'remove'};
+function capturedGroup(queue:string){
+ if(!queue)return [];
+ const values=queue.split(',');
+ if(values.length>PRACTICE_GROUP_LIMIT||values.some(value=>!/^[1-9]\d{0,4}$/.test(value)))return;
+ const numbers=values.map(Number);
+ return new Set(numbers).size===numbers.length?numbers:undefined;
+}
+
+/** Selection changes are local; only starting practice captures the ordered public IDs in its URL. */
+export function useInterviewPracticeGroup({filters,source,problems,saved,ready}:{filters:InterviewFilters;source:Source;problems:Problem[];saved:Record<string,Saved>;ready:boolean}){
+ const scope=interviewHref(filters),initial=capturedGroup(filters.queue);
+ const [selection,setSelection]=useState<Selection>(()=>({scope,source,numbers:initial||[]}));
+ const current=selection.scope===scope&&selection.source===source?selection:{scope,source,numbers:initial||[]};
+ const numbers=current.numbers;
+ const byNumber=useMemo(()=>new Map(problems.map(problem=>[problem.number,problem])),[problems]);
+ const modules=numbers.flatMap(number=>{const problem=byNumber.get(number);return problem?[problem]:[];});
+ const missing=numbers.length-modules.length;
+ const root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),focus=useRef<Focus|undefined>(undefined);
+ function update(transform:(numbers:number[])=>{numbers:number[];change:Change}|undefined){
+  setSelection(previous=>{const next=transform(previous.scope===scope&&previous.source===source?previous.numbers:initial||[]);return next?{...next,scope,source}:previous;});
+ }
+ function toggle(number:number){
+  if(!byNumber.has(number))return;
+  update(values=>values.includes(number)?{numbers:values.filter(value=>value!==number),change:{kind:'remove',number}}:values.length<PRACTICE_GROUP_LIMIT?{numbers:[...values,number],change:{kind:'add',number}}:undefined);
+ }
+ function remove(number:number,opener:HTMLElement){
+  const index=numbers.indexOf(number);if(index<0)return;
+  focus.current={scope,source,href:location.href,opener,number:numbers[index+1]??numbers[index-1],action:'remove'};
+  update(values=>({numbers:values.filter(value=>value!==number),change:{kind:'remove',number}}));
+ }
+ function move(number:number,direction:-1|1,opener:HTMLElement){
+  const index=numbers.indexOf(number),next=index+direction;
+  if(index<0||next<0||next>=numbers.length)return;
+  focus.current={scope,source,href:location.href,opener,number,action:direction<0?'up':'down'};
+  update(values=>{const from=values.indexOf(number),to=from+direction;if(from<0||to<0||to>=values.length)return {numbers:values,change:{kind:'move',number,position:from+1}};const next=[...values];[next[from],next[to]]=[next[to],next[from]];return {numbers:next,change:{kind:'move',number,position:to+1}};});
+ }
+ function clear(opener:HTMLElement){
+  focus.current={scope,source,href:location.href,opener};
+  update(()=>({numbers:[],change:{kind:'clear'}}));
+ }
+ useLayoutEffect(()=>{
+  const intent=focus.current;if(!intent)return;focus.current=undefined;
+  if(intent.scope!==scope||intent.source!==source||intent.href!==location.href)return;
+  if(document.activeElement!==intent.opener&&!(document.activeElement===document.body&&(!intent.opener.isConnected||intent.opener.matches(':disabled'))))return;
+  const control=(action:string)=>root.current?.querySelector<HTMLButtonElement>(`[data-group-number="${intent.number}"][data-group-action="${action}"]`);
+  const target=intent.number?control(intent.action!)||undefined:undefined;
+  const alternate=intent.action==='up'?control('down'):intent.action==='down'?control('up'):undefined;
+  (target&&!target.disabled?target:alternate&&!alternate.disabled?alternate:heading.current)?.focus({preventScroll:true});
+ },[selection,scope,source]);
+ function href(problem:Problem){
+  if(!numbers.length||missing||!numbers.includes(problem.number))return;
+  return withLibraryContext(problem.number,interviewHref({...filters,view:'questions',queue:numbers.join(',')}));
+ }
+ const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
+ const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
+ return {root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,remove,move,clear,href,first,startHref:first?href(first):undefined,completed,ready,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
+}
+export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
+
+export function InterviewGroupToggle({problem,name,group}:{problem:Problem;name:string;group:InterviewPracticeGroupState}){
+ const {t}=useI18n(),selected=group.numbers.includes(problem.number),full=!selected&&group.numbers.length>=PRACTICE_GROUP_LIMIT;
+ const label=selected?t(`从练习组移除${name}`,`Remove ${name} from this batch`):full?t(`练习组已满，请先移除一道再加入${name}`,`Batch full. Remove a concept before adding ${name}`):t(`将${name}加入练习组`,`Add ${name} to this batch`);
+ return <button type="button" className="interview-group-toggle" aria-label={label} title={label} aria-pressed={selected} disabled={full} onClick={()=>group.toggle(problem.number)}>{selected?<CheckCircle2 size={12}/>:<BookOpen size={12}/>}<span>{selected?t('已加入练习组','Added to batch'):t('加入练习组','Add to batch')}</span></button>;
+}
+
+export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:InterviewPracticeGroupState;onRetryCatalog?:()=>void}){
+ const {t,locale}=useI18n(),headingId=useId();
+ const title=(number:number)=>{const problem=group.byNumber.get(number);return problem?(locale==='en'?problem.translations?.en?.title||problem.title:problem.title):t(`第 ${number} 题`, `Problem ${number}`);};
+ const change=group.change;
+ const feedback=change?.kind==='move'?t(`已将${title(change.number!)}移到第 ${change.position} 位`,`Moved ${title(change.number!)} to position ${change.position}`):change?.kind==='clear'?t('已清空练习组。','Practice batch cleared.'):change?.kind==='add'?t(`已加入${title(change.number!)}。`,`Added ${title(change.number!)}.`):change?.kind==='remove'?t(`已移除${title(change.number!)}。`,`Removed ${title(change.number!)}.`):'';
+ const allDone=group.completed!==undefined&&group.completed===group.numbers.length;
+ const minutes=group.numbers.map(number=>group.byNumber.get(number)?.estimated_minutes);
+ const estimate=minutes.length&&minutes.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)?minutes.reduce<number>((total,value)=>total+value!,0):undefined;
+ return <section ref={group.root} className="interview-practice-group" aria-labelledby={headingId}>
+  <header><div><h3 ref={group.heading} id={headingId} tabIndex={-1}><Layers3 size={16}/>{t('自选练习组','Your practice batch')}</h3><p>{t('最多选 6 道，按自己的顺序连续练习。','Pick up to 6 concepts and practice in your own order.')}</p></div>{group.numbers.length>0&&<button type="button" className="text-button" onClick={event=>group.clear(event.currentTarget)}>{t('清空','Clear')}</button>}</header>
+  <p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{feedback&&<span> · {feedback}</span>}</p>
+  {group.uneditable&&<p className="practice-group-unavailable">{t('当前链接的练习组无法在此编辑，可以重新选择最多 6 道题。','This linked batch cannot be edited here. Choose up to 6 concepts to make a new batch.')}</p>}
+  {group.numbers.length>0&&<>
+   <ol>{group.numbers.map((number,index)=>{const problem=group.byNumber.get(number),name=title(number);return <li key={number} data-selected-problem={number}>
+    <span className="practice-group-order" aria-hidden="true">{index+1}</span><span className="practice-group-title">{name}{!problem&&<small>{t('练习暂不可用','Practice unavailable')}</small>}</span>
+    <div className="practice-group-controls"><button type="button" data-group-number={number} data-group-action="up" disabled={index===0} aria-label={t(`上移${name}`,`Move ${name} up`)} onClick={event=>group.move(number,-1,event.currentTarget)}><ArrowUp size={13}/></button><button type="button" data-group-number={number} data-group-action="down" disabled={index===group.numbers.length-1} aria-label={t(`下移${name}`,`Move ${name} down`)} onClick={event=>group.move(number,1,event.currentTarget)}><ArrowDown size={13}/></button><button type="button" data-group-number={number} data-group-action="remove" aria-label={t(`从练习组移除${name}`,`Remove ${name} from this batch`)} onClick={event=>group.remove(number,event.currentTarget)}><X size={13}/></button></div>
+   </li>;})}</ol>
+   {group.missing>0&&<p className="practice-group-unavailable" role="status">{t('部分练习尚不可用，请重试加载题库或先移除这些题目。','Some practice modules are unavailable. Retry the catalog or remove those concepts first.')}{onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</p>}
+   <footer><small>{group.completed!==undefined?t(`${group.completed} 道已通过 · ${group.numbers.length-group.completed} 道待练习`,`${group.completed} passed · ${group.numbers.length-group.completed} remaining`):t('沿用当前工作区，进度就绪后显示完成情况。','Uses your workspace; completion appears when progress is ready.')}{estimate!==undefined&&<> · {t(`整组约 ${estimate} 分钟`,`About ${estimate} min for the whole batch`)}</>}</small>{group.startHref?<a className="button" href={group.startHref}>{allDone?t('复习这组','Review this batch'):group.continuing?t('继续这组练习','Resume this batch'):group.ready?t('开始这组练习','Start this batch'):t('打开这组练习','Open this batch')}<ArrowRight size={13}/></a>:<button type="button" className="button" disabled>{t('练习组暂不可用','Batch unavailable')}</button>}</footer>
+  </>}
+ </section>;
+}
