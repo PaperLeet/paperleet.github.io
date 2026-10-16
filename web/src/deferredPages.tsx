@@ -21,6 +21,9 @@ export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), 
   failure: (_props,retry) => <PresencePlaceholder retry={retry} />,
 });
 
+export const InboxBell = deferredFeature(() => import('./InboxBell'), ['通知', 'notifications'], {loading: () => null});
+export const Messages = deferredFeature(() => import('./Messages'), ['私信', 'messages']);
+
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
 export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['公司面经关联','company mentions'], {loading:()=>null,failure:()=>null});

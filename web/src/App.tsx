@@ -1,4 +1,4 @@
-import {ProblemFavoriteButton,ProblemFavoritesPage} from './deferredPages';
+import {ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
@@ -187,6 +187,8 @@ function Workspace() {
   const submissionResultId = /^submission\/([a-f0-9]{32})$/.exec(path)?.[1];
   const communityPath = id.split('?')[0];
   const communityPage = communityPath === "community" || communityPath.startsWith("community/");
+  const messageUsername = /^messages\/([a-z0-9_]{3,24})$/.exec(path)?.[1];
+  const messagesPage = path === "messages" || messageUsername !== undefined;
   const communityTopicId = topicIdFromRoute(communityPath);
   const communityProblem = communityTopicId ? problems.find((p) => p.id === communityTopicId) : undefined;
   const accountPage = isAccountRoute(id);
@@ -485,6 +487,7 @@ function Workspace() {
                 !problem &&
                 !submissionPage &&
                 !communityPage &&
+                !messagesPage &&
                 !interviewPage &&
                 !accountPage &&
                 !settingsPage &&
@@ -494,7 +497,7 @@ function Workspace() {
                   : ""
               }
               href={libraryReturn?.startsWith('#/interviews') ? '#' : libraryReturn || '#'}
-              aria-current={!problem && !submissionPage && !communityPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
+              aria-current={!problem && !submissionPage && !communityPage && !messagesPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
             </a>
@@ -512,7 +515,7 @@ function Workspace() {
               <BilingualText zh="提交论文" en="Submit paper" />
             </a>}
             {hostedAppAvailable && <a
-              className={communityPage || profileUsername ? "active" : ""}
+              className={communityPage || profileUsername || messagesPage ? "active" : ""}
               aria-current={communityPage ? 'page' : undefined}
               href={hostedAppHref("#/community")}
             >
@@ -525,6 +528,7 @@ function Workspace() {
             <RepositoryLink />
             <OnlinePresence />
             <CommunitySubmissions count={totalSubmissions} />
+            {hostedAppAvailable && <InboxBell />}
             <AccountNav returnTo={id} theme={theme} onTheme={selectTheme} onBackup={() => setBackupOpen(true)} backupReady={practice.owner !== 'unresolved' && problems.length > 0} />
           </div>
         </div>
@@ -559,6 +563,8 @@ function Workspace() {
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
       ) : interviewPage ? (
         <Interviews route={id} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
+      ) : messagesPage ? (
+        <Messages key={`${user?.id || 'guest'}:${messageUsername || ''}`} username={messageUsername} />
       ) : communityPage ? (
         <Community
           route={id}

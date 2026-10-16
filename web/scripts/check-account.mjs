@@ -15,14 +15,14 @@ try {
   const { AccountAccessGate } = await server.ssrLoadModule('/src/Waitlist.tsx');
   const { signInHref, accountReturnHref, isAccountRoute } = await server.ssrLoadModule("/src/accountNavigation.ts");
   const { decodeProblemHash } = await server.ssrLoadModule("/src/reports.ts");
-  for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "submission/0123456789abcdef0123456789abcdef", "achievements", "papers/transformer", "collections/llm-basics"]) {
+  for (const route of ["", "22", "architecture/attention", "finetuning/lora", "community", "community/problem/architecture/attention", "community/0123456789abcdef0123456789abcdef", "u/researcher", "submit", "submission/0123456789abcdef0123456789abcdef", "achievements", "papers/transformer", "collections/llm-basics", "messages", "messages/researcher"]) {
     const href = signInHref(route);
     const accountRoute = decodeProblemHash(href);
     assert(isAccountRoute(accountRoute));
     assert.equal(accountReturnHref(accountRoute), `#/${route}`);
   }
   assert.equal(accountReturnHref(decodeProblemHash(signInHref("#/community/problem/architecture%2Fattention"))), "#/community/problem/architecture/attention");
-  for (const route of ["https://evil.test/", "//evil.test", "javascript:alert(1)", "account", "account/continue/community", "community/problem/../attention", "community/problem/architecture/attention?x=y", "#/%2F%2Fevil.test", "#/%ZZ", "#/account/continue/submit", "#/community%252Fproblem%252Farchitecture%252Fattention"]) {
+  for (const route of ["https://evil.test/", "//evil.test", "javascript:alert(1)", "account", "account/continue/community", "community/problem/../attention", "community/problem/architecture/attention?x=y", "#/%2F%2Fevil.test", "#/%ZZ", "messages/../account", "messages/researcher?to=other", "messages//evil.test", "messages/ab", "#/account/continue/submit", "#/community%252Fproblem%252Farchitecture%252Fattention"]) {
     assert.equal(signInHref(route), "#/account", `Unsafe/recursive continuation: ${route}`);
   }
   assert.equal(accountReturnHref("account/continue/https://evil.test"), undefined);

@@ -50,7 +50,7 @@ for (const [publicMode, appAvailable, hostedEdition, hostedUrl] of [
     if (appAvailable) assert(menu.includes(expected));
     else assert(!menu.includes('account-menu-signin'), "Public-only sites must not expose a broken sign-in link");
     assert(menu.includes('href="#/settings"') && menu.includes('href="#/achievements"'),'Browser-only editions retain local settings and achievements');
-    for (const hash of ["#/account", login, "#/account%2Fcontinue%2F22", "#/community?sort=recent", "#/comm%75nity", "#/community/problem/architecture/attention", "#/u/researcher", "#/submit"])
+    for (const hash of ["#/account", login, "#/account%2Fcontinue%2F22", "#/community?sort=recent", "#/comm%75nity", "#/community/problem/architecture/attention", "#/u/researcher", "#/submit", "#/messages", "#/messages/researcher"])
       assert(deployment.isHostedRoute(hash));
     for (const hash of ["#/", "#/22", "#/papers/transformer", "#/collections/llm-basics", "#/architecture/attention"])
       assert(!deployment.isHostedRoute(hash));

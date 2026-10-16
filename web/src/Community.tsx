@@ -1229,7 +1229,7 @@ function ProfilePage({ username }: { username: string }) {
 }
 function UserProfileContents({ username }: { username: string }) {
   const { t } = useI18n();
-  const { user } = useAccount();
+  const { user, capabilities } = useAccount();
   const [profile, setProfile] = useState<Profile>(),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -1399,6 +1399,9 @@ function UserProfileContents({ username }: { username: string }) {
                     : t("关注", "Follow")}
                 </button>
               )}
+              {!profile.viewer.is_self && capabilities?.direct_messages && <a className="button subtle profile-edit" href={user ? `#/messages/${encodeURIComponent(profile.username)}` : signInHref(`#/messages/${encodeURIComponent(profile.username)}`)}>
+                <MessageCircle size={14} />{t('私信', 'Message')}
+              </a>}
             </div>
             <div className="profile-stats">
               <button onClick={() => chooseTab("following")}>

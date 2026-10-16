@@ -48,6 +48,8 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  inbox_notifications?: boolean;
+  direct_messages?: boolean;
   problem_bookmarks?: boolean;
   community_anonymous_posts?: boolean;
   community_feed_sorting?: boolean;
