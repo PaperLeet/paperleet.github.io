@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
+import {loadEnv} from 'vite';
 
 const manifest = JSON.parse(fs.readFileSync('dist/.vite/manifest.json', 'utf8'));
 const initial = new Set();
@@ -16,12 +17,13 @@ for (const key of ['src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.ts
   assert(!initial.has(key), `${key} must not load with the paper library`);
 }
 const bellEntry = Object.entries(manifest).find(([, entry]) => entry.name === 'InboxBell' && entry.isDynamicEntry);
-const hostedAvailable = process.env.VITE_APP_EDITION === 'hosted' || process.env.VITE_PUBLIC_SITE === '1' && process.env.VITE_HOSTED_APP_AVAILABLE === '1';
-if (hostedAvailable) {
+const environment = loadEnv('production', process.cwd());
+const onlineAccounts = environment.VITE_APP_EDITION === 'hosted' || (environment.VITE_PUBLIC_SITE === '1' && environment.VITE_HOSTED_APP_AVAILABLE === '1');
+if (onlineAccounts) {
   assert(manifest['src/InboxPanel.tsx']?.isDynamicEntry && !initial.has('src/InboxPanel.tsx'), 'The notification panel must remain deferred');
   assert(bellEntry && !initial.has(bellEntry[0]), 'The notification bell must remain deferred, including when Rollup shares its icon chunk');
 } else {
-  assert(!manifest['src/InboxPanel.tsx'] && !bellEntry, 'Local-only builds must omit the unavailable notification UI');
+  assert(!bellEntry && !manifest['src/InboxPanel.tsx'], 'Unavailable notification controls must be removed from offline editions');
 }
 for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
   if (process.env.VITE_PUBLIC_SITE === '1') assert(!manifest[key], `${key} must be removed from the browser-only edition`);

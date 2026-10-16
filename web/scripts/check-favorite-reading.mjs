@@ -16,7 +16,7 @@ dom.window.HTMLElement.prototype.getBoundingClientRect=function(){
  const top=card?base+index*180+(document.querySelector('.reading-return-notice')?42:0)-viewport:80;
  return {x:0,y:top,left:0,right:500,width:500,top,bottom:top+32,height:32,toJSON(){return this;}};
 };
-const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'favorite-reading',enforce:'pre',resolveId(source){if(source==='./social')return '\0favorite-reading-account';},load(id){if(id==='\0favorite-reading-account')return "import React from 'react';export const useAccount=()=>globalThis.__favoriteReading.account;export const socialApi=(...args)=>globalThis.__favoriteReading.request(...args);export class SocialError extends Error{};export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);";}}]});
+const server=await createServer({define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('hosted'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('0')},server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'favorite-reading',enforce:'pre',resolveId(source){if(source==='./social')return '\0favorite-reading-account';},load(id){if(id==='\0favorite-reading-account')return "import React from 'react';export const useAccount=()=>globalThis.__favoriteReading.account;export const socialApi=(...args)=>globalThis.__favoriteReading.request(...args);export class SocialError extends Error{};export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);";}}]});
 let root,model;
 try{
  const {createRoot}=await import('react-dom/client');
