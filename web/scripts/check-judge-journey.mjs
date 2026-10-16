@@ -9,7 +9,8 @@ try {
   const renderToString = await localizedRenderer(server, "zh");
   const { problems,papers }=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
   const attention=problems.find(p=>p.id==='architecture/attention');
-  const { PaperDetail, paperModules }=await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { paperModules }=await server.ssrLoadModule('/src/PaperViews.tsx');
+  const {default:PaperDetail}=await server.ssrLoadModule('/src/PaperDetail.tsx');
   const { paperJudgeCapability, PaperJudgeBadge, ModuleJudgeBadge }=await server.ssrLoadModule('/src/JudgeCapability.tsx');
   const mixed=papers.find(p=>p.id==='ddpm');
   // Exercise mixed-runtime rendering even when current multi-module papers

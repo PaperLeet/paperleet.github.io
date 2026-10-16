@@ -2054,6 +2054,135 @@
         "adversarial_losses",
         "generator_loss"
       ]
+    },
+    {
+      "id": "world_models/causal_jepa",
+      "source": "problems/world_models/causal_jepa/README.md",
+      "functions": [
+        "object_mask_inputs",
+        "masked_prediction_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "首帧为什么要保留？被遮蔽对象的 query 应该从哪里构造？",
+            "en": "Why keep the first frame, and where should a masked object query come from?"
+          },
+          "hint": {
+            "zh": "首帧所有对象都可见；选中对象在后续历史中被遮蔽，未来则遮蔽所有对象。query 使用首帧对象状态乘 projection.T，再加对应时间嵌入和 mask token；不能混入被隐藏的当前状态。True 表示预测目标，布尔掩码应按结构生成，不能靠数值是否相等判断。",
+            "en": "Every object is visible at the first frame. Hide selected objects in later history and all objects in the future. Build queries from first-frame states @ projection.T, plus the corresponding time embedding and mask token. Never use hidden current states. True marks a prediction target; construct the Boolean mask structurally, not by comparing token values."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "历史和未来误差怎样归一化？目标与输入组装的梯度边界是否相同？",
+            "en": "How are history and future errors normalized, and do targets and input assembly share a gradient boundary?"
+          },
+          "hint": {
+            "zh": "历史仅对选中对象的非首帧历史位置及其全部特征取 MSE 均值，未来对所有对象和特征独立取均值，再相加并返回三个标量。targets 在损失中 detach；输入组装仍保留可见历史、身份锚点与参数的梯度。H=1 或未选中历史时，历史项要是可微的零。",
+            "en": "Mean the squared errors over selected post-anchor history elements, and independently over every future element; add the components and return all three scalars. Detach targets inside the loss. Input assembly retains gradients through visible history, identity anchors and parameters. With H=1 or no selected history, the history component must be a differentiable zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查轨迹没有泄漏，以及首帧与目标梯度没有混入损失？",
+            "en": "How can tests expose trajectory leakage, accidental anchor supervision and target gradients?"
+          },
+          "hint": {
+            "zh": "给被遮蔽的非首帧历史加 1000，组装输入应不变；同时置换对象轴与对象掩码，输出应同样置换。用每样本不同的掩码，检查只有被监督的预测有梯度，targets 无梯度。本题按论文的遮蔽指示排除首帧；发布的 CLEVRER 训练代码也监督选中对象的首帧，两者需区分。",
+            "en": "Add 1000 to masked post-anchor history: assembled inputs must stay unchanged. Permute objects and their masks together: outputs must permute likewise. Use different masks per example and verify gradients only at supervised predictions, with none into targets. This exercise excludes the visible anchor under the paper’s masking indicator; the released CLEVRER loop also supervises selected anchor slots."
+          }
+        }
+      ]
+    },
+    {
+      "id": "world_models/lewm_prediction",
+      "source": "problems/world_models/lewm_prediction/README.md",
+      "functions": [
+        "lewm_objective",
+        "latent_rollout"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "下一状态预测怎样对齐动作与目标？为什么这里不能直接套用冻结目标的 JEPA 写法？",
+            "en": "How do actions align with next-state targets, and why is a frozen-target JEPA recipe wrong here?"
+          },
+          "hint": {
+            "zh": "对 embeddings[:, :-1] 与 T-1 个动作调用一次因果 predictor，对齐 embeddings[:, 1:]，在 B、T-1、D 全部元素上取 MSE 均值。LeWM 的上下文与未来编码路径都接收梯度；这里没有目标 detach 或 EMA 编码器。编码器与预测器架构由调用方提供。",
+            "en": "Call the causal predictor once on embeddings[:, :-1] and the T-1 actions, aligned with embeddings[:, 1:]. Mean the squared error over B, T-1 and D. Both context and future encoding paths receive gradients in LeWM; do not detach targets or introduce an EMA encoder. Encoder and predictor architectures are supplied by the caller."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "正则项应看到哪些帧？展开时怎样避免每一步都从初始状态重新开始？",
+            "en": "Which frames enter regularization, and how should rollout avoid restarting from the initial state?"
+          },
+          "hint": {
+            "zh": "regularizer 接收所有 T 帧的 (T,B,D) 张量且只调用一次；total=prediction+weight*regularization，预测项没有 1-weight 系数。展开把每次 transition 的预测喂给下一步，返回 H 个预测，不含初始状态，保留递推梯度。本题限定单状态上下文 N=1，不实现完整历史窗口。",
+            "en": "Call the regularizer once with all T frames in (T,B,D) order. Use total=prediction+weight*regularization, without a 1-weight prediction coefficient. Feed each transition prediction into the next step and return H predictions, excluding the initial state, with recurrent gradients intact. This exercise isolates N=1 context rather than implementing a full history-window model."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "用什么小例子可以同时检查递推值、因果性与梯度？",
+            "en": "Which small example checks recurrent values, temporal causality and gradients together?"
+          },
+          "hint": {
+            "zh": "令 z0=2，动作是 [1,-2]，transition(z,a)=0.5*z+2*a，应得到 [3,-2.5]。末态对初态的梯度是 0.25，对两个动作是 [1,2]；后一个动作不应影响第一个预测。另检查 weight=0 时总损失等于预测项，并用 B≠T 的轨迹捕捉正则器转置错误。",
+            "en": "Use z0=2, actions [1,-2] and transition(z,a)=0.5*z+2*a: predictions must be [3,-2.5]. The last state has gradient 0.25 with respect to z0 and [1,2] with respect to the actions; the later action must not affect the first prediction. Check total=prediction at weight=0, and use B≠T to expose incorrect regularizer axes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "world_models/lewm_planning",
+      "source": "problems/world_models/lewm_planning/README.md",
+      "functions": [
+        "terminal_cost",
+        "cem_refit"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "终态目标怎样给每条候选动作序列打分？哪些维度不能被平均掉？",
+            "en": "How does the terminal goal score each candidate action sequence, and which dimensions must stay separate?"
+          },
+          "hint": {
+            "zh": "对 (N,H,D) 展开只取最后一个预测状态，与 (D,) 目标相减后平方，在 D 上求和，返回 (N,) 代价。中间状态和动作没有额外代价；不能在 H、N 上归约，也不能把特征求和改成均值。展开不含初始状态，H 至少为 1。",
+            "en": "For (N,H,D) rollouts, compare only the final prediction with the (D,) goal, square and sum over D, returning (N,) costs. Intermediate states and actions add no cost. Do not reduce over H or N or replace the feature sum with a mean. Rollouts exclude the initial state and require H≥1."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "CEM 精英怎么选，重新估计的高斯统计要返回方差还是标准差？",
+            "en": "How are CEM elites selected, and should the Gaussian refit return variance or standard deviation?"
+          },
+          "hint": {
+            "zh": "选代价最低的 K 条，代价相同时原始索引小的优先。沿 K 条精英逐个时间与动作坐标求均值、总体方差，返回 (H,A)、(H,A) 和 int64 的 (K,) 索引。方差除以 K，K=1 为零；采样器再开方。refit 内不额外加方差下限、动量或裁剪。",
+            "en": "Select the lowest K costs, breaking ties by original index. Mean and population variance reduce only over elites, retaining (H,A), with int64 (K,) indices. Divide variance by K; K=1 gives zero. Return variance, since the sampler takes its square root. Add no variance floor, momentum or clipping inside refit."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用小样本区分错误精英、无偏方差与标准差？",
+            "en": "Which tiny cases distinguish wrong elites, Bessel correction and returning standard deviation?"
+          },
+          "hint": {
+            "zh": "一维候选 [-1,1,5]、代价 [4,0,1]、K=2，应选索引 [1,2]，均值 3、方差 4。并列最小代价且 K=1 时选最小索引且方差为零。任意修改中间状态不改变终态代价；动作做 2a-3 后均值同样变换、方差乘 4。本题只实现采样规划核，环境交互与 MPC 重规划由外部负责。",
+            "en": "Candidates [-1,1,5], costs [4,0,1] and K=2 must give indices [1,2], mean 3 and variance 4. Tied minima at K=1 select the smallest index and zero variance. Altering intermediate states must not change terminal cost. Transforming actions to 2a-3 transforms the mean likewise and multiplies variance by 4. Environment interaction and MPC replanning are outside these sampling kernels."
+          }
+        }
+      ]
     }
   ]
 }

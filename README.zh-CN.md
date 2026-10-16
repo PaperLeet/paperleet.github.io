@@ -51,6 +51,8 @@ make dev
 
 也可沿着[少步生成与蒸馏路径](https://paperleet.com/#/interviews?track=few-step-generation)，从 DDIM 练到渐进蒸馏、一致性模型、Flow Matching、MeanFlow、DMD 和 DMD2。中英自测问题围绕各题的目标构造、梯度隔离与更新节奏整理。
 
+对潜在预测与控制感兴趣，可选择[潜在世界模型与规划路径](https://paperleet.com/#/interviews?track=world-models)：从 I-JEPA 练到 Causal-JEPA 对象遮蔽、LeWM 联合预测与 CEM 规划。中英自测区分冻结目标与端到端梯度、递推展开、终态代价和精英统计。
+
 1. 在题库中选择论文，例如 **6 · DDPM**，再打开“前向加噪”模块。
 2. 阅读模块目标，在右侧编辑器中补全标注为需要实现的函数；调度器等辅助函数已经提供。
 3. 点击 **Run tests / 运行测试**，在浏览器中检查代码并等待结果显示。

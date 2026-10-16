@@ -592,6 +592,23 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "world-models",
+      "name": "潜在世界模型与规划",
+      "name_en": "Latent world models & planning",
+      "description": "从 I-JEPA 的表征预测，练到对象轨迹遮蔽、联合下一状态预测与潜在空间 CEM 规划。",
+      "description_en": "Connect I-JEPA representation prediction, object trajectory masking, joint next-state learning and latent-space CEM planning.",
+      "modules": [
+        "representation/ijepa",
+        "world_models/causal_jepa",
+        "world_models/lewm_prediction",
+        "world_models/lewm_planning"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
     }
   ]
 }

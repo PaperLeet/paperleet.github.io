@@ -9,7 +9,8 @@ const server = await createServer({server:{middlewareMode:true},appType:'custom'
 try {
   const renderToStaticMarkup=await localizedRenderer(server,"zh",renderStatic);
   await checkReportWorkflow(server);
-  const {PaperLibrary,PaperDetail,paperModules} = await server.ssrLoadModule('/src/PaperViews.tsx');
+  const {PaperLibrary,paperModules} = await server.ssrLoadModule('/src/PaperViews.tsx');
+  const {default:PaperDetail} = await server.ssrLoadModule('/src/PaperDetail.tsx');
   const {libraryHref,emptyLibraryFilters,withLibraryContext} = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const {recommendPractice} = await server.ssrLoadModule('/src/practice-recommendation.ts');
   const {ReportTests} = await server.ssrLoadModule('/src/ReportTests.tsx');
