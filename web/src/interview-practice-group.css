@@ -1,28 +1,30 @@
 .interview-practice-group{margin:14px 0 18px;padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.interview-practice-group>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.interview-practice-group>header{min-width:0;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 .interview-practice-group h3{display:flex;align-items:center;gap:8px;margin:0;color:var(--text);font-size:var(--type-body);font-weight:550}
 .interview-practice-group h3>svg{flex:none;color:var(--accent)}
-.interview-practice-group>header p{margin:6px 0 0;font-size:var(--type-meta);line-height:1.7;color:var(--muted)}
-.interview-practice-group>header>.text-button{flex:none;min-height:30px;font-size:var(--type-meta)}
-.practice-group-status,.practice-group-unavailable{font-size:var(--type-meta);line-height:1.7;color:var(--muted);margin:9px 0 0;overflow-wrap:anywhere}
+.interview-practice-group>header>div{min-width:0;overflow-wrap:anywhere}
+.interview-practice-group>header p{margin:6px 0 0;font-size:var(--type-small);line-height:1.7;color:var(--muted)}
+.interview-practice-group>header>.text-button{flex:none;min-height:36px;font-size:var(--type-small)}
+.practice-group-status,.practice-group-unavailable{font-size:var(--type-small);line-height:1.7;color:var(--muted);margin:9px 0 0;overflow-wrap:anywhere}
 .practice-group-status{font-variant-numeric:tabular-nums}
-.practice-group-unavailable>.text-button{margin-inline-start:8px;font-size:var(--type-meta)}
+.practice-group-unavailable>.text-button{margin-inline-start:8px;font-size:var(--type-small)}
 .interview-practice-group>ol{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:5px}
 .interview-practice-group>ol>li{display:flex;align-items:center;gap:9px;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface2)}
 .practice-group-order{flex:none;width:17px;font-size:var(--type-caption);text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
-.practice-group-title{flex:1;min-width:0;font-size:var(--type-meta);overflow-wrap:anywhere;line-height:1.5}
-.practice-group-title>small{display:block;font-size:var(--type-caption);color:var(--muted)}
+.practice-group-title{flex:1;min-width:0;font-size:var(--type-body);overflow-wrap:anywhere;line-height:1.5}
+.practice-group-title>small{display:block;font-size:var(--type-meta);color:var(--muted)}
 .practice-group-controls{display:flex;gap:3px;flex:none}
-.practice-group-controls>button{display:inline-flex;align-items:center;justify-content:center;width:29px;min-height:29px;border:0;border-radius:5px;background:transparent;color:var(--text-secondary);cursor:pointer}
+.practice-group-controls>button{display:inline-flex;align-items:center;justify-content:center;width:36px;min-height:36px;border:0;border-radius:5px;background:transparent;color:var(--text-secondary);cursor:pointer}
+.practice-group-controls>button>svg,.interview-group-toggle>svg{width:16px;height:16px;flex:none}
 .practice-group-controls>button:hover:not(:disabled){background:var(--surface);color:var(--accent)}
 .practice-group-controls>button:disabled{opacity:.35;cursor:default}
 .interview-practice-group>footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:13px;padding-top:13px;border-top:1px solid var(--line)}
-.interview-practice-group>footer>small{min-width:0;color:var(--muted);font-size:var(--type-caption);line-height:1.7}
-.interview-practice-group>footer>.button{flex:none;min-height:35px;font-size:var(--type-meta)}
-.interview-group-toggle{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:31px;max-width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;color:var(--muted);background:var(--surface);font:inherit;font-size:var(--type-caption);cursor:pointer}
+.interview-practice-group>footer>small{min-width:0;color:var(--muted);font-size:var(--type-meta);line-height:1.7}
+.interview-practice-group>footer>.button{flex:none;min-height:40px;font-size:var(--type-small)}
+.interview-group-toggle{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;max-width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;color:var(--muted);background:var(--surface);font:inherit;font-size:var(--type-small);cursor:pointer}
 .interview-group-toggle[aria-pressed=true]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
 .interview-group-toggle:disabled{opacity:.45;cursor:default}
 .interview-practice-group :is(button,a,h3):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media(max-width:600px){.interview-practice-group{padding:14px 12px}.interview-practice-group>ol>li{gap:5px;padding:7px 5px}.practice-group-controls{gap:0}.interview-practice-group>footer{align-items:flex-start;flex-direction:column;gap:10px}.interview-practice-group>footer>.button{align-self:stretch;justify-content:center}.interview-ranking-actions{flex-wrap:wrap}.interview-group-toggle{flex-basis:100%}}
+@media(max-width:600px){.practice-group-controls{flex-wrap:wrap;justify-content:flex-end;max-width:132px}.interview-practice-group{padding:14px 12px}.interview-practice-group>ol>li{gap:5px;padding:7px 5px}.practice-group-controls{gap:0}.interview-practice-group>footer{align-items:flex-start;flex-direction:column;gap:10px}.interview-practice-group>footer>.button{align-self:stretch;justify-content:center}.interview-ranking-actions{flex-wrap:wrap}.interview-group-toggle{flex-basis:100%}}
 @media(pointer:coarse){.practice-group-controls>button{width:44px;min-height:44px}.interview-practice-group>header>.text-button{min-width:44px}.interview-practice-group>header>.text-button,.interview-practice-group>footer>.button,.interview-group-toggle,.practice-group-unavailable>.text-button{min-height:44px}}
 @media(prefers-reduced-motion:no-preference){.interview-group-toggle,.practice-group-controls>button{transition:background .15s,color .15s,border-color .15s}}
