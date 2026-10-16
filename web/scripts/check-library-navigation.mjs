@@ -12,7 +12,8 @@ try {
   const { signInHref, accountReturnHref } = await server.ssrLoadModule('/src/accountNavigation.ts');
   const { decodeProblemHash } = await server.ssrLoadModule('/src/reports.ts');
   const { collectionIdFromRoute, paperCollections, papersInCollection } = await server.ssrLoadModule('/src/paperCollections.ts');
-  const { PaperLibrary, PaperDetail } = await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { PaperLibrary } = await server.ssrLoadModule('/src/PaperViews.tsx');
+  const { default: PaperDetail } = await server.ssrLoadModule('/src/PaperDetail.tsx');
   const { matchingPaperModules, selectLibraryPractice } = await server.ssrLoadModule('/src/libraryPractice.ts');
   const { PracticeNextStep } = await server.ssrLoadModule('/src/PracticeJourney.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
