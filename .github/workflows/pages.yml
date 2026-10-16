@@ -3,7 +3,6 @@ on:
   workflow_run:
     workflows: [PaperLeet quality gate]
     types: [completed]
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,9 +12,10 @@ jobs:
       github.repository == 'PaperLeet/paperleet.github.io' &&
       ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
+      ((github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.head_branch == 'main') ||
+      (github.event.workflow_run.event == 'push' && startsWith(github.event.workflow_run.head_branch, 'v'))) &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
-      github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_sha == github.sha))
+      github.event.workflow_run.head_sha == github.sha))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -24,6 +24,7 @@ jobs:
     outputs:
       sha: ${{ steps.release.outputs.sha }}
       quality_run: ${{ steps.release.outputs.quality_run }}
+      publish: ${{ steps.release.outputs.publish }}
     permissions:
       contents: read
       actions: read
@@ -40,25 +41,32 @@ jobs:
             const release = await resolve({github, context});
             core.setOutput('sha', release.sha);
             core.setOutput('quality_run', String(release.runId));
+            core.setOutput('publish', String(release.publish !== false));
+            if (release.publish === false) core.info('Already published this revision; skip duplicate build and deployment.');
             core.info(`Publishing tested main ${release.sha}, quality run ${release.runId}.`);
       - uses: actions/setup-python@v5
+        if: steps.release.outputs.publish == 'true'
         with:
           python-version: '3.12'
       - name: Check static asset retention
+        if: steps.release.outputs.publish == 'true'
         run: |
           python web/scripts/check-pages-assets.py
           node web/scripts/check-pages-backfill.cjs
-      - run: |
+      - if: steps.release.outputs.publish == 'true'
+        run: |
           python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
           python -m pytest tests/test_browser_judge.py -q -k published_catalog
           python -m paperleet.cli export
       - uses: actions/setup-node@v4
+        if: steps.release.outputs.publish == 'true'
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: web/package-lock.json
       - name: Build public site
+        if: steps.release.outputs.publish == 'true'
         working-directory: web
         env:
           PAPERLEET_MAIN_SITE_ENABLED: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED }}
@@ -74,6 +82,7 @@ jobs:
             echo paperleet.com > dist/CNAME
           fi
       - name: Find the previous successful Pages deployment
+        if: steps.release.outputs.publish == 'true'
         id: previous-pages
         uses: actions/github-script@v7
         with:
@@ -98,7 +107,7 @@ jobs:
             }
             core.warning('No downloadable successful Pages artifact is available. The validated current build will be published without historical assets.');
       - name: Download previous static assets
-        if: steps.previous-pages.outputs.run_id != ''
+        if: steps.release.outputs.publish == 'true' && (steps.previous-pages.outputs.run_id != '')
         uses: actions/download-artifact@v4
         with:
           name: ${{ steps.previous-pages.outputs.artifact_name }}
@@ -106,7 +115,7 @@ jobs:
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/paperleet-previous-assets
       - name: Recover historical assets when extending the retention window
-        if: steps.previous-pages.outputs.run_id != ''
+        if: steps.release.outputs.publish == 'true' && (steps.previous-pages.outputs.run_id != '')
         uses: actions/github-script@v7
         env:
           PREVIOUS_PAGES_RUN_ID: ${{ steps.previous-pages.outputs.run_id }}
@@ -120,6 +129,7 @@ jobs:
               directory: path.join(process.env.RUNNER_TEMP, 'paperleet-historical-assets'),
             });
       - name: Retain assets for cached pages
+        if: steps.release.outputs.publish == 'true'
         env:
           PREVIOUS_PAGES_RUN_ID: ${{ steps.previous-pages.outputs.run_id }}
         run: |
@@ -135,6 +145,7 @@ jobs:
           python web/scripts/retain-pages-assets.py web/dist "${previous[@]}" \
             --archive-out "$RUNNER_TEMP/paperleet-retained-assets/artifact.tar"
       - name: Save lightweight assets for the next deployment
+        if: steps.release.outputs.publish == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: paperleet-pages-assets
@@ -142,10 +153,12 @@ jobs:
           retention-days: 90
           if-no-files-found: error
       - uses: actions/upload-pages-artifact@v3
+        if: steps.release.outputs.publish == 'true'
         with:
           path: web/dist
   deploy:
     needs: build
+    if: needs.build.outputs.publish == 'true'
     runs-on: ubuntu-latest
     concurrency:
       group: paperleet-pages
@@ -159,6 +172,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.sha }}
       - name: Recheck the tested revision before publishing
         id: current
         uses: actions/github-script@v7
@@ -167,11 +183,11 @@ jobs:
           QUALITY_RUN: ${{ needs.build.outputs.quality_run }}
         with:
           script: |
-            const {data: branch} = await github.rest.repos.getBranch({...context.repo, branch: 'main'});
-            const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo, run_id: Number(process.env.QUALITY_RUN)});
-            const publish = branch.commit.sha === process.env.RELEASE_SHA && run.head_sha === process.env.RELEASE_SHA && run.status === 'completed' && run.conclusion === 'success';
+            const resolve = require('./web/scripts/pages-release-gate.cjs');
+            const release = await resolve({github, context});
+            const publish = release.sha === process.env.RELEASE_SHA && release.runId === Number(process.env.QUALITY_RUN) && release.publish !== false;
             core.setOutput('publish', String(publish));
-            core.info(publish ? 'The tested release is still current.' : 'Skip publication: main or its quality result changed during the build.');
+            core.info(publish ? 'The tested explicit release is still current.' : 'Skip duplicate publication.');
       - uses: actions/deploy-pages@v4
         if: steps.current.outputs.publish == 'true'
         id: deployment
