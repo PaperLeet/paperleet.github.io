@@ -180,3 +180,24 @@ and its222-file archive preserve actual reports, exports, dependency hashes,
 all process receipts and the corrected-command history. Adoption uses a non-force
 push after latest-main revalidation. Exact remote Quality, eligible actual Pages
 deployment and live-byte verification remain separate pending gates.
+
+
+## Remote adoption and actual live proof
+
+Source main0d5975a0 passes all four Quality jobs in run38926381186. Infrastructure
+passes29853/one optional skip in570.26s;native78/10218/342/three repeats passes
+in231.33s and WASM78/342/904 independent checks passes in531004ms. Source Pages
+is superseded. Equivalent descendant050c467a also passes Quality;its overall-success
+Pages38929018902 skips `actions/deploy-pages`, so it does not prove publication.
+
+Descendant033dc1bc passes Quality38929257323 and actual Pages38930642945,
+including the deploy action. All45 frozen runtime/resource files and161 active
+exports are byte-identical to0d5975a0 at both descendants;the seven changed files
+are UI/styles/checks/docs. Its native gate passes in312.06s and WASM in527082ms.
+Live requests verify78 decoded starters/details/manifest references,158 immutable
+payloads and both runtime licenses/version0.29. This is the latest positively
+verified site version;runner durations are budget gates, not speedup comparisons.
+
+[Remote evidence](../../packages/stridetorch/benchmarks/results/iteration-29-remote-adoption.json)
+and its27-file archive retain all three Quality/artifact contexts, the skipped
+publication history, pinned Git/source/export equivalence and actual live receipts.
