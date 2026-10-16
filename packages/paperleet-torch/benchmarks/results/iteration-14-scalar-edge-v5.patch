@@ -1,0 +1,100 @@
+--- a/_arithmetic.py
++++ b/_arithmetic.py
+@@ -1,12 +1,9 @@
+ """Operand promotion and Number conversion shared by core arithmetic."""
+-import math
+-
+ import numpy as np
+ 
+-from . import _autograd, _errors, _ops, _promotion, _state, _tensor
++from . import _autograd, _errors, _ops, _promotion, _tensor
+ 
+ _FLOAT = np.dtype('float32')
+-_DOUBLE = np.dtype('float64')
+ 
+ 
+ def scalar_data(number, dtype):
+@@ -15,10 +12,6 @@
+         bits = dtype.itemsize * 8
+         number %= 2**bits
+         if dtype.kind == 'i' and number >= 2**(bits-1): number -= 2**bits
+-    if dtype.kind in 'biu' or dtype == _DOUBLE:
+-        return np.asarray(number, dtype=dtype)
+-    if dtype == _FLOAT and math.isfinite(number) and (not number or 1.1754943508222875e-38 <= abs(number) <= 3.4028234663852886e38):
+-        return np.asarray(number, dtype=dtype)
+     with np.errstate(all='ignore'):
+         return np.asarray(number, dtype=dtype)
+ 
+@@ -27,11 +20,7 @@
+     if isinstance(other, _tensor.Tensor):
+         if subtract and (owner.dtype.kind == 'b' or other.dtype.kind == 'b'):
+             raise _errors.BrowserUnsupported('Subtraction with boolean operands is unsupported')
+-        dtype = owner.dtype
+-        if dtype == other.dtype:
+-            if not floating or dtype.kind not in 'biu':
+-                return other, owner._data, other._data, dtype
+-        else: dtype = _promotion.operand_dtype(owner, other)
++        dtype = owner.dtype if owner.dtype == other.dtype else _promotion.operand_dtype(owner, other)
+     elif _promotion.is_scalar(other):
+         number, kind = _promotion.scalar_info(other)
+         if subtract and (owner.dtype.kind == 'b' or kind.kind == 'b'):
+@@ -114,8 +103,6 @@
+                           np.multiply(second.astype(compute_dtype, copy=False), scale.astype(compute_dtype)))
+             data = data.astype(dtype, copy=False)
+         except ValueError as error: raise RuntimeError('Arithmetic operands have incompatible shapes') from error
+-    if not _state._grad_enabled or not owner.requires_grad and (argument is None or not argument.requires_grad):
+-        return _autograd.result(data, saves_tensors=False)
+     owner_shape, argument_shape = a.shape, b.shape
+     def scaled(g):
+         with np.errstate(all='ignore'): return g * scale
+@@ -179,8 +166,6 @@
+             else: data = np.floor_divide(x, y) if rounding_mode == 'floor' else np.trunc(np.divide(x, y))
+             data = np.asarray(data, dtype=dtype)
+         except ValueError as error: raise RuntimeError('Arithmetic operands have incompatible shapes') from error
+-    if not _state._grad_enabled or not owner.requires_grad and (argument is None or not argument.requires_grad):
+-        return _autograd.result(data, saves_tensors=False)
+     owner_shape, argument_shape = a.shape, b.shape
+     edges = [(owner, lambda g: np.zeros(owner_shape, dtype=g.dtype))]
+     if argument is not None: edges.append((argument, lambda g: np.zeros(argument_shape, dtype=g.dtype)))
+--- a/_promotion.py
++++ b/_promotion.py
+@@ -25,10 +25,6 @@
+     """Parse a Number argument, distinct from sequence constructor storage."""
+     if type(value) is bool:
+         return value, _BOOL
+-    if type(value) is float:
+-        return value, _FLOAT
+-    if type(value) is complex:
+-        return value, _COMPLEX
+     if isinstance(value, (int, np.integer)):
+         number = operator.index(value)
+         if -(2**63) <= number < 2**63:
+--- a/_tensor.py
++++ b/_tensor.py
+@@ -367,18 +367,16 @@
+                     data = np.add(first, np.multiply(second, sign))
+                 else: data = op(first, second)
+             except ValueError as error: raise RuntimeError('Arithmetic operands have incompatible shapes') from error
+-        if (not _state._grad_enabled or not self.requires_grad and (other is None or not other.requires_grad)) and not isinstance(self, _autograd.ForwardTensor) and not isinstance(other, _autograd.ForwardTensor):
+-            return _autograd.result(data, saves_tensors=False)
+         if not saves_tensors:
+             left_shape, right_shape = a.shape, b.shape
+-            left_edge = (self, lambda g: _ops.unbroadcast(left(g,None,None),left_shape))
+-            if other is None: return _autograd.result(data, left_edge, saves_tensors=False)
+-            return _autograd.result(data, left_edge,
+-                (other, lambda g: _ops.unbroadcast(right(g,None,None),right_shape)), saves_tensors=False)
+-        left_edge = (self, lambda g: _ops.unbroadcast(left(g,a,b),a.shape))
+-        if other is None: return _autograd.result(data, left_edge)
+-        return _autograd.result(data, left_edge,
+-            (other, lambda g: _ops.unbroadcast(right(g,a,b),b.shape)))
++            edges = [(self, lambda g: _ops.unbroadcast(left(g,None,None),left_shape))]
++            if other is not None:
++                edges.append((other, lambda g: _ops.unbroadcast(right(g,None,None),right_shape)))
++            return _autograd.result(data, *edges, saves_tensors=False)
++        edges = [(self, lambda g: _ops.unbroadcast(left(g,a,b),a.shape))]
++        if other is not None:
++            edges.append((other, lambda g: _ops.unbroadcast(right(g,a,b),b.shape)))
++        return _autograd.result(data, *edges)
+     def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g, saves_tensors=False)
+     __radd__ = __add__
+     def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g, saves_tensors=False, subtract=True)

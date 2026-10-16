@@ -46,6 +46,16 @@ shape/dtype contracts for comparison across versions. Large 4,096-element cases
 use `max(1, iterations // 40)` calls per batch. Source/destination fixtures are
 prepared before timing; complete Tensor allocation and cleanup remain included.
 
+`bench_arithmetic.py` separates same-dtype Tensor/Tensor and Tensor/Number
+add/sub/mul/div, reflected scalar subtraction/division, complete add/mul/div
+reverse passes and a 16-stage scalar affine chain. Fixed 64×128 float32/float64
+values, result dtypes and analytical gradients are checked outside timing.
+Use `--benchmark arithmetic` with the CPU/WASM runners: defaults are eleven
+batches, 1,200 calls for forward cases, 120 for short reverse cases and 30 for
+the chain, after three warmups. Intermediate allocation and cleanup remain
+included. Ordinary fixture timing does not substitute for separate extreme-value,
+signed-zero, dtype/Number and callback-policy correctness contracts.
+
 `bench_selection.py` measures same-dtype `where`, float-scalar `where`, `cat`,
 `stack`, their complete reverse passes and a 16-stage where chain on 64×128
 float32/float64 fixtures. Values, dtypes and analytical gradients are checked

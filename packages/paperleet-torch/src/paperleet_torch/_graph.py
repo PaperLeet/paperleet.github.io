@@ -4,6 +4,33 @@ import numpy as np
 from . import _errors, _tensor_hooks
 
 
+class NumericalScope:
+    """Batch kernel error handling; user hooks retain their mutable policy."""
+    def __enter__(self):
+        self.initial = self.policy = np.geterr()
+        self.initial_handler = self.handler = np.geterrcall()
+        self.used = False
+        self.context = np.errstate(all='ignore')
+        self.context.__enter__()
+        return self
+
+    def callback(self, gradient, hooks, owner=None):
+        with np.errstate(**self.policy):
+            if np.geterrcall() is not self.handler: np.seterrcall(self.handler)
+            try:
+                return _tensor_hooks.apply(gradient, hooks, owner)
+            finally:
+                self.policy, self.handler = np.geterr(), np.geterrcall()
+                self.used = True
+
+    def __exit__(self, *error):
+        self.context.__exit__(*error)
+        if self.used:
+            if self.policy != self.initial: np.seterr(**self.policy)
+            if self.handler is not self.initial_handler: np.seterrcall(self.handler)
+        return False
+
+
 class Node:
     __slots__ = ('_parents', 'joint', 'versions', 'shape', 'dtype',
                  'callbacks', 'saved', 'released')
@@ -43,10 +70,20 @@ def run(roots, seeds, *, retain_graph=False, targets=None, accumulate=False):
         for node in order:
             if any(id(parent) in needed for parent, _, _ in node._parents):
                 needed.add(id(node))
+    if len(order) == len(roots) == 1 and not order[0]._parents:
+        return _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, None)
+    with NumericalScope() as scope:
+        return _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, scope)
+
+
+def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, scope):
     pending = {}
-    for root, seed in zip(roots, seeds):
-        key = id(root)
-        pending[key] = seed if key not in pending else pending[key] + seed
+    if len(roots) == 1:
+        pending[id(roots[0])] = seeds[0]
+    else:
+        for root, seed in zip(roots, seeds):
+            key = id(root)
+            pending[key] = seed if key not in pending else pending[key] + seed
     derivatives = {}
     for node in reversed(order):
         key = id(node)
@@ -60,8 +97,8 @@ def run(roots, seeds, *, retain_graph=False, targets=None, accumulate=False):
             hook_gradient = None
             update = accumulate and owner.requires_grad and (targets is None or key in targets)
             if node._backward_hooks or update and node._post_accumulate_grad_hooks:
-                gradient, hook_gradient = _tensor_hooks.apply(gradient, node._backward_hooks,
-                    owner if update else None)
+                apply = _tensor_hooks.apply if scope is None else scope.callback
+                gradient, hook_gradient = apply(gradient, node._backward_hooks, owner if update else None)
             elif update:
                 owner._accumulate_gradient(gradient)
         elif node.callbacks is not None:
@@ -70,7 +107,8 @@ def run(roots, seeds, *, retain_graph=False, targets=None, accumulate=False):
             retained = owner is not None and owner.requires_grad and owner.retains_grad
             hook_gradient = None
             if callbacks.hooks:
-                gradient, hook_gradient = _tensor_hooks.apply(gradient, callbacks.hooks, owner if retained else None)
+                apply = _tensor_hooks.apply if scope is None else scope.callback
+                gradient, hook_gradient = apply(gradient, callbacks.hooks, owner if retained else None)
             elif retained:
                 owner._accumulate_gradient(gradient)
         else:

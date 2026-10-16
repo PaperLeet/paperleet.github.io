@@ -1,0 +1,27 @@
+--- a/_arithmetic.py
++++ b/_arithmetic.py
+@@ -168,11 +168,11 @@
+         if reverse and not isinstance(owner, _autograd.ForwardTensor):
+             # Functional div uses TensorIterator promotion. Python's reflected
+             # Tensor division instead promotes integer receivers via reciprocal.
+-            return owner._binary(argument, np.divide, lambda g,a,b:-g*((b/a)/a),
++            return owner._binary(argument, np.divide, lambda g,a,b:-g*b/(a*a),
+                                  lambda g,a,b:g/a, floating=True, reverse=True)
+         if reverse:
+             primal = owner._primal._binary(argument, np.divide,
+-                lambda g,a,b:-g*((b/a)/a), lambda g,a,b:g/a, floating=True, reverse=True)
++                lambda g,a,b:-g*b/(a*a), lambda g,a,b:g/a, floating=True, reverse=True)
+             return _autograd.ForwardTensor(primal, (-primal * owner._tangent) / owner._primal)
+         return owner / argument
+     if isinstance(owner, _autograd.ForwardTensor) or isinstance(argument, _autograd.ForwardTensor):
+--- a/_tensor.py
++++ b/_tensor.py
+@@ -386,7 +386,7 @@
+     def __rsub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:-g, lambda g,a,b:g, saves_tensors=False, subtract=True, reverse=True)
+     def __mul__(self, other): return self._binary(other, np.multiply, lambda g,a,b:g*b, lambda g,a,b:g*a)
+     __rmul__ = __mul__
+-    def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*((a/b)/b), floating=True)
++    def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*a/(b*b), floating=True)
+     def __rtruediv__(self, other):
+         if type(self) is Tensor and type(other) in (bool, int, float, complex):
+             return _arithmetic.reflected_number_divide(self, other)
