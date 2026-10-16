@@ -2955,6 +2955,93 @@
           }
         }
       ]
+    },
+    {
+      "id": "diffusion/jit",
+      "source": "problems/diffusion/jit/README.md",
+      "functions": [
+        "make_noisy",
+        "prediction_to_velocity",
+        "velocity_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "网络预测干净数据，为什么训练时仍然可以使用速度损失？这里的时间方向是什么？",
+            "en": "Why can a clean-data predictor use velocity supervision, and which direction does time run here?"
+          },
+          "hint": {
+            "zh": "本题 z=t·x+(1−t)·noise，从 t=0 的噪声走向 t=1 的数据；未截断时速度为 x−noise。网络输出空间与损失空间要分别说明：x 预测经 (x_hat−z)/(1−t) 转成速度，noise 预测则经 (z−noise_hat)/t 转换。这里的速度是线性路径的时间导数，不要与前一题按旋转角定义的 v 混用。",
+            "en": "The local path z=t·x+(1−t)·noise runs from noise to data. Away from clipping, its velocity is x−noise. Separate network output from supervision: convert x predictions by (x_hat−z)/(1−t), or noise predictions by (z−noise_hat)/t. This time derivative differs from the preceding exercise’s rotation-angle v."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样广播时间并处理端点，让三种输出都遵守本题的同一个监督约定？",
+            "en": "How do broadcasting and endpoint handling keep all three outputs within the same local supervision contract?"
+          },
+          "hint": {
+            "zh": "将 [B] 时间 reshape 为 [B,1,…,1]，保留任意坐标轴、浮点精度与梯度。x 分支除以 max(1−t,eps)，noise 分支除以 max(t,eps)，v 分支直接返回预测；目标使用 (x−z)/max(1−t,eps)，再对 batch 和所有坐标取均值。本题不主动 detach clean、noise、t 或目标；不要在裁剪区域内强行声称三种参数化完全等价。",
+            "en": "Reshape [B] times to [B,1,…,1]. Preserve trailing axes, floating precision and gradients. Clamp the x denominator at eps and the noise denominator separately at eps; return v predictions directly. The local target is (x−z)/max(1−t,eps), with a mean over batch and coordinates and no explicit target/input detach. Clipped endpoints need not be equivalent."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些数值与梯度检查能区分速度监督、干净空间 MSE 和错误的端点直觉？",
+            "en": "Which value and gradient checks distinguish velocity supervision, clean-space MSE and incorrect endpoint assumptions?"
+          },
+          "hint": {
+            "zh": "令 clean=2、noise=0、t=1/4、x_hat=3/2，得到 z=1/2、loss=4/9、预测梯度 −16/9。相同干净预测误差在 t=.8 的损失是 t=.2 的 16 倍。再检查多轴广播、t=0/1 的有限值，非截断区间的完美 x/noise/v 预测应同时零损失，但截断端点不能据此要求三者等价；t=1 时本题目标为零。短程合成数据实验不能单独证明论文的图像生成效果。",
+            "en": "With clean=2, noise=0, t=1/4 and x_hat=3/2, expect z=1/2, loss 4/9 and prediction gradient −16/9. The same clean-space error has 16 times the loss at t=.8 versus .2. Check multi-axis broadcasting and finite endpoints; verify zero loss for perfect predictions outside clipping, without demanding that equivalence at clipped endpoints. The local t=1 target is zero. A short synthetic experiment does not establish image-generation results."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion/drifting",
+      "source": "problems/diffusion/drifting/README.md",
+      "functions": [
+        "drift_field",
+        "drifting_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "Drifting 的训练目标怎样冻结？一次前向采样与只训练一步有什么区别？",
+            "en": "What is frozen in Drifting’s training target, and how does one-pass sampling differ from one training update?"
+          },
+          "hint": {
+            "zh": "生成器仍需多次更新；一次前向指训练后推理。损失比较 generated 与 stopgrad(generated+field)，冻结整个右侧目标，只有左侧 generated 收到梯度。本题按所有 N·D 个元素取 mean，因此生成样本梯度为 −2·field/(N·D)，positive 不收梯度。drift_field 自身仍保留可微路径，冻结由 drifting_loss 完成。",
+            "en": "One-pass inference still requires iterative training. Compare generated with stopgrad(generated+field), freezing the entire right-hand target. The local mean over N·D elements gives gradient −2·field/(N·D) only through the left-hand generated; positive receives none. The standalone drift_field remains differentiable, with freezing owned by drifting_loss."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样实现本题 toy 的双向归一化与正负交叉质量，避免远距离核一起下溢？",
+            "en": "How do the toy’s two-way normalization and cross-group masses survive common distance-kernel underflow?"
+          },
+          "hint": {
+            "zh": "拼接 generated 与 positive，用欧氏距离构造 −distance/temperature，并屏蔽生成样本自身配对。分别算行、列 logsumexp，再减去二者之和的一半；全被屏蔽的列作零质量处理。正组加权中心乘负组总质量，减去负组中心乘正组总质量。这里采用 log 域数学归一化，区别于固定 notebook 的绝对乘积下限；空样本及非正或非有限温度应报错。",
+            "en": "Concatenate generated and positive samples, use Euclidean-distance logits and mask generated self-pairs. Combine row/column logsumexp values to normalize affinities, handling a fully masked column as zero mass. Scale the positive center by negative mass and subtract the negative center scaled by positive mass. This local log-domain adaptation differs from the pinned notebook’s absolute product floor. Reject empty sets and invalid temperatures."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么只看 loss 数值不够？如何发现冻结错误、单边归一化与漏掉自身屏蔽？",
+            "en": "Why are scalar losses insufficient, and how do you reveal freezing, normalization and self-mask mistakes?"
+          },
+          "hint": {
+            "zh": "用 generated=[0,2]、positive=[1]、temperature=1/ln2 的一维例子，独立重算 field=[−1/3,1/3]、loss=1/9 与生成样本梯度 [1/3,−1/3]。只冻结 field 却不冻结 generated+field，会保留同一数值而让梯度相消。再用标量配对 oracle、置换与平移检查、远距离核和 N=1 的零场检查；不要通过每次重算冻结目标的有限差分来验证训练梯度。",
+            "en": "For one-dimensional generated=[0,2], positive=[1], temperature=1/ln2, independently expect field [−1/3,1/3], loss 1/9 and generated gradient [1/3,−1/3]. Freezing only the field lets the two generated paths cancel despite the same loss value. Check a scalar pairwise oracle, permutations, translations, distant kernels and the N=1 zero field. Recomputed-target finite differences test a different derivative."
+          }
+        }
+      ]
     }
   ]
 }

@@ -713,6 +713,23 @@
         "llm",
         "research"
       ]
+    },
+    {
+      "id": "generation-targets",
+      "name": "生成目标与梯度",
+      "name_en": "Generation targets & gradients",
+      "description": "从旋转参数化与连续路径，比较预测空间、速度监督和冻结漂移目标。",
+      "description_en": "Connect rotation parameterization and continuous paths, then compare prediction spaces, velocity supervision and frozen drifting targets.",
+      "modules": [
+        "diffusion/param_conversion",
+        "diffusion/flow_matching",
+        "diffusion/jit",
+        "diffusion/drifting"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
     }
   ]
 }

@@ -50,6 +50,16 @@ try{
  const offpolicyMissing=preparationProgress(offpolicy.id,modules.filter(problem=>problem.id!==offpolicyModules.at(-1).id),offpolicySaved);assert.equal(offpolicyMissing.completed,4);assert.equal(offpolicyMissing.total,5);assert.equal(offpolicyMissing.missing,1);
  console.log('PASS off-policy and pass@k study: every five-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
 
+ const generation=interviewCatalog.paths.find(path=>path.id==='generation-targets'),generationModules=generation.modules.map(id=>modules.find(problem=>problem.id===id)),generationSaved={};assert.equal(generationModules.length,4);
+ for(const [index,problem]of generationModules.entries()){
+  const view=preparationProgress(generation.id,modules,generationSaved);assert.equal(view.completed,index);assert.equal(view.total,4);assert.equal(view.missing,0);assert.equal(view.next.id,problem.id);
+  if(index)assert.equal(preparationProgress(generation.id,modules,generationSaved,generationModules[index-1]).next.id,problem.id);
+  generationSaved[problem.id]=pass(problem);
+ }
+ const generationDone=preparationProgress(generation.id,modules,generationSaved);assert.equal(generationDone.completed,4);assert.equal(generationDone.next,undefined);
+ const generationMissing=preparationProgress(generation.id,modules.filter(problem=>problem.id!==generationModules.at(-1).id),generationSaved);assert.equal(generationMissing.completed,3);assert.equal(generationMissing.total,4);assert.equal(generationMissing.missing,1);
+ console.log('PASS generation targets study: every four-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
+
  const filters={...emptyInterviewFilters(),company:'google',role:'llm',days:'90',q:'数学 & attention 😀',view:'companies',track:'llm'},returnTo=interviewHref(filters);
  const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
