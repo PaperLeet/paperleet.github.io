@@ -109,9 +109,11 @@ def test_meshgrid_views_scalar_empty_and_shared_input_gradients(indexing, empty)
 def test_contrastive_operator_unsupported_options_do_not_silently_change_objective():
     x, _ = pair([[1., 2.]])
     target = wasm.Tensor(np.asarray([0], dtype=np.int64))
-    for options in ({'weight': wasm.Tensor([1., 2.])}, {'label_smoothing': .1}, {'size_average': False}):
-        with pytest.raises(wasm.BrowserUnsupported): wasm.cross_entropy(x, target, **options)
-    with pytest.raises(wasm.BrowserUnsupported): wasm.cross_entropy(x, wasm.Tensor([[1., 0.]]))
+    with pytest.raises(wasm.BrowserUnsupported): wasm.cross_entropy(x, target, size_average=False)
+    # These formerly unsupported objectives now have native and independent
+    # weighted/smoothed/probability-label contracts.
+    assert np.isfinite(wasm.cross_entropy(x, target, weight=wasm.Tensor([1., 2.]), label_smoothing=.1).item())
+    assert np.isfinite(wasm.cross_entropy(x, wasm.Tensor([[1., 0.]])).item())
     with pytest.raises(wasm.BrowserUnsupported): wasm.normalize(x, p=1)
     with pytest.raises(wasm.BrowserUnsupported): x.norm(p=float('inf'))
     with pytest.raises(wasm.BrowserUnsupported): wasm.normalize(x, out=x)

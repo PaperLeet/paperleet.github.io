@@ -374,35 +374,8 @@ class KLDivLoss(Module):
 
 def cross_entropy(input, target, weight=None, size_average=None, ignore_index=-100,
                   reduce=None, reduction='mean', label_smoothing=0.):
-    """Independent stable NumPy oracle/VJP for 2D class-index cross entropy."""
-    if weight is not None or size_average is not None or reduce is not None or label_smoothing != 0:
-        raise _errors.BrowserUnsupported('Weighted, smoothed and legacy cross entropy require the server')
-    if input.ndim != 2 or target.ndim != 1 or target.dtype != np.dtype('int64'):
-        raise _errors.BrowserUnsupported('Only [N,C] logits and int64 [N] class targets are supported')
-    if input.dtype.kind != 'f' or not np.isfinite(input._data).all():
-        raise _errors.BrowserUnsupported('Cross entropy requires finite floating logits')
-    if target.shape[0] != input.shape[0] or input.shape[1] < 1:
-        raise RuntimeError('Invalid cross entropy input/target shapes')
-    if reduction not in ('none', 'sum', 'mean'): raise ValueError('Invalid cross entropy reduction')
-    labels = target._data
-    valid = labels != ignore_index
-    if np.any((labels[valid] < 0) | (labels[valid] >= input.shape[1])): raise IndexError('Target out of bounds')
-    shifted = input._data - input._data.max(axis=1, keepdims=True)
-    exponentials = np.exp(shifted)
-    partition = exponentials.sum(axis=1, keepdims=True)
-    probabilities = exponentials / partition
-    rows = np.flatnonzero(valid)
-    losses = np.zeros(input.shape[0], dtype=input.dtype)
-    losses[rows] = np.log(partition[rows, 0]) - shifted[rows, labels[rows]]
-    count = int(valid.sum())
-    value = losses if reduction == 'none' else losses.sum() if reduction == 'sum' else losses.sum() / count if count else np.asarray(np.nan, dtype=input.dtype)
-    gradient = probabilities.copy()
-    gradient[rows, labels[rows]] -= 1
-    gradient[~valid] = 0
-    def vjp(g):
-        if reduction == 'none': return gradient * np.asarray(g).reshape(-1, 1)
-        return gradient * g / (max(count, 1) if reduction == 'mean' else 1)
-    return _autograd.result(np.asarray(value, dtype=input.dtype), (input, vjp))
+    return _classification.cross_entropy(input, target, weight, size_average, ignore_index,
+                                         reduce, reduction, label_smoothing)
 
 
 def binary_cross_entropy_with_logits(input, target, weight=None, size_average=None,
@@ -595,4 +568,4 @@ def interpolate(input, size=None, scale_factor=None, mode='nearest', align_corne
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _device, _errors, _normalization, _ops, _random, _state
+from . import _autograd, _classification, _device, _errors, _normalization, _ops, _random, _state

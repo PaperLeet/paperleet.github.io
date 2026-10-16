@@ -75,7 +75,7 @@ iteration evidence and reproducibility archive.
   browser identities are in [iteration-17.json](../../packages/paperleet-torch/benchmarks/results/iteration-17.json).
   Original runners and frozen sources are in `iteration-17-harness.tar.gz`.
 
-Exact remote adoption follows publication. The new
+Exact-commit remote adoption subsequently passed as recorded below. The new
 runtime bundle is8400bytes larger raw and2099bytes larger gzip than0.16, measured
 with identical gzip settings; this is transfer size, not cold-start latency.
 
@@ -114,3 +114,15 @@ this implementation rather than a separate documentation-only CI cycle.
 Final integration preserves upstream inbox changes from `9ca363a2`.
 [Integration evidence](../../packages/paperleet-torch/benchmarks/results/iteration-17-integration.json)
 records source/hash invariance and the complete post-rebase frontend rerun.
+
+## Exact remote adoption
+
+[Remote proof](../../packages/paperleet-torch/benchmarks/results/iteration-17-remote-adoption.json)
+records commit `cea90293d861b299a2779fe5283a02c813f15e2d`, successful
+Quality38843241977 and Pages38843241942, and all77 live starters/details/manifests
+plus156 byte-identical immutable assets. Both runtime profiles contain0.17 and
+Apache-2.0 notices. Remote infrastructure:17658 passed,1optional Docker skip,
+10warnings in370.49s. Native catalog:77/9987/3repetitions/336mutants,302.558s.
+Actual WASM:77/77,908.086s, no budget excess. Flow Matching calibration222.668s,
+learner44.519s, total271.224s remain within240/60/300s. These are correctness and
+shared-runner budget observations, not controlled source performance comparisons.

@@ -403,7 +403,7 @@ must preserve shapes; non-leaf gradient storage rebinding remains unsupported.
 
 In addition to linear/activation/container modules, the library provides
 `LayerNorm`, `RMSNorm`, `Embedding`, `GELU`, `Dropout`, `Identity`, `Flatten`,
-`Tanh`, `Sigmoid`, `MSELoss`, `SmoothL1Loss` and `CrossEntropyLoss`.
+`Tanh`, `Sigmoid`, `MSELoss`, `SmoothL1Loss`, `CrossEntropyLoss` and `NLLLoss`.
 Standard class submodule aliases such as `torch.nn.parameter` and
 `torch.nn.modules.normalization`, `.activation`, `.sparse` and `.loss` are provided.
 
@@ -443,13 +443,33 @@ no-grad and maintains mutation guards; renormalization during JVP and sparse
 gradients remain unsupported. Ordinary embedding weight JVP is supported.
 
 Loss modules retain their functional boundaries: matching-shape/dtype MSE and
-smooth L1, and finite `[N,C]` cross entropy with int64 `[N]` targets. Weighted,
-smoothed, probability-target and spatial cross entropy, legacy loss options,
+smooth L1, weighted/spatial cross entropy and negative log likelihood. Legacy loss options,
 half/complex neural-network kernels and arbitrary live graphs through storage
 rebinding remain outside this contract. Normalization/GELU reject backward after
 storage rebinding explicitly; convert model storage before constructing a graph.
 
-## Batch normalization
+## Classification losses
+
+`nn.CrossEntropyLoss` / `nn.functional.cross_entropy` accept unbatched `[C]`,
+`[N,C]` and spatial `[N,C,...]` real float32/float64 inputs. Int64 class targets
+support `ignore_index`, class weights and label smoothing; mean reduction divides
+by the selected valid class-weight sum. Floating probability targets have the
+input shape, may be unnormalized, and support target/weight gradients, mixed
+float32/float64 promotion and smoothing; their mean divides by the number of
+samples/spatial positions. Native-compatible nonfinite values, zero/negative
+weights, all-ignored and empty inputs are checked separately.
+
+`nn.NLLLoss` / `nn.functional.nll_loss` expose the weighted class-index linear
+loss without applying log-softmax. Both loss modules register class weights as
+buffers, with standard module aliases, dtype conversion and in-memory state.
+Class-index weights are nondifferentiable, including during JVP. CE and NLL
+input JVPs, and probability-label CE JVPs across all three operands, support
+reverse-over-forward. Zero-class probability JVP and legacy `size_average` /
+`reduce` options remain explicitly unsupported. Saved target/weight mutations
+are checked according to the active native tape; CE input/output mutations do
+not invalidate the loss itself, while NLL saves its input version.
+
+## Group and batch normalization
 
 `nn.GroupNorm` and `nn.functional.group_norm` normalize each sample independently
 across channel groups and spatial dimensions. Standard

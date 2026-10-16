@@ -203,3 +203,15 @@ node packages/paperleet-torch/benchmarks/bench_wasm.mjs --benchmark groupnorm --
 
 Use separate fresh processes in balanced order; preserve all samples. Results
 measure these local kernels, not native Torch or application-wide acceleration.
+
+Classification kernels include independent first-order NumPy value/VJP checks:
+
+```sh
+PYTHONPATH=packages/paperleet-torch/src python packages/paperleet-torch/benchmarks/bench_classification.py --implementation joint --dtype float32
+node packages/paperleet-torch/benchmarks/bench_wasm.mjs --benchmark classification --implementation joint --dtype float32
+```
+
+Label same-source joint/composition comparisons separately from old-release
+comparisons. The 0.17 baseline supports only `tiny_index`, `classifier_index` and
+`vocabulary_index`, using `--implementation joint`. Preserve all process samples,
+freeze source/harness identities and exclude concurrent correctness/build work.

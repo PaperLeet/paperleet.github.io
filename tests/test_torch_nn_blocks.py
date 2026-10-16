@@ -191,7 +191,7 @@ def test_new_layer_boundaries_fail_explicitly_instead_of_silently_changing_execu
     for constructor,kwargs in [(lite.nn.LayerNorm,{'normalized_shape':3,'device':'cuda'}),
                                 (lite.nn.Embedding,{'num_embeddings':3,'embedding_dim':2,'sparse':True})]:
         with pytest.raises(UnsupportedOperation):constructor(**kwargs)
-    with pytest.raises(UnsupportedOperation):lite.nn.CrossEntropyLoss(label_smoothing=.1)(lite.ones(2,3),lite.tensor([1,2],dtype=lite.int64))
+    with pytest.raises(UnsupportedOperation):lite.nn.CrossEntropyLoss(size_average=False)
     with pytest.raises(UnsupportedOperation):lite.nn.Dropout(.2,inplace=True)(lite.ones(3,requires_grad=True))
     with pytest.raises(RuntimeError):lite.nn.LayerNorm(3)(lite.ones(2,4))
     with pytest.raises(RuntimeError):lite.nn.functional.layer_norm(lite.ones(2,3),(3,),weight=lite.ones(1))

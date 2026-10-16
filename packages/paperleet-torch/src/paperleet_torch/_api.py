@@ -51,6 +51,7 @@ def create_torch(name='torch', *, register=False):
     for module, names in (
         (_normalization,('LayerNorm','RMSNorm')),
         (_groupnorm,('GroupNorm',)),
+        (_classification,('NLLLoss',)),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
@@ -71,7 +72,7 @@ def create_torch(name='torch', *, register=False):
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
-        'loss':('MSELoss','SmoothL1Loss','CrossEntropyLoss','BCEWithLogitsLoss','KLDivLoss'),
+        'loss':('NLLLoss','MSELoss','SmoothL1Loss','CrossEntropyLoss','BCEWithLogitsLoss','KLDivLoss'),
         'flatten':('Flatten',),
         'distance':('CosineSimilarity',),
     }.items():
@@ -194,6 +195,7 @@ def create_torch(name='torch', *, register=False):
         'layer_norm': _normalization.layer_norm, 'rms_norm': _normalization.rms_norm,
         'batch_norm': _batchnorm.batch_norm,
         'group_norm': _groupnorm.group_norm,
+        'cross_entropy': _classification.cross_entropy, 'nll_loss': _classification.nll_loss,
         'embedding': _nn.embedding, 'mse_loss': _nn.mse_loss,
     }, reverse='analytic', forward=True)
     def relu(input, inplace=False):
@@ -202,7 +204,7 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.nn.functional.relu', relu, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
         'interpolate': _nn.interpolate, 'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d,
-        'normalize': _nn.normalize, 'cross_entropy': _nn.cross_entropy, 'smooth_l1_loss': _nn.smooth_l1_loss,
+        'normalize': _nn.normalize, 'smooth_l1_loss': _nn.smooth_l1_loss,
         'scaled_dot_product_attention': _nn.scaled_dot_product_attention_oracle,
     }, reverse='analytic')
     registry.group('torch.linalg', {
@@ -223,4 +225,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _batchnorm, _construction, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor
+from . import _arithmetic, _activation, _autograd, _batchnorm, _classification, _construction, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor
