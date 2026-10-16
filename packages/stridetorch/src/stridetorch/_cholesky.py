@@ -15,19 +15,29 @@ def _phi(value):
                             (value, _phi_values), saves_tensors=False)
 
 
+def _factor_values(data):
+    factor = np.linalg.cholesky(data)
+    # Some LAPACK builds return a NaN factor with a successful status. Reject
+    # it consistently without reading the unused input triangle; infinity
+    # on a factor diagonal remains supported by the existing contract.
+    if np.isnan(np.diagonal(factor, axis1=-2, axis2=-1)).any():
+        raise np.linalg.LinAlgError('NaN Cholesky factor')
+    return factor
+
+
 def _factor_error(data):
     # NumPy does not expose the failing batch or leading minor. Resolve these
     # only on the exceptional path; successful batches use one LAPACK call.
     for index in np.ndindex(data.shape[:-2]):
         matrix = data[index]
         try:
-            np.linalg.cholesky(matrix)
+            _factor_values(matrix)
         except np.linalg.LinAlgError:
             lo, hi = 1, matrix.shape[-1]
             while lo < hi:
                 mid = (lo + hi) // 2
                 try:
-                    np.linalg.cholesky(matrix[:mid, :mid])
+                    _factor_values(matrix[:mid, :mid])
                     lo = mid + 1
                 except np.linalg.LinAlgError:
                     hi = mid
@@ -70,7 +80,7 @@ def cholesky(A, *, upper=False, out=None):
     # the requested upper triangle without inspecting the unused half.
     selected = (data.conj() if data.dtype.kind == 'c' else data).swapaxes(-1, -2) if upper else data
     try:
-        lower = np.linalg.cholesky(selected)
+        lower = _factor_values(selected)
     except np.linalg.LinAlgError as error:
         raise _factor_error(selected) from error
     values = lower.conj().swapaxes(-1, -2) if upper else lower
