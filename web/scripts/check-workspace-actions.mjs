@@ -63,7 +63,7 @@ const mocks = {
   './useBrowserJudge': `export const useBrowserJudge=()=>globalThis.__paperleetWorkspaceActionTest.browser;`,
   './useQueuedJudge': `export function useQueuedJudge(owner,ready,onReport){const f=globalThis.__paperleetWorkspaceActionTest;f.onServerReport=onReport;return f.judge;}`,
   './useBrowserLearning': `export const useBrowserLearning=()=>globalThis.__paperleetWorkspaceActionTest.learning;`,
-  './catalogIndex': `export const loadCatalogIndex=async()=>({problems:[globalThis.__paperleetWorkspaceActionTest.problem],papers:[],categories:[]});`,
+  './catalogIndex': `export const loadCatalogIndex=async()=>globalThis.__paperleetWorkspaceActionTest.catalog||({problems:[globalThis.__paperleetWorkspaceActionTest.problem],papers:[],categories:[]});`,
   './ProblemStats': `export const useProblemStats=()=>({stats:{},totalSubmissions:0,refresh:()=>{},loading:false});export const getProblemStats=()=>({});export const ProblemStats=()=>null;`,
   './PaperViews': `export const PaperDetail=()=>null;export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
   './ReportView': `import React from 'react';import Report from '/src/ReportView.tsx?fixture_actual=1';globalThis.__paperleetWorkspaceActionTest.calls.detailsLoads++;export default function FixtureReport(props){if(globalThis.__paperleetWorkspaceActionTest.failDetails)throw Error('Fixture detail failure');return React.createElement(Report,props);}`,
@@ -300,7 +300,27 @@ try {
   await settle(()=>find('[data-test-favorites]'));
   assert.equal(find('[data-test-favorites]').getAttribute('data-test-favorites'),savedOrigin.slice(2),'The real App routes favorites with their exact filters');
   await click(find('[data-test-favorite-filters]'));assert.equal(location.hash,'#/favorites?q=LoRA&state=todo');assert.equal(find('[data-test-favorites]').getAttribute('data-test-favorites'),'favorites?q=LoRA&state=todo','Favorite filter changes must update the App route as well as browser history');reading.discardReadingReturn();
-  console.log('PASS actual App workspace: left Description/Result tabs, inline browser/server success and failure without navigation, stale server error/cancellation guards, result scroll reset, abort/queue/syntax feedback, lazy persistent diagnostics, unchanged editor/draft/cursor, verified source locations, guest actions, keyboard duplicate-run guard and catalog-bound practice reading-origin re-arm without source changes');
+  await act(async()=>root.unmount());root=undefined;
+  const libraryPaper={id:'attention',number:1,title:'Attention Is All You Need',short_title:'Transformer',authors:'Ashish Vaswani',venue:'NeurIPS',year:2017,url:'https://arxiv.org/abs/1706.03762',arxiv:'1706.03762',tags:[],category:'architecture',summary:'',summary_en:'',module_ids:[problem.id]};
+  const acceptedLibraryReport={problem:problem.id,tests:[{id:'pass',layer:'T0',passed:true}],summary:{T0:[1,1]}};
+  for(const locale of ['en','zh']) for(const scenario of ['empty','filtered-complete','all-complete','optional-only','loading']) {
+    localStorage.setItem('paperleet.locale',locale);
+    fixture.practice.ready=true;fixture.practice.loading=scenario==='loading';fixture.learning.ready=true;fixture.learning.records={};
+    fixture.practice.saved={[problem.id]:{report:acceptedLibraryReport}};
+    const module=scenario==='optional-only'?{...problem,module:{...problem.module,optional:true}}:problem;
+    fixture.catalog={problems:[module],papers:[libraryPaper],categories:[]};
+    window.history.replaceState(null,'',scenario==='empty'?'#/?q=missing-paper':scenario==='filtered-complete'?'#/?q=1706.03762':'#');
+    await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
+    const expected=scenario==='empty'||scenario==='optional-only'?(locale==='en'?'No core modules in this view':'当前范围暂无核心模块'):
+      scenario==='filtered-complete'?(locale==='en'?'Core modules complete in this view':'本范围核心模块已完成'):
+      scenario==='all-complete'?(locale==='en'?'Core modules complete':'核心模块已完成'):undefined;
+    if(expected) await settle(()=>find('.topbar .continue-link')?.textContent===expected);
+    else await settle(()=>find('.topbar .continue-link')?.textContent.includes('Start practice'));
+    assert(find('.topbar .continue-link').disabled, 'An empty, complete or loading view cannot start a fabricated next module');
+    if(scenario==='loading')assert(!find('.topbar .continue-link').textContent.includes('Core modules complete'),'Pending progress must not claim completion');
+    await act(async()=>root.unmount());root=undefined;
+  }
+  console.log('PASS actual App workspace: source-safe inline judging, retained editor and diagnostics, practice returns, and bilingual empty/filtered-complete/all-complete/optional/loading header states');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();

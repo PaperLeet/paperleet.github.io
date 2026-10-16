@@ -13,7 +13,9 @@
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The catalog includes **56 papers, one introductory course, and 77 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The catalog includes **57 papers, one introductory course, and 78 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+
+Search the library by title, author, venue, year, module goal, or arXiv reference. Abstract/PDF links and versioned arXiv IDs find the same catalog paper; queries such as `Vaswani 2017` combine terms. Search and practice links retain the current collection and filters.
 
 ## Run locally
 

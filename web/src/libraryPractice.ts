@@ -2,6 +2,7 @@ import { status } from './types';
 import type { Paper, Problem, Saved } from './types';
 import { paperCollections, papersInCollection } from './paperCollections';
 import { normalizeLibraryFilters, type LibraryFilters } from './libraryNavigation';
+import { parseArxivUrl } from './communityPapers';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export function paperModules(paper: Paper, problems: Problem[]) {
@@ -12,11 +13,20 @@ export function paperModules(paper: Paper, problems: Problem[]) {
 }
 export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all", runtime = "all") {
   const normalized = query.trim().toLowerCase();
-  const paperMatches = [paper.number, paper.title, paper.short_title, paper.summary, paper.summary_en, ...paper.tags]
-    .join(" ").toLowerCase().includes(normalized);
+  const terms = normalized.split(/\s+/);
+  const reference = normalized ? (parseArxivUrl(normalized.replace(/[?#].*$/, '')) ||
+    parseArxivUrl(`https://arxiv.org/abs/${normalized.replace(/^arxiv:\s*/, '')}`)) : undefined;
+  const referenceId = reference?.arxivId.replace(/v\d+$/, '');
+  const paperReference = paper.arxiv || parseArxivUrl(paper.url)?.arxivId;
+  const paperText = [paper.number, paper.id, paper.title, paper.short_title, paper.summary, paper.summary_en,
+    Array.isArray(paper.authors) ? paper.authors.join(' ') : paper.authors, paper.venue, paper.year, paper.arxiv, paper.url, ...paper.tags]
+    .join(" ").toLowerCase();
+  const paperMatches = terms.every(term => paperText.includes(term)) ||
+    !!referenceId && paperReference?.toLowerCase().replace(/v\d+$/, '') === referenceId;
   return paperModules(paper, problems).filter((problem) => {
-    const moduleMatches = [problem.title, problem.translations?.en?.title, problem.module.goal, problem.module.goal_en]
-      .join(" ").toLowerCase().includes(normalized);
+    const moduleText = [problem.title, problem.translations?.en?.title, problem.module.goal, problem.module.goal_en]
+      .join(" ").toLowerCase();
+    const moduleMatches = terms.every(term => paperText.includes(term) || moduleText.includes(term));
     return (difficulty === "all" || problem.difficulty === difficulty) && (paperMatches || moduleMatches) &&
       (runtime === "all" || (runtime === "browser") === !!problem.browser_judge);
   });
