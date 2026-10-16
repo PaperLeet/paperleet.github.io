@@ -124,6 +124,19 @@ try {
   const source='def attention(x):\n    return x * 2 # private draft\n';
   await change(()=>{fixture.practice.saved={[problem.id]:{code:source}};});
   editor.focus();editor.setSelectionRange(4,13);editor.scrollTop=41;
+  await click(find('.workspace-focus-toggle'));
+  await settle(()=>find('.app').dataset.focusMode==='true');
+  const layoutTrigger=find('.workspace-layout-trigger');await act(async()=>layoutTrigger.focus());await click(layoutTrigger);
+  const readingPreset=find('.workspace-layout-options button');await act(async()=>readingPreset.focus());
+  for(const options of [{isComposing:true},{keyCode:229},{repeat:true},{altKey:true},{ctrlKey:true},{metaKey:true},{shiftKey:true}]){
+    const ignored=new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true,...options});await act(async()=>readingPreset.dispatchEvent(ignored));
+    assert(!ignored.defaultPrevented&&find('.workspace-layout-popover'));assert.equal(find('.app').dataset.focusMode,'true','IME, repeated and modified keys retain both local layout and outer focus mode');
+  }
+  const layoutEscape=new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});await act(async()=>readingPreset.dispatchEvent(layoutEscape));
+  assert(layoutEscape.defaultPrevented&&!find('.workspace-layout-popover'));assert.equal(find('.app').dataset.focusMode,'true','Escape closes the layout panel while retaining the actual App focus mode');assert.equal(document.activeElement,layoutTrigger);
+  await act(async()=>layoutTrigger.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
+  assert.equal(find('.app').dataset.focusMode,undefined,'The next Escape retains the workspace exit-focus shortcut');assertInline('Local layout shortcuts preserve the problem route and mounted editor');
+  assert.equal(editor.value,source);assert.equal(editor.selectionStart,4);assert.equal(editor.selectionEnd,13);assert.equal(editor.scrollTop,41);
   await click(action('Run tests'));
   assert.deepEqual(calls.runs,[{id:problem.id,source}]);
   assert(resultSelected(),'Starting tests selects Result beside Description');

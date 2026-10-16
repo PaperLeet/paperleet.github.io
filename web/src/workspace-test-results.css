@@ -5,10 +5,10 @@
 .workspace-test-results .feedback-heading h3 { margin:0; font-size:var(--type-body); line-height:1.65; }
 .workspace-test-results .feedback-diagnostic { margin:10px 0 0; font-size:var(--type-small); }
 .workspace-test-results .feedback-actions { margin-top:10px; gap:6px; }
-.workspace-test-results .feedback-location-note { margin:7px 0 0; font-size:var(--type-meta); }
-.workspace-test-results .feedback-actions > .button { min-height:32px; padding:6px 8px; }
+.workspace-test-results .feedback-location-note { margin:7px 0 0; font-size:var(--type-small); line-height:1.75; }
+.workspace-test-results .feedback-actions > .button { min-height:40px; padding:8px 11px; font-size:var(--type-small); }
 .workspace-test-details { margin-top:12px; border-top:1px solid var(--line); }
-.workspace-test-details > summary { display:flex; align-items:center; gap:7px; min-height:40px; color:var(--text-secondary); cursor:pointer; list-style:none; font-size:var(--type-meta); }
+.workspace-test-details > summary { display:flex; align-items:center; gap:7px; min-height:40px; color:var(--text-secondary); cursor:pointer; list-style:none; font-size:var(--type-small); }
 .workspace-test-details > summary::-webkit-details-marker { display:none; }
 .workspace-test-details > summary > svg:last-child { margin-left:auto; }
 .workspace-test-details[open] > summary > svg:last-child { transform:rotate(180deg); }
