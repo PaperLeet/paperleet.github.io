@@ -34,6 +34,9 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-list .post-excerpt{margin:9px 0 8px;font-size:var(--type-body);line-height:1.65;-webkit-line-clamp:4}
 .inline-comment-body{display:flex;flex-direction:column;min-width:0;margin:8px 0}
 .inline-comment-content{min-width:0}
+.inline-comment-content:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:5px}
+.inline-reading-keyhint{display:none;align-items:center;margin-inline-start:auto;padding:1px 5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--surface2);color:var(--text-secondary);font-family:var(--font-mono);font-size:var(--type-caption);line-height:1.4}
+.inline-comment-body:focus-within .inline-reading-keyhint{display:inline-flex}
 .inline-comment-body.is-complete .post-excerpt{display:block;overflow:visible;-webkit-line-clamp:unset}
 .inline-comment-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;order:1}
 .inline-comment-controls>span{font-size:var(--type-meta);color:var(--text-secondary)}
@@ -51,6 +54,7 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .inline-comment-content .community-prose h2{font-size:var(--type-lead);line-height:1.45}
 .inline-comment-content .community-prose :is(h3,h4,h5,h6){font-size:var(--type-body);line-height:1.5}
 @media(pointer:coarse),(max-width:600px){.inline-comment-toggle,.inline-comment-collapse,.inline-comment-content .community-code-header button{min-height:44px}}
+@media(pointer:coarse){.inline-comment-body .inline-reading-keyhint{display:none}}
 .card-comment-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;font-size:var(--type-small)}
 .card-comment-links>.reply-reading-return{margin-inline-start:auto;color:var(--accent);background:var(--surface2)}
 .card-comment-links button,.card-more-comments,.card-collapse-comments{border:0;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer}
