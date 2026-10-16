@@ -1748,6 +1748,92 @@
           }
         }
       ]
+    },
+    {
+      "id": "rl/dapo",
+      "source": "problems/rl/dapo/README.md",
+      "functions": [
+        "dynamic_group_mask",
+        "dapo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "动态筛选的单位是 prompt、回答还是 token？全对与全错的组应如何处理？",
+            "en": "Does dynamic filtering select prompts, responses or tokens, and what happens to uniform-outcome groups?"
+          },
+          "hint": {
+            "zh": "本题输入 [P,G]，输出布尔 [P]，只保留同时含成功和失败的组；支持 0/1 或 -1/1。单成员组无效。补采样由调用方负责，本题不实现完整训练调度。",
+            "en": "For [P,G] rewards, return a boolean [P] keeping mixed outcomes under 0/1 or -1/1 encoding. A one-member group is invalid. Batch replenishment belongs to the caller; this exercise does not implement the full sampler."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何把非对称截断与按 token 归一化组合，而不变成逐回答平均？",
+            "en": "How do asymmetric clipping and token normalization combine without becoming a mean of response means?"
+          },
+          "hint": {
+            "zh": "有效 token 的截断 objective 求和，再除以总有效 token 数；上下界独立使用 1-clip_low 与 1+clip_high。本题默认 .2/.28，无 KL 项；旧策略分数与传入 advantage 固定。",
+            "en": "Sum valid clipped objectives and divide by the total valid-token count. Use independent bounds 1-clip_low and 1+clip_high, defaulting here to .2/.28. This exercise has no KL term; freeze old scores and supplied advantages."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "用哪些最小反例区分截断宽度错误、长度权重错误和 padding 溢出？",
+            "en": "Which small counterexamples reveal wrong clip widths, length weighting or padding overflow?"
+          },
+          "hint": {
+            "zh": "正 advantage 的比率 1.25 仍有梯度，负 advantage 的 .75 被截断。比较一条 1-token 与一条 3-token 回答；先隔离极端 padding，再取指数。全空 mask 返回可微标量零，padding 梯度为零。",
+            "en": "A positive-advantage ratio of 1.25 still learns, while a negative-advantage ratio of .75 clips. Compare one- and three-token responses. Isolate extreme padding before exponentiation; an empty mask returns differentiable scalar zero and padding gradients vanish."
+          }
+        }
+      ]
+    },
+    {
+      "id": "rl/gspo",
+      "source": "problems/rl/gspo/README.md",
+      "functions": [
+        "sequence_ratio",
+        "gspo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么序列比率要先平均有效 log-ratio，再取指数？它与平均 token ratio 有何不同？",
+            "en": "Why exponentiate the mean valid log-ratio instead of averaging token ratios?"
+          },
+          "hint": {
+            "zh": "这是有效 token 比率的几何平均。用 [2,.5]：序列比率为 1，算术平均为 1.25。重复整条序列不改变比率；本题的空回答比率约定为 1。",
+            "en": "It is the geometric mean of valid-token ratios. For [2,.5], the sequence ratio is 1 but the arithmetic mean is 1.25. Repeating the sequence leaves its ratio unchanged; this exercise defines an empty response ratio as 1."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "截断发生在哪个层级？空回答应怎样参与最终平均？",
+            "en": "At what level does clipping occur, and how do empty responses enter the final average?"
+          },
+          "hint": {
+            "zh": "每条回答只截断一个序列比率，取两个 advantage 加权 surrogate 的较小值并对 B 条回答取负均值。空回答贡献零但仍计入 B；旧分数与 advantage 固定。这里实现 GSPO，.2 是教学默认值。",
+            "en": "Clip one ratio per response, take the smaller advantage-weighted surrogate, and negate the mean over B responses. Empty responses contribute zero but remain in B. Freeze old scores and advantages. This is GSPO; .2 is a teaching default."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查序列内梯度等权，同时避免把 token 截断误当成序列截断？",
+            "en": "How do you verify equal within-response gradients and distinguish sequence clipping from token clipping?"
+          },
+          "hint": {
+            "zh": "未截断时，同一回答的有效 logp 梯度相等；[2,.5] 能暴露逐 token 截断。再测正 advantage 的 1.5 与负 advantage 的 .5：都应截断。padding 先隔离再聚合，全空 loss 可微且梯度为零。",
+            "en": "Away from clipping, valid logp gradients within a response are equal; [2,.5] exposes token clipping. Also test positive advantage at ratio 1.5 and negative advantage at .5: both clip. Isolate padding before reduction; all-empty loss is differentiable with zero gradients."
+          }
+        }
+      ]
     }
   ]
 }

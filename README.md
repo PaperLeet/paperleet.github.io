@@ -51,7 +51,7 @@ For an introduction, start with [LLM Training & Generation](https://paperleet.co
 
 To compare normalization methods, follow [Normalization foundations](https://paperleet.com/#/interviews?track=normalization): LayerNorm, RMSNorm and GroupNorm, with bilingual study prompts, implementation checks and synthetic experiments.
 
-For policy optimization, follow [Policy optimization & post-training](https://paperleet.com/#/interviews?track=post-training): GAE, PPO, GRPO, Dr. GRPO and DPO, with bilingual prompts that distinguish episode boundaries, clipping, reward scaling and preference optimization.
+For policy optimization, follow [Policy optimization & post-training](https://paperleet.com/#/interviews?track=post-training): GAE, PPO, GRPO, Dr. GRPO, DAPO, GSPO and DPO, with bilingual prompts that distinguish episode boundaries, dynamic filtering, token/sequence weighting, clipping and preference optimization.
 
 For Transformer core and efficiency, use the [guided preparation path](https://paperleet.com/#/interviews?track=transformer): nine modules connecting positions, per-token FFNs, normalization, shared KV heads and online softmax.
 

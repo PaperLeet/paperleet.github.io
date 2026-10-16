@@ -1,0 +1,11 @@
+# DAPO and GSPO preparation guides
+
+The existing post-training path now follows GAE → PPO → GRPO → Dr. GRPO → DAPO → GSPO → DPO. The original five modules retain their relative order. Existing accepted results remain accepted; completing the old five-module path gives five of seven modules and resumes at DAPO. The other seven paths, company/role/resource taxonomies and all forty-one existing guides remain unchanged.
+
+Two bilingual guides add six explain/implement/verify prompts, bringing the deferred handbook to forty-three guides and 129 prompts. DAPO covers prompt-level mixed-outcome filtering, independent clip widths, retained-token normalization, frozen inputs and padding/empty-mask behavior. GSPO covers geometric sequence ratios, response-level clipping, within-response gradients, duplication invariance and the exercise's empty-response convention. Each guide names exactly the two required starter functions and links to the maintained exercise statement.
+
+The bounded exercise contracts are checked against their existing statements, starters, reference implementations and tests. In particular, DAPO sampling replenishment remains caller-owned, and GSPO's .2 clip is identified as a teaching default. These prompts do not present synthetic experiments as large-model training evidence.
+
+Primary-source review: [DAPO v1, Sections 3.1–3.3](https://arxiv.org/html/2503.14476v1#S3), [GSPO v1, Sections 4.1–4.2](https://arxiv.org/html/2507.18071v1#S4.SS1), and the [Qwen author explanation](https://qwenlm.github.io/blog/gspo/). The guide questions and counterexamples are written for the maintained PaperLeet exercises.
+
+Verification covers all seven handbook topics in both languages, deferred guide loading, exact company/role/stage/source/login returns, compact three-link/four-link disclosure, ordered picker and next-step transitions, existing five-module progress, incomplete catalogs and full-path completion. The existing guide suite retains editor/caret/scroll, note unlock and timeout/retry checks. Native checks for both unchanged exercises pass three repetitions, 210 test cases and all eight maintained mutants. No problem implementation, judge, runtime, deadline or asset budget changes. No browser visual QA or production-data writes are claimed.

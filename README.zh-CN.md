@@ -25,7 +25,7 @@
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
-python -m pip install -e ./packages/paperleet-torch
+python -m pip install -e ./packages/stridetorch
 paperleet export
 npm --prefix web ci
 make dev
@@ -37,7 +37,7 @@ make dev
 
 本公开仓库包含前端、论文题库、浏览器运行时、本机判题与离线维护工具。`make dev` 无需账号、邮件服务或私有仓库即可独立运行。未登录时，练习代码和浏览器测试结果自动保存在当前浏览器，刷新或重新打开网站后可恢复。
 
-基于 NumPy 的浏览器张量与自动求导内核已拆为可独立打包的 [paperleet-torch 库](packages/paperleet-torch/README.md)。独立包只依赖 NumPy；现有 PaperLeet 安装会包含同一份库源码，原有接入入口继续可用。代码里保留普通的 `import torch`、`from torch import nn` 和 `import torch.nn.functional as F`，独立脚本用 `paperleet-torch train.py` 启动即可，无需改写导入语句；PaperLeet 的浏览器 Worker 会自动注册这些别名。
+基于 NumPy 的浏览器张量与自动求导内核已拆为可独立打包的 [StrideTorch 库](packages/stridetorch/README.md)。独立包只依赖 NumPy；现有 PaperLeet 安装会包含同一份库源码，原有接入入口继续可用。代码里保留普通的 `import torch`、`from torch import nn` 和 `import torch.nn.functional as F`，独立脚本用 `stridetorch train.py` 启动即可，无需改写导入语句；PaperLeet 的浏览器 Worker 会自动注册这些别名。
 
 账号／社区页面及接口约定属于公开前端代码；其服务端实现、线上数据存储、在线判题编排和生产部署工具维护在独立的私有仓库 `PaperLeet/backend`。私有仓库以 Git 子模块固定引用本仓库的版本；开源版本不会安装或下载私有服务。
 
