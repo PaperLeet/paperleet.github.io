@@ -1,7 +1,8 @@
 /** Public compatibility evidence only. No learner source, reports or Python state. */
 export type CalibrationSummary = { reference_passed: number; mutants_caught: Record<string, string[]> };
 export type CalibrationProof = { key: string; environment: string; summary: CalibrationSummary };
-export type BrowserMeasurements = { loading_ms: number; calibration_ms: number; learner_ms: number; total_ms: number; reused: boolean };
+export { browserMeasurements } from './browserRunDetails';
+export type { BrowserMeasurements } from './browserRunDetails';
 type Bundle = { tests?: unknown; mutants?: unknown };
 const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 
@@ -30,15 +31,6 @@ export function calibrationProof(value: unknown, key: string, bundle: Bundle, en
       || !value.environment.length || value.environment.length > 1000 || environment !== undefined && value.environment !== environment) return;
   const summary = calibrationSummary(value.summary, bundle);
   return summary ? { key, environment:value.environment, summary } : undefined;
-}
-
-export function browserMeasurements(value: unknown): BrowserMeasurements | undefined {
-  if (!record(value) || typeof value.reused !== 'boolean') return;
-  const keys = ['loading_ms','calibration_ms','learner_ms','total_ms'] as const;
-  if (!keys.every(key => typeof value[key] === 'number' && Number.isFinite(value[key]) && Number(value[key]) >= 0 && Number(value[key]) <= 300_000)) return;
-  const result = Object.fromEntries(keys.map(key => [key, value[key]])) as Omit<BrowserMeasurements,'reused'>;
-  if (Math.abs(result.loading_ms + result.calibration_ms + result.learner_ms - result.total_ms) > 1) return;
-  return { ...result, reused:value.reused };
 }
 
 /** This cache dies on refresh. Its lifetime never renews when reused. */

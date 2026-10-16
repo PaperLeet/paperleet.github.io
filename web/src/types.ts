@@ -1,6 +1,7 @@
 import { parseReport } from "./reports";
 import type { TestComparison } from "./comparisons";
 import type { BrowserBudgets } from "./browserBudgets";
+import type { BrowserRunDetails } from "./browserRunDetails";
 
 export type Category = { id: string; name: string; name_en: string };
 
@@ -75,6 +76,7 @@ export type TestResult = {
   artifacts?: Record<string, unknown>;
 };
 export type Report = {
+  browser_run?: BrowserRunDetails;
   run_id?: string;
   source_sha256?: string;
   runtime?: string;

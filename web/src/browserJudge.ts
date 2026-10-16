@@ -6,7 +6,8 @@ import { advanceBrowserProgress, type BrowserProgress, type BrowserStage } from 
 export type { BrowserStage, BrowserProgress } from './browserProgress';
 import type { Problem, Report } from './types';
 import { browserWorkerAsset, browserWorkerDigest } from './browserWorkerAsset.generated';
-import { browserMeasurements, calibrationProof, createCalibrationCache } from './browserCalibration';
+import { calibrationProof, createCalibrationCache } from './browserCalibration';
+import { browserMeasurements, browserRunDetails } from './browserRunDetails';
 import type { BrowserMeasurements, CalibrationSummary, CalibrationProof } from './browserCalibration';
 const compatibility = createCalibrationCache();
 
@@ -118,6 +119,12 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
           const overhead = measured ? Math.max(0,performance.now()-requestedAt-measured.total_ms) : 0;
           const measurements = calibrationSeen && measured?.reused === reused
             ? {...measured,loading_ms:measured.loading_ms+overhead,total_ms:measured.total_ms+overhead} : undefined;
+          // Persist only the coordinator-checked summary with this exact report.
+          // Historical display data must never populate the page-local proof cache.
+          const recorded = report.source_sha256 ? browserRunDetails({version:1,
+            calibration:{reference_passed:checkedCalibration.reference_passed,mutants_caught:Object.keys(checkedCalibration.mutants_caught).length,reused},measurements}) : undefined;
+          if(recorded) report.browser_run = recorded;
+          else delete report.browser_run;
           finish({ type: 'result', report, calibration: {...checkedCalibration,reused}, measurements });
         } catch { finish({ type: 'unsupported', reason: 'collection_failed' }); }
       }
