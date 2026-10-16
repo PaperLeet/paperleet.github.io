@@ -1408,6 +1408,175 @@
           }
         }
       ]
+    },
+    {
+      "id": "architecture/positional_encoding",
+      "source": "problems/architecture/positional_encoding/README.md",
+      "functions": [
+        "sinusoidal_encoding"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么一对正弦和余弦要共用频率？位置从 start 开始时，哪个维度决定频率指数？",
+            "en": "Why must each sine/cosine pair share a frequency? With a nonzero start position, which width determines its exponent?"
+          },
+          "hint": {
+            "zh": "频率由完整模型宽度决定，同一对通道共享频率；start 改变绝对位置。本题还支持原论文偶数宽度示例之外的奇数宽度。",
+            "en": "The full model width sets the frequencies; each pair shares one. The start offset changes absolute positions. This exercise also supports odd widths beyond the paper’s even-width example."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样同时处理奇数宽度、空序列和指定精度，而不把 embedding 的缩放混进位置编码？",
+            "en": "How would you handle odd widths, an empty sequence and explicit precision without mixing embedding scaling into positional encoding?"
+          },
+          "hint": {
+            "zh": "输出保持 [length,d_model]。奇数宽度最后保留 sine 通道，cosine 只填完整配对；保留 dtype/device，位置编码不含可训练参数。",
+            "en": "Keep output shape [length,d_model]. Retain the final sine channel at odd widths and fill cosine only for complete pairs. Preserve dtype/device; the encoding has no trainable parameters."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用偏移切片和二维旋转检查实现，同时确认加上编码后 embedding 仍可求导？",
+            "en": "How can shifted slices and pairwise rotations check the encoding while confirming that embeddings remain differentiable after addition?"
+          },
+          "hint": {
+            "zh": "比较一次生成与分段生成同一批绝对位置的结果，再检查完整 sine/cosine 对的相对位移。固定编码无需梯度；梯度应沿相加操作回到 embedding。",
+            "en": "Compare one-shot and chunked generation at identical absolute positions, then check relative shifts of complete sine/cosine pairs. The fixed encoding needs no gradient; addition must still propagate gradients to embeddings."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/positionwise_ffn",
+      "source": "problems/architecture/positionwise_ffn/README.md",
+      "functions": [
+        "positionwise_ffn"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "同一个 FFN 为什么能处理任意 batch/token 前导维度？与注意力的信息交换有什么不同？",
+            "en": "Why can one FFN handle arbitrary leading batch/token axes? How does its information flow differ from attention?"
+          },
+          "hint": {
+            "zh": "两层参数对各位置共享，只变换最后的特征轴。中间 ReLU 提供非线性，第二层投影回原模型宽度，各 token 不相互混合。",
+            "en": "The two parameter sets are shared across positions and transform only the final feature axis. ReLU supplies nonlinearity; the second layer restores model width without mixing tokens."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "按 [out,in] 的权重布局实现两层 FFN 时，怎样避免遗漏偏置、转置或改变输出端激活？",
+            "en": "With [out,in] weight layout, how do you avoid missing a bias or transpose and changing the output activation?"
+          },
+          "hint": {
+            "zh": "逐步核对 x、[H,D]、[D,H] 的维度。两层都有偏置，中间使用 ReLU；本题只返回第二层结果，残差、归一化和 dropout 属于其他组件。",
+            "en": "Track x, [H,D] and [D,H] through the two layers. Both have biases; apply ReLU between them. This exercise returns the second-layer result; residuals, normalization and dropout are separate components."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分混合 token、切断隐藏层梯度，以及删掉 ReLU 后仍能通过形状检查的错误？",
+            "en": "How would you distinguish token mixing, detached hidden activations and a missing ReLU that still passes shape checks?"
+          },
+          "hint": {
+            "zh": "只扰动一个 token，检查其他位置是否不变；再对输入和四个参数做独立梯度对照。非线性合成回归实验还可暴露把两层写成纯线性变换的错误。",
+            "en": "Perturb one token and check that other outputs stay fixed, then independently compare gradients for the input and all four parameters. The nonlinear synthetic regression also exposes a purely linear two-layer implementation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/gqa",
+      "source": "problems/architecture/gqa/README.md",
+      "functions": [
+        "mean_pool_kv_heads",
+        "grouped_query_attention"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "H 个 query 头和 G 个 KV 头怎样配对？G=H 与 G=1 分别对应什么端点？",
+            "en": "How are H query heads paired with G KV heads? What are the G=H and G=1 endpoints?"
+          },
+          "hint": {
+            "zh": "每个连续的 H/G 个 query 头共享一个 KV 头；两个端点分别是 MHA 与 MQA。持久 KV 元素数比例为 G/H，不能直接换算成实测速度。",
+            "en": "Each consecutive group of H/G query heads shares one KV head; the endpoints are MHA and MQA. Persistent KV element count scales as G/H, which does not directly establish measured speed."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "共享 KV 和均值池化 KV 投影时，为什么反向传播的累计方式不同？",
+            "en": "Why do shared KV tensors and mean-pooled KV projections accumulate gradients differently?"
+          },
+          "hint": {
+            "zh": "共享 KV 要累计该组所有 query 头的贡献；投影均值则把梯度按组大小分回原始头。输出仍保留 H 个头，并沿 key 轴归一化；全屏蔽行按本题约定返回零。",
+            "en": "Shared KV sums contributions from every query head in its group; mean pooling distributes gradients across the original heads. Output keeps H heads and normalizes over keys. Fully masked rows return zero under this exercise’s contract."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何验证连续分组、MHA 端点和共享梯度？缓存容量实验又能支持哪些结论？",
+            "en": "How would you check contiguous groups, the MHA endpoint and shared gradients? What conclusions can the cache-size experiment support?"
+          },
+          "hint": {
+            "zh": "先手算 H=4、G=2 的头映射与投影均值，再对照逐头实现及梯度。实验只衡量合成输出误差与缓存元素；论文转换后还进行训练，不要求误差随 G 单调变化。",
+            "en": "Hand-check head mapping and projection means at H=4,G=2, then compare with independent per-head values and gradients. The experiment measures synthetic output error and cache elements. The paper additionally trains after conversion; error need not vary monotonically with G."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/flash_attention",
+      "source": "problems/architecture/flash_attention/README.md",
+      "functions": [
+        "online_softmax_update"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "在线 softmax 为什么同时保存行最大值、指数总量和未归一化的 value 加权和？",
+            "en": "Why does online softmax retain a row maximum, exponential mass and an unnormalized weighted value sum?"
+          },
+          "hint": {
+            "zh": "不同分块必须使用共同的指数基准。分母 l 与分子 u 保留可合并的状态；最后才计算 u/l，行 log-sum-exp 为 m+log(l)。",
+            "en": "Blocks must share an exponential reference. The denominator l and numerator u retain mergeable state; normalize with u/l only at the end. Row log-sum-exp is m+log(l)."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "新分块抬高累计最大值时，哪些旧状态必须重缩放？本题由你实现哪一部分？",
+            "en": "When a block raises the running maximum, which old states must be rescaled? Which part of this exercise do you implement?"
+          },
+          "hint": {
+            "zh": "旧 normalizer 与 numerator 都要乘相同的重缩放因子，且不能原地修改输入。只实现 online_softmax_update；外层遍历、sqrt(D) 缩放和最终归一化已提供，输入分数有限且不含 mask/dropout。",
+            "en": "Rescale both the old normalizer and numerator by the same factor without mutating inputs. Implement only online_softmax_update; traversal, sqrt(D) scaling and final normalization are provided. Scores are finite and omit masking/dropout."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用不同块大小和极端有限分数，检查输出、LSE 与梯度，而不误把分块元素统计当作 GPU 加速？",
+            "en": "How would block sizes and extreme finite scores check outputs, LSE and gradients without treating tile element counts as GPU acceleration?"
+          },
+          "hint": {
+            "zh": "对照独立的稠密注意力，覆盖单 key、末尾短块及超过序列长度的块，并检查旧状态可复用。教学实验测量数值与理论分块元素数，不测生产 kernel 的显存或速度。",
+            "en": "Compare with independent dense attention across single-key tiles, short tail tiles and blocks exceeding sequence length; check state reuse. The teaching experiment measures numerical agreement and theoretical tile elements, not production-kernel memory or speed."
+          }
+        }
+      ]
     }
   ]
 }

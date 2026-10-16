@@ -446,6 +446,30 @@
       ]
     },
     {
+      "id": "transformer",
+      "name": "Transformer 核心与效率",
+      "name_en": "Transformer core & efficiency",
+      "description": "从位置编码与逐 token 变换，练到归一化、KV 头共享与在线 softmax。",
+      "description_en": "Practice positions, per-token transforms and normalization, then KV head sharing and online softmax.",
+      "modules": [
+        "architecture/positional_encoding",
+        "architecture/attention",
+        "architecture/multihead_attention",
+        "architecture/positionwise_ffn",
+        "architecture/layer_norm",
+        "architecture/rms_norm",
+        "architecture/rope",
+        "architecture/gqa",
+        "architecture/flash_attention"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research",
+        "software"
+      ]
+    },
+    {
       "id": "normalization",
       "name": "归一化基础",
       "name_en": "Normalization foundations",

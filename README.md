@@ -51,6 +51,8 @@ For an introduction, start with [LLM Training & Generation](https://paperleet.co
 
 To compare normalization methods, follow [Normalization foundations](https://paperleet.com/#/interviews?track=normalization): LayerNorm, RMSNorm and GroupNorm, with bilingual study prompts, implementation checks and synthetic experiments.
 
+For Transformer core and efficiency, use the [guided preparation path](https://paperleet.com/#/interviews?track=transformer): nine modules connecting positions, per-token FFNs, normalization, shared KV heads and online softmax.
+
 1. Choose a paper, such as **6 · DDPM**, then open its **Forward Noising** module.
 2. Read the goal and complete only the required functions in the Python editor. Schedules and other supporting functions are already implemented.
 3. Click **Run tests** to check your code in the browser and wait for the results.

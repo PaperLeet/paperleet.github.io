@@ -1,0 +1,11 @@
+# Transformer preparation path
+
+Add a nine-module Transformer core and efficiency path for LLM, ML, research and software preparation. Its order follows sinusoidal positions, attention, multiple heads, per-token FFN, LayerNorm, RMSNorm, RoPE, shared KV heads and online softmax. Existing curricula, including normalization foundations, remain unchanged. The selected curriculum continues to lead the path list, including across role filters. The new track is accepted by interview routing, source links, authentication returns, workspace pickers and path-aware next steps.
+
+Four new bilingual guides add twelve explain/implement/verify prompts for sinusoidal encoding, position-wise FFN, GQA and FlashAttention’s online update. The handbook now contains 37 guides and 111 prompts, loaded on demand. Guide sources and required functions match the published exercise README and catalog exactly. Prompts distinguish exercise-specific masks, odd widths, provided traversal and synthetic measurements from paper-level claims. This is curated preparation; company frequency and contributor evidence continue to come from published community reports.
+
+Primary references: [Attention Is All You Need §3.3 and §3.5](https://arxiv.org/html/1706.03762v7#S3.SS3), [GQA §2](https://aclanthology.org/2023.emnlp-main.298/), and [FlashAttention algorithm 1](https://arxiv.org/html/2205.14135v2). Review includes each exercise’s README, required functions and reference implementation.
+
+Maintained checks validate all 37 source/function contracts, the new nine-module order, lazy opening and complete company/role/stage/saved/concept/login returns. Workspace checks cover real progress, draft resume, the path picker, next steps and completed-path source return. An isolated React + AccountProvider + real HTTP/session + SQLite integration must preserve report evidence and account context while using the new source context. No production posts, likes or reports are written, and DOM checks do not claim browser visual review.
+
+Release gates retain the full frontend suite, catalog validation, local and hosted builds within existing budgets, complete native/browser-WASM/backend checks, quality-gated Pages and exact served asset/API revision verification.
