@@ -1,0 +1,7 @@
+# Cancel collapsed comment reads
+
+When a slow comment preview is closed, the existing read is aborted and its version invalidated synchronously. The card leaves its read-loading state immediately, so its like control can be used again. Both the header toggle and the bottom collapse button use this same close behavior. The bottom button returns keyboard focus to the header toggle.
+
+Late completion or failure of the canceled read cannot overwrite a newer read, a confirmed like, or the current editor. Reopening performs the normal fresh read. Draft storage, pending-publication receipts, selected comment order, and existing account guards keep their behavior. Closing does not cancel a publication or like request. No endpoint, mutation format, new listener, dependency, or animation is added.
+
+The maintained React/jsdom test first reproduces the blocked-like failure, then checks both close controls, immediate like availability, an intentionally late stale response after a new read and like, the current editor node/caret/scroll/draft, source URL, and collapsed focus return. A loopback HTTP/session/SQLite harness additionally holds a genuine comment response, confirms cancellation, verifies the persisted like and draft, and retains the existing sorting/publication/lost-acknowledgement retry and anonymous-affiliation checks. Browser visual QA and production write probes were not performed.

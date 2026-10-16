@@ -77,8 +77,13 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     }catch(e){if(mounted.current&&version===readVersion.current)setLoadError(controller.signal.aborted?t('加载评论超时，请重试。','Loading comments timed out. Please retry.'):errorMessage(e));}
     finally{clearTimeout(timer);if(mounted.current&&version===readVersion.current)setLoading(false);}
   }
+  function collapse(){
+    setOpen(false);replies.clearReadingReturn();
+    // A hidden preview must not keep other card actions waiting on its read.
+    readVersion.current++;request.current?.abort();request.current=undefined;setLoading(false);
+  }
   function expand(){
-    if(open){setOpen(false);replies.clearReadingReturn();return;}
+    if(open){collapse();return;}
     // Read the same per-thread draft used by the full discussion, including its reply target.
     const restored=busy||!saved?current.current:readReplyDraft(tabDraftStorage(),owner,initial.id)||{body:''};
     current.current=restored;setDraft(restored);setPublication(readPublication(tabDraftStorage(),owner,'reply',initial.id));
@@ -190,7 +195,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         <PublishingRules action="reply"/>
         <footer><div className="card-reply-feedback"><small role="status">{!saved?t('草稿未能保存，离开前请复制内容。','Draft could not be saved. Copy it before leaving.'):notice|| (hasReplyDraft(draft)?t('草稿已保存，可在完整讨论中继续编辑。','Draft saved. Continue editing in the full discussion.'):t('折叠评论不会丢失草稿。','Collapsing keeps your draft.'))}</small>{postedId&&replies.byId.has(postedId)&&<button type="button" className="text-button card-posted-reply" disabled={loading||accountLoading||!!loadError} onClick={event=>revealComment(postedId,event.currentTarget)}>{t('查看刚发布的评论','View your posted comment')}</button>}</div><button className="button" disabled={!!busy||accountRecovery||loading||!detail||!!loadError||!draft.body.trim()||missingTarget}>{busy==='reply'?t('发布中…','Posting…'):publication?samePublication(publication.receipt,replyPublication(draft))?t('重试发布','Retry publication'):t('作为新内容发布','Publish as new content'):t('发布评论','Post comment')}</button></footer>
       </form></>:<a className="card-comment-signin" href={signInHref(returnTo||'community')}>{t('登录后参与评论','Sign in to comment')}</a>}
-      <button type="button" className="card-collapse-comments" onClick={()=>{setOpen(false);replies.clearReadingReturn();toggle.current?.focus();}}><ChevronUp size={14}/>{t('收起评论','Collapse comments')}</button>
+      <button type="button" className="card-collapse-comments" onClick={()=>{collapse();toggle.current?.focus();}}><ChevronUp size={14}/>{t('收起评论','Collapse comments')}</button>
     </section>}
   </div>;
 }
