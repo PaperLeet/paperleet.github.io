@@ -415,7 +415,7 @@ source-commit deployment was superseded and is not claimed as published.
   158 immutable live payloads match the frozen release. Version0.28 is positively
   verified on the site; remote receipts are archived separately.
 
-## Version0.29 candidate
+## Version0.29 adopted
 
 - Batched/broadcast left and right dense solve, native vector overload/strides,
   shared single-adjoint VJP and real JVP with native saved-factor reverse rules.
@@ -426,18 +426,34 @@ source-commit deployment was superseded and is not claimed as published.
   controls and actual SGD flows, with some tiny solve-only regressions remaining.
   Refined core gates29853/one skip,minimal wheel916 and Node/Chrome904 pass;
   public/private wheels coinstall and survive independent uninstall. Full
-  application adoption remains separate;stable0.28 stays verified on the site
-  until the candidate completes integration.
+  application adoption and actual live verification now pass for0.29.
 - Local application gates now pass original78/10218/342/three-repeat CI and
   exported78/342/29suites904 WASM with unchanged budgets. All23 upstream UI/docs
   files and7388 immutable assets are preserved;latest targeted inbox/default/
-  actual Pages-profile builds pass. Non-force main adoption and actual remote
-  deployment/live evidence remain separately tracked.
+  actual Pages-profile builds pass. Non-force main0d5975a0 passed all four
+  Quality jobs;byte-identical descendant033dc1bc completed actual Pages deployment
+  and78-module/158-payload live verification. An earlier overall-success Pages
+  run skipped its deploy action and is retained as unpublished evidence.
+
+## Version0.30 candidate
+
+- Modern ZIP CPU `torch.save/load` for model, optimizer and scheduler data;
+  native-format storage sharing/strides and14 dense dtypes, with independent
+  native fixtures and bidirectional continued-training checks.
+- Fixed data-global loading rejects arbitrary globals and cached pickle
+  extensions;unknown modes/objects fail explicitly. No native Torch dependency.
+- Final hardened core29960/one optional skip,NumPy-only wheel960,and actual
+  Node/Chrome948 in30 suites pass;installed public/private ownership and native
+  bidirectional resumed training pass. Source gzip grows5074 bytes,cold CPU
+  namespace import about2ms;compute controls remain within about±2%. Small-tensor
+  save metadata remains slower than native Torch.
+- [Core evidence and measured scope](../../docs/validation/torch-runtime-iteration-30.md)
+  precede full application integration and main adoption.
 
 ## Next implementation areas
 
-1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization
-   and expanded memory formats. Local forward and public checkpoint callbacks
+1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
+   formats and expanded memory formats. Local forward and public checkpoint callbacks
    are covered by the 0.8 milestone above.
 2. Optimizer extensions: remaining scheduling policies, common hooks and algorithms where
    numerical and performance evidence justify them; keep state compatibility and

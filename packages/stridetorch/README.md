@@ -42,7 +42,8 @@ import torch.nn.functional as F
 ```
 
 This enables `torch.nn`, `torch.nn.functional`, `torch.optim`, `torch.linalg`,
-`torch.autograd`, `torch.func`, `torch.testing` and `torch.random`. Plain
+`torch.autograd`, `torch.func`, `torch.testing`, `torch.random` and
+`torch.serialization`. Plain
 `import stridetorch` leaves native PyTorch imports untouched. Explicit usage
 via `from stridetorch import torch` also remains available. To scope aliases:
 
@@ -106,7 +107,7 @@ factorization constant, matching native saved-factor semantics. The NumPy backen
 still factorizes each invocation. Complex AD, half factorization, sparse systems
 and `out` buffers are explicit unsupported cases.
 
-Version0.29 remains a development candidate pending application integration.
+Version0.29 passed application integration and actual Pages/live verification.
 Refinements reduce graph/metadata overhead and improve broader inference and
 training controls; some tiny solve-only flows remain a few percent slower. See the
 [measurements and adoption boundary](../../docs/validation/torch-runtime-iteration-29.md).
@@ -422,12 +423,58 @@ parameter paths, metadata and subclass extra state are included. Loading copies
 values into existing parameters, preserving optimizer references, and reports
 missing/unexpected keys. Shape/type errors still fail with `strict=False`.
 
-This is in-memory state support. Backward/global hooks, `load_state_dict(assign=True)`
-and `torch.save/load` remain
-unsupported. `ModuleList.insert` supports indices from zero through its length;
+File checkpoint data can use `torch.save/load`, described below. Backward/global
+hooks and `load_state_dict(assign=True)` remain unsupported. `ModuleList.insert` supports indices from zero through its length;
 insertion into a named `Sequential` is unsupported. Copying a model clears copied
 parameter gradients, as native PyTorch does. Copying non-leaf tensors or exotic
 non-dense NumPy backing allocations fails explicitly.
+
+## File checkpoints
+
+`torch.save` and `torch.load` (also `torch.serialization.save/load`) exchange CPU
+checkpoint data with native PyTorch's modern ZIP format. NumPy remains the only
+third-party runtime dependency. Paths and seekable binary streams work in CPython;
+Pyodide paths refer to its virtual filesystem. For browser downloads/uploads,
+pass bytes through a `BytesIO` buffer and the host's file interface.
+
+```python
+import io
+
+stream = io.BytesIO()
+torch.save({"model": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+            "scheduler": scheduler.state_dict()}, stream)
+stream.seek(0)
+checkpoint = torch.load(stream, weights_only=True, map_location="cpu")
+# Construct the destination model, optimizer and scheduler first.
+model.load_state_dict(checkpoint["model"])
+scheduler.load_state_dict(checkpoint["scheduler"])
+optimizer.load_state_dict(checkpoint["optimizer"])
+```
+
+The data subset includes ordinary Python scalars/containers, `OrderedDict`
+metadata, tensor dtype/device tokens, dense tensors and `nn.Parameter`. It retains
+repeated tensor identity, shared storage, offsets, nonnegative strides, empty and
+expanded views, and `requires_grad`. Loaded tensors are fresh leaves; gradients,
+graphs and executable hooks are not serialized. Supported tensor dtypes are bool,
+signed 8/16/32/64-bit integers, unsigned 8/16/32/64-bit integers, float16/32/64 and
+complex64/128. Untyped storage covers the wider unsigned types. Mixed-dtype views
+of one buffer and negative tensor strides are unsupported.
+
+The default writer uses pickle protocol2 for native weights-only interoperability.
+The reader accepts protocols2–5; native weights-only readers may reject higher
+protocol opcodes. The loader always uses a fixed data-global allowlist and rejects
+pickle extensions, including cached host extensions. It supports `weights_only`
+`None`/`True`; executable object checkpoints and `weights_only=False` fail
+explicitly. Whole modules, arbitrary classes/tensor subclasses/custom tensor
+attributes, TorchScript, legacy non-ZIP files, mmap, custom pickle modules, lazy
+conjugate metadata and callable storage mapping are outside this contract.
+
+Storage loads on CPU. CUDA-tagged data requires an explicit CPU `map_location`
+(string, device or string mapping); this does not implement CUDA execution. Typed
+storage handles byte-order conversion; non-native-endian untyped storage is
+unsupported. Native/StrideTorch model, AdamW and StepLR state exchange is tested
+by resuming actual updates in both directions.
 
 ## Local model callbacks
 
@@ -829,7 +876,8 @@ state, scheduler state and then optimizer state. Scheduler loading retains the
 destination optimizer and restores counters/child states; it does not restore
 the optimizer's current learning rates. Lambda functions must be reconstructed in
 code; callable objects save their attribute dictionaries, not their executable
-code. These checkpoints remain in-memory Python objects, not native `.pt` files.
+code. The supported state dictionaries can also be stored in native-compatible
+ZIP `.pt` files with `torch.save/load`.
 
 Frozen CPU scalar Tensor learning rates retain their group object identity while
 updates fill their values; initial/base/reported rate tensors are independent

@@ -30,7 +30,7 @@ def create_torch(name='torch', *, register=False):
                  'nn.modules.normalization', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
                  'nn.modules.flatten', 'nn.modules.distance',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
-                 'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
+                 'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name):
             if key.startswith('_'): raise AttributeError(key)
@@ -38,7 +38,7 @@ def create_torch(name='torch', *, register=False):
         module.__getattr__ = missing
         modules['torch.' + name] = module
         if register: sys.modules[module.__name__] = module
-    for name in ('nn', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda'):
+    for name in ('nn', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         setattr(torch, name, modules['torch.' + name])
     torch.nn.functional = modules['torch.nn.functional']
     for name, cls in {
@@ -223,6 +223,9 @@ def create_torch(name='torch', *, register=False):
         'svdvals': lambda input,*,driver=None,out=None: _linalg.svd(input,False,driver=driver,out=out).S,
     }, reverse='analytic')
     registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)
+    registry.group('torch', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
+    registry.group('torch.serialization', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
+    torch.serialization.save,torch.serialization.load = torch.save,torch.load
     registry.add('torch.linalg.matrix_rank', lambda input: _tensor.Tensor(np.linalg.matrix_rank(input._data),dtype=np.int64), reverse='nondifferentiable')
     registry.add('torch.testing.assert_close', _ops.assert_close, reverse='control')
     registry.add('torch.random.fork_rng', _random.fork_rng, reverse='control')
@@ -236,4 +239,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _batchnorm, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _tensor
+from . import _arithmetic, _activation, _autograd, _batchnorm, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _serialization, _tensor

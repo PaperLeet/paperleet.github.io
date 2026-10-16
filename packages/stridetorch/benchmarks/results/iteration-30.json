@@ -1,0 +1,1147 @@
+{
+  "status": "core_candidate_validated_application_integration_pending",
+  "version": "0.30.0",
+  "baseline_commit": "0d5975a08fd94d66aa9655531948fdb942723eed",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+    "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "standalone_test_hashes": {
+    "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+    "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+  },
+  "full_cpu": {
+    "passed": 29960,
+    "optional_skipped": 1,
+    "warnings": 34,
+    "duration_s": 184.26
+  },
+  "focused_passed": 114,
+  "minimal_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.30.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 44,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.30.0-py3-none-any.whl": "edb42458db2b0524842ff326038a47aeb02b2381ed54ce253f37390fdd99a366",
+      "stridetorch-0.30.0.tar.gz": "63cc517d1f4029b42fd0c49e732e68cc024c70cf681b3b67e299ffc9aa5d5211"
+    },
+    "receipts": {
+      "python310-stride030-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.024492583004757762,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/python310-stride030-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride030-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.262976375001017,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/python310-stride030-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/dist-preflight/stridetorch-0.30.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride030-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 7.59623099998862,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/python310-stride030-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/python310-stride030-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "independent_node_wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.30.0",
+    "numpy": "2.2.5",
+    "passed": 948,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835"
+    }
+  },
+  "actual_chrome_worker": {
+    "status": "success",
+    "library": "0.30.0",
+    "numpy": "2.2.5",
+    "passed": 948,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "c2ef3fd0d0491cf321d3b8e460330e4a0779b523805850c916b80de245b3d42a",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "082fac11de87305c218ed2dd153fd8bc82fa351ed687097ae41e1abd42423b1b"
+    }
+  },
+  "private_distribution": {
+    "status": "success",
+    "source_resources": 46,
+    "python_modules": 44,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "application_server_catalog_identical": true,
+    "artifacts": {
+      "paperleet-0.1.0-py3-none-any.whl": "1c485773a55d9a611e449e05310adc8ab390f2f14d71d0384bee9d481d93bd53",
+      "paperleet-0.1.0.tar.gz": "e4d5854a38609a35be31bc557404469f8819a65bca5ed64b85864f1e02fbd288"
+    }
+  },
+  "coinstall": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+      "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.30.0-py3-none-any.whl": "edb42458db2b0524842ff326038a47aeb02b2381ed54ce253f37390fdd99a366",
+      "paperleet-0.1.0-py3-none-any.whl": "1c485773a55d9a611e449e05310adc8ab390f2f14d71d0384bee9d481d93bd53"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.025841958005912602
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/dist-preflight/stridetorch-0.30.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.1505535839969525
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.30.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nprint('PASS isolated ownership,aliases,numerical flows and ZIP checkpoint-resume')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.270280124997953
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013792500001727603
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.30.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nprint('PASS isolated ownership,aliases,numerical flows and ZIP checkpoint-resume')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.12523641700681765
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.013913041999330744
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.011470833007479087
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.30.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nprint('PASS isolated ownership,aliases,numerical flows and ZIP checkpoint-resume')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.19685395900160074
+      }
+    ],
+    "scope": "ZIP checkpoint alias/shared-storage/model-optimizer-scheduler resume verified in each namespace. Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP,matrix views and batched right-solve VJP/JVP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "performance": {
+    "source_size": {
+      "baseline": {
+        "files": 45,
+        "raw_bytes": 470669,
+        "gzip_bytes": 110287,
+        "hashes": {
+          "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+          "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+          "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+          "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+          "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+          "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+          "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+          "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+          "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+          "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+          "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+          "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+          "_api.py": "befb8db90c4e743f6d3f3f58e375477d80f7cec8a2784b43f3c7400dc105a2fa",
+          "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+          "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+          "__init__.py": "b9aed3fe2a4e9308178ed3b6a02e5499137f6ff1cee7a856492f78302f6ec219",
+          "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+          "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+          "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+          "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+          "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+          "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+          "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+          "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+          "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+          "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+          "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+          "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+          "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+          "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+          "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+          "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+          "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+          "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+          "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+          "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+          "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+          "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+          "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+          "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+          "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+          "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+          "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+          "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+        }
+      },
+      "candidate": {
+        "files": 46,
+        "raw_bytes": 489518,
+        "gzip_bytes": 115361,
+        "hashes": {
+          "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+          "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+          "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+          "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+          "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+          "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+          "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+          "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+          "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+          "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+          "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+          "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+          "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+          "_api.py": "1441139ed54527d05e75f39b743a0a4d2d88073f92556a3fad1198659df4bf58",
+          "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+          "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+          "__init__.py": "08f0068a6fcc644ca34b70af93e625ccb95837379d6f73885d739e626421ef6a",
+          "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+          "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+          "_linalg.py": "f5afc4e9e52bdf4773ed3c797a79c1381d4d0f6abead3e96fb6e604d3522d341",
+          "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+          "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+          "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+          "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+          "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+          "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+          "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+          "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+          "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+          "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+          "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+          "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+          "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+          "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+          "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+          "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+          "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+          "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+          "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+          "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+          "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+          "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+          "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+          "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+          "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+        }
+      }
+    },
+    "cold_namespace_import": {
+      "0": {
+        "baseline": {
+          "samples_ms": [
+            86.35341699118726,
+            77.38512499781791,
+            77.3382499901345,
+            77.44875000207685
+          ],
+          "median_ms": 77.41693749994738
+        },
+        "candidate": {
+          "samples_ms": [
+            85.17012499214616,
+            79.45575000485405,
+            79.55275000131223,
+            78.60074999916833
+          ],
+          "median_ms": 79.50425000308314
+        }
+      },
+      "1": {
+        "baseline": {
+          "samples_ms": [
+            54.754584009060636,
+            55.999124990194105,
+            55.01758299942594,
+            55.50224999024067
+          ],
+          "median_ms": 55.259916494833305
+        },
+        "candidate": {
+          "samples_ms": [
+            58.04733300465159,
+            57.0019169972511,
+            57.0274580095429,
+            56.49958399590105
+          ],
+          "median_ms": 57.014687503397
+        }
+      }
+    },
+    "controls": {
+      "cpu": {
+        "unary-backward": [
+          -0.775267185465589,
+          -0.5948027036291714
+        ],
+        "layernorm-backward": [
+          -0.20096680663291844,
+          0.00912435342046436
+        ],
+        "attention-backward": [
+          0.40912445419583054,
+          0.4727398335933497
+        ],
+        "jvp": [
+          0.989656769980618,
+          0.45979298093681287
+        ],
+        "inference": [
+          -0.09148221650011612,
+          1.0357919563323215
+        ]
+      },
+      "wasm": {
+        "unary-backward": [
+          -0.305900781529278,
+          -0.9640399081387585
+        ],
+        "layernorm-backward": [
+          -0.8668841728750931,
+          -0.0349429245112054
+        ],
+        "attention-backward": [
+          -0.3168018638747605,
+          -0.617220262159468
+        ],
+        "jvp": [
+          -0.16732423852802158,
+          -0.08119799540331485
+        ],
+        "inference": [
+          -2.143616147608285,
+          0.41287339655808886
+        ]
+      }
+    },
+    "checkpoint": {
+      "cpu": {
+        "one-1MiB": [
+          {
+            "candidate": {
+              "save": 110.11100044318785,
+              "load": 102.736332337372
+            },
+            "native": {
+              "save": 221.12500058331838,
+              "load": 65.18033721173803
+            }
+          },
+          {
+            "candidate": {
+              "save": 111.38866830151528,
+              "load": 103.9166672853753
+            },
+            "native": {
+              "save": 222.84733616591743,
+              "load": 66.48599810432643
+            }
+          }
+        ],
+        "many128x16": [
+          {
+            "candidate": {
+              "save": 2885.1250011939555,
+              "load": 1993.574999505654
+            },
+            "native": {
+              "save": 1040.358399040997,
+              "load": 2608.7083999300376
+            }
+          },
+          {
+            "candidate": {
+              "save": 2884.1499995905906,
+              "load": 1995.2250004280359
+            },
+            "native": {
+              "save": 1057.2333994787186,
+              "load": 2577.4167996132746
+            }
+          }
+        ],
+        "shared64views": [
+          {
+            "candidate": {
+              "save": 1075.0000015832484,
+              "load": 580.8249989058822
+            },
+            "native": {
+              "save": 473.55819842778146,
+              "load": 921.6750011546537
+            }
+          },
+          {
+            "candidate": {
+              "save": 1046.8166001373902,
+              "load": 565.3667991282418
+            },
+            "native": {
+              "save": 467.7833989262581,
+              "load": 904.5249986229464
+            }
+          }
+        ],
+        "training-resume": [
+          {
+            "candidate": {
+              "save-load-rebuild-update": 748.2776660860205
+            },
+            "native": {
+              "save-load-rebuild-update": 598.0833326854432
+            }
+          },
+          {
+            "candidate": {
+              "save-load-rebuild-update": 729.7083308609823
+            },
+            "native": {
+              "save-load-rebuild-update": 555.1666690735146
+            }
+          }
+        ]
+      },
+      "wasm": {
+        "one-1MiB": [
+          {
+            "candidate": {
+              "save": 366.6943333333616,
+              "load": 341.87500000001
+            }
+          },
+          {
+            "candidate": {
+              "save": 367.95833333328846,
+              "load": 339.51399999998523
+            }
+          }
+        ],
+        "many128x16": [
+          {
+            "candidate": {
+              "save": 6482.916599999999,
+              "load": 4486.591600000001
+            }
+          },
+          {
+            "candidate": {
+              "save": 6577.566800000012,
+              "load": 4463.13319999998
+            }
+          }
+        ],
+        "shared64views": [
+          {
+            "candidate": {
+              "save": 2247.7499999999927,
+              "load": 1272.0500000000357
+            }
+          },
+          {
+            "candidate": {
+              "save": 2260.5000000000427,
+              "load": 1272.5500000000168
+            }
+          }
+        ],
+        "training-resume": [
+          {
+            "candidate": {
+              "save-load-rebuild-update": 1441.4443333333377
+            }
+          },
+          {
+            "candidate": {
+              "save-load-rebuild-update": 1467.333333333413
+            }
+          }
+        ]
+      }
+    },
+    "receipts": [
+      {
+        "name": "import-0-0-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.11599495900736656
+      },
+      {
+        "name": "import-0-0-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.11019420900265686
+      },
+      {
+        "name": "import-0-1-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10476699999708217
+      },
+      {
+        "name": "import-0-1-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10255204100394621
+      },
+      {
+        "name": "import-0-2-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10168999999586958
+      },
+      {
+        "name": "import-0-2-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.1039072919957107
+      },
+      {
+        "name": "import-0-3-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10300237499177456
+      },
+      {
+        "name": "import-0-3-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10197291699296329
+      },
+      {
+        "name": "import-1-0-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10201170900836587
+      },
+      {
+        "name": "import-1-0-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10567762500431854
+      },
+      {
+        "name": "import-1-1-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10457904200302437
+      },
+      {
+        "name": "import-1-1-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.1030736669927137
+      },
+      {
+        "name": "import-1-2-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10260091599775478
+      },
+      {
+        "name": "import-1-2-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.1046309170051245
+      },
+      {
+        "name": "import-1-3-candidate",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10449008300201967
+      },
+      {
+        "name": "import-1-3-baseline",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-import.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.10262008399877232
+      },
+      {
+        "name": "checkpoint-cpu-0",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-checkpoints.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.6657039580022683
+      },
+      {
+        "name": "checkpoint-wasm-0",
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-checkpoints-wasm.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/baseline/stridetorch",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/source",
+          "float64"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.754982292011846
+      },
+      {
+        "name": "checkpoint-wasm-1",
+        "command": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-checkpoints-wasm.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/baseline/stridetorch",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/source",
+          "float64"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.7530309580033645
+      },
+      {
+        "name": "checkpoint-cpu-1",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/bench-checkpoints.py"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.6184817500034114
+      }
+    ],
+    "scope": "Sequential fresh processes after final compatibility gates;4 cold imports per variant/preload;2 complete CPU and2 Pyodide performance processes;all samples retained;relative numerical controls compare0.29,checkpoint reports absolute cost and separate native context."
+  },
+  "gate_receipts": {
+    "minimal-wheel": {
+      "exit_code": 0,
+      "elapsed_s": 8.036836875,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/check-wheel.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "node-wasm": {
+      "exit_code": 0,
+      "elapsed_s": 10.880268625,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/wasm-contracts.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "chrome-worker": {
+      "exit_code": 0,
+      "elapsed_s": 11.303965666,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-30/proof-hardened/chrome-contracts/run.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "full-native": {
+      "exit_code": 0,
+      "elapsed_s": 186.58888566599998,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "-m",
+        "pytest",
+        "tests",
+        "packages/stridetorch/tests",
+        "-q"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    }
+  },
+  "scope": "Modern native ZIP weights-only CPU data checkpoints;14 dtypes,shared views and native bidirectional AdamW/StepLR resume;NumPy-only independent fixture and SGD analytic resume. Fixed allowlist,extensions disabled,BUILD only OrderedDict attributes. No whole-module/executable/legacy/mmap support. No nativeTorch runtime dependency.",
+  "retained_failures": [
+    "Initial external padded buffer unsupported;bounded physical storage span fixes it",
+    "Cached EXT bypass reproduced with3 failed tests;pure restricted unpickler rejects extensions",
+    "BUILD host dtype mutation reproduced;BUILD now accepts only OrderedDict attributes",
+    "First coinstall probe incorrectly expected a fresh as_torch namespace to equal m.torch;corrected probe,no product change",
+    "One focused invocation used nonexistent tests/test_torch_operator_dispatch.py;corrected maintained packages/test_dispatch.py,114 pass"
+  ],
+  "archive": {
+    "file": "iteration-30-harness.tar.gz",
+    "files": 705,
+    "bytes": 1372461,
+    "sha256": "c28022306f9743be88b958dfa95efdd67d204b637426afb635065bf576666cf1"
+  },
+  "remaining": [
+    "Full PaperLeet native catalog,exported WASM and frontend gates",
+    "Latest-main preservation and non-force adoption",
+    "Remote Quality,actual Pages and live-byte proof"
+  ]
+}

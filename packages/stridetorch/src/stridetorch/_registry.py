@@ -7,10 +7,14 @@ from collections import namedtuple
 OperatorCapability = namedtuple('OperatorCapability', 'reverse forward unsupported_keywords signature')
 
 
-def contains_tensor(value, predicate):
+def contains_tensor(value, predicate, seen=None):
     if isinstance(value, _tensor.Tensor): return predicate(value)
-    if isinstance(value, (tuple, list)): return any(contains_tensor(v, predicate) for v in value)
-    if isinstance(value, dict): return any(contains_tensor(v, predicate) for v in value.values())
+    if isinstance(value, (tuple, list, dict)):
+        if seen is None:seen=set()
+        if id(value) in seen:return False
+        seen.add(id(value))
+        if isinstance(value,dict):return any(contains_tensor(v,predicate,seen) for pair in value.items() for v in pair)
+        return any(contains_tensor(v,predicate,seen) for v in value)
     return False
 
 
