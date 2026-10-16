@@ -57,6 +57,8 @@ For policy optimization, follow [Policy optimization & post-training](https://pa
 
 For fewer sampling steps, follow [Few-step generation](https://paperleet.com/#/interviews?track=few-step-generation): DDIM, progressive distillation, consistency models, flow matching, MeanFlow, DMD and DMD2. Bilingual self-checks cover target construction, gradient isolation and update schedules under each exercise's conventions.
 
+For latent prediction and control, follow [Latent world models & planning](https://paperleet.com/#/interviews?track=world-models): I-JEPA, Causal-JEPA object masking, LeWM joint prediction and CEM planning. Bilingual self-checks distinguish frozen targets from end-to-end gradients, recurrent rollout, terminal costs and elite statistics.
+
 For Transformer core and efficiency, use the [guided preparation path](https://paperleet.com/#/interviews?track=transformer): nine modules connecting positions, per-token FFNs, normalization, shared KV heads and online softmax.
 
 For diffusion practice, the [Training & experimentation path](https://paperleet.com/#/interviews?track=training) connects schedules, v-parameterization, DDPM, DDIM and Flow Matching alongside optimizer and policy objectives. Bilingual study prompts separate each core implementation from the supplied sampling and experiment helpers.
