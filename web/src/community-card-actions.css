@@ -41,7 +41,9 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-more-comments:hover,.card-collapse-comments:hover{background:var(--surface2)}
 .card-comments-empty{font-size:13px;color:var(--text-secondary);padding:8px 0}
 .card-reply-form{display:grid;gap:10px;margin-top:16px;padding-top:4px}
-.card-reply-form>.community-author-identity{font-size:12px}
+.card-reply-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px}
+.card-reply-heading>.community-author-identity{font-size:12px}
+.card-reply-heading>button{display:inline-flex;align-items:center;gap:4px;min-height:36px;font-size:12px}
 .card-reply-form .markdown-editor{min-width:0}
 .card-reply-form textarea{min-height:88px}
 .card-reply-form>footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -63,3 +65,14 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-reply-form .markdown-editor-footer{padding:8px 12px}
 
 .card-account-checking{font-size:12px;color:var(--text-secondary);padding:12px;border-radius:8px;background:var(--surface2)}
+
+.card-comment-compose-prompt{display:flex;align-items:center;gap:10px;width:100%;margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--text-secondary);font:inherit;text-align:start;cursor:pointer;transition:border-color .15s,background .15s}
+.card-comment-compose-prompt>svg{flex:none}
+.card-comment-compose-prompt>span{display:grid;gap:3px;min-width:0}
+.card-comment-compose-prompt b{font-size:13px;font-weight:500;color:var(--text)}
+.card-comment-compose-prompt small{font-size:11px;line-height:1.5}
+.card-comment-compose-prompt:hover:not(:disabled){border-color:var(--accent);background:var(--surface)}
+.card-comment-compose-prompt:disabled{cursor:default;opacity:.6}
+.card-comment-compose-prompt[hidden],.card-reply-form[hidden]{display:none}
+@media(max-width:600px){.card-reply-heading>button{min-height:44px}}
+@media(prefers-reduced-motion:reduce){.card-comment-compose-prompt{transition:none}}
