@@ -44,6 +44,8 @@ const css = new Set([...initial].flatMap(key => manifest[key].css || []));
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('community-code-manual')), 'Enhanced community code controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('discussion-copy')), 'Discussion sharing controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('failure-frame-link')), 'Interactive traceback controls must remain deferred');
+assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('has-live-preview')), 'Live writing controls must remain deferred');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.has-live-preview')), 'Live writing layout must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.failure-frame-link')), 'Interactive traceback styles must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.discussion-link-fallback')), 'Discussion sharing styles must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-code-manual')), 'Community code reading styles must remain deferred');

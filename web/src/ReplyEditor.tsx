@@ -58,7 +58,7 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
       <button type="button" disabled={busy||disabled} onClick={()=>{edit({baseVersion:reply.edit_version!});setError('');}}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
-      <MarkdownEditor submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
+      <MarkdownEditor scopeKey={JSON.stringify(['reply-edit',owner,reply.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
         label={t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={6} maxLength={10000} busy={busy} disabled={disabled} autoFocus/>
       <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||!canPublish||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>

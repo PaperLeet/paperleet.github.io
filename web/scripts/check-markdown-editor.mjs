@@ -83,6 +83,8 @@ try{
   await click(named('Bold'));assert.equal(field.value,'A **concrete** reflection 😀');
   const draft=kind==='post'?drafts.readPostDraft(sessionStorage,owner,'general'):['reply','inline-reply'].includes(kind)?replies.readReplyDraft(sessionStorage,owner,postId):kind==='interview'?interviews.readInterviewDraft(sessionStorage,owner):kind==='edit-post'?postEdits.readPostEdit(sessionStorage,owner,postId):replyEdits.readReplyEdit(sessionStorage,owner,replyId);
   assert.equal(draft.body,field.value,'Existing scoped draft path: '+kind);
+  const beforeLive=JSON.stringify({...sessionStorage});field.scrollLeft=9;
+  await click(named('Live preview'));assert.equal(document.querySelector('.markdown-editor textarea'),field);assert(!field.closest('label').hidden);assert(document.querySelector('.markdown-editor.has-live-preview .compose-preview').textContent.includes('concrete'));assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);assert.equal(field.scrollLeft,9);assert.equal(JSON.stringify({...sessionStorage}),beforeLive,'Changing the reading layout does not rewrite the '+kind+' draft');
   await click(named('Preview'));await click(named('Write'));assert.equal(document.querySelector('textarea'),field);assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);
   await click(named('Undo formatting'));assert.equal(field.value,'A concrete reflection 😀');assert.equal(mutations.length,0);
   if(kind==='post'||kind==='interview')await input(document.querySelector(`input[maxlength="${kind==='post'?160:180}"]`),'A complete publishing title');

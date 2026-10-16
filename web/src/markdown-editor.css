@@ -1,4 +1,4 @@
-.markdown-editor { min-width:0; display:grid; gap:0; border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden; }
+.markdown-editor { min-width:0; display:grid; gap:0; border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden; container:markdown-writing / inline-size; }
 .markdown-editor:focus-within { border-color:var(--accent); }
 .markdown-editor .editor-toggle { gap:18px; padding:0 14px; margin:0; background:var(--surface2); }
 .markdown-editor .editor-toggle button { min-height:44px; padding:0 2px; border-bottom:2px solid transparent; }
@@ -10,8 +10,21 @@
 .markdown-format-tools .markdown-format-undo { margin-left:auto; font-size:var(--type-small); }
 .markdown-editor button:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
 .markdown-editor .markdown-body-label { padding:12px 14px 0; font-size:var(--type-small); color:var(--text-secondary); }
-.social-form .markdown-editor textarea { width:100%; margin:6px 0 0; padding:4px 0 12px; border:0; border-radius:0; box-shadow:none; background:transparent; resize:vertical; color:var(--text); font-size:var(--type-body); line-height:1.7; }
+.social-form .markdown-editor .markdown-body-label>textarea { width:100%; margin:6px 0 0; padding:4px 0 12px; border:0; border-radius:0; box-shadow:none; background:transparent; resize:vertical; color:var(--text); font-size:var(--type-body); line-height:1.7; }
 .markdown-editor .compose-preview { margin:0; padding:16px; min-height:240px; overflow-wrap:anywhere; }
+.markdown-editor-body { display:grid; min-width:0; }
+.markdown-editor-body>* { min-width:0; }
+.markdown-editor.has-live-preview .compose-preview { min-height:160px; max-height:480px; overflow:auto; overscroll-behavior:contain; border-top:1px solid var(--line); }
+.markdown-preview-heading { display:block; margin-bottom:12px; color:var(--text-secondary); font-size:var(--type-small); font-weight:600; }
+@container markdown-writing (min-width:720px) {
+  .markdown-editor.has-live-preview .markdown-editor-body { grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; }
+  .markdown-editor.has-live-preview .compose-preview { border-top:0; border-left:1px solid var(--line); }
+  .markdown-editor.has-live-preview .markdown-body-label textarea { min-height:280px; }
+}
+@container markdown-writing (max-width:519px) {
+  .markdown-editor .editor-toggle { gap:12px; padding-inline:12px; }
+  .markdown-editor .editor-toggle small { display:none; }
+}
 .markdown-editor-footer { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:10px 14px; border-top:1px solid var(--line); color:var(--text-secondary); }
 .markdown-editor-footer .community-format-help { min-width:0; flex:1; margin:0; }
 .markdown-editor-footer > small { flex-shrink:0; font-size:var(--type-meta); font-variant-numeric:tabular-nums; }
