@@ -18,6 +18,7 @@ import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
 import {quoteReplyDraft,type ReplyQuote} from './replyQuotes';
 import './reply-quotes.css';
+import './profile-solutions.css';
 import MarkdownEditor from "./MarkdownEditor";
 import {
   ArrowLeft,
