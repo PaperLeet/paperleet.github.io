@@ -1,6 +1,7 @@
 import type { ReportSourceState } from './reportSource';
 
 export type SourceLocation = { line: number; column?: number };
+export type LearnerTraceFrame = { row: number; location: SourceLocation };
 export type EditorFocusRequest = { source: string; location: SourceLocation };
 
 export const editorSource = (source: string) => source.replace(/\r\n|\r/g, '\n');
@@ -18,13 +19,18 @@ export function sourceOffset(source: string, { line, column = 1 }: SourceLocatio
 
 /** Advisory navigation only. Never infer a learner location from test/reference frames. */
 export function learnerTraceLocation(message: string | undefined, impl: string | undefined, source: string, state: ReportSourceState): SourceLocation | undefined {
-  if (state !== 'current' || !message || !impl || impl.length > 2048) return;
+  return learnerTraceFrames(message,impl,source,state).at(-1)?.location;
+}
+
+/** Preserve raw traceback rows, including repeated calls, for explicit navigation. */
+export function learnerTraceFrames(message: string | undefined, impl: string | undefined, source: string, state: ReportSourceState): LearnerTraceFrame[] {
+  if (state !== 'current' || !message || !impl || impl.length > 2048) return [];
   const normalize = (path: string) => path.replace(/\\/g, '/').replace(/^\.\//, '');
   const implementation = normalize(impl);
-  if (!implementation.includes('/') && implementation !== 'submission.py') return;
+  if (!implementation.includes('/') && implementation !== 'submission.py') return [];
   const lineCount = editorSource(source).split('\n').length;
-  let location: SourceLocation | undefined;
-  for (const text of message.split(/\r\n|\r|\n/)) {
+  const frames:LearnerTraceFrame[]=[];
+  for (const [row,text] of message.split(/\r\n|\r|\n/).entries()) {
     const frame = /^\s*(.+):([1-9]\d*): in \S.*$/.exec(text) || /^\s*File ["'](.+)["'], line ([1-9]\d*), in (?:[A-Za-z_]\w*|<[^>\r\n]+>)\s*$/.exec(text);
     if (!frame) continue;
     const file = normalize(frame[1]);
@@ -32,7 +38,7 @@ export function learnerTraceLocation(message: string | undefined, impl: string |
       ? file === 'submission.py' || file.endsWith('/submission.py')
       : file === implementation || (!file.startsWith('/') && !/^[A-Za-z]:/.test(file) && file.includes('/') && implementation.endsWith('/' + file));
     const line = Number(frame[2]);
-    if (matches && Number.isSafeInteger(line) && line <= lineCount) location = { line };
+    if (matches && Number.isSafeInteger(line) && line <= lineCount) frames.push({row,location:{line}});
   }
-  return location;
+  return frames;
 }

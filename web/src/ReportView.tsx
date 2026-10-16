@@ -4,7 +4,7 @@ import { useI18n } from "./i18n";
 import { isPassed, layers, type Problem, type Report } from "./types";
 import { ReportSourceNotice } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
-import { learnerTraceLocation, type SourceLocation } from "./sourceLocation";
+import { learnerTraceFrames, type SourceLocation } from "./sourceLocation";
 import FailureDiagnostic from './FailureDiagnostic';
 import { ReportTests } from "./ReportTests";
 
@@ -54,6 +54,7 @@ export default function ReportView({
   const passed = report.tests.filter((test) => test.passed).length,
     total = report.tests.length,
     allPassed = !report.error && total > 0 && passed === total;
+  const frames=learnerTraceFrames(report.error,report.impl,source,sourceState);
   return (
     <div className="report-view" data-source={sourceState}>
       <div className={`result-head ${allPassed ? sourceState === 'current' ? 'success' : 'previous' : "failure"}`}>
@@ -75,7 +76,7 @@ export default function ReportView({
       </div>
       <div className="result-summary-meter" aria-hidden="true"><span style={{ width: `${total ? passed / total * 100 : 0}%` }} /></div>
       <ReportSourceNotice state={sourceState} />
-      {report.error && <FailureDiagnostic message={report.error} location={learnerTraceLocation(report.error,report.impl,source,sourceState)} onLocate={onLocate}/>}
+      {report.error && <FailureDiagnostic message={report.error} location={frames.at(-1)?.location} frames={frames} onLocate={onLocate}/>}
       {children}
       <div className="report-meta">
         <span>{t("最近一次运行", "Latest run")}</span>

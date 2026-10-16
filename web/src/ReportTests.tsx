@@ -6,7 +6,7 @@ import { reportTestLabel } from "./experimentResults";
 import { visibleReportTests, formatTestDuration, testKey, type TestOutcome } from "./testReportView";
 import TestComparison from "./TestComparison";
 import FailureDiagnostic from './FailureDiagnostic';
-import { learnerTraceLocation, type SourceLocation } from "./sourceLocation";
+import { learnerTraceFrames, type SourceLocation } from "./sourceLocation";
 import type { ReportSourceState } from "./reportSource";
 import { ArtifactCharts } from "./deferredPages";
 
@@ -50,16 +50,16 @@ export function ReportTests({ tests, source, sourceState, impl, onLocate }: { te
       visible.forEach(({ key }) => { if (allExpanded) next.delete(key); else next.add(key); });
       return next;
     })}>{allExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}{allExpanded ? t("收起当前结果", "Collapse visible") : t("展开当前结果", "Expand visible")}</button></div>
-    {visible.map(({ test, key }) => <details key={key} className={`test-detail ${test.passed ? "passed" : "failed"}`} open={expanded.has(key)} onToggle={(event) => toggle(key, event.currentTarget.open)}>
+    {visible.map(({ test, key }) => {const frames=test.passed?[]:learnerTraceFrames(test.message,impl,source,sourceState);return <details key={key} className={`test-detail ${test.passed ? "passed" : "failed"}`} open={expanded.has(key)} onToggle={(event) => toggle(key, event.currentTarget.open)}>
       <summary aria-label={`${test.passed ? t("已通过", "Passed") : t("未通过", "Failed")} · ${reportTestLabel(test)} · ${test.layer} · ${formatTestDuration(test.duration_s || 0)}`}>{test.passed ? <CheckCircle2 size={15} aria-hidden="true" /> : <XCircle size={15} aria-hidden="true" />}<span title={reportTestLabel(test)}>{reportTestLabel(test)}</span><b>{test.layer}</b><small>{formatTestDuration(test.duration_s || 0)}</small></summary>
       <div className="test-body">
-        {!test.passed && <FailureDiagnostic message={test.message} location={learnerTraceLocation(test.message,impl,source,sourceState)} onLocate={onLocate}/>}
+        {!test.passed && <FailureDiagnostic message={test.message} location={frames.at(-1)?.location} frames={frames} onLocate={onLocate}/>}
         {test.comparison && <TestComparison comparison={test.comparison} />}
         <p className="test-why"><b>{t("为什么检查这个性质", "Why this property matters")}</b>{test.why || t("见本题测试说明。", "See the problem's test specification.")}</p>
         {test.passed && test.message && <details className="failure-trace"><summary>{t('测试输出','Test output')}</summary><pre>{test.message}</pre></details>}
         {test.artifacts && Object.keys(test.artifacts).length > 0 && <ArtifactCharts data={test.artifacts} />}
       </div>
-    </details>)}
+    </details>;})}
     {!visible.length && <div className="test-filter-empty"><ListFilter size={22} /><p>{t("当前条件下没有测试项", "No tests match these filters")}</p><button className="text-button" onClick={() => { setOutcome("all"); setLayer("all"); }}>{t("查看全部测试", "Show all tests")}</button></div>}
   </section>;
 }
