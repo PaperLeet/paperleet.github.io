@@ -1,0 +1,242 @@
+{
+  "status": "Portable native complex-zero oracle correction locally verified; rerun Linux CI pending",
+  "original_commit": "94c53f894dbd1cdee3c0970e0555a3345ecb3b84",
+  "original_quality_run": 38826821990,
+  "original_native_job": 116736101277,
+  "original_native_result": "6 failed,17060 passed,1 optional Docker skip,10 warnings370.77s",
+  "original_environment": {
+    "os": "Linux x86_64",
+    "python": "3.12.15",
+    "torch": "2.14.1+cpu",
+    "numpy": "2.5.4"
+  },
+  "original_native_log_sha256": "db4cc306d5aba6d5d4a41423a0d59f837de093af0e8a65914ee04a8b12aabca1",
+  "failure_scope": "Complex zero reciprocal real infinity sign differs from native macOS arm64; finite values, nonzero inputs and inf/nan classifications are not relaxed.",
+  "library_contract": "At complex zero, real infinity retains the real zero sign and imaginary output is NaN; platform-independent policy verified for all four signed-zero pairs, complex64/128, function and method. Real reciprocal zero signs remain strict.",
+  "oracle_guards": "Reject finite-value errors, wrong zero-result classes and nonzero-input infinity signs; accept both observed native zero-sign conventions.",
+  "runtime35_byte_identical": true,
+  "runtime_source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "094c93f7b6acb02e687fb9be6ee15e5600de3da8e5998acc123c31234a5c4e46",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "c677e2d0be9b8c39d193935aab93248d0b5d34ce286c392ef25f65ad1bf9d38e",
+    "_ops.py": "a5ca3c2972b8faf4ee5978f0d9988c3bea829ec617c4f56f31e7d88810fd584e",
+    "_api.py": "90605a1e0a5e285db1575524d5122378f9c871f8a7eedb60bd09ba71336e5293",
+    "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+    "__init__.py": "7e51c7fadf0a1f9abfca3fc543ebea04f29456895e3b1ad51b6c130dc0323c73",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+    "_tensor.py": "773462868e7c546c43f7665959743b46a5f44016ff0a1ecc56655323cdc3f11a",
+    "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49",
+    "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+    "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_autograd.py": "4fca3099a06699f58897d94acb408f014230f132eef1d44874d11edeed2f01a0",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "8b00790a9a4e3a6e44d7460cfe8708019566ad91d6f2175779bcd94af223342b"
+  },
+  "receipt": {
+    "portability-native.log": {
+      "exit_code": 0,
+      "elapsed_s": 2.1866560419985035,
+      "command": [
+        "/Users/david/Developer/PaperLeet-torch-release/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_torch_ieee.py",
+        "packages/paperleet-torch/tests/test_ieee.py",
+        "-q"
+      ]
+    },
+    "portability-minimum-source.log": {
+      "exit_code": 0,
+      "elapsed_s": 0.7493649999996705,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1/numpy-min-env/bin/python",
+        "-m",
+        "pytest",
+        "packages/paperleet-torch/tests",
+        "-q",
+        "--noconftest"
+      ]
+    },
+    "portability-wasm.log": {
+      "exit_code": 0,
+      "elapsed_s": 2.4462456250003015,
+      "command": [
+        "node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-14/wasm-portability.mjs"
+      ]
+    },
+    "portability-build.log": {
+      "exit_code": 0,
+      "elapsed_s": 1.1317185829975642,
+      "command": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-14/portability-project",
+        "--wheel",
+        "--sdist",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-14/dist-portability",
+        "--python",
+        "/Users/david/Developer/PaperLeet-torch-release/.venv/bin/python"
+      ]
+    },
+    "portability-install.log": {
+      "exit_code": 0,
+      "elapsed_s": 0.058647624999139225,
+      "command": [
+        "/Users/david/.local/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1/numpy-min-env/bin/python",
+        "--reinstall",
+        "--no-deps",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-14/dist-portability/paperleet_torch-0.14.0-py3-none-any.whl"
+      ]
+    },
+    "portability-minimum-wheel.log": {
+      "exit_code": 0,
+      "elapsed_s": 2.496066375002556,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1/numpy-min-env/bin/python",
+        "-m",
+        "pytest",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-14/portability-installed-tests",
+        "-q",
+        "--noconftest"
+      ]
+    }
+  },
+  "terminal": {
+    "status": "success",
+    "all_children_terminal": true,
+    "runtime35_unchanged": true
+  },
+  "wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.14.0",
+    "numpy": "2.2.5",
+    "passed": 189,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "0ae9e07a917647ec51aea72580d30ae296e47c64b72e898b94226a10d079767a",
+      "__init__.py": "7e51c7fadf0a1f9abfca3fc543ebea04f29456895e3b1ad51b6c130dc0323c73",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "90605a1e0a5e285db1575524d5122378f9c871f8a7eedb60bd09ba71336e5293",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "4fca3099a06699f58897d94acb408f014230f132eef1d44874d11edeed2f01a0",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_construction.py": "8b00790a9a4e3a6e44d7460cfe8708019566ad91d6f2175779bcd94af223342b",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "c677e2d0be9b8c39d193935aab93248d0b5d34ce286c392ef25f65ad1bf9d38e",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "094c93f7b6acb02e687fb9be6ee15e5600de3da8e5998acc123c31234a5c4e46",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "a5ca3c2972b8faf4ee5978f0d9988c3bea829ec617c4f56f31e7d88810fd584e",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_tensor.py": "773462868e7c546c43f7665959743b46a5f44016ff0a1ecc56655323cdc3f11a",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49"
+    }
+  },
+  "wheel": {
+    "library": "0.14.0",
+    "numpy": "1.26.4",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "094c93f7b6acb02e687fb9be6ee15e5600de3da8e5998acc123c31234a5c4e46",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "c677e2d0be9b8c39d193935aab93248d0b5d34ce286c392ef25f65ad1bf9d38e",
+      "_ops.py": "a5ca3c2972b8faf4ee5978f0d9988c3bea829ec617c4f56f31e7d88810fd584e",
+      "_api.py": "90605a1e0a5e285db1575524d5122378f9c871f8a7eedb60bd09ba71336e5293",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "__init__.py": "7e51c7fadf0a1f9abfca3fc543ebea04f29456895e3b1ad51b6c130dc0323c73",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "773462868e7c546c43f7665959743b46a5f44016ff0a1ecc56655323cdc3f11a",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "_random.py": "5f0c7c06805443c1b6bb4926dbebf9e9eec124301b8d632165e68227d728695c",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_autograd.py": "4fca3099a06699f58897d94acb408f014230f132eef1d44874d11edeed2f01a0",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "8b00790a9a4e3a6e44d7460cfe8708019566ad91d6f2175779bcd94af223342b"
+    },
+    "artifacts": {
+      "paperleet_torch-0.14.0-py3-none-any.whl": {
+        "bytes": 120373,
+        "sha256": "9a8c03e5cdead033f5324f13ef4e20b4bafe9e32049410955feedbbda9cff71a"
+      },
+      "paperleet_torch-0.14.0.tar.gz": {
+        "bytes": 157595,
+        "sha256": "0823991cda6ca4e3bc9e32f2d3dba472c4249ee23ec80796a861369f95ea369b"
+      }
+    }
+  },
+  "tests": {
+    "tests/test_torch_ieee.py": "\"\"\"Native IEEE arithmetic, reciprocal history and NumPy-policy isolation.\"\"\"\nimport itertools\nimport warnings\n\nimport numpy as np\nimport pytest\nimport torch as native\n\nfrom paperleet_torch import torch, UnsupportedOperation\n\nDTYPES=['bool','uint8','uint16','uint32','uint64','int8','int16','int32','int64',\n        'float16','float32','float64','complex64','complex128']\n\n\ndef equal(actual,expected):\n    equal_arrays(actual.numpy(),expected.detach().numpy())\n\n\ndef equal_arrays(a,b):\n    assert a.dtype==b.dtype and a.shape==b.shape\n    with np.errstate(all='ignore'):\n        if a.dtype.kind=='c':\n            np.testing.assert_allclose(a.real,b.real,equal_nan=True,rtol=3e-6,atol=1e-14)\n            np.testing.assert_allclose(a.imag,b.imag,equal_nan=True,rtol=3e-6,atol=1e-14)\n        else:\n            np.testing.assert_allclose(a,b,equal_nan=True,rtol=1e-3 if a.dtype.itemsize==2 else 3e-6,atol=1e-14)\n            mask=b==0\n            np.testing.assert_array_equal(np.signbit(a[mask]),np.signbit(b[mask]))\n\n\ndef equal_reciprocal(actual,expected,source):\n    if source.dtype.kind!='c':\n        return equal(actual,expected)\n    a,b=actual.numpy(),expected.detach().numpy()\n    assert a.dtype==b.dtype==source.dtype and a.shape==b.shape==source.shape\n    zero=(source.real==0)&(source.imag==0)\n    # Native Torch 2.14.1 produces different real infinity signs at complex\n    # zero on macOS arm64 and Linux x86_64. Its inf/nan classification is\n    # shared; every nonzero input still uses the ordinary strict comparison.\n    for value in (a,b):\n        assert np.isinf(value.real[zero]).all()\n        assert np.isnan(value.imag[zero]).all()\n    equal_arrays(a[~zero],b[~zero])\n\n\n@pytest.mark.parametrize('dtype',DTYPES)\n@pytest.mark.parametrize('shape',[(),(7,),(2,7),(0,)])\ndef test_reciprocal_values_dtype_shape_and_method_match_native(dtype,shape):\n    size=int(np.prod(shape)) if shape else 1\n    raw=np.resize(np.array([0.,-0.,1.,-2.,np.inf,-np.inf,np.nan]) if dtype.startswith(('float','complex')) else np.array([0,1,2,3]),size).reshape(shape).astype(dtype)\n    for method in [False,True]:\n        expected=native.tensor(raw).reciprocal() if method else native.reciprocal(native.tensor(raw))\n        actual=torch.tensor(raw).reciprocal() if method else torch.reciprocal(torch.tensor(raw))\n        equal_reciprocal(actual,expected,raw)\n\n\n@pytest.mark.parametrize('dtype',['complex64','complex128'])\ndef test_complex_reciprocal_ieee_grid_matches_native(dtype):\n    values=[0.,-0.,1.,-2.,float('inf'),float('-inf'),float('nan'),1e-40,1e30]\n    raw=np.array([complex(a,b) for a,b in itertools.product(values,repeat=2)],dtype=dtype)\n    equal_reciprocal(torch.reciprocal(torch.tensor(raw)),native.reciprocal(native.tensor(raw)),raw)\n\n\n@pytest.mark.parametrize('case',['finite','zero_real','zero_imag','nonzero_inf_sign'])\ndef test_reciprocal_native_comparison_rejects_wrong_values_and_classifications(case):\n    if case=='finite':\n        source=np.array([1+0j]);actual=[2+0j];expected=[1+0j]\n    elif case=='zero_real':\n        source=np.array([0j]);actual=[complex(np.nan,np.nan)];expected=[complex(np.inf,np.nan)]\n    elif case=='zero_imag':\n        source=np.array([0j]);actual=[complex(np.inf,0.)];expected=[complex(np.inf,np.nan)]\n    else:\n        source=np.array([complex(1e-310,0.)]);actual=[complex(-np.inf,np.nan)];expected=[complex(np.inf,np.nan)]\n    with pytest.raises(AssertionError):\n        equal_reciprocal(torch.tensor(actual,dtype=torch.complex128),native.tensor(expected,dtype=native.complex128),source)\n\n\n@pytest.mark.parametrize('dtype',['complex64','complex128'])\ndef test_reciprocal_native_comparison_accepts_both_observed_zero_sign_conventions(dtype):\n    source=np.array([complex(real,imag) for real in [0.,-0.] for imag in [0.,-0.]]+[1+1j],dtype=dtype)\n    actual=torch.reciprocal(torch.tensor(source))\n    original=native.reciprocal(native.tensor(source)).numpy()\n    zero=source==0\n    for signed in [False,True]:\n        expected=original.copy()\n        expected.real[zero]=np.copysign(np.inf,source.real[zero]) if signed else np.inf\n        equal_reciprocal(actual,native.tensor(expected),source)\n\n\n@pytest.mark.parametrize('dtype',['float16','float32','float64'])\n@pytest.mark.parametrize('scalar',[0.,1.,-2.,1e-300,1e300])\ndef test_reflected_division_uses_native_reciprocal_then_multiply(dtype,scalar):\n    kind=np.dtype(dtype);tiny=np.finfo(kind).tiny\n    raw=np.array([tiny/2,tiny,np.finfo(kind).max,0.,-0.,1.,.3,np.inf,-np.inf,np.nan],dtype=kind)\n    equal(scalar/torch.tensor(raw),scalar/native.tensor(raw))\n    equal(torch.div(scalar,torch.tensor(raw)),native.div(scalar,native.tensor(raw)))\n\n\n@pytest.mark.parametrize('dtype',['float32','float64'])\n@pytest.mark.parametrize('function',[lambda lib,x:lib.reciprocal(x),lambda lib,x:1.5/x,\n                                     lambda lib,x:lib.div(1.5,x)])\ndef test_reciprocal_reverse_jvp_and_reverse_over_forward_match_native(dtype,function):\n    results=[]\n    for lib in (native,torch):\n        x=lib.tensor([.3,1.25,-2.5],dtype=getattr(lib,dtype),requires_grad=True)\n        t=lib.tensor([.25,-.5,.125],dtype=getattr(lib,dtype),requires_grad=True)\n        p,v=lib.func.jvp(lambda z:function(lib,z),(x,),(t,))\n        (p.square().sum()+v.square().sum()).backward()\n        results.append((p,v,x.grad,t.grad))\n    for a,b in zip(results[1],results[0]):equal(a,b)\n\n\n@pytest.mark.parametrize('dtype,value,seed',[('float32',1e-20,1e-30),('float64',1e-200,1e-300),('float64',1e-310,0.)])\ndef test_reciprocal_derivative_order_preserves_native_overflow(dtype,value,seed):\n    records=[]\n    for lib in (native,torch):\n        x=lib.tensor([value],dtype=getattr(lib,dtype),requires_grad=True);s=lib.tensor([seed],dtype=getattr(lib,dtype))\n        p,t=lib.func.jvp(lib.reciprocal,(x,),(s,));lib.reciprocal(x).backward(s)\n        records.append((p,t,x.grad))\n    for a,b in zip(records[1],records[0]):equal(a,b)\n\n\n@pytest.mark.parametrize('mutated',['input','output'])\ndef test_reciprocal_versions_guard_only_the_saved_output(mutated):\n    for lib in (native,torch):\n        x=lib.tensor([.5,2.],requires_grad=True);y=x.reciprocal()\n        with lib.no_grad():(x if mutated=='input' else y.detach()).fill_(3.)\n        if mutated=='input':\n            y.sum().backward();assert x.grad.tolist()==[-4.,-.25]\n        else:\n            with pytest.raises(RuntimeError if lib is native else UnsupportedOperation):y.sum().backward()\n\n\n@pytest.mark.parametrize('case',['div_zero','mul_overflow','fan_in','leaf_existing','seed_cast','multi_root','joint'])\n@pytest.mark.parametrize('policy',['raise','warn','ignore'])\ndef test_reverse_kernels_and_accumulation_isolate_numpy_error_settings(case,policy):\n    records=[];maximum=float(np.finfo(np.float32).max)\n    for lib in (native,torch):\n        x=lib.tensor([1.],requires_grad=True)\n        seed=lib.tensor([2.])\n        if case=='div_zero':value=x/0.\n        elif case=='mul_overflow':value=x*maximum\n        elif case=='fan_in':value=x*maximum+x*maximum;seed=lib.ones(1)\n        elif case=='leaf_existing':x.grad=lib.tensor([maximum]);value=x;seed=lib.tensor([maximum])\n        elif case=='seed_cast':value=x;seed=lib.tensor([1e300],dtype=lib.float64)\n        elif case=='multi_root':value=x;seed=lib.tensor([maximum])\n        else:\n            x=lib.tensor([[1.,2.]],requires_grad=True)\n            value=lib.nn.functional.linear(x,lib.tensor([[maximum,maximum]]));seed=lib.tensor([[2.]])\n        previous=np.seterr(all=policy)\n        try:\n            with warnings.catch_warnings(record=True) as caught:\n                warnings.simplefilter('always')\n                if case=='multi_root':lib.autograd.backward((value,value),(seed,seed))\n                else:value.backward(seed)\n                assert not any(issubclass(v.category,RuntimeWarning) for v in caught)\n            assert np.geterr()==dict.fromkeys(['divide','over','under','invalid'],policy)\n            records.append(x.grad)\n        finally:np.seterr(**previous)\n    equal(records[1],records[0])\n\n\n@pytest.mark.parametrize('phase',['leaf','nonleaf','post'])\ndef test_user_gradient_hooks_keep_caller_numpy_error_policy_and_errors(phase):\n    for lib in (native,torch):\n        x=lib.tensor([2.],requires_grad=True);y=x.square();events=[]\n        def hook(value):\n            events.append(np.geterr().copy())\n            np.divide(1.,0.)\n        if phase=='post':x.register_post_accumulate_grad_hook(hook)\n        elif phase=='nonleaf':y.register_hook(hook)\n        else:x.register_hook(hook)\n        previous=np.seterr(all='raise')\n        try:\n            with pytest.raises(FloatingPointError):y.sum().backward()\n            assert events==[dict.fromkeys(['divide','over','under','invalid'],'raise')]\n            assert np.geterr()==events[0]\n        finally:np.seterr(**previous)\n\n\n@pytest.mark.parametrize('phase',['leaf','nonleaf','post'])\ndef test_hook_policy_changes_persist_across_other_numeric_nodes_and_after_backward(phase):\n    for lib in (native,torch):\n        x=lib.tensor([2.],requires_grad=True);y=x.square();events=[]\n        def hook(value):\n            events.append(np.geterr().copy());np.seterr(over='ignore',divide='warn')\n        if phase=='post':x.register_post_accumulate_grad_hook(hook)\n        elif phase=='nonleaf':y.register_hook(hook)\n        else:x.register_hook(hook)\n        previous=np.seterr(all='raise')\n        try:\n            y.sum().backward()\n            assert events==[dict.fromkeys(['divide','over','under','invalid'],'raise')]\n            assert np.geterr()==dict(divide='warn',over='ignore',under='raise',invalid='raise')\n        finally:np.seterr(**previous)\n\n\ndef test_functional_and_python_reflected_division_keep_distinct_extreme_jvps():\n    for named in [False,True]:\n        pairs=[]\n        for lib in (native,torch):\n            x=lib.tensor([1e-310],dtype=lib.float64);v=lib.zeros_like(x)\n            pairs.append(lib.func.jvp(lambda y:lib.div(1e-300,y) if named else 1e-300/y,(x,),(v,)))\n        for a,b in zip(pairs[1],pairs[0]):equal(a,b)\n\n\n@pytest.mark.parametrize('dtype',['bool','int64','float32','float64'])\ndef test_tensor_numerator_forward_subclass_uses_direct_division(dtype):\n    results=[]\n    for lib in (native,torch):\n        n=lib.tensor([1,2],dtype=getattr(lib,dtype));x=lib.tensor([.5,2.],dtype=lib.float64)\n        results.append(lib.func.jvp(lambda y:n/y,(x,),(lib.ones_like(x),)))\n    for a,b in zip(results[1],results[0]):equal(a,b)\n\n\n@pytest.mark.parametrize('function',[lambda lib,x:x*2.,lambda lib,x:x/2.,lambda lib,x:x+2.,\n    lambda lib,x:lib.add(x,lib.ones_like(x),alpha=float('inf')),\n    lambda lib,x:lib.sub(x,lib.ones_like(x),alpha=float('inf'))])\ndef test_undefined_constant_tangents_do_not_create_zero_times_infinity(function):\n    values=[]\n    for lib in (native,torch):\n        x=lib.tensor([float('inf'),-float('inf'),1.],dtype=lib.float64);t=lib.tensor([1.,1.,-0.],dtype=lib.float64)\n        values.append(lib.func.jvp(lambda y:function(lib,y),(x,),(t,)))\n    for a,b in zip(values[1],values[0]):equal(a,b)\n\n\n@pytest.mark.parametrize('function',[lambda lib,x:lib.ones(2,dtype=lib.float64)*x,\n    lambda lib,x:lib.add(lib.ones(2,dtype=lib.float64),x,alpha=.5),\n    lambda lib,x:lib.sub(lib.ones(2,dtype=lib.float64),x,alpha=.5),lambda lib,x:x+lib.ones(2,dtype=lib.float64)])\ndef test_constant_broadcast_and_mixed_dtype_jvp_has_native_output_shape(function):\n    values=[]\n    for lib in (native,torch):\n        x=lib.tensor(2.,dtype=lib.float32);t=lib.tensor(-0.,dtype=lib.float32)\n        values.append(lib.func.jvp(lambda y:function(lib,y),(x,),(t,)))\n    for a,b in zip(values[1],values[0]):equal(a,b)\n\n\n@pytest.mark.parametrize('hooked',[False,True])\ndef test_numpy_error_handlers_are_suppressed_only_inside_numeric_kernels(hooked):\n    for lib in (native,torch):\n        x=lib.tensor([1.],requires_grad=True);value=x/0.;calls=[]\n        def handler(message,status):calls.append((message,status))\n        def hook(g):np.divide(1.,0.)\n        if hooked:x.register_hook(hook)\n        previous=np.seterr(all='call');previous_handler=np.seterrcall(handler)\n        try:\n            value.backward(lib.ones(1))\n            assert len(calls)==int(hooked)\n            assert np.geterr()==dict.fromkeys(['divide','over','under','invalid'],'call')\n        finally:np.seterr(**previous);np.seterrcall(previous_handler)\n\n\n@pytest.mark.parametrize('mutated',['input','output'])\ndef test_reflected_number_division_saves_private_inverse_and_allows_public_mutation(mutated):\n    for lib in (native,torch):\n        x=lib.tensor([.5,2.],requires_grad=True);y=2./x\n        with lib.no_grad():(x if mutated=='input' else y.detach()).fill_(3.)\n        y.sum().backward(retain_graph=True);y.sum().backward()\n        assert x.grad.tolist()==[-16.,-1.]\n        with pytest.raises(RuntimeError):y.sum().backward()\n\n\n@pytest.mark.parametrize('raises',[False,True])\ndef test_callback_error_handler_and_policy_changes_survive_numerical_scopes(raises):\n    for lib in (native,torch):\n        x=lib.tensor([2.],requires_grad=True);y=x.square();calls=[]\n        def replacement(message,status):calls.append(message)\n        def first(g):\n            np.seterr(divide='call');np.seterrcall(replacement)\n            if raises:raise ValueError('callback failure')\n        def late(g):np.divide(1.,0.)\n        def register(g):first(g);x.register_hook(late)\n        y.register_hook(register)\n        old=np.seterr(all='raise');old_handler=np.seterrcall(None)\n        try:\n            if raises:\n                with pytest.raises(ValueError,match='callback failure'):y.sum().backward()\n            else:y.sum().backward();assert len(calls)==1\n            assert np.geterr()['divide']=='call' and np.geterrcall() is replacement\n        finally:np.seterr(**old);np.seterrcall(old_handler)\n\n\n@pytest.mark.parametrize('dtype',['float32','float64'])\n@pytest.mark.parametrize('mode',['operator','function','method'])\n@pytest.mark.parametrize('scale',['large','small','ordinary'])\n@pytest.mark.parametrize('seed_value',[1.,0.,-0.,1e-20,1e20])\ndef test_direct_division_denominator_vjp_preserves_native_quotient_first_order(dtype,mode,scale,seed_value):\n    exponent=20 if dtype=='float32' else 200\n    value=10.**exponent if scale=='large' else 10.**-exponent if scale=='small' else 2.\n    results=[]\n    for lib in (native,torch):\n        x=lib.tensor([value,-value],dtype=getattr(lib,dtype),requires_grad=True)\n        y=lib.tensor([value,value],dtype=getattr(lib,dtype),requires_grad=True)\n        seed=lib.tensor([seed_value,seed_value],dtype=getattr(lib,dtype))\n        z=x/y if mode=='operator' else lib.div(x,y) if mode=='function' else x.div(y)\n        z.backward(seed);results.append((z,x.grad,y.grad))\n    for actual,expected in zip(results[1],results[0]):\n        equal(actual,expected)\n        np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),rtol=3e-6,atol=0.,equal_nan=True)\n\n\n@pytest.mark.parametrize('dtype',['float32','float64'])\n@pytest.mark.parametrize('scale',['large','small'])\n@pytest.mark.parametrize('numerator',['number','tensor'])\ndef test_direct_division_constant_numerator_and_broadcast_extreme_vjp(dtype,scale,numerator):\n    exponent=20 if dtype=='float32' else 200\n    value=10.**(exponent if scale=='large' else -exponent);results=[]\n    for lib in (native,torch):\n        y=lib.tensor([[value],[value]],dtype=getattr(lib,dtype),requires_grad=True)\n        first=value if numerator=='number' else lib.tensor([value,-value,value],dtype=getattr(lib,dtype))\n        z=lib.div(first,y);z.backward(lib.ones_like(z));results.append(y.grad)\n    np.testing.assert_allclose(results[1].numpy(),results[0].numpy(),rtol=3e-6,atol=0.,equal_nan=True)\n\n\n@pytest.mark.parametrize('dtype',['float32','float64'])\ndef test_extreme_direct_division_reverse_over_forward_preserves_native_gradients(dtype):\n    value=1e20 if dtype=='float32' else 1e200;results=[]\n    for lib in (native,torch):\n        x=lib.tensor([value],dtype=getattr(lib,dtype),requires_grad=True)\n        y=lib.tensor([value],dtype=getattr(lib,dtype),requires_grad=True)\n        v=lib.tensor([1.],dtype=getattr(lib,dtype),requires_grad=True)\n        p,t=lib.func.jvp(lambda a,b:a/b,(x,y),(v,v))\n        (p+t).backward();results.append((p,t,x.grad,y.grad,v.grad))\n    for actual,expected in zip(results[1],results[0]):\n        equal(actual,expected)\n        np.testing.assert_allclose(actual.numpy(),expected.detach().numpy(),rtol=3e-6,atol=0.,equal_nan=True)\n",
+    "packages/paperleet-torch/tests/test_ieee.py": "\"\"\"Independent reciprocal, IEEE reverse kernels and callback-policy workflows.\"\"\"\nimport warnings\n\nimport numpy as np\nimport pytest\n\nfrom paperleet_torch import torch, UnsupportedOperation\n\n\n@pytest.mark.parametrize('dtype',[torch.complex64,torch.complex128])\ndef test_complex_zero_reciprocal_has_stable_library_sign_policy(dtype):\n    source=np.array([complex(real,imag) for real in [0.,-0.] for imag in [0.,-0.]],dtype=dtype)\n    for method in [False,True]:\n        x=torch.tensor(source)\n        value=x.reciprocal() if method else torch.reciprocal(x)\n        result=value.numpy()\n        assert result.dtype==source.dtype and result.shape==source.shape\n        assert np.isinf(result.real).all() and np.isnan(result.imag).all()\n        np.testing.assert_array_equal(np.signbit(result.real),np.signbit(source.real))\n\n\ndef test_reciprocal_real_integer_complex_values_and_signed_zero():\n    x=torch.tensor([0.,-0.,2.,-4.,np.inf,-np.inf,np.nan],dtype=torch.float64)\n    y=torch.reciprocal(x).numpy()\n    expected=np.array([np.inf,-np.inf,.5,-.25,0.,-0.,np.nan])\n    np.testing.assert_array_equal(y,expected)\n    np.testing.assert_array_equal(np.signbit(y[:-1]),np.signbit(expected[:-1]))\n    assert torch.reciprocal(torch.tensor([1,2,4])).dtype==torch.float32\n    assert torch.reciprocal(torch.tensor([1,2,4])).tolist()==[1.,.5,.25]\n    z=torch.reciprocal(torch.tensor([complex(-0.,0.),1+1j],dtype=torch.complex128)).numpy()\n    assert np.isneginf(z.real[0]) and np.isnan(z.imag[0])\n    assert z[1]==.5-.5j\n    with pytest.raises(TypeError):torch.reciprocal(2)\n    with pytest.raises(UnsupportedOperation):torch.reciprocal(x,out=torch.zeros_like(x))\n\n\ndef test_reflected_operator_and_functional_division_keep_distinct_extreme_values():\n    x=torch.tensor([1e-310],dtype=torch.float64)\n    assert np.isinf((1e-300/x).item())\n    np.testing.assert_allclose(torch.div(1e-300,x).item(),1e10,rtol=1e-14)\n    p,t=torch.func.jvp(lambda y:torch.div(1e-300,y),(x,),(torch.zeros_like(x),))\n    np.testing.assert_allclose(p.item(),1e10,rtol=1e-14)\n    assert t.item()==0 and np.signbit(t.item())\n    p,t=torch.func.jvp(lambda y:1e-300/y,(x,),(torch.zeros_like(x),))\n    assert np.isinf(p.item()) and np.isnan(t.item())\n\n\ndef test_reciprocal_analytic_reverse_and_reverse_over_forward():\n    raw=np.array([.5,1.25,-2.],dtype=np.float64)\n    tangent=np.array([.125,-.25,.5],dtype=np.float64)\n    x=torch.tensor(raw,requires_grad=True);v=torch.tensor(tangent,requires_grad=True)\n    p,t=torch.func.jvp(torch.reciprocal,(x,),(v,))\n    (p.square().sum()+t.square().sum()).backward()\n    expected=1/raw;tv=-tangent/raw**2\n    np.testing.assert_allclose(p.numpy(),expected,rtol=1e-14)\n    np.testing.assert_allclose(t.numpy(),tv,rtol=1e-14)\n    np.testing.assert_allclose(x.grad.numpy(),-2/raw**3-4*tangent**2/raw**5,rtol=1e-14)\n    np.testing.assert_allclose(v.grad.numpy(),2*tangent/raw**4,rtol=1e-14)\n\n\ndef test_reciprocal_saved_output_release_retention_and_mutation_guards():\n    x=torch.tensor([.5,2.],requires_grad=True);y=x.reciprocal()\n    with torch.no_grad():x.fill_(3.)\n    y.sum().backward(retain_graph=True);y.sum().backward()\n    assert x.grad.tolist()==[-8.,-.5]\n    with pytest.raises(RuntimeError):y.sum().backward()\n    z=torch.tensor([.5,2.],requires_grad=True).reciprocal()\n    with torch.no_grad():z.detach().fill_(3.)\n    with pytest.raises(UnsupportedOperation):z.sum().backward()\n\n\ndef test_backward_ieee_kernels_fan_in_existing_grad_and_seed_cast_ignore_external_raise():\n    maximum=float(np.finfo(np.float32).max)\n    previous=np.seterr(all='raise')\n    try:\n        x=torch.tensor([1.],requires_grad=True);(x/0.).sum().backward();assert np.isposinf(x.grad.item())\n        x=torch.tensor([1.],requires_grad=True);(x*maximum).backward(torch.tensor([2.]));assert np.isposinf(x.grad.item())\n        x=torch.tensor([1.],requires_grad=True);(x*maximum+x*maximum).sum().backward();assert np.isposinf(x.grad.item())\n        x=torch.tensor([1.],requires_grad=True);x.grad=torch.tensor([maximum]);x.backward(torch.tensor([maximum]));assert np.isposinf(x.grad.item())\n        x=torch.tensor([1.],requires_grad=True);x.backward(torch.tensor([1e300],dtype=torch.float64));assert np.isposinf(x.grad.item())\n        assert np.geterr()==dict.fromkeys(['divide','over','under','invalid'],'raise')\n    finally:np.seterr(**previous)\n\n\ndef test_tensor_callbacks_observe_caller_errors_and_can_change_policy():\n    previous=np.seterr(all='raise')\n    try:\n        x=torch.tensor([1.],requires_grad=True);events=[]\n        def changed(g):events.append(np.geterr());np.seterr(over='ignore')\n        x.register_hook(changed);x.square().sum().backward()\n        assert events==[dict.fromkeys(['divide','over','under','invalid'],'raise')]\n        assert np.geterr()['over']=='ignore'\n        np.seterr(all='raise');z=torch.tensor([1.],requires_grad=True)\n        # Pyodide's pinned NumPy reports the policy but its FPU flags do not\n        # necessarily trap. Match direct NumPy behavior in this same runtime.\n        try: direct = np.divide(1.,0.)\n        except FloatingPointError: traps = True\n        else: traps = False\n        observed = []\n        def post(t): observed.append(np.divide(1.,0.))\n        z.register_post_accumulate_grad_hook(post)\n        if traps:\n            with pytest.raises(FloatingPointError):z.square().sum().backward()\n        else:\n            z.square().sum().backward()\n            assert len(observed)==1 and np.isposinf(observed[0]) and np.isposinf(direct)\n        assert np.geterr()==dict.fromkeys(['divide','over','under','invalid'],'raise')\n    finally:np.seterr(**previous)\n\n\ndef test_absent_constant_jvp_terms_do_not_generate_infinity_times_zero():\n    x=torch.tensor([np.inf,-np.inf,1.],dtype=torch.float64)\n    direction=torch.tensor([1.,1.,-0.],dtype=torch.float64)\n    p,t=torch.func.jvp(lambda z:z*2.,(x,),(direction,))\n    np.testing.assert_array_equal(t.numpy(),np.array([2.,2.,-0.]))\n    assert np.signbit(t.numpy()[-1])\n    p,t=torch.func.jvp(lambda z:z/2.,(x,),(direction,))\n    np.testing.assert_array_equal(t.numpy(),np.array([.5,.5,-0.]))\n    p,t=torch.func.jvp(lambda z:torch.add(z,torch.ones_like(z),alpha=np.inf),(x,),(direction,))\n    np.testing.assert_array_equal(t.numpy(),direction.numpy())\n\n\ndef test_constant_broadcast_and_mixed_dtype_direction_preserve_zero_sign():\n    x=torch.tensor(2.,dtype=torch.float32);v=torch.tensor(-0.,dtype=torch.float32)\n    p,t=torch.func.jvp(lambda z:z+torch.ones(3,dtype=torch.float64),(x,),(v,))\n    assert p.dtype==torch.float64 and t.dtype==torch.float64 and t.shape==(3,)\n    assert np.signbit(t.numpy()).all()\n    p,t=torch.func.jvp(lambda z:torch.tensor([True,False])/z,(x,),(torch.ones_like(x),))\n    np.testing.assert_array_equal(t.numpy(),np.array([-.25,-0.],dtype=np.float32))\n\n\ndef test_jvp_numpy_complex_number_alpha_is_parsed_once():\n    x=torch.tensor([1.,2.]);v=torch.ones_like(x)\n    with warnings.catch_warnings(record=True) as caught:\n        warnings.simplefilter('always')\n        p,t=torch.func.jvp(lambda z:torch.add(z,torch.ones_like(z),alpha=np.complex64(2+.5j)),(x,),(v,))\n    assert p.tolist()==[3.,4.] and t.tolist()==[1.,1.]\n    assert sum('complex' in str(w.message).lower() for w in caught)==1\n\n\ndef test_reflected_scalar_private_inverse_survives_public_mutation_and_releases():\n    for mutated in ['input','output']:\n        x=torch.tensor([.5,2.],requires_grad=True);y=2./x\n        with torch.no_grad():(x if mutated=='input' else y.detach()).fill_(3.)\n        y.sum().backward(retain_graph=True);y.sum().backward()\n        assert x.grad.tolist()==[-16.,-1.]\n        with pytest.raises(RuntimeError):y.sum().backward()\n\n\ndef test_late_hooks_keep_changed_error_handler_and_policy_even_on_exception():\n    for raises in [False,True]:\n        x=torch.tensor([2.],requires_grad=True);y=x.square();events=[]\n        def replacement(message,status):events.append('handler')\n        def late(g):events.append(('late',np.geterr()['divide'],np.geterrcall() is replacement))\n        def first(g):\n            np.seterr(divide='call');np.seterrcall(replacement)\n            if raises:raise ValueError('callback failure')\n            x.register_hook(late)\n        y.register_hook(first)\n        previous=np.seterr(all='raise');previous_handler=np.seterrcall(None)\n        try:\n            if raises:\n                with pytest.raises(ValueError,match='callback failure'):y.sum().backward()\n                assert events==[]\n            else:\n                y.sum().backward()\n                assert events==[('late','call',True)]\n            assert np.geterr()==dict(divide='call',over='raise',under='raise',invalid='raise')\n            assert np.geterrcall() is replacement\n        finally:np.seterr(**previous);np.seterrcall(previous_handler)\n\n\ndef test_direct_division_gradient_avoids_denominator_square_overflow_and_underflow():\n    for dtype,exponent in [(torch.float32,20),(torch.float64,200)]:\n        for power in [exponent,-exponent]:\n            value=10.**power\n            for mode in ['operator','method','function','number']:\n                x=torch.tensor([value],dtype=dtype,requires_grad=True)\n                y=torch.tensor([value],dtype=dtype,requires_grad=True)\n                z=x/y if mode=='operator' else x.div(y) if mode=='method' else torch.div(x if mode=='function' else value,y)\n                z.backward(torch.ones_like(z))\n                expected=np.array([-1./value],dtype=dtype)\n                np.testing.assert_allclose(y.grad.numpy(),expected,rtol=3e-6,atol=0.)\n                if mode!='number':np.testing.assert_allclose(x.grad.numpy(),-expected,rtol=3e-6,atol=0.)\n"
+  },
+  "primary_source": "https://github.com/pytorch/pytorch/blob/main/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp",
+  "notes": [
+    "No numerical implementation, active runtime asset or performance harness changes. No timing rerun or new speedup claim. Original measured runtime source hashes remain applicable.",
+    "Focused251 passed;209 NumPy1.26.4 source tests and installed-wheel tests;189 real pinned WASM contracts. New wheel/sdist match all35 module hashes and Apache-2.0 resources.",
+    "Original failed Linux result is retained rather than replaced by local results. New Linux outcome is not yet claimed."
+  ]
+}

@@ -181,7 +181,12 @@ assert x.grad.tolist() == [1., 1.]
 ```
 
 `torch.reciprocal(x)` and `x.reciprocal()` preserve floating/complex storage;
-integer and boolean inputs produce float32. Python `number / tensor` follows
+integer and boolean inputs produce float32. At complex zero, the library returns
+a real infinity retaining the real zero's sign and a NaN imaginary component.
+Native Torch's real infinity sign at this singularity differs between CPU
+platforms; this signed policy is the library's portable convention. Real
+reciprocal signed zeros and all nonzero complex inputs retain their existing
+validation. Python `number / tensor` follows
 native reciprocal-then-multiply order, while functional `torch.div(number,
 tensor)` performs direct division. This distinction matters at overflow,
 underflow and signed-zero boundaries. Rounded division has zero derivatives;

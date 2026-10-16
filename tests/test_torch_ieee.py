@@ -13,7 +13,10 @@ DTYPES=['bool','uint8','uint16','uint32','uint64','int8','int16','int32','int64'
 
 
 def equal(actual,expected):
-    a=actual.numpy();b=expected.detach().numpy()
+    equal_arrays(actual.numpy(),expected.detach().numpy())
+
+
+def equal_arrays(a,b):
     assert a.dtype==b.dtype and a.shape==b.shape
     with np.errstate(all='ignore'):
         if a.dtype.kind=='c':
@@ -25,6 +28,21 @@ def equal(actual,expected):
             np.testing.assert_array_equal(np.signbit(a[mask]),np.signbit(b[mask]))
 
 
+def equal_reciprocal(actual,expected,source):
+    if source.dtype.kind!='c':
+        return equal(actual,expected)
+    a,b=actual.numpy(),expected.detach().numpy()
+    assert a.dtype==b.dtype==source.dtype and a.shape==b.shape==source.shape
+    zero=(source.real==0)&(source.imag==0)
+    # Native Torch 2.14.1 produces different real infinity signs at complex
+    # zero on macOS arm64 and Linux x86_64. Its inf/nan classification is
+    # shared; every nonzero input still uses the ordinary strict comparison.
+    for value in (a,b):
+        assert np.isinf(value.real[zero]).all()
+        assert np.isnan(value.imag[zero]).all()
+    equal_arrays(a[~zero],b[~zero])
+
+
 @pytest.mark.parametrize('dtype',DTYPES)
 @pytest.mark.parametrize('shape',[(),(7,),(2,7),(0,)])
 def test_reciprocal_values_dtype_shape_and_method_match_native(dtype,shape):
@@ -33,14 +51,40 @@ def test_reciprocal_values_dtype_shape_and_method_match_native(dtype,shape):
     for method in [False,True]:
         expected=native.tensor(raw).reciprocal() if method else native.reciprocal(native.tensor(raw))
         actual=torch.tensor(raw).reciprocal() if method else torch.reciprocal(torch.tensor(raw))
-        equal(actual,expected)
+        equal_reciprocal(actual,expected,raw)
 
 
 @pytest.mark.parametrize('dtype',['complex64','complex128'])
 def test_complex_reciprocal_ieee_grid_matches_native(dtype):
     values=[0.,-0.,1.,-2.,float('inf'),float('-inf'),float('nan'),1e-40,1e30]
     raw=np.array([complex(a,b) for a,b in itertools.product(values,repeat=2)],dtype=dtype)
-    equal(torch.reciprocal(torch.tensor(raw)),native.reciprocal(native.tensor(raw)))
+    equal_reciprocal(torch.reciprocal(torch.tensor(raw)),native.reciprocal(native.tensor(raw)),raw)
+
+
+@pytest.mark.parametrize('case',['finite','zero_real','zero_imag','nonzero_inf_sign'])
+def test_reciprocal_native_comparison_rejects_wrong_values_and_classifications(case):
+    if case=='finite':
+        source=np.array([1+0j]);actual=[2+0j];expected=[1+0j]
+    elif case=='zero_real':
+        source=np.array([0j]);actual=[complex(np.nan,np.nan)];expected=[complex(np.inf,np.nan)]
+    elif case=='zero_imag':
+        source=np.array([0j]);actual=[complex(np.inf,0.)];expected=[complex(np.inf,np.nan)]
+    else:
+        source=np.array([complex(1e-310,0.)]);actual=[complex(-np.inf,np.nan)];expected=[complex(np.inf,np.nan)]
+    with pytest.raises(AssertionError):
+        equal_reciprocal(torch.tensor(actual,dtype=torch.complex128),native.tensor(expected,dtype=native.complex128),source)
+
+
+@pytest.mark.parametrize('dtype',['complex64','complex128'])
+def test_reciprocal_native_comparison_accepts_both_observed_zero_sign_conventions(dtype):
+    source=np.array([complex(real,imag) for real in [0.,-0.] for imag in [0.,-0.]]+[1+1j],dtype=dtype)
+    actual=torch.reciprocal(torch.tensor(source))
+    original=native.reciprocal(native.tensor(source)).numpy()
+    zero=source==0
+    for signed in [False,True]:
+        expected=original.copy()
+        expected.real[zero]=np.copysign(np.inf,source.real[zero]) if signed else np.inf
+        equal_reciprocal(actual,native.tensor(expected),source)
 
 
 @pytest.mark.parametrize('dtype',['float16','float32','float64'])

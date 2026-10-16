@@ -334,3 +334,52 @@ all5,020 upstream published hashed assets remain byte-identical. The affected
 catalog/interview-catalog tests pass25/25, and current web checks and production
 build pass. No numerical test, runtime input or performance harness changed.
 Exact remote main CI and deployed resource verification remain pending.
+
+## Main deployment proof — carried into the next source iteration
+
+Commit `94c53f894dbd1cdee3c0970e0555a3345ecb3b84` was non-force pushed to main.
+Exact Pages run38826822018 succeeded. Frozen verification of `paperleet.com`
+confirms all77 starters and judge manifests byte-for-byte, plus both0.14.0
+runtime profiles and their Apache-2.0 LICENSE/NOTICE resources:
+
+- schedules:37,391 bytes, three Python files, SHA-256
+  `3ad0e6997d3524d0a41e67bb98c10cab446f81a12b98c520118f171bc3fc839c`;
+- autograd:372,708 bytes,31 browser Python files, SHA-256
+  `d9f112440161bdf94c7e45abb758d3cf9fbaff85bdedaacfa744249a1b9be757`.
+
+The independent distribution retains35 Python modules; the browser profiles
+omit standalone-only helpers. Exact Quality run38826821990 is still in progress;
+its native and full-catalog WASM jobs are not yet claimed successful. Local
+combined-source full17066/minimum207/native77/WASM187/catalog77/Chrome187 and
+all distribution/build gates passed as recorded above. The independent-library
+objective remains active.
+
+## Remote native oracle portability correction
+
+Exact run38826821990 on Linux/x86_64 (Torch2.14.1+cpu, NumPy2.5.4) reports
+six failures and17,060 passes: the native complex-zero reciprocal produces
+positive real infinity where macOS/arm64 native Torch produces negative infinity
+for a negative real zero. The library's inf/NaN classifications match both;
+its defined policy consistently preserves the real zero's sign. The existing
+comparison incorrectly assumed a universal native sign at complex zero.
+
+Only that source-zero singularity now compares inf/NaN classification rather
+than native infinity sign. All nonzero inputs retain their strict comparisons,
+and real signed-zero reciprocal checks are unchanged. Four adversarial oracle
+tests reject finite-value errors, missing infinity, non-NaN imaginary output and
+wrong infinity signs for nonzero inputs. Two portable standalone cases fix the
+library's exact sign policy for all four complex signed-zero combinations.
+No library module or runtime asset changes. The original failed run and raw log
+are retained; rerun evidence is pending. PyTorch's
+[CPU reciprocal kernel](https://github.com/pytorch/pytorch/blob/main/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp)
+has scalar/vector dispatch, so a single native platform is not an oracle for
+this singularity's sign on all backends.
+
+The correction's local focused gate passes251 tests, one warning; NumPy1.26.4
+passes209 standalone source and209 installed-wheel tests, and actual pinned WASM
+passes189 contracts. Wheel/sdist hashes, all35 module bytes and Apache-2.0
+resources are verified again. Two explicit oracle cases accept both observed
+native sign conventions, while four negative cases prove incorrect classes or
+nonzero values still fail. Numerical runtime assets and performance samples are
+unchanged. See the [portable-oracle record](../../packages/paperleet-torch/benchmarks/results/iteration-14-portability.json).
+New Linux CI remains pending.

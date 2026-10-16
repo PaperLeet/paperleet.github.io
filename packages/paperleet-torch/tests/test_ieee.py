@@ -7,6 +7,18 @@ import pytest
 from paperleet_torch import torch, UnsupportedOperation
 
 
+@pytest.mark.parametrize('dtype',[torch.complex64,torch.complex128])
+def test_complex_zero_reciprocal_has_stable_library_sign_policy(dtype):
+    source=np.array([complex(real,imag) for real in [0.,-0.] for imag in [0.,-0.]],dtype=dtype)
+    for method in [False,True]:
+        x=torch.tensor(source)
+        value=x.reciprocal() if method else torch.reciprocal(x)
+        result=value.numpy()
+        assert result.dtype==source.dtype and result.shape==source.shape
+        assert np.isinf(result.real).all() and np.isnan(result.imag).all()
+        np.testing.assert_array_equal(np.signbit(result.real),np.signbit(source.real))
+
+
 def test_reciprocal_real_integer_complex_values_and_signed_zero():
     x=torch.tensor([0.,-0.,2.,-4.,np.inf,-np.inf,np.nan],dtype=torch.float64)
     y=torch.reciprocal(x).numpy()
