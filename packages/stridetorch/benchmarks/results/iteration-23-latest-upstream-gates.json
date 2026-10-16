@@ -1,0 +1,54 @@
+{
+  "status": "all_local_release_gates_preserved_after_latest_upstream_fixes",
+  "version": "0.23.0",
+  "merge": {
+    "status": "protected_inputs_identical_affected_tests_pending",
+    "upstream": "c3f8d5c3ca6e0792b347bd793193de6de8aa64e9",
+    "head": "0b709a7d6488ef6261ceec2fabbdfa81b6c964c9",
+    "preserved_upstream_files": [
+      "paperleet/server.py",
+      "tests/test_open_edition.py",
+      "web/scripts/check-hosted-workspace-sync.mjs",
+      "web/src/PracticeWorkspace.tsx",
+      "web/src/hostedDraftCache.ts"
+    ],
+    "source_43_and_export_161_hashes_identical": true,
+    "remaining": "Localserver HTTP test,latest frontend gates,refreshprivate wheel inclserver module"
+  },
+  "server": {
+    "passed": 5,
+    "elapsed_s": 5.36
+  },
+  "frontend": {
+    "check": "passed48bilingualguides144prompts",
+    "build": "passed5.46s",
+    "pages_policy": "passed",
+    "initial_js_raw_bytes": 407873,
+    "initial_js_gzip_bytes": 131418
+  },
+  "distribution": {
+    "status": "success",
+    "version": "0.23.0",
+    "core_modules": 41,
+    "all_43_core_license_hashes_identical": true,
+    "installed_paths_disjoint": true,
+    "latest_application_catalog_and_server_identical": true,
+    "artifacts": {
+      "paperleet-0.1.0-py3-none-any.whl": "6e0a98f74c1f2d060d9e76f87c47f9a1b3e4cc889544e2138385f1165af056c8",
+      "paperleet-0.1.0.tar.gz": "6f230ccd6b84ee4336e861e3e26bd72a0063c9736755266652732c68e6e909e9",
+      "stridetorch-0.23.0-py3-none-any.whl": "8c862ca7f53c9f9f3c4462e7dc0d34acc1409e56c495d94af619e25e87ef6ce3"
+    }
+  },
+  "all_43_core_license_and_161_export_hashes_identical": true,
+  "prior_complete_numerical_gates": "25612 infrastructure,774 Node,774 Chrome,794 minimum and all78native/WASM;before latest unrelated application/server merge",
+  "pending": [
+    "nonforce main adoption",
+    "exact remote merged-source Quality/eligiblePages/live verification"
+  ],
+  "archive": {
+    "path": "iteration-23-latest-upstream-gates-harness.tar.gz",
+    "files": 12,
+    "bytes": 546368,
+    "sha256": "4e9864ee7d2b32a2714148bff592ea3fb8aae8201b9c4996b7e73d283ebcc8e3"
+  }
+}

@@ -22,8 +22,9 @@ returned tensors and these indirect payloads.
 
 ## Correctness so far
 
-The final infrastructure suite passes 25,612 tests, with one optional Docker
-skip and 17 warnings (272.71s). Actual Node/Pyodide 0.29.4/NumPy 2.2.5 and Chrome
+Before the latest unrelated server/workspace merge, the complete infrastructure
+suite passes 25,612 tests, with one optional Docker skip and 17 warnings (272.71s).
+Actual Node/Pyodide 0.29.4/NumPy 2.2.5 and Chrome
 155 Worker runs each pass 774 independent contracts. The isolated installed
 wheel passes 794 tests on Python 3.10.19/NumPy 1.26.4 without native Torch.
 Standalone/private wheels and source archives contain identical 41-module core
@@ -56,6 +57,15 @@ budget violations (526.647s aggregate). Flow Matching takes 119.498s calibration
 21.980s learner and 144.720s total, within unchanged 240/60/300s limits. These
 application timings are budget evidence, not controlled release comparisons.
 Main/remote adoption remains pending.
+
+Latest upstream `c3f8d5c3` adds local request-error and workspace/draft recovery
+fixes. All five changed files are preserved exactly. The affected server suite
+passes five tests (5.36s); complete frontend checks, production build (5.46s)
+and Pages policy pass again. Refreshed private wheel/source archives include the
+latest server and catalog bytes. All 43 core/license hashes and 161 exported
+files remain identical to the complete numerical/WASM gates, so those numerical
+workloads are not repeated for these application changes. Remote Quality will
+execute the complete final merged infrastructure.
 
 ## Controlled dispatch measurements
 
@@ -97,3 +107,6 @@ record the refreshed application metadata and repeated affected checks.
 The [complete local release gates](../../packages/stridetorch/benchmarks/results/iteration-23-local-gates.json)
 and [final WASM/archive receipts](../../packages/stridetorch/benchmarks/results/iteration-23-local-gates-harness.tar.gz)
 close the full exported catalog gate against the frozen source and 161 files.
+The [latest upstream gates](../../packages/stridetorch/benchmarks/results/iteration-23-latest-upstream-gates.json)
+and [affected-check archive](../../packages/stridetorch/benchmarks/results/iteration-23-latest-upstream-gates-harness.tar.gz)
+retain the final application merge, server checks and refreshed packaging.
