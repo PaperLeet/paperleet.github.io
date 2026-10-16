@@ -152,8 +152,7 @@ hashes remain the same as the refined core/NumPy-only/Chrome/performance proofs.
 [Application evidence](../../packages/stridetorch/benchmarks/results/iteration-31-integration.json)
 and its229-file archive retain original/follow-up frontend contexts,all process
 receipts,exports and complete real VM results. Main adoption uses a non-force
-push;remote Quality,actual Pages and live-byte checks are separate gates. The last
-positively verified site version remains0.30 atb1a1631a.
+push;remote Quality,actual Pages and live-byte checks are separate gates. Exact main source b3b56a19 subsequently passed all remote and live gates below.
 
 
 ## Final main synchronization
@@ -171,3 +170,25 @@ Latest default and hosted Pages builds retain three initial JS assets:
 and its13-file archive preserve the guard,merge scope,static React review,
 unchanged mathematical inputs and actual check/build receipts. The original full
 Python/native/WASM proof remains applicable;no case,test or budget is removed.
+
+
+## Exact main deployment verified
+
+Main source `b3b56a19f403cc9fb7e1f0d9c4e109ecb66ac545` passes all four jobs in
+[Quality38944777730](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38944777730).
+Native CI covers78 problems/10218 tests/342 mutants/three repeats in415.62s,
+within the original600s limit. Infrastructure passes30879 with one optional
+skip and37 warnings in418.90s. Real exported WASM passes78/342 in523003ms,
+including1113 independent checks across31 suites, with no budget exceedances.
+
+[Pages38946337720](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38946337720)
+actually executes and passes its deployment steps for that exact source. Live
+verification decodes and compares all78 starters/details/manifests and checks
+all158 immutable payloads byte-for-byte. Both profiles expose0.31.0 and the
+expected Apache-2.0 license/NOTICE. All46 source resources and161 exported
+files are verified against the pinned Git commit, not the newer0.32 worktree.
+
+[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-31-remote-adoption.json)
+and its17-file archive retain source/export hashes, actual job/step results,
+all three successful download receipts and live resource evidence. Remote runner
+durations are budget gates; no cross-run performance improvement is inferred.

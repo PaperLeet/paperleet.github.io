@@ -484,6 +484,16 @@ source-commit deployment was superseded and is not claimed as published.
   revalidation stops safely,then all29 incoming files and46 source/161 export
   hashes are preserved;targeted library checks and both builds pass again.
 
+## Version0.31 exact main deployment verified
+
+- Source b3b56a19 passes all four Quality38944777730 jobs; native78/10218/342/
+  three repeats415.62s, infrastructure30879/one optional skip and exported
+  WASM78/342/1113 independent checks pass within original budgets.
+- Pages38946337720 actually deploys that source. Live78 decoded starters,
+  details/manifests and158 immutable assets match; both profiles expose0.31.0
+  with licenses. Pinned46 resources/161 exports and all receipts are retained in
+  [remote evidence](benchmarks/results/iteration-31-remote-adoption.json).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
