@@ -8,10 +8,10 @@ import {status,type Problem,type Saved} from './types';
 export default function InterviewStudyPaths({filters,problems,saved,ready:loaded,error,onRetry}:{filters:InterviewFilters;problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;onRetry?:()=>void}){
  const {t,locale}=useI18n(),en=locale==='en';
  const ready=loaded&&!error;
- // Keep the selected path visible when revisiting it under a different role filter.
- const paths=rolePreparationPaths(filters.role);
+ // Lead with the requested path, including when revisiting under another role.
+ const available=rolePreparationPaths(filters.role);
  const selected=preparationProgress(filters.track,problems)?.path;
- if(selected&&!paths.includes(selected))paths.unshift(selected);
+ const paths=selected?[selected,...available.filter(path=>path.id!==selected.id)]:available;
  return <>
   <p className="interview-progress-context">{t('进度沿用当前学习工作区，通过测试后自动更新。','Progress follows your current learning workspace and updates after passing tests.')}</p>
   {!ready&&<p className="interview-progress-status" role="status">{error?t('学习进度暂不可用，仍可打开题目练习。','Learning progress is unavailable. You can still open practice modules.'):t('正在读取学习进度…','Loading learning progress…')}{error&&onRetry&&<button type="button" className="text-button" onClick={onRetry}>{t('重试学习进度','Retry learning progress')}</button>}</p>}

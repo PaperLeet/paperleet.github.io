@@ -173,6 +173,48 @@
       ]
     },
     {
+      "id": "architecture/group_norm",
+      "source": "problems/architecture/group_norm/README.md",
+      "functions": [
+        "group_norm"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "哪些元素共享一组均值和方差？改变同 batch 的其他样本，或同一样本的其他组，会影响当前组吗？",
+            "en": "Which values share a mean and variance? Can other samples in the batch, or other groups of the same sample, affect the current group?"
+          },
+          "hint": {
+            "zh": "每个样本独立，把连续通道切成 G 组，每组同时包含 C/G 个通道和全部空间位置。G=1 覆盖通道与空间；本平台的 Transformer LayerNorm 则只沿 token 的末特征轴。",
+            "en": "Each sample is independent. Split contiguous channels into G groups; a group spans C/G channels and all spatial positions. G=1 spans channels and space, while the Transformer LayerNorm exercise reduces only a token’s final feature axis."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何显式露出组轴，保留可微统计量，再把逐通道 weight 和 bias 广播回原始形状？",
+            "en": "How do you expose the group axis, preserve differentiable moments and broadcast per-channel weight and bias back onto the original shape?"
+          },
+          "hint": {
+            "zh": "按 [N,G,C/G,*spatial] reshape，保留 N 和 G，其余轴计算总体均值与方差。epsilon 放在平方根内；恢复 x 形状后再应用逐通道仿射参数，不能变成每组共享参数。",
+            "en": "Reshape to [N,G,C/G,*spatial], keep N and G, and reduce the remaining axes for population moments. Put epsilon inside the square root, restore x’s shape, then apply per-channel affine parameters rather than shared group parameters."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么只检查前向输出抓不住 detach 统计量的错误？如何用独立检查和批次组成实验验证你的实现？",
+            "en": "Why can a forward-only check miss detached statistics? How can independent checks and the batch-composition experiment verify your implementation?"
+          },
+          "hint": {
+            "zh": "detach 可以保留正确前向值，却切断同组元素之间的梯度耦合。检查输入、weight、bias 三类梯度及有限差分；固定一个样本、改变同伴，GN 输出应不变。单元素组按题面公式输出 bias，输入与 scale 的梯度为零。",
+            "en": "Detaching can preserve forward values while breaking gradient coupling within a group. Check input, weight and bias gradients and finite differences. Hold an anchor sample fixed while changing companions: GN output must stay unchanged. Under this exercise’s singleton convention, output equals bias and input/scale gradients are zero."
+          }
+        }
+      ]
+    },
+    {
       "id": "architecture/rope",
       "source": "problems/architecture/rope/README.md",
       "functions": [
