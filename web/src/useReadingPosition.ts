@@ -3,7 +3,7 @@ import {communityPostReturn} from './communityNavigation';
 import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingPracticeTarget,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
 
 export type ReadingNotice='restored'|'available'|'missing';
-type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string};
+type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string;practice?:string};
 export function useReadingOrigin(owner:string|undefined,post:string,href:string|undefined){
  useEffect(()=>resumeReadingOrigin(owner,post,href),[owner,post,href]);
 }
@@ -30,7 +30,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
   const before=interactions.current;
   if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,notice:'available'});return;}
   scrollRequest.current={row,opener,before};
-  setState({owner:row.owner,href,id:row.id,notice:targetFor(row)?'restored':'missing',post:targetFor(row)?row.post:undefined});
+  setState({owner:row.owner,href,id:row.id,notice:targetFor(row)?'restored':'missing',post:targetFor(row)?row.post:undefined,practice:row.practice});
  }
  // Commit the notice first, then measure. Its height must not displace the restored card.
  useLayoutEffect(()=>{
@@ -44,7 +44,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
    if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,notice:'available'});return;}
    const target=targetFor(row);
    const notice=target?'restored':'missing';
-   if(state?.notice!==notice){scrollRequest.current=request;setState({owner:row.owner,href,id:row.id,notice,post:target?row.post:undefined});return;}
+   if(state?.notice!==notice){scrollRequest.current=request;setState({owner:row.owner,href,id:row.id,notice,post:target?row.post:undefined,practice:row.practice});return;}
    if(target){
     window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-row.top),behavior:'instant'});
     if(row.focus||opener)target.focus({preventScroll:true});
@@ -85,7 +85,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
   if(row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning')apply(row);
  },[owner,href,ready,revision]);
  const visible=ready&&state&&state.owner===owner&&state.href===href?state:undefined;
- return {container,notice:visible?.notice,resumedPost:visible?.post,restore:(opener:HTMLElement)=>{
+ return {container,notice:visible?.notice,resumedPost:visible?.post,resumedPractice:visible?.post?visible.practice:undefined,restore:(opener:HTMLElement)=>{
   const row=currentReadingReturn();if(row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning')apply(row,opener);
  }};
 }

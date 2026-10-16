@@ -250,9 +250,24 @@
 
 .interview-report-topics{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:12px 0 16px;min-width:0}
 .interview-report-topics>b{font-weight:500;font-size:11px;color:var(--text-secondary);margin-inline-end:3px}
-.interview-report-topics>a{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;min-height:30px;padding:5px 8px;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--text-secondary);font-size:11px;text-decoration:none}
-.interview-report-topics>a>svg{flex-shrink:0}
-.interview-report-topics>a>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.interview-report-topics>a:hover{border-color:var(--accent);color:var(--accent)}
-.interview-report-topics>a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media(pointer:coarse){.interview-report-topics>a{min-height:44px}}
+.interview-report-topics a{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;min-height:30px;padding:5px 8px;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--text-secondary);font-size:11px;text-decoration:none}
+.interview-report-topics a>svg{flex-shrink:0}
+.interview-report-topics a>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.interview-report-topics a:hover{border-color:var(--accent);color:var(--accent)}
+.interview-report-topics a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(pointer:coarse){.interview-report-topics a{min-height:44px}}
+
+.interview-report-practice{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:12px 0 16px;min-width:0}
+.interview-report-practice>.interview-report-topics{margin:0}
+.interview-report-practice-toggle{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-height:30px;padding:5px 8px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--text-secondary);font:inherit;font-size:11px;cursor:pointer;text-align:start}
+.interview-report-practice-toggle:hover{background:var(--surface2);color:var(--accent)}
+.interview-report-practice-missing{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px 8px;max-width:100%;min-width:0;padding:5px 8px;border:1px dashed var(--line);border-radius:7px;color:var(--muted);background:var(--surface2);font-size:11px}
+.interview-report-practice-missing code{overflow-wrap:anywhere;font-size:inherit}
+.interview-report-practice-missing small{font-size:10px}
+.interview-report-practice-retry{flex-basis:100%;margin:3px 0 0;color:var(--muted);font-size:11px;line-height:1.7}
+.interview-report-practice-retry button{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--accent);font:inherit;cursor:pointer}
+.interview-report-practice :is(button,.interview-report-practice-missing):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(pointer:coarse){.interview-report-practice-toggle,.interview-report-practice-retry button{min-height:44px}}
+
+.interview-report-practice-item{display:inline-flex;align-items:center;min-width:0;max-width:100%}
+.interview-report-practice-item:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:7px}
