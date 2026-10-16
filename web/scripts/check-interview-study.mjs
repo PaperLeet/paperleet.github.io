@@ -40,6 +40,16 @@ try{
  const advancedMissing=preparationProgress(advanced.id,modules.filter(problem=>problem.id!==advancedModules.at(-1).id),advancedSaved);assert.equal(advancedMissing.completed,6);assert.equal(advancedMissing.total,7);assert.equal(advancedMissing.missing,1);
  console.log('PASS advanced architecture study: every seven-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
 
+ const offpolicy=interviewCatalog.paths.find(path=>path.id==='off-policy-passk'),offpolicyModules=offpolicy.modules.map(id=>modules.find(problem=>problem.id===id)),offpolicySaved={};assert.equal(offpolicyModules.length,5);
+ for(const [index,problem]of offpolicyModules.entries()){
+  const view=preparationProgress(offpolicy.id,modules,offpolicySaved);assert.equal(view.completed,index);assert.equal(view.total,5);assert.equal(view.missing,0);assert.equal(view.next.id,problem.id);
+  if(index)assert.equal(preparationProgress(offpolicy.id,modules,offpolicySaved,offpolicyModules[index-1]).next.id,problem.id);
+  offpolicySaved[problem.id]=pass(problem);
+ }
+ const offpolicyDone=preparationProgress(offpolicy.id,modules,offpolicySaved);assert.equal(offpolicyDone.completed,5);assert.equal(offpolicyDone.next,undefined);
+ const offpolicyMissing=preparationProgress(offpolicy.id,modules.filter(problem=>problem.id!==offpolicyModules.at(-1).id),offpolicySaved);assert.equal(offpolicyMissing.completed,4);assert.equal(offpolicyMissing.total,5);assert.equal(offpolicyMissing.missing,1);
+ console.log('PASS off-policy and pass@k study: every five-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
+
  const filters={...emptyInterviewFilters(),company:'google',role:'llm',days:'90',q:'数学 & attention 😀',view:'companies',track:'llm'},returnTo=interviewHref(filters);
  const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};

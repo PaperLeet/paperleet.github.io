@@ -2868,6 +2868,93 @@
           }
         }
       ]
+    },
+    {
+      "id": "rl/glm5_offpolicy",
+      "source": "problems/rl/glm5_offpolicy/README.md",
+      "functions": [
+        "masked_is_weights",
+        "offpolicy_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "异步 rollout 的双边纠偏，为什么不能直接换成 PPO clipping 或 clamp？",
+            "en": "Why is double-sided rollout correction different from PPO clipping or clamping?"
+          },
+          "hint": {
+            "zh": "计算当前与已记录 rollout 概率的比值 r，只在严格开区间 (1−low,1+high) 内保留 r，其余 token 的贡献为零，与 advantage 的正负无关。这是题目采用的论文式屏蔽；固定版本 Slime 的 MIS helper 包含端点。默认 .2/.2 是教学参数，不是生产训练配置。",
+            "en": "Use the current-to-recorded-rollout ratio r. Retain r strictly inside (1−low,1+high); otherwise discard the token for either advantage sign. The exercise follows the report’s strict rule, while the pinned Slime MIS helper includes endpoints. Defaults .2/.2 are teaching settings."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样同时保证停止梯度、原始 token 分母，以及 NaN padding 的安全性？",
+            "en": "How do you preserve stop-gradient, original-token normalization and safe NaN padding?"
+          },
+          "hint": {
+            "zh": "输入 logp、rollout_logp、mask 为 [B,L]，优势为 [B]。冻结比率、rollout 分数和优势，仅直接相乘的当前 logp 接收梯度。先排除 padding 的 logp；冻结指数溢出时用 where 选择零，别用零乘无穷。分母统计全部原始有效 token，包括被丢弃的 token；空 mask 返回连接计算图的标量零。",
+            "en": "Log probabilities and mask have shape [B,L], advantages [B]. Freeze ratios, rollout scores and advantages; differentiate only the direct current-logp factor. Exclude padded scores and select zero for rejected infinite ratios. Count all originally valid tokens, including rejected ones. Empty masks return a graph-connected scalar zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用小样本区分“丢弃”与“幸存 token 重新平均”，并正确检查梯度？",
+            "en": "How can a small example distinguish rejection from survivor averaging and verify gradients?"
+          },
+          "hint": {
+            "zh": "取 low=.5、high=1，rollout 分数为 −2，比率 [1,4,.25]，三个 token 都有效且 advantage=3：权重应为 [1,0,0]，loss=2，当前 logp 梯度为 [−1,0,0]。按计算后比率检查两端点，再加入 NaN padding、极大差值和空 mask。使用解析梯度 −mask·weight·advantage/N；跨次扰动会重算冻结权重，不能直接用这种有限差分验证 surrogate。",
+            "en": "With low=.5, high=1, rollout scores −2, ratios [1,4,.25], three valid tokens and advantage=3, expect weights [1,0,0], loss 2 and logp gradient [−1,0,0]. Check computed endpoints, NaN padding, extreme differences and empty masks. Verify the analytic frozen-weight gradient; recomputing weights across finite differences changes the surrogate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "rl/pkpo",
+      "source": "problems/rl/pkpo/README.md",
+      "functions": [
+        "maxk_estimate",
+        "pkpo_weights",
+        "pkpo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "最大收益估计和策略梯度系数为什么不是同一个数组？二值奖励时优化的是什么？",
+            "en": "Why do maximum-reward estimates and policy coefficients differ, and what happens for binary rewards?"
+          },
+          "hint": {
+            "zh": "maxk_estimate 平均大小为 k 的所有子集的最大收益；二值独立采样时对应 pass@k。pkpo_weights 则平均样本对所在子集最大值的增量，减去移除该样本后的最大值基线；它不是概率，也不是 GRPO 的标准化 advantage。k=1 明确采用空集基线为零，系数为 rewards/N，可为负。",
+            "en": "maxk_estimate averages maxima over size-k subsets; for independent binary samples it estimates pass@k. Policy coefficients instead average the increase over the subset maximum without that sample. They are neither probabilities nor standardized GRPO advantages. At k=1, the exercise’s zero empty-set baseline gives rewards/N, which may be negative."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "排序和前缀和算出的系数，怎样接回原始样本和 loss？",
+            "en": "How do sorted-prefix coefficients return to the original samples and loss?"
+          },
+          "hint": {
+            "zh": "先对最后的 N 轴排序，用组合数比值和两条前缀和累计奖励差，再 scatter 回原采样顺序；避免枚举全部子集，也别把大组合数先塞进固定宽度整型张量。系数 detach，loss 沿 N 求和，只对前导独立组取 mean；不能再除以 N。最大值估计可保留奖励梯度，策略 loss 则只对 log probability 求导。",
+            "en": "Sort the final sample axis, accumulate reward gaps with binomial ratios and two prefix sums, then scatter back. Avoid subset enumeration and fixed-width integer overflow. Detach policy coefficients; sum over N and average only leading groups, without another division by N. Reward-estimate derivatives differ from score-function policy gradients."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何同时发现顺序错位、重复归一化、并列最大值和错误的目标？",
+            "en": "How do you detect reordered samples, double normalization, tied maxima and the wrong objective?"
+          },
+          "hint": {
+            "zh": "对 rewards=[3,−1,1]、k=2，最大值估计为 7/3，系数为 [2,0,2/3]；log_probs=[−1,−2,−3] 时 loss=4。枚举小组全部子集做独立对照。k=N 时只剩最大与次大的差，并列最大则全零；k>=2 平移同组奖励不改系数。再检查置换、负奖励、N=1、大组合数及冻结奖励梯度。",
+            "en": "For rewards [3,−1,1] and k=2, expect maximum estimate 7/3 and coefficients [2,0,2/3]; log_probs [−1,−2,−3] give loss 4. Compare against exhaustive small subsets. At k=N only the top-two gap remains; tied maxima give zeros. Also check shifts for k≥2, permutations, negatives, singletons, large binomials and frozen rewards."
+          }
+        }
+      ]
     }
   ]
 }

@@ -25,6 +25,7 @@ try{
  for(const guide of guides){const problem=published.find(problem=>problem.id===guide.id);assert(problem,guide.id);assert.deepEqual(guide.functions,problem.module.required_functions,guide.id+' implementation scope');const source=path.join(repo,guide.source);assert(fs.existsSync(source));const text=fs.readFileSync(source,'utf8');for(const name of guide.functions)assert(text.includes(name),guide.id+' README source');}
  for(const change of [value=>value.modules.pop(),value=>value.modules[0].source='../outside',value=>value.modules[0].prompts[0].hint.en='',value=>value.modules[0].prompts[1].focus='explain']){const malformed=structuredClone(raw);change(malformed);assert.equal(model.readPreparationGuides(malformed),undefined);}
  assert.equal((await model.loadPreparationGuide('architecture/attention')).prompts.length,3);await assert.rejects(()=>model.loadPreparationGuide('architecture/not-guided'));
+ const rlModules=published.filter(problem=>problem.id.startsWith('rl/'));assert.equal(rlModules.length,12);assert(rlModules.every(problem=>guides.some(guide=>guide.id===problem.id)));
  const {createRoot}=await import('react-dom/client');
  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
  const {default:Guide,PREPARATION_GUIDE_TIMEOUT}=await server.ssrLoadModule('/src/PreparationGuide.tsx');
@@ -237,6 +238,26 @@ try{
  assert.deepEqual([...advancedCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),advancedModules.map(id=>String(published.find(problem=>problem.id===id).number)));
  assert(advancedCard.querySelector('.interview-path-module-disclosure').open);assert.equal(advancedCard.querySelectorAll('.interview-path-modules>a').length,3);assert.equal(advancedCard.querySelectorAll('.interview-path-module-extra a').length,4);
  await stop();console.log('PASS advanced-architecture handbook: seven curriculum-ordered concepts, four new bilingual guides/twelve prompts, native answer disclosures, deferred loading, exact practice/login/filter returns and selected-path expansion');
+ const offpolicyModules=['rl/ppo_clip','rl/grpo','rl/gspo','rl/glm5_offpolicy','rl/pkpo'];
+ const offpolicyFilters={...nav.emptyInterviewFilters(),company:'nvidia',role:'llm',stage:'technical',track:'off-policy-passk',q:'离策略 & pass@k 😀',saved:true,page:2};
+ assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(offpolicyFilters)),offpolicyFilters);
+ const beforeOffpolicy=loads.length;await render(Handbook,{filters:offpolicyFilters,problems:published});assert.equal(loads.length,beforeOffpolicy,'Offpolicy prompts remain deferred until opened');
+ assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),offpolicyModules,'The curriculum compares clipped/grouped, sequence and token policies before the best-of-k objective');
+ for(const [index,id] of offpolicyModules.entries()){
+  if(index){const count=loads.length;await act(async()=>{const choice=document.querySelector('select');choice.value=id;choice.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await settle(()=>loads.length===count+1);}else await open();
+  const request=take();assert.equal(request.id,id);await reply(request);assert.equal(document.querySelectorAll('.preparation-prompt-list>li').length,3);assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
+  const hints=[...document.querySelectorAll('.preparation-hint')];assert(hints.every(hint=>!hint.open));
+  for(const [promptIndex,hint] of hints.entries()){await click(hint.querySelector('summary'));assert(hint.open);assert(hint.textContent.includes(content(id).prompts[promptIndex].hint.en));}
+  await click(button('中文 fixture'));assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.zh);assert(hints.every(hint=>hint.open),'Language changes preserve explicit answer disclosures');
+  for(const [promptIndex,hint] of hints.entries())assert(hint.textContent.includes(content(id).prompts[promptIndex].hint.zh));
+  await click(button('EN fixture'));
+  const practice=document.querySelector('.preparation-guide-actions a');assert.deepEqual(nav.readInterviewRoute(libraryReturnHref(practice.getAttribute('href'))),{...offpolicyFilters,view:'reports',concept:id,page:1,q:''});
+  assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'));
+ }
+ await stop();await render(Hub,{route:'interviews?role=llm&track=off-policy-passk',problems:published});const offpolicyCard=document.getElementById('interview-path-off-policy-passk')?.closest('article');assert(offpolicyCard);assert.equal(document.querySelector('.interview-path-grid>article'),offpolicyCard);
+ assert.deepEqual([...offpolicyCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),offpolicyModules.map(id=>String(published.find(problem=>problem.id===id).number)));
+ assert(offpolicyCard.querySelector('.interview-path-module-disclosure').open);assert.equal(offpolicyCard.querySelectorAll('.interview-path-modules>a').length,3);assert.equal(offpolicyCard.querySelectorAll('.interview-path-module-extra a').length,2);
+ await stop();console.log('PASS off-policy-passk handbook: five ordered concepts, complete twelve-topic RL guide coverage, two new bilingual guides/six prompts, native answer disclosures, exact practice/login/filter returns, deferred content and selected-path expansion');
  const scopeFilters={...postTrainingFilters,concept:'rl/dr_grpo',q:'保留范围 & λ 😀',page:3};location.hash=nav.interviewHref(scopeFilters);
  function ScopeReader({filters:scope,problems=published}){return React.createElement(React.Fragment,null,React.createElement(Draft),React.createElement(Handbook,{filters:scope,problems}));}
  await render(ScopeReader,{filters:scopeFilters});assert(document.querySelector('.preparation-handbook-scope'),'A scoped handbook needs an in-place way to browse related prompts');

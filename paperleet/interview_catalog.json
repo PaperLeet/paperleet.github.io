@@ -695,6 +695,24 @@
         "llm",
         "research"
       ]
+    },
+    {
+      "id": "off-policy-passk",
+      "name": "离策略纠偏与 Pass@k",
+      "name_en": "Off-policy correction & pass@k",
+      "description": "从 PPO 与组内优势出发，比较序列与 token 重要性权重，再实现多次采样的最大收益目标。",
+      "description_en": "Connect PPO and grouped advantages with sequence/token importance weights, then optimize the best reward from multiple samples.",
+      "modules": [
+        "rl/ppo_clip",
+        "rl/grpo",
+        "rl/gspo",
+        "rl/glm5_offpolicy",
+        "rl/pkpo"
+      ],
+      "roles": [
+        "llm",
+        "research"
+      ]
     }
   ]
 }
