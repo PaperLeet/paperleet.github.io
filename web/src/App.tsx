@@ -935,7 +935,10 @@ function Workspace() {
                       : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
-                    {(report?.runtime === "browser-numpy-wasm" || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"} calibration={browser.calibrations[problem.id]} diagnostics={browser.diagnostics[problem.id]} measurement={report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined}/>}
+                    {(report?.runtime === "browser-numpy-wasm" || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={report?.runtime === "browser-numpy-wasm"}
+                      calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
+                      diagnostics={browser.diagnostics[problem.id]}
+                      measurement={report?.browser_run?.measurements ?? (report && report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined)}/>}
                   </div>}
                   {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
                   {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">

@@ -1,5 +1,6 @@
 import type { Report, Saved, TestResult } from "./types";
 import { parseComparison } from "./comparisons";
+import { browserRunDetails } from "./browserRunDetails";
 
 const validLayers = new Set(["T0", "T1", "T2", "T3"]);
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -102,11 +103,14 @@ export function parseReport(value: unknown): Report {
     return invalid("run_id 必须是提交记录的 ID");
   if (sourceHash !== undefined && !/^[a-f0-9]{64}$/.test(sourceHash))
     return invalid("source_sha256 必须是 SHA-256 十六进制字符串");
+  const runtime = optionalString(value.runtime, "runtime");
+  const browserRun = runtime === 'browser-numpy-wasm' && sourceHash ? browserRunDetails(value.browser_run) : undefined;
   return {
     problem: value.problem,
+    ...(browserRun ? {browser_run:browserRun} : {}),
     ...(runId ? { run_id: runId } : {}),
     source_sha256: sourceHash,
-    runtime: optionalString(value.runtime, "runtime"),
+    runtime,
     tests,
     summary,
     mutation,
