@@ -18,5 +18,5 @@
 .workspace-test-detail-body .test-layers { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .workspace-test-results .browser-result-actions { margin-top:12px; }
 .workspace-test-detail-error { padding:8px 0; font-size:var(--type-small); color:var(--text-secondary); }
-.workspace-test-detail-error button { min-height:36px; color:var(--accent); }
-@media (pointer:coarse) { .workspace-test-results .feedback-actions > .button,.workspace-test-details > summary { min-height:44px; } }
+.workspace-test-detail-error button { min-height:40px; font-size:var(--type-small); color:var(--accent); }
+@media (pointer:coarse) { .workspace-test-results .feedback-actions > .button,.workspace-test-details > summary,.workspace-test-detail-error button { min-height:44px; } }
