@@ -59,6 +59,28 @@ def test_silu_forward_and_analytical_vjp_match_native(dtype):
     with pytest.raises(wasm.BrowserUnsupported): wasm.SiLU(inplace=True)
 
 
+@pytest.mark.parametrize('dtype', [np.float32,np.float64])
+@pytest.mark.parametrize('shape,outputs', [((8,128),32),((2,4,128),32),((128,),256)])
+@pytest.mark.parametrize('wasm_kernel', [False,True])
+def test_large_linear_native_values_all_vjps_and_reverse_over_forward(dtype,shape,outputs,wasm_kernel,monkeypatch):
+    from paperleet_torch import _nn
+    monkeypatch.setattr(_nn,'_WASM_LINEAR_GRADS',wasm_kernel)
+    rng=np.random.default_rng(1521)
+    data=[rng.normal(size=shape).astype(dtype),(.1*rng.normal(size=(outputs,shape[-1]))).astype(dtype),rng.normal(size=outputs).astype(dtype)]
+    actual=[wasm.Tensor(value,requires_grad=True) for value in data]
+    expected=[torch.tensor(value,requires_grad=True) for value in data]
+    direction=rng.normal(size=shape).astype(dtype)
+    a=wasm.Tensor(direction,requires_grad=True);b=torch.tensor(direction,requires_grad=True)
+    first=wasm.jvp(lambda x:wasm.linear(x,*actual[1:]),(actual[0],),(a,))
+    second=torch.func.jvp(lambda x:torch.nn.functional.linear(x,*expected[1:]),(expected[0],),(b,))
+    seed=rng.normal(size=shape[:-1]+(outputs,)).astype(dtype)
+    (first[0]*wasm.Tensor(seed)+first[1].square()).sum().backward()
+    (second[0]*torch.tensor(seed)+second[1].square()).sum().backward()
+    tolerance=3e-5 if dtype==np.float32 else 3e-12
+    for left,right in [*zip(first,second),*[(x.grad,y.grad) for x,y in zip([*actual,a],[*expected,b])]]:
+        np.testing.assert_allclose(left.numpy(),right.detach().numpy(),rtol=tolerance,atol=tolerance)
+
+
 def test_nested_shared_parameters_deepcopy_freezing_and_ema_alias_versions():
     shared = wasm.Linear(2, 2)
     online = wasm.Sequential(shared, wasm.SiLU(), shared)

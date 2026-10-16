@@ -27,7 +27,13 @@ def linear(input, weight, bias=None):
         raise _errors.BrowserUnsupported('Other linear bias shapes/dtypes require the server')
     rows = math.prod(input.shape[:-1])
     x, w = input._data, weight._data
-    value = x @ w.T
+    # Direct contractions avoid the slower WASM matmul loop for measured
+    # large, contiguous feature vectors. Keep CPU BLAS and small/strided inputs.
+    if (_WASM_LINEAR_GRADS and w.shape[1] >= 64 and rows * w.size >= 32768
+            and x.strides[-1] == x.itemsize and w.strides[1] == w.itemsize):
+        value = np.einsum('...i,oi->...o', x, w, optimize=False)
+    else:
+        value = x @ w.T
     if bias is not None: value = value + bias._data
     if _WASM_LINEAR_GRADS:
         edges = [(input, lambda g: np.einsum('...o,oi->...i', g, w, optimize=False)),

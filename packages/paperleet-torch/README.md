@@ -599,9 +599,22 @@ promise for other devices or browser downloads. The
 source, runtime, samples and scope. Empty/strided shapes, independent scalar and
 native gradients, repeated backward seeds, JVP and mutation guards are covered.
 
-The [unreleased 0.14 validation record](../../docs/validation/torch-runtime-iteration-14.md)
+The 0.15 release candidate extends direct WASM contractions to measured large
+linear forward cases, preserving CPU BLAS and small/strided-input paths. Four
+fresh-process measurements of the unchanged complete Flow Matching suite in
+each runtime reduced median execution time by 27.0% on Node/WASM and 21.1% in
+Chrome Workers versus 0.14. All eight suites passed. Floating-point reduction
+order changes slightly; mode coverage/outlier proportions were identical and
+the maximum sample-coordinate difference in the recorded Node pair was
+`1.79e-6`. These local measurements do not guarantee remote browser deadlines.
+The [0.15 validation record](../../docs/validation/torch-runtime-iteration-15.md)
+and [raw measurements](benchmarks/results/iteration-15.json) retain samples,
+source identities, numerical differences and current release gates.
+
+The [0.14 validation record](../../docs/validation/torch-runtime-iteration-14.md)
 tracks arithmetic promotion, native numerical order, callback policies and
-separately preserved optimization phases. Its pending release gates are explicit.
+separately preserved optimization phases, including the successful native/WASM
+quality gate, deployment and live runtime verification.
 
 The [0.13 validation record](../../docs/validation/torch-runtime-iteration-13.md)
 tracks mixed-dtype selection/joins, where graph retention and CPU/WASM/Chrome

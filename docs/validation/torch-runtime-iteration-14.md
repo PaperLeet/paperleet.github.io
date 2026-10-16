@@ -1,11 +1,12 @@
 # Lightweight torch 0.14 — arithmetic, promotion and IEEE behavior
 
-The maintained implementation is being expanded to cover ordinary arithmetic
-function/method APIs, mixed dtype/Number promotion and checked alpha values.
-**Combined-source local validation is complete; exact main CI and deployed
-adoption are still pending.** Historical phases below retain their own source
-hashes, failures and costs. The final combined-source section compares0.14 with
-main0.13.1, preserving its WASM linear optimization.
+Version 0.14 covers ordinary arithmetic function/method APIs, mixed dtype/Number
+promotion and checked alpha values. **Exact main Quality38828311148, Pages and
+live adoption all succeeded for correction commit `de4490c9`.** The final proof
+appendix below records Linux, complete WASM, deployment and Python 3.10 results.
+Historical phases retain their own source hashes, failures, pending-status
+observations and costs. The final combined-source section compares 0.14 with
+main 0.13.1, preserving its WASM linear optimization.
 
 ## Implementation and evidence so far
 
@@ -383,3 +384,33 @@ native sign conventions, while four negative cases prove incorrect classes or
 nonzero values still fail. Numerical runtime assets and performance samples are
 unchanged. See the [portable-oracle record](../../packages/paperleet-torch/benchmarks/results/iteration-14-portability.json).
 New Linux CI remains pending.
+
+Portable-oracle correction commit `de4490c9f4fa3825c0fdd9a66d8a569665f92d0d`
+is on main. Exact Pages run38828311159 succeeds, and the live77 starters,
+judge manifests and both runtime/resource byte sets match the prior frozen
+0.14 snapshot. Exact Quality38828311148 now passes its complete Linux judge
+infrastructure step; reference/mutation/CPU and full-catalog WASM jobs remain
+in progress. Final quality success is not yet claimed. Original failed
+Quality38826821990 and its six complex-zero sign comparison failures remain
+recorded. No runtime module or numerical behavior changed in this correction.
+
+Exact corrected Quality run38828311148 is now **success**. Linux reports
+**17,074 passed**, one optional Docker skip and10 warnings in533.12 seconds;
+77 native modules execute9,987 test cases across three repeats and catch336
+mutants in422.99 seconds. All77 real WASM modules pass in1,019.451 seconds,
+including189 standalone contracts. Native/frontend, browser-WASM and pilot jobs
+all succeed for `de4490c9f4fa3825c0fdd9a66d8a569665f92d0d`. Exact Pages and live
+77-module/resource verification also succeed.
+
+The Linux WASM runner observes Flow Matching calibration/total budget excess;
+correctness still passes and browser timeout/native fallback requirements remain.
+The earlier same-source run recorded preparation3.716s, calibration283.897s and
+learner56.307s. These are device observations, not controlled speed comparisons.
+They identify a real training/calibration target for later performance work.
+
+Separately, the installed portable wheel passes209 independent tests under
+actual CPython3.10.19/NumPy1.26.4 with no native Torch; all35 installed module
+hashes match the release. This verifies the declared minimum Python runtime,
+rather than only its syntax. Raw remote artifacts and exact hashes are preserved
+in local `torch-iteration-14/remote-final-proof.json`; the next source iteration
+will carry this proof appendix without a documentation-only CI rerun.

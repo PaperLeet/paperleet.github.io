@@ -77,3 +77,70 @@ def test_linear_wasm_keeps_saved_weight_mutation_guard():
     value = torch.nn.functional.linear(x,weight)
     with torch.no_grad(): weight.add_(1.)
     with pytest.raises(UnsupportedOperation,match='modified in-place'): value.sum().backward()
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.float64])
+@pytest.mark.parametrize('shape,outputs', [((2,4,128),32), ((128,),256)])
+@pytest.mark.parametrize('layout', ['contiguous', 'feature_stride', 'fortran'])
+def test_large_linear_values_retained_gradients_and_frozen_inputs(dtype, shape, outputs, layout):
+    rng = np.random.default_rng(1519)
+    x = rng.normal(size=shape).astype(dtype)
+    w = rng.normal(size=(outputs,shape[-1])).astype(dtype)
+    if layout == 'feature_stride':
+        x = np.repeat(x,2,axis=-1)[...,::2]
+        w = np.repeat(w,2,axis=-1)[:,::2]
+    elif layout == 'fortran':
+        x, w = np.asfortranarray(x), np.asfortranarray(w)
+    bias = rng.normal(size=outputs).astype(dtype)
+    seed = rng.normal(size=shape[:-1]+(outputs,)).astype(dtype)
+    before = [value.copy() for value in (x,w,bias)]
+    # The input is frozen while weight and bias train. A retained graph must
+    # compute each new incoming seed without caching a previous derivative.
+    a = torch.from_numpy(x)
+    weight = torch.from_numpy(w).requires_grad_()
+    offset = torch.from_numpy(bias).requires_grad_()
+    value = torch.nn.functional.linear(a,weight,offset)
+    expected, first = scalar_oracles(x,w,bias,seed)
+    tolerance = 2e-5 if dtype == torch.float32 else 2e-12
+    np.testing.assert_allclose(value.numpy(),expected,rtol=tolerance,atol=tolerance)
+    value.backward(torch.from_numpy(seed),retain_graph=True)
+    np.testing.assert_allclose(weight.grad.numpy(),first[1],rtol=tolerance,atol=tolerance)
+    np.testing.assert_allclose(offset.grad.numpy(),first[2],rtol=tolerance,atol=tolerance)
+    second_seed = (seed * -.3).astype(dtype)
+    _, second = scalar_oracles(x,w,bias,second_seed)
+    value.backward(torch.from_numpy(second_seed))
+    np.testing.assert_allclose(weight.grad.numpy(),first[1]+second[1],rtol=tolerance,atol=tolerance)
+    np.testing.assert_allclose(offset.grad.numpy(),first[2]+second[2],rtol=tolerance,atol=tolerance)
+    assert a.grad is None
+    for actual, original in zip((x,w,bias),before): np.testing.assert_array_equal(actual,original)
+    with pytest.raises(RuntimeError,match='second time'): value.backward(torch.from_numpy(seed))
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.float64])
+def test_large_linear_reverse_over_forward_against_independent_scalar_sums(dtype):
+    rng = np.random.default_rng(1520)
+    xraw = rng.normal(size=(2,4,128)).astype(dtype)
+    direction = rng.normal(size=xraw.shape).astype(dtype)
+    wraw = rng.normal(size=(32,128)).astype(dtype)
+    x = torch.tensor(xraw,requires_grad=True)
+    tangent = torch.tensor(direction,requires_grad=True)
+    weight = torch.tensor(wraw,requires_grad=True)
+    primal, derivative = torch.func.jvp(lambda value:torch.nn.functional.linear(value,weight),(x,),(tangent,))
+    expected, _ = scalar_oracles(xraw,wraw,np.zeros(32),np.zeros((2,4,32)))
+    tangent_expected, _ = scalar_oracles(direction,wraw,np.zeros(32),np.zeros((2,4,32)))
+    seed = rng.normal(size=(2,4,32)).astype(dtype)
+    _, gradients = scalar_oracles(direction,wraw,np.zeros(32),seed)
+    derivative.backward(torch.tensor(seed))
+    tolerance = 2e-5 if dtype == torch.float32 else 2e-12
+    for actual, reference in [(primal,expected),(derivative,tangent_expected),(tangent.grad,gradients[0]),(weight.grad,gradients[1])]:
+        np.testing.assert_allclose(actual.numpy(),reference,rtol=tolerance,atol=tolerance)
+    if x.grad is not None: np.testing.assert_array_equal(x.grad.numpy(),np.zeros_like(xraw))
+
+
+@pytest.mark.parametrize('changed', ['input','weight','output'])
+def test_large_linear_keeps_all_saved_storage_version_guards(changed):
+    x = torch.ones(8,128,requires_grad=True)
+    weight = torch.ones(32,128,requires_grad=True)
+    value = torch.nn.functional.linear(x,weight)
+    with torch.no_grad(): {'input':x,'weight':weight,'output':value}[changed].detach().add_(1.)
+    with pytest.raises(UnsupportedOperation,match='modified in-place'): value.sum().backward()

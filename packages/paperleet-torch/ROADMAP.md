@@ -162,6 +162,30 @@ and common-path latency costs are recorded alongside balanced CPU/WASM/Chrome
 controls. ComplexHalf, real output buffers and remaining operator-wide promotion
 are explicit boundaries.
 
+## Version 0.14 milestone
+
+Native category/width arithmetic promotion, checked scalar/alpha protocols,
+functional aliases, floor/trunc division and reciprocal improve unchanged torch
+code coverage. Reverse kernels preserve native numerical operation order;
+undefined constant forward-tangent terms are omitted without losing explicit
+zero tangents. A traversal-wide numerical scope keeps callbacks' mutable NumPy
+error policy intact. Independent IEEE, dtype, lifecycle and CPU/WASM/Chrome
+measurements retain their costs as well as gains. Native and full WASM quality
+gates, main deployment, live assets and Python 3.10 isolation passed.
+
+## Version 0.15 milestone
+
+Full Flow Matching profiling identified linear forward contractions as the main
+remaining WASM target. A bounded large/contiguous-feature path improves local
+complete-suite median time by 27.0% in Node/WASM and 21.1% in Chrome Workers in
+separate balanced fresh-process series. CPU BLAS and small/strided paths remain.
+All eight timed full suites passed with recorded floating-point differences;
+this is not a remote deadline guarantee. Large scalar-sum/native VJP/JVP and
+saved-storage tests, independent wheel/source identity, and actual Python
+3.10/NumPy 1.26 isolation supplement course coverage. All local infrastructure,
+native catalog, full WASM catalog, visualization and frontend/build gates pass;
+exact remote adoption checks follow publication. See the iteration 15 record.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, file checkpoint serialization
