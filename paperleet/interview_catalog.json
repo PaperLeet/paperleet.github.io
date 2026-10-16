@@ -675,6 +675,26 @@
         "llm",
         "research"
       ]
+    },
+    {
+      "id": "advanced-architecture",
+      "name": "进阶架构与稳定性",
+      "name_en": "Advanced architecture & stability",
+      "description": "从双图差分与逐通道记忆，练到沿深度检索，再比较逐 token 前馈与平滑有界激活。",
+      "description_en": "Compare two-map attention and channel-wise memory, retrieve across depth, then connect per-token feed-forward layers with smooth bounded activations.",
+      "modules": [
+        "architecture/attention",
+        "architecture/differential_attention",
+        "architecture/kimi_kda",
+        "architecture/rms_norm",
+        "architecture/block_attention_residual",
+        "architecture/positionwise_ffn",
+        "architecture/situ_glu"
+      ],
+      "roles": [
+        "llm",
+        "research"
+      ]
     }
   ]
 }

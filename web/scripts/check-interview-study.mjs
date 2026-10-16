@@ -30,6 +30,16 @@ try{
  assert.equal(preparationProgress('llm',modules,saved,ordered[0]).next.id,ordered[1].id,'Continue in curriculum order, including optional catalog modules that the path explicitly lists');
  assert.equal(preparationProgress('llm',modules,saved,ordered.at(-1)).next.id,ordered[1].id,'Wrap within the path, never into the general catalog');
  assert.equal(preparationProgress('missing',modules),undefined);
+ const advanced=interviewCatalog.paths.find(path=>path.id==='advanced-architecture'),advancedModules=advanced.modules.map(id=>modules.find(problem=>problem.id===id)),advancedSaved={};assert.equal(advancedModules.length,7);
+ for(const [index,problem]of advancedModules.entries()){
+  const view=preparationProgress(advanced.id,modules,advancedSaved);assert.equal(view.completed,index);assert.equal(view.total,7);assert.equal(view.missing,0);assert.equal(view.next.id,problem.id);
+  if(index)assert.equal(preparationProgress(advanced.id,modules,advancedSaved,advancedModules[index-1]).next.id,problem.id);
+  advancedSaved[problem.id]=pass(problem);
+ }
+ const advancedDone=preparationProgress(advanced.id,modules,advancedSaved);assert.equal(advancedDone.completed,7);assert.equal(advancedDone.next,undefined);
+ const advancedMissing=preparationProgress(advanced.id,modules.filter(problem=>problem.id!==advancedModules.at(-1).id),advancedSaved);assert.equal(advancedMissing.completed,6);assert.equal(advancedMissing.total,7);assert.equal(advancedMissing.missing,1);
+ console.log('PASS advanced architecture study: every seven-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
+
  const filters={...emptyInterviewFilters(),company:'google',role:'llm',days:'90',q:'数学 & attention 😀',view:'companies',track:'llm'},returnTo=interviewHref(filters);
  const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};

@@ -2696,6 +2696,178 @@
           }
         }
       ]
+    },
+    {
+      "id": "architecture/differential_attention",
+      "source": "problems/architecture/differential_attention/README.md",
+      "functions": [
+        "differential_lambda",
+        "differential_attention"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "两张注意力图为什么要分别 softmax 再相减？差分图还算概率分布吗？",
+            "en": "Why normalize the two attention maps separately before subtracting? Is their difference a probability distribution?"
+          },
+          "hint": {
+            "zh": "两分支都沿 key 轴归一化、分别施加因果掩码，再计算 (A1−λA2)V。差分图可有负值，每行和为 1−λ；先减 logits 再 softmax 是另一个算子。Q/K 的宽度为 D，V 的宽度为 2D，缩放仍使用 √D。这里的输出位于逐头归一化和输出投影之前。",
+            "en": "Normalize each branch over keys and mask both, then compute (A1−λA2)V. The signed map sums to 1−λ per row. Subtracting logits before one softmax changes the operator. Q/K have width D and V width 2D, but the scale remains √D. This exercise returns the aggregate before head normalization and output projection."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现可学习 λ 时，哪些写法会切断梯度或错误地限制它的范围？",
+            "en": "Which implementations detach the learnable lambda or impose an incorrect range?"
+          },
+          "hint": {
+            "zh": "λ=exp(dot(q1,k1))−exp(dot(q2,k2))+λ_init，其中四个向量是独立的 λ 参数，不是注意力 Q/K。返回零维 Tensor，别用 item() 或 Python float 重建，也别夹到 [0,1]。注意力函数接受标量 Tensor 系数，须让梯度经过系数和两组 Q/K/V；保留 dtype、非连续输入和输入值。",
+            "en": "Lambda is the difference of two exponentiated parameter-vector dot products plus lambda_init. These four vectors are separate from attention Q/K. Return a scalar Tensor; do not rebuild it through item()/float or clamp it to [0,1]. Preserve gradients through a Tensor coefficient and both attention branches, together with dtype, strided inputs and input values."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用相同注意力图、共同 value 偏移与未来 token 扰动，分开检查符号、掩码和梯度？",
+            "en": "How do equal maps, a shared value offset and future-token perturbations separate sign, mask and gradient checks?"
+          },
+          "hint": {
+            "zh": "令两分支 Q/K 都为零，T=2、D=1，V=[[2,4],[6,8]]，因果模式且 λ=0.25，应输出 [[1.5,3],[3,4.5]]。λ=1 时相同图完全抵消；给所有 value 加 c，输出仅增加 (1−λ)c。再用不同 Q/K 与未来 K/V 扰动检查两条掩码，做全部输入和 λ 的梯度检查。共同偏移结论不意味着任意噪声都能下降。",
+            "en": "With zero Q/K in both branches, T=2, D=1, V=[[2,4],[6,8]], causal mode and lambda=0.25, expect [[1.5,3],[3,4.5]]. Equal maps cancel at lambda=1. Adding c to every value adds (1−lambda)c to output. Then use distinct maps, perturb future K/V and check all input/coefficient gradients. Common-offset cancellation does not imply arbitrary noise reduction."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/kimi_kda",
+      "source": "problems/architecture/kimi_kda/README.md",
+      "functions": [
+        "bounded_decay",
+        "recurrent_kda"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "KDA 的状态为什么是 key×value？一个 token 内的遗忘、预测、写入和读取能交换顺序吗？",
+            "en": "Why is KDA state key-by-value, and can forgetting, prediction, writing and reading be reordered within a token?"
+          },
+          "hint": {
+            "zh": "状态为 [B,H,K,V]，先用逐 key 通道的 α 缩放旧状态，再从该状态预测 value；用 β·outer(k, v−prediction) 修正，最后用当前 q 读取更新后的状态。α 不是每头单一标量，β 也不是 logits。本题输入已经准备好，不额外缩放 q 或归一化 k。",
+            "en": "State is [B,H,K,V]. Apply per-key-channel retention to the old state, predict the value from that decayed state, add beta·outer(k,v−prediction), then read the updated state with q. Alpha is channel-wise and beta is already a write factor. Inputs are prepared; this exercise adds no query scaling or key normalization."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "有界衰减的 exp(A) 放在哪里？分段继续计算时，怎样让梯度继续经过记忆？",
+            "en": "Where does exp(A) belong in bounded decay, and how do gradients survive segmented continuation?"
+          },
+          "hint": {
+            "zh": "本题返回 α=exp(g_min·sigmoid(exp(A)·z))，不是 log α；exp(A) 在 sigmoid 内。默认 g_min=−5，有限精度下可饱和到端点。保留 [B,T,H,K] 门和 [B,H,K,V] 状态的广播方向；不要原地改状态或 detach 最终记忆。空序列返回空时间轴输出和原初始状态。单步下界不保证任意长度连乘永不下溢。",
+            "en": "Return alpha=exp(g_min·sigmoid(exp(A)·z)), not log alpha, with exp(A) inside sigmoid. Numerical saturation may reach endpoints. Broadcast retention along the value axis. Avoid in-place updates or detaching the final state so later chunks retain their gradient path. Empty scans return empty outputs and the initial state. A one-step bound does not prevent arbitrary-length product underflow."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "用一个标量 token，怎样区分读旧状态、预测次序错误与只累加外积？",
+            "en": "How can one scalar token distinguish reading old state, wrong prediction order and plain outer-product accumulation?"
+          },
+          "hint": {
+            "zh": "取初始状态 2，q=k=1，α=0.5，β=0.25，v=5：遗忘后为 1，残差为 4，更新后状态和输出都为 2。β=0 时仍衰减到 1，β=1 时单位 key 覆写为 5。再比较整段与两段拼接、K≠V、逐通道 α、空序列与非连续输入，检查非空序列中 q/k/v/α/β/初始状态的梯度。",
+            "en": "Take initial state 2, q=k=1, alpha=0.5, beta=0.25 and v=5. Decay gives 1, residual 4, and updated state/output 2. Beta=0 still decays to 1; beta=1 overwrites the unit-key value with 5. Compare whole and split scans, unequal K/V widths, channel-specific retention, empty/strided inputs and gradients through all six inputs of a nonempty scan."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/block_attention_residual",
+      "source": "problems/architecture/block_attention_residual/README.md",
+      "functions": [
+        "assemble_sources",
+        "depth_attention"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "深度注意力到底沿哪个轴竞争？为什么归一化 key 后仍要用原始 value 聚合？",
+            "en": "Which axis competes in depth attention, and why aggregate original values after normalizing keys?"
+          },
+          "hint": {
+            "zh": "来源堆在首轴：[N,B,T,D]。每个 token 独立沿 N 做 softmax；key 用带可学习缩放的 RMSNorm，eps 在平方根内，不减均值，也不除以 √D。最后用原始 sources 作 value，保留来源幅度，而不是把归一化 key 当作输出值。",
+            "en": "Sources have shape [N,B,T,D], with a separate softmax over N for each token. Keys use learned-scale RMSNorm with epsilon inside the square root, without mean subtraction or √D logit scaling. Aggregate original sources as values to preserve their magnitudes; normalized keys are not replacement values."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "块边界的 None 和一个显式零 partial block，为什么不能当成同一种输入？",
+            "en": "Why are an absent partial block and an explicitly supplied zero block different inputs?"
+          },
+          "hint": {
+            "zh": "按 embedding、已完成块的既定顺序、存在时的 partial block 组装来源。None 不占 softmax 槽位，零 Tensor 仍是一个来源。completed_blocks 已是块内输出和，不要给每个块再加 embedding。返回 mixed[B,T,D] 与 weights[N,B,T]，保持来源列表不变及 sources/query/norm_weight 的梯度。",
+            "en": "Stack embedding, completed blocks in order, then the partial block if supplied. None creates no softmax slot; a zero Tensor still creates one. Completed blocks already contain their sums, so do not add the embedding again. Return mixed[B,T,D] and weights[N,B,T], preserving the caller list and gradients through sources, query and norm_weight."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "零 query 和单一来源可以怎样揭示额外零槽位、错误归一化与轴错误？",
+            "en": "How do zero queries and a single source expose extra zero slots, wrong value normalization and wrong axes?"
+          },
+          "hint": {
+            "zh": "对标量来源 2、6，零 query 给出权重 [0.5,0.5]、输出 4；显式追加零来源则输出 8/3，None 时仍是 4。只有 embedding=2 时必须原样返回 2。重排来源只重排权重，不改输出；不同 token 不相互竞争。最后用非零 query 检查来源、查询、归一化缩放梯度，以及非连续输入和大 logits。",
+            "en": "For scalar sources 2 and 6, a zero query gives weights [0.5,0.5] and output 4. Appending a zero source gives 8/3; None leaves 4. A sole embedding 2 must return 2 unchanged. Permuting sources only permutes weights. Tokens do not compete. Use a nonzero query for source/query/norm-scale gradient checks, plus strided inputs and large logits."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/situ_glu",
+      "source": "problems/architecture/situ_glu/README.md",
+      "functions": [
+        "softcap",
+        "situ_glu"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "SiTU-GLU 的两条分支分别限制什么？默认上界 100 适用于哪里？",
+            "en": "What does SiTU-GLU cap in each branch, and where does its default bound of 100 apply?"
+          },
+          "hint": {
+            "zh": "对已投影 gate、up，计算 softcap(gate,β1)·sigmoid(gate)·softcap(up,β2)。sigmoid 读取原始 gate；默认 β1=4、β2=25。每个激活输出坐标的绝对值不超过 100，特征轴不归约。该数值界限针对激活本身，不是后续输出投影或完整模型的训练稳定性证明。",
+            "en": "Apply softcap(gate,beta1)·sigmoid(gate)·softcap(up,beta2) to projected branches. Sigmoid reads the raw gate. Defaults 4 and 25 bound each activation coordinate by 100 without reducing a feature axis. That bound concerns this activation, not a subsequent projection or a proof of full-model training stability."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么不能用 clamp 或 sigmoid(softcap(gate)) 代替原公式？",
+            "en": "Why are clamp and sigmoid(softcap(gate)) incorrect replacements?"
+          },
+          "hint": {
+            "zh": "softcap(x,β)=β·tanh(x/β)，导数是 1−tanh²(x/β)，在未数值饱和的阈值附近仍平滑可导。硬截断改变导数，先限制 gate 再送入 sigmoid 则改变门值。两分支使用各自 cap，保留相同形状、dtype/device、空轴、非连续输入及两支梯度；本题不实现投影或 MoE 路由。",
+            "en": "Softcap is beta·tanh(x/beta), with derivative 1−tanh²(x/beta). Hard clamping changes its smooth derivative near the cap; feeding a capped gate into sigmoid changes the gate value. Keep distinct caps, shape/dtype/device, empty axes, strided inputs and gradients through both branches. Projections and MoE routing are outside this exercise."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "只测试 gate=up 的曲线会遗漏什么错误？怎样验证局部、极限和梯度行为？",
+            "en": "What can gate=up curves miss, and how would you verify local, limiting and gradient behavior?"
+          },
+          "hint": {
+            "zh": "用 gate=8、up=2、β1=1、β2=3，分别比较原公式、错误的 capped sigmoid 和交换两支后的结果；它们应不同。再检查任意一支为零、相反符号、大幅值输出界限、负 gate 尾部趋零，以及两支同时靠近原点或 cap 变大时接近 SwiGLU。对未饱和的不同两支做解析或中心差分梯度检查。",
+            "en": "Use gate=8, up=2, beta1=1 and beta2=3 to distinguish the formula, capped-sigmoid mistake and swapped branches. Also check a zero branch, opposite signs, large-value bounds, vanishing negative-gate tail and convergence toward SwiGLU near zero or with increasing caps. Verify gradients with unequal, unsaturated branches using analytic derivatives or central differences."
+          }
+        }
+      ]
     }
   ]
 }

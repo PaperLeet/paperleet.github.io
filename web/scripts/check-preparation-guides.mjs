@@ -217,6 +217,26 @@ try{
  assert.deepEqual([...feedbackCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),feedbackModules.map(id=>String(published.find(problem=>problem.id===id).number)));
  assert(!feedbackCard.querySelector('.interview-path-module-disclosure'),'All three preparation steps stay directly available');
  await stop();console.log('PASS feedback-distillation handbook: three ordered concepts, all nine bilingual prompts and native answer disclosures, deferred loading, exact practice/login/filter returns and three direct path steps');
+ const advancedModules=['architecture/attention','architecture/differential_attention','architecture/kimi_kda','architecture/rms_norm','architecture/block_attention_residual','architecture/positionwise_ffn','architecture/situ_glu'];
+ const advancedFilters={...nav.emptyInterviewFilters(),company:'nvidia',role:'llm',stage:'technical',track:'advanced-architecture',q:'架构 & stability 😀',saved:true,page:2};
+ assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(advancedFilters)),advancedFilters);
+ const beforeAdvanced=loads.length;await render(Handbook,{filters:advancedFilters,problems:published});assert.equal(loads.length,beforeAdvanced,'Advanced prompts remain deferred until opened');
+ assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),advancedModules,'The architecture curriculum connects token mixing, depth retrieval and channel activation with prerequisites');
+ for(const [index,id] of advancedModules.entries()){
+  if(index){const count=loads.length;await act(async()=>{const choice=document.querySelector('select');choice.value=id;choice.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await settle(()=>loads.length===count+1);}else await open();
+  const request=take();assert.equal(request.id,id);await reply(request);assert.equal(document.querySelectorAll('.preparation-prompt-list>li').length,3);assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
+  const hints=[...document.querySelectorAll('.preparation-hint')];assert(hints.every(hint=>!hint.open));
+  for(const [promptIndex,hint] of hints.entries()){await click(hint.querySelector('summary'));assert(hint.open);assert(hint.textContent.includes(content(id).prompts[promptIndex].hint.en));}
+  await click(button('中文 fixture'));assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.zh);assert(hints.every(hint=>hint.open),'Language changes preserve explicit answer disclosures');
+  for(const [promptIndex,hint] of hints.entries())assert(hint.textContent.includes(content(id).prompts[promptIndex].hint.zh));
+  await click(button('EN fixture'));
+  const practice=document.querySelector('.preparation-guide-actions a');assert.deepEqual(nav.readInterviewRoute(libraryReturnHref(practice.getAttribute('href'))),{...advancedFilters,view:'reports',concept:id,page:1,q:''});
+  assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'));
+ }
+ await stop();await render(Hub,{route:'interviews?role=llm&track=advanced-architecture',problems:published});const advancedCard=document.getElementById('interview-path-advanced-architecture')?.closest('article');assert(advancedCard);assert.equal(document.querySelector('.interview-path-grid>article'),advancedCard);
+ assert.deepEqual([...advancedCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),advancedModules.map(id=>String(published.find(problem=>problem.id===id).number)));
+ assert(advancedCard.querySelector('.interview-path-module-disclosure').open);assert.equal(advancedCard.querySelectorAll('.interview-path-modules>a').length,3);assert.equal(advancedCard.querySelectorAll('.interview-path-module-extra a').length,4);
+ await stop();console.log('PASS advanced-architecture handbook: seven curriculum-ordered concepts, four new bilingual guides/twelve prompts, native answer disclosures, deferred loading, exact practice/login/filter returns and selected-path expansion');
  const scopeFilters={...postTrainingFilters,concept:'rl/dr_grpo',q:'保留范围 & λ 😀',page:3};location.hash=nav.interviewHref(scopeFilters);
  function ScopeReader({filters:scope,problems=published}){return React.createElement(React.Fragment,null,React.createElement(Draft),React.createElement(Handbook,{filters:scope,problems}));}
  await render(ScopeReader,{filters:scopeFilters});assert(document.querySelector('.preparation-handbook-scope'),'A scoped handbook needs an in-place way to browse related prompts');
