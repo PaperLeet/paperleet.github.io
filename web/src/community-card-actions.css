@@ -21,7 +21,16 @@
 .card-comment-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;font-size:12px}
 .card-comment-meta>time{font-size:11px;color:var(--text-secondary)}
 .card-comment-meta .community-author-identity{flex-wrap:wrap}
-.card-comment-context{display:block;color:var(--text-secondary);font-size:11px;margin-top:7px}
+.card-comment-context{display:grid;gap:4px;max-width:100%;margin-top:9px;padding:8px 10px;border:0;border-inline-start:2px solid var(--line);border-radius:0 6px 6px 0;background:var(--surface2);color:var(--text-secondary);font:inherit;font-size:11px;text-align:start;overflow-wrap:anywhere}
+button.card-comment-context{cursor:pointer;transition:border-color .15s,background .15s}
+button.card-comment-context:disabled{cursor:default;opacity:.65}
+button.card-comment-context:hover{border-inline-start-color:var(--accent);background:var(--surface-hover,var(--surface2));color:var(--text)}
+.card-comment-context b{font-weight:600}
+.card-comment-context small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;line-height:1.5}
+.card-comment-context.unavailable{background:transparent;padding-inline:10px}
+.card-comment-list>li:focus{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+.card-comment-list>li[data-comment-located]{background:color-mix(in srgb,var(--accent) 5%,transparent);border-radius:6px}
+.card-comment-list>li[data-comment-located]>.card-comment-meta{color:var(--accent)}
 .card-comment-list .post-excerpt{margin:9px 0 8px;font-size:13px;line-height:1.65;-webkit-line-clamp:4}
 .card-comment-links{display:flex;align-items:center;gap:16px;font-size:12px}
 .card-comment-links button,.card-more-comments,.card-collapse-comments{border:0;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer}
@@ -36,11 +45,14 @@
 .card-reply-form textarea{min-height:88px}
 .card-reply-form>footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .card-reply-form>footer small{font-size:11px;color:var(--text-secondary);line-height:1.5}
+.card-reply-feedback{display:grid;justify-items:start;gap:5px;min-width:0}
+.card-reply-feedback>.card-posted-reply{font-size:12px;padding:4px 0}
 .card-reply-form>footer .button{flex-shrink:0;min-height:36px;font-size:12px}
 .card-comment-signin{display:block;text-align:center;font-size:13px;padding:16px 0 8px}
 .card-action-error{font-size:12px;margin-top:8px}
 @media(max-width:600px){.card-comments{padding:12px;margin-inline:-8px}.card-actions>button{min-height:44px}.card-comment-links button,.card-more-comments,.card-collapse-comments{min-height:44px}.card-reply-form>footer{align-items:flex-start;flex-direction:column}.card-reply-form>footer .button{align-self:flex-end;min-height:44px}.card-comments>header{flex-wrap:wrap}}
-@media(prefers-reduced-motion:reduce){.card-actions>button{transition:none}}
+@media(prefers-reduced-motion:reduce){.card-actions>button,button.card-comment-context{transition:none}}
+@media(max-width:600px){button.card-comment-context,.card-reply-feedback>.card-posted-reply{min-height:44px}}
 @media(max-width:600px){.card-actions-extras{flex-basis:100%;margin:0}.card-actions-extras>.interview-report-actions{justify-content:flex-start}.card-actions-extras>.interview-report-actions .post-bookmark>button,.card-account-recovery>button,.card-account-recovery>a{min-height:44px;display:inline-flex;align-items:center}}
 
 .card-reply-form .compose-preview{min-height:110px}

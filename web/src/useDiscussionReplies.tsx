@@ -10,9 +10,9 @@ type Order='oldest'|'newest';
 type Jump={id:string;href:string;opener:Element|null};
 
 /** The server supplies the complete thread; only mounted Markdown rows are batched. */
-export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disabled=false}:{replies?:Reply[];authorId?:string;linkedReply?:string;disabled?:boolean}){
+export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disabled=false,batchSize=PAGE_SIZE,initialOrder='oldest',rowIdPrefix='reply-'}:{replies?:Reply[];authorId?:string;linkedReply?:string;disabled?:boolean;batchSize?:3|20;initialOrder?:Order;rowIdPrefix?:string}){
   const root=useRef<HTMLElement>(null),located=useRef<string|undefined>(undefined);
-  const [order,setOrder]=useState<Order>('oldest'),[authorOnly,setAuthorOnly]=useState(false),[limit,setLimit]=useState(PAGE_SIZE),[jump,setJump]=useState<Jump>();
+  const [order,setOrder]=useState<Order>(initialOrder),[authorOnly,setAuthorOnly]=useState(false),[limit,setLimit]=useState<number>(batchSize),[jump,setJump]=useState<Jump>();
   const ordered=useMemo(()=>[...replies].sort((a,b)=>{
     const left=a.created_at+'\0'+a.id,right=b.created_at+'\0'+b.id;
     return (left<right?-1:left>right?1:0)*(order==='oldest'?1:-1);
@@ -25,7 +25,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
     const inFilter=matched.some(reply=>reply.id===id),rows=inFilter?matched:ordered;
     if(!inFilter)setAuthorOnly(false);
     const index=rows.findIndex(reply=>reply.id===id);
-    setLimit(value=>Math.max(value,Math.ceil((index+1)/PAGE_SIZE)*PAGE_SIZE));
+    setLimit(value=>Math.max(value,Math.ceil((index+1)/batchSize)*batchSize));
     setJump({id,href:location.href,opener:document.activeElement});
   }
   useEffect(()=>{
@@ -37,17 +37,17 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
     if(!jump)return;setJump(undefined);
     if(jump.href!==location.href)return;
     if(document.activeElement!==jump.opener&&!(document.activeElement===document.body&&!jump.opener?.isConnected))return;
-    const target=document.getElementById('reply-'+jump.id);
+    const target=document.getElementById(rowIdPrefix+jump.id);
     if(!target||!root.current?.contains(target))return;
     target.focus({preventScroll:true});target.scrollIntoView({block:'center'});
-  },[jump]);
+  },[jump,rowIdPrefix]);
   return {root,shown,byId,authorOnly,order,total:matched.length,reveal,
-    chooseOrder(value:Order){if(disabled)return;setOrder(value);setLimit(PAGE_SIZE);},
-    chooseAuthor(value:boolean){if(disabled)return;setAuthorOnly(value);setLimit(PAGE_SIZE);},
+    chooseOrder(value:Order){if(disabled)return;setOrder(value);setLimit(batchSize);},
+    chooseAuthor(value:boolean){if(disabled)return;setAuthorOnly(value);setLimit(batchSize);},
     showMore(){
       if(disabled||shown.length>=matched.length)return;
       setJump({id:matched[shown.length].id,href:location.href,opener:document.activeElement});
-      setLimit(value=>value+PAGE_SIZE);
+      setLimit(value=>value+batchSize);
     },
   };
 }
