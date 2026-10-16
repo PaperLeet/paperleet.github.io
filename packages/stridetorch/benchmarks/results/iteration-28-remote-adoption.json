@@ -1,0 +1,2835 @@
+{
+  "status": "actual_exact_source_quality_pages_and_live_verified",
+  "version": "0.28.0",
+  "source_commit": "0fb0bdc57732aadb8233d3ec9d246570ce088c58",
+  "source_quality": {
+    "id": 38919796621,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "0fb0bdc57732aadb8233d3ec9d246570ce088c58",
+    "event": "push",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38919796621",
+    "jobs": [
+      {
+        "name": "browser-wasm",
+        "id": 117036452742,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the public catalog exporter",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Export the current source into immutable browser bundles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Execute every maintained suite and mutant on pinned WASM",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "infrastructure",
+        "id": 117036453246,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install CPU-only dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test judge infrastructure",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "native",
+        "id": 117036453370,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Pages release gating",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install CPU-only dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Reference, mutation, determinism, and CPU budgets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Generate all visualization data and catalog",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build static web app",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "pilot",
+        "id": 117041953684,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require infrastructure, native/frontend and complete WASM checks",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "source_pages": {
+    "id": 38921426204,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "0fb0bdc57732aadb8233d3ec9d246570ce088c58",
+    "event": "workflow_run",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38921426204",
+    "jobs": [
+      {
+        "name": "build",
+        "id": 117042028842,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require complete quality checks on this main revision",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check static asset retention",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build public site",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Find the previous successful Pages deployment",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download previous static assets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Recover historical assets when extending the retention window",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain assets for cached pages",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Save lightweight assets for the next deployment",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-pages-artifact@v3",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "deploy",
+        "id": 117042768956,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Recheck the tested revision before publishing",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/deploy-pages@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "all_four_jobs_and_actual_deploy_steps_verified": true,
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "18f90e93b67ad119df18ef6149e72a293b7148361c1181de29c26df93ce89ce6",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "6a175e925ac6b904e617c51c2827cd81065243ba446d380e96a44644b0a494f6",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+    "_tensor.py": "6ea87da2c52f75d0c4f243aa7bdf534b275a1c73ef7280a562650f7948b2ab37",
+    "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+    "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "70aa00887e5632b9dd1c788241aa2cd5894e21c3e16d0a387d31de139c6430ca",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+    "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "export_files": 161,
+  "source_base_passed": 29402,
+  "source_optional_skips": 1,
+  "source_infrastructure_s": 318.06,
+  "native": {
+    "passed": true,
+    "duration_s": 430.66309600399995,
+    "repeats": 3,
+    "problems": 78,
+    "mutation": {
+      "rl/gae": {
+        "m1_no_done_mask": [
+          "test_reference",
+          "test_episode_isolation"
+        ],
+        "m2_trunc_as_term": [
+          "test_single_transition",
+          "test_reference",
+          "test_lambda_zero_is_td",
+          "test_termination_and_truncation_bootstrap"
+        ],
+        "m3_forward_loop": [
+          "test_reference",
+          "test_lambda_one_telescopes",
+          "test_bias_variance_tradeoff"
+        ],
+        "m4_returns_mc": [
+          "test_reference",
+          "test_returns_contract"
+        ]
+      },
+      "rl/ppo_clip": {
+        "m1_clip_only": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_four_quadrant_gradient"
+        ],
+        "m2_max_not_min": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ],
+        "m3_old_logp_grad": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_old_values_are_constants"
+        ],
+        "m4_ratio_no_exp": [
+          "test_core_function_contract",
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_on_policy_gradient",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ],
+        "m5_advantage_sign": [
+          "test_core_function_contract",
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_on_policy_gradient",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ]
+      },
+      "rl/dpo": {
+        "m1_omit_reference": [
+          "test_reference",
+          "test_policy_equals_reference",
+          "test_gradient_direction_and_rewards",
+          "test_closed_form_preference_optimum"
+        ],
+        "m2_omit_beta": [
+          "test_reference",
+          "test_beta_margin_scaling",
+          "test_gradient_direction_and_rewards",
+          "test_closed_form_preference_optimum"
+        ],
+        "m3_naive_logsigmoid": [
+          "test_extreme_margin_stability"
+        ],
+        "m4_reward_grad": [
+          "test_gradient_direction_and_rewards"
+        ],
+        "m5_batch_sum": [
+          "test_reference",
+          "test_policy_equals_reference",
+          "test_extreme_margin_stability"
+        ]
+      },
+      "rl/grpo": {
+        "m1_std_over_batch": [
+          "test_reference",
+          "test_group_advantage_invariants"
+        ],
+        "m2_mask_ignored": [
+          "test_reference",
+          "test_on_policy_token_gradient",
+          "test_padding_isolation",
+          "test_response_duplication_invariance"
+        ],
+        "m3_k1_kl": [
+          "test_reference",
+          "test_k3_nonnegative"
+        ],
+        "m4_old_logp_grad": [
+          "test_snapshots_no_gradient"
+        ],
+        "m5_token_mean": [
+          "test_reference",
+          "test_on_policy_token_gradient",
+          "test_response_duplication_invariance"
+        ]
+      },
+      "rl/dr_grpo": {
+        "m1_still_seq_mean": [
+          "test_reference",
+          "test_length_bias_removed",
+          "test_fixed_generation_limit"
+        ],
+        "m2_still_std": [
+          "test_reference",
+          "test_advantage_scales_with_reward"
+        ],
+        "m3_batch_max_len": [
+          "test_reference",
+          "test_fixed_generation_limit"
+        ]
+      },
+      "diffusion/schedules": {
+        "m1_offbyone": [
+          "test_reference",
+          "test_monotone"
+        ],
+        "m2_no_sqrt": [
+          "test_signal_and_noise",
+          "test_per_sample_time",
+          "test_variance_preserving"
+        ],
+        "m3_cosine_no_clip": [
+          "test_reference",
+          "test_monotone",
+          "test_cosine_clip"
+        ],
+        "m4_cumsum": [
+          "test_reference",
+          "test_monotone",
+          "test_linear_endpoints",
+          "test_cosine_clip"
+        ],
+        "m5_shared_t": [
+          "test_signal_and_noise",
+          "test_per_sample_time"
+        ]
+      },
+      "diffusion/param_conversion": {
+        "m1_v_sign": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_velocity_tangent",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ],
+        "m2_v_to_x0_swapped": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_endpoint_stability",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ],
+        "m3_no_clamp": [
+          "test_endpoint_stability"
+        ],
+        "m4_alpha_squared": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ]
+      },
+      "diffusion/ddpm_sampling": {
+        "m1_coef_swapped": [
+          "test_reference",
+          "test_precision_product",
+          "test_posterior_bounds",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ],
+        "m2_noise_at_last": [
+          "test_reference",
+          "test_last_step_no_noise"
+        ],
+        "m3_var_index": [
+          "test_reference",
+          "test_precision_product",
+          "test_posterior_bounds"
+        ],
+        "m4_x0_no_sqrt": [
+          "test_reference",
+          "test_point_oracle",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ],
+        "m5_ascending": [
+          "test_sampler_time_order",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ]
+      },
+      "diffusion/ddim": {
+        "m1_sigma_one_factor": [
+          "test_reference",
+          "test_eta_one_posterior"
+        ],
+        "m2_dir_no_sigma": [
+          "test_reference"
+        ],
+        "m3_no_final_jump": [
+          "test_point_final_jump",
+          "test_gmm_sampling"
+        ],
+        "m4_x0_uses_prev": [
+          "test_reference",
+          "test_point_final_jump",
+          "test_inversion_converges",
+          "test_gmm_sampling"
+        ],
+        "m5_invert_order": [
+          "test_inversion_converges"
+        ]
+      },
+      "diffusion/flow_matching": {
+        "m1_target_reversed": [
+          "test_reference",
+          "test_point_zero_loss",
+          "test_learns_eight_modes"
+        ],
+        "m2_sample_reversed": [
+          "test_reference",
+          "test_point_one_step",
+          "test_gaussian_transport",
+          "test_no_singular_endpoint",
+          "test_learns_eight_modes"
+        ],
+        "m3_interp_swapped": [
+          "test_reference",
+          "test_point_zero_loss",
+          "test_endpoints_and_time_distribution",
+          "test_learns_eight_modes"
+        ],
+        "m4_eval_at_one": [
+          "test_reference",
+          "test_point_one_step",
+          "test_no_singular_endpoint"
+        ]
+      },
+      "rl/gspo": {
+        "m1_arithmetic_ratio": [
+          "test_scalar_and_empty_response",
+          "test_reference",
+          "test_geometric_ratio_and_duplication",
+          "test_equal_gradient_within_response",
+          "test_cancellation_experiment"
+        ],
+        "m2_missing_length": [
+          "test_reference",
+          "test_geometric_ratio_and_duplication",
+          "test_equal_gradient_within_response",
+          "test_cancellation_experiment"
+        ],
+        "m3_old_gradient": [
+          "test_clipping_sign_and_snapshot_gradients"
+        ],
+        "m4_wrong_clipping": [
+          "test_reference",
+          "test_clipping_sign_and_snapshot_gradients",
+          "test_cancellation_experiment"
+        ]
+      },
+      "rl/opd": {
+        "m1_reverse_direction": [
+          "test_both_divergences",
+          "test_kl_direction_and_teacher_frozen"
+        ],
+        "m2_teacher_gradient": [
+          "test_kl_direction_and_teacher_frozen"
+        ],
+        "m3_bos_only": [
+          "test_sampling_distribution_and_prefix_dependency"
+        ],
+        "m4_mask_denominator": [
+          "test_both_divergences"
+        ]
+      },
+      "rl/dapo": {
+        "m1_symmetric_clip": [
+          "test_reference",
+          "test_upper_and_lower_clip_independent",
+          "test_group_and_clip_experiment"
+        ],
+        "m2_response_mean": [
+          "test_reference",
+          "test_token_average_gradient"
+        ],
+        "m3_keep_all_success": [
+          "test_groups_and_contract",
+          "test_group_and_clip_experiment"
+        ],
+        "m4_old_gradient": [
+          "test_sampling_snapshots_frozen"
+        ]
+      },
+      "finetuning/lora": {
+        "m1_missing_rank_scale": [
+          "test_reference",
+          "test_scaling_rank_and_merge",
+          "test_frozen_base_and_input_gradient"
+        ],
+        "m2_train_base": [
+          "test_frozen_base_and_input_gradient"
+        ],
+        "m3_detach_adapter": [
+          "test_frozen_base_and_input_gradient",
+          "test_zero_b_initialization",
+          "test_rank_two_regression"
+        ],
+        "m4_detach_base_input": [
+          "test_frozen_base_and_input_gradient"
+        ]
+      },
+      "finetuning/qlora": {
+        "m1_uniform_codebook": [
+          "test_reference",
+          "test_nf4_asymmetry_exact_zero_and_scale",
+          "test_quantized_adapter_regression"
+        ],
+        "m2_global_scale": [
+          "test_reference",
+          "test_nf4_asymmetry_exact_zero_and_scale",
+          "test_block_locality_and_positive_rescaling"
+        ],
+        "m3_train_scales": [
+          "test_frozen_base_and_adapter_gradients"
+        ],
+        "m4_missing_rank_scale": [
+          "test_reference",
+          "test_frozen_base_and_adapter_gradients"
+        ]
+      },
+      "diffusion/meanflow": {
+        "m1_wrong_jvp_time": [
+          "test_jvp_total_derivative",
+          "test_point_distribution_training"
+        ],
+        "m2_target_has_gradient": [
+          "test_target_is_frozen"
+        ],
+        "m3_reverse_sampling": [
+          "test_single_call_and_direction",
+          "test_point_distribution_training"
+        ]
+      },
+      "diffusion/jit": {
+        "m1_wrong_time_direction": [
+          "test_prediction_spaces",
+          "test_endpoints_are_finite"
+        ],
+        "m2_wrong_x_denominator": [
+          "test_prediction_spaces",
+          "test_v_loss_weight_and_gradient",
+          "test_same_raw_error_has_time_weight",
+          "test_embedded_manifold_denoising"
+        ],
+        "m3_clean_space_loss": [
+          "test_prediction_spaces",
+          "test_v_loss_weight_and_gradient",
+          "test_same_raw_error_has_time_weight"
+        ]
+      },
+      "diffusion/drifting": {
+        "m1_row_only_kernel": [
+          "test_scalar_pairwise_oracle"
+        ],
+        "m2_attraction_only": [
+          "test_scalar_pairwise_oracle",
+          "test_permutation_translation"
+        ],
+        "m3_unfrozen_target": [
+          "test_frozen_target_gradient",
+          "test_official_toy_adaptation"
+        ],
+        "m4_self_pairs_unmasked": [
+          "test_scalar_pairwise_oracle",
+          "test_mask_and_validation",
+          "test_distant_kernel_and_nonempty_contract"
+        ]
+      },
+      "diffusion/dmd": {
+        "m1_score_sign": [
+          "test_gradient_sign_and_scaling",
+          "test_gaussian_matching_with_fake_score_training",
+          "test_bimodal_mode_coverage"
+        ],
+        "m2_matching_target_not_frozen": [
+          "test_gradient_sign_and_scaling",
+          "test_frozen_matching_gradient",
+          "test_gaussian_matching_with_fake_score_training",
+          "test_bimodal_mode_coverage"
+        ],
+        "m3_fake_updates_generator": [
+          "test_fake_model_only_receives_gradient"
+        ],
+        "m4_drops_regression": [
+          "test_gradient_sign_and_scaling"
+        ]
+      },
+      "diffusion/dmd2": {
+        "m1_equal_update_frequency": [
+          "test_two_time_schedule",
+          "test_unpaired_adversarial_training"
+        ],
+        "m2_gan_wrong_sign": [
+          "test_stable_logistic_losses",
+          "test_gan_gradients_and_no_regression"
+        ],
+        "m3_no_gan_generator": [
+          "test_generator_gradient_routes"
+        ],
+        "m4_target_not_frozen": [
+          "test_generator_gradient_routes",
+          "test_unpaired_adversarial_training"
+        ]
+      },
+      "diffusion/consistency": {
+        "m1_no_boundary_shift": [
+          "test_coefficients_and_network_input",
+          "test_exact_boundary",
+          "test_point_consistency_distillation"
+        ],
+        "m2_unfrozen_target": [
+          "test_stopgrad_target",
+          "test_adjacent_target_depends_on_ema_but_is_frozen"
+        ],
+        "m3_ema_reversed": [
+          "test_ema_and_teacher_direction"
+        ],
+        "m4_skip_input_scaling": [
+          "test_coefficients_and_network_input"
+        ]
+      },
+      "architecture/attention": {
+        "m1_missing_scale": [
+          "test_independent_two_key_formula",
+          "test_gradients_against_independent_dense_expression"
+        ],
+        "m2_ignore_mask": [
+          "test_mask_broadcast_and_zero_rows",
+          "test_gradients_against_independent_dense_expression",
+          "test_causal_future_independence",
+          "test_prefix_averaging_experiment"
+        ],
+        "m3_wrong_softmax_axis": [
+          "test_independent_two_key_formula",
+          "test_mask_broadcast_and_zero_rows",
+          "test_key_permutation_and_shift",
+          "test_gradients_against_independent_dense_expression",
+          "test_prefix_averaging_experiment"
+        ]
+      },
+      "optimization/adamw": {
+        "m1_coupled_decay": [
+          "test_first_step_analytic_and_epsilon",
+          "test_zero_gradient_decay_and_jacobian",
+          "test_decay_does_not_enter_moments",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m2_no_bias_correction": [
+          "test_first_step_analytic_and_epsilon",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m3_epsilon_inside_sqrt": [
+          "test_first_step_analytic_and_epsilon",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m4_decay_no_lr": [
+          "test_first_step_analytic_and_epsilon",
+          "test_zero_gradient_decay_and_jacobian",
+          "test_decay_does_not_enter_moments",
+          "test_matches_independent_torch_optimizer"
+        ]
+      },
+      "architecture/flash_attention": {
+        "m1_no_numerator_rescale": [
+          "test_hand_calculated_two_blocks",
+          "test_dense_equivalence_and_block_partition",
+          "test_large_scores_stable_and_shift_invariant",
+          "test_dense_gradients",
+          "test_block_size_experiment"
+        ],
+        "m2_no_normalizer_rescale": [
+          "test_hand_calculated_two_blocks",
+          "test_dense_equivalence_and_block_partition",
+          "test_large_scores_stable_and_shift_invariant",
+          "test_dense_gradients",
+          "test_block_size_experiment"
+        ],
+        "m3_ignore_previous_max": [
+          "test_large_scores_stable_and_shift_invariant"
+        ],
+        "m4_detach_history": [
+          "test_dense_gradients"
+        ]
+      },
+      "representation/clip": {
+        "m1_omit_normalization": [
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_feature_scale_invariance_and_pair_permutation",
+          "test_encoder_gradients_against_independent_formula"
+        ],
+        "m2_one_direction": [
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_encoder_gradients_against_independent_formula"
+        ],
+        "m3_scale_not_exponentiated": [
+          "test_orthogonal_analytic_loss",
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_temperature_cap_and_gradients",
+          "test_encoder_gradients_against_independent_formula",
+          "test_learn_pair_retrieval"
+        ],
+        "m4_no_scale_cap": [
+          "test_temperature_cap_and_gradients"
+        ]
+      },
+      "diffusion/progressive_distillation": {
+        "m1_omits_ratio_term": [
+          "test_algebraic_two_step_endpoint",
+          "test_student_matches_two_step_teacher"
+        ],
+        "m2_wrong_ddim_sign": [
+          "test_algebraic_two_step_endpoint",
+          "test_student_matches_two_step_teacher"
+        ],
+        "m3_target_has_gradient": [
+          "test_target_stopgrad_and_weight"
+        ],
+        "m4_drops_loss_weight": [
+          "test_target_stopgrad_and_weight"
+        ]
+      },
+      "architecture/multihead_attention": {
+        "m1_reuse_query_projection": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_single_head_and_noncontiguous_inputs"
+        ],
+        "m2_ignore_mask": [
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_causal_future_independence"
+        ],
+        "m3_wrong_concatenation": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_causal_future_independence",
+          "test_two_head_routing_experiment"
+        ],
+        "m4_skip_output_projection": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_single_head_and_noncontiguous_inputs",
+          "test_two_head_routing_experiment"
+        ]
+      },
+      "architecture/layer_norm": {
+        "m1_unbiased_variance": [
+          "test_analytical_population_variance_and_affine",
+          "test_constant_single_feature_and_small_variance",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m2_sequence_statistics": [
+          "test_constant_single_feature_and_small_variance",
+          "test_token_independence_translation_and_scale",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m3_epsilon_outside_sqrt": [
+          "test_analytical_population_variance_and_affine",
+          "test_constant_single_feature_and_small_variance",
+          "test_token_independence_translation_and_scale",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m4_normalize_before_add": [
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ]
+      },
+      "architecture/positional_encoding": {
+        "m1_wrong_frequency": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m2_sine_for_cosine": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_origin_and_unit_pair_norm",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m3_ignore_offset": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_offset_matches_sliced_full_sequence",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m4_default_dtype": [
+          "test_shape_dtype_and_empty_sequence",
+          "test_relative_offset_rotation_experiment"
+        ]
+      },
+      "architecture/positionwise_ffn": {
+        "m1_missing_relu": [
+          "test_hand_computed_relu_and_both_biases",
+          "test_gradients_for_input_and_all_parameters",
+          "test_relu_gate_has_zero_negative_derivative",
+          "test_nonlinear_token_regression_experiment"
+        ],
+        "m2_missing_hidden_bias": [
+          "test_hand_computed_relu_and_both_biases",
+          "test_gradients_for_input_and_all_parameters"
+        ],
+        "m3_detach_hidden": [
+          "test_gradients_for_input_and_all_parameters",
+          "test_relu_gate_has_zero_negative_derivative"
+        ],
+        "m4_token_mixing": [
+          "test_shape_dtype_and_input_preservation",
+          "test_hand_computed_relu_and_both_biases",
+          "test_token_permutation_and_independence",
+          "test_gradients_for_input_and_all_parameters",
+          "test_nonlinear_token_regression_experiment"
+        ]
+      },
+      "optimization/muon_split": {
+        "m1_whole_matrix": [
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_head_scale_experiment"
+        ],
+        "m2_column_heads": [
+          "test_contract_and_no_mutation",
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_rank_deficiency_zero_and_relative_cutoff",
+          "test_head_permutation_and_input_basis",
+          "test_full_rank_autograd",
+          "test_head_scale_experiment"
+        ],
+        "m3_frobenius_only": [
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_rank_deficiency_zero_and_relative_cutoff",
+          "test_head_scale_experiment"
+        ],
+        "m4_nullspace_update": [
+          "test_rank_deficiency_zero_and_relative_cutoff"
+        ]
+      },
+      "rl/glm5_offpolicy": {
+        "m1_clamp_outliers": [
+          "test_scalar_loop_oracle",
+          "test_strict_boundary_and_asymmetric_widths",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_valid_token_reduction_and_replication",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m2_inclusive_bounds": [
+          "test_strict_boundary_and_asymmetric_widths",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m3_weight_gradient": [
+          "test_contract_and_empty_mask",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m4_retained_mean": [
+          "test_scalar_loop_oracle",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_valid_token_reduction_and_replication",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ]
+      },
+      "architecture/kimi_kda": {
+        "m1_unbounded_decay": [
+          "test_bounded_gate_and_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m2_skip_key_correction": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m3_read_old_state": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m4_shared_channel_decay": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_zero_write_and_noncontiguous_inputs",
+          "test_gate_curves_and_memory_overwrite"
+        ]
+      },
+      "architecture/block_attention_residual": {
+        "m1_drop_partial_block": [
+          "test_source_order_shapes_and_preservation",
+          "test_missing_partial_and_real_zero_source",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_selection_toy"
+        ],
+        "m2_normalize_values": [
+          "test_independent_tokenwise_oracle",
+          "test_missing_partial_and_real_zero_source",
+          "test_uniform_query_and_original_value_magnitudes",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ],
+        "m3_scale_attention": [
+          "test_independent_tokenwise_oracle",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ],
+        "m4_softmax_tokens": [
+          "test_independent_tokenwise_oracle",
+          "test_missing_partial_and_real_zero_source",
+          "test_uniform_query_and_original_value_magnitudes",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ]
+      },
+      "architecture/situ_glu": {
+        "m1_capped_sigmoid": [
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_global_bound_and_negative_gate_tail",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m2_uncapped_up": [
+          "test_finite_positive_caps",
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_global_bound_and_negative_gate_tail",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m3_hard_clamp": [
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m4_detached_up": [
+          "test_analytic_gradients_through_both_branches"
+        ]
+      },
+      "finetuning/opsd_alignment": {
+        "m1_causal_shift": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_gradients_only_reach_selected_student_positions",
+          "test_padding_invariance_and_no_mutation",
+          "test_two_context_training"
+        ],
+        "m2_teacher_context": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_padding_invariance_and_no_mutation",
+          "test_two_context_training"
+        ],
+        "m3_teacher_gradient": [
+          "test_gradients_only_reach_selected_student_positions"
+        ],
+        "m4_padding_leak": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_gradients_only_reach_selected_student_positions",
+          "test_padding_invariance_and_no_mutation"
+        ]
+      },
+      "finetuning/opsd_clipping": {
+        "m1_aggregate_clip": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_response_weighting_and_mask",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ],
+        "m2_remove_negative": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_response_weighting_and_mask",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ],
+        "m3_teacher_gradient": [
+          "test_finite_difference_gradient_and_teacher_stop"
+        ],
+        "m4_reverse_as_forward": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ]
+      },
+      "rl/sdpo_feedback": {
+        "m1_cross_question": [
+          "test_self_then_same_question_solution_before_rich_feedback",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_tiny_program_feedback_training"
+        ],
+        "m2_exclude_self": [
+          "test_interface_and_single_attempt",
+          "test_self_then_same_question_solution_before_rich_feedback",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_tiny_program_feedback_training"
+        ],
+        "m3_unavailable_leak": [
+          "test_reverse_kl_and_available_token_mean",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_analytic_reverse_kl_gradient_and_teacher_stop",
+          "test_tiny_program_feedback_training"
+        ],
+        "m4_teacher_gradient": [
+          "test_analytic_reverse_kl_gradient_and_teacher_stop"
+        ]
+      },
+      "rl/sdpo_topk": {
+        "m1_teacher_topk": [
+          "test_student_selection_and_shared_indices_scalar_oracle",
+          "test_tail_retains_mass_without_topk_renormalization",
+          "test_finite_difference_gradients_and_teacher_detach",
+          "test_vocabulary_information_curve"
+        ],
+        "m2_drop_tail": [
+          "test_student_selection_and_shared_indices_scalar_oracle",
+          "test_tail_retains_mass_without_topk_renormalization",
+          "test_refining_partition_and_full_kl",
+          "test_finite_difference_gradients_and_teacher_detach",
+          "test_vocabulary_information_curve"
+        ],
+        "m3_tail_detached": [
+          "test_finite_difference_gradients_and_teacher_detach"
+        ],
+        "m4_teacher_gradient": [
+          "test_finite_difference_gradients_and_teacher_detach"
+        ]
+      },
+      "representation/repa": {
+        "m1_positive_cosine": [
+          "test_scalar_dtype_inputs_and_strides",
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_zero_and_sub_epsilon_vectors",
+          "test_analytic_gradient_and_frozen_targets",
+          "test_patch_scaling_permutation_and_sign",
+          "test_submitted_projector_training"
+        ],
+        "m2_trainable_teacher": [
+          "test_analytic_gradient_and_frozen_targets"
+        ],
+        "m3_wrong_axis": [
+          "test_scalar_dtype_inputs_and_strides",
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_zero_and_sub_epsilon_vectors",
+          "test_analytic_gradient_and_frozen_targets",
+          "test_patch_scaling_permutation_and_sign",
+          "test_submitted_projector_training"
+        ],
+        "m4_missing_weight": [
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_analytic_gradient_and_frozen_targets"
+        ]
+      },
+      "representation/rotation_trick": {
+        "m1_ordinary_ste": [
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ],
+        "m2_missing_scale": [
+          "test_shape_dtype_strides_and_inputs",
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ],
+        "m3_live_rotation": [
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair"
+        ],
+        "m4_wrong_rotation_sign": [
+          "test_shape_dtype_strides_and_inputs",
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ]
+      },
+      "architecture/differential_attention": {
+        "m1_add_attention_maps": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches",
+          "test_common_mode_cancellation_causality_and_stability",
+          "test_submitted_common_mode_experiment"
+        ],
+        "m2_wrong_scale": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches"
+        ],
+        "m3_unmasked_second_branch": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches",
+          "test_common_mode_cancellation_causality_and_stability"
+        ],
+        "m4_lambda_sum": [
+          "test_lambda_parameterization_and_gradients",
+          "test_submitted_common_mode_experiment"
+        ]
+      },
+      "diffusion/block_diffusion": {
+        "m1_clean_target_leak": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m2_token_causal_within_block": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m3_noisy_to_clean_leak": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m4_ignores_mask": [
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ]
+      },
+      "finetuning/distillm2": {
+        "m1_same_direction": [
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction"
+        ],
+        "m2_reverse_mixture": [
+          "test_scalar_divergence_oracle",
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction",
+          "test_student_gradients_finite_difference_teacher_frozen",
+          "test_zero_and_empty_response_tokens"
+        ],
+        "m3_missing_half": [
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction"
+        ],
+        "m4_detached_student": [
+          "test_student_gradients_finite_difference_teacher_frozen",
+          "test_padding_and_sequence_sum_contract",
+          "test_zero_and_empty_response_tokens",
+          "test_two_source_toy"
+        ]
+      },
+      "rl/pkpo": {
+        "m1_sample_mean": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_native_gaussian_toy"
+        ],
+        "m2_raw_rewards": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_exact_binary_policy_gradient_is_pass_at_k",
+          "test_k_equals_n_and_ties",
+          "test_permutation_translation_and_frozen_rewards",
+          "test_large_group_stability_and_singleton"
+        ],
+        "m3_sorted_output": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_exact_binary_policy_gradient_is_pass_at_k",
+          "test_k_equals_n_and_ties",
+          "test_permutation_translation_and_frozen_rewards"
+        ],
+        "m4_double_normalization": [
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_native_gaussian_toy"
+        ]
+      },
+      "finetuning/svdquant": {
+        "m1_wrong_smoothing": [
+          "test_smoothing_orientation_and_linear_identity",
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_zero_weights_zero_activations_and_rank_zero",
+          "test_outlier_channel_toy"
+        ],
+        "m2_quantized_lowrank_input": [
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_outlier_channel_toy"
+        ],
+        "m3_quantize_full_weight": [
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_outlier_channel_toy"
+        ],
+        "m4_drop_singular_values": [
+          "test_known_spectrum_optimal_lowrank_and_residual",
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_zero_weights_zero_activations_and_rank_zero",
+          "test_repeated_singular_values_compare_products_not_signs",
+          "test_outlier_channel_toy"
+        ]
+      },
+      "representation/moge_alignment": {
+        "m1_ignore_depth_weights": [
+          "test_full_roe_arrangement_oracle",
+          "test_inverse_depth_weighting_and_z_only_shift"
+        ],
+        "m2_truncate_before_weight": [
+          "test_scalar_breakpoint_oracle",
+          "test_full_roe_arrangement_oracle",
+          "test_weight_then_truncation_and_not_l2"
+        ],
+        "m3_center_all_coordinates": [
+          "test_full_roe_arrangement_oracle",
+          "test_inverse_depth_weighting_and_z_only_shift"
+        ],
+        "m4_squared_residual": [
+          "test_scalar_breakpoint_oracle",
+          "test_full_roe_arrangement_oracle"
+        ]
+      },
+      "diffusion/daps": {
+        "m1_prior_standard_deviation": [
+          "test_score_from_scalar_energy_finite_differences",
+          "test_gaussian_posterior_stationary_point",
+          "test_batch_independence_and_unobserved_direction"
+        ],
+        "m2_reverse_likelihood": [
+          "test_score_from_scalar_energy_finite_differences",
+          "test_gaussian_posterior_stationary_point",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ],
+        "m3_langevin_half_variance": [
+          "test_explicit_noise_step_formula",
+          "test_noise_covariance_and_independent_renoising",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ],
+        "m4_renoise_variance_as_scale": [
+          "test_explicit_noise_step_formula",
+          "test_noise_covariance_and_independent_renoising",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ]
+      },
+      "diffusion/diffusion_nft": {
+        "m1_reciprocal_beta": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m2_negative_branch_sign": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_complement_symmetry_and_feature_reduction",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m3_drop_negative_examples": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_complement_symmetry_and_feature_reduction",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m4_train_old_policy": [
+          "test_exact_gradient_and_frozen_context"
+        ]
+      },
+      "architecture/var_next_scale": {
+        "m1_token_causal": [
+          "test_exact_scale_visibility",
+          "test_toy_attention_has_no_target_leakage"
+        ],
+        "m2_future_visible": [
+          "test_exact_scale_visibility",
+          "test_toy_attention_has_no_target_leakage"
+        ],
+        "m3_latest_only": [
+          "test_independent_prefix_reconstruction_oracle",
+          "test_all_prefix_scales_contribute"
+        ],
+        "m4_target_leak": [
+          "test_independent_prefix_reconstruction_oracle",
+          "test_target_and_future_perturbations_do_not_change_own_inputs",
+          "test_all_prefix_scales_contribute",
+          "test_toy_attention_has_no_target_leakage"
+        ]
+      },
+      "representation/var_tokenizer": {
+        "m1_original_features": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m2_add_residual": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m3_farthest_code": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m4_last_scale_only": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ]
+      },
+      "diffusion/fd_population": {
+        "m1_centered_second": [
+          "test_raw_moments_scalar_oracle",
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_affine_equivariance_and_replication",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ],
+        "m2_reverse_decay": [
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ],
+        "m3_train_history": [
+          "test_current_gradients_and_frozen_history"
+        ],
+        "m4_center_at_batch_mean": [
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_affine_equivariance_and_replication",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ]
+      },
+      "diffusion/fd_loss": {
+        "m1_drop_generated_correlation": [
+          "test_noncommuting_covariance_scalar_oracle",
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference",
+          "test_symmetry_rotation_and_common_translation"
+        ],
+        "m2_nonsymmetric_eigvalsh": [
+          "test_noncommuting_covariance_scalar_oracle",
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference",
+          "test_symmetry_rotation_and_common_translation",
+          "test_affine_generator_posttraining"
+        ],
+        "m3_differentiate_denominator": [
+          "test_stopped_normalization_gradient_and_weight_freeze",
+          "test_affine_generator_posttraining"
+        ],
+        "m4_train_reference": [
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference"
+        ]
+      },
+      "representation/vicreg": {
+        "m1_population_variance": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_autograd_both_views_and_analytic_variance_gradient",
+          "test_shared_translation_view_swap_and_permutations",
+          "test_covariance_targets_redundancy_not_diagonal"
+        ],
+        "m2_variance_view_sum": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_exact_collapse_stationary_but_nonconstant_gradient",
+          "test_autograd_both_views_and_analytic_variance_gradient"
+        ],
+        "m3_diagonal_penalty": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_one_dimension_and_satisfied_variance_floor",
+          "test_covariance_targets_redundancy_not_diagonal",
+          "test_noncollapsed_geometry_experiment"
+        ],
+        "m4_stop_second_view": [
+          "test_exact_collapse_stationary_but_nonconstant_gradient",
+          "test_autograd_both_views_and_analytic_variance_gradient",
+          "test_noncollapsed_geometry_experiment"
+        ]
+      },
+      "representation/sigreg": {
+        "m1_missing_imaginary": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m2_missing_sample_factor": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_slice_signs_joint_rotation_and_sample_count",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m3_missing_symmetry": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m4_standardize_features": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_exact_collapse_is_stationary_and_nearby_spread_improves",
+          "test_gaussian_target_retains_location_and_scale",
+          "test_fixed_slice_distribution_experiment"
+        ]
+      },
+      "representation/visreg": {
+        "m1_sample_std": [
+          "test_scalar_formula_oracle",
+          "test_shape_gradient_freezes_std_and_directions"
+        ],
+        "m2_trainable_std": [
+          "test_shape_gradient_freezes_std_and_directions"
+        ],
+        "m3_unsorted_projection": [
+          "test_scalar_formula_oracle",
+          "test_shape_gradient_freezes_std_and_directions",
+          "test_permutation_translation_and_projection_scaling"
+        ],
+        "m4_frozen_global_anchor": [
+          "test_global_anchor_receives_gradient"
+        ]
+      },
+      "representation/ijepa": {
+        "m1_wrong_norm_axis": [
+          "test_target_scalar_oracle_and_context_order",
+          "test_token_shift_invariance_and_feature_permutation",
+          "test_masked_prediction_experiment"
+        ],
+        "m2_trainable_targets": [
+          "test_target_and_loss_gradient_boundaries"
+        ],
+        "m3_squared_loss": [
+          "test_smooth_l1_and_ema_scalar_oracles",
+          "test_target_and_loss_gradient_boundaries"
+        ],
+        "m4_reverse_momentum": [
+          "test_smooth_l1_and_ema_scalar_oracles",
+          "test_ema_endpoints_freezing_and_recurrence",
+          "test_masked_prediction_experiment"
+        ]
+      },
+      "world_models/lewm_prediction": {
+        "m1_stop_future_target": [
+          "test_joint_encoder_gradients_analytic"
+        ],
+        "m2_regularizer_axes": [
+          "test_teacher_forcing_and_timewise_regularizer_oracle",
+          "test_tiny_joint_training"
+        ],
+        "m3_reuse_initial": [
+          "test_action_rollout_closed_form",
+          "test_rollout_gradient_and_causality",
+          "test_tiny_joint_training"
+        ],
+        "m4_convex_weighting": [
+          "test_teacher_forcing_and_timewise_regularizer_oracle",
+          "test_joint_encoder_gradients_analytic"
+        ]
+      },
+      "world_models/lewm_planning": {
+        "m1_all_time_cost": [
+          "test_terminal_l2_scalar_oracle",
+          "test_goal_translation_and_prefix_invariance"
+        ],
+        "m2_high_cost_elites": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites",
+          "test_cem_planning_experiment"
+        ],
+        "m3_bessel_variance": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites"
+        ],
+        "m4_standard_deviation": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites",
+          "test_affine_equivariance_and_monotone_costs",
+          "test_cem_planning_experiment"
+        ]
+      },
+      "world_models/causal_jepa": {
+        "m1_hide_anchor": [
+          "test_anchor_query_and_visible_context_oracle",
+          "test_object_interaction_experiment"
+        ],
+        "m2_leak_history": [
+          "test_anchor_query_and_visible_context_oracle",
+          "test_hidden_trajectory_independence_and_slot_permutation",
+          "test_object_interaction_experiment"
+        ],
+        "m3_train_target": [
+          "test_prediction_gradient_and_frozen_targets"
+        ],
+        "m4_visible_history_loss": [
+          "test_separately_normalized_loss_oracle",
+          "test_prediction_gradient_and_frozen_targets",
+          "test_empty_history_mask_and_per_example_masks"
+        ]
+      },
+      "architecture/rms_norm": {
+        "m1_centered_input": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_zero_constant_single_feature_and_epsilon",
+          "test_token_local_scale_sign_and_shift",
+          "test_full_values_and_both_gradients_against_library",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m2_epsilon_outside_sqrt": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_zero_constant_single_feature_and_epsilon",
+          "test_token_local_scale_sign_and_shift",
+          "test_full_values_and_both_gradients_against_library",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m3_partial_uses_all_features": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_partial_jacobian_includes_tail_to_prefix_coupling",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m4_detached_prefix_statistic": [
+          "test_partial_jacobian_includes_tail_to_prefix_coupling",
+          "test_partial_gradients_match_finite_differences"
+        ]
+      },
+      "architecture/gqa": {
+        "m1_cyclic_head_repetition": [
+          "test_hand_computed_groups_and_projection_means",
+          "test_contiguous_routing_and_scalar_softmax",
+          "test_mha_mqa_endpoints_and_group_permutation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_cache_capacity_and_conversion_experiment"
+        ],
+        "m2_sum_projection_heads": [
+          "test_hand_computed_groups_and_projection_means",
+          "test_projection_pooling_endpoints_and_analytical_gradient"
+        ],
+        "m3_detached_shared_kv": [
+          "test_boolean_masks_zero_rows_and_causal_isolation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_small_numerical_jacobians"
+        ],
+        "m4_ignored_visibility": [
+          "test_boolean_masks_zero_rows_and_causal_isolation",
+          "test_cache_capacity_and_conversion_experiment"
+        ],
+        "m5_scale_by_query_heads": [
+          "test_contiguous_routing_and_scalar_softmax",
+          "test_mha_mqa_endpoints_and_group_permutation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_cache_capacity_and_conversion_experiment"
+        ]
+      },
+      "architecture/rope": {
+        "m1_reverse_rotation": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m2_wrong_frequency": [
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m3_half_split": [
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m4_ignore_positions": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_batch_head_broadcast_and_token_reordering",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m5_detached_features": [
+          "test_independent_analytical_input_and_position_gradients",
+          "test_small_numerical_jacobians"
+        ],
+        "m6_float32_phase": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_small_numerical_jacobians",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ]
+      },
+      "retrieval/semantic_ids": {
+        "m1_original_latent": [
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m2_add_residual": [
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m3_last_reconstruction": [
+          "test_hand_computed_residual_levels",
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_exact_ties_choose_smallest_index",
+          "test_reconstruction_scaling_and_row_independence",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m4_global_suffix": [
+          "test_collision_groups_are_local_stable_and_noncontiguous",
+          "test_frozen_catalog_experiment"
+        ]
+      },
+      "retrieval/generative_retrieval": {
+        "m1_last_score": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_two_step_hand_probability",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring",
+          "test_generate_then_filter_toy_catalog"
+        ],
+        "m2_raw_logits": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring"
+        ],
+        "m3_truncate_first": [
+          "test_invalid_and_duplicate_ids_filtered_before_k",
+          "test_generate_then_filter_toy_catalog"
+        ],
+        "m4_duplicates": [
+          "test_invalid_and_duplicate_ids_filtered_before_k"
+        ],
+        "m5_first_parent": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_two_step_hand_probability",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring",
+          "test_generate_then_filter_toy_catalog"
+        ]
+      },
+      "retrieval/late_interaction": {
+        "m1_mean_document": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m2_mean_query": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_permutations_positive_token_scaling_and_duplicate_query_evidence",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m3_zero_padding": [
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m4_no_normalization": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_permutations_positive_token_scaling_and_duplicate_query_evidence",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m5_reversed_loss": [
+          "test_pairwise_loss_stability_and_both_score_gradients",
+          "test_pairwise_common_shift_and_positive_evidence_monotonicity",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m6_detached_documents": [
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients"
+        ]
+      },
+      "retrieval/sasrec": {
+        "m1_future_leak": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids",
+          "test_provided_encoder_causality_and_future_embedding_gradients",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m2_exclude_self": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids"
+        ],
+        "m3_padding_keys": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids"
+        ],
+        "m4_padding_denominator": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_batch_permutation_padding_extension_and_objective_direction",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m5_negative_sign": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_batch_permutation_padding_extension_and_objective_direction",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m6_detach_positive": [
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_all_padding_zero_loss_still_has_zero_gradients",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m7_pairwise_instead_of_binary": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_real_context_history_training_and_independent_objective_check"
+        ]
+      },
+      "retrieval/bpr": {
+        "m1_observed_as_negative": [
+          "test_hand_computed_history_and_global_prior",
+          "test_independent_scalar_history_for_all_users_and_item_columns",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m2_global_history": [
+          "test_hand_computed_history_and_global_prior",
+          "test_independent_scalar_history_for_all_users_and_item_columns",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m3_reversed_margin": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_disabled_prior_avoids_overflow_from_unused_factors",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m4_detached_positive": [
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_extreme_signed_margins_and_both_item_directions_remain_stable",
+          "test_disabled_prior_avoids_overflow_from_unused_factors"
+        ],
+        "m5_selected_prior": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_global_prior_changes_unselected_rows_once_not_per_occurrence",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_empty_triples_keep_the_global_prior_and_both_zero_gradient_graphs",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m6_feature_average": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m7_binary_instead_of_pairwise": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_disabled_prior_avoids_overflow_from_unused_factors",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m8_sum_instead_of_mean": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_extreme_signed_margins_and_both_item_directions_remain_stable",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ]
+      },
+      "retrieval/lightgcn": {
+        "m1_unnormalized_graph": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m2_random_walk_normalization": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m3_self_loops": [
+          "test_graph_contract_precision_empty_axes_strides_and_validation",
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m4_final_layer_only": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m5_omit_initial_layer": [
+          "test_propagation_contract_depth_precision_strides_and_supplied_validation",
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m6_detached_layers": [
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences"
+        ],
+        "m7_nonlinear_propagation": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m8_missing_reverse_edges": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ]
+      },
+      "representation/simclr": {
+        "m1_no_normalization": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_per_row_positive_scale_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m2_self_in_denominator": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m3_cross_view_only": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m4_interleaved_targets": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_paired_permutation_view_swap_and_orthogonal_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m5_first_direction_only": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_paired_permutation_view_swap_and_orthogonal_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m6_double_mean": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m7_ignore_temperature": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m8_detach_second_view": [
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_gradients_of_both_views_match_independent_finite_differences"
+        ]
+      },
+      "representation/moco": {
+        "m1_reverse_momentum": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_momentum_endpoints_arbitrary_shape_detachment_and_independent_storage",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m2_detach_query": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m3_train_key": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients"
+        ],
+        "m4_train_dictionary": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients"
+        ],
+        "m5_ignore_temperature": [
+          "test_precision_strides_shapes_and_inputs_unchanged",
+          "test_one_positive_plus_dictionary_hand_computation",
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_scalar_denominator_across_temperatures_and_zero_rows",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m6_negative_denominator": [
+          "test_precision_strides_shapes_and_inputs_unchanged",
+          "test_one_positive_plus_dictionary_hand_computation",
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_scalar_denominator_across_temperatures_and_zero_rows",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m7_ignore_pointer": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m8_unnormalized_enqueue": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m9_queue_keeps_graph": [
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment"
+        ]
+      },
+      "foundations/next_token_loss": {
+        "m1_unshifted": [
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_input_preservation_and_sequence_boundaries",
+          "test_prediction_confidence_experiment"
+        ],
+        "m2_wrong_direction": [
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_input_preservation_and_sequence_boundaries",
+          "test_prediction_confidence_experiment"
+        ],
+        "m3_wrong_denominator": [
+          "test_contract",
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_prediction_confidence_experiment"
+        ],
+        "m4_detached": [
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients"
+        ]
+      },
+      "foundations/sft_loss_mask": {
+        "m1_predictor_mask": [
+          "test_contract",
+          "test_independent_valid_token_oracle",
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients",
+          "test_no_mutation_and_masked_target_invariance",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m2_ignore_padding": [
+          "test_independent_valid_token_oracle",
+          "test_masked_analytic_gradients",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m3_dense_mean": [
+          "test_contract",
+          "test_independent_valid_token_oracle",
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m4_detached": [
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients"
+        ]
+      },
+      "foundations/top_k_sampling": {
+        "m1_smallest": [
+          "test_independent_scalar_oracle",
+          "test_extreme_and_empty_boundaries",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m2_wrong_temperature": [
+          "test_independent_scalar_oracle",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m3_too_many": [
+          "test_contract",
+          "test_independent_scalar_oracle",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m4_threshold_ties": [
+          "test_contract",
+          "test_ties_threshold_and_full_distribution"
+        ]
+      },
+      "foundations/top_p_sampling": {
+        "m1_drop_crossing": [
+          "test_independent_scalar_oracle",
+          "test_extreme_and_empty_boundaries",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m2_extra_boundary": [
+          "test_contract",
+          "test_ties_threshold_and_full_distribution"
+        ],
+        "m3_wrong_order": [
+          "test_independent_scalar_oracle",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m4_no_temperature": [
+          "test_independent_scalar_oracle",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides"
+        ]
+      },
+      "foundations/gradient_accumulation": {
+        "m1_equal_batches": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m2_sum_only": [
+          "test_contract",
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m3_double_divide": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m4_only_last": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ]
+      },
+      "foundations/gradient_clipping": {
+        "m1_per_parameter": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_input_preservation_and_partition_invariance",
+          "test_gradient_spike_experiment"
+        ],
+        "m2_value_clip": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_zero_empty_and_exact_threshold",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ],
+        "m3_amplify": [
+          "test_independent_global_norm_oracle",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ],
+        "m4_report_clipped": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ]
+      },
+      "architecture/group_norm": {
+        "m1_batch_statistics": [
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_other_samples_and_other_groups_cannot_change_the_anchor",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m2_channel_only": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m3_unbiased_variance": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m4_epsilon_outside": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m5_detached_statistics": [
+          "test_library_values_and_all_three_gradients",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_all_operand_gradients_match_finite_differences"
+        ],
+        "m6_group_affine": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients"
+        ]
+      }
+    },
+    "issues": [],
+    "tests_executed": 10218
+  },
+  "native_mutants": 342,
+  "wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "concurrency": 2,
+    "passed": true,
+    "elapsed_ms": 522141,
+    "browser_budget_exceeded": []
+  },
+  "wasm_mutants": 342,
+  "independent_contracts": {
+    "passed": 881,
+    "suites": [
+      {
+        "suite": "test_arithmetic.py",
+        "passed": 9,
+        "source_sha256": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20"
+      },
+      {
+        "suite": "test_axis_transforms.py",
+        "passed": 40,
+        "source_sha256": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063"
+      },
+      {
+        "suite": "test_batchnorm.py",
+        "passed": 67,
+        "source_sha256": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275"
+      },
+      {
+        "suite": "test_classification.py",
+        "passed": 95,
+        "source_sha256": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b"
+      },
+      {
+        "suite": "test_construction.py",
+        "passed": 7,
+        "source_sha256": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393"
+      },
+      {
+        "suite": "test_conversion_modes.py",
+        "passed": 10,
+        "source_sha256": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9"
+      },
+      {
+        "suite": "test_convolution.py",
+        "passed": 207,
+        "source_sha256": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60"
+      },
+      {
+        "suite": "test_dispatch.py",
+        "passed": 7,
+        "source_sha256": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3"
+      },
+      {
+        "suite": "test_gradient_layout.py",
+        "passed": 20,
+        "source_sha256": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87"
+      },
+      {
+        "suite": "test_graph_lifecycle.py",
+        "passed": 10,
+        "source_sha256": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214"
+      },
+      {
+        "suite": "test_groupnorm.py",
+        "passed": 47,
+        "source_sha256": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5"
+      },
+      {
+        "suite": "test_ieee.py",
+        "passed": 14,
+        "source_sha256": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5"
+      },
+      {
+        "suite": "test_indexing.py",
+        "passed": 15,
+        "source_sha256": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38"
+      },
+      {
+        "suite": "test_joint_vjp.py",
+        "passed": 8,
+        "source_sha256": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d"
+      },
+      {
+        "suite": "test_layout.py",
+        "passed": 55,
+        "source_sha256": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6"
+      },
+      {
+        "suite": "test_linear_wasm.py",
+        "passed": 67,
+        "source_sha256": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+      },
+      {
+        "suite": "test_mean.py",
+        "passed": 10,
+        "source_sha256": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b"
+      },
+      {
+        "suite": "test_module_hooks.py",
+        "passed": 10,
+        "source_sha256": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f"
+      },
+      {
+        "suite": "test_module_lifecycle.py",
+        "passed": 6,
+        "source_sha256": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367"
+      },
+      {
+        "suite": "test_nan_reductions.py",
+        "passed": 14,
+        "source_sha256": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca"
+      },
+      {
+        "suite": "test_nn_workflows.py",
+        "passed": 25,
+        "source_sha256": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70"
+      },
+      {
+        "suite": "test_numpy_inputs.py",
+        "passed": 7,
+        "source_sha256": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09"
+      },
+      {
+        "suite": "test_optimizer_lifecycle.py",
+        "passed": 12,
+        "source_sha256": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281"
+      },
+      {
+        "suite": "test_promotion.py",
+        "passed": 8,
+        "source_sha256": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e"
+      },
+      {
+        "suite": "test_scheduler_lifecycle.py",
+        "passed": 9,
+        "source_sha256": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2"
+      },
+      {
+        "suite": "test_shape_ops.py",
+        "passed": 44,
+        "source_sha256": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1"
+      },
+      {
+        "suite": "test_statistics.py",
+        "passed": 46,
+        "source_sha256": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587"
+      },
+      {
+        "suite": "test_tensor_hooks.py",
+        "passed": 12,
+        "source_sha256": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5"
+      }
+    ]
+  },
+  "live": {
+    "status": "success",
+    "commit": "0fb0bdc57732aadb8233d3ec9d246570ce088c58",
+    "url": "https://paperleet.com/",
+    "modules": 78,
+    "starters_equal": true,
+    "manifests_equal": true,
+    "module_details_equal": true,
+    "immutable_assets_equal": 158,
+    "runtimes": [
+      {
+        "path": "browser-judge/runtime-66f15c2cdf8713df0994.json",
+        "bytes": 479313,
+        "sha256": "66f15c2cdf8713df0994fb79b241930bb1437c6a10a502a65e5b6b7693e37c21",
+        "package_python_modules": 39
+      },
+      {
+        "path": "browser-judge/runtime-bb6adfa1112338ee6636.json",
+        "bytes": 37343,
+        "sha256": "bb6adfa1112338ee6636f55d794d8a222bcf2145d1539ea0c1908f3a2cddb764",
+        "package_python_modules": 3
+      }
+    ],
+    "license": "Apache-2.0 and NOTICE verified in both profiles",
+    "verified_sha256": {
+      "modules/1-31c8cc3c83ca5530eb21.json": "31c8cc3c83ca5530eb216cfb2eadf26b8285bbe7b53504832b763f0630100234",
+      "browser-judge/1-d2f519bb30a7150a06c0.json": "d2f519bb30a7150a06c08a2cda6320d338b3b4f331f1e9034668c39029c983fd",
+      "modules/2-ba4326774fbb10727cd9.json": "ba4326774fbb10727cd9198f7bc5b8b1f8bb0a50a370d7766b553a3f5007a84c",
+      "browser-judge/2-fff67636be7289d82ea8.json": "fff67636be7289d82ea830995960d384e91eb196bab2a3604d21df20ad2d708c",
+      "modules/3-217a6753a2cf1a3e249f.json": "217a6753a2cf1a3e249f8aaff23bd10d4ab1cc0f1289ec386cf8bab258b33e7f",
+      "browser-judge/3-6c0ad1ac6b46af77341a.json": "6c0ad1ac6b46af77341a447f7aa0c20f549f474f04efe3c9c92ff06f71c6cf6e",
+      "modules/4-5d9a5e200b6def2312cc.json": "5d9a5e200b6def2312cc3fd31454074976cf3ce3be013afb4fa65f097cec8407",
+      "browser-judge/4-3f13dee35bbed790119f.json": "3f13dee35bbed790119f18dbaabca348c516a16e2fa38b82567aa71641329581",
+      "modules/5-b8dd0f0b0f108e9ccb29.json": "b8dd0f0b0f108e9ccb29c8ba138d65f6abd853a3b67d3e9049cc1a4a07f8ce6b",
+      "browser-judge/5-b543d037b81d564ad4ee.json": "b543d037b81d564ad4ee461178d2913a7ee2dff51f411bb9c9ffe353654f653b",
+      "modules/6-4c8e7ff53cc0ee7a2b19.json": "4c8e7ff53cc0ee7a2b19ecc365ef97fabcb07ee7b5d2e3642cb21a91dc985814",
+      "browser-judge/6-825154c2cba3198ab71d.json": "825154c2cba3198ab71d80797008ddca8b01138c2e10bf934728937dbd50d4fc",
+      "modules/7-b54a0c7d1bf3be57e2b5.json": "b54a0c7d1bf3be57e2b583a07e216bb6ad766ecf260925738df605384a56bf73",
+      "browser-judge/7-311706eacfb8594ef67e.json": "311706eacfb8594ef67e3df5556f74b435e6b17015fb7a0eb5beefcdb29e1949",
+      "modules/8-a093de18ed1b30726850.json": "a093de18ed1b3072685023083636373a0a5e97ab1c458d9fd752fe8be3cdc43d",
+      "browser-judge/8-5a8b6f6354b667b8eb9e.json": "5a8b6f6354b667b8eb9e0d24db57940f3f2e18d0f7170cd6a9dcc07be7919b64",
+      "modules/9-8559b2ae2f72c10435de.json": "8559b2ae2f72c10435de393e9c916744bd033ed4cf45ff8cbe895306611bc4ae",
+      "browser-judge/9-5857a0753ef25b235556.json": "5857a0753ef25b235556b4ab871784829e260f6c88829d2a98de2081b0ccfdcc",
+      "modules/10-d644c41e64e6da42e706.json": "d644c41e64e6da42e706cafacd9cc7b8a30f8472871044beb3fd1382c0dead50",
+      "browser-judge/10-85e38b314af02187b5e5.json": "85e38b314af02187b5e51c800be3cd0abba7fdf7f3742bcaa6a5ef1ed7ceb058",
+      "modules/11-756bd59a6cfcd004601c.json": "756bd59a6cfcd004601c88d7fc3d814a92bd177df845715a6bf2019197bcc4af",
+      "browser-judge/11-d5d08767e062db69d4f9.json": "d5d08767e062db69d4f95071ee5297c8c66a5016f013f96002d653c5e8eb0951",
+      "modules/12-da9460114d2e01b78e8f.json": "da9460114d2e01b78e8fdd7936f17a7d9ad6ad9fac34b7910e66e9a99f6521bc",
+      "browser-judge/12-286d83354eea5a2697fb.json": "286d83354eea5a2697fbdb59eb528d98df208cdd5486e74bb5d6df5ce0c30bec",
+      "modules/13-ed54f436320b0de6fc6a.json": "ed54f436320b0de6fc6a46e9fbed0b5a5f6d91071b776d2a6c897cd1feca1b53",
+      "browser-judge/13-a2777f58dd456cd659cf.json": "a2777f58dd456cd659cf5bc3796af3fc4023d2f665f78f13983569a47ba51ce4",
+      "modules/14-7d01912052e124f50c06.json": "7d01912052e124f50c067103520dbb4a54cee50d1c2f71d69da7654a72144ac9",
+      "browser-judge/14-bbe0a66bf7018c30261c.json": "bbe0a66bf7018c30261c58c1f2dba76b419c9405f6cdb7537f9a76ec37671635",
+      "modules/15-7db67eecf156aeaa24fa.json": "7db67eecf156aeaa24fa4debf407a7af68b325156eb2d0b2e9ff89345921c489",
+      "browser-judge/15-b1abbacbc5c260344731.json": "b1abbacbc5c260344731e6d56ffc2904162abe615652aea11639b3a23d6f520b",
+      "modules/16-e919c3b69f4919916bf9.json": "e919c3b69f4919916bf980a75b326c5e587b7385214618035d59f289b4282bd7",
+      "browser-judge/16-6e70bb7feabf6372f343.json": "6e70bb7feabf6372f343fc8d7a6c91e552fd1684354f441ff4167ce8dde8818f",
+      "modules/17-07b5df694831af8b5c12.json": "07b5df694831af8b5c123e4609d071733d99566155ada0b84ac951d7c31d8bc4",
+      "browser-judge/17-be43dcdf9d1bf0d60076.json": "be43dcdf9d1bf0d60076c3f45085f6bd3e55bc1a37927a736387858e2cea0085",
+      "modules/18-d01897afaffca1cf379b.json": "d01897afaffca1cf379b31d66ecbc4e53549b6eced585000ecc06dd0fc1b3902",
+      "browser-judge/18-7d998aea9a9c2ee0eb18.json": "7d998aea9a9c2ee0eb18c6d21ba5a4de7343baa0b925663489230a6f419933d6",
+      "modules/19-f3e6ec7d47129198c29b.json": "f3e6ec7d47129198c29bab557acbf2a64889933e2ae8560076f3062b985a4c16",
+      "browser-judge/19-70ec0942f0bfa7336f7d.json": "70ec0942f0bfa7336f7d43636a0bdb7fe8dd383e32836c5eb7e944a6aecb0be7",
+      "modules/20-e49066e9caaa89d975c7.json": "e49066e9caaa89d975c7a0a37047dbea3247b43d18707823b8765fa499014bed",
+      "browser-judge/20-ca53c2d20ea9eb4d5fc8.json": "ca53c2d20ea9eb4d5fc81c564fac17211595abfeceef9ce874b8ccdd9efcb526",
+      "modules/21-1747cd42d7901436ebde.json": "1747cd42d7901436ebde215f5e4929e6a89aa42086c7ab388cba11fcd426d5d1",
+      "browser-judge/21-f39884d0685548d0ef50.json": "f39884d0685548d0ef50f35c3fd830a3194ab6a1c919f52a7bc3539a13ba57f7",
+      "modules/22-580b3b686cc1d769500e.json": "580b3b686cc1d769500e19bf4649f88198f1b575f029bb30af4fab892dbdd1b2",
+      "browser-judge/22-96eb500320dbb10aa8dd.json": "96eb500320dbb10aa8ddb3e324ca94c00fa4053416d8b2c049280601c7011f88",
+      "modules/23-9f25d6179170aaaf6360.json": "9f25d6179170aaaf63609e2c856a2211913af37d9a443e1f8d89a05b42558899",
+      "browser-judge/23-4e519ca92196da4be453.json": "4e519ca92196da4be45363f600430bff891f51822353b79ac13ddc491fda5f6d",
+      "modules/24-20a19737e607c987e54a.json": "20a19737e607c987e54a02e9822e08bd2d7c15515578bd3c0b9fb00e435ae12b",
+      "browser-judge/24-f6c8693f73646871262a.json": "f6c8693f73646871262af5f07e93baa5acb5d3469426f77b741634307fbca168",
+      "modules/25-3742dff346315226924e.json": "3742dff346315226924e0cf74649f1f8cf5d75122f33043bc73e44cee676e26b",
+      "browser-judge/25-54c020af5f679ed5b3ce.json": "54c020af5f679ed5b3ce5cbe09ccc8896f7a205662893e0f380345b243505f64",
+      "modules/26-6123c22aedaf68d777a4.json": "6123c22aedaf68d777a4d5f9a94d755ba22f070eb3c4d149d3b5ec8f07251a72",
+      "browser-judge/26-d39e219ae3af112cb5b7.json": "d39e219ae3af112cb5b7d89e32ebb3f3ad221ed3925edaf1c9c8d142a2fd9745",
+      "modules/27-8a0f638c76cfd554a2a9.json": "8a0f638c76cfd554a2a9cbd7b7dc48cda4ca98b25ed547cbee10097b0830d40b",
+      "browser-judge/27-a32de99f4d288f4226a0.json": "a32de99f4d288f4226a048f4b7dd4f105e57dc1d31d0f8c4e7f14963d1e4f4f1",
+      "modules/28-8a36c6626fd3456bf4f7.json": "8a36c6626fd3456bf4f795928d3c0a66982bf710227d5a081b1e4f8117a65dc5",
+      "browser-judge/28-ab12eba2c40d654335a3.json": "ab12eba2c40d654335a3cb41fb635591afacda14387ca189120eff383d2408a7",
+      "modules/29-9e646c8405459007f858.json": "9e646c8405459007f858e7e317fb3f9c8996459539dbf10de5a81a30a1bb6fc4",
+      "browser-judge/29-a201a97521e3e39a9dff.json": "a201a97521e3e39a9dff1e8e78a204007f60bb9c90d57348f56b30cca03361d7",
+      "modules/30-d16d792deff6730d73d1.json": "d16d792deff6730d73d1687a47ce110ee7a49db23ff126c7454327832e14ffee",
+      "browser-judge/30-acfac1792144033d9d3e.json": "acfac1792144033d9d3e66c47c57448979ad33a7feb26da48ef496a93b8b9ccf",
+      "modules/31-4e264b862e6067ea7044.json": "4e264b862e6067ea70440991b70bbe42daef4ca2bf6343669c99880f329e8a66",
+      "browser-judge/31-30da1fdd9df0923fda62.json": "30da1fdd9df0923fda6268579769eb5cbd95951a87d698507d89b7d890868d4e",
+      "modules/32-c6cd3aea1d61abb5dd4d.json": "c6cd3aea1d61abb5dd4dda6a69618da8eac90f989576b0a0ff957938d795c5c7",
+      "browser-judge/32-24779a45ed13132e22a5.json": "24779a45ed13132e22a5b2aa87af059ece16fb6be6393619a01f6a8482c550b7",
+      "modules/33-0e2686e7b57e687d1fcf.json": "0e2686e7b57e687d1fcf82538902ed4ee071cbebbae1773f716a742e2ef38ce3",
+      "browser-judge/33-96568274fb58736cb66a.json": "96568274fb58736cb66a481360a7a5d50e4f95c4f89df3091efe8a4ac6ebe9b9",
+      "modules/34-a84cd1c6b2e867dd58bf.json": "a84cd1c6b2e867dd58bf4d88e2d35b11ec09212890aca92a3a39c146806314f6",
+      "browser-judge/34-abf7bdeec545714daa90.json": "abf7bdeec545714daa90d964e39d0504efad5e7b694f0573b7634f32c8f4ffb7",
+      "modules/35-69a9302fed33ec65b4ee.json": "69a9302fed33ec65b4ee2e8c9da5e11c312b771d2fa7a94264252da41d85681f",
+      "browser-judge/35-0e3065ad5b39b863db6f.json": "0e3065ad5b39b863db6f9a12b85cae09494620e4b6c3e8443c7870080b3b8fb9",
+      "modules/36-8e16137e6fc3823f9a87.json": "8e16137e6fc3823f9a87785722bf823c10f0b7e8ca38e989a77083af03fee5f6",
+      "browser-judge/36-b5e98881e8cc08e7631c.json": "b5e98881e8cc08e7631cb20a0fc57ad02da812922a73c43d16ddcc2db98194d4",
+      "modules/37-ad7c3ee63d680e55f9e6.json": "ad7c3ee63d680e55f9e6c461a9849790508f6a546fc4cbf1336369b46d2198c1",
+      "browser-judge/37-e33f3ed50f35b2dc3572.json": "e33f3ed50f35b2dc35728cc5db539cde93c3331ebc70a53a41641dd5ebdb9559",
+      "modules/38-1dc81e2441185ce30e76.json": "1dc81e2441185ce30e764ee4f8c69f150d5b1c7bc38389ce974e21c121da3ee0",
+      "browser-judge/38-16bae004080365e2f834.json": "16bae004080365e2f8342c5d29294b7ff406b7f9c8d10f0b90fd80eee52ae644",
+      "modules/39-936fa04100647fe23a51.json": "936fa04100647fe23a517ebde5772f43074c6f9aa836e92b59b93564c9ef72d0",
+      "browser-judge/39-dda547b5dbbe54935f43.json": "dda547b5dbbe54935f43ac24ad61c88e93551c055de3d2a5b1ba99734c974752",
+      "modules/40-c8d43196dd4b16196164.json": "c8d43196dd4b16196164495357c91aed1fd22dd991d952a487f7e2a722de20e9",
+      "browser-judge/40-c7dcfc6963674cfba744.json": "c7dcfc6963674cfba744febc83e6d35c1ada8e5f651f9325d22d6c5148e843e7",
+      "modules/41-8f1fcbf2f2560c580845.json": "8f1fcbf2f2560c58084592f5cf870fbe155a9724b4c9842ad3284ae3358bfb57",
+      "browser-judge/41-84a71004c2e245374ade.json": "84a71004c2e245374adefd2617f3f452133323d122e8a0630d42de262d605248",
+      "modules/42-2ac3340b59c24c884267.json": "2ac3340b59c24c8842677c07c890180670e9614817993d6a9cee6e87fab70507",
+      "browser-judge/42-195a6095e90dec36e596.json": "195a6095e90dec36e59666a4dbbc387f672929e906efb50cfbc7f1b671b8001f",
+      "modules/43-38e4f9137488fabeb2f6.json": "38e4f9137488fabeb2f64ad0df161c38902dda12e4a3e3f50e252516e7210efc",
+      "browser-judge/43-4221dcae78ad7e84c515.json": "4221dcae78ad7e84c515821636868518026dc1a449731b1650f4a90f0387d44b",
+      "modules/44-bc8c600abc84ed540977.json": "bc8c600abc84ed54097746d38005969f601574347f72af044656c7792985369d",
+      "browser-judge/44-2f435dfcb5394b03ea3a.json": "2f435dfcb5394b03ea3a3ecc0a29c2d3ab11108877a5275bf7fd255adbe09185",
+      "modules/45-334018fbfcc1fb764cf9.json": "334018fbfcc1fb764cf948d1e3264d0aff5d2081240ffe61e133a03409e7efd5",
+      "browser-judge/45-6e9d373550017898ca02.json": "6e9d373550017898ca026b07fa48c2b50731e1ed152148b66276193003f64fd2",
+      "modules/46-e2d8ae072d8a2a21f794.json": "e2d8ae072d8a2a21f794894d2dc9eefaf9ab7b59340b6bd1e0d2c0cc318ff769",
+      "browser-judge/46-56fd39af49af94346f25.json": "56fd39af49af94346f2595903010d103fe9b1a5bbcf2b59d546dac8978b38aa8",
+      "modules/47-b5db0760e7dc8ec766ad.json": "b5db0760e7dc8ec766ad97f6f0c070ea6ba3b7885da9da7e90ac6d01deef14f0",
+      "browser-judge/47-ac090871cfe4e3b3fc9a.json": "ac090871cfe4e3b3fc9a71726b2f3025cef8753eba0c5fc6c122eb54fa22ac23",
+      "modules/48-6d3655ff9174ef16c289.json": "6d3655ff9174ef16c289f1a974de01e3ff329431b4b7891a91b6dd79d35e7636",
+      "browser-judge/48-3cf7dab963b02459c12a.json": "3cf7dab963b02459c12a58bba66a7f75ba4c9bdbce44364bc661f5dcb7ae9fd3",
+      "modules/49-381ddb77c91484912a28.json": "381ddb77c91484912a285bb9673aa61f5cadefa8c502ea54cf1c7c946bb9bb83",
+      "browser-judge/49-9700e243bc4edcb4b114.json": "9700e243bc4edcb4b11478e8caa26cdcc7d1a6fbf979e8bb38a6b14059b1bd18",
+      "modules/50-f30622085fff96806f73.json": "f30622085fff96806f73c2e4c953052180690f6ed0ae01ebb26181e35004e1d8",
+      "browser-judge/50-2221dd4141bd9d462b59.json": "2221dd4141bd9d462b596a966bf40edc97f75aaca5df695d75e27b2f22078fb9",
+      "modules/51-b77e3236aa4a4fd6e058.json": "b77e3236aa4a4fd6e058df881543350aac8a841f56238caa9fb065379c0b104b",
+      "browser-judge/51-1afb7b5a05e95bf3e13b.json": "1afb7b5a05e95bf3e13bb5f762989992b87d02413afbdb013da4749ba8d1bfce",
+      "modules/52-a0b83ae329aa6657c26e.json": "a0b83ae329aa6657c26ebeb9d9718b6f053900fbdc03966c75638758e45b88a4",
+      "browser-judge/52-a1ecc6f7290e7a64fcd2.json": "a1ecc6f7290e7a64fcd2321546c97f3cad2705c7faf9f67d7f71cf7bfad43e62",
+      "modules/53-48ac7ea39ae2f0ede13c.json": "48ac7ea39ae2f0ede13cb0e5a543ae95da11218ee3853e7fa2f0ee3cc32f5839",
+      "browser-judge/53-d264711aab169fb6deeb.json": "d264711aab169fb6deeb3e260825895cc15c5ec833a4a39b200479271c960354",
+      "modules/54-37161f2e496403c76f51.json": "37161f2e496403c76f514b29e660d1986d3cb1614544cf93775d6c489868ee1b",
+      "browser-judge/54-7a6965f573597ad40589.json": "7a6965f573597ad4058976f1a7f51cee58b83e5bda4731c918dbccf85558c89b",
+      "modules/55-5d03e82898e6f1ee1dca.json": "5d03e82898e6f1ee1dca6c3b9f66880de91d3dce533e5d46c3baeb714cd08a47",
+      "browser-judge/55-4faa3456edb423e7178d.json": "4faa3456edb423e7178dbb45c8435a10c708ea908e0ca2fdf8afcd7bfec1b85f",
+      "modules/56-364fb24b746ae4f8d084.json": "364fb24b746ae4f8d0845597e37c1292a245e97b3751ad5ad4496fd7a37b25a8",
+      "browser-judge/56-809314852d9181ac24d5.json": "809314852d9181ac24d520d6c2e826e0120aa53f82941c5d6cad359135fc5766",
+      "modules/57-3f1cfae6dd417a4fe4c8.json": "3f1cfae6dd417a4fe4c8084d663e6f9870eba672380ce4f464855102d35e0e4a",
+      "browser-judge/57-980dbccbcb6f01ebfc9f.json": "980dbccbcb6f01ebfc9f1e8aa19561fff66c74351c0e881b92c89701e5a87db1",
+      "modules/58-a082d407aec88f25e069.json": "a082d407aec88f25e0696a86262c91957e472714ce58d3071706a7c549903bc8",
+      "browser-judge/58-12a3e006f47fcf55a57c.json": "12a3e006f47fcf55a57c7f004456a44d77d6425188ba0f81780cd0b8d0cff101",
+      "modules/59-3620c4de57c7783f551c.json": "3620c4de57c7783f551c6d1a6f4fe7d7a64a2fe5359306c6e092f4941cf4c761",
+      "browser-judge/59-480e09eeeb345952bcb5.json": "480e09eeeb345952bcb5becd3190a852cc2f9d78055b8c9647340ef4edc51ca2",
+      "modules/60-e039df726164230aca6f.json": "e039df726164230aca6fe1ebba5a52a70c26a3d250ba1704838d53165f472344",
+      "browser-judge/60-836d27d79c5786d3d37e.json": "836d27d79c5786d3d37e3c9b63b6f50d25b6d95112a528c60bcd653eeb1e4293",
+      "modules/61-21032cafcb702d1c241e.json": "21032cafcb702d1c241e4506b3b264dd2b89fd5fc73d267ff8025b694f7d6d46",
+      "browser-judge/61-d5cc6839d91e0978c74d.json": "d5cc6839d91e0978c74d079a8f60053c6afe083b7e789bdf24aea9a0829d14ee",
+      "modules/62-5a71cc57141055f6cfa3.json": "5a71cc57141055f6cfa377514a20aad53e1d768cc16bac37737b1be76fc772d4",
+      "browser-judge/62-6b279a7e27a8e7f72a98.json": "6b279a7e27a8e7f72a9831fd4b065a18c8f0844c8e335090879cb924ebc342d1",
+      "modules/63-64b2b7b2d02c2a15e214.json": "64b2b7b2d02c2a15e214fbf30288024ea9f0128a59d5152ce5aad632674df7b7",
+      "browser-judge/63-879786267d4be46f2994.json": "879786267d4be46f2994fbebf6d28806d5ed6adf5988ea66ada5a8fded157e5a",
+      "modules/64-7323aeecdaafece92385.json": "7323aeecdaafece92385a713a86a4b880ca2b76ca1954f94e7cfcff9be5c05ef",
+      "browser-judge/64-e801e19cdc538657749b.json": "e801e19cdc538657749b89aaa77b2dd56de90f6d2720381a4a6eb498786924ac",
+      "modules/65-5458a9497c997a43c4b8.json": "5458a9497c997a43c4b8c65faaf17a29c3b4b19426399814ffb76988eeae0323",
+      "browser-judge/65-e9ce4813482cbab15fff.json": "e9ce4813482cbab15fff1857c2ef5f751aec358b61c3c59626de6a9e9bbcd223",
+      "modules/66-2f3a4b91dd42c9e6c433.json": "2f3a4b91dd42c9e6c433a344f20a92e5a377f07323dc6bdf9d6606c8b12d9f05",
+      "browser-judge/66-8002584e9ef69a5900f1.json": "8002584e9ef69a5900f142e7e62085b237a0469bb09be5db7a9e69032a68855b",
+      "modules/67-22c05608d1a3e6070fc3.json": "22c05608d1a3e6070fc3a6fd074398e6864f18315890ff94eb3fc0b462abd7f9",
+      "browser-judge/67-9f475c433386f58babb6.json": "9f475c433386f58babb656974ea13e7014e8cdfbd169c7dd12c7d0613c614677",
+      "modules/68-06cc83ace597f4c63b81.json": "06cc83ace597f4c63b8180d0427d089cfe6bb9b44c547a96d054f33f80275652",
+      "browser-judge/68-98accdd6d713be4656ec.json": "98accdd6d713be4656ec575810967721a1df4604c73ac669211539be60a52d66",
+      "modules/69-0e89b693d8324d1a3a23.json": "0e89b693d8324d1a3a23b28ed93833e29f2df534441ef0d8bf2d3e01dfc168d9",
+      "browser-judge/69-142bc435f59858cae84e.json": "142bc435f59858cae84ed5a9076a7a699407d0bced5ccba458fb30f6f4d5a8ae",
+      "modules/84-d447196cfd87265be2bd.json": "d447196cfd87265be2bd756510234125d871a70810d797cec8dc8027f59a3c8f",
+      "browser-judge/84-30a9325159e14c462bec.json": "30a9325159e14c462bec95539f153be709f2959438e58fc5029eae604f95437e",
+      "modules/85-71576af15744db6c6622.json": "71576af15744db6c662292d07e4c914c377da725ac397d29208eef3c1db49f02",
+      "browser-judge/85-5c7d5de6e0a1947ce77c.json": "5c7d5de6e0a1947ce77c4ce6f3026b646a6249a7ee8c53065e40f7c215068983",
+      "modules/86-b02e601ca781da4c0b1f.json": "b02e601ca781da4c0b1f6db00e31a1938d4d7bf81202e5df4e51386eb34a2096",
+      "browser-judge/86-b64be7f78832d072fb85.json": "b64be7f78832d072fb8563b15489b7195d933c4336f372c3bbd045d890f3ebc5",
+      "modules/87-afe75004d4be92338ab0.json": "afe75004d4be92338ab0b67b7acbc393627eca44a6c54f95cc5d563ed857e0d6",
+      "browser-judge/87-4c3f492a45a5a2ff4ec4.json": "4c3f492a45a5a2ff4ec4ef8229d440bfeb25f01fe105e9dd42441f221ec34058",
+      "modules/88-874d5442e779282425b7.json": "874d5442e779282425b72a98f18dc612d1fe4343092d17b65ceb88714789efe1",
+      "browser-judge/88-6fd6843eba636b9e3aff.json": "6fd6843eba636b9e3affe2312903b753fc44cf17b3a5dcd608861724046b9ef3",
+      "modules/89-a04a3845bc979236749f.json": "a04a3845bc979236749fd48b9562ae3928d1f52d3b67e96518732dd038f71f6e",
+      "browser-judge/89-7c1c19b3b0f536bb8fdf.json": "7c1c19b3b0f536bb8fdf24363d0c886995d0ae52e230c3b2560bd6ef8d7411ea",
+      "modules/90-3e2a8a79aabe5fd4bf8c.json": "3e2a8a79aabe5fd4bf8caf296485be23b15d327ec0ffb4453134cbc7dcc78505",
+      "browser-judge/90-301d6746f6e2dde29163.json": "301d6746f6e2dde291633a5aead26f5197bcac5ab5693dbd39368dc5ba5ee43a",
+      "modules/91-126632167e9be18ece63.json": "126632167e9be18ece6342bbb8bf0683f9b7c268e79fc479a9c64feb5559c124",
+      "browser-judge/91-eff6e9b93600fc9a1bd3.json": "eff6e9b93600fc9a1bd3daa204a8df97f8a45f9f04402973cb88b67f69d8d51e",
+      "modules/92-3b87d84d39d98245a75e.json": "3b87d84d39d98245a75e4f0eed576f27151cc43524d4d1b346877dcf01281321",
+      "browser-judge/92-279a6ef80755c56cd721.json": "279a6ef80755c56cd72136eff4db28db4f8edb4c15d780be61023cbabdf766f5",
+      "browser-judge/runtime-66f15c2cdf8713df0994.json": "66f15c2cdf8713df0994fb79b241930bb1437c6a10a502a65e5b6b7693e37c21",
+      "browser-judge/runtime-bb6adfa1112338ee6636.json": "bb6adfa1112338ee6636f55d794d8a222bcf2145d1539ea0c1908f3a2cddb764"
+    },
+    "index_comparison": "Compressed starters decoded before comparison; runtime and module/manifest payloads compared byte-for-byte."
+  },
+  "receipts": {
+    "observer": {
+      "session": 88242,
+      "exit_code": 0
+    },
+    "live": {
+      "session": 91147,
+      "exit_code": 0
+    },
+    "wasm_artifact_download": {
+      "session": 8550,
+      "exit_code": 0
+    },
+    "infrastructure_log": {
+      "chunk": "ec4027",
+      "exit_code": 0
+    }
+  },
+  "download_note": "Initial artifact name browser-wasm-report did not exist;discovered actual browser-wasm-reports via API and downloaded successfully. Original judge artifact present and validated byte/schema inputs;its first command exit was not separately captured.",
+  "archive": {
+    "file": "iteration-28-remote-adoption-harness.tar.gz",
+    "files": 13,
+    "bytes": 63542,
+    "sha256": "a9689c85e0442ef857f959d3befcc597c91aa344343830c7d9893515d262d727"
+  },
+  "timing_scope": "Actual runner compatibility/budget gates;no cross-run speedup inference"
+}

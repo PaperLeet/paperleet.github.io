@@ -410,8 +410,10 @@ source-commit deployment was superseded and is not claimed as published.
 - Final core gate29402/one optional skip, minimum wheel893 and Node/Chrome881
   pass. Latest-main integration preserves33 upstream files, passes107 affected
   Python tests and all78/342 exported WASM cases with28/881 standalone contracts.
-  Frontend/default/actual Pages-profile builds pass; remote adoption remains
-  tracked separately until actual Quality/deployment/live evidence exists.
+  Frontend/default/actual Pages-profile builds pass. Exact-main0fb0bdc5 then
+  passesQuality38919796621 and actualPages38921426204;78 decoded starters and
+  158 immutable live payloads match the frozen release. Version0.28 is positively
+  verified on the site; remote receipts are archived separately.
 
 ## Next implementation areas
 

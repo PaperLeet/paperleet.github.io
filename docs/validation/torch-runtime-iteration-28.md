@@ -163,3 +163,28 @@ nonexistent pytest path, receipt-verifier working-directory/syntax corrections
 and truncated terminal receipts are recorded explicitly. The affected-test log
 records success; no missing command exit code is invented. Non-force adoption,
 actual exact-main Quality and eligible Pages/live verification remain separate.
+
+
+## Actual remote adoption
+
+Main0fb0bdc57732aadb8233d3ec9d246570ce088c58 passes all four required jobs in
+[Quality38919796621](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38919796621).
+The infrastructure log reports29402 passed/one optional Docker skip in318.06s.
+Original native CI passes78 modules/10218 executions/342 mutants/three repetitions
+in430.66s; exported WASM passes78/342 with no budget violations in522141ms. Its
+28 independent suites/881 checks have the frozen test hashes and every case
+retains its source, packages, test counts, mutant counts and original budgets.
+
+The same exact source commit completes actual deployment steps in
+[Pages38921426204](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38921426204).
+Live verification passes all78 decoded starters/current detail and manifest
+references and158 immutable payloads, byte-for-byte, including both runtime
+profiles and Apache-2.0 LICENSE/NOTICE. No equivalent-descendant substitution is
+needed for this release. Version0.28 is positively verified on the site.
+
+[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-28-remote-adoption.json)
+and its13-file archive retain actual job/deploy steps, downloaded reports,
+infrastructure output, frozen hashes and the live checker. A first artifact-name
+typo is recorded; the actual plural browser-wasm-reports artifact was discovered
+through the API and downloaded successfully. Runner durations are compatibility
+and budget evidence rather than a cross-run performance comparison.
