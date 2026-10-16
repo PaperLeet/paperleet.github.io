@@ -137,12 +137,35 @@ one local solve. A bounded cache retains only small read-only triangular masks
 propagate nonfinite values rather than
 raising the generic singular-matrix exception. Output buffers, half factorization,
 sparse systems and complex differentiation remain explicit unsupported cases.
-Version0.31 is a development candidate pending complete validation and integration.
+Version0.31 passed local application integration and was adopted on main. Remote
+Quality, deployment and live verification are tracked separately in its validation report.
 
 Version0.29 passed application integration and actual Pages/live verification.
 Refinements reduce graph/metadata overhead and improve broader inference and
 training controls; some tiny solve-only flows remain a few percent slower. See the
 [measurements and adoption boundary](../../docs/validation/torch-runtime-iteration-29.md).
+
+## Cholesky factors
+
+`torch.linalg.cholesky(A, *, upper=False)` factors positive-definite real or
+Hermitian complex matrix batches. It reads only the selected triangle and returns
+column-major final axes. Float32/64 support analytical reverse gradients, JVP
+and reverse differentiation through the primal and direction of a JVP.
+Complex64/128 support inference; complex differentiation, half factorization and
+output buffers raise explicit unsupported errors.
+
+```python
+a = torch.tensor([[4., 1.], [1., 3.]], dtype=torch.float64, requires_grad=True)
+factor = torch.linalg.cholesky(a)
+factor.square().sum().backward()
+```
+
+Backward reuses the returned factor and triangular systems. It saves no input
+array: changing A after forward is permitted, while changing the factor
+invalidates backward. A failed factorization reports the first failing batch and
+leading minor. Version0.32 remains a development candidate until its validation
+and application integration gates pass; see its
+[validation report](../../docs/validation/torch-runtime-iteration-32.md).
 
 ## Gradient accumulation and storage
 

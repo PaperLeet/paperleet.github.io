@@ -224,6 +224,7 @@ def create_torch(name='torch', *, register=False):
     }, reverse='analytic')
     registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)
     registry.add('torch.linalg.solve_triangular', _linalg.solve_triangular, reverse='analytic', forward=True)
+    registry.add('torch.linalg.cholesky', _cholesky.cholesky, reverse='analytic', forward=True)
     registry.group('torch', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
     registry.group('torch.serialization', {'save':_serialization.save,'load':_serialization.load}, reverse='control')
     torch.serialization.save,torch.serialization.load = torch.save,torch.load
@@ -240,4 +241,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _batchnorm, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _promotion, _random, _registry, _schedulers, _serialization, _tensor

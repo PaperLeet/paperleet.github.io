@@ -494,6 +494,22 @@ source-commit deployment was superseded and is not claimed as published.
   with licenses. Pinned46 resources/161 exports and all receipts are retained in
   [remote evidence](benchmarks/results/iteration-31-remote-adoption.json).
 
+## Version0.32 core candidate validated
+
+- Cholesky selected lower/upper factors,batched/strided/empty layouts,real
+  float32/64 VJP/JVP and reverse through primal/direction;complex inference.
+  Output-only saves match native A-mutation/output-guard behavior.
+- Analytical tiny pullbacks,direct small factor solves and blocked large solves
+  remove initial small-flow regressions. Selected tiny/large complete flows
+  improve versus the first generic-LU0.32 implementation;upper float64 WASM
+  gains little.0.31 has no Cholesky and is not a throughput baseline.
+- Core31042/one optional skip,focused163,NumPy-only wheel1140 and actual
+  Node/Chrome1128 checks in32 suites pass. Public/private ownership,aliases,
+  checkpoint resume and independent uninstall pass. Source gzip grows1791bytes.
+- [Measurements and adoption boundary](../../docs/validation/torch-runtime-iteration-32.md)
+  retain all initial regressions/failed probes. Full original application gates
+  and non-force main adoption remain separate from core validation.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
