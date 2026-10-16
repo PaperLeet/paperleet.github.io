@@ -1,0 +1,16 @@
+# Python definition navigation
+
+The enhanced editor now lists functions, classes and qualified nested definitions from the current Python source, with line numbers. Choose a target, then activate **Go / 定位** to scroll and focus its declaration. Keeping selection and activation separate preserves native keyboard arrows and type-ahead without sending subsequent input into the source editor.
+
+The existing Python grammar parses the complete document, including declarations outside the viewport. Comments and string contents do not create targets. Navigation checks the current editor document against the source used for the list and checks the selected identifier before moving the cursor. Loading/read-only workspaces cannot navigate. Source changes invalidate the selected target. Existing owner/module editor keys remain in place.
+
+Navigation emits no source change, save, execution or verdict. A consumed diagnostic focus request cannot replay after a later manual navigation when callback identities change; a new explicit diagnostic request still works. The grammar and navigation styles remain in the deferred editor chunk, with build assertions retaining the existing initial JavaScript budget. No dependency, judge or runtime changes are introduced.
+
+## Validation
+
+- `web/scripts/check-python-navigation.mjs` compares all 156 maintained starter/reference sources with Python's independent `ast` parser. Additional fixtures cover classes/methods, decorators, async and nested definitions, duplicates, comments/strings, Unicode/NFKC names, emoji, CRLF, partial syntax and 1,500 declarations extending beyond the initial viewport.
+- The same check mounts the actual CodeMirror component. It verifies separate selection/activation, unchanged raw CRLF source, repeated jumps, preserved editor instances across locale/theme/font updates, stale source and read-only rejection, and one-shot diagnostic ownership with subsequent new diagnostic requests.
+- A real loopback browser preview of Flow Matching module 10 verified keyboard type-ahead retains select focus. Tab moves to the explicit activation button; Enter focuses `cfm_loss` at line 36 and scrolls the editor. Before/after implementation downloads were byte-identical (3,875 bytes), and the UI retained its initial-source status. No code was executed or formally submitted during this check. The maintained starters use functions; class navigation was exercised with independent fixtures and the actual mounted editor, rather than claimed as a maintained-browser-starter test.
+- The full frontend check and production edition build results are recorded in the PR after rebasing onto the current main revision. Publication requires the existing complete quality gate and an actual Pages deployment; local preview results alone do not establish production delivery.
+
+React review: expensive syntax analysis is memoized and deferred from urgent source updates; selection is derived from the current source; diagnostic consumption uses a ref; native labeled controls support keyboard use; editor configuration is stable; navigation CSS stays deferred. Verification covers one browser engine on this machine, not cross-browser certification.

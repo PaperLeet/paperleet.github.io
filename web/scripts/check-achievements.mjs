@@ -107,6 +107,8 @@ try {
     assert.equal((showcase.match(/<li /g)||[]).length,3);
     assert(showcase.indexOf(en ? 'Rise to the challenge' : '迎难而上') < showcase.indexOf(en ? 'First light' : '初次点亮'),'The public profile must retain the chosen pin order');
     assert(profile.includes('<details') && profile.includes(moment) && !profile.includes(en ? 'Manage featured' : '管理置顶'));
+    const ownProfile = renderElement(ProfileAchievementShowcase,{data:publicData,error:false,isSelf:true,isPublic:true,onRetry(){}});
+    assert(ownProfile.includes('href="#/achievements?from=profile"') && ownProfile.includes(en ? 'Manage featured' : '管理置顶'), 'Managing featured medals must preserve the profile origin in the link');
     const unfeatured = renderElement(ProfileAchievementShowcase,{data:{...publicData,pinned_ids:[]},error:false,isSelf:false,isPublic:true,onRetry(){}});
     assert(/<details[^>]+open=""/.test(unfeatured),'Without pins, earned medals must be immediately visible on the profile');
     const hidden = readPublicAchievements({visible:false,user_id:'alice',pinned_ids:earnedIds},'alice');

@@ -42,4 +42,6 @@ const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`di
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('KaTeX_Main-Regular')), 'Math font styles must load with rich text rather than the homepage');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'Python navigation styles must stay deferred with the editor');
+assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'The enhanced editor must include its navigation layout');
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);

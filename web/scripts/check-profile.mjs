@@ -115,6 +115,7 @@ try {
   };
 
   await render();
+  assert.equal(document.querySelector('.profile-workspace-settings').getAttribute('href'), '#/achievements?from=profile', 'The profile achievement entry must retain its source across refresh and new-tab navigation');
   assert.equal(scrolls.length, 0, 'Loading a profile must not unexpectedly jump past progress');
   assert.equal(counter('following').getAttribute('aria-controls'), panel().id);
   holdKind = 'following';

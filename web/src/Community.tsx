@@ -1446,7 +1446,7 @@ function UserProfileContents({ username }: { username: string }) {
                 {t("粉丝", "Followers")}
               </button>
             </div>
-            {profile.viewer.is_self && <a className="text-button profile-workspace-settings" href="#/achievements">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></a>}
+            {profile.viewer.is_self && <a className="text-button profile-workspace-settings" href="#/achievements?from=profile">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></a>}
           </section>
           <section className="social-panel profile-community-summary">
             <h2>{t("社区贡献", "Community")}</h2>

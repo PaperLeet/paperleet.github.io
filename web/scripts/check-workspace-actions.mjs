@@ -56,6 +56,7 @@ fixture.browser.run=fixture.browser.run.bind(fixture.browser);
 globalThis.__paperleetWorkspaceActionTest = fixture;
 const mocks = {
   './social': `import {useSyncExternalStore} from 'react';
+    export {profileHref} from '/src/social.tsx';
     export const AccountProvider=({children})=>children;
     export const AccountNav=()=>null;
     export function useAccount(){const f=globalThis.__paperleetWorkspaceActionTest;useSyncExternalStore(f.subscribe,f.snapshot,f.snapshot);return f.account;}`,
@@ -72,6 +73,7 @@ const mocks = {
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
     export const InboxBell=()=>null,Messages=()=>null;
+    export const Achievements=props=>React.createElement('a',{'data-test-achievement-return':true,href:props.returnTo},'Back to where you left off');
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
     export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
     export {default as JudgeRuntimeDetails} from '/src/JudgeRuntimeDetails.tsx';
@@ -80,7 +82,7 @@ const mocks = {
     export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content})=>React.createElement('article',null,content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
-    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','Achievements','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
+    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
 };
 mocks['/src/ReportView.tsx']=mocks['./ReportView'];
 const server = await createServer({
@@ -408,6 +410,40 @@ try {
   await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-practice-ids')==='');
   assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),emptyView,'Changing a return view must retire the old recommendation scope');
   await act(async()=>root.unmount());root=undefined;
+
+  // Profile-origin achievement URLs must carry their return behavior across a
+  // fresh App mount, as a refresh or opening the link in another tab would.
+  const mountAt=async href=>{
+    if(root){await act(async()=>root.unmount());root=undefined;}
+    window.history.replaceState(null,'',href);
+    await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
+  };
+  const navigate=async href=>act(async()=>{location.hash=href;window.dispatchEvent(new window.HashChangeEvent('hashchange'));});
+  const achievementReturn=()=>find('[data-test-achievement-return]')?.getAttribute('href');
+  const profileAchievements='#/achievements?from=profile';
+  fixture.account.user={id:'alice',username:'alice',display_name:'Alice'};
+  await mountAt('#/u/alice');
+  await navigate(profileAchievements);
+  assert.equal(achievementReturn(),'#/u/alice','Entering achievements from a profile returns to that account profile');
+  await mountAt(profileAchievements);
+  assert.equal(achievementReturn(),'#/u/alice','Reloading or opening the profile achievement link in a new tab must not lose its return target');
+  await change(()=>{fixture.account.user={id:'bob',username:'bob',display_name:'Bob'};});
+  assert.equal(achievementReturn(),'#/u/bob','An explicit profile origin always uses the current account, never a previous viewer');
+  fixture.account.user=undefined;fixture.account.loading=true;
+  await mountAt(profileAchievements);
+  assert.equal(achievementReturn(),'#','No stale account profile is retained while a fresh session is unresolved');
+  await change(()=>{fixture.account.user={id:'carol',username:'carol',display_name:'Carol'};fixture.account.loading=false;});
+  assert.equal(achievementReturn(),'#/u/carol','Resolving the account after a refresh restores its profile return');
+  const previousPage='#/community?sort=newest';
+  await mountAt(previousPage);
+  await navigate('#/achievements');
+  assert.equal(achievementReturn(),previousPage,'Ordinary achievements entries preserve the existing in-memory return behavior');
+  for(const href of ['#/achievements','#/achievements?from=https%3A%2F%2Foutside.example','#/achievements?from=someone_else']){
+    await mountAt(href);
+    assert.equal(achievementReturn(),'#','Only the fixed profile source marker can replace the default return target');
+  }
+  await act(async()=>root.unmount());root=undefined;
+  console.log('PASS achievement App routing: profile return survives refresh/new-tab entry and late account resolution, follows account changes, and preserves ordinary entry behavior');
   console.log('PASS actual App workspace: source-safe inline judging, neutral stops, current-source/mode recovery with offline/reload/owner guards, retained editor/diagnostics, exact practice returns, live paper recommendation scope and bilingual empty/filtered-complete/all-complete/optional/loading states');
 } finally {
   if(root)await act(async()=>root.unmount());
