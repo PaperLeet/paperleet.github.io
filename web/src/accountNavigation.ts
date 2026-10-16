@@ -1,5 +1,5 @@
 import { communityContinuation } from './communityNavigation';
-import { libraryContinuation } from './libraryNavigation';
+import { favoriteHref,readFavoriteRoute,libraryContinuation } from './libraryNavigation';
 import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
 const continuationPrefix = "account/continue/";
@@ -9,11 +9,12 @@ const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", 
 /** Allow only known shapes of local hash routes; never an external destination. */
 function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
+  const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites).slice(2);
   const interviews=readInterviewRoute(route);
   if(interviews)return interviewHref(interviews).slice(2);
   if (/^submit\?(?:proposal=[a-f0-9]{32}|view=pool)$/.test(route)) return route;
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
-  if (route === "" || route === "community" || route === "submit" || route === "achievements") return route;
+  if (route === "" || route === "community" || route === "submit" || route === "achievements" || route === "favorites") return route;
   if (/^[1-9]\d*$/.test(route)) return route;
   if (/^community\/problem\/[a-z0-9_-]+\/[a-z0-9_-]+$/.test(route)) return route;
   if (/^community\/[a-f0-9]{32}$/.test(route)) return route;

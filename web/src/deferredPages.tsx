@@ -88,3 +88,6 @@ export const ResetCodeButton = deferredFeature<Parameters<typeof import('./Reset
 export const BrowserDraftBackups = deferredFeature<Parameters<typeof import('./BrowserDraftBackups').BrowserDraftBackups>[0]>(() => import('./BrowserDraftBackups').then(module => ({default: module.BrowserDraftBackups})), ['草稿版本', 'draft versions'], {
   loading: props => props.conflict || props.backups.some(backup => backup.code !== props.source) ? <div className="feature-loading" role="status"><span className="spinner" /></div> : null,
 });
+
+export const ProblemFavoriteButton = deferredFeature<Parameters<typeof import('./ProblemFavorites').ProblemFavoriteButton>[0]>(()=>import('./ProblemFavorites').then(module=>({default:module.ProblemFavoriteButton})),['题目收藏','problem bookmarks'],{loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试收藏入口','Retry bookmark']}/>});
+export const ProblemFavoritesPage = deferredFeature<Parameters<typeof import('./ProblemFavorites').ProblemFavoritesPage>[0]>(()=>import('./ProblemFavorites').then(module=>({default:module.ProblemFavoritesPage})),['收藏题目','saved problems']);
