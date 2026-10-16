@@ -209,3 +209,7 @@ backend catalog tests pass 25 cases; the complete frontend check and both typed
 builds pass again. All 48 computational resources and 161 current exports remain
 unchanged. The full numerical/WASM gates above retain their original source and
 export identities. See `iteration-38-main-sync.json`.
+
+Validated source was adopted non-force on remote `main` at `082e8880eb23b06566ba8d430f16857602c6adab`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-38-main-adoption.json`; no tag, dispatch or online release was created.
