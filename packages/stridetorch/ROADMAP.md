@@ -347,8 +347,12 @@ direct indexing improve measured CPU/WASM work. Four balanced phases retain all
 64 children, including the initial gather regressions and remaining CPU float32
 reverse-gather cost. Final infrastructure passes 26,803; Node/Chrome each821;
 minimum NumPy-only wheel833 and both wheel ownership/uninstall gates pass.
-Catalog/export, latest upstream integration, full exported WASM, main and actual
-deployment remain separate gates.
+Original native catalog passes78 /10,218 executions /342 mutants /three repeats;
+export preserves all6,914 published immutable files and adds158 reachable assets.
+All31 latest upstream UI/catalog/parallel-CI files remain exact, and frontend,
+actual hosted profile and application packaging checks pass. Complete exported
+two-process WASM passes78/78 without budget violations and includes all26/821
+independent contracts. Main adoption and actual remote deployment remain gates.
 
 ## Next implementation areas
 

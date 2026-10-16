@@ -82,8 +82,40 @@ the [reproducibility archive](../../packages/stridetorch/benchmarks/results/iter
 retain frozen sources, all phases, original failed Native fixture calls,
 corrected tests and distribution gates.
 
-Application catalog/export/history, latest upstream parallel-CI integration,
-complete exported WASM, non-force main adoption and deployment remain gates.
-An existing broader leaf-gradient layout difference remains engine work;
-this release does not claim full memory-format compatibility. Main's deployed
-0.25 remains independently verified while this candidate is validated.
+## Complete local application integration
+
+All 31 upstream UI/catalog/parallel-CI files through `0e97899b` are preserved
+byte-for-byte, with all 45 core/resource hashes unchanged. The original native
+catalog passes 78 problems / 10,218 executions / 342 mutants / three repetitions
+in 120.90s, within the unchanged 600s aggregate and per-module T3 limits. All
+visualization data regenerates; affected Python catalog/publication tests pass26.
+
+Export preserves all 6,914 previously published immutable assets and adds 158
+reachable assets. The autograd profile contains 39 Python modules plus both
+notices, 472,697 raw / 109,502 gzip-estimated bytes. The schedules profile remains
+three Python modules plus notices, 37,343 raw / 11,550 gzip-estimated bytes. These
+are payload estimates, not measured transfer or startup times. Private wheel and
+sdist retain the exact core and current application catalog/server; standalone
+and private installed paths remain disjoint.
+
+The complete exported WASM catalog passes 78/78 and all 342 mutants in
+200,718ms with no calibration/run/total budget violations. Like current CI, this
+run uses two independent child processes/VMs. Its wall time is not a controlled
+comparison with prior one-process runs. Attention's actual exported VM additionally
+passes all 26 NumPy-only library suites / 821 contracts, retaining test hashes and
+counts. The driver, harness, core and all 161 frozen export hashes stay unchanged
+through the run.
+
+Full frontend checks pass54 bilingual guides /162 prompts. Both default and
+actual hosted Pages profile builds pass unchanged budgets; the hosted initial
+graph is three JavaScript assets, 403,168 raw /130,272 gzip bytes. Actual logs
+retain ephemeral Vite shutdown/occupied-HMR messages; assertions and commands
+pass. No application browser visual QA is claimed.
+
+[Integration gates](../../packages/stridetorch/benchmarks/results/iteration-26-integration-gates.json)
+and the [194-file receipt archive](../../packages/stridetorch/benchmarks/results/iteration-26-integration-gates-harness.tar.gz)
+preserve real reports, frozen live bytes, actual profile settings and package
+artifacts. Latest-main revalidation/non-force adoption, exact remote Quality and
+eligible deployment/live checks remain gates. An existing broader leaf-gradient
+layout difference remains engine work; full memory-format compatibility is not
+claimed. Main's deployed 0.25 remains independently verified.
