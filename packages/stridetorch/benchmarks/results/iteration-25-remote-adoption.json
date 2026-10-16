@@ -1,0 +1,1014 @@
+{
+  "status": "main_integrated_exact_quality_passed_runtime_identical_descendant_deployed_live_verified",
+  "source_commit": "22a0f289ca89b9d1bf2f87e003b70253982283ca",
+  "exact_quality": {
+    "id": 38896970644,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "22a0f289ca89b9d1bf2f87e003b70253982283ca",
+    "event": "push",
+    "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38896970644",
+    "jobs": [
+      {
+        "name": "browser-wasm",
+        "id": 116959650277,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the public catalog exporter",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Export the current source into immutable browser bundles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Execute every maintained suite and mutant on pinned WASM",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "native",
+        "id": 116959650610,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Pages release gating",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install CPU-only dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test judge infrastructure",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Reference, mutation, determinism, and CPU budgets",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Generate all visualization data and catalog",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build static web app",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "pilot",
+        "id": 116966079344,
+        "status": "completed",
+        "conclusion": "success",
+        "current_steps": [],
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require both native/frontend and complete WASM checks",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "native": {
+    "infrastructure_passed": 26466,
+    "skipped": 1,
+    "warnings": 26,
+    "infrastructure_elapsed_s": 401.77,
+    "catalog_elapsed_s": 299.51089927199996,
+    "problems": 78,
+    "executions": 10218,
+    "mutants": 342,
+    "repeats": 3
+  },
+  "original_wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "passed": true,
+    "elapsed_ms": 983423,
+    "browser_budget_exceeded": []
+  },
+  "descendant": {
+    "commit": "90ac44ef330be4b2502dcdec1f2901843d137500",
+    "quality": {
+      "id": 38899157716,
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "90ac44ef330be4b2502dcdec1f2901843d137500",
+      "event": "push",
+      "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38899157716",
+      "jobs": [
+        {
+          "name": "native",
+          "id": 116966837540,
+          "status": "completed",
+          "conclusion": "success",
+          "current_steps": [],
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate Pages release gating",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install CPU-only dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reference, mutation, determinism, and CPU budgets",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Generate all visualization data and catalog",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build static web app",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "browser-wasm",
+          "id": 116966837738,
+          "status": "completed",
+          "conclusion": "success",
+          "current_steps": [],
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the public catalog exporter",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Export the current source into immutable browser bundles",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Execute every maintained suite and mutant on pinned WASM",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "infrastructure",
+          "id": 116966838071,
+          "status": "completed",
+          "conclusion": "success",
+          "current_steps": [],
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install CPU-only dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Test judge infrastructure",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "pilot",
+          "id": 116971278333,
+          "status": "completed",
+          "conclusion": "success",
+          "current_steps": [],
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Require infrastructure, native/frontend and complete WASM checks",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    "pages": {
+      "id": 38900518818,
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "90ac44ef330be4b2502dcdec1f2901843d137500",
+      "event": "workflow_run",
+      "url": "https://github.com/PaperLeet/paperleet.github.io/actions/runs/38900518818",
+      "jobs": [
+        {
+          "name": "build",
+          "id": 116971333131,
+          "status": "completed",
+          "conclusion": "success",
+          "current_steps": [],
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Require complete quality checks on this main revision",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check static asset retention",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build public site",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Find the previous successful Pages deployment",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Download previous static assets",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Recover historical assets when extending the retention window",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Retain assets for cached pages",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Save lightweight assets for the next deployment",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-pages-artifact@v3",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "deploy",
+          "id": 116971976519,
+          "status": "completed",
+          "conclusion": "success",
+          "current_steps": [],
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Recheck the tested revision before publishing",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/deploy-pages@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    "equivalence": {
+      "status": "success",
+      "source_commit": "22a0f289ca89b9d1bf2f87e003b70253982283ca",
+      "descendant": "90ac44ef330be4b2502dcdec1f2901843d137500",
+      "all44_core_resource_hashes_equal": true,
+      "all161_frozen_catalog_export_hashes_equal": true,
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+        "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+        "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+        "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+        "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+        "_api.py": "3305e9f7a7320b1506ba1f347251fdceaae1d8a61c99050b7512cfa00a1a86da",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+        "__init__.py": "8def773f0be7d4d3823960bdf2af5bea505cac3866dcce895e23071a9f627198",
+        "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+        "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+        "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+        "_tensor.py": "ca1d58013d42ac47c2fc36face98030113d392a44264c75387d7f09e0311ec5c",
+        "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+        "_registry.py": "806c4e280887501c6dad5a6ab2efee10f5be42c1173a1f00b941b5a59757c23b",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+        "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "92662dd1d32dc406683b76a6b818853b2103c2c3b856ca9284e32baf545ae3bf",
+        "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+        "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+        "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+      },
+      "export_hashes": {
+        "browser-judge/1-fc8b727cc6967d518738.json": "fc8b727cc6967d518738d232d0a85dedd736fb9baab010ef01670074ebbd9cc4",
+        "browser-judge/10-eb0cccc7f92a8fe84c53.json": "eb0cccc7f92a8fe84c53d6193f1f506d66c2530c007a89cb23aac43cada1b7b6",
+        "browser-judge/11-368adf725b74dacd72bb.json": "368adf725b74dacd72bb1c91b5357bd32eb14a1c199b267be13175c33f9c7acf",
+        "browser-judge/12-7b9860f2b2d8d7cc3fc8.json": "7b9860f2b2d8d7cc3fc85e7466654d365b17dcc1d3a017a764760a40e28f3a00",
+        "browser-judge/13-178c89c772b4db08dae6.json": "178c89c772b4db08dae6277b164ef5382deedc7fba9c67a166690718e763b754",
+        "browser-judge/14-ba2b187018ac4a42ac4a.json": "ba2b187018ac4a42ac4ad21594abce012f0028c2d208d125f9d3a6aa16c60e1b",
+        "browser-judge/15-728637e64563fea03fb0.json": "728637e64563fea03fb0216627ac8f3e5ee06d636e0d4c3825640af29c9f8600",
+        "browser-judge/16-40651ef7f3df28e3e17a.json": "40651ef7f3df28e3e17ae21aac19fb0c5c3d6fc5c63207bc82ba7a4f7caa9cdd",
+        "browser-judge/17-7d476a19150ebd9d70f3.json": "7d476a19150ebd9d70f338feab2699203aaf97175133d203d2924b03e4eac5b2",
+        "browser-judge/18-a44862d498c6b6167ada.json": "a44862d498c6b6167ada34f965ff3c36f36dfbb3cbccb3aa9cd177ed04e8718f",
+        "browser-judge/19-a9f857bb5692a0050800.json": "a9f857bb5692a0050800a033de60e8f5f3ff83724411a8b4a200db566048e6aa",
+        "browser-judge/2-f58ff970b94591cf2338.json": "f58ff970b94591cf233817f6602923b96e693fe7f952d2c6b9c761da9d547a4b",
+        "browser-judge/20-dcc49d66a41f3ed91e7c.json": "dcc49d66a41f3ed91e7c10a43c198ff4abde525f5697c61f39515ec31d76998f",
+        "browser-judge/21-310fc7e253ecd351bba4.json": "310fc7e253ecd351bba49a2a0ac311d2fb547cddce9515840a68797027465b98",
+        "browser-judge/22-ee4dbdfbcd949056a0f2.json": "ee4dbdfbcd949056a0f2acfd23b69c33861b196c3f5903eeed525d8ab4d54a02",
+        "browser-judge/23-541edb917a6fe3899bf5.json": "541edb917a6fe3899bf5083a765a7541fdbc76c897849be656706d90765d9e92",
+        "browser-judge/24-604d8184a63cd37c8ea9.json": "604d8184a63cd37c8ea9723d0dbd3a4fa6cf5b2e51311b302a299044a36e5f0b",
+        "browser-judge/25-0c19440fba86b49747da.json": "0c19440fba86b49747da2cdb6ce0b441ee104936530c52420bd7fca0a314c58f",
+        "browser-judge/26-d58f83ccf4530b4e19d8.json": "d58f83ccf4530b4e19d82843e3311db6912415c71261e4fe923a35cd36b329a1",
+        "browser-judge/27-18f1f0c8a76467dd90e7.json": "18f1f0c8a76467dd90e7102b2391b6a8e614673e9e76d6777be36bc29e8c5ed1",
+        "browser-judge/28-7cf8023f46bc06f1d830.json": "7cf8023f46bc06f1d8309661f4b0d618a1fc84b71ce53f9a0296830be6aa51f1",
+        "browser-judge/29-bfc031ff9a4728ea9648.json": "bfc031ff9a4728ea96489eb9222a3d4846d0e1412ef87ea1d15ab6f0126d4e1e",
+        "browser-judge/3-5ee883454313fe340dc0.json": "5ee883454313fe340dc05cc50a7174261edf5cb2cb384b15a83dd4a841c51d0b",
+        "browser-judge/30-8e72f032a100f1a20150.json": "8e72f032a100f1a20150cc94eaa9083b4b540e3f26e8c77d8f6263d72c397022",
+        "browser-judge/31-4b47cf5aaaee2e0507d8.json": "4b47cf5aaaee2e0507d81f33b9ffa4fdc5b9ef3a0f89959d8ba0547e0c852acc",
+        "browser-judge/32-ecf839da887b4951e136.json": "ecf839da887b4951e1364d6dc1fe2059cab2855ca96bed35d9eb58dbb57593e7",
+        "browser-judge/33-5508c730c6a256bd6529.json": "5508c730c6a256bd6529a40f6b427b1b31b64c8c8fc40ac3026ffa96a1ca8774",
+        "browser-judge/34-969d01763e7fedfa9ad5.json": "969d01763e7fedfa9ad578022af85d255d2cbbc38570319b9286ad197da2bdf1",
+        "browser-judge/35-6529bf6860f136c2b558.json": "6529bf6860f136c2b558c4f2b0629f7e58643f6eeea6e2451b8ef4fbd4672806",
+        "browser-judge/36-1e740954038a12be56f0.json": "1e740954038a12be56f0da23ddd2192a0936182fa7d1b0840445d78d0be7ea98",
+        "browser-judge/37-9eaffb694b10648e1c5a.json": "9eaffb694b10648e1c5a31c83ce405407f7915a0204b06850026044ca7f9eb0e",
+        "browser-judge/38-e8330e0387cdacaceea5.json": "e8330e0387cdacaceea55db8c77fa82d607b4b1404fac84d738ab5a113de037f",
+        "browser-judge/39-fb3dd8ee0a6b56593101.json": "fb3dd8ee0a6b565931016434f4c3bc0a9ea54f6675515a64a57b84a570f351a2",
+        "browser-judge/4-c5de5eef49ef098e5f69.json": "c5de5eef49ef098e5f69fca25b00924971875705f46e705c6c0315f75a805fba",
+        "browser-judge/40-b4d1e590cd288c996dd6.json": "b4d1e590cd288c996dd6f9953c64b057f0e56e70c65dbadf1b3c0af07d2e211f",
+        "browser-judge/41-ea2494537a34079d2833.json": "ea2494537a34079d283391da012df1b60137055b3d8b4dde2e17d9dc01fc1f7f",
+        "browser-judge/42-e6b83e312aa967da9e27.json": "e6b83e312aa967da9e2751e70258a1fecbbd6144927e420329f3ae3fde006ac8",
+        "browser-judge/43-18dc4a99dc5b01ec133b.json": "18dc4a99dc5b01ec133b167e68fe134b7bceb763b9cd2e54a59b248a23e10356",
+        "browser-judge/44-0b87daf89e22673ec882.json": "0b87daf89e22673ec88241311fb83b96ef5ed401236ea7cfc7f1c0376792256e",
+        "browser-judge/45-9ab53011475aaa32b353.json": "9ab53011475aaa32b353fd55503fa9f5179a13ead11ea5974af0b135123ed8d0",
+        "browser-judge/46-d7db3a1e2b4df3185f21.json": "d7db3a1e2b4df3185f2139866c2bf933b954e8b84898a9d004a19d7a07264bc1",
+        "browser-judge/47-654746e5bfd75cfb6d13.json": "654746e5bfd75cfb6d13bbdaee24c6ec86a16a65ced0f3a867c113823d9c7909",
+        "browser-judge/48-6ba9624fc92575aa0cfa.json": "6ba9624fc92575aa0cfa35e2d930b6861ad76fbff1c24694540a2fee3b4f201a",
+        "browser-judge/49-00701414d07526ea860c.json": "00701414d07526ea860c2f332e6a37e233800845074696eef388168d04a549e5",
+        "browser-judge/5-3c5496771d53d81eae8d.json": "3c5496771d53d81eae8d034b69ab0207b171c883a1afcd4b4e3ae9de22bdacdc",
+        "browser-judge/50-e791c62f846f55949beb.json": "e791c62f846f55949beb63fb551fdee7a5c249ef575c07e1fe05fbdaaa61e6b2",
+        "browser-judge/51-7c2c052e5cfc4380ca9e.json": "7c2c052e5cfc4380ca9edcf2eb1b41d51996945f01bcabc2820d2a5afcde1b7d",
+        "browser-judge/52-6db6f208fead6eb15ed7.json": "6db6f208fead6eb15ed70fd89044e20dbea1537691c51aa5bb2347b142c0636c",
+        "browser-judge/53-3a85ce75f4dc173f437c.json": "3a85ce75f4dc173f437cffa2cfa249fad45af574839ec76a367caf9fbd2ffb20",
+        "browser-judge/54-e61d785b2542676ab9bd.json": "e61d785b2542676ab9bdfe284322c90d85542a01f0864fedf27a281d3f3a1ce3",
+        "browser-judge/55-79d6b7b41d8e42b8216f.json": "79d6b7b41d8e42b8216fc48f126aff0ad5d6c5d8227b35ab3bd537e969749731",
+        "browser-judge/56-6f9c3247ba54fddd68c5.json": "6f9c3247ba54fddd68c5a8b209693d69b1dd6c0d0c17e49e885e1975bdf1d2cb",
+        "browser-judge/57-f41e34f884d9850cf985.json": "f41e34f884d9850cf9852ee356755df8102979ff51a36cb04f8b85f05431c19c",
+        "browser-judge/58-d7ef464102dd154896d4.json": "d7ef464102dd154896d4bfb1cc2afc9ce767d66c0d4ae1548b72a2857dd462a0",
+        "browser-judge/59-abe93ff65d3efce76c7a.json": "abe93ff65d3efce76c7a3b1c445584889ed764c221fcd5b99abe0c2bcd30b1ab",
+        "browser-judge/6-ba36acd8478a31a752a6.json": "ba36acd8478a31a752a64ba0095aa1426bec179e1b6d12b94f48042249865d3b",
+        "browser-judge/60-32cb2738f5a31158413f.json": "32cb2738f5a31158413fc7aa34dbb61d2797dde2fe4d53e977b75d48be1764d6",
+        "browser-judge/61-16e01782a6cfad2713bf.json": "16e01782a6cfad2713bf7642de49f1471e4b626f571123535320a0332fdf6ee8",
+        "browser-judge/62-3379ed9aa98f38763b8a.json": "3379ed9aa98f38763b8aa1fd7f2bc57824b0c0e564104aeae8b9400774d06ab6",
+        "browser-judge/63-23df13febfa90d8ca4d3.json": "23df13febfa90d8ca4d36cdda62b3e192fefa89893038bf94c9881c1bfbeffd3",
+        "browser-judge/64-2762cf1b4ebbbcb4c581.json": "2762cf1b4ebbbcb4c581a54efd0a4ea800872b82a8317972b8e9273c974141a5",
+        "browser-judge/65-4fb6e5480d923a80fa52.json": "4fb6e5480d923a80fa52e0340cd7d20e0b23e3ba9ebc5357d7ca57eb7813578c",
+        "browser-judge/66-7475f74691cd304ae872.json": "7475f74691cd304ae87230669016f952cdb78f0cf4722015d52a6fb4fa07b37c",
+        "browser-judge/67-976dfa3b6ef63cc4d3d9.json": "976dfa3b6ef63cc4d3d95926323301294d87315c91094f492b7d84b1d2563aed",
+        "browser-judge/68-eb79b18726a61035cfa9.json": "eb79b18726a61035cfa9ad2ba96f382e186fef032cfa240326baa8695932b36c",
+        "browser-judge/69-5ec74ad423a8a67ac666.json": "5ec74ad423a8a67ac666a5e49b11f16e9a13fc8f7c206b093dac05e932d7007e",
+        "browser-judge/7-6c0616f478e464ea78c5.json": "6c0616f478e464ea78c5ddb5cb684be64f8d688b756aeb622219561e679d3210",
+        "browser-judge/8-93a946b5327d9bc822db.json": "93a946b5327d9bc822db843d01e54754ca0841fc18bd5d2eb49d72a3005a4905",
+        "browser-judge/84-47b1138a1a54dd36c149.json": "47b1138a1a54dd36c149660e518e27cdf7c31734d02129be4363c59928479b83",
+        "browser-judge/85-6fc690f16cee7d5e13a6.json": "6fc690f16cee7d5e13a612a2a6af751de59e77e903a3784a42b7728060647ca4",
+        "browser-judge/86-11fc581cbef1b32d7ab5.json": "11fc581cbef1b32d7ab54e76067f08e89fd8033f63e802370f72e976e7511146",
+        "browser-judge/87-d1b8d0d2276d8f80e5d1.json": "d1b8d0d2276d8f80e5d1c3838739d67f50f490baa0ddeda9abbb3faaecebe594",
+        "browser-judge/88-bdfdb39ccb01d896d3d7.json": "bdfdb39ccb01d896d3d7b55a15e8dea4ff989bdc6f113d5af52aa0fd6b518812",
+        "browser-judge/89-64449876e7a7349ce9f0.json": "64449876e7a7349ce9f051f992b0cfa93c0c4c171125f40c66f91b88f7a9ba3c",
+        "browser-judge/9-e4e8ec423dd55580fd64.json": "e4e8ec423dd55580fd64adb68f8b3c93feb8bb330206fa057a3e3acd590e551c",
+        "browser-judge/90-ec6cd4e97cb6b7529e1a.json": "ec6cd4e97cb6b7529e1ad1e2ac61f9689576c6ae9cc90fde210325c772a8abf8",
+        "browser-judge/91-6c50cb3ea5206a30840c.json": "6c50cb3ea5206a30840ced740992af7bbd017daa20db4e61807bcdbd0d36802e",
+        "browser-judge/92-ef87175cec711c596a51.json": "ef87175cec711c596a51e5f5ec67f44e4be1f527ea965a9b151e5d4236723e73",
+        "browser-judge/runtime-03a26e42c2c9fe756fa3.json": "03a26e42c2c9fe756fa3d516bac1a13fb77e4d4c76d00e55b8d300006dafd723",
+        "browser-judge/runtime-b2ea822afc5ac1de9b3a.json": "b2ea822afc5ac1de9b3abbb77ffd37636366b48bd210731511213842229456af",
+        "catalog.json": "f3abdad5e47a4e4924091185ce42b82f555a49dbb33acc887188f25a71c89b9d",
+        "index-v3.json": "e653398191faf686dd65fce835de1eacdb15234ef0153b0770c0ba210db27358",
+        "index.json": "fec3bc54b6cd65a5d8a18c5f57440f81d587ba2e668315ad73b6f3ac697cb588",
+        "modules/1-b96cdc60b7012de809d8.json": "b96cdc60b7012de809d86e3b356c45e541c8660eb00d6beb7054af43fca7b556",
+        "modules/10-e205d7ffc35d051aeddf.json": "e205d7ffc35d051aeddfbeb7f90910c8d79d7a94bb2f133cd93d2ff57c0bf9a7",
+        "modules/11-ccfe420244738c90546e.json": "ccfe420244738c90546e831d289c8441f109fc1b5dad6a27ba569d964d014e6f",
+        "modules/12-a4084b08684fc77a16c2.json": "a4084b08684fc77a16c2cbab91c6b35a37cee0c634e715e06079ae886fab42a6",
+        "modules/13-d322b12e8ce9006ca2df.json": "d322b12e8ce9006ca2df9dfd286b1d0c913ab7e2ae8ae4724feb200f61f39a42",
+        "modules/14-f9a1772f2ef4d0bb7330.json": "f9a1772f2ef4d0bb7330cce1c854f9fa2109ae81dce4484cb153a6aa7ecfb708",
+        "modules/15-2754bca1b39937f5c97e.json": "2754bca1b39937f5c97e0dee3737d742ef44675877c18c24d68c172694dd8b59",
+        "modules/16-393a1c45ebae0173c5bd.json": "393a1c45ebae0173c5bdd39d0de977843d30f9aa09edbb207856c794aaf2d367",
+        "modules/17-c17ca9950586bd216e18.json": "c17ca9950586bd216e181b6258ebd172d539d11fe0d12bc8216b3cbc066a4760",
+        "modules/18-b4f03e371537365d1b72.json": "b4f03e371537365d1b7284bcb6bf0867cd07e83de20705730264f9fef496015c",
+        "modules/19-24aa7a72c83875bd6397.json": "24aa7a72c83875bd6397f9ec2de5d2a7d1d52930b15a3910081cbab539fa4df9",
+        "modules/2-cd8c7e5e44f75fed096c.json": "cd8c7e5e44f75fed096c3a05b09df3a5d7a5a25e4f7c2316506864bb596f1f28",
+        "modules/20-553d9f6cd5f5c205a2a2.json": "553d9f6cd5f5c205a2a230402b2a1db3f305e376c1b87d76dbfde7ed8bfe33a1",
+        "modules/21-964247440495f4f2efc4.json": "964247440495f4f2efc45c076580ec84eaeaeba51898accac4241a291fb29eeb",
+        "modules/22-59660240449c424c213f.json": "59660240449c424c213f7c94d725957de81ba18bf9756ef107a36b6d3c2777ee",
+        "modules/23-65a5282fb474936d9034.json": "65a5282fb474936d90349b99e5a0907a8d5aa1651307114428fd4ff0cc84d317",
+        "modules/24-92e5a6f3b8db04a80788.json": "92e5a6f3b8db04a80788de1f4783e88485be7036ccb2bc4fee49505ba6e9f746",
+        "modules/25-35e88c1a9fc0fffe31a6.json": "35e88c1a9fc0fffe31a6b5fa2e343915327a98a68205ae620987a9f6b713aa3f",
+        "modules/26-4f8f6566a9eb5f5e8de7.json": "4f8f6566a9eb5f5e8de76bc9701e188f44dd676294bbc9894a7eeed3af81e458",
+        "modules/27-5efaaf65410f660b3c1e.json": "5efaaf65410f660b3c1eb503d2d12d4fb4e19d7f7a231017744cb8fd7b3b4964",
+        "modules/28-46475484d77233db5dac.json": "46475484d77233db5dac3025d04d92c9cae62f4374357d8888c6d0116691ad10",
+        "modules/29-efda9f4938e6094a7f49.json": "efda9f4938e6094a7f4950ae7ac936c6450ecac703bd46cf89ead9150095677b",
+        "modules/3-9d1b1bdbf6cd33695015.json": "9d1b1bdbf6cd336950158b1a2593c8b4f4ee0afd2d5a25524c6e44dd7eb9a935",
+        "modules/30-3948417acc497ddeb1d5.json": "3948417acc497ddeb1d5c5a7b3d7e0e2814df4a73e029efc335fead53d87e6d7",
+        "modules/31-2d6f9b34f191873aa3ba.json": "2d6f9b34f191873aa3baabd4b106f2ac8f329ba82a1b96bdd9090e56e27f5e4b",
+        "modules/32-a631fa23cc433155dca8.json": "a631fa23cc433155dca88c2f3cb1c351ed26ff603e13f913895159be6fb87be6",
+        "modules/33-8a43b53f70d2241773ce.json": "8a43b53f70d2241773ce803204266d754784afe2b2566e131f0e625f68d5b2d6",
+        "modules/34-64b5c0be2e0099f28ce6.json": "64b5c0be2e0099f28ce6b8fa84e06ccf57af5c4edbf18cef3486c6f287b547ae",
+        "modules/35-436f8b6781ec6b4d5040.json": "436f8b6781ec6b4d5040304e4953c85e2b0f5ce9295035d9f51df5d1e905ce68",
+        "modules/36-e29fd06d772c53bf2e5e.json": "e29fd06d772c53bf2e5ee4487098e284d28e0d2d51e73c39ea29f1959c1fcfac",
+        "modules/37-3f3f7f155120a2d4495b.json": "3f3f7f155120a2d4495bf146875249e17b312bb7cd3a0078cbf4608301228ad5",
+        "modules/38-5d7ff069626ab02bd4bb.json": "5d7ff069626ab02bd4bb7474b094414526044fe74929b51cd335683f588866d8",
+        "modules/39-8cd2b717175824957b2b.json": "8cd2b717175824957b2b7c67aafeded0164c8797bb561205e52af4e95f5e127b",
+        "modules/4-2e27f0c923b65d7fb7d9.json": "2e27f0c923b65d7fb7d9eb72fad3b72f022b820e21f4b7507604e91172bc1237",
+        "modules/40-72ff79e440495606aff1.json": "72ff79e440495606aff18e227c36bb03e29c487ace4bc99562b69e98a00bc0cf",
+        "modules/41-aa4906e10cb98551162c.json": "aa4906e10cb98551162ccb64e8f6c65c90c622cf60061c12c15a50cbce0ff276",
+        "modules/42-4efaefafb4c315e069c5.json": "4efaefafb4c315e069c54a7c8146653be5fc51946cea6f61161f9e598b9ede5e",
+        "modules/43-eb8fa38472a36516561a.json": "eb8fa38472a36516561adc6b8558bbf24f8cc4b7c238f3bb4f0742ec34235920",
+        "modules/44-b1debaca4befed0a1120.json": "b1debaca4befed0a112046f3f73a82f258f3957f77d3b97f4b16edda2b25cacc",
+        "modules/45-da59a75603cd2d131da9.json": "da59a75603cd2d131da94e9ecd517800c19ed4fb54d9ec13764871b551b77ea5",
+        "modules/46-5bb851b518312a48c7f7.json": "5bb851b518312a48c7f7c39e88784801eb4a16454692b8fdd9a5d42032a44c77",
+        "modules/47-abfd486fda84c69bb436.json": "abfd486fda84c69bb4367068d8cff403a625d7f71250112fb09bd89518619a8d",
+        "modules/48-a4810dc8766cf9c94d9f.json": "a4810dc8766cf9c94d9f6ca79f9da1a20aa9b94ee2db75271ad8fcfeb1e82f29",
+        "modules/49-680d76edfca2d14d5563.json": "680d76edfca2d14d5563e049efd8529a08a2675a13512a1a4eae954385c69339",
+        "modules/5-b01135508c387bf9a59f.json": "b01135508c387bf9a59f6cacc53cd73b8c8f033b9d7aadd026c152dd3b9b1e64",
+        "modules/50-86c1e472c898c8eac928.json": "86c1e472c898c8eac928a39c2bfa6b9b374716e4b799c3a4c887ceed37ae23a5",
+        "modules/51-f5399bf9e0981bc977a4.json": "f5399bf9e0981bc977a4a8f13239d47316295a7f39b20988bebd1892ac5273c8",
+        "modules/52-8126f097cdd4e42ded32.json": "8126f097cdd4e42ded322154bd77c3fa389f060b6f5a1a03fefc2e60e08bc345",
+        "modules/53-c4e2516b01eb6a704a31.json": "c4e2516b01eb6a704a310a574b754c6870fb41ac8dc119ce13bf16fc164e2cd2",
+        "modules/54-7786d9f9e3c3eae10785.json": "7786d9f9e3c3eae1078537116bd2269ba740650231be2cd0168725d318c63b85",
+        "modules/55-4be2bd701cd72431ac4d.json": "4be2bd701cd72431ac4da653eea254c2f3752a0069cb265217fad62d7abf1b4c",
+        "modules/56-54d5c49dfdd0f402ae43.json": "54d5c49dfdd0f402ae43dfe4386344ab4fbed53924e9d8cf9669f60d18332ab9",
+        "modules/57-cc607a65c9eb29c7fdfd.json": "cc607a65c9eb29c7fdfd30c9920d76783d1937982d8d6a750f0205ad33e754f4",
+        "modules/58-7d9c6ec9fd278beb2651.json": "7d9c6ec9fd278beb265132129f9477fac9812bddde53874a02107565330b9cad",
+        "modules/59-bc299fb004f8927d6ce7.json": "bc299fb004f8927d6ce7a5d55344dfea8a13fd1635792ed8240e58bcf37cb81d",
+        "modules/6-2f81d0938a9fcd6c1d03.json": "2f81d0938a9fcd6c1d03bd1d6b57b3bf3224f0a5d472c7a14ad420f2c4fdae32",
+        "modules/60-a561bb5eb9bdffb15946.json": "a561bb5eb9bdffb1594622ec8625bff275429c759e58760f7601b2d7af6e4d52",
+        "modules/61-908017f4dd7ac71606fe.json": "908017f4dd7ac71606fe9b0868a2136f509913738919e24771d77ef385669b2c",
+        "modules/62-9303303e6ee675c4b542.json": "9303303e6ee675c4b5422427b248fe0b558d1a1f31c1c93d2752c5dc26829466",
+        "modules/63-49300c175d697159b467.json": "49300c175d697159b46795b2c0982e11a1b8b3db169f4ea0752a93418fee86bc",
+        "modules/64-ca99a02e3965e24d1159.json": "ca99a02e3965e24d115969e3d87f1778bbff0e5ea7c12279b108e0c5cb554d7a",
+        "modules/65-74a7124656a3e7ecb950.json": "74a7124656a3e7ecb95006059853fa6c549aaa1e3da6981d21857a9c270c3866",
+        "modules/66-d96356e933b7e0c7c8d6.json": "d96356e933b7e0c7c8d6ef9b70c229e71443823a2e36afb7607d8b843ad00d32",
+        "modules/67-44c4b3a6179bf7db03d2.json": "44c4b3a6179bf7db03d2f8a6cc3058310b55169f110b0c5a7ed2618b912a96aa",
+        "modules/68-15609a333f9b9ffa6b84.json": "15609a333f9b9ffa6b8407a10ee322c317e1b0910d3a1dbb033ea482d64bd58e",
+        "modules/69-e7a33b27c267204a139e.json": "e7a33b27c267204a139e8c17d553661a5b46c0455b188fac7cebac7b769d286b",
+        "modules/7-278911e470523a1203bb.json": "278911e470523a1203bbce325d6bbe4564a349560d82e14bfe2e5bbf24fb9fa7",
+        "modules/8-b5419d22b02d4b3a3370.json": "b5419d22b02d4b3a3370e3b7734c0d2821bc1c0b6f89d3bf801ebeabe05ecbd6",
+        "modules/84-ca3c2163ad411f6ec112.json": "ca3c2163ad411f6ec11224dbf879dba5b49384550b2135929e8c22750c4f909a",
+        "modules/85-f060f0cda93ee017034b.json": "f060f0cda93ee017034b43f317b9e18b93231535d779c80cd417ce1f9d9488cd",
+        "modules/86-66be04737a96938a3ab8.json": "66be04737a96938a3ab874464ae204bb0ce1bd8f68bf424cb4ff91969f100c47",
+        "modules/87-47cf55712725f301c835.json": "47cf55712725f301c83501c1fad2f7069f2eac308f35376308a20f3bc4d14a61",
+        "modules/88-6f07d422a8ab7369c545.json": "6f07d422a8ab7369c5455fb3c16fcac975af256d2bbe519c0573a2090040378c",
+        "modules/89-1d58a7a53d6b13a8608c.json": "1d58a7a53d6b13a8608c64701be86be9abb1590c10a52cb0a4027dadd5885f4b",
+        "modules/9-2dd0b5e38fb8a56d7a19.json": "2dd0b5e38fb8a56d7a19ea72233dc843554e4651a9ad48e7e99aa258acfb32c1",
+        "modules/90-8c406e8949b0c8bf2e3d.json": "8c406e8949b0c8bf2e3da37d04d84d7040af6327c766551f6d31da7776e01bc6",
+        "modules/91-a39d445292e30edfa0f1.json": "a39d445292e30edfa0f12cc7a49c4037d591266d4bf3928b078828402228af3e",
+        "modules/92-7680dfd4f292a79094dc.json": "7680dfd4f292a79094dc711b89747c2a216494b77a4a8b7b9096a9ea4e40ac59"
+      },
+      "scope": "Main UI/curriculum and parallel CI topology change;library and all active catalog bytes unchanged;new required infrastructure job is preserved"
+    },
+    "wasm": {
+      "schema_version": 1,
+      "scope": "catalog",
+      "catalog_modules": 78,
+      "modules": 78,
+      "concurrency": 2,
+      "passed": true,
+      "elapsed_ms": 537730,
+      "browser_budget_exceeded": []
+    },
+    "unchanged_per_module_inputs_counts_budgets": true
+  },
+  "live": {
+    "status": "success",
+    "commit": "90ac44ef330be4b2502dcdec1f2901843d137500",
+    "url": "https://paperleet.com/",
+    "modules": 78,
+    "starters_equal": true,
+    "manifests_equal": true,
+    "module_details_equal": true,
+    "immutable_assets_equal": 158,
+    "runtimes": [
+      {
+        "path": "browser-judge/runtime-03a26e42c2c9fe756fa3.json",
+        "bytes": 37343,
+        "sha256": "03a26e42c2c9fe756fa3d516bac1a13fb77e4d4c76d00e55b8d300006dafd723",
+        "package_python_modules": 3
+      },
+      {
+        "path": "browser-judge/runtime-b2ea822afc5ac1de9b3a.json",
+        "bytes": 467986,
+        "sha256": "b2ea822afc5ac1de9b3abbb77ffd37636366b48bd210731511213842229456af",
+        "package_python_modules": 38
+      }
+    ],
+    "license": "Apache-2.0 and NOTICE verified in both profiles",
+    "verified_sha256": {
+      "modules/1-b96cdc60b7012de809d8.json": "b96cdc60b7012de809d86e3b356c45e541c8660eb00d6beb7054af43fca7b556",
+      "browser-judge/1-fc8b727cc6967d518738.json": "fc8b727cc6967d518738d232d0a85dedd736fb9baab010ef01670074ebbd9cc4",
+      "modules/2-cd8c7e5e44f75fed096c.json": "cd8c7e5e44f75fed096c3a05b09df3a5d7a5a25e4f7c2316506864bb596f1f28",
+      "browser-judge/2-f58ff970b94591cf2338.json": "f58ff970b94591cf233817f6602923b96e693fe7f952d2c6b9c761da9d547a4b",
+      "modules/3-9d1b1bdbf6cd33695015.json": "9d1b1bdbf6cd336950158b1a2593c8b4f4ee0afd2d5a25524c6e44dd7eb9a935",
+      "browser-judge/3-5ee883454313fe340dc0.json": "5ee883454313fe340dc05cc50a7174261edf5cb2cb384b15a83dd4a841c51d0b",
+      "modules/4-2e27f0c923b65d7fb7d9.json": "2e27f0c923b65d7fb7d9eb72fad3b72f022b820e21f4b7507604e91172bc1237",
+      "browser-judge/4-c5de5eef49ef098e5f69.json": "c5de5eef49ef098e5f69fca25b00924971875705f46e705c6c0315f75a805fba",
+      "modules/5-b01135508c387bf9a59f.json": "b01135508c387bf9a59f6cacc53cd73b8c8f033b9d7aadd026c152dd3b9b1e64",
+      "browser-judge/5-3c5496771d53d81eae8d.json": "3c5496771d53d81eae8d034b69ab0207b171c883a1afcd4b4e3ae9de22bdacdc",
+      "modules/6-2f81d0938a9fcd6c1d03.json": "2f81d0938a9fcd6c1d03bd1d6b57b3bf3224f0a5d472c7a14ad420f2c4fdae32",
+      "browser-judge/6-ba36acd8478a31a752a6.json": "ba36acd8478a31a752a64ba0095aa1426bec179e1b6d12b94f48042249865d3b",
+      "modules/7-278911e470523a1203bb.json": "278911e470523a1203bbce325d6bbe4564a349560d82e14bfe2e5bbf24fb9fa7",
+      "browser-judge/7-6c0616f478e464ea78c5.json": "6c0616f478e464ea78c5ddb5cb684be64f8d688b756aeb622219561e679d3210",
+      "modules/8-b5419d22b02d4b3a3370.json": "b5419d22b02d4b3a3370e3b7734c0d2821bc1c0b6f89d3bf801ebeabe05ecbd6",
+      "browser-judge/8-93a946b5327d9bc822db.json": "93a946b5327d9bc822db843d01e54754ca0841fc18bd5d2eb49d72a3005a4905",
+      "modules/9-2dd0b5e38fb8a56d7a19.json": "2dd0b5e38fb8a56d7a19ea72233dc843554e4651a9ad48e7e99aa258acfb32c1",
+      "browser-judge/9-e4e8ec423dd55580fd64.json": "e4e8ec423dd55580fd64adb68f8b3c93feb8bb330206fa057a3e3acd590e551c",
+      "modules/10-e205d7ffc35d051aeddf.json": "e205d7ffc35d051aeddfbeb7f90910c8d79d7a94bb2f133cd93d2ff57c0bf9a7",
+      "browser-judge/10-eb0cccc7f92a8fe84c53.json": "eb0cccc7f92a8fe84c53d6193f1f506d66c2530c007a89cb23aac43cada1b7b6",
+      "modules/11-ccfe420244738c90546e.json": "ccfe420244738c90546e831d289c8441f109fc1b5dad6a27ba569d964d014e6f",
+      "browser-judge/11-368adf725b74dacd72bb.json": "368adf725b74dacd72bb1c91b5357bd32eb14a1c199b267be13175c33f9c7acf",
+      "modules/12-a4084b08684fc77a16c2.json": "a4084b08684fc77a16c2cbab91c6b35a37cee0c634e715e06079ae886fab42a6",
+      "browser-judge/12-7b9860f2b2d8d7cc3fc8.json": "7b9860f2b2d8d7cc3fc85e7466654d365b17dcc1d3a017a764760a40e28f3a00",
+      "modules/13-d322b12e8ce9006ca2df.json": "d322b12e8ce9006ca2df9dfd286b1d0c913ab7e2ae8ae4724feb200f61f39a42",
+      "browser-judge/13-178c89c772b4db08dae6.json": "178c89c772b4db08dae6277b164ef5382deedc7fba9c67a166690718e763b754",
+      "modules/14-f9a1772f2ef4d0bb7330.json": "f9a1772f2ef4d0bb7330cce1c854f9fa2109ae81dce4484cb153a6aa7ecfb708",
+      "browser-judge/14-ba2b187018ac4a42ac4a.json": "ba2b187018ac4a42ac4ad21594abce012f0028c2d208d125f9d3a6aa16c60e1b",
+      "modules/15-2754bca1b39937f5c97e.json": "2754bca1b39937f5c97e0dee3737d742ef44675877c18c24d68c172694dd8b59",
+      "browser-judge/15-728637e64563fea03fb0.json": "728637e64563fea03fb0216627ac8f3e5ee06d636e0d4c3825640af29c9f8600",
+      "modules/16-393a1c45ebae0173c5bd.json": "393a1c45ebae0173c5bdd39d0de977843d30f9aa09edbb207856c794aaf2d367",
+      "browser-judge/16-40651ef7f3df28e3e17a.json": "40651ef7f3df28e3e17ae21aac19fb0c5c3d6fc5c63207bc82ba7a4f7caa9cdd",
+      "modules/17-c17ca9950586bd216e18.json": "c17ca9950586bd216e181b6258ebd172d539d11fe0d12bc8216b3cbc066a4760",
+      "browser-judge/17-7d476a19150ebd9d70f3.json": "7d476a19150ebd9d70f338feab2699203aaf97175133d203d2924b03e4eac5b2",
+      "modules/18-b4f03e371537365d1b72.json": "b4f03e371537365d1b7284bcb6bf0867cd07e83de20705730264f9fef496015c",
+      "browser-judge/18-a44862d498c6b6167ada.json": "a44862d498c6b6167ada34f965ff3c36f36dfbb3cbccb3aa9cd177ed04e8718f",
+      "modules/19-24aa7a72c83875bd6397.json": "24aa7a72c83875bd6397f9ec2de5d2a7d1d52930b15a3910081cbab539fa4df9",
+      "browser-judge/19-a9f857bb5692a0050800.json": "a9f857bb5692a0050800a033de60e8f5f3ff83724411a8b4a200db566048e6aa",
+      "modules/20-553d9f6cd5f5c205a2a2.json": "553d9f6cd5f5c205a2a230402b2a1db3f305e376c1b87d76dbfde7ed8bfe33a1",
+      "browser-judge/20-dcc49d66a41f3ed91e7c.json": "dcc49d66a41f3ed91e7c10a43c198ff4abde525f5697c61f39515ec31d76998f",
+      "modules/21-964247440495f4f2efc4.json": "964247440495f4f2efc45c076580ec84eaeaeba51898accac4241a291fb29eeb",
+      "browser-judge/21-310fc7e253ecd351bba4.json": "310fc7e253ecd351bba49a2a0ac311d2fb547cddce9515840a68797027465b98",
+      "modules/22-59660240449c424c213f.json": "59660240449c424c213f7c94d725957de81ba18bf9756ef107a36b6d3c2777ee",
+      "browser-judge/22-ee4dbdfbcd949056a0f2.json": "ee4dbdfbcd949056a0f2acfd23b69c33861b196c3f5903eeed525d8ab4d54a02",
+      "modules/23-65a5282fb474936d9034.json": "65a5282fb474936d90349b99e5a0907a8d5aa1651307114428fd4ff0cc84d317",
+      "browser-judge/23-541edb917a6fe3899bf5.json": "541edb917a6fe3899bf5083a765a7541fdbc76c897849be656706d90765d9e92",
+      "modules/24-92e5a6f3b8db04a80788.json": "92e5a6f3b8db04a80788de1f4783e88485be7036ccb2bc4fee49505ba6e9f746",
+      "browser-judge/24-604d8184a63cd37c8ea9.json": "604d8184a63cd37c8ea9723d0dbd3a4fa6cf5b2e51311b302a299044a36e5f0b",
+      "modules/25-35e88c1a9fc0fffe31a6.json": "35e88c1a9fc0fffe31a6b5fa2e343915327a98a68205ae620987a9f6b713aa3f",
+      "browser-judge/25-0c19440fba86b49747da.json": "0c19440fba86b49747da2cdb6ce0b441ee104936530c52420bd7fca0a314c58f",
+      "modules/26-4f8f6566a9eb5f5e8de7.json": "4f8f6566a9eb5f5e8de76bc9701e188f44dd676294bbc9894a7eeed3af81e458",
+      "browser-judge/26-d58f83ccf4530b4e19d8.json": "d58f83ccf4530b4e19d82843e3311db6912415c71261e4fe923a35cd36b329a1",
+      "modules/27-5efaaf65410f660b3c1e.json": "5efaaf65410f660b3c1eb503d2d12d4fb4e19d7f7a231017744cb8fd7b3b4964",
+      "browser-judge/27-18f1f0c8a76467dd90e7.json": "18f1f0c8a76467dd90e7102b2391b6a8e614673e9e76d6777be36bc29e8c5ed1",
+      "modules/28-46475484d77233db5dac.json": "46475484d77233db5dac3025d04d92c9cae62f4374357d8888c6d0116691ad10",
+      "browser-judge/28-7cf8023f46bc06f1d830.json": "7cf8023f46bc06f1d8309661f4b0d618a1fc84b71ce53f9a0296830be6aa51f1",
+      "modules/29-efda9f4938e6094a7f49.json": "efda9f4938e6094a7f4950ae7ac936c6450ecac703bd46cf89ead9150095677b",
+      "browser-judge/29-bfc031ff9a4728ea9648.json": "bfc031ff9a4728ea96489eb9222a3d4846d0e1412ef87ea1d15ab6f0126d4e1e",
+      "modules/30-3948417acc497ddeb1d5.json": "3948417acc497ddeb1d5c5a7b3d7e0e2814df4a73e029efc335fead53d87e6d7",
+      "browser-judge/30-8e72f032a100f1a20150.json": "8e72f032a100f1a20150cc94eaa9083b4b540e3f26e8c77d8f6263d72c397022",
+      "modules/31-2d6f9b34f191873aa3ba.json": "2d6f9b34f191873aa3baabd4b106f2ac8f329ba82a1b96bdd9090e56e27f5e4b",
+      "browser-judge/31-4b47cf5aaaee2e0507d8.json": "4b47cf5aaaee2e0507d81f33b9ffa4fdc5b9ef3a0f89959d8ba0547e0c852acc",
+      "modules/32-a631fa23cc433155dca8.json": "a631fa23cc433155dca88c2f3cb1c351ed26ff603e13f913895159be6fb87be6",
+      "browser-judge/32-ecf839da887b4951e136.json": "ecf839da887b4951e1364d6dc1fe2059cab2855ca96bed35d9eb58dbb57593e7",
+      "modules/33-8a43b53f70d2241773ce.json": "8a43b53f70d2241773ce803204266d754784afe2b2566e131f0e625f68d5b2d6",
+      "browser-judge/33-5508c730c6a256bd6529.json": "5508c730c6a256bd6529a40f6b427b1b31b64c8c8fc40ac3026ffa96a1ca8774",
+      "modules/34-64b5c0be2e0099f28ce6.json": "64b5c0be2e0099f28ce6b8fa84e06ccf57af5c4edbf18cef3486c6f287b547ae",
+      "browser-judge/34-969d01763e7fedfa9ad5.json": "969d01763e7fedfa9ad578022af85d255d2cbbc38570319b9286ad197da2bdf1",
+      "modules/35-436f8b6781ec6b4d5040.json": "436f8b6781ec6b4d5040304e4953c85e2b0f5ce9295035d9f51df5d1e905ce68",
+      "browser-judge/35-6529bf6860f136c2b558.json": "6529bf6860f136c2b558c4f2b0629f7e58643f6eeea6e2451b8ef4fbd4672806",
+      "modules/36-e29fd06d772c53bf2e5e.json": "e29fd06d772c53bf2e5ee4487098e284d28e0d2d51e73c39ea29f1959c1fcfac",
+      "browser-judge/36-1e740954038a12be56f0.json": "1e740954038a12be56f0da23ddd2192a0936182fa7d1b0840445d78d0be7ea98",
+      "modules/37-3f3f7f155120a2d4495b.json": "3f3f7f155120a2d4495bf146875249e17b312bb7cd3a0078cbf4608301228ad5",
+      "browser-judge/37-9eaffb694b10648e1c5a.json": "9eaffb694b10648e1c5a31c83ce405407f7915a0204b06850026044ca7f9eb0e",
+      "modules/38-5d7ff069626ab02bd4bb.json": "5d7ff069626ab02bd4bb7474b094414526044fe74929b51cd335683f588866d8",
+      "browser-judge/38-e8330e0387cdacaceea5.json": "e8330e0387cdacaceea55db8c77fa82d607b4b1404fac84d738ab5a113de037f",
+      "modules/39-8cd2b717175824957b2b.json": "8cd2b717175824957b2b7c67aafeded0164c8797bb561205e52af4e95f5e127b",
+      "browser-judge/39-fb3dd8ee0a6b56593101.json": "fb3dd8ee0a6b565931016434f4c3bc0a9ea54f6675515a64a57b84a570f351a2",
+      "modules/40-72ff79e440495606aff1.json": "72ff79e440495606aff18e227c36bb03e29c487ace4bc99562b69e98a00bc0cf",
+      "browser-judge/40-b4d1e590cd288c996dd6.json": "b4d1e590cd288c996dd6f9953c64b057f0e56e70c65dbadf1b3c0af07d2e211f",
+      "modules/41-aa4906e10cb98551162c.json": "aa4906e10cb98551162ccb64e8f6c65c90c622cf60061c12c15a50cbce0ff276",
+      "browser-judge/41-ea2494537a34079d2833.json": "ea2494537a34079d283391da012df1b60137055b3d8b4dde2e17d9dc01fc1f7f",
+      "modules/42-4efaefafb4c315e069c5.json": "4efaefafb4c315e069c54a7c8146653be5fc51946cea6f61161f9e598b9ede5e",
+      "browser-judge/42-e6b83e312aa967da9e27.json": "e6b83e312aa967da9e2751e70258a1fecbbd6144927e420329f3ae3fde006ac8",
+      "modules/43-eb8fa38472a36516561a.json": "eb8fa38472a36516561adc6b8558bbf24f8cc4b7c238f3bb4f0742ec34235920",
+      "browser-judge/43-18dc4a99dc5b01ec133b.json": "18dc4a99dc5b01ec133b167e68fe134b7bceb763b9cd2e54a59b248a23e10356",
+      "modules/44-b1debaca4befed0a1120.json": "b1debaca4befed0a112046f3f73a82f258f3957f77d3b97f4b16edda2b25cacc",
+      "browser-judge/44-0b87daf89e22673ec882.json": "0b87daf89e22673ec88241311fb83b96ef5ed401236ea7cfc7f1c0376792256e",
+      "modules/45-da59a75603cd2d131da9.json": "da59a75603cd2d131da94e9ecd517800c19ed4fb54d9ec13764871b551b77ea5",
+      "browser-judge/45-9ab53011475aaa32b353.json": "9ab53011475aaa32b353fd55503fa9f5179a13ead11ea5974af0b135123ed8d0",
+      "modules/46-5bb851b518312a48c7f7.json": "5bb851b518312a48c7f7c39e88784801eb4a16454692b8fdd9a5d42032a44c77",
+      "browser-judge/46-d7db3a1e2b4df3185f21.json": "d7db3a1e2b4df3185f2139866c2bf933b954e8b84898a9d004a19d7a07264bc1",
+      "modules/47-abfd486fda84c69bb436.json": "abfd486fda84c69bb4367068d8cff403a625d7f71250112fb09bd89518619a8d",
+      "browser-judge/47-654746e5bfd75cfb6d13.json": "654746e5bfd75cfb6d13bbdaee24c6ec86a16a65ced0f3a867c113823d9c7909",
+      "modules/48-a4810dc8766cf9c94d9f.json": "a4810dc8766cf9c94d9f6ca79f9da1a20aa9b94ee2db75271ad8fcfeb1e82f29",
+      "browser-judge/48-6ba9624fc92575aa0cfa.json": "6ba9624fc92575aa0cfa35e2d930b6861ad76fbff1c24694540a2fee3b4f201a",
+      "modules/49-680d76edfca2d14d5563.json": "680d76edfca2d14d5563e049efd8529a08a2675a13512a1a4eae954385c69339",
+      "browser-judge/49-00701414d07526ea860c.json": "00701414d07526ea860c2f332e6a37e233800845074696eef388168d04a549e5",
+      "modules/50-86c1e472c898c8eac928.json": "86c1e472c898c8eac928a39c2bfa6b9b374716e4b799c3a4c887ceed37ae23a5",
+      "browser-judge/50-e791c62f846f55949beb.json": "e791c62f846f55949beb63fb551fdee7a5c249ef575c07e1fe05fbdaaa61e6b2",
+      "modules/51-f5399bf9e0981bc977a4.json": "f5399bf9e0981bc977a4a8f13239d47316295a7f39b20988bebd1892ac5273c8",
+      "browser-judge/51-7c2c052e5cfc4380ca9e.json": "7c2c052e5cfc4380ca9edcf2eb1b41d51996945f01bcabc2820d2a5afcde1b7d",
+      "modules/52-8126f097cdd4e42ded32.json": "8126f097cdd4e42ded322154bd77c3fa389f060b6f5a1a03fefc2e60e08bc345",
+      "browser-judge/52-6db6f208fead6eb15ed7.json": "6db6f208fead6eb15ed70fd89044e20dbea1537691c51aa5bb2347b142c0636c",
+      "modules/53-c4e2516b01eb6a704a31.json": "c4e2516b01eb6a704a310a574b754c6870fb41ac8dc119ce13bf16fc164e2cd2",
+      "browser-judge/53-3a85ce75f4dc173f437c.json": "3a85ce75f4dc173f437cffa2cfa249fad45af574839ec76a367caf9fbd2ffb20",
+      "modules/54-7786d9f9e3c3eae10785.json": "7786d9f9e3c3eae1078537116bd2269ba740650231be2cd0168725d318c63b85",
+      "browser-judge/54-e61d785b2542676ab9bd.json": "e61d785b2542676ab9bdfe284322c90d85542a01f0864fedf27a281d3f3a1ce3",
+      "modules/55-4be2bd701cd72431ac4d.json": "4be2bd701cd72431ac4da653eea254c2f3752a0069cb265217fad62d7abf1b4c",
+      "browser-judge/55-79d6b7b41d8e42b8216f.json": "79d6b7b41d8e42b8216fc48f126aff0ad5d6c5d8227b35ab3bd537e969749731",
+      "modules/56-54d5c49dfdd0f402ae43.json": "54d5c49dfdd0f402ae43dfe4386344ab4fbed53924e9d8cf9669f60d18332ab9",
+      "browser-judge/56-6f9c3247ba54fddd68c5.json": "6f9c3247ba54fddd68c5a8b209693d69b1dd6c0d0c17e49e885e1975bdf1d2cb",
+      "modules/57-cc607a65c9eb29c7fdfd.json": "cc607a65c9eb29c7fdfd30c9920d76783d1937982d8d6a750f0205ad33e754f4",
+      "browser-judge/57-f41e34f884d9850cf985.json": "f41e34f884d9850cf9852ee356755df8102979ff51a36cb04f8b85f05431c19c",
+      "modules/58-7d9c6ec9fd278beb2651.json": "7d9c6ec9fd278beb265132129f9477fac9812bddde53874a02107565330b9cad",
+      "browser-judge/58-d7ef464102dd154896d4.json": "d7ef464102dd154896d4bfb1cc2afc9ce767d66c0d4ae1548b72a2857dd462a0",
+      "modules/59-bc299fb004f8927d6ce7.json": "bc299fb004f8927d6ce7a5d55344dfea8a13fd1635792ed8240e58bcf37cb81d",
+      "browser-judge/59-abe93ff65d3efce76c7a.json": "abe93ff65d3efce76c7a3b1c445584889ed764c221fcd5b99abe0c2bcd30b1ab",
+      "modules/60-a561bb5eb9bdffb15946.json": "a561bb5eb9bdffb1594622ec8625bff275429c759e58760f7601b2d7af6e4d52",
+      "browser-judge/60-32cb2738f5a31158413f.json": "32cb2738f5a31158413fc7aa34dbb61d2797dde2fe4d53e977b75d48be1764d6",
+      "modules/61-908017f4dd7ac71606fe.json": "908017f4dd7ac71606fe9b0868a2136f509913738919e24771d77ef385669b2c",
+      "browser-judge/61-16e01782a6cfad2713bf.json": "16e01782a6cfad2713bf7642de49f1471e4b626f571123535320a0332fdf6ee8",
+      "modules/62-9303303e6ee675c4b542.json": "9303303e6ee675c4b5422427b248fe0b558d1a1f31c1c93d2752c5dc26829466",
+      "browser-judge/62-3379ed9aa98f38763b8a.json": "3379ed9aa98f38763b8aa1fd7f2bc57824b0c0e564104aeae8b9400774d06ab6",
+      "modules/63-49300c175d697159b467.json": "49300c175d697159b46795b2c0982e11a1b8b3db169f4ea0752a93418fee86bc",
+      "browser-judge/63-23df13febfa90d8ca4d3.json": "23df13febfa90d8ca4d36cdda62b3e192fefa89893038bf94c9881c1bfbeffd3",
+      "modules/64-ca99a02e3965e24d1159.json": "ca99a02e3965e24d115969e3d87f1778bbff0e5ea7c12279b108e0c5cb554d7a",
+      "browser-judge/64-2762cf1b4ebbbcb4c581.json": "2762cf1b4ebbbcb4c581a54efd0a4ea800872b82a8317972b8e9273c974141a5",
+      "modules/65-74a7124656a3e7ecb950.json": "74a7124656a3e7ecb95006059853fa6c549aaa1e3da6981d21857a9c270c3866",
+      "browser-judge/65-4fb6e5480d923a80fa52.json": "4fb6e5480d923a80fa52e0340cd7d20e0b23e3ba9ebc5357d7ca57eb7813578c",
+      "modules/66-d96356e933b7e0c7c8d6.json": "d96356e933b7e0c7c8d6ef9b70c229e71443823a2e36afb7607d8b843ad00d32",
+      "browser-judge/66-7475f74691cd304ae872.json": "7475f74691cd304ae87230669016f952cdb78f0cf4722015d52a6fb4fa07b37c",
+      "modules/67-44c4b3a6179bf7db03d2.json": "44c4b3a6179bf7db03d2f8a6cc3058310b55169f110b0c5a7ed2618b912a96aa",
+      "browser-judge/67-976dfa3b6ef63cc4d3d9.json": "976dfa3b6ef63cc4d3d95926323301294d87315c91094f492b7d84b1d2563aed",
+      "modules/68-15609a333f9b9ffa6b84.json": "15609a333f9b9ffa6b8407a10ee322c317e1b0910d3a1dbb033ea482d64bd58e",
+      "browser-judge/68-eb79b18726a61035cfa9.json": "eb79b18726a61035cfa9ad2ba96f382e186fef032cfa240326baa8695932b36c",
+      "modules/69-e7a33b27c267204a139e.json": "e7a33b27c267204a139e8c17d553661a5b46c0455b188fac7cebac7b769d286b",
+      "browser-judge/69-5ec74ad423a8a67ac666.json": "5ec74ad423a8a67ac666a5e49b11f16e9a13fc8f7c206b093dac05e932d7007e",
+      "modules/84-ca3c2163ad411f6ec112.json": "ca3c2163ad411f6ec11224dbf879dba5b49384550b2135929e8c22750c4f909a",
+      "browser-judge/84-47b1138a1a54dd36c149.json": "47b1138a1a54dd36c149660e518e27cdf7c31734d02129be4363c59928479b83",
+      "modules/85-f060f0cda93ee017034b.json": "f060f0cda93ee017034b43f317b9e18b93231535d779c80cd417ce1f9d9488cd",
+      "browser-judge/85-6fc690f16cee7d5e13a6.json": "6fc690f16cee7d5e13a612a2a6af751de59e77e903a3784a42b7728060647ca4",
+      "modules/86-66be04737a96938a3ab8.json": "66be04737a96938a3ab874464ae204bb0ce1bd8f68bf424cb4ff91969f100c47",
+      "browser-judge/86-11fc581cbef1b32d7ab5.json": "11fc581cbef1b32d7ab54e76067f08e89fd8033f63e802370f72e976e7511146",
+      "modules/87-47cf55712725f301c835.json": "47cf55712725f301c83501c1fad2f7069f2eac308f35376308a20f3bc4d14a61",
+      "browser-judge/87-d1b8d0d2276d8f80e5d1.json": "d1b8d0d2276d8f80e5d1c3838739d67f50f490baa0ddeda9abbb3faaecebe594",
+      "modules/88-6f07d422a8ab7369c545.json": "6f07d422a8ab7369c5455fb3c16fcac975af256d2bbe519c0573a2090040378c",
+      "browser-judge/88-bdfdb39ccb01d896d3d7.json": "bdfdb39ccb01d896d3d7b55a15e8dea4ff989bdc6f113d5af52aa0fd6b518812",
+      "modules/89-1d58a7a53d6b13a8608c.json": "1d58a7a53d6b13a8608c64701be86be9abb1590c10a52cb0a4027dadd5885f4b",
+      "browser-judge/89-64449876e7a7349ce9f0.json": "64449876e7a7349ce9f051f992b0cfa93c0c4c171125f40c66f91b88f7a9ba3c",
+      "modules/90-8c406e8949b0c8bf2e3d.json": "8c406e8949b0c8bf2e3da37d04d84d7040af6327c766551f6d31da7776e01bc6",
+      "browser-judge/90-ec6cd4e97cb6b7529e1a.json": "ec6cd4e97cb6b7529e1ad1e2ac61f9689576c6ae9cc90fde210325c772a8abf8",
+      "modules/91-a39d445292e30edfa0f1.json": "a39d445292e30edfa0f12cc7a49c4037d591266d4bf3928b078828402228af3e",
+      "browser-judge/91-6c50cb3ea5206a30840c.json": "6c50cb3ea5206a30840ced740992af7bbd017daa20db4e61807bcdbd0d36802e",
+      "modules/92-7680dfd4f292a79094dc.json": "7680dfd4f292a79094dc711b89747c2a216494b77a4a8b7b9096a9ea4e40ac59",
+      "browser-judge/92-ef87175cec711c596a51.json": "ef87175cec711c596a51e5f5ec67f44e4be1f527ea965a9b151e5d4236723e73",
+      "browser-judge/runtime-03a26e42c2c9fe756fa3.json": "03a26e42c2c9fe756fa3d516bac1a13fb77e4d4c76d00e55b8d300006dafd723",
+      "browser-judge/runtime-b2ea822afc5ac1de9b3a.json": "b2ea822afc5ac1de9b3abbb77ffd37636366b48bd210731511213842229456af"
+    },
+    "index_comparison": "Compressed starters decoded before comparison; runtime and module/manifest payloads compared byte-for-byte."
+  },
+  "scope": "Original25 exact-main Quality passes;its Pages trigger is superseded. Runtime-identical descendant90ac passes four required jobs,eligible Pages build/deploy and frozen live verification. Independent runner durations are not controlled speedup measurements.",
+  "archive": {
+    "file": "iteration-25-remote-adoption-harness.tar.gz",
+    "files": 13,
+    "bytes": 165164,
+    "sha256": "430f6629d188c1e74d15b7cf094e1da84f3db749f99991d351c3e5366ad007b0"
+  }
+}

@@ -261,6 +261,8 @@ def jvp(func, primals, tangents, *, strict=False, has_aux=False):
             return output, _tensor.Tensor(np.zeros_like(output._data))
         if isinstance(output, (tuple, list)) and output:
             pairs = [unpack(v) for v in output]
+            if isinstance(output,tuple) and hasattr(output,'_fields'):
+                return type(output)(*(v[0] for v in pairs)), type(output)(*(v[1] for v in pairs))
             return type(output)(v[0] for v in pairs), type(output)(v[1] for v in pairs)
         if isinstance(output, dict) and output:
             pairs = {key: unpack(v) for key, v in output.items()}

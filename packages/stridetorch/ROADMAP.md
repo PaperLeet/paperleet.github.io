@@ -333,7 +333,22 @@ The maintained exported-VM harness now discovers all independent NumPy-only
 suites (25 / 806), excluding only host launcher/install tests. All 6,756 published
 immutable assets stay unchanged; 158 reachable new assets are frozen. Latest
 upstream's 34 UI/curriculum files remain exact; frontend and actual hosted Pages
-profile builds pass. Main revalidation/adoption and remote deployment gates remain.
+profile builds pass. Main `22a0f289` passes exact Quality; runtime-identical
+`90ac44ef` passes all four required jobs and actual Pages run38900518818. Live
+starters/manifests/details, 158 immutable payloads, runtime25 and notices match.
+
+## Version 0.26 candidate
+
+Functional gather, strict indexing/sorting schemas, half scatter-add opmath and
+gather/sort/topk JVP cover the next core gaps. Metadata/selected-index pullbacks
+match native version guards, avoid unnecessary intermediate value retention,
+and retain named JVP results. Cached result types, partial topk and validated
+direct indexing improve measured CPU/WASM work. Four balanced phases retain all
+64 children, including the initial gather regressions and remaining CPU float32
+reverse-gather cost. Final infrastructure passes 26,803; Node/Chrome each821;
+minimum NumPy-only wheel833 and both wheel ownership/uninstall gates pass.
+Catalog/export, latest upstream integration, full exported WASM, main and actual
+deployment remain separate gates.
 
 ## Next implementation areas
 
@@ -344,7 +359,10 @@ profile builds pass. Main revalidation/adoption and remote deployment gates rema
    numerical and performance evidence justify them; keep state compatibility and
    unknown-option errors explicit. Profile small-parameter update overhead.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
-   remaining retention corner cases, graph-node callbacks and forward-mode gaps. Add APIs
+   remaining retention corner cases, graph-node callbacks and forward-mode gaps.
+   In particular, first leaf gradient allocation currently makes a C-order copy;
+   native dense strided leaf gradients preserve their layout. Audit engine layout
+   and seed/gradient ownership before changing this broader behavior. Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
 4. Neural-network coverage: expand instance normalization, attention options,
    transpose convolution and pooling, with masked/empty/non-contiguous

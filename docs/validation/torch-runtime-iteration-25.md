@@ -114,6 +114,24 @@ catalog/server, with paths disjoint from the standalone wheel.
 and its [202-file archive](../../packages/stridetorch/benchmarks/results/iteration-25-integration-gates-harness.tar.gz)
 retain reports, harnesses, frozen export bytes and distribution artifacts.
 
-Main revalidation/non-force adoption, exact remote Quality and actual eligible
-Pages/live verification remain release gates. No 0.25 deployment or public
-package publication is claimed here.
+## Main and actual site adoption
+
+Non-force main adoption at `22a0f289` passes exact Quality run 38896970644:
+26,466 infrastructure tests (one optional skip, 26 warnings, 401.77s), original
+native catalog in 299.51s, and all 78 WASM modules in 983,423ms without budget
+excess. Its own Pages trigger is superseded by later main work.
+
+Runtime-identical descendant `90ac44ef` preserves all 44 core/license and 161
+frozen export hashes. It additionally preserves upstream parallel quality
+checks, including the required infrastructure job. Quality run 38899157716
+passes all four required jobs; its complete two-process WASM run passes in
+537,730ms without budget excess, with identical per-module inputs/counts/budgets.
+These runner durations are not controlled speedup comparisons.
+
+Eligible Pages run 38900518818 completes the actual build and deploy jobs.
+Subsequent live verification matches all 78 decoded starters and active manifest
+references, all 158 immutable payload bytes and both 0.25 runtime versions and
+Apache notices. [Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-25-remote-adoption.json)
+and the [actual receipt archive](../../packages/stridetorch/benchmarks/results/iteration-25-remote-adoption-harness.tar.gz)
+preserve job steps, equivalence, reports and live byte checks. Independent public
+package publication remains separate work.

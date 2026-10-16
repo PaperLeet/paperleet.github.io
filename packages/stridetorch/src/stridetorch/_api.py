@@ -132,9 +132,7 @@ def create_torch(name='torch', *, register=False):
         'minimum': _ops.elementwise_extreme,
         'maximum': lambda input,other: _ops.elementwise_extreme(input,other,maximum=True),
         'meshgrid': _ops.meshgrid, 'cartesian_prod': _ops.cartesian_prod,
-        'sort': lambda input,dim=-1,descending=False,*,stable=False,out=None: input.sort(dim,descending,stable=stable,out=out),
         'trapezoid': _ops.trapezoid,
-        'topk': lambda input,k,dim=None,largest=True,sorted=True,*,out=None: input.topk(k,dim,largest,sorted,out=out),
         'scatter': lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce),
         'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
     }, reverse='analytic')
@@ -159,7 +157,6 @@ def create_torch(name='torch', *, register=False):
     })  # Reverse AD is unavailable; plain values remain supported.
     registry.group('torch', {
         'equal': lambda input,other: bool(np.array_equal(_ops.wrap(input)._data,_ops.wrap(other)._data)),
-        'argsort': lambda input,dim=-1,descending=False,*,stable=False: input.argsort(dim,descending,stable=stable),
         'count_nonzero': _ops.count_nonzero,
         'multinomial': _random.multinomial,
         'unravel_index': lambda index,shape: tuple(_tensor.Tensor(i) for i in np.unravel_index(int(index),shape)),
@@ -178,7 +175,7 @@ def create_torch(name='torch', *, register=False):
     methods = {
         **dict.fromkeys(('var','std'), ('analytic',True,('out',))),
         **dict.fromkeys(('sum','exp','log','sqrt','abs','sin','cos','tanh','rsqrt','sigmoid'), ('analytic',True,('out',))),
-        **dict.fromkeys(('mean','nansum','nanmean'), ('analytic',True,('out',))),
+        **dict.fromkeys(('mean','nansum','nanmean','gather','sort','topk'), ('analytic',True,('out',))),
         **dict.fromkeys(('relu','softmax','log_softmax','reshape'), ('analytic',True,())),
         **dict.fromkeys(('clamp','clamp_min','clamp_max','acos','cumsum','cumprod','norm','logsumexp','diag','triu','tril','amax','prod','round'), ('analytic',False,('out',))),
         **dict.fromkeys(('repeat_interleave','flip','roll','chunk','erfinv'), ('analytic',False,())),
@@ -187,6 +184,7 @@ def create_torch(name='torch', *, register=False):
     }
     for name, (reverse, forward, keywords) in methods.items():
         registry.method(name, reverse=reverse, forward=forward, unsupported_keywords=keywords)
+    registry.method('argsort',reverse='nondifferentiable',forward=True)
     registry.group('torch', {'flatten':_ops.flatten,'transpose':_ops.transpose,'unsqueeze':_ops.unsqueeze,'squeeze':_ops.squeeze}, reverse='analytic', forward=True)
     registry.add('torch.permute', _ops.permute, reverse='analytic', forward=True)
     registry.add('torch.broadcast_to', _ops.broadcast_to, reverse='analytic', forward=True)

@@ -932,43 +932,16 @@ class Tensor:
         value = np.argmin(self._data, axis=dim)
         if keepdim and self.ndim: value = np.reshape(value, (1,) * self.ndim) if dim is None else np.expand_dims(value, dim)
         return Tensor(value, dtype=np.int64)
-    def argsort(self, dim=-1, descending=False, *, stable=False):
-        if self.dtype.kind not in 'fiub': raise _errors.BrowserUnsupported('Sorting this dtype requires the server')
-        if not isinstance(dim, (int, np.integer)) or not -max(self.ndim, 1) <= dim < max(self.ndim, 1):
-            raise IndexError('argsort dimension out of range')
-        if not isinstance(descending, bool) or not isinstance(stable, bool): raise TypeError('argsort flags must be boolean')
-        if not self.ndim: return Tensor(0, dtype=np.int64)
-        kind = 'stable' if stable else 'quicksort'
-        if descending:
-            # Reverse the input too: preserve equal-key order without negating
-            # unsigned values or overflowing the smallest signed integer.
-            indices = self.shape[dim] - 1 - np.flip(np.argsort(np.flip(self._data, axis=dim), axis=dim, kind=kind), axis=dim)
-        else:
-            indices = np.argsort(self._data, axis=dim, kind=kind)
-        return Tensor(indices, dtype=np.int64)
-    def sort(self, dim=-1, descending=False, *, stable=False, out=None):
-        if out is not None: raise _errors.BrowserUnsupported('Sort output buffers require the server')
-        indices = self.argsort(dim, descending, stable=stable)
-        pair = namedtuple('Sort', ['values', 'indices'])
-        return pair(self.gather(dim, indices) if self.ndim else self.clone(), indices)
-    def topk(self, k, dim=None, largest=True, sorted=True, *, out=None):
-        if out is not None: raise _errors.BrowserUnsupported('topk output buffers require the server')
-        if not isinstance(k, (int, np.integer)) or isinstance(k, (bool, np.bool_)): raise TypeError('topk k must be an integer')
-        if not isinstance(largest, bool) or not isinstance(sorted, bool): raise TypeError('topk flags must be boolean')
-        dim = -1 if dim is None else dim
-        if not isinstance(dim, (int, np.integer)) or not -max(self.ndim, 1) <= dim < max(self.ndim, 1):
-            raise IndexError('topk dimension out of range')
-        if self.dtype.kind not in 'fiu': raise _errors.BrowserUnsupported('topk for this dtype requires the server')
-        size = self.shape[dim] if self.ndim else 1
-        if not 0 <= k <= size: raise RuntimeError('topk selected index k out of range')
-        pair = namedtuple('TopK', ['values', 'indices'])
-        if not self.ndim: return pair(self.clone(), Tensor(0, dtype=np.int64))
-        # Sorted output is also valid when sorted=False. Tie identities are not
-        # guaranteed by PyTorch; VJPs always follow the indices actually returned.
-        ordered = self.argsort(dim, descending=largest, stable=True)
-        slices = [slice(None)] * self.ndim; slices[dim] = slice(0, k)
-        indices = ordered[tuple(slices)]
-        return pair(self.gather(dim, indices), indices)
+    def argsort(self, *args, dim=_layout.UNSPECIFIED_DIM, descending=_layout.UNSPECIFIED_DIM,
+                stable=_layout.UNSPECIFIED_DIM):
+        dim,descending,stable=_indexing.sort_arguments(args,dim,descending,stable)
+        return _indexing.argsort(self,dim,descending,stable=stable)
+    def sort(self, *args, dim=_layout.UNSPECIFIED_DIM, descending=_layout.UNSPECIFIED_DIM,
+             stable=_layout.UNSPECIFIED_DIM, out=None):
+        dim,descending,stable=_indexing.sort_arguments(args,dim,descending,stable)
+        return _indexing.sort(self,dim,descending,stable=stable,out=out)
+    def topk(self, k, dim=-1, largest=True, sorted=True, *, out=None):
+        return _indexing.topk(self,k,dim,largest,sorted,out=out)
     def scatter(self, dim, index, src, *, reduce=None):
         if reduce is not None: raise _errors.BrowserUnsupported('Scatter reductions require the server')
         if not self.ndim: raise _errors.BrowserUnsupported('Scalar scatter requires the server')
@@ -1102,20 +1075,8 @@ class Tensor:
         shifted = x._data - x._data.max(axis=dim, keepdims=True)
         value = shifted - np.log(np.exp(shifted).sum(axis=dim, keepdims=True))
         return _autograd.result(value, (x, lambda g: g - np.exp(value) * g.sum(axis=dim, keepdims=True)))
-    def gather(self, dim, index):
-        original_data = self._data
-        dim %= original_data.ndim
-        saved_index = _ops.wrap(index)
-        index = saved_index._data
-        if index.ndim != original_data.ndim or index.dtype.kind not in 'iu': raise ValueError('gather needs integer indices of the same rank')
-        if np.any(index < 0) or np.any(index >= original_data.shape[dim]): raise IndexError('gather index out of bounds')
-        if any(index.shape[d] > original_data.shape[d] for d in range(original_data.ndim) if d != dim): raise ValueError('gather dimensions do not match')
-        slices = tuple(slice(None) if d == dim else slice(0, index.shape[d]) for d in range(original_data.ndim))
-        def vjp(g):
-            coordinates = list(np.indices(index.shape)); coordinates[dim] = index
-            grad = np.zeros_like(original_data); np.add.at(grad, tuple(coordinates), g)
-            return grad
-        return _autograd.result(np.take_along_axis(original_data[slices], index, axis=dim), (self, vjp), saved=(saved_index,))
+    def gather(self, dim, index, *, sparse_grad=False):
+        return _indexing.gather(self,dim,index,sparse_grad=sparse_grad)
     def var(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
             keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
         return _statistics.reduce(self, *args, dim=dim, unbiased=unbiased,
@@ -1151,4 +1112,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks
+from . import _arithmetic, _autograd, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing

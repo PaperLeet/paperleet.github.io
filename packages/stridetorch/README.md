@@ -63,6 +63,27 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## Indexing and value selection
+
+`torch.gather` and `Tensor.gather` support dense analytic gradients, float32/64
+JVP and reverse differentiation of the tangent. Repeated half gradients
+accumulate in float32 before rounding. Int32/int64 indices, scalar and strided
+inputs and native empty-index behavior are covered. Sparse gradients and output
+buffers remain unsupported; a sparse flag is accepted for an unrecorded forward.
+
+`sort/topk` return cached namedtuple types with `values` and `indices`. Their
+pullbacks retain selected indices and shape/dtype metadata, permit input/output
+mutation, and guard index mutation. Gather retains the native input/index guards.
+Neither rule retains intermediate input values solely for its derivative.
+JVP preserves named outputs, including integer zero tangents for indices.
+
+Small-K selection uses partitioning for sufficiently wide axes; other cases
+retain full sorting. Narrow index outputs own compact storage instead of keeping
+an entire permutation alive. Top-K tie identities are unspecified, as in native
+Torch; derivatives follow the indices returned. Stable sorting preserves original
+equal-key order. Supplying `stable` selects the native keyword-dimension overload;
+explicit `dim=None`, bool dimensions and invalid flags are rejected.
+
 ## NaN-aware reductions
 
 `Tensor.nansum/nanmean` and `torch.nansum/nanmean` support real inputs,

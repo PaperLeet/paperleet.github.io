@@ -21,7 +21,7 @@ const implementation = values.implementation ?? (values.benchmark === 'convoluti
 if (!Number.isInteger(repeat) || !Number.isInteger(iterations) || Math.min(repeat,iterations) < 1) {
   throw new Error('repeat and iterations must be positive integers');
 }
-if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm','groupnorm','classification','convolution','layout','shape_ops','statistics','dispatch','mean','nan_reductions'].includes(values.benchmark)) throw new Error('Unknown benchmark');
+if (!['runtime','schedulers','nn','module_hooks','tensor_hooks','tensor_factories','arithmetic','selection','batchnorm','groupnorm','classification','convolution','layout','shape_ops','statistics','dispatch','mean','nan_reductions','indexing'].includes(values.benchmark)) throw new Error('Unknown benchmark');
 if (values.benchmark === 'nan_reductions') {
   if (!['direct','composite'].includes(values.implementation ?? 'direct')) throw new Error('NaN reductions use direct/composite');
 } else if (values.benchmark === 'convolution') {
