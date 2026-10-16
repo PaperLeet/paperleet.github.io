@@ -123,7 +123,7 @@ new assets are reachable. The autograd runtime is
 bytes, +19310raw /4339gzip versus0.18 under identical gzip settings. No cold-start
 or peak-memory result is inferred.
 
-[Complete evidence](../../packages/paperleet-torch/benchmarks/results/iteration-19.json)
+[Complete evidence](../../packages/stridetorch/benchmarks/results/iteration-19.json)
 retains all gates, probes, raw prototype versus production measurements and
 failures. `iteration-19-harness.tar.gz` archives387 runner/source/test/log files.
 The original timing parent handle became unavailable across a context transition;

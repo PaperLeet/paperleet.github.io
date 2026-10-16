@@ -103,8 +103,8 @@ Parameter-walk timings are very small and sensitive to browser timer granularity
 no throughput improvement is claimed from them.
 
 Raw samples, benchmark identity, source hashes, wheel hash and gate summaries are
-in [iteration-3.json](../../packages/paperleet-torch/benchmarks/results/iteration-3.json).
-Use the existing [benchmark tools](../../packages/paperleet-torch/benchmarks/README.md)
+in [iteration-3.json](../../packages/stridetorch/benchmarks/results/iteration-3.json).
+Use the existing [benchmark tools](../../packages/stridetorch/benchmarks/README.md)
 with `--case model_construct`, `--case model_training_step` and
 `--case model_parameter_walk` to reproduce the added workloads. Complete logs,
 frozen sources, Chrome Workers and the sequential runner are retained locally in
@@ -112,5 +112,5 @@ frozen sources, Chrome Workers and the sequential runner are retained locally in
 
 Optimizer parameter groups/state/resume, model conversion, additional tensor and
 neural-network APIs, allocation profiling and a resident WebGPU execution chain
-remain in the [roadmap](../../packages/paperleet-torch/ROADMAP.md). This is a main
+remain in the [roadmap](../../packages/stridetorch/ROADMAP.md). This is a main
 integration milestone; the independent-library objective remains active.

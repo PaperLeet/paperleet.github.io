@@ -14,12 +14,12 @@ paperleet = "paperleet.cli:main"
 leetpaper = "paperleet.cli:main"
 
 [tool.setuptools]
-# The standalone distribution owns paperleet_torch. Bundle the same source under
+# The standalone distribution owns stridetorch. Bundle the same source under
 # a private name so installing/uninstalling either wheel cannot remove the other.
 packages = ["paperleet", "paperleet.browser", "paperleet.common", "paperleet.judge", "paperleet.submissions", "paperleet._vendor", "paperleet._vendor.torch"]
 
 [tool.setuptools.package-dir]
-"paperleet._vendor.torch" = "packages/paperleet-torch/src/paperleet_torch"
+"paperleet._vendor.torch" = "packages/stridetorch/src/stridetorch"
 
 [tool.setuptools.package-data]
 paperleet = ["interview_catalog.json"]

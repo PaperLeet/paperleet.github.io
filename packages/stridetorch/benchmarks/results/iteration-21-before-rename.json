@@ -1,0 +1,4457 @@
+{
+  "status": "all local refined0.21 gates passed beforeindependentname migration;not published",
+  "version": "0.21.0",
+  "source_commit": "f63e1521ac88865df0eb34261258e270164adf71",
+  "full_infrastructure": {
+    "handle": 51811,
+    "exit_code": 0,
+    "passed": 22667,
+    "skipped": 1,
+    "warnings": 17,
+    "elapsed_s": 226.29
+  },
+  "real_wasm": {
+    "schema_version": 1,
+    "scope": "catalog",
+    "catalog_modules": 78,
+    "modules": 78,
+    "passed": true,
+    "elapsed_ms": 479168,
+    "browser_budget_exceeded": [],
+    "results": [
+      {
+        "id": "rl/gae",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/1-b106100f18a7a7d01e4f.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "25a50f326a8b84c45cf7cd573751fcfb75517e4cacc215961dee50b5fa07659f",
+        "preparation_ms": 1456,
+        "calibration_ms": 1019,
+        "learner_ms": 81,
+        "elapsed_ms": 2731,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/ppo_clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/2-83e9ae2afdb5d025bf06.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "05edc7a05d1d250605c901d8b4f1004bef322e7f3debc45db2aaed30a893126d",
+        "preparation_ms": 1442,
+        "calibration_ms": 4202,
+        "learner_ms": 688,
+        "elapsed_ms": 6506,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/3-64927522b5f31abb6acc.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "c6b756183d137737326ab5d6da8ec120d5d03e8f3233b4ddfcfb00b78481ce95",
+        "preparation_ms": 1441,
+        "calibration_ms": 2744,
+        "learner_ms": 435,
+        "elapsed_ms": 4764,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/4-9342cd33d45b9034c383.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "a2d1d6c1a62321a6442416baffbfc2814fd0debfc5a83dd64ad317147f5b35fb",
+        "preparation_ms": 1426,
+        "calibration_ms": 1536,
+        "learner_ms": 221,
+        "elapsed_ms": 3339,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dr_grpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/5-dd5c48181413f0f88dc0.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "efbac2a496e6b6ef52170924e86551a0c6d44d495deb275bb91a27004c585ff4",
+        "preparation_ms": 1429,
+        "calibration_ms": 1288,
+        "learner_ms": 280,
+        "elapsed_ms": 3119,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/schedules",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/6-4471715706cccd34546d.json",
+        "runtime_bundle_url": "browser-judge/runtime-d536a2ac4c9e23bb881c.json",
+        "source_sha256": "0e7719dee009fa8c227b75c3ee140508abb71a188650faa925a74eb11d9b657d",
+        "preparation_ms": 1359,
+        "calibration_ms": 394,
+        "learner_ms": 33,
+        "elapsed_ms": 1813,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/param_conversion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/7-9ebcdaf675af26c9b25c.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "c9f3adca4a7b60f868bcc0dfdb2ab53fd500a1826f07a7f677ffa7c2b1a3c20b",
+        "preparation_ms": 1431,
+        "calibration_ms": 278,
+        "learner_ms": 25,
+        "elapsed_ms": 1867,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddpm_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/8-f7353dea9d5d065434d6.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "8f47d91ee3300666af2b1aec983c6675a2a44e43a4c58cd794d8b4a7b757b5b4",
+        "preparation_ms": 1468,
+        "calibration_ms": 27483,
+        "learner_ms": 4688,
+        "elapsed_ms": 33879,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/ddim",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 5,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/9-67bd2b3bab1cd5803173.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "2b10ec799adee4a542dd175dddb73c81453a8d15b809132de8d2204498d7609d",
+        "preparation_ms": 2090,
+        "calibration_ms": 19369,
+        "learner_ms": 3523,
+        "elapsed_ms": 25193,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/flow_matching",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [
+          "pyyaml"
+        ],
+        "bundle_url": "browser-judge/10-afb88363ecce80b39590.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+        "preparation_ms": 2194,
+        "calibration_ms": 159222,
+        "learner_ms": 26000,
+        "elapsed_ms": 187611,
+        "budgets": {
+          "calibration": 240000,
+          "run": 60000,
+          "total": 300000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/gspo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/11-fa4f0de61f61e5e49613.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "f0d270baf3b9bee29979dbe96d7657032a7ca49b08553e9fcf636b9fb8c413f7",
+        "preparation_ms": 1998,
+        "calibration_ms": 334,
+        "learner_ms": 29,
+        "elapsed_ms": 2535,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/opd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/12-c87777b3812a07d5296a.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "eb48ffc65a5be9153ff2c22a2bd21b8c3ab3a7ae790be0d17ba06508a189e7b3",
+        "preparation_ms": 2053,
+        "calibration_ms": 1089,
+        "learner_ms": 178,
+        "elapsed_ms": 3505,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/dapo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/13-d854951c88d5e71023b0.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "38d642f4d588c80abac04e7a28896abea78d35530a636f75b553f07abbe08eb5",
+        "preparation_ms": 2113,
+        "calibration_ms": 420,
+        "learner_ms": 47,
+        "elapsed_ms": 2780,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/lora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/14-947ab349d72d37944805.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "ed4b0a5f2b2cd6813b9f206688c62529299a098faa7fa59e3ecee87d242ae8de",
+        "preparation_ms": 2223,
+        "calibration_ms": 950,
+        "learner_ms": 113,
+        "elapsed_ms": 3458,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/qlora",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/15-f8d9b28d3b30e95c33f7.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "2ff6164eb6a1094a6f31615817f3925b95276a3c68a795eec28e8b088d58e0f0",
+        "preparation_ms": 2001,
+        "calibration_ms": 746,
+        "learner_ms": 110,
+        "elapsed_ms": 3016,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/meanflow",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/16-4e4a7d2549178076141a.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "52fde345843c7e239be748b635bb4b37923ba3a9319405b3bbd7c33f6469e64a",
+        "preparation_ms": 1972,
+        "calibration_ms": 658,
+        "learner_ms": 100,
+        "elapsed_ms": 2847,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/jit",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/17-a688cf44e01a8a53a136.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "6f349eb38ac66686b935a7524c2179ef62833a1a62878e63fa2405d28436e94b",
+        "preparation_ms": 1792,
+        "calibration_ms": 1892,
+        "learner_ms": 386,
+        "elapsed_ms": 4164,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/drifting",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/18-5cae2a7e818a29bf392e.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "13ec07107fbe63752427e9fd63eaf2c825cf73fbe69d8e2e0c3b2c7e7740a62e",
+        "preparation_ms": 1445,
+        "calibration_ms": 6640,
+        "learner_ms": 1455,
+        "elapsed_ms": 9664,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/19-ff925aa7f7ef108ccabe.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "b50651427968f00c1b852e3b108eee87995ce548291dd48d016eb5c34b7326e7",
+        "preparation_ms": 1579,
+        "calibration_ms": 6001,
+        "learner_ms": 1169,
+        "elapsed_ms": 8856,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/dmd2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/20-5d536cf05b04fe4488da.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "4f0403bbac9f29c4bc03bd75999144b8cc008afaba363a13a0177c7f072dc30a",
+        "preparation_ms": 1492,
+        "calibration_ms": 3569,
+        "learner_ms": 610,
+        "elapsed_ms": 5766,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/consistency",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/21-977b754e3ef807ae7ec0.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "b19ecdac39a8a529571721404abd6a4841edbe2e576c0c66dd8af7aac4167cea",
+        "preparation_ms": 1457,
+        "calibration_ms": 2524,
+        "learner_ms": 455,
+        "elapsed_ms": 4540,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 3,
+        "packages": [],
+        "bundle_url": "browser-judge/22-287a6b70c8be80df3207.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "0b8e504a70eeb2210cd3da9d9f3d420f99dd399ba91dbddb17bff4381080778a",
+        "preparation_ms": 1685,
+        "calibration_ms": 254,
+        "learner_ms": 38,
+        "elapsed_ms": 9405,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/adamw",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/23-64f5422e46620e85c1ba.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "fecd6ea876a395637dd5b8dbb416d92a5c5373b968d200b6475caa138d1bfe40",
+        "preparation_ms": 1438,
+        "calibration_ms": 374,
+        "learner_ms": 48,
+        "elapsed_ms": 2000,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/flash_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/24-44c17612c36e79efc1e2.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "8bf61fa76b4617d9a5ef8270940ed3af5c4b3a3dcdb205fe2782df28b51d4e31",
+        "preparation_ms": 1751,
+        "calibration_ms": 1737,
+        "learner_ms": 297,
+        "elapsed_ms": 3924,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/clip",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/25-3391c931404627d50da4.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "f206405a0b6d79e32c340c568e1f307b5dd134211962beb5524d3f7a35556800",
+        "preparation_ms": 1493,
+        "calibration_ms": 458,
+        "learner_ms": 63,
+        "elapsed_ms": 2146,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/progressive_distillation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/26-e95937ec4fbc8aa0d265.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "f975bd08db33e1d987438366863557843ca10e55a482006f8164e5b2357da343",
+        "preparation_ms": 1581,
+        "calibration_ms": 897,
+        "learner_ms": 136,
+        "elapsed_ms": 2714,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/multihead_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/27-09affb6a02c9f6c3e9c2.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "6e0e988e3ee97500cb1731674752a7f692dd7156da6337f39d39a6b72ada3a3b",
+        "preparation_ms": 1550,
+        "calibration_ms": 343,
+        "learner_ms": 31,
+        "elapsed_ms": 2063,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/layer_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/28-3fe1d0df70fb24bb58be.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "ecef39593f996261e5b1833ac506b15660ecfbf8afb480fe09844f43bcc20072",
+        "preparation_ms": 1599,
+        "calibration_ms": 299,
+        "learner_ms": 25,
+        "elapsed_ms": 2064,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positional_encoding",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/29-af3bfc5c1c044f5810f8.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "a553843f457624b2a208b850010c646ee01a89d1cae355b3ab8620e8f76be138",
+        "preparation_ms": 1666,
+        "calibration_ms": 251,
+        "learner_ms": 24,
+        "elapsed_ms": 2099,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/positionwise_ffn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/30-a604f261d9b0e7eecd98.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "d214bf2b95784b0d6141523b3ddae12e88763e1bcb01137df6623d4b7f292c71",
+        "preparation_ms": 1676,
+        "calibration_ms": 758,
+        "learner_ms": 103,
+        "elapsed_ms": 2669,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "optimization/muon_split",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/31-9ea7a48dc5d83e847aa5.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "cf436e0bfd882c30712e2503978d10dc68562173bb88b6bcbd5197bc1f414065",
+        "preparation_ms": 1548,
+        "calibration_ms": 519,
+        "learner_ms": 33,
+        "elapsed_ms": 2244,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/glm5_offpolicy",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/32-20a90c1bad61f3fc55f3.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "17df18f4d320fb8ddbdb644660ac2c9b27c6c1a2226e1a39f5aecdd54b8a40bb",
+        "preparation_ms": 1614,
+        "calibration_ms": 530,
+        "learner_ms": 64,
+        "elapsed_ms": 2347,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/kimi_kda",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/33-fb6fd4e1ae13e54a5b3b.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "18f81ebb17d47d079fdf96e95d320dc073cbe76f785f0718b6fd337cc5dd54dd",
+        "preparation_ms": 1604,
+        "calibration_ms": 415,
+        "learner_ms": 50,
+        "elapsed_ms": 2216,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/block_attention_residual",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/34-2cb7a284755c1c02552d.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "e8c632232f68c6c575d4e51f17952150d8391e579d8b9097a6b4fee18d07829e",
+        "preparation_ms": 2054,
+        "calibration_ms": 448,
+        "learner_ms": 40,
+        "elapsed_ms": 2684,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/situ_glu",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/35-51839f1a6dbfdc3dedc2.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "2622bf643cb527fcd38f594696de750daf1c94d9ada46a73a75b51cd75f5cb61",
+        "preparation_ms": 1602,
+        "calibration_ms": 327,
+        "learner_ms": 28,
+        "elapsed_ms": 2111,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/36-ef27557cddff1946a241.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "e070a4d81636282ba50b14686f67260b18358746131c09fdc049e1fb440b1270",
+        "preparation_ms": 1608,
+        "calibration_ms": 431,
+        "learner_ms": 51,
+        "elapsed_ms": 2231,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/opsd_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/37-8b352e46ba0568d9d667.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "5a5013861179fc5ddb2641f07b7213964ee524ce9611dca1b820769219a53d35",
+        "preparation_ms": 1596,
+        "calibration_ms": 280,
+        "learner_ms": 26,
+        "elapsed_ms": 2042,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_feedback",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/38-eb2cb6520b4065b1064d.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "4cd2c05edb9153e898f7b402259b51116a6d0baee003b6e36959da9706dd05d9",
+        "preparation_ms": 1729,
+        "calibration_ms": 347,
+        "learner_ms": 38,
+        "elapsed_ms": 2257,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/sdpo_topk",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/39-ff9e8742094b07b6a600.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "1cb07588fdf37f1bb2888f7b49e640fe44944f57dc6ee7bee8acd1b78eb1db72",
+        "preparation_ms": 1613,
+        "calibration_ms": 301,
+        "learner_ms": 30,
+        "elapsed_ms": 2086,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/repa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/40-090bb1ab255a0c74b531.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "7fd4ac2338c0bd7f1231d55dd81e8a7d0ddffa0901aa533c6fb0d7b1002cb778",
+        "preparation_ms": 1566,
+        "calibration_ms": 459,
+        "learner_ms": 56,
+        "elapsed_ms": 2218,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/rotation_trick",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/41-669866409a52a55b5c81.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "31a297f9ddd6d1ac231dc27a43fb21bf9fabb71b289daea379685a5ba3ac245a",
+        "preparation_ms": 1581,
+        "calibration_ms": 338,
+        "learner_ms": 28,
+        "elapsed_ms": 2089,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/differential_attention",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/42-a99c7eab334fff4b8ada.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "cfb222bcd2f5b64d48c4983004acb1f202c1b0ebdfe7f2411418ed49472e7d8d",
+        "preparation_ms": 1609,
+        "calibration_ms": 416,
+        "learner_ms": 57,
+        "elapsed_ms": 2229,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/block_diffusion",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/43-71e88e2fbcaa42cf2ef4.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "b5dd58ba22dcc68245f9a2de0c6119a0b3ad8b4a8d1b87602d25a4c5b31e1bde",
+        "preparation_ms": 1597,
+        "calibration_ms": 377,
+        "learner_ms": 43,
+        "elapsed_ms": 2158,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/distillm2",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/44-21d9862d32184e8110e8.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "4e43d0ce0895ff110d60ec71b3a9a2757dc2fc5d43aac4174ccea4395fca751e",
+        "preparation_ms": 1578,
+        "calibration_ms": 572,
+        "learner_ms": 78,
+        "elapsed_ms": 2391,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "rl/pkpo",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/45-062f92199a0d913c13dd.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "8a37db197821e3c718ddb50b088175aa585dde32aa7df25dd4b80e42db72a05e",
+        "preparation_ms": 1560,
+        "calibration_ms": 1207,
+        "learner_ms": 212,
+        "elapsed_ms": 3136,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "finetuning/svdquant",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/46-5a0667ade07b9b6c27aa.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "b7fe09800ec987d1713e7649a3199f27e8bf0720e63ff26d945bcccebef055fe",
+        "preparation_ms": 1568,
+        "calibration_ms": 393,
+        "learner_ms": 41,
+        "elapsed_ms": 2162,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moge_alignment",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/47-06af1451857dfe1a60c7.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "0eba01b83339c1e6422e0ebbe62ec267f12c0121e421790b480c90877d0766fe",
+        "preparation_ms": 1621,
+        "calibration_ms": 375,
+        "learner_ms": 47,
+        "elapsed_ms": 2218,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/daps",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/48-9ad3b54242d44332541a.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "2125baa0591175807dea6f25f5afcc8aca92ca3a3b4b053023314512974a9016",
+        "preparation_ms": 1627,
+        "calibration_ms": 965,
+        "learner_ms": 142,
+        "elapsed_ms": 2893,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/diffusion_nft",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/49-b63035c08db94644e7bf.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "299c5cea5b1678606cc9667c9672e5f9ad2f0d8f95cf125c46b2b4ee205bcdba",
+        "preparation_ms": 1553,
+        "calibration_ms": 482,
+        "learner_ms": 54,
+        "elapsed_ms": 2246,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/var_next_scale",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/50-6814581d5ca1cc5d02c7.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "2a84a9deb9a635805c485d47928314ef5f64ded3950c4cc5c0957eed0df35259",
+        "preparation_ms": 1614,
+        "calibration_ms": 369,
+        "learner_ms": 43,
+        "elapsed_ms": 2190,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/var_tokenizer",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/51-d5d782f37435d663a750.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "fbbaeb67561db1f3a0f3bec16437fefec9e29c0ee2560e40f4b7dbd5322835ca",
+        "preparation_ms": 1653,
+        "calibration_ms": 486,
+        "learner_ms": 52,
+        "elapsed_ms": 2357,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_population",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/52-be365d6c613c9294b794.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "46ad9fc36fcebe12aa367837333a26ac579a5972ef0fee7d24d16652d71187af",
+        "preparation_ms": 1630,
+        "calibration_ms": 443,
+        "learner_ms": 47,
+        "elapsed_ms": 2280,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "diffusion/fd_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/53-57f09d15b5385dcb2f1b.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "68e82e31bd7843760ce8d1f564ab11dfe7bc64c5f0277be601c7db572a983b02",
+        "preparation_ms": 1573,
+        "calibration_ms": 1868,
+        "learner_ms": 320,
+        "elapsed_ms": 3922,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/vicreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/54-9235d49418cf971bab98.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "e03eaa0886474df5ee768d1cd3d0c5227be97d702c1c274e903fb08daa774e3d",
+        "preparation_ms": 1549,
+        "calibration_ms": 822,
+        "learner_ms": 127,
+        "elapsed_ms": 2657,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/sigreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/55-caf8231097eeaccfaa0c.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "68cd9211dd4f6028a24bf7284893fa6a7bec50ca0f36d9a783b934df9ab96ac2",
+        "preparation_ms": 1573,
+        "calibration_ms": 1023,
+        "learner_ms": 163,
+        "elapsed_ms": 2924,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/visreg",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/56-64c243089b9d99f01909.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "d4a4fa431d8f60ff173ccc3515167ede6fdccc5b572f39daa7d71ec407dd4b6d",
+        "preparation_ms": 1578,
+        "calibration_ms": 1175,
+        "learner_ms": 192,
+        "elapsed_ms": 3108,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/ijepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/57-c9eaa97a6836d40c930a.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "8c077d0f36f0bbfc7b6337105ae181924e53af17dc8d0291bfd1ee3dc18f1ae2",
+        "preparation_ms": 2678,
+        "calibration_ms": 392,
+        "learner_ms": 45,
+        "elapsed_ms": 3286,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_prediction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/58-f61708b9bff017259e48.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "1e8a9bf0ecac0cd5cffed1cc655b2dfc7fef5be05a7a56e6de9e2d17821f670c",
+        "preparation_ms": 1582,
+        "calibration_ms": 645,
+        "learner_ms": 95,
+        "elapsed_ms": 2469,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/lewm_planning",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/59-9d734715e0d9b2200530.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "2ff3e0fa13d8b6ce367544e70a3e626dc746fbc48df77f853567a2c93e9954e3",
+        "preparation_ms": 1586,
+        "calibration_ms": 301,
+        "learner_ms": 30,
+        "elapsed_ms": 2076,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "world_models/causal_jepa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/60-7ad71c71674dcf102c0e.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "95826dbfeeac9cbf31bdec420091ea4314e6e9b24faa10f60312b23501b81778",
+        "preparation_ms": 1637,
+        "calibration_ms": 460,
+        "learner_ms": 57,
+        "elapsed_ms": 2317,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rms_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/61-d43e0328d2cfcd1fcbfd.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "5515508e289c7807f669f1aa3771eb0abbc4dbdb472f5ded68dc317f4a9acea2",
+        "preparation_ms": 1629,
+        "calibration_ms": 361,
+        "learner_ms": 33,
+        "elapsed_ms": 2182,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/gqa",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/62-1a653d594696ae7b156c.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "64828f85c742a8ed4d5e8b5d2e3b90e90c1bdb774d0560614953898e70622fe0",
+        "preparation_ms": 1662,
+        "calibration_ms": 482,
+        "learner_ms": 46,
+        "elapsed_ms": 2366,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/rope",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/63-d9537e4844341046c467.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "1a072292f8dda110c6fcda673d23c5ab770f5a128fb938cf443ab0f4af1649b4",
+        "preparation_ms": 1611,
+        "calibration_ms": 549,
+        "learner_ms": 197,
+        "elapsed_ms": 2680,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/semantic_ids",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/64-d75c23b0961ab8e1f2b1.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "9aa1341620e45a665d4c3404339a441a85fc2750f6b46bbd768c3bbdc919740c",
+        "preparation_ms": 1703,
+        "calibration_ms": 308,
+        "learner_ms": 29,
+        "elapsed_ms": 2192,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/generative_retrieval",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 8,
+        "mutants": 5,
+        "packages": [],
+        "bundle_url": "browser-judge/65-3e8180c19c49545c525f.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "b1e4f8ebab039a6f0ad10c330d60b0149f6c59e79fb8e61647fde3775141556a",
+        "preparation_ms": 1604,
+        "calibration_ms": 438,
+        "learner_ms": 39,
+        "elapsed_ms": 2231,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/late_interaction",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/66-5877145b3a1192f8589c.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "f3df6588563cffb2d741eaf079d5aeb5e61e5d3f635daf7e4ca667886c9ff2d8",
+        "preparation_ms": 1586,
+        "calibration_ms": 1124,
+        "learner_ms": 112,
+        "elapsed_ms": 3005,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/sasrec",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 7,
+        "packages": [],
+        "bundle_url": "browser-judge/67-8b9fbff5ab3208d66fea.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "a4a16131a003ba657709dfd569c6b91900af30aca5943322a886df111c7247c4",
+        "preparation_ms": 1622,
+        "calibration_ms": 1834,
+        "learner_ms": 194,
+        "elapsed_ms": 3813,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/bpr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/68-1a1c2958a38c4358a3e0.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "3c2b074713c0eadc63f5c498a40ab5f16a5703a887776ae8c2df88ca2570adf7",
+        "preparation_ms": 1575,
+        "calibration_ms": 1217,
+        "learner_ms": 109,
+        "elapsed_ms": 3081,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "retrieval/lightgcn",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/69-bb772c860c2c9fbcc5f0.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "d6c44f850fc34eea6cdb815f0680453f2da99fb6a2613b3dae49674fea595256",
+        "preparation_ms": 1876,
+        "calibration_ms": 1726,
+        "learner_ms": 107,
+        "elapsed_ms": 3894,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/simclr",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 9,
+        "mutants": 8,
+        "packages": [],
+        "bundle_url": "browser-judge/84-d222c47d3ac23078df1c.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "cbbfeb0603829bc630a7c0e04b369316b98c9f72ad1c93c9bb193d551a831db0",
+        "preparation_ms": 1606,
+        "calibration_ms": 1109,
+        "learner_ms": 89,
+        "elapsed_ms": 2955,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "representation/moco",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 10,
+        "mutants": 9,
+        "packages": [],
+        "bundle_url": "browser-judge/85-866a8ae90cab22ee29a1.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "14ebf7608b5e5979ef203aa31bdca4a216dde5322ba2f95f48040b4326ba6408",
+        "preparation_ms": 1610,
+        "calibration_ms": 896,
+        "learner_ms": 60,
+        "elapsed_ms": 2739,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/next_token_loss",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/86-20b35daff5fd3fb23b65.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "06aedea8cf804c91446cf05acc0acdf61e834cd1309c4de45cdef6d729d1097f",
+        "preparation_ms": 1609,
+        "calibration_ms": 661,
+        "learner_ms": 24,
+        "elapsed_ms": 2405,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/sft_loss_mask",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/87-8451952ae56d1ed7272a.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "d2e64961452dc19b49323c4bee1d4981439ff6b91bd18228bdaa767cdc9f9122",
+        "preparation_ms": 1650,
+        "calibration_ms": 713,
+        "learner_ms": 30,
+        "elapsed_ms": 2510,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_k_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/88-46fbcac7d8956e3a3f92.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "fcae9101590444259c76db04948209f9df98e45e0253d881bb7be0c3ed9b1828",
+        "preparation_ms": 1664,
+        "calibration_ms": 544,
+        "learner_ms": 30,
+        "elapsed_ms": 2354,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/top_p_sampling",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/89-f877ea8f4856014e65da.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "8fc8a74602f77cff504ca798f5d056f4a004df2e7537b137eb3fdce4b757338c",
+        "preparation_ms": 1652,
+        "calibration_ms": 557,
+        "learner_ms": 38,
+        "elapsed_ms": 2429,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_accumulation",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 6,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/90-a94bc86506f74e6d5ec0.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "ab380d9fd60ba33dd6ce4acb12bab440f900670afc8f367b48204675b69764d7",
+        "preparation_ms": 1637,
+        "calibration_ms": 623,
+        "learner_ms": 27,
+        "elapsed_ms": 2393,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "foundations/gradient_clipping",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 7,
+        "mutants": 4,
+        "packages": [],
+        "bundle_url": "browser-judge/91-3f89d140ce399a7a6abf.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "1d5114c22a037b660a7e9689d44a40ae2aecc7a54ac619f4f2843bbc4659bfeb",
+        "preparation_ms": 1655,
+        "calibration_ms": 639,
+        "learner_ms": 31,
+        "elapsed_ms": 2444,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      },
+      {
+        "id": "architecture/group_norm",
+        "pyodide": "0.29.4",
+        "numpy": "2.2.5",
+        "backend": "numpy-autograd-wasm",
+        "tests": 11,
+        "mutants": 6,
+        "packages": [],
+        "bundle_url": "browser-judge/92-8825fab83edb57d4e96e.json",
+        "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+        "source_sha256": "aae929eaf867bfd42966331fee926e546b9acc3502bd57965f733c76d7fc8911",
+        "preparation_ms": 1663,
+        "calibration_ms": 622,
+        "learner_ms": 46,
+        "elapsed_ms": 2520,
+        "budgets": {
+          "calibration": 90000,
+          "run": 30000,
+          "total": 120000
+        },
+        "browser_budget_exceeded": [],
+        "passed": true
+      }
+    ]
+  },
+  "real_wasm_receipt": {
+    "handle": 68635,
+    "exit_code": 0
+  },
+  "native_catalog": {
+    "passed": true,
+    "duration_s": 184.03751758299768,
+    "repeats": 3,
+    "problems": 78,
+    "mutation": {
+      "rl/gae": {
+        "m1_no_done_mask": [
+          "test_reference",
+          "test_episode_isolation"
+        ],
+        "m2_trunc_as_term": [
+          "test_single_transition",
+          "test_reference",
+          "test_lambda_zero_is_td",
+          "test_termination_and_truncation_bootstrap"
+        ],
+        "m3_forward_loop": [
+          "test_reference",
+          "test_lambda_one_telescopes",
+          "test_bias_variance_tradeoff"
+        ],
+        "m4_returns_mc": [
+          "test_reference",
+          "test_returns_contract"
+        ]
+      },
+      "rl/ppo_clip": {
+        "m1_clip_only": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_four_quadrant_gradient"
+        ],
+        "m2_max_not_min": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ],
+        "m3_old_logp_grad": [
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_old_values_are_constants"
+        ],
+        "m4_ratio_no_exp": [
+          "test_core_function_contract",
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_on_policy_gradient",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ],
+        "m5_advantage_sign": [
+          "test_core_function_contract",
+          "test_core_four_quadrants_and_frozen_targets",
+          "test_reference",
+          "test_on_policy_gradient",
+          "test_four_quadrant_gradient",
+          "test_bandit_learning_and_kl"
+        ]
+      },
+      "rl/dpo": {
+        "m1_omit_reference": [
+          "test_reference",
+          "test_policy_equals_reference",
+          "test_gradient_direction_and_rewards",
+          "test_closed_form_preference_optimum"
+        ],
+        "m2_omit_beta": [
+          "test_reference",
+          "test_beta_margin_scaling",
+          "test_gradient_direction_and_rewards",
+          "test_closed_form_preference_optimum"
+        ],
+        "m3_naive_logsigmoid": [
+          "test_extreme_margin_stability"
+        ],
+        "m4_reward_grad": [
+          "test_gradient_direction_and_rewards"
+        ],
+        "m5_batch_sum": [
+          "test_reference",
+          "test_policy_equals_reference",
+          "test_extreme_margin_stability"
+        ]
+      },
+      "rl/grpo": {
+        "m1_std_over_batch": [
+          "test_reference",
+          "test_group_advantage_invariants"
+        ],
+        "m2_mask_ignored": [
+          "test_reference",
+          "test_on_policy_token_gradient",
+          "test_padding_isolation",
+          "test_response_duplication_invariance"
+        ],
+        "m3_k1_kl": [
+          "test_reference",
+          "test_k3_nonnegative"
+        ],
+        "m4_old_logp_grad": [
+          "test_snapshots_no_gradient"
+        ],
+        "m5_token_mean": [
+          "test_reference",
+          "test_on_policy_token_gradient",
+          "test_response_duplication_invariance"
+        ]
+      },
+      "rl/dr_grpo": {
+        "m1_still_seq_mean": [
+          "test_reference",
+          "test_length_bias_removed",
+          "test_fixed_generation_limit"
+        ],
+        "m2_still_std": [
+          "test_reference",
+          "test_advantage_scales_with_reward"
+        ],
+        "m3_batch_max_len": [
+          "test_reference",
+          "test_fixed_generation_limit"
+        ]
+      },
+      "diffusion/schedules": {
+        "m1_offbyone": [
+          "test_reference",
+          "test_monotone"
+        ],
+        "m2_no_sqrt": [
+          "test_signal_and_noise",
+          "test_per_sample_time",
+          "test_variance_preserving"
+        ],
+        "m3_cosine_no_clip": [
+          "test_reference",
+          "test_monotone",
+          "test_cosine_clip"
+        ],
+        "m4_cumsum": [
+          "test_reference",
+          "test_monotone",
+          "test_linear_endpoints",
+          "test_cosine_clip"
+        ],
+        "m5_shared_t": [
+          "test_signal_and_noise",
+          "test_per_sample_time"
+        ]
+      },
+      "diffusion/param_conversion": {
+        "m1_v_sign": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_velocity_tangent",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ],
+        "m2_v_to_x0_swapped": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_endpoint_stability",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ],
+        "m3_no_clamp": [
+          "test_endpoint_stability"
+        ],
+        "m4_alpha_squared": [
+          "test_reference",
+          "test_six_roundtrips",
+          "test_error_weight_identity",
+          "test_conversion_routes"
+        ]
+      },
+      "diffusion/ddpm_sampling": {
+        "m1_coef_swapped": [
+          "test_reference",
+          "test_precision_product",
+          "test_posterior_bounds",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ],
+        "m2_noise_at_last": [
+          "test_reference",
+          "test_last_step_no_noise"
+        ],
+        "m3_var_index": [
+          "test_reference",
+          "test_precision_product",
+          "test_posterior_bounds"
+        ],
+        "m4_x0_no_sqrt": [
+          "test_reference",
+          "test_point_oracle",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ],
+        "m5_ascending": [
+          "test_sampler_time_order",
+          "test_gmm_sampling",
+          "test_gmm_sampling"
+        ]
+      },
+      "diffusion/ddim": {
+        "m1_sigma_one_factor": [
+          "test_reference",
+          "test_eta_one_posterior"
+        ],
+        "m2_dir_no_sigma": [
+          "test_reference"
+        ],
+        "m3_no_final_jump": [
+          "test_point_final_jump",
+          "test_gmm_sampling"
+        ],
+        "m4_x0_uses_prev": [
+          "test_reference",
+          "test_point_final_jump",
+          "test_inversion_converges",
+          "test_gmm_sampling"
+        ],
+        "m5_invert_order": [
+          "test_inversion_converges"
+        ]
+      },
+      "diffusion/flow_matching": {
+        "m1_target_reversed": [
+          "test_reference",
+          "test_point_zero_loss",
+          "test_learns_eight_modes"
+        ],
+        "m2_sample_reversed": [
+          "test_reference",
+          "test_point_one_step",
+          "test_gaussian_transport",
+          "test_no_singular_endpoint",
+          "test_learns_eight_modes"
+        ],
+        "m3_interp_swapped": [
+          "test_reference",
+          "test_point_zero_loss",
+          "test_endpoints_and_time_distribution",
+          "test_learns_eight_modes"
+        ],
+        "m4_eval_at_one": [
+          "test_reference",
+          "test_point_one_step",
+          "test_no_singular_endpoint"
+        ]
+      },
+      "rl/gspo": {
+        "m1_arithmetic_ratio": [
+          "test_scalar_and_empty_response",
+          "test_reference",
+          "test_geometric_ratio_and_duplication",
+          "test_equal_gradient_within_response",
+          "test_cancellation_experiment"
+        ],
+        "m2_missing_length": [
+          "test_reference",
+          "test_geometric_ratio_and_duplication",
+          "test_equal_gradient_within_response",
+          "test_cancellation_experiment"
+        ],
+        "m3_old_gradient": [
+          "test_clipping_sign_and_snapshot_gradients"
+        ],
+        "m4_wrong_clipping": [
+          "test_reference",
+          "test_clipping_sign_and_snapshot_gradients",
+          "test_cancellation_experiment"
+        ]
+      },
+      "rl/opd": {
+        "m1_reverse_direction": [
+          "test_both_divergences",
+          "test_kl_direction_and_teacher_frozen"
+        ],
+        "m2_teacher_gradient": [
+          "test_kl_direction_and_teacher_frozen"
+        ],
+        "m3_bos_only": [
+          "test_sampling_distribution_and_prefix_dependency"
+        ],
+        "m4_mask_denominator": [
+          "test_both_divergences"
+        ]
+      },
+      "rl/dapo": {
+        "m1_symmetric_clip": [
+          "test_reference",
+          "test_upper_and_lower_clip_independent",
+          "test_group_and_clip_experiment"
+        ],
+        "m2_response_mean": [
+          "test_reference",
+          "test_token_average_gradient"
+        ],
+        "m3_keep_all_success": [
+          "test_groups_and_contract",
+          "test_group_and_clip_experiment"
+        ],
+        "m4_old_gradient": [
+          "test_sampling_snapshots_frozen"
+        ]
+      },
+      "finetuning/lora": {
+        "m1_missing_rank_scale": [
+          "test_reference",
+          "test_scaling_rank_and_merge",
+          "test_frozen_base_and_input_gradient"
+        ],
+        "m2_train_base": [
+          "test_frozen_base_and_input_gradient"
+        ],
+        "m3_detach_adapter": [
+          "test_frozen_base_and_input_gradient",
+          "test_zero_b_initialization",
+          "test_rank_two_regression"
+        ],
+        "m4_detach_base_input": [
+          "test_frozen_base_and_input_gradient"
+        ]
+      },
+      "finetuning/qlora": {
+        "m1_uniform_codebook": [
+          "test_reference",
+          "test_nf4_asymmetry_exact_zero_and_scale",
+          "test_quantized_adapter_regression"
+        ],
+        "m2_global_scale": [
+          "test_reference",
+          "test_nf4_asymmetry_exact_zero_and_scale",
+          "test_block_locality_and_positive_rescaling"
+        ],
+        "m3_train_scales": [
+          "test_frozen_base_and_adapter_gradients"
+        ],
+        "m4_missing_rank_scale": [
+          "test_reference",
+          "test_frozen_base_and_adapter_gradients"
+        ]
+      },
+      "diffusion/meanflow": {
+        "m1_wrong_jvp_time": [
+          "test_jvp_total_derivative",
+          "test_point_distribution_training"
+        ],
+        "m2_target_has_gradient": [
+          "test_target_is_frozen"
+        ],
+        "m3_reverse_sampling": [
+          "test_single_call_and_direction",
+          "test_point_distribution_training"
+        ]
+      },
+      "diffusion/jit": {
+        "m1_wrong_time_direction": [
+          "test_prediction_spaces",
+          "test_endpoints_are_finite"
+        ],
+        "m2_wrong_x_denominator": [
+          "test_prediction_spaces",
+          "test_v_loss_weight_and_gradient",
+          "test_same_raw_error_has_time_weight",
+          "test_embedded_manifold_denoising"
+        ],
+        "m3_clean_space_loss": [
+          "test_prediction_spaces",
+          "test_v_loss_weight_and_gradient",
+          "test_same_raw_error_has_time_weight"
+        ]
+      },
+      "diffusion/drifting": {
+        "m1_row_only_kernel": [
+          "test_scalar_pairwise_oracle"
+        ],
+        "m2_attraction_only": [
+          "test_scalar_pairwise_oracle",
+          "test_permutation_translation"
+        ],
+        "m3_unfrozen_target": [
+          "test_frozen_target_gradient",
+          "test_official_toy_adaptation"
+        ],
+        "m4_self_pairs_unmasked": [
+          "test_scalar_pairwise_oracle",
+          "test_mask_and_validation",
+          "test_distant_kernel_and_nonempty_contract"
+        ]
+      },
+      "diffusion/dmd": {
+        "m1_score_sign": [
+          "test_gradient_sign_and_scaling",
+          "test_gaussian_matching_with_fake_score_training",
+          "test_bimodal_mode_coverage"
+        ],
+        "m2_matching_target_not_frozen": [
+          "test_gradient_sign_and_scaling",
+          "test_frozen_matching_gradient",
+          "test_gaussian_matching_with_fake_score_training",
+          "test_bimodal_mode_coverage"
+        ],
+        "m3_fake_updates_generator": [
+          "test_fake_model_only_receives_gradient"
+        ],
+        "m4_drops_regression": [
+          "test_gradient_sign_and_scaling"
+        ]
+      },
+      "diffusion/dmd2": {
+        "m1_equal_update_frequency": [
+          "test_two_time_schedule",
+          "test_unpaired_adversarial_training"
+        ],
+        "m2_gan_wrong_sign": [
+          "test_stable_logistic_losses",
+          "test_gan_gradients_and_no_regression"
+        ],
+        "m3_no_gan_generator": [
+          "test_generator_gradient_routes"
+        ],
+        "m4_target_not_frozen": [
+          "test_generator_gradient_routes",
+          "test_unpaired_adversarial_training"
+        ]
+      },
+      "diffusion/consistency": {
+        "m1_no_boundary_shift": [
+          "test_coefficients_and_network_input",
+          "test_exact_boundary",
+          "test_point_consistency_distillation"
+        ],
+        "m2_unfrozen_target": [
+          "test_stopgrad_target",
+          "test_adjacent_target_depends_on_ema_but_is_frozen"
+        ],
+        "m3_ema_reversed": [
+          "test_ema_and_teacher_direction"
+        ],
+        "m4_skip_input_scaling": [
+          "test_coefficients_and_network_input"
+        ]
+      },
+      "architecture/attention": {
+        "m1_missing_scale": [
+          "test_independent_two_key_formula",
+          "test_gradients_against_independent_dense_expression"
+        ],
+        "m2_ignore_mask": [
+          "test_mask_broadcast_and_zero_rows",
+          "test_gradients_against_independent_dense_expression",
+          "test_causal_future_independence",
+          "test_prefix_averaging_experiment"
+        ],
+        "m3_wrong_softmax_axis": [
+          "test_independent_two_key_formula",
+          "test_mask_broadcast_and_zero_rows",
+          "test_key_permutation_and_shift",
+          "test_gradients_against_independent_dense_expression",
+          "test_prefix_averaging_experiment"
+        ]
+      },
+      "optimization/adamw": {
+        "m1_coupled_decay": [
+          "test_first_step_analytic_and_epsilon",
+          "test_zero_gradient_decay_and_jacobian",
+          "test_decay_does_not_enter_moments",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m2_no_bias_correction": [
+          "test_first_step_analytic_and_epsilon",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m3_epsilon_inside_sqrt": [
+          "test_first_step_analytic_and_epsilon",
+          "test_matches_independent_torch_optimizer"
+        ],
+        "m4_decay_no_lr": [
+          "test_first_step_analytic_and_epsilon",
+          "test_zero_gradient_decay_and_jacobian",
+          "test_decay_does_not_enter_moments",
+          "test_matches_independent_torch_optimizer"
+        ]
+      },
+      "architecture/flash_attention": {
+        "m1_no_numerator_rescale": [
+          "test_hand_calculated_two_blocks",
+          "test_dense_equivalence_and_block_partition",
+          "test_large_scores_stable_and_shift_invariant",
+          "test_dense_gradients",
+          "test_block_size_experiment"
+        ],
+        "m2_no_normalizer_rescale": [
+          "test_hand_calculated_two_blocks",
+          "test_dense_equivalence_and_block_partition",
+          "test_large_scores_stable_and_shift_invariant",
+          "test_dense_gradients",
+          "test_block_size_experiment"
+        ],
+        "m3_ignore_previous_max": [
+          "test_large_scores_stable_and_shift_invariant"
+        ],
+        "m4_detach_history": [
+          "test_dense_gradients"
+        ]
+      },
+      "representation/clip": {
+        "m1_omit_normalization": [
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_feature_scale_invariance_and_pair_permutation",
+          "test_encoder_gradients_against_independent_formula"
+        ],
+        "m2_one_direction": [
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_encoder_gradients_against_independent_formula"
+        ],
+        "m3_scale_not_exponentiated": [
+          "test_orthogonal_analytic_loss",
+          "test_bidirectional_loss_independent_logsumexp",
+          "test_temperature_cap_and_gradients",
+          "test_encoder_gradients_against_independent_formula",
+          "test_learn_pair_retrieval"
+        ],
+        "m4_no_scale_cap": [
+          "test_temperature_cap_and_gradients"
+        ]
+      },
+      "diffusion/progressive_distillation": {
+        "m1_omits_ratio_term": [
+          "test_algebraic_two_step_endpoint",
+          "test_student_matches_two_step_teacher"
+        ],
+        "m2_wrong_ddim_sign": [
+          "test_algebraic_two_step_endpoint",
+          "test_student_matches_two_step_teacher"
+        ],
+        "m3_target_has_gradient": [
+          "test_target_stopgrad_and_weight"
+        ],
+        "m4_drops_loss_weight": [
+          "test_target_stopgrad_and_weight"
+        ]
+      },
+      "architecture/multihead_attention": {
+        "m1_reuse_query_projection": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_single_head_and_noncontiguous_inputs"
+        ],
+        "m2_ignore_mask": [
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_causal_future_independence"
+        ],
+        "m3_wrong_concatenation": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_causal_future_independence",
+          "test_two_head_routing_experiment"
+        ],
+        "m4_skip_output_projection": [
+          "test_independent_headwise_projection",
+          "test_broadcast_masks_and_empty_rows",
+          "test_all_projection_and_input_gradients",
+          "test_single_head_and_noncontiguous_inputs",
+          "test_two_head_routing_experiment"
+        ]
+      },
+      "architecture/layer_norm": {
+        "m1_unbiased_variance": [
+          "test_analytical_population_variance_and_affine",
+          "test_constant_single_feature_and_small_variance",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m2_sequence_statistics": [
+          "test_constant_single_feature_and_small_variance",
+          "test_token_independence_translation_and_scale",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m3_epsilon_outside_sqrt": [
+          "test_analytical_population_variance_and_affine",
+          "test_constant_single_feature_and_small_variance",
+          "test_token_independence_translation_and_scale",
+          "test_values_and_gradients_against_library_oracle",
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ],
+        "m4_normalize_before_add": [
+          "test_post_norm_residual_order_and_gradients",
+          "test_varied_token_add_norm_experiment"
+        ]
+      },
+      "architecture/positional_encoding": {
+        "m1_wrong_frequency": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m2_sine_for_cosine": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_origin_and_unit_pair_norm",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m3_ignore_offset": [
+          "test_scalar_oracle_and_pair_frequencies",
+          "test_offset_matches_sliced_full_sequence",
+          "test_relative_offset_rotation_experiment"
+        ],
+        "m4_default_dtype": [
+          "test_shape_dtype_and_empty_sequence",
+          "test_relative_offset_rotation_experiment"
+        ]
+      },
+      "architecture/positionwise_ffn": {
+        "m1_missing_relu": [
+          "test_hand_computed_relu_and_both_biases",
+          "test_gradients_for_input_and_all_parameters",
+          "test_relu_gate_has_zero_negative_derivative",
+          "test_nonlinear_token_regression_experiment"
+        ],
+        "m2_missing_hidden_bias": [
+          "test_hand_computed_relu_and_both_biases",
+          "test_gradients_for_input_and_all_parameters"
+        ],
+        "m3_detach_hidden": [
+          "test_gradients_for_input_and_all_parameters",
+          "test_relu_gate_has_zero_negative_derivative"
+        ],
+        "m4_token_mixing": [
+          "test_shape_dtype_and_input_preservation",
+          "test_hand_computed_relu_and_both_biases",
+          "test_token_permutation_and_independence",
+          "test_gradients_for_input_and_all_parameters",
+          "test_nonlinear_token_regression_experiment"
+        ]
+      },
+      "optimization/muon_split": {
+        "m1_whole_matrix": [
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_head_scale_experiment"
+        ],
+        "m2_column_heads": [
+          "test_contract_and_no_mutation",
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_rank_deficiency_zero_and_relative_cutoff",
+          "test_head_permutation_and_input_basis",
+          "test_full_rank_autograd",
+          "test_head_scale_experiment"
+        ],
+        "m3_frobenius_only": [
+          "test_rectangular_gram_oracle",
+          "test_orthogonality_and_positive_head_scaling",
+          "test_rank_deficiency_zero_and_relative_cutoff",
+          "test_head_scale_experiment"
+        ],
+        "m4_nullspace_update": [
+          "test_rank_deficiency_zero_and_relative_cutoff"
+        ]
+      },
+      "rl/glm5_offpolicy": {
+        "m1_clamp_outliers": [
+          "test_scalar_loop_oracle",
+          "test_strict_boundary_and_asymmetric_widths",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_valid_token_reduction_and_replication",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m2_inclusive_bounds": [
+          "test_strict_boundary_and_asymmetric_widths",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m3_weight_gradient": [
+          "test_contract_and_empty_mask",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ],
+        "m4_retained_mean": [
+          "test_scalar_loop_oracle",
+          "test_detached_weight_advantage_and_rollout_gradient",
+          "test_padding_extremes_and_input_immutability",
+          "test_valid_token_reduction_and_replication",
+          "test_stale_rollout_bandit_and_ratio_sweep"
+        ]
+      },
+      "architecture/kimi_kda": {
+        "m1_unbounded_decay": [
+          "test_bounded_gate_and_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m2_skip_key_correction": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m3_read_old_state": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_gate_curves_and_memory_overwrite"
+        ],
+        "m4_shared_channel_decay": [
+          "test_matrix_equation_oracle",
+          "test_all_state_and_sequence_gradients",
+          "test_zero_write_and_noncontiguous_inputs",
+          "test_gate_curves_and_memory_overwrite"
+        ]
+      },
+      "architecture/block_attention_residual": {
+        "m1_drop_partial_block": [
+          "test_source_order_shapes_and_preservation",
+          "test_missing_partial_and_real_zero_source",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_selection_toy"
+        ],
+        "m2_normalize_values": [
+          "test_independent_tokenwise_oracle",
+          "test_missing_partial_and_real_zero_source",
+          "test_uniform_query_and_original_value_magnitudes",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ],
+        "m3_scale_attention": [
+          "test_independent_tokenwise_oracle",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ],
+        "m4_softmax_tokens": [
+          "test_independent_tokenwise_oracle",
+          "test_missing_partial_and_real_zero_source",
+          "test_uniform_query_and_original_value_magnitudes",
+          "test_gradients_through_assembly_norm_query_and_values",
+          "test_depth_permutation_strides_and_zero_norm",
+          "test_depth_selection_toy"
+        ]
+      },
+      "architecture/situ_glu": {
+        "m1_capped_sigmoid": [
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_global_bound_and_negative_gate_tail",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m2_uncapped_up": [
+          "test_finite_positive_caps",
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_global_bound_and_negative_gate_tail",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m3_hard_clamp": [
+          "test_independent_scalar_formula",
+          "test_sigmoid_uses_raw_gate_and_branches_are_distinct",
+          "test_analytic_gradients_through_both_branches",
+          "test_paper_scalar_curve_recreation"
+        ],
+        "m4_detached_up": [
+          "test_analytic_gradients_through_both_branches"
+        ]
+      },
+      "finetuning/opsd_alignment": {
+        "m1_causal_shift": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_gradients_only_reach_selected_student_positions",
+          "test_padding_invariance_and_no_mutation",
+          "test_two_context_training"
+        ],
+        "m2_teacher_context": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_padding_invariance_and_no_mutation",
+          "test_two_context_training"
+        ],
+        "m3_teacher_gradient": [
+          "test_gradients_only_reach_selected_student_positions"
+        ],
+        "m4_padding_leak": [
+          "test_causal_offset_and_distinct_context_lengths",
+          "test_prompt_length_one_and_truncated_padded_gather",
+          "test_gradients_only_reach_selected_student_positions",
+          "test_padding_invariance_and_no_mutation"
+        ]
+      },
+      "finetuning/opsd_clipping": {
+        "m1_aggregate_clip": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_response_weighting_and_mask",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ],
+        "m2_remove_negative": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_response_weighting_and_mask",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ],
+        "m3_teacher_gradient": [
+          "test_finite_difference_gradient_and_teacher_stop"
+        ],
+        "m4_reverse_as_forward": [
+          "test_signed_pointwise_clipping_scalar_oracle",
+          "test_finite_difference_gradient_and_teacher_stop",
+          "test_categorical_threshold_sweep"
+        ]
+      },
+      "rl/sdpo_feedback": {
+        "m1_cross_question": [
+          "test_self_then_same_question_solution_before_rich_feedback",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_tiny_program_feedback_training"
+        ],
+        "m2_exclude_self": [
+          "test_interface_and_single_attempt",
+          "test_self_then_same_question_solution_before_rich_feedback",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_tiny_program_feedback_training"
+        ],
+        "m3_unavailable_leak": [
+          "test_reverse_kl_and_available_token_mean",
+          "test_no_feedback_zero_and_no_cross_question_leakage",
+          "test_analytic_reverse_kl_gradient_and_teacher_stop",
+          "test_tiny_program_feedback_training"
+        ],
+        "m4_teacher_gradient": [
+          "test_analytic_reverse_kl_gradient_and_teacher_stop"
+        ]
+      },
+      "rl/sdpo_topk": {
+        "m1_teacher_topk": [
+          "test_student_selection_and_shared_indices_scalar_oracle",
+          "test_tail_retains_mass_without_topk_renormalization",
+          "test_finite_difference_gradients_and_teacher_detach",
+          "test_vocabulary_information_curve"
+        ],
+        "m2_drop_tail": [
+          "test_student_selection_and_shared_indices_scalar_oracle",
+          "test_tail_retains_mass_without_topk_renormalization",
+          "test_refining_partition_and_full_kl",
+          "test_finite_difference_gradients_and_teacher_detach",
+          "test_vocabulary_information_curve"
+        ],
+        "m3_tail_detached": [
+          "test_finite_difference_gradients_and_teacher_detach"
+        ],
+        "m4_teacher_gradient": [
+          "test_finite_difference_gradients_and_teacher_detach"
+        ]
+      },
+      "representation/repa": {
+        "m1_positive_cosine": [
+          "test_scalar_dtype_inputs_and_strides",
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_zero_and_sub_epsilon_vectors",
+          "test_analytic_gradient_and_frozen_targets",
+          "test_patch_scaling_permutation_and_sign",
+          "test_submitted_projector_training"
+        ],
+        "m2_trainable_teacher": [
+          "test_analytic_gradient_and_frozen_targets"
+        ],
+        "m3_wrong_axis": [
+          "test_scalar_dtype_inputs_and_strides",
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_zero_and_sub_epsilon_vectors",
+          "test_analytic_gradient_and_frozen_targets",
+          "test_patch_scaling_permutation_and_sign",
+          "test_submitted_projector_training"
+        ],
+        "m4_missing_weight": [
+          "test_patchwise_scalar_oracle_and_objective",
+          "test_analytic_gradient_and_frozen_targets"
+        ]
+      },
+      "representation/rotation_trick": {
+        "m1_ordinary_ste": [
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ],
+        "m2_missing_scale": [
+          "test_shape_dtype_strides_and_inputs",
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ],
+        "m3_live_rotation": [
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair"
+        ],
+        "m4_wrong_rotation_sign": [
+          "test_shape_dtype_strides_and_inputs",
+          "test_independent_two_dimensional_rotation_gradient",
+          "test_identity_rotation_keeps_scale_in_jacobian",
+          "test_high_dimensional_angle_norm_and_orthogonal_subspace",
+          "test_batch_independence_and_near_antiparallel_pair",
+          "test_paper_derived_quadratic_gradient_curve"
+        ]
+      },
+      "architecture/differential_attention": {
+        "m1_add_attention_maps": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches",
+          "test_common_mode_cancellation_causality_and_stability",
+          "test_submitted_common_mode_experiment"
+        ],
+        "m2_wrong_scale": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches"
+        ],
+        "m3_unmasked_second_branch": [
+          "test_independent_scalar_attention_oracle",
+          "test_independent_softmax_vjp_all_branches",
+          "test_common_mode_cancellation_causality_and_stability"
+        ],
+        "m4_lambda_sum": [
+          "test_lambda_parameterization_and_gradients",
+          "test_submitted_common_mode_experiment"
+        ]
+      },
+      "diffusion/block_diffusion": {
+        "m1_clean_target_leak": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m2_token_causal_within_block": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m3_noisy_to_clean_leak": [
+          "test_paper_mask_and_ragged_block_contexts",
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ],
+        "m4_ignores_mask": [
+          "test_vectorized_attention_matches_individual_conditionals",
+          "test_forbidden_influence_and_analytic_vjp",
+          "test_clean_stream_isolation_and_bidirectional_noisy_block",
+          "test_paper_derived_six_token_information_flow"
+        ]
+      },
+      "finetuning/distillm2": {
+        "m1_same_direction": [
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction"
+        ],
+        "m2_reverse_mixture": [
+          "test_scalar_divergence_oracle",
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction",
+          "test_student_gradients_finite_difference_teacher_frozen",
+          "test_zero_and_empty_response_tokens"
+        ],
+        "m3_missing_half": [
+          "test_eq2_uses_distinct_sources_and_half_batch_reduction"
+        ],
+        "m4_detached_student": [
+          "test_student_gradients_finite_difference_teacher_frozen",
+          "test_padding_and_sequence_sum_contract",
+          "test_zero_and_empty_response_tokens",
+          "test_two_source_toy"
+        ]
+      },
+      "rl/pkpo": {
+        "m1_sample_mean": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_native_gaussian_toy"
+        ],
+        "m2_raw_rewards": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_exact_binary_policy_gradient_is_pass_at_k",
+          "test_k_equals_n_and_ties",
+          "test_permutation_translation_and_frozen_rewards",
+          "test_large_group_stability_and_singleton"
+        ],
+        "m3_sorted_output": [
+          "test_subset_oracle_real_rewards_all_k",
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_exact_binary_policy_gradient_is_pass_at_k",
+          "test_k_equals_n_and_ties",
+          "test_permutation_translation_and_frozen_rewards"
+        ],
+        "m4_double_normalization": [
+          "test_loss_uses_sum_of_normalized_weights",
+          "test_native_gaussian_toy"
+        ]
+      },
+      "finetuning/svdquant": {
+        "m1_wrong_smoothing": [
+          "test_smoothing_orientation_and_linear_identity",
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_zero_weights_zero_activations_and_rank_zero",
+          "test_outlier_channel_toy"
+        ],
+        "m2_quantized_lowrank_input": [
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_outlier_channel_toy"
+        ],
+        "m3_quantize_full_weight": [
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_outlier_channel_toy"
+        ],
+        "m4_drop_singular_values": [
+          "test_known_spectrum_optimal_lowrank_and_residual",
+          "test_two_branches_against_scalar_quantization_oracle",
+          "test_full_rank_retains_unquantized_activation",
+          "test_zero_weights_zero_activations_and_rank_zero",
+          "test_repeated_singular_values_compare_products_not_signs",
+          "test_outlier_channel_toy"
+        ]
+      },
+      "representation/moge_alignment": {
+        "m1_ignore_depth_weights": [
+          "test_full_roe_arrangement_oracle",
+          "test_inverse_depth_weighting_and_z_only_shift"
+        ],
+        "m2_truncate_before_weight": [
+          "test_scalar_breakpoint_oracle",
+          "test_full_roe_arrangement_oracle",
+          "test_weight_then_truncation_and_not_l2"
+        ],
+        "m3_center_all_coordinates": [
+          "test_full_roe_arrangement_oracle",
+          "test_inverse_depth_weighting_and_z_only_shift"
+        ],
+        "m4_squared_residual": [
+          "test_scalar_breakpoint_oracle",
+          "test_full_roe_arrangement_oracle"
+        ]
+      },
+      "diffusion/daps": {
+        "m1_prior_standard_deviation": [
+          "test_score_from_scalar_energy_finite_differences",
+          "test_gaussian_posterior_stationary_point",
+          "test_batch_independence_and_unobserved_direction"
+        ],
+        "m2_reverse_likelihood": [
+          "test_score_from_scalar_energy_finite_differences",
+          "test_gaussian_posterior_stationary_point",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ],
+        "m3_langevin_half_variance": [
+          "test_explicit_noise_step_formula",
+          "test_noise_covariance_and_independent_renoising",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ],
+        "m4_renoise_variance_as_scale": [
+          "test_explicit_noise_step_formula",
+          "test_noise_covariance_and_independent_renoising",
+          "test_composed_transition_has_two_noise_draws",
+          "test_analytic_local_posterior_experiment"
+        ]
+      },
+      "diffusion/diffusion_nft": {
+        "m1_reciprocal_beta": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m2_negative_branch_sign": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_complement_symmetry_and_feature_reduction",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m3_drop_negative_examples": [
+          "test_independent_scalar_dual_objective",
+          "test_reward_endpoints",
+          "test_exact_gradient_and_frozen_context",
+          "test_neutral_reward_anchors_old_policy",
+          "test_complement_symmetry_and_feature_reduction",
+          "test_closed_form_optimum_and_branch_gradients",
+          "test_forward_process_velocity_training"
+        ],
+        "m4_train_old_policy": [
+          "test_exact_gradient_and_frozen_context"
+        ]
+      },
+      "architecture/var_next_scale": {
+        "m1_token_causal": [
+          "test_exact_scale_visibility",
+          "test_toy_attention_has_no_target_leakage"
+        ],
+        "m2_future_visible": [
+          "test_exact_scale_visibility",
+          "test_toy_attention_has_no_target_leakage"
+        ],
+        "m3_latest_only": [
+          "test_independent_prefix_reconstruction_oracle",
+          "test_all_prefix_scales_contribute"
+        ],
+        "m4_target_leak": [
+          "test_independent_prefix_reconstruction_oracle",
+          "test_target_and_future_perturbations_do_not_change_own_inputs",
+          "test_all_prefix_scales_contribute",
+          "test_toy_attention_has_no_target_leakage"
+        ]
+      },
+      "representation/var_tokenizer": {
+        "m1_original_features": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m2_add_residual": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m3_farthest_code": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ],
+        "m4_last_scale_only": [
+          "test_independent_scalar_residual_vq_oracle",
+          "test_hand_computed_residual_tokens",
+          "test_ties_single_scale_and_zero_residual",
+          "test_batch_independence_and_final_quantization_bound",
+          "test_toy_residual_detail_reconstruction"
+        ]
+      },
+      "diffusion/fd_population": {
+        "m1_centered_second": [
+          "test_raw_moments_scalar_oracle",
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_affine_equivariance_and_replication",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ],
+        "m2_reverse_decay": [
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ],
+        "m3_train_history": [
+          "test_current_gradients_and_frozen_history"
+        ],
+        "m4_center_at_batch_mean": [
+          "test_weighted_population_oracle",
+          "test_current_gradients_and_frozen_history",
+          "test_decay_endpoints_and_singleton",
+          "test_affine_equivariance_and_replication",
+          "test_sequential_ema_matches_expanded_weights",
+          "test_microbatch_population_experiment"
+        ]
+      },
+      "diffusion/fd_loss": {
+        "m1_drop_generated_correlation": [
+          "test_noncommuting_covariance_scalar_oracle",
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference",
+          "test_symmetry_rotation_and_common_translation"
+        ],
+        "m2_nonsymmetric_eigvalsh": [
+          "test_noncommuting_covariance_scalar_oracle",
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference",
+          "test_symmetry_rotation_and_common_translation",
+          "test_affine_generator_posttraining"
+        ],
+        "m3_differentiate_denominator": [
+          "test_stopped_normalization_gradient_and_weight_freeze",
+          "test_affine_generator_posttraining"
+        ],
+        "m4_train_reference": [
+          "test_gradient_matches_independent_spd_oracle_and_freezes_reference"
+        ]
+      },
+      "representation/vicreg": {
+        "m1_population_variance": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_autograd_both_views_and_analytic_variance_gradient",
+          "test_shared_translation_view_swap_and_permutations",
+          "test_covariance_targets_redundancy_not_diagonal"
+        ],
+        "m2_variance_view_sum": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_exact_collapse_stationary_but_nonconstant_gradient",
+          "test_autograd_both_views_and_analytic_variance_gradient"
+        ],
+        "m3_diagonal_penalty": [
+          "test_scalar_loop_oracle_and_code_normalization",
+          "test_one_dimension_and_satisfied_variance_floor",
+          "test_covariance_targets_redundancy_not_diagonal",
+          "test_noncollapsed_geometry_experiment"
+        ],
+        "m4_stop_second_view": [
+          "test_exact_collapse_stationary_but_nonconstant_gradient",
+          "test_autograd_both_views_and_analytic_variance_gradient",
+          "test_noncollapsed_geometry_experiment"
+        ]
+      },
+      "representation/sigreg": {
+        "m1_missing_imaginary": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m2_missing_sample_factor": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_slice_signs_joint_rotation_and_sample_count",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m3_missing_symmetry": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_fixed_slice_distribution_experiment"
+        ],
+        "m4_standardize_features": [
+          "test_complex_full_grid_scalar_oracle",
+          "test_singleton_and_zero_grid_origin",
+          "test_exact_collapse_is_stationary_and_nearby_spread_improves",
+          "test_gaussian_target_retains_location_and_scale",
+          "test_fixed_slice_distribution_experiment"
+        ]
+      },
+      "representation/visreg": {
+        "m1_sample_std": [
+          "test_scalar_formula_oracle",
+          "test_shape_gradient_freezes_std_and_directions"
+        ],
+        "m2_trainable_std": [
+          "test_shape_gradient_freezes_std_and_directions"
+        ],
+        "m3_unsorted_projection": [
+          "test_scalar_formula_oracle",
+          "test_shape_gradient_freezes_std_and_directions",
+          "test_permutation_translation_and_projection_scaling"
+        ],
+        "m4_frozen_global_anchor": [
+          "test_global_anchor_receives_gradient"
+        ]
+      },
+      "representation/ijepa": {
+        "m1_wrong_norm_axis": [
+          "test_target_scalar_oracle_and_context_order",
+          "test_token_shift_invariance_and_feature_permutation",
+          "test_masked_prediction_experiment"
+        ],
+        "m2_trainable_targets": [
+          "test_target_and_loss_gradient_boundaries"
+        ],
+        "m3_squared_loss": [
+          "test_smooth_l1_and_ema_scalar_oracles",
+          "test_target_and_loss_gradient_boundaries"
+        ],
+        "m4_reverse_momentum": [
+          "test_smooth_l1_and_ema_scalar_oracles",
+          "test_ema_endpoints_freezing_and_recurrence",
+          "test_masked_prediction_experiment"
+        ]
+      },
+      "world_models/lewm_prediction": {
+        "m1_stop_future_target": [
+          "test_joint_encoder_gradients_analytic"
+        ],
+        "m2_regularizer_axes": [
+          "test_teacher_forcing_and_timewise_regularizer_oracle",
+          "test_tiny_joint_training"
+        ],
+        "m3_reuse_initial": [
+          "test_action_rollout_closed_form",
+          "test_rollout_gradient_and_causality",
+          "test_tiny_joint_training"
+        ],
+        "m4_convex_weighting": [
+          "test_teacher_forcing_and_timewise_regularizer_oracle",
+          "test_joint_encoder_gradients_analytic"
+        ]
+      },
+      "world_models/lewm_planning": {
+        "m1_all_time_cost": [
+          "test_terminal_l2_scalar_oracle",
+          "test_goal_translation_and_prefix_invariance"
+        ],
+        "m2_high_cost_elites": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites",
+          "test_cem_planning_experiment"
+        ],
+        "m3_bessel_variance": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites"
+        ],
+        "m4_standard_deviation": [
+          "test_elite_statistics_oracle",
+          "test_ties_single_elite_and_all_elites",
+          "test_affine_equivariance_and_monotone_costs",
+          "test_cem_planning_experiment"
+        ]
+      },
+      "world_models/causal_jepa": {
+        "m1_hide_anchor": [
+          "test_anchor_query_and_visible_context_oracle",
+          "test_object_interaction_experiment"
+        ],
+        "m2_leak_history": [
+          "test_anchor_query_and_visible_context_oracle",
+          "test_hidden_trajectory_independence_and_slot_permutation",
+          "test_object_interaction_experiment"
+        ],
+        "m3_train_target": [
+          "test_prediction_gradient_and_frozen_targets"
+        ],
+        "m4_visible_history_loss": [
+          "test_separately_normalized_loss_oracle",
+          "test_prediction_gradient_and_frozen_targets",
+          "test_empty_history_mask_and_per_example_masks"
+        ]
+      },
+      "architecture/rms_norm": {
+        "m1_centered_input": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_zero_constant_single_feature_and_epsilon",
+          "test_token_local_scale_sign_and_shift",
+          "test_full_values_and_both_gradients_against_library",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m2_epsilon_outside_sqrt": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_zero_constant_single_feature_and_epsilon",
+          "test_token_local_scale_sign_and_shift",
+          "test_full_values_and_both_gradients_against_library",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m3_partial_uses_all_features": [
+          "test_hand_computed_full_and_partial_affine",
+          "test_partial_jacobian_includes_tail_to_prefix_coupling",
+          "test_prefix_selection_endpoints_and_invalid_counts",
+          "test_prefix_bias_and_offset_experiment"
+        ],
+        "m4_detached_prefix_statistic": [
+          "test_partial_jacobian_includes_tail_to_prefix_coupling",
+          "test_partial_gradients_match_finite_differences"
+        ]
+      },
+      "architecture/gqa": {
+        "m1_cyclic_head_repetition": [
+          "test_hand_computed_groups_and_projection_means",
+          "test_contiguous_routing_and_scalar_softmax",
+          "test_mha_mqa_endpoints_and_group_permutation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_cache_capacity_and_conversion_experiment"
+        ],
+        "m2_sum_projection_heads": [
+          "test_hand_computed_groups_and_projection_means",
+          "test_projection_pooling_endpoints_and_analytical_gradient"
+        ],
+        "m3_detached_shared_kv": [
+          "test_boolean_masks_zero_rows_and_causal_isolation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_small_numerical_jacobians"
+        ],
+        "m4_ignored_visibility": [
+          "test_boolean_masks_zero_rows_and_causal_isolation",
+          "test_cache_capacity_and_conversion_experiment"
+        ],
+        "m5_scale_by_query_heads": [
+          "test_contiguous_routing_and_scalar_softmax",
+          "test_mha_mqa_endpoints_and_group_permutation",
+          "test_all_qkv_gradients_accumulate_across_shared_heads",
+          "test_cache_capacity_and_conversion_experiment"
+        ]
+      },
+      "architecture/rope": {
+        "m1_reverse_rotation": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m2_wrong_frequency": [
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m3_half_split": [
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m4_ignore_positions": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_batch_head_broadcast_and_token_reordering",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ],
+        "m5_detached_features": [
+          "test_independent_analytical_input_and_position_gradients",
+          "test_small_numerical_jacobians"
+        ],
+        "m6_float32_phase": [
+          "test_hand_computed_quarter_turns_and_zero_position",
+          "test_independent_scalar_frequencies_and_arbitrary_positions",
+          "test_norm_inverse_and_rotation_composition",
+          "test_relative_inner_product_and_joint_translation",
+          "test_independent_analytical_input_and_position_gradients",
+          "test_small_numerical_jacobians",
+          "test_relative_logits_and_cached_decoding_experiment"
+        ]
+      },
+      "retrieval/semantic_ids": {
+        "m1_original_latent": [
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m2_add_residual": [
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m3_last_reconstruction": [
+          "test_hand_computed_residual_levels",
+          "test_independent_scalar_oracle_rectangular_shapes",
+          "test_exact_ties_choose_smallest_index",
+          "test_reconstruction_scaling_and_row_independence",
+          "test_zero_available_gives_nonincreasing_residual_error",
+          "test_frozen_catalog_experiment"
+        ],
+        "m4_global_suffix": [
+          "test_collision_groups_are_local_stable_and_noncontiguous",
+          "test_frozen_catalog_experiment"
+        ]
+      },
+      "retrieval/generative_retrieval": {
+        "m1_last_score": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_two_step_hand_probability",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring",
+          "test_generate_then_filter_toy_catalog"
+        ],
+        "m2_raw_logits": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring"
+        ],
+        "m3_truncate_first": [
+          "test_invalid_and_duplicate_ids_filtered_before_k",
+          "test_generate_then_filter_toy_catalog"
+        ],
+        "m4_duplicates": [
+          "test_invalid_and_duplicate_ids_filtered_before_k"
+        ],
+        "m5_first_parent": [
+          "test_identity_no_mutation_and_empty_lookup",
+          "test_two_step_hand_probability",
+          "test_scalar_oracle_prefix_shifts_and_large_logits",
+          "test_global_expansion_and_lexicographic_ties",
+          "test_wide_beam_equals_exhaustive_scoring",
+          "test_generate_then_filter_toy_catalog"
+        ]
+      },
+      "retrieval/late_interaction": {
+        "m1_mean_document": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m2_mean_query": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_permutations_positive_token_scaling_and_duplicate_query_evidence",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m3_zero_padding": [
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m4_no_normalization": [
+          "test_hand_computed_normalized_sum_of_document_maxima",
+          "test_independent_scalar_cosines_for_every_query_and_document",
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_permutations_positive_token_scaling_and_duplicate_query_evidence",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m5_reversed_loss": [
+          "test_pairwise_loss_stability_and_both_score_gradients",
+          "test_pairwise_common_shift_and_positive_evidence_monotonicity",
+          "test_synthetic_query_optimization_and_late_interaction_retrieval"
+        ],
+        "m6_detached_documents": [
+          "test_query_and_document_gradients_against_scalar_finite_differences",
+          "test_exact_tie_routes_gradient_to_first_valid_document_token",
+          "test_negative_matches_padding_empty_documents_and_zero_gradients"
+        ]
+      },
+      "retrieval/sasrec": {
+        "m1_future_leak": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids",
+          "test_provided_encoder_causality_and_future_embedding_gradients",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m2_exclude_self": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids"
+        ],
+        "m3_padding_keys": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_loop_mask_oracle_padding_patterns_and_ids"
+        ],
+        "m4_padding_denominator": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_batch_permutation_padding_extension_and_objective_direction",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m5_negative_sign": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_batch_permutation_padding_extension_and_objective_direction",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m6_detach_positive": [
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_large_logits_ignored_nonfinite_positions_and_finite_gradients",
+          "test_all_padding_zero_loss_still_has_zero_gradients",
+          "test_real_context_history_training_and_independent_objective_check"
+        ],
+        "m7_pairwise_instead_of_binary": [
+          "test_hand_calculated_visibility_and_two_binary_terms",
+          "test_independent_scalar_sampled_objective_in_both_precisions",
+          "test_both_logit_gradients_against_independent_finite_differences",
+          "test_real_context_history_training_and_independent_objective_check"
+        ]
+      },
+      "retrieval/bpr": {
+        "m1_observed_as_negative": [
+          "test_hand_computed_history_and_global_prior",
+          "test_independent_scalar_history_for_all_users_and_item_columns",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m2_global_history": [
+          "test_hand_computed_history_and_global_prior",
+          "test_independent_scalar_history_for_all_users_and_item_columns",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m3_reversed_margin": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_disabled_prior_avoids_overflow_from_unused_factors",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m4_detached_positive": [
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_extreme_signed_margins_and_both_item_directions_remain_stable",
+          "test_disabled_prior_avoids_overflow_from_unused_factors"
+        ],
+        "m5_selected_prior": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_global_prior_changes_unselected_rows_once_not_per_occurrence",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_empty_triples_keep_the_global_prior_and_both_zero_gradient_graphs",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m6_feature_average": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m7_binary_instead_of_pairwise": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_hand_computed_history_and_global_prior",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_disabled_prior_avoids_overflow_from_unused_factors",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ],
+        "m8_sum_instead_of_mean": [
+          "test_loss_contract_precision_strides_and_supplied_validation",
+          "test_scalar_objective_and_duplicate_index_gradients_by_finite_differences",
+          "test_mean_batch_replication_and_unregularized_item_translation",
+          "test_extreme_signed_margins_and_both_item_directions_remain_stable",
+          "test_actual_factor_training_exceeds_any_item_only_score_order"
+        ]
+      },
+      "retrieval/lightgcn": {
+        "m1_unnormalized_graph": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m2_random_walk_normalization": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m3_self_loops": [
+          "test_graph_contract_precision_empty_axes_strides_and_validation",
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m4_final_layer_only": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m5_omit_initial_layer": [
+          "test_propagation_contract_depth_precision_strides_and_supplied_validation",
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m6_detached_layers": [
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences"
+        ],
+        "m7_nonlinear_propagation": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_multihop_propagation_for_multiple_depths",
+          "test_embedding_and_operator_gradients_against_scalar_finite_differences",
+          "test_linear_superposition_isolated_nodes_and_input_protection",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ],
+        "m8_missing_reverse_edges": [
+          "test_hand_computed_symmetric_degrees_and_zero_layer_average",
+          "test_independent_scalar_graph_across_unbalanced_degrees_and_isolates",
+          "test_two_hop_collaborative_influence_uses_shared_item_degree",
+          "test_actual_initial_embedding_training_learns_overlapping_preferences"
+        ]
+      },
+      "representation/simclr": {
+        "m1_no_normalization": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_per_row_positive_scale_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m2_self_in_denominator": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m3_cross_view_only": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m4_interleaved_targets": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_paired_permutation_view_swap_and_orthogonal_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m5_first_direction_only": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_paired_permutation_view_swap_and_orthogonal_invariance",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m6_double_mean": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m7_ignore_temperature": [
+          "test_shape_dtype_strides_and_no_mutation",
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_asymmetric_scalar_oracle_across_temperatures",
+          "test_gradients_of_both_views_match_independent_finite_differences",
+          "test_zero_near_zero_rows_and_stable_extreme_logits",
+          "test_actual_paired_table_training_separates_instances"
+        ],
+        "m8_detach_second_view": [
+          "test_orthogonal_pairs_collapse_and_single_pair",
+          "test_gradients_of_both_views_match_independent_finite_differences"
+        ]
+      },
+      "representation/moco": {
+        "m1_reverse_momentum": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_momentum_endpoints_arbitrary_shape_detachment_and_independent_storage",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m2_detach_query": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m3_train_key": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients"
+        ],
+        "m4_train_dictionary": [
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients"
+        ],
+        "m5_ignore_temperature": [
+          "test_precision_strides_shapes_and_inputs_unchanged",
+          "test_one_positive_plus_dictionary_hand_computation",
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_scalar_denominator_across_temperatures_and_zero_rows",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m6_negative_denominator": [
+          "test_precision_strides_shapes_and_inputs_unchanged",
+          "test_one_positive_plus_dictionary_hand_computation",
+          "test_query_finite_difference_and_no_key_or_dictionary_gradients",
+          "test_scalar_denominator_across_temperatures_and_zero_rows",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m7_ignore_pointer": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m8_unnormalized_enqueue": [
+          "test_momentum_direction_and_circular_wrap_hand_computation",
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment",
+          "test_actual_sgd_ema_queue_trajectory_matches_independent_scalar_dynamics"
+        ],
+        "m9_queue_keeps_graph": [
+          "test_queue_empty_large_batches_multiple_wraps_and_detachment"
+        ]
+      },
+      "foundations/next_token_loss": {
+        "m1_unshifted": [
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_input_preservation_and_sequence_boundaries",
+          "test_prediction_confidence_experiment"
+        ],
+        "m2_wrong_direction": [
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_input_preservation_and_sequence_boundaries",
+          "test_prediction_confidence_experiment"
+        ],
+        "m3_wrong_denominator": [
+          "test_contract",
+          "test_independent_scalar_oracle",
+          "test_boundaries_and_extreme_scores",
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients",
+          "test_prediction_confidence_experiment"
+        ],
+        "m4_detached": [
+          "test_large_common_offset_preserves_loss_and_gradient",
+          "test_analytic_shifted_gradients"
+        ]
+      },
+      "foundations/sft_loss_mask": {
+        "m1_predictor_mask": [
+          "test_contract",
+          "test_independent_valid_token_oracle",
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients",
+          "test_no_mutation_and_masked_target_invariance",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m2_ignore_padding": [
+          "test_independent_valid_token_oracle",
+          "test_masked_analytic_gradients",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m3_dense_mean": [
+          "test_contract",
+          "test_independent_valid_token_oracle",
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients",
+          "test_prompt_difficulty_experiment"
+        ],
+        "m4_detached": [
+          "test_empty_selection_and_extreme_logits",
+          "test_large_common_offset_preserves_masked_loss_and_gradient",
+          "test_masked_analytic_gradients"
+        ]
+      },
+      "foundations/top_k_sampling": {
+        "m1_smallest": [
+          "test_independent_scalar_oracle",
+          "test_extreme_and_empty_boundaries",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m2_wrong_temperature": [
+          "test_independent_scalar_oracle",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m3_too_many": [
+          "test_contract",
+          "test_independent_scalar_oracle",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m4_threshold_ties": [
+          "test_contract",
+          "test_ties_threshold_and_full_distribution"
+        ]
+      },
+      "foundations/top_p_sampling": {
+        "m1_drop_crossing": [
+          "test_independent_scalar_oracle",
+          "test_extreme_and_empty_boundaries",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m2_extra_boundary": [
+          "test_contract",
+          "test_ties_threshold_and_full_distribution"
+        ],
+        "m3_wrong_order": [
+          "test_independent_scalar_oracle",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides",
+          "test_candidate_distribution_experiment"
+        ],
+        "m4_no_temperature": [
+          "test_independent_scalar_oracle",
+          "test_full_finite_scalar_range",
+          "test_ties_threshold_and_full_distribution",
+          "test_preservation_offsets_and_strides"
+        ]
+      },
+      "foundations/gradient_accumulation": {
+        "m1_equal_batches": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m2_sum_only": [
+          "test_contract",
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m3_double_divide": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ],
+        "m4_only_last": [
+          "test_full_batch_autograd_oracle",
+          "test_zero_counts_scalars_and_empty_parameters",
+          "test_regrouping_and_count_scale_invariance",
+          "test_preserves_input_tensors_and_list",
+          "test_unequal_microbatch_training_experiment"
+        ]
+      },
+      "foundations/gradient_clipping": {
+        "m1_per_parameter": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_input_preservation_and_partition_invariance",
+          "test_gradient_spike_experiment"
+        ],
+        "m2_value_clip": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_zero_empty_and_exact_threshold",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ],
+        "m3_amplify": [
+          "test_independent_global_norm_oracle",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ],
+        "m4_report_clipped": [
+          "test_contract",
+          "test_independent_global_norm_oracle",
+          "test_large_and_tiny_norms",
+          "test_direction_and_below_limit_invariants",
+          "test_gradient_spike_experiment"
+        ]
+      },
+      "architecture/group_norm": {
+        "m1_batch_statistics": [
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_other_samples_and_other_groups_cannot_change_the_anchor",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m2_channel_only": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m3_unbiased_variance": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m4_epsilon_outside": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_layer_and_instance_endpoints_include_spatial_axes",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_batch_context_and_group_choice_experiment"
+        ],
+        "m5_detached_statistics": [
+          "test_library_values_and_all_three_gradients",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients",
+          "test_all_operand_gradients_match_finite_differences"
+        ],
+        "m6_group_affine": [
+          "test_hand_computed_contiguous_groups_and_per_channel_affine",
+          "test_independent_scalar_oracle_across_ranks_and_groups",
+          "test_library_values_and_all_three_gradients",
+          "test_constant_tiny_and_singleton_groups_follow_the_epsilon_formula",
+          "test_analytical_group_jacobian_and_channel_affine_gradients"
+        ]
+      }
+    },
+    "issues": [],
+    "tests_executed": 10218
+  },
+  "node": {
+    "numpy_fenv_traps": false,
+    "library": "0.21.0",
+    "numpy": "2.2.5",
+    "passed": 721,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "0ae9e07a917647ec51aea72580d30ae296e47c64b72e898b94226a10d079767a",
+      "__init__.py": "d8ff2d454e0c1be98c2561993d4d56bf0f4e448f5ed7336070e8e4e6a6b4f450",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "f6dfc9a3f0d11470682ae497de0d2845eaa3927029fbd0f0d118af406cbf470d",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "cd3481df5853cbb7fb1f4dadf0d521ee833680611f5adae1d6f28bcd98eeda42",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_tensor.py": "2fc46dc1f77ce67e5b92e5e3fa7c69976e131a9dd759a79cf6fb749c31aab629",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49"
+    }
+  },
+  "chrome": {
+    "status": "success",
+    "library": "0.21.0",
+    "numpy": "2.2.5",
+    "passed": 721,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "f6dfc9a3f0d11470682ae497de0d2845eaa3927029fbd0f0d118af406cbf470d",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "d8ff2d454e0c1be98c2561993d4d56bf0f4e448f5ed7336070e8e4e6a6b4f450",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "2fc46dc1f77ce67e5b92e5e3fa7c69976e131a9dd759a79cf6fb749c31aab629",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "NOTICE": "0ae9e07a917647ec51aea72580d30ae296e47c64b72e898b94226a10d079767a",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_autograd.py": "cd3481df5853cbb7fb1f4dadf0d521ee833680611f5adae1d6f28bcd98eeda42",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_module_lifecycle.py": "8a69333dafea642e5e86b76b5fe1e93104fdad1ff64c39509e0b79ae352e3f9c",
+      "test_optimizer_lifecycle.py": "207612c25de9629d2430d1dfe95fafc1a8ca4181360365d99aec0ff0dd176c25",
+      "test_conversion_modes.py": "ddf1a1fb3cba26370dc9bf8fa58915f579593d1aad0b241dd36effdb3e29b16a",
+      "test_scheduler_lifecycle.py": "fcce4a43093c2899a5f3705c0565ee9e84957bad3e90f69d8b23efb8d297b866",
+      "test_nn_workflows.py": "0fdde92592946751b17f8c4bb6251098c096c268662bcd10427badc8170a1256",
+      "test_module_hooks.py": "7f11964e93e5a9e3d319dc412eb6b456464f0a885a4eb214c9de3604c2191cb2",
+      "test_graph_lifecycle.py": "400acb7f39b3209b27b8606b71428b8f4178709459ab8bbbfe570afe56c578eb",
+      "test_tensor_hooks.py": "6e1151b1c0b425df950c246820cd8fc3e3d362a728d1966c40c69bab8fd0ed2e",
+      "test_numpy_inputs.py": "d3a51ae4552965dd31b9c9841bfdbfbb048260cdf942aa3b37859060952e6c8c",
+      "test_construction.py": "36cccd1b55a802235f345b9cb6a7a0d2a60acc5e38af6f807dd832f8e00fbe83",
+      "test_promotion.py": "acec59766e18408121a4bdfcb769cca20c43464f5032fdbbc9220ef90d074d23",
+      "test_arithmetic.py": "fe915a978f4e4b66a67c7bbabcfc11c468fd5edea2a6e662e19e3feff9bfd987",
+      "test_ieee.py": "3155c80c54330dae8cc3331787929f5870f6d8c223f8dcbdb8dc63f1be65bb3e",
+      "test_linear_wasm.py": "9b328725cefdfc7ade544d58b453536d75d847a42d165e58239d9a27365e274d",
+      "test_batchnorm.py": "1bafb0c1d9cbe79f561800e1dbf694a83bcab417182b4efb30b546c7d798d82f",
+      "test_groupnorm.py": "ccf08a02f7a70c171377c049e2b50053fe9bde650b648a7d67e063e86ff712f5",
+      "test_classification.py": "035cf5ed9325bfa8de9507884fa3f5d03306c0833541df74b3d50cb4797772a0",
+      "test_convolution.py": "ab375280c0782e6413e1ad0bf99a1ba3089674dbd58c4371d867f7b6d53d5b13",
+      "test_layout.py": "d7e1e333dc409097ea89c07990251eb3ebe3467edf7ade43060f1a6c27d6397e",
+      "test_shape_ops.py": "47ed90683d1e77d59f14d407d4ad3e18bc6d74f3a385cff6b7a6fcc14a668023"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "b4d17e57a0d960894daf6d1c4c91b96e43a29cc5a321c7178f0cf6963e826a50",
+      "worker.mjs": "f97f9e17ff6694c3bdd6a9a1a31bea40b40d90b645df5222003bcb42395f23e2",
+      "plan.json": "8e1953ee71ccb5166ea178a96f815bd73992852b81e9b8f78ff6a032320e5c57"
+    }
+  },
+  "minimum": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.21.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "f6dfc9a3f0d11470682ae497de0d2845eaa3927029fbd0f0d118af406cbf470d",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "d8ff2d454e0c1be98c2561993d4d56bf0f4e448f5ed7336070e8e4e6a6b4f450",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "2fc46dc1f77ce67e5b92e5e3fa7c69976e131a9dd759a79cf6fb749c31aab629",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "NOTICE": "0ae9e07a917647ec51aea72580d30ae296e47c64b72e898b94226a10d079767a",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_autograd.py": "cd3481df5853cbb7fb1f4dadf0d521ee833680611f5adae1d6f28bcd98eeda42",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 40,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "paperleet_torch-0.21.0-py3-none-any.whl": "d238611fffe9c510c62b0a36799d5fe230856eec3d6b961fcfa2d84f13f59c50",
+      "paperleet_torch-0.21.0.tar.gz": "42f9cacbc256a9f72ba75a88ca0656d02a293df4ce3b48c0794a86250094ace6"
+    },
+    "receipts": {
+      "python310-v021-preflight-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.08041137499822071,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/property-proof/python310-v021-preflight-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-v021-preflight-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.40965370800404344,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/property-proof/python310-v021-preflight-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/property-proof/dist-preflight/paperleet_torch-0.21.0-py3-none-any.whl"
+        ]
+      },
+      "python310-v021-preflight-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 10.656594832995324,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/property-proof/python310-v021-preflight-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/property-proof/python310-v021-preflight-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "distributions": {
+    "status": "success",
+    "version": "0.21.0",
+    "modules": 40,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "f6dfc9a3f0d11470682ae497de0d2845eaa3927029fbd0f0d118af406cbf470d",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "d8ff2d454e0c1be98c2561993d4d56bf0f4e448f5ed7336070e8e4e6a6b4f450",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "2fc46dc1f77ce67e5b92e5e3fa7c69976e131a9dd759a79cf6fb749c31aab629",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "NOTICE": "0ae9e07a917647ec51aea72580d30ae296e47c64b72e898b94226a10d079767a",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_autograd.py": "cd3481df5853cbb7fb1f4dadf0d521ee833680611f5adae1d6f28bcd98eeda42",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "artifacts": {
+      "paperleet_torch-0.21.0-py3-none-any.whl": "d238611fffe9c510c62b0a36799d5fe230856eec3d6b961fcfa2d84f13f59c50",
+      "paperleet_torch-0.21.0.tar.gz": "42f9cacbc256a9f72ba75a88ca0656d02a293df4ce3b48c0794a86250094ace6",
+      "paperleet-0.1.0-py3-none-any.whl": "f4f245fda082084da5a0388a4e7b9ba14678fc39bfbb53ea48efdef7d7f8392d",
+      "paperleet-0.1.0.tar.gz": "d32c30d1b771dc778f94a43c69a5b17075e073620c0f8dff991323b7d250e665"
+    },
+    "installed_paths_disjoint": true,
+    "minimum_environment": "Python3.10.19 NumPy1.26.4 without native Torch;741 tests",
+    "license": "Apache-2.0"
+  },
+  "export": {
+    "status": "success",
+    "upstream": "edd647a080f3fd204b5b0c052786eafb029af239",
+    "published_assets_unchanged": 6124,
+    "published_sha256_tree": "9482488dc22d70b64de0d733d5d9c9344488e520833afa63b4298b6f96d0e50a",
+    "catalog_modules": 78,
+    "active_assets": 158,
+    "new_assets": 158,
+    "all_new_assets_reachable": true,
+    "runtimes": {
+      "browser-judge/runtime-dbc48bb1f08b4e86365f.json": {
+        "backend": "numpy-autograd-wasm",
+        "package_files": 38,
+        "sha256": "dbc48bb1f08b4e86365f44a07ab403045e97937c6414a58df1f65515629a6f2f"
+      },
+      "browser-judge/runtime-d536a2ac4c9e23bb881c.json": {
+        "backend": "numpy-wasm",
+        "package_files": 5,
+        "sha256": "d536a2ac4c9e23bb881c2f73b5ea3503bc4937fa859f4aa4e5aaae622b029c27"
+      }
+    }
+  },
+  "runtime_transfer": {
+    "numpy-autograd-wasm": {
+      "path": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+      "sha256": "dbc48bb1f08b4e86365f44a07ab403045e97937c6414a58df1f65515629a6f2f",
+      "raw_bytes": 451012,
+      "gzip_bytes": 103899,
+      "files": 42,
+      "delta_from_020": {
+        "raw_bytes": 9989,
+        "gzip_bytes": 2316
+      }
+    },
+    "numpy-wasm": {
+      "path": "browser-judge/runtime-d536a2ac4c9e23bb881c.json",
+      "sha256": "d536a2ac4c9e23bb881c2f73b5ea3503bc4937fa859f4aa4e5aaae622b029c27",
+      "raw_bytes": 37391,
+      "gzip_bytes": 11545,
+      "files": 9
+    }
+  },
+  "upstream": {
+    "upstream": "edd647a080f3fd204b5b0c052786eafb029af239",
+    "checkpoint": "a6cd40b19d64320c123ca2df2aea153bd92e6cb3",
+    "upstream_files": [
+      "README.md",
+      "docs/validation/compact-preparation-paths.md",
+      "docs/validation/diffusion-study-bridges.md",
+      "docs/validation/inline-comment-order.md",
+      "docs/validation/post-training-preparation.md",
+      "paperleet/interview_catalog.json",
+      "web/scripts/check-community-card-actions.mjs",
+      "web/scripts/check-company-preparation.mjs",
+      "web/scripts/check-interview-study.mjs",
+      "web/scripts/check-interview-ui.mjs",
+      "web/scripts/check-preparation-guides.mjs",
+      "web/src/CommunityCardActions.tsx",
+      "web/src/InterviewStudyPaths.tsx",
+      "web/src/community-card-actions.css",
+      "web/src/data/preparation-guides.json",
+      "web/src/interviewNavigation.ts",
+      "web/src/interviews.css"
+    ],
+    "numerical_inputs_changed": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "2256d8e6fbf047038f2eb013a80a75e3082bfe001961f638e6595df19d26bb8f",
+      "_api.py": "f6dfc9a3f0d11470682ae497de0d2845eaa3927029fbd0f0d118af406cbf470d",
+      "_cli.py": "337383a462f68292988b299827141847ecd12a116e39f3dedbce41ac42977fc5",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "d8ff2d454e0c1be98c2561993d4d56bf0f4e448f5ed7336070e8e4e6a6b4f450",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "c373e2174060fbd39170d734a43e921610631cac4be8756b06ccf3b8ad773211",
+      "_tensor.py": "2fc46dc1f77ce67e5b92e5e3fa7c69976e131a9dd759a79cf6fb749c31aab629",
+      "runtime.py": "99aebafa5cc7a4062af8f49ed904cc5761c2ae7be47bbdf12c85b7c212bf8b49",
+      "_registry.py": "c79e2f117743eb779877e4284f7f1c9ac4b0b8861aee437f03c82435454c702d",
+      "NOTICE": "0ae9e07a917647ec51aea72580d30ae296e47c64b72e898b94226a10d079767a",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_autograd.py": "cd3481df5853cbb7fb1f4dadf0d521ee833680611f5adae1d6f28bcd98eeda42",
+      "_layout.py": "7bab25a1c4e4578eca3cbc3b4ae5e04274dba8cc2941b0dcbcd91d8ef477df00",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "b729530846d8bd8ad1897d4f87f4c08daa98d21497e354c79398d534116fa0cb",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    }
+  },
+  "frontend": {
+    "handle": 9127,
+    "exit_code": 0,
+    "check": "pass",
+    "build": "pass",
+    "Pagespolicy": "pass"
+  },
+  "private_build": {
+    "handle": 91352,
+    "exit_code": 0
+  },
+  "live_expected_sha256": {
+    "browser-judge/1-b106100f18a7a7d01e4f.json": "b106100f18a7a7d01e4f2294fcddba5e0d04bf4d5ae737d31fbbd505faed5dc0",
+    "browser-judge/10-afb88363ecce80b39590.json": "afb88363ecce80b3959093713397c276a6ea63029c44b69ee1b1e233b378c6b2",
+    "browser-judge/11-fa4f0de61f61e5e49613.json": "fa4f0de61f61e5e496131179ca0a49df215270fa085982dcc438fb3aba5ee39d",
+    "browser-judge/12-c87777b3812a07d5296a.json": "c87777b3812a07d5296ae879dac4f633e98808cbb54d72584e366d3acbdfc0a3",
+    "browser-judge/13-d854951c88d5e71023b0.json": "d854951c88d5e71023b0b808450502f76837913aecbb787e9c345970fc99039f",
+    "browser-judge/14-947ab349d72d37944805.json": "947ab349d72d379448056ef4a3bee7bab2298eab689118fc93c294fe95ae7ba5",
+    "browser-judge/15-f8d9b28d3b30e95c33f7.json": "f8d9b28d3b30e95c33f701a071ad18a9a060c39ec040e451d468df515c9618f9",
+    "browser-judge/16-4e4a7d2549178076141a.json": "4e4a7d2549178076141a64864b28fe77037c4f196489a0c34589bb6bf8bf107e",
+    "browser-judge/17-a688cf44e01a8a53a136.json": "a688cf44e01a8a53a136d99704898691e387c0306512a314313eca28722cde60",
+    "browser-judge/18-5cae2a7e818a29bf392e.json": "5cae2a7e818a29bf392e152e23d30df0818b508d6015a85e41e2cd038993939a",
+    "browser-judge/19-ff925aa7f7ef108ccabe.json": "ff925aa7f7ef108ccabe8161797c29a8a65def5cd434b262b5ecd91430d63662",
+    "browser-judge/2-83e9ae2afdb5d025bf06.json": "83e9ae2afdb5d025bf066ae1d6d0f6a156dc4bc35aaa01619d0f239bc92ef6b0",
+    "browser-judge/20-5d536cf05b04fe4488da.json": "5d536cf05b04fe4488da1df4903c4a977a778775dc572fb9143bc6f56838d1d3",
+    "browser-judge/21-977b754e3ef807ae7ec0.json": "977b754e3ef807ae7ec09f3e4ea7fe623c47e8bf8883520679296ec333f02649",
+    "browser-judge/22-287a6b70c8be80df3207.json": "287a6b70c8be80df3207314991e82d9eff68ab349f0a0ddaece709e24a609171",
+    "browser-judge/23-64f5422e46620e85c1ba.json": "64f5422e46620e85c1bad8baf3e800dac8abc13990d01b89799653035744e8ba",
+    "browser-judge/24-44c17612c36e79efc1e2.json": "44c17612c36e79efc1e2d39792cce7f7f0e9f6c94d88432571de1b35334876c0",
+    "browser-judge/25-3391c931404627d50da4.json": "3391c931404627d50da48d1dac388eec815786fc841f4e8df89761bf5289f7a2",
+    "browser-judge/26-e95937ec4fbc8aa0d265.json": "e95937ec4fbc8aa0d2656e2a51d887a18c701de4d67d9384652386596893e388",
+    "browser-judge/27-09affb6a02c9f6c3e9c2.json": "09affb6a02c9f6c3e9c259c485fc189f97a5452892d13694f551e328165136d1",
+    "browser-judge/28-3fe1d0df70fb24bb58be.json": "3fe1d0df70fb24bb58bee5a41fbad7bfbf2feac49e7aff3bd3bbe2dfaa5b5385",
+    "browser-judge/29-af3bfc5c1c044f5810f8.json": "af3bfc5c1c044f5810f80f28f6bb79d065080b16920735fc09ed242d91fe33fb",
+    "browser-judge/3-64927522b5f31abb6acc.json": "64927522b5f31abb6acc04ca370d4edddd5c26a33d9e5d803caf4bdd56423b14",
+    "browser-judge/30-a604f261d9b0e7eecd98.json": "a604f261d9b0e7eecd98b94fb355c5e1f2f9f69d6f8829658197ab4ce4d229dc",
+    "browser-judge/31-9ea7a48dc5d83e847aa5.json": "9ea7a48dc5d83e847aa5fde1d50369dcaca5f6b2ae28234c3303af19e6f55958",
+    "browser-judge/32-20a90c1bad61f3fc55f3.json": "20a90c1bad61f3fc55f30efd9413ab6724c31d2875c4b810e0dd35055ee5682b",
+    "browser-judge/33-fb6fd4e1ae13e54a5b3b.json": "fb6fd4e1ae13e54a5b3bfdd830597c5068df19acc200ef887597ce742529e9ff",
+    "browser-judge/34-2cb7a284755c1c02552d.json": "2cb7a284755c1c02552d43172c2df9e50293e42e2fed0a1be286ad8e237fd18b",
+    "browser-judge/35-51839f1a6dbfdc3dedc2.json": "51839f1a6dbfdc3dedc28962440c8b4c36bf8862ecdc465a5f1b87f0118d7823",
+    "browser-judge/36-ef27557cddff1946a241.json": "ef27557cddff1946a241652a31e89b7791b2c2598e91ce553b2186330232128c",
+    "browser-judge/37-8b352e46ba0568d9d667.json": "8b352e46ba0568d9d667fada4d1690fbbf1cdca6d34b40cca39e6c0947004ec0",
+    "browser-judge/38-eb2cb6520b4065b1064d.json": "eb2cb6520b4065b1064dcc869eabfee7107021d491bc6e4598e552d4b70b0fff",
+    "browser-judge/39-ff9e8742094b07b6a600.json": "ff9e8742094b07b6a600a2b2f61d647c4450cf99fb9b840794e50b0fb350d858",
+    "browser-judge/4-9342cd33d45b9034c383.json": "9342cd33d45b9034c383e43fde67bc63346b02fb3d63b7b1b9652573155fc961",
+    "browser-judge/40-090bb1ab255a0c74b531.json": "090bb1ab255a0c74b53173977f3731af1105044bfd7beeb504bc2430f16cde54",
+    "browser-judge/41-669866409a52a55b5c81.json": "669866409a52a55b5c81ee190cc65c7a6a595a78fe4fb151c72dca6b20385e48",
+    "browser-judge/42-a99c7eab334fff4b8ada.json": "a99c7eab334fff4b8adac62a153804c85e685321357e3bc46dfc7c9b7812af04",
+    "browser-judge/43-71e88e2fbcaa42cf2ef4.json": "71e88e2fbcaa42cf2ef4ce842e14b47317e2680f07635e6c62a8bf38e92c51be",
+    "browser-judge/44-21d9862d32184e8110e8.json": "21d9862d32184e8110e89cf94ad4b774530e21f0b622064c676c08a4d9e534ae",
+    "browser-judge/45-062f92199a0d913c13dd.json": "062f92199a0d913c13ddbe63f0faad17e19da0d051d1e6c7363104f6ec69048c",
+    "browser-judge/46-5a0667ade07b9b6c27aa.json": "5a0667ade07b9b6c27aae2b88b67dc68dbc8c8a21e122dd513b8bc154e3dbf82",
+    "browser-judge/47-06af1451857dfe1a60c7.json": "06af1451857dfe1a60c785b981c5836c20ee13ff3b9fffeccea62884788f2836",
+    "browser-judge/48-9ad3b54242d44332541a.json": "9ad3b54242d44332541a79ae422527e0df2ead93a68fbbefb8f18210a9e65825",
+    "browser-judge/49-b63035c08db94644e7bf.json": "b63035c08db94644e7bf9e364387c03c50ab84b8f369c21acea7eeabc727929c",
+    "browser-judge/5-dd5c48181413f0f88dc0.json": "dd5c48181413f0f88dc06946318a9c37bc568bcf7baea1d41437615fcfb73d28",
+    "browser-judge/50-6814581d5ca1cc5d02c7.json": "6814581d5ca1cc5d02c7ac410f69c4de9a3d4d710799e51cb7ceeb9dbaf8ed9e",
+    "browser-judge/51-d5d782f37435d663a750.json": "d5d782f37435d663a750bafd33a6cafd818ea969a34abb22235f28adbec5d85f",
+    "browser-judge/52-be365d6c613c9294b794.json": "be365d6c613c9294b7946888d09828e8d909e9f46c433db998c2081ec16a27d7",
+    "browser-judge/53-57f09d15b5385dcb2f1b.json": "57f09d15b5385dcb2f1b76150aedeaf67b3d8e8b71d61c5d4b76c472116625c5",
+    "browser-judge/54-9235d49418cf971bab98.json": "9235d49418cf971bab98c6a485ad6978bd4df835cb3beac6a7804f5c6d3191ba",
+    "browser-judge/55-caf8231097eeaccfaa0c.json": "caf8231097eeaccfaa0cf0c9c409253a8318d6bcf6bcf42eb332a5a7d18e6f96",
+    "browser-judge/56-64c243089b9d99f01909.json": "64c243089b9d99f01909781267d0c9d502f4f2c4629e82c63f5d98f398904de3",
+    "browser-judge/57-c9eaa97a6836d40c930a.json": "c9eaa97a6836d40c930a2bc649d28ce9736132b873bb1be2ba84359ffa70fe7b",
+    "browser-judge/58-f61708b9bff017259e48.json": "f61708b9bff017259e48b5ddd50374aaec877826c0172683fdc940ff0f6a3d22",
+    "browser-judge/59-9d734715e0d9b2200530.json": "9d734715e0d9b22005305d12354e9e5bac7c8eff4e191b99be6124047ee8c593",
+    "browser-judge/6-4471715706cccd34546d.json": "4471715706cccd34546ddd208f19690756ad16ef7d7d54877ad4f7438d01b07d",
+    "browser-judge/60-7ad71c71674dcf102c0e.json": "7ad71c71674dcf102c0ee727c3c5e82736636647590e387f1f56a8a00739841f",
+    "browser-judge/61-d43e0328d2cfcd1fcbfd.json": "d43e0328d2cfcd1fcbfd12bc63bd50dcba5d4439550f2c6d51a9f751437d7635",
+    "browser-judge/62-1a653d594696ae7b156c.json": "1a653d594696ae7b156c08fba339157cf29d469a8a4ace573549de2a243545ee",
+    "browser-judge/63-d9537e4844341046c467.json": "d9537e4844341046c467a885f89977eea135a32b356769fba8873ce89a94f6ef",
+    "browser-judge/64-d75c23b0961ab8e1f2b1.json": "d75c23b0961ab8e1f2b1ffea3e5d05695a4fabd528c8621979bff2da1e846426",
+    "browser-judge/65-3e8180c19c49545c525f.json": "3e8180c19c49545c525f6e295997e195213f3cd3509779c54fdd3bb229462079",
+    "browser-judge/66-5877145b3a1192f8589c.json": "5877145b3a1192f8589c0ea0f347ee861337c3156faa9468bf08c599c5365ffb",
+    "browser-judge/67-8b9fbff5ab3208d66fea.json": "8b9fbff5ab3208d66fea286176ef2f9597183f5f52541b4a3172fe33d16c9a67",
+    "browser-judge/68-1a1c2958a38c4358a3e0.json": "1a1c2958a38c4358a3e0b5c097c9b4833ecd8aff12f16cd923cc70458d509df6",
+    "browser-judge/69-bb772c860c2c9fbcc5f0.json": "bb772c860c2c9fbcc5f056ec125ec27d739fdf3aed3fa4f537b430d3a5398fe1",
+    "browser-judge/7-9ebcdaf675af26c9b25c.json": "9ebcdaf675af26c9b25c92e9d3b309ef78817f32775096652f04394eb57c4f59",
+    "browser-judge/8-f7353dea9d5d065434d6.json": "f7353dea9d5d065434d613fc34782dc061d8bde7b5f2901efd1674adda8a8563",
+    "browser-judge/84-d222c47d3ac23078df1c.json": "d222c47d3ac23078df1ca2f98ce1b06e3f86d6e7af2d4427f841c905b7662c0b",
+    "browser-judge/85-866a8ae90cab22ee29a1.json": "866a8ae90cab22ee29a1319289d850302e1cb2358de61d9e9e594eda392e3859",
+    "browser-judge/86-20b35daff5fd3fb23b65.json": "20b35daff5fd3fb23b6576127cdda210b10ce869998fb04c757644c8b6cc1a1e",
+    "browser-judge/87-8451952ae56d1ed7272a.json": "8451952ae56d1ed7272aaf92636930bf66873191418adf7b2610cf1c9429fdc3",
+    "browser-judge/88-46fbcac7d8956e3a3f92.json": "46fbcac7d8956e3a3f9201e6417c6b8085ebf04f12090ee751ebd796b2610cac",
+    "browser-judge/89-f877ea8f4856014e65da.json": "f877ea8f4856014e65daeee31a0e98efb4d1ec7078108e982f49485bc88de0f4",
+    "browser-judge/9-67bd2b3bab1cd5803173.json": "67bd2b3bab1cd5803173de46279eec3f19b8f97ecb07b64339832e6901c99659",
+    "browser-judge/90-a94bc86506f74e6d5ec0.json": "a94bc86506f74e6d5ec09c6382f774385f4dce88029f67c7a3de2517ab23bafe",
+    "browser-judge/91-3f89d140ce399a7a6abf.json": "3f89d140ce399a7a6abf18500a9e7d4392acf2e94ddf6c5bdcc0ff3c4836e307",
+    "browser-judge/92-8825fab83edb57d4e96e.json": "8825fab83edb57d4e96e2dc2d1374813e2924db70812b95ff08f9a0cf42b7452",
+    "browser-judge/runtime-d536a2ac4c9e23bb881c.json": "d536a2ac4c9e23bb881c2f73b5ea3503bc4937fa859f4aa4e5aaae622b029c27",
+    "browser-judge/runtime-dbc48bb1f08b4e86365f.json": "dbc48bb1f08b4e86365f44a07ab403045e97937c6414a58df1f65515629a6f2f",
+    "catalog.json": "a319da549cccf678d828096146365379490f75d68db20fc5aa0dd42429eff67c",
+    "index-v3.json": "cfec8c73a56660c4f617167f6e9ff3a7ab094dbda9d6657c5a6bf30d002ea80a",
+    "index.json": "bc8613057918c319e8ccb3919bf6a168922e069ce0581ed3c4c172720323f988",
+    "modules/1-3ddeb6188c240903ad94.json": "3ddeb6188c240903ad94e95f92db12211768970c106354e8ba91256e4c11b634",
+    "modules/10-235eb6f15a7c7b15f1da.json": "235eb6f15a7c7b15f1da31b3e17033b7655c1f21b4867f20268c049d6645d896",
+    "modules/11-e3ed53474cb1cb5d63b5.json": "e3ed53474cb1cb5d63b56bc248227eb49bfe0d0f63bc259ece4da16d2889280e",
+    "modules/12-4d824643f68a95bd61c6.json": "4d824643f68a95bd61c67385d2c5ddb30ac9ec835b8e77a496e58267702e3ddc",
+    "modules/13-dd7b421f4592e5547703.json": "dd7b421f4592e55477031a0dc3e410c4f5498ec751d1b2bfe7be3c3ad2a2c8c1",
+    "modules/14-db66b898a9e87ffd2203.json": "db66b898a9e87ffd220367d542c7f61c5bdac0f88644a6374e6c1b21c3c50ab5",
+    "modules/15-c4e5d1feb7ea8537bf73.json": "c4e5d1feb7ea8537bf738e191f5336a34ffb3ed5d45951a481233e9e865d0f72",
+    "modules/16-a86b5dc95925f4d63df1.json": "a86b5dc95925f4d63df1d0707757aec64f4b3dd7934cf187d07bf2227470e221",
+    "modules/17-013bdf50c7710a1e197e.json": "013bdf50c7710a1e197e847d1c5ae43c4ee6dffae16ee038608e250fad9f656d",
+    "modules/18-9f3cb46f5704a8eed059.json": "9f3cb46f5704a8eed0591badb5859e5eacb1b7e7cc9c313f993c91cc28003bd2",
+    "modules/19-96478bd33ee1ea16bc71.json": "96478bd33ee1ea16bc716f0a7ed397aa0d675bfa98f437b9af9d16f7db592687",
+    "modules/2-fb60abe2cef7af1761ff.json": "fb60abe2cef7af1761fffefe9844b8f2f150a1b4b1fbc3ced7dfdd626da804e1",
+    "modules/20-b3b1bddf3fedad1d0f96.json": "b3b1bddf3fedad1d0f96df40058905fab0bb0f9622263826cea749dedc390966",
+    "modules/21-d2e382f445c49a3d03da.json": "d2e382f445c49a3d03dab0368663d00992caf9a4d9300a123373c93b96422b40",
+    "modules/22-b47205f280e26c02ec2a.json": "b47205f280e26c02ec2ad4770ae5e64e5b58fcd27237ee6c489b11b295233d44",
+    "modules/23-8b0ccb5cd569fe1cee68.json": "8b0ccb5cd569fe1cee682990dbd900ad1c7eb8368ba591b866121ad80a1bab6c",
+    "modules/24-ac5df3199de4ad344dec.json": "ac5df3199de4ad344dec2b32ae04786ef05c8edeb031ecf71a6e3219afd04181",
+    "modules/25-fa3cbdc091e7b1d9631b.json": "fa3cbdc091e7b1d9631bdbf20e2e008fbf0910fd84eeb82d99ab777f19341108",
+    "modules/26-2d257b2ba86d09ea80a0.json": "2d257b2ba86d09ea80a0b24ee6a753814f3853282c835dca8faeb0ade0a63d29",
+    "modules/27-9e85dd8e5738b982cc4d.json": "9e85dd8e5738b982cc4dedafb874fb0df1036b382f7e18bbcc7e823ab5dd3d86",
+    "modules/28-dfcd10703c7db946223e.json": "dfcd10703c7db946223ea60a8e40c9e7868ddf96fd21ed1e095837939fabf02a",
+    "modules/29-99397c268f46060faa1f.json": "99397c268f46060faa1f836998d9586b987d475f78fcc97cec29cad1a084b55a",
+    "modules/3-cc09798f9095d142028f.json": "cc09798f9095d142028f74498a57de2199a734e9d50f2954488e94bdbdc1e410",
+    "modules/30-2616b56504ef8a52bbb1.json": "2616b56504ef8a52bbb12a98bfc56d3163d1ee39e2c7cefe15d29fe83b19cf2b",
+    "modules/31-620cc023abfd74fb2ce4.json": "620cc023abfd74fb2ce430539a368fcec303b151feb26a407a761128a78e3d6a",
+    "modules/32-8aa4a8819e2d0b2472af.json": "8aa4a8819e2d0b2472af6ccb54eb99ead50308a8ae66d28a038bf5b89616a46b",
+    "modules/33-644a78bbfcfb74b350ab.json": "644a78bbfcfb74b350abfbebbf465f42b0a87678d1aec15cceec1fec563ca407",
+    "modules/34-927fbe774ac65ad50e88.json": "927fbe774ac65ad50e881429151f583c9629b7d78947096367bc719b35c1c27e",
+    "modules/35-8b9fd8f69f7ac7b756c1.json": "8b9fd8f69f7ac7b756c1e4f18d92cc1d3f2ccd4ffae9de648a8144f4832529be",
+    "modules/36-65d31c67a4dc1dc74778.json": "65d31c67a4dc1dc747786a65d02ba78f568d93b501074ff88a306a4991d7cd2e",
+    "modules/37-11b6329b23ea47fa7bde.json": "11b6329b23ea47fa7bde54a7fad1421a51439fa5627e448844dc044d3bdc16f3",
+    "modules/38-d03ce2dd1a0b1b14f18a.json": "d03ce2dd1a0b1b14f18a31e3ddf078e55734aa3c1d9f1dd65562be7e8ae12b4d",
+    "modules/39-898444a299b89cdc34b2.json": "898444a299b89cdc34b2ec16f96e7450ca7666650a9555e33ea68dfaf748f263",
+    "modules/4-5c5d875962c04e408a2b.json": "5c5d875962c04e408a2b9527ab4c586be2c712e6952a5de0781a93dbc7397007",
+    "modules/40-6e8076f6d38b6eeaf5a8.json": "6e8076f6d38b6eeaf5a8aec7d1bec1e4fbbe1e663628c14912fe95e81e067f4a",
+    "modules/41-f3c294fcab93fd7866fb.json": "f3c294fcab93fd7866fb70b63f20cb89a143532d3a14eee7495bc1c307c22495",
+    "modules/42-1f879d87f68284360e5c.json": "1f879d87f68284360e5cac4a4fc51c69e941a310cfea07b58436dcecc0284fa1",
+    "modules/43-73652f715bcec396f96b.json": "73652f715bcec396f96bb21b5676a79190f25157365eba6ddf8d4be95d4c50a1",
+    "modules/44-280ff0254ed0b14c4f17.json": "280ff0254ed0b14c4f17aa4670847655c92cedff3178e1b1c9c070a75c5c5757",
+    "modules/45-280b4545c58faa088eb8.json": "280b4545c58faa088eb879a214a05d26028452a6c66e122c13bd1dd9db09458c",
+    "modules/46-638a1106dca1f4d1254d.json": "638a1106dca1f4d1254df3460491c6ae89d6249325f0aed2812bab4b52865014",
+    "modules/47-e312198582090004c746.json": "e312198582090004c746bf19f4161ecae31550f655954815c76d61e0a702b686",
+    "modules/48-de050cfbc1b91119f08b.json": "de050cfbc1b91119f08bbf2a49897ddca934957321a162531e32d2773c72fdfa",
+    "modules/49-40078bb4129cd84e967f.json": "40078bb4129cd84e967f79eb04c361aad884b14de746b8f1956da96542927bde",
+    "modules/5-74334acf01cc5fd9f198.json": "74334acf01cc5fd9f198b00864c4577cb093e76dbd625db90dc6126e638e94e6",
+    "modules/50-6c5969ed0571c80da129.json": "6c5969ed0571c80da1293ff41aa23d0c29d9f41a3c3ce77739276465c6a7095a",
+    "modules/51-78332a8be920216ee6b2.json": "78332a8be920216ee6b21f8bf175390bb8b63598115340e26fa3e3e1710c824c",
+    "modules/52-60a7f4f7e641043d5bb4.json": "60a7f4f7e641043d5bb43de70d6be371182c54869dd9a763b97c8cd6ae2cd7f1",
+    "modules/53-6ec1e32814eaa5de5372.json": "6ec1e32814eaa5de53728c7da906f4a202c265177a7ab577438b33f0cb8ecbb1",
+    "modules/54-9c2e18666ef78201cde1.json": "9c2e18666ef78201cde10e6f38113a05e0f6e48abefd35647204da9caac557ca",
+    "modules/55-d0e53c29560717f614e1.json": "d0e53c29560717f614e1e8d3b0d0b9f5856652e2cb49a7eb9a2ad5683b751669",
+    "modules/56-8e44ef6dce12f5839655.json": "8e44ef6dce12f583965549af26d7c033d0467d3c4de2380c46d114baf7b95770",
+    "modules/57-c2cf4aa1c6144d7eb26e.json": "c2cf4aa1c6144d7eb26ec34fa8aa49172f63f443e1ee3094718f2684c6d936e9",
+    "modules/58-ff5a0dd7fc40056b2890.json": "ff5a0dd7fc40056b2890fa18db3732d899225bef91ef11d2cb570a7b2adc23fe",
+    "modules/59-283a7bf88a02dc6da957.json": "283a7bf88a02dc6da95736f37cc3cea43c089f4f266d93f6f9636b235d93e15e",
+    "modules/6-854e7e76f937ce065e10.json": "854e7e76f937ce065e104f4303ddeb6c0b05d638472652dd96d364917504a4fd",
+    "modules/60-1b45d2df28bd01f0b697.json": "1b45d2df28bd01f0b697341b2bbac8a71a93fafb61c471e0947f4d7ab935976b",
+    "modules/61-503e7e682f2e8954308b.json": "503e7e682f2e8954308b53476efc51b23318d8a0fc25dd33084a8ea5abadebf4",
+    "modules/62-9664890976ae686619e7.json": "9664890976ae686619e7f4f9eca7dcba16ddda4a340165abb020d7b2d50ddaf0",
+    "modules/63-c9acad0cf6b47dfe32f3.json": "c9acad0cf6b47dfe32f38b2e0ec681f4d2dc404ed1c1118eefb50922f866a73f",
+    "modules/64-57307fbbd4bb91988bc0.json": "57307fbbd4bb91988bc0213913b74f24dff6f6765b4ae1463a097582f507f197",
+    "modules/65-8c30cdfb8a95d198bfbf.json": "8c30cdfb8a95d198bfbfc7bf6372e800d2cc86abb14479dc407143aa2649c35e",
+    "modules/66-1ae8680eccee833a983f.json": "1ae8680eccee833a983f3b7e253d1984f2bb03a1b0919da569724cc3098d6979",
+    "modules/67-2b457c314b280b8f474e.json": "2b457c314b280b8f474ecb1aeebd475e11744b635d265ccc3212bcaa30d86ee9",
+    "modules/68-d0ac31f95d5dd3ce52e5.json": "d0ac31f95d5dd3ce52e50daf1eadbe2dbbf08a3cf8b77e84da98e2b1e5d39568",
+    "modules/69-eb17fcec8414174c63dc.json": "eb17fcec8414174c63dc6c67f272088ec51ecba1691ef496443a7ac097e9e8b0",
+    "modules/7-66823e1d6e35303a6b31.json": "66823e1d6e35303a6b319dad3fa16f0b38e0b1e88ca13a249cca7397ac0d7877",
+    "modules/8-6692fdae4361855113f6.json": "6692fdae4361855113f66783492ac8e3409a4c2172391e31e16be4b64fb78e4a",
+    "modules/84-693dc8f008884b07edc9.json": "693dc8f008884b07edc9d631e97d1077ae843a2a5a0779cc7616e55a1448510e",
+    "modules/85-7854cdb1fa60c72395ab.json": "7854cdb1fa60c72395abd831773edaf9fbe44417eb974eaa67a8927b4fd28b37",
+    "modules/86-9125a2788763798a6651.json": "9125a2788763798a6651057fdcf29bc7afca325cdd91731563cb62e08488440f",
+    "modules/87-9af02d9a8a5f9c2e6147.json": "9af02d9a8a5f9c2e61474288dbb3d6da8c066fa06b81b2c4e98ebd211e94b0e9",
+    "modules/88-400b546e5b81a7d758b7.json": "400b546e5b81a7d758b749aa6120e2c4a313a2221dd0890cfd3b07a14fa363ed",
+    "modules/89-c6d75244ea55ad2fc7e3.json": "c6d75244ea55ad2fc7e38fbce8ec257a42ce02c7fa84db4d7b9c30b518a89f62",
+    "modules/9-724686cf42b78a6eebe4.json": "724686cf42b78a6eebe46deb12f5b05d761c1cfb7e317fdbfebcbb5330066b24",
+    "modules/90-67b8e69d0d1726dfe6e5.json": "67b8e69d0d1726dfe6e50611511271727050a5bac34bc6526c35acbd7399c1e5",
+    "modules/91-e86ee0ebd1a6e427807c.json": "e86ee0ebd1a6e427807cc6aaa1ceffa6a1587cad42b4a72a426dc60b904137a3",
+    "modules/92-d59365d3a1698dcccc79.json": "d59365d3a1698dcccc791221163c0e459aad3c0182597bc4a291377fddb0a808"
+  },
+  "scope": "Performance/core/runtime snapshot preserved before branding changes. Main still0.20;both old21runtimebundles and161liveexpectedfiles are frozen andunpublished. Namespace migration requires new packaging/runtime/application proofs.",
+  "flow_matching": {
+    "id": "diffusion/flow_matching",
+    "pyodide": "0.29.4",
+    "numpy": "2.2.5",
+    "backend": "numpy-autograd-wasm",
+    "tests": 8,
+    "mutants": 4,
+    "packages": [
+      "pyyaml"
+    ],
+    "bundle_url": "browser-judge/10-afb88363ecce80b39590.json",
+    "runtime_bundle_url": "browser-judge/runtime-dbc48bb1f08b4e86365f.json",
+    "source_sha256": "fc3c56df256df281834c97bd89cee6ae39749df1905b8deb4fd10b6839c434f8",
+    "preparation_ms": 2194,
+    "calibration_ms": 159222,
+    "learner_ms": 26000,
+    "elapsed_ms": 187611,
+    "budgets": {
+      "calibration": 240000,
+      "run": 60000,
+      "total": 300000
+    },
+    "browser_budget_exceeded": [],
+    "passed": true
+  }
+}

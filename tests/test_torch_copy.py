@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 import pytest
 import torch as native
-from paperleet_torch import UnsupportedOperation, torch
+from stridetorch import UnsupportedOperation, torch
 
 
 @pytest.mark.parametrize('target_dtype', ['float32', 'float64', 'int64', 'bool', 'complex64'])

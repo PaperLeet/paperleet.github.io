@@ -59,6 +59,6 @@ The float64 logits-retention regression is removed: forward retained allocations
 
 ## Evidence and next work
 
-Raw samples, source hashes, wheel identity, memory and native-gate summaries are in [`iteration-2.json`](../../packages/paperleet-torch/benchmarks/results/iteration-2.json). Reproduction tools are in the package's `benchmarks/` directory. Complete local logs and frozen baselines are retained in `paperleet-wasm-evaluation-20261015/torch-iteration-2`.
+Raw samples, source hashes, wheel identity, memory and native-gate summaries are in [`iteration-2.json`](../../packages/stridetorch/benchmarks/results/iteration-2.json). Reproduction tools are in the package's `benchmarks/` directory. Complete local logs and frozen baselines are retained in `paperleet-wasm-evaluation-20261015/torch-iteration-2`.
 
-Core model/optimizer lifecycle, additional tensor/autograd coverage, selective saved operands and a resident GPU storage/graph prototype remain in [the roadmap](../../packages/paperleet-torch/ROADMAP.md). This version is a repository integration milestone, not completion of the independent-library objective.
+Core model/optimizer lifecycle, additional tensor/autograd coverage, selective saved operands and a resident GPU storage/graph prototype remain in [the roadmap](../../packages/stridetorch/ROADMAP.md). This version is a repository integration milestone, not completion of the independent-library objective.

@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import torch as native
 
-from paperleet_torch import torch, UnsupportedOperation
+from stridetorch import torch, UnsupportedOperation
 
 
 DTYPES = ['bool', 'uint8', 'uint16', 'uint32', 'uint64', 'int8', 'int16',

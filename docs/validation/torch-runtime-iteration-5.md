@@ -144,12 +144,12 @@ Adam's lazy-state fixture retains zero constructor moment bytes and **524,292 /
 four counters return to the unlinked fast path on its first optimizer update.
 
 Full sample arrays, source hashes, environments, memory, wheel and validation
-metadata are in [iteration-5.json](../../packages/paperleet-torch/benchmarks/results/iteration-5.json).
-Developer commands are in [benchmarks/README.md](../../packages/paperleet-torch/benchmarks/README.md).
+metadata are in [iteration-5.json](../../packages/stridetorch/benchmarks/results/iteration-5.json).
+Developer commands are in [benchmarks/README.md](../../packages/stridetorch/benchmarks/README.md).
 Complete local logs, frozen sources and fresh-Worker scripts are under
 `paperleet-wasm-evaluation-20261015/torch-iteration-5`.
 
 Schedulers/hooks, further core tensor/nn coverage, allocation/cold-start profiling
 and resident WebGPU storage/graph execution remain in the
-[roadmap](../../packages/paperleet-torch/ROADMAP.md). The full independent-library
+[roadmap](../../packages/stridetorch/ROADMAP.md). The full independent-library
 objective remains active beyond this milestone.

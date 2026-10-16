@@ -149,9 +149,9 @@ All 4,222 published hashed assets survive unchanged. Only 423 untracked,
 unpublished, unreachable intermediate assets were pruned. Earlier 4,720/4,729/
 4,732-test phases remain separately labeled. Full samples, source/resource/
 harness hashes, audits, reconstruction proofs and check receipts are in
-[iteration-12.json](../../packages/paperleet-torch/benchmarks/results/iteration-12.json).
-The reverse patches reproduce the [initial prototype](../../packages/paperleet-torch/benchmarks/results/iteration-12-prototype.patch)
-and [batch prototype](../../packages/paperleet-torch/benchmarks/results/iteration-12-optimized-prototype.patch).
+[iteration-12.json](../../packages/stridetorch/benchmarks/results/iteration-12.json).
+The reverse patches reproduce the [initial prototype](../../packages/stridetorch/benchmarks/results/iteration-12-prototype.patch)
+and [batch prototype](../../packages/stridetorch/benchmarks/results/iteration-12-optimized-prototype.patch).
 Full local logs and frozen artifacts remain under
 `paperleet-wasm-evaluation-20261015/torch-iteration-12`.
 

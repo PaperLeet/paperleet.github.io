@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pytest
 import torch
-from paperleet_torch import torch as light, UnsupportedOperation
+from stridetorch import torch as light, UnsupportedOperation
 
 
 def close(a,b,dtype):

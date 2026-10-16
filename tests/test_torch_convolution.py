@@ -3,12 +3,12 @@ import copy
 import numpy as np
 import pytest
 import torch
-from paperleet_torch import torch as lite
+from stridetorch import torch as lite
 
 
 @pytest.fixture(params=['direct','matrix','auto'],autouse=True)
 def convolution_algorithm(request,monkeypatch):
-    from paperleet_torch import _convolution
+    from stridetorch import _convolution
     monkeypatch.setattr(_convolution,'_ALGORITHM',request.param)
 
 
@@ -79,7 +79,7 @@ def test_jvp_and_reverse_over_forward_including_closed_zero_dependencies(dim,act
             # the module's registered Parameters with exact Tensor arguments.
             fn=lambda x,w,b:m._forward_test(x,w,b)
             if api is lite:
-                from paperleet_torch._convolution import _conv
+                from stridetorch._convolution import _conv
                 m._forward_test=lambda x,w,b:_conv(x,w,b,1,'same',1,2,dim,mode)
             else:
                 p=[0,1]*dim

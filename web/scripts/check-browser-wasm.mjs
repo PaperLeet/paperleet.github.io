@@ -132,7 +132,7 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
         for (const suite of ['module_lifecycle', 'optimizer_lifecycle', 'conversion_modes', 'scheduler_lifecycle', 'nn_workflows', 'module_hooks', 'graph_lifecycle', 'tensor_hooks', 'numpy_inputs', 'construction', 'promotion', 'linear_wasm', 'arithmetic', 'ieee', 'batchnorm', 'groupnorm', 'classification', 'convolution', 'layout', 'shape_ops']) {
           const testPath = `/judge/test_lightweight_${suite}.py`;
           py.FS.writeFile(testPath, fs.readFileSync(path.join(web,
-            `../packages/paperleet-torch/tests/test_${suite}.py`), 'utf8'));
+            `../packages/stridetorch/tests/test_${suite}.py`), 'utf8'));
           const exitCode = py.runPython(`__import__('pytest').main([
             '${testPath}', '-q', '--noconftest', '-p', 'no:cacheprovider', '--import-mode=importlib'])`);
           assert.equal(Number(exitCode), 0, `Standalone ${suite} contracts must pass on WASM`);
@@ -140,7 +140,7 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
       }
       if (id === 'architecture/attention') py.runPython(`
 import numpy as np, torch
-from paperleet_torch import as_torch, install_as_torch
+from stridetorch import as_torch, install_as_torch
 previous_torch = torch
 attention_operand=torch.ones(1,3,2,dtype=torch.float32)
 assert torch.nn.functional.scaled_dot_product_attention(attention_operand,attention_operand,attention_operand).dtype==torch.float32

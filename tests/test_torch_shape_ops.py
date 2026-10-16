@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 import pytest
 import torch as native
-from paperleet_torch import torch
+from stridetorch import torch
 
 
 def boundary_cases():

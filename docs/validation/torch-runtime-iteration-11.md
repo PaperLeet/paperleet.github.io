@@ -176,8 +176,8 @@ and [Pages](https://github.com/PaperLeet/paperleet.github.io/actions/runs/387797
 runs succeed; its live 70-module starters/manifests and both runtime bytes/notices
 were verified before this work. Complete raw samples, source hashes, audit inputs,
 validation counts and exact local browser harnesses are in
-[iteration-11.json](../../packages/paperleet-torch/benchmarks/results/iteration-11.json).
-The [intermediate reverse patch](../../packages/paperleet-torch/benchmarks/results/iteration-11-intermediate.patch)
+[iteration-11.json](../../packages/stridetorch/benchmarks/results/iteration-11.json).
+The [intermediate reverse patch](../../packages/stridetorch/benchmarks/results/iteration-11-intermediate.patch)
 reproduces the first candidate. Full logs, previous expectations and frozen source
 variants remain under `paperleet-wasm-evaluation-20261015/torch-iteration-11`.
 

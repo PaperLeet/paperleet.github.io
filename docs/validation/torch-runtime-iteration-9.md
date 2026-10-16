@@ -83,7 +83,7 @@ about 95–96%, with peak allocations about 62% lower. This is a fixture-specifi
 result. With explicit retention, 0.9 holds 595,164 / 1,152,224 bytes after the first
 float32/float64 backward, falling to 53,236 / 86,008 bytes after a final unretained
 pass. Graph history, input storage and live output storage still exist.
-Use [bench_graph_memory.py](../../packages/paperleet-torch/benchmarks/bench_graph_memory.py)
+Use [bench_graph_memory.py](../../packages/stridetorch/benchmarks/bench_graph_memory.py)
 to reproduce the allocation fixture.
 
 Timings compare frozen main `fe09cfa6ae2a792f1e93e6b107164799967ca1be` / 0.8.0
@@ -185,7 +185,7 @@ self-cycle. All previous model, optimizer, scheduler, normalization, attention,
 forward AD and reverse-over-forward tests remain in the release gate.
 
 Final timing samples, source hashes, retained-memory samples and gate results are
-recorded in [iteration-9.json](../../packages/paperleet-torch/benchmarks/results/iteration-9.json).
+recorded in [iteration-9.json](../../packages/stridetorch/benchmarks/results/iteration-9.json).
 Full local logs, earlier variants and fresh-Worker scripts remain under
 `paperleet-wasm-evaluation-20261015/torch-iteration-9`. The 0.8 predecessor has
 successful quality/Pages runs and live runtime bytes verified before this work.

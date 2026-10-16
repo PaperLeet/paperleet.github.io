@@ -79,8 +79,8 @@ reverse controls retain all samples, including noise and regressions. Validation
 and native view metadata still have a measurable cost. This is a compatibility
 candidate awaiting broader integration evidence, with no overall speedup claim.
 
-The maintained `bench_shape_ops.py` is byte-identical to the measured Python
-harness. CPU and WASM wrappers accept `--benchmark shape_ops`. Timings cover only
+The maintained `bench_shape_ops.py` preserves the measured Python workload;
+its imports were renamed to `stridetorch` after measurement. CPU and WASM wrappers accept `--benchmark shape_ops`. Timings cover only
 mutually successful values, aliases and derivatives; corrected scalar/empty and
 no-grad semantics are excluded. There is no native-Torch throughput, whole-site
 latency, cold-start or peak-memory claim.
@@ -94,9 +94,9 @@ installation. No package has been published to PyPI. No 0.21 browser catalog has
 been exported or published, and all historical published assets remain untouched.
 
 Machine-readable local evidence is in
-[`iteration-21.json`](../../packages/paperleet-torch/benchmarks/results/iteration-21.json);
+[`iteration-21.json`](../../packages/stridetorch/benchmarks/results/iteration-21.json);
 source snapshots, harnesses, all timing samples and rejected logs are in
-[`iteration-21-harness.tar.gz`](../../packages/paperleet-torch/benchmarks/results/iteration-21-harness.tar.gz).
+[`iteration-21-harness.tar.gz`](../../packages/stridetorch/benchmarks/results/iteration-21-harness.tar.gz).
 
 ## Refined metadata path and direct gradient flags
 
@@ -118,10 +118,40 @@ The full infrastructure run passes22,666 numerical/other cases and fails one
 structural AST check that mistook propertygetter/setter for method shadowing.
 The check now allows one getter/setter/deleter per property and still rejects
 repeated definitions of each kind; all39 contracts pass after the correction.
-A fresh complete merged run remains pending. Only `_api.py` indentation differs
+A fresh complete merged run passes 22,667 tests with one optional Docker skip. Only `_api.py` indentation differs
 between final timed and runtime snapshots; their ASTs match and all other source
 and license bytes are identical.
 
-[Refinement evidence](../../packages/paperleet-torch/benchmarks/results/iteration-21-view-path.json)
-and [source/harness archive](../../packages/paperleet-torch/benchmarks/results/iteration-21-view-path-harness.tar.gz)
+[Refinement evidence](../../packages/stridetorch/benchmarks/results/iteration-21-view-path.json)
+and [source/harness archive](../../packages/stridetorch/benchmarks/results/iteration-21-view-path-harness.tar.gz)
 retain both phases and the rejected structural run.
+
+## Independent project naming
+
+The working project name is **StrideTorch**, with distribution/import/launcher
+`stridetorch`. User scripts retain ordinary `import torch`, activated by the
+launcher or host. The private `paperleet._vendor.torch` namespace stays separate.
+Apache-2.0 and the PaperLeet origin/copyright in NOTICE are preserved.
+
+All78WASM modules passed before this migration with no budget excess, alongside
+22,667 infrastructure cases,721Node/Chrome contracts and741minimum-wheel cases.
+Before namespace edits,161live-expected files were frozen. All158unpublished
+candidate assets were SHA-checked against that archive before pruning; none of
+the6,124historically published assets was removed or changed.
+
+Of40Python modules,36are byte-identical;four change package/CLI/source-map names.
+NOTICE changes the project heading/scope while preserving attribution. The
+seventeen-case benchmark changes only its imported package/rootmodule name.
+The renamed package passes 22,667 infrastructure tests (one optional Docker skip,
+17 warnings, 178.24s). Fresh Node/Pyodide and Chrome Worker runs each pass 721
+contracts; the installed standalone wheel passes 741 tests on Python 3.10.19 and
+NumPy 1.26.4 without native Torch. Standalone and private application wheels and
+source archives contain the same 40 Python modules and license bytes, with
+disjoint installed paths. Frontend checks/build and Pages policy pass. The loader
+accepts both historical and canonical runtime payloads, while rejecting problem
+bundles that override either library namespace.
+
+All 6,124 historical immutable assets remain byte-identical; all 158 new assets
+are reachable. Full exported application verification under the new name and
+remote adoption remain pending. Old proofs are retained as the before-renaming
+snapshot, not reinterpreted as new namespace tests.

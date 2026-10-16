@@ -4,8 +4,9 @@ import { parseBrowserBudgets } from './browserBudgets';
 type RecordValue = Record<string, unknown>;
 type RuntimeBundle = { version: 1; backend: string; adapter: string; harness: string; files: Record<string, string> };
 const sharedFiles = ['paperleet/__init__.py', 'paperleet/common/__init__.py', 'paperleet/common/asserts.py', 'paperleet/common/comparisons.py'];
-const libraryNotice = (name: string) => name === 'paperleet_torch/LICENSE' || name === 'paperleet_torch/NOTICE';
-const libraryFile = (name: string) => /^paperleet_torch\/[a-zA-Z0-9_]+\.py$/.test(name) || libraryNotice(name);
+const libraryPath = (name: string) => /^(?:stridetorch|paperleet_torch)\//.test(name);
+const libraryNotice = (name: string) => /^(?:stridetorch|paperleet_torch)\/(?:LICENSE|NOTICE)$/.test(name);
+const libraryFile = (name: string) => /^(?:stridetorch|paperleet_torch)\/[a-zA-Z0-9_]+\.py$/.test(name) || libraryNotice(name);
 const object = (value: unknown): value is RecordValue => !!value && typeof value === 'object' && !Array.isArray(value);
 const stringFiles = (value: unknown): value is Record<string, string> => object(value) && Object.entries(value).every(
   ([name, source]) => (/^(?:[a-zA-Z0-9_]+\/)*(?:[a-zA-Z0-9_]+\.py|problem\.yaml)$/.test(name) || libraryNotice(name)) && typeof source === 'string');
@@ -84,7 +85,7 @@ export function createBrowserBundleLoader(fetcher?: typeof fetch) {
     }
     if ((bundle.version !== 2 && bundle.version !== 3) || typeof bundle.runtime_bundle_url !== 'string'
       || !/^browser-judge\/runtime-[a-f0-9]{20}\.json$/.test(bundle.runtime_bundle_url)
-      || !stringFiles(bundle.files) || Object.keys(bundle.files).some(name => sharedFiles.includes(name) || name.startsWith('paperleet_torch/'))
+      || !stringFiles(bundle.files) || Object.keys(bundle.files).some(name => sharedFiles.includes(name) || libraryPath(name))
       || typeof bundle.reference !== 'string' || !object(bundle.mutants) || !Object.values(bundle.mutants).every(value => typeof value === 'string')
       || !object(bundle.tests) || typeof bundle.test_file !== 'string' || !Object.hasOwn(bundle.files, bundle.test_file))
       invalid('Invalid browser problem bundle');

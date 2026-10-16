@@ -112,7 +112,7 @@ latency or application-wide speedup claim follows from these samples.
 - All local release gates and exact remote adoption passed for commit
   `7a6af99f5b3eb6e0a12597365e8f960420c69aff`.
 
-The [evidence record](../../packages/paperleet-torch/benchmarks/results/iteration-16.json)
+The [evidence record](../../packages/stridetorch/benchmarks/results/iteration-16.json)
 retains native semantic/range probes, initial failures, raw performance samples,
 source identity, package and VM proofs. `iteration-16-harness.tar.gz` contains
 the original experimental runners and prototype kernel. Full local evidence is
@@ -123,7 +123,7 @@ frontend checks include the new ordered interview-practice group.
 
 ## Exact remote adoption
 
-[Remote evidence](../../packages/paperleet-torch/benchmarks/results/iteration-16-remote-adoption.json)
+[Remote evidence](../../packages/stridetorch/benchmarks/results/iteration-16-remote-adoption.json)
 records Quality run38841156443 and Pages run38841156368 as successful for the
 exact published commit. Remote infrastructure:17474 passed,1optional Docker
 skip,10warnings in509.57s. Native catalog:77problems/9987executions/3repetitions/

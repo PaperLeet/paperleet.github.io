@@ -1,9 +1,0 @@
-paperleet-torch
-Copyright 2026 PaperLeet contributors
-
-Licensed under the Apache License, Version 2.0.
-This lightweight NumPy-backed torch compatibility library was extracted from
-PaperLeet: https://github.com/PaperLeet/paperleet.github.io
-
-The license covers the paperleet-torch subproject and its distributed copies.
-Third-party dependencies retain their respective licenses.

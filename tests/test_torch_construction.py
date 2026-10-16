@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import torch as native
 
-from paperleet_torch import torch
+from stridetorch import torch
 
 
 DTYPES = ['bool', 'uint8', 'uint16', 'uint32', 'uint64', 'int8', 'int16',

@@ -5,8 +5,8 @@ import warnings
 import numpy as np
 import pytest
 import torch as native
-from paperleet_torch import torch
-from paperleet_torch import UnsupportedOperation
+from stridetorch import torch
+from stridetorch import UnsupportedOperation
 
 
 def view_cases():

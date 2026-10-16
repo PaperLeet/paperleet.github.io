@@ -140,13 +140,13 @@ saving is for lazy construction and inactive parameters, not a claim that Adam
 no longer needs moments.
 
 Raw samples, environments, source identities, memory and validation summaries are
-in [iteration-4.json](../../packages/paperleet-torch/benchmarks/results/iteration-4.json).
-Use [the benchmark tools](../../packages/paperleet-torch/benchmarks/README.md),
+in [iteration-4.json](../../packages/stridetorch/benchmarks/results/iteration-4.json).
+Use [the benchmark tools](../../packages/stridetorch/benchmarks/README.md),
 including `bench_optimizer_memory.py`. Local complete logs, frozen baselines,
 prototype measurements, fresh-Worker scripts and the sequential runner are under
 `paperleet-wasm-evaluation-20261015/torch-iteration-4`.
 
 Model dtype/device transforms, schedulers/hooks, broader tensor/nn coverage,
 allocation profiling and resident WebGPU storage/graph execution remain in the
-[roadmap](../../packages/paperleet-torch/ROADMAP.md). The independent-library goal
+[roadmap](../../packages/stridetorch/ROADMAP.md). The independent-library goal
 remains active beyond this repository integration milestone.

@@ -140,8 +140,8 @@ versus 2.347 / 2.339 ms in the baseline. These small differences are not claimed
 as kernel speedups; module callbacks extend behavior rather than tensor kernels.
 
 Final timings, retained-memory samples and complete gate results are recorded in
-[iteration-8.json](../../packages/paperleet-torch/benchmarks/results/iteration-8.json).
-Use [bench_module_hooks.py](../../packages/paperleet-torch/benchmarks/bench_module_hooks.py)
+[iteration-8.json](../../packages/stridetorch/benchmarks/results/iteration-8.json).
+Use [bench_module_hooks.py](../../packages/stridetorch/benchmarks/bench_module_hooks.py)
 or the WASM runner's `--benchmark module_hooks` option.
 
 ## Validation scope

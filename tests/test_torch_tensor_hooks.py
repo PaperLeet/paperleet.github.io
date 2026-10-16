@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import torch as native
 
-from paperleet_torch import UnsupportedOperation, torch
+from stridetorch import UnsupportedOperation, torch
 
 
 def close(actual, expected):

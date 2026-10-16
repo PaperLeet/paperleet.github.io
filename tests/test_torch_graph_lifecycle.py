@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import torch as native
 
-from paperleet_torch import torch
+from stridetorch import torch
 
 
 def close(actual,expected,dtype='float64'):

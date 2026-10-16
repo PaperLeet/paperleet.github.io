@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import torch as native
 
-from paperleet_torch import torch
+from stridetorch import torch
 
 
 APIS = ['tensor', 'as_tensor', 'from_numpy']
@@ -107,7 +107,7 @@ def test_valid_numpy_views_keep_values_and_ownership(api, layout):
 def test_readonly_import_warns_once_but_copy_does_not_in_fresh_process():
     script = '''
 import warnings, numpy as np, torch as native
-from paperleet_torch import torch
+from stridetorch import torch
 for api in (native, torch):
     data=np.arange(3,dtype='f4');data.flags.writeable=False
     with warnings.catch_warnings(record=True) as warnings_seen:
