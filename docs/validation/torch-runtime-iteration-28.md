@@ -124,3 +124,42 @@ includes all prototype/adopted sources,88 timing children, native probes,
 schema-fixture corrections, independent tests, minimum distributions and actual
 Node/Chrome receipts. Adopted source hashes refer only to `trial-transpose` and
 `proof-final`; earlier variants are explicitly retained as trials.
+
+
+## Application integration
+
+The original native catalog gate passes78 modules/10218 executions/342 mutants
+with three repetitions in115.91s. After merging main73c777f9, all33 incoming
+UI/docs/build/data files are preserved byte-for-byte. Its interview catalog adds
+the policy-distillation route;107 affected catalog/interview/browser-judge tests
+pass in115.49s. Full final core tests before this merge pass29402 with one optional
+Docker skip. No upstream problem/test/judge Python inputs changed.
+
+The exported shim passes all78 modules/342 mutants in219709ms with concurrency2,
+including881 standalone checks in28 suites with frozen source hashes. Original
+per-case and aggregate budgets remain unchanged and none is exceeded. These
+catalog durations establish budget compatibility rather than speedup. All7230
+published immutable payloads remain byte-identical;158 new reachable payloads
+plus three mutable indexes are frozen for later live verification. Both runtime
+profiles carry Apache-2.0 LICENSE/NOTICE. The autograd runtime is479313 raw bytes
+(local gzip estimate111120); the schedule profile is37343/11550.
+
+The application wheel/sdist contain the same45 core/resource hashes as the
+independent0.28 wheel and the latest application catalog/server bytes. Their
+installed Python paths remain disjoint. Owned dependencies reuse the successful
+iteration27 npm-ci tree: lockfile and all14 Pyodide files are rechecked exactly.
+
+Complete frontend checks pass57 bilingual preparation guides/171 prompts,
+reading tabs, inbox and math-security contracts. Default and actual hosted
+Pages-profile builds each have three initial JS assets, respectively402515 raw /
+130018 gzip and403917 raw /130481 gzip bytes, within existing budgets. The actual
+profile comes from the repository variable. No manual visual browser review is
+claimed. The React checklist review preserves upstream account-key isolation,
+listener cleanup, lazy loading and keyboard guards without unrelated UI edits.
+
+[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-28-integration-gates.json)
+and its205-file archive retain exports, current artifacts and logs. An initial
+nonexistent pytest path, receipt-verifier working-directory/syntax corrections
+and truncated terminal receipts are recorded explicitly. The affected-test log
+records success; no missing command exit code is invented. Non-force adoption,
+actual exact-main Quality and eligible Pages/live verification remain separate.

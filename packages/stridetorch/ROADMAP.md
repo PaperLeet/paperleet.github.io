@@ -394,7 +394,7 @@ current detail/manifest references and158 immutable payloads, including both
 runtime profiles and licenses. Version0.27 is positively verified on the site;
 source-commit deployment was superseded and is not claimed as published.
 
-## Version 0.28 candidate
+## Version 0.28 milestone
 
 - Matrix `t/mT`, movement `movedim/moveaxis` and swap `swapaxes/swapdims` preserve
   ordinary views, storage versions and real VJP/JVP routing. Scalar aliases,
@@ -407,6 +407,11 @@ source-commit deployment was superseded and is not claimed as published.
   ownership and retained graph/value release. Eager and per-node metadata trials
   were rejected using timing evidence; all trials and anomalies are preserved.
   Full final-source and application integration outcomes are recorded separately.
+- Final core gate29402/one optional skip, minimum wheel893 and Node/Chrome881
+  pass. Latest-main integration preserves33 upstream files, passes107 affected
+  Python tests and all78/342 exported WASM cases with28/881 standalone contracts.
+  Frontend/default/actual Pages-profile builds pass; remote adoption remains
+  tracked separately until actual Quality/deployment/live evidence exists.
 
 ## Next implementation areas
 
