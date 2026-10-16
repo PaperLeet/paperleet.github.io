@@ -9,7 +9,7 @@ import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
-import {useDiscussionReplies,ReplyListControls,MoreReplies} from './useDiscussionReplies';
+import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
 import {quoteReplyDraft,type ReplyQuote} from './replyQuotes';
@@ -1036,7 +1036,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
               {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,returnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
             </div>
           </article>
-          <section ref={replyList.root} className="social-panel discussion-replies">
+          <section ref={replyList.root} tabIndex={-1} aria-labelledby="discussion-replies-heading" className="social-panel discussion-replies">
             {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,returnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
             <div className="panel-title">
               <h2 id="discussion-replies-heading" tabIndex={-1}>
@@ -1044,12 +1044,14 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
               </h2>
             </div>
             {post.replies.length>0&&<ReplyListControls list={replyList} disabled={repliesLocked}/>}
+            <ReplyReadingNotice list={replyList}/><ReplyReadingReturn list={replyList}/>
             {replyList.shown.length ? (
               replyList.shown.map((r) => (
                 <article
                   key={r.id}
-                  className={`community-reply ${r.parent_id ? "nested-reply" : ""} ${replyTarget===r.id?'linked-reply':''}`}
+                  className={`community-reply ${r.parent_id ? "nested-reply" : ""} ${replyTarget===r.id?'linked-reply':''} ${replyList.revealed===r.id?'context-reply':''}`}
                   id={`reply-${r.id}`}
+                  data-discussion-reply={r.id}
                   tabIndex={-1}
                 >
                   <div className="reply-heading">
@@ -1063,13 +1065,14 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                       <button
                         className="reply-context"
                         disabled={repliesLocked||!replyList.byId.has(r.parent_id)}
-                        onClick={()=>replyList.reveal(r.parent_id!)}
+                        onClick={event=>replyList.reveal(r.parent_id!,event.currentTarget)}
                       >
                         {t("回复", "Replying to")}{" "}
                         {authorName(replyList.byId.get(r.parent_id)?.author) ||
                           t("已删除的回复", "a deleted reply")}
                       </button>
                     )}
+                    <ReplyReadingReturn list={replyList} replyId={r.id}/>
                     {r.can_delete && (
                       <button
                         className="icon-button delete-action"
@@ -1155,7 +1158,7 @@ function Discussion({ id, returnTo, replyTarget }: { id: string; returnTo?: stri
                 ? t('回复已发布。','Reply posted.')
                 : t('回复已发布并已显示。暂未获取到讨论的最新状态，可重试加载讨论，无需再次发布。','Your reply is posted and visible. The latest discussion could not load; retry loading without posting again.')}</p>
                 {replyDraftKept && <p>{t('当前未发布的回复草稿已保留。','Your current unpublished reply draft is kept.')}</p>}
-                {postedReplyId && post.replies.some(row => row.id === postedReplyId) && <button className="text-button" type="button" onClick={()=>replyList.reveal(postedReplyId)}>{t('查看刚发布的回复','View your posted reply')}</button>}
+                {postedReplyId && post.replies.some(row => row.id === postedReplyId) && <button className="text-button" type="button" onClick={event=>replyList.reveal(postedReplyId,event.currentTarget)}>{t('查看刚发布的回复','View your posted reply')}</button>}
               </div>}
               <form
                 className="social-form"

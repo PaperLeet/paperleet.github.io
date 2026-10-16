@@ -32,7 +32,8 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-list>li[data-comment-located]{background:color-mix(in srgb,var(--accent) 5%,transparent);border-radius:6px}
 .card-comment-list>li[data-comment-located]>.card-comment-meta{color:var(--accent)}
 .card-comment-list .post-excerpt{margin:9px 0 8px;font-size:13px;line-height:1.65;-webkit-line-clamp:4}
-.card-comment-links{display:flex;align-items:center;gap:16px;font-size:12px}
+.card-comment-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;font-size:12px}
+.card-comment-links>.reply-reading-return{margin-inline-start:auto;color:var(--accent);background:var(--surface2)}
 .card-comment-links button,.card-more-comments,.card-collapse-comments{border:0;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer}
 .card-comment-links button{padding:5px 8px;border-radius:6px}
 .card-comment-links button:hover{background:var(--surface2);color:var(--text)}
