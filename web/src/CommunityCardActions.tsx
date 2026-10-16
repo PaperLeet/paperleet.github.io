@@ -45,7 +45,17 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const textarea=useRef<HTMLTextAreaElement>(null),toggle=useRef<HTMLButtonElement>(null),composePrompt=useRef<HTMLButtonElement>(null);
   const editorView=useRef<MarkdownEditorView|undefined>(undefined);
   const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string}|undefined>(undefined),formId=fieldId+'-form';
+  const closing=useRef<{opener:HTMLElement;href:string}|undefined>(undefined);
   const retryLike=useRef<HTMLButtonElement>(null),accountFocus=useRef<{opener:Element|null;href:string}|undefined>(undefined);
+  useLayoutEffect(()=>{
+    const intent=closing.current;if(open||!intent)return;closing.current=undefined;
+    const active=document.activeElement;
+    if(location.href!==intent.href||active!==intent.opener&&!(active===document.body&&!intent.opener.isConnected))return;
+    const control=toggle.current;if(!control)return;
+    control.focus({preventScroll:true});
+    const bounds=control.getBoundingClientRect();
+    if(bounds.top<100||bounds.bottom>window.innerHeight)control.scrollIntoView({block:'nearest',behavior:'instant'});
+  },[open]);
   useLayoutEffect(()=>{
     const intent=minimized.current;if(writing||!intent)return;minimized.current=undefined;
     const active=document.activeElement;
@@ -91,7 +101,9 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     // A hidden preview must not keep other card actions waiting on its read.
     readVersion.current++;request.current?.abort();request.current=undefined;setLoading(false);
   }
+  function dismissComments(opener:HTMLElement){closing.current={opener,href:location.href};collapse();}
   function expand(){
+    closing.current=undefined;
     if(open){collapse();return;}
     // Read the same per-thread draft used by the full discussion, including its reply target.
     const restored=busy||!saved?current.current:readReplyDraft(tabDraftStorage(),owner,initial.id)||{body:''};
@@ -176,7 +188,12 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       {children&&<div className="card-actions-extras">{children}</div>}
     </div>
     {error&&<div className="card-action-error"><SocialNotice error={error}/>{accountRecovery&&<div className="card-account-recovery"><p>{t('账号状态尚未确认，草稿已保留。确认账号后可重试原操作。','Your account is unconfirmed. Your draft is kept. Confirm your account before retrying.')}</p><button type="button" className="text-button" disabled={!!busy} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><a href={signInHref(returnTo||'community')}>{t('重新登录','Sign in again')}</a></div>}{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
-    {open&&<section id={regionId} ref={replies.root} tabIndex={-1} className="card-comments" aria-label={t('评论预览','Comment preview')}>
+    {open&&<section id={regionId} ref={replies.root} tabIndex={-1} className="card-comments" aria-label={t('评论预览','Comment preview')} aria-keyshortcuts="Escape" onKeyDown={event=>{
+      if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+      const active=document.activeElement;
+      if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('.card-reply-form,input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+      event.preventDefault();event.stopPropagation();dismissComments(active);
+    }}>
       <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><a href={href}>{t('完整讨论','Full discussion')}</a></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
       {loading&&<p role="status">{t('正在加载评论…','Loading comments…')}</p>}
@@ -204,7 +221,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         <PublishingRules action="reply"/>
         <footer><div className="card-reply-feedback"><small role="status">{!saved?t('草稿未能保存，离开前请复制内容。','Draft could not be saved. Copy it before leaving.'):notice|| (hasReplyDraft(draft)?t('草稿已保存，可在完整讨论中继续编辑。','Draft saved. Continue editing in the full discussion.'):t('折叠评论不会丢失草稿。','Collapsing keeps your draft.'))}</small>{postedId&&replies.byId.has(postedId)&&<button type="button" className="text-button card-posted-reply" disabled={loading||accountLoading||!!loadError} onClick={event=>revealComment(postedId,event.currentTarget)}>{t('查看刚发布的评论','View your posted comment')}</button>}</div><button className="button" disabled={!!busy||accountRecovery||loading||!detail||!!loadError||!draft.body.trim()||missingTarget}>{busy==='reply'?t('发布中…','Posting…'):publication?samePublication(publication.receipt,replyPublication(draft))?t('重试发布','Retry publication'):t('作为新内容发布','Publish as new content'):t('发布评论','Post comment')}</button></footer>
       </form></>:<a className="card-comment-signin" href={signInHref(returnTo||'community')}>{t('登录后参与评论','Sign in to comment')}</a>}
-      <button type="button" className="card-collapse-comments" onClick={()=>{collapse();toggle.current?.focus();}}><ChevronUp size={14}/>{t('收起评论','Collapse comments')}</button>
+      <button type="button" className="card-collapse-comments" aria-keyshortcuts="Escape" title={t('收起评论（Esc）','Collapse comments (Esc)')} onClick={event=>dismissComments(event.currentTarget)}><ChevronUp size={14} aria-hidden="true"/>{t('收起评论','Collapse comments')}</button>
     </section>}
   </div>;
 }

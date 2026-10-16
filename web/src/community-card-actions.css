@@ -1,5 +1,5 @@
 .post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:12px;color:var(--text-secondary);font-size:var(--type-body)}
-.card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s}
+.card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:6px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s;scroll-margin-top:100px;scroll-margin-bottom:16px}
 .card-actions>button:hover,.card-actions>button[aria-expanded=true]{background:var(--surface2);color:var(--text)}
 .card-actions>button.is-liked{color:#d44b69;background:color-mix(in srgb,#d44b69 8%,transparent)}
 .card-actions>button:focus-visible,.card-comments button:focus-visible,.card-comments a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -60,7 +60,7 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-links button,.card-more-comments,.card-collapse-comments{border:0;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer}
 .card-comment-links button{padding:5px 8px;border-radius:6px}
 .card-comment-links button:hover{background:var(--surface2);color:var(--text)}
-.card-more-comments,.card-collapse-comments{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:36px;font-size:var(--type-small);margin-top:8px;border-radius:8px}
+.card-more-comments,.card-collapse-comments{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:40px;font-size:var(--type-small);margin-top:8px;border-radius:8px}
 .card-more-comments:hover,.card-collapse-comments:hover{background:var(--surface2)}
 .card-comments-empty{font-size:var(--type-body);color:var(--text-secondary);padding:8px 0}
 .card-reply-form{display:grid;gap:10px;margin-top:16px;padding-top:4px}
@@ -104,3 +104,4 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-order:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .card-comment-order:disabled{cursor:default;opacity:.6}
 @media(pointer:coarse),(max-width:600px){.card-comment-order{min-height:44px}}
+@media(pointer:coarse){.card-actions>button,.card-comment-links button,.card-more-comments,.card-collapse-comments{min-height:44px}}
