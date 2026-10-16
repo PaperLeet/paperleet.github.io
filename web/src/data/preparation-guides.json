@@ -2520,7 +2520,7 @@
           },
           "hint": {
             "zh": "用全 1 的 2×2 特征、按顺序 [-1,+1] 的标量码本、尺度 [1,2] 和恒等投影：首尺度选索引 1，重建全 1；残差为零，末尺度等距选索引 0，累计重建变成全 0。解码也应得到全 0。任意冻结码本与投影不保证每一步误差下降；同时检查快照不共享存储、输出无梯度且输入未修改。",
-            "en": "Use an all-ones 2×2 feature map, scalar codebook [-1,+1], scales [1,2] and identity projections. The first scale chooses index1 and reconstructs ones. Zero residual ties choose index0 at the final scale, leaving cumulative zeros; decoding must also give zeros. Arbitrary frozen codebooks/projections do not guarantee monotonic improvement. Check independent snapshots, detached outputs and unchanged inputs."
+            "en": "Use an all-ones 2×2 feature map, scalar codebook [-1,+1], scales [1,2] and identity projections. The first scale chooses index 1 and reconstructs ones. Zero residual ties choose index 0 at the final scale, leaving cumulative zeros; decoding must also give zeros. Arbitrary frozen codebooks/projections do not guarantee monotonic improvement. Check independent snapshots, detached outputs and unchanged inputs."
           }
         }
       ]
@@ -2563,7 +2563,7 @@
           },
           "hint": {
             "zh": "完整 mask 是 5×5：行为 query、列为 key，第一行仅首项 True，后四行全部 True。用 [-1,0,1] 码本和恒等投影，首尺度索引 2 产生 [1,4,1] 的全 1 输入；改变 2×2 目标图不应改变这些输入，首尺度改为索引 0 则变成全 −1。输入长度 4 与 mask 长度 5 的差来自另行提供的首尺度起始嵌入。",
-            "en": "The full mask is 5×5: query rows, key columns; only the first entry of row1 is True, while the other four rows are all True. With codebook [-1,0,1] and identity projections, first-scale index2 yields ones of shape [1,4,1]. Changing the 2×2 target leaves inputs unchanged; first-scale index0 yields minus ones. The separately supplied start embedding explains input length4 versus mask length5."
+            "en": "The full mask is 5×5: query rows, key columns; only the first entry of row 1 is True, while the other four rows are all True. With codebook [-1,0,1] and identity projections, first-scale index 2 yields ones of shape [1,4,1]. Changing the 2×2 target leaves inputs unchanged; first-scale index 0 yields minus ones. The separately supplied start embedding explains input length 4 versus mask length 5."
           }
         }
       ]

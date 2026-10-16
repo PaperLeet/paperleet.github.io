@@ -22,6 +22,18 @@
 .interview-hero h1 { margin:0; font-size:30px; font-weight:650; letter-spacing:-.035em; }
 .interview-hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:18px; margin-top:16px; }
 .interview-hero-actions .text-button { display:inline-flex; align-items:center; gap:6px; font-size:var(--type-small); }
+.interview-hero > div:first-child { min-width:0; }
+.interview-view-link { display:flex; align-items:center; flex-wrap:wrap; gap:8px; min-width:0; max-width:100%; }
+.interview-view-copy { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:44px; min-height:40px; max-width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:7px; color:var(--text-secondary); background:var(--surface2); font-size:var(--type-small); line-height:1.5; }
+.interview-view-copy > svg { flex:none; }
+.interview-view-copy:hover { color:var(--text); border-color:color-mix(in srgb,var(--accent) 35%,var(--line)); }
+.interview-view-copy[aria-busy="true"] { opacity:.65; cursor:wait; }
+.interview-view-copy:focus-visible,.interview-view-link-fallback input:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.interview-view-link-message { max-width:340px; color:var(--green); font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }
+.interview-view-link-message[role="alert"] { color:var(--text-secondary); }
+.interview-view-link-fallback { display:grid; flex-basis:100%; gap:6px; min-width:0; max-width:420px; color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; }
+.interview-view-link-fallback input { width:100%; min-width:0; max-width:100%; min-height:44px; padding:8px 10px; border:1px solid var(--line); border-radius:7px; color:var(--text); background:var(--surface); font-size:var(--type-body); }
+@media(pointer:coarse) { .interview-view-copy { min-height:44px; } }
 .interview-hero-stats { display:grid; grid-template-columns:repeat(3,minmax(70px,1fr)); gap:24px; padding:20px 0 20px 28px; border-left:1px solid var(--line); flex:none; }
 .interview-hero-stats > span { display:flex; flex-direction:column; align-items:center; gap:7px; }
 .interview-hero-stats svg { color:var(--accent); opacity:.7; }

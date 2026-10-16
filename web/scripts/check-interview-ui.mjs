@@ -62,6 +62,34 @@ try {
  await hub('interviews');const late=take('interviews?');take('summary');await hub('interviews?company=google');assert(late.signal.aborted);await reply(late,{items:[report],total:1,limit:20,offset:0});assert(!document.querySelector('.interview-report-title'),'Late filter response cannot repopulate a new view');
  await reply(take('interviews?'),{items:[{interview:details}],total:1,limit:20,offset:0});await reply(take('summary'),empty);assert(document.body.textContent.includes('The reports could not be read'));
  account('ui-alice');await hub('interviews?company=google');const oldOwner=take('interviews?');account('ui-bob');await hub('interviews?company=google');assert(oldOwner.signal.aborted);await reply(oldOwner,{items:[report],total:1,limit:20,offset:0});assert(!document.querySelector('.interview-report-title'));await reply(take('interviews?'),{items:[],total:0,limit:20,offset:0});
+ await stop();
+ const clipboardDescriptor=Object.getOwnPropertyDescriptor(navigator,'clipboard');
+ try{
+  const nav=await server.ssrLoadModule('/src/interviewNavigation.ts');
+  const filters={...nav.emptyInterviewFilters(),company:'google',role:'ml',stage:'technical',q:'Applied scope 😀',days:'90',sort:'helpful',page:2,track:'training-generation'};
+  const view=nav.interviewHref(filters),copied=[],copyPending=[];
+  Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText(value){copied.push(value);return new Promise(resolve=>copyPending.push(resolve));}}});
+  account('share-alice');await hub(view);
+  await reply(take('interviews?'),{items:[],total:0,limit:20,offset:20});await reply(take('summary'),{...empty,days:'90'});
+  await click(button('Share experience'));
+  await edit(field('Title'),'A working reflection');await edit(field('Process, approach and reflection'),'Working Unicode reflection 😀 with exact source.');
+  const workingEditor=field('Process, approach and reflection'),workingBody=workingEditor.value;
+  workingEditor.setSelectionRange(2,7,'backward');workingEditor.scrollTop=23;workingEditor.scrollLeft=9;
+  const search=document.querySelector('input[aria-label="Search experiences"]');await edit(search,'Unsubmitted search text');
+  const beforeRequests=requests.length,beforeLocation=location.href,beforeDraft=drafts.readInterviewDraft(dom.window.sessionStorage,'share-alice');
+  const share=document.querySelector('.interview-view-copy');assert(share);
+  await act(async()=>{share.focus();share.click();share.click();});assert.equal(copied.length,1);
+  assert.deepEqual(nav.readInterviewRoute(new URL(copied[0]).hash),filters,'Sharing uses applied filters rather than the unsubmitted search input');
+  await act(async()=>copyPending.shift()());
+  assert.equal(requests.length,beforeRequests,'Copying issues no API request or publication');assert.equal(location.href,beforeLocation);
+  assert.equal(search.value,'Unsubmitted search text');assert.equal(field('Process, approach and reflection'),workingEditor);assert.equal(workingEditor.value,workingBody);
+  assert.deepEqual([workingEditor.selectionStart,workingEditor.selectionEnd,workingEditor.selectionDirection,workingEditor.scrollTop,workingEditor.scrollLeft],[2,7,'backward',23,9]);
+  assert.deepEqual(drafts.readInterviewDraft(dom.window.sessionStorage,'share-alice'),beforeDraft);assert.equal(document.activeElement,share);
+  await click(share);const oldCopy=copyPending.shift();account('share-bob');await hub(view);
+  await act(async()=>oldCopy());assert.equal(document.querySelector('.interview-view-link [role="status"]').textContent,'','The real hub passes account ownership to isolate a late copy result');
+  assert.notEqual(field('Process, approach and reflection').value,workingBody,'The existing authoring surface still isolates private drafts');
+ }finally{if(clipboardDescriptor)Object.defineProperty(navigator,'clipboard',clipboardDescriptor);else delete navigator.clipboard;}
+ await stop();console.log('PASS applied interview sharing: actual hub/composer, applied versus unsent search, exact route/account scoping, duplicate protection, no API/navigation/publication and retained private draft/editor/selection/both scrolls');
  await stop();account('ui-alice');let published=[];const compose=()=>render(React.createElement(Composer,{owner:'ui-alice',company:'amazon',problems:modules,onClose(){},onPublished:post=>published.push(post)}));
  await compose();await edit(field('Title'),'My interview 😀');await edit(field('Process, approach and reflection'),'## Reflection\n\nDiscussed attention and **testing**.');await edit(field('Company'),'google');
  await click(button('Preview'));assert(document.querySelector('.compose-preview strong'));await click(button('Write'));await stop();await compose();assert.equal(field('Title').value,'My interview 😀');assert.equal(field('Company').value,'google');assert.equal(pending.length,0,'Draft recovery never publishes automatically');
