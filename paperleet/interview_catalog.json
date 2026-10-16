@@ -489,6 +489,24 @@
         "data",
         "other"
       ]
+    },
+    {
+      "id": "representation",
+      "name": "表征与对比学习",
+      "name_en": "Representation & contrastive learning",
+      "description": "从图文对齐、当前 batch 对比与历史队列，走到特征去冗余和掩码潜在预测。",
+      "description_en": "Move from paired image-text alignment, in-batch contrast and historical queues to feature regularization and masked latent prediction.",
+      "modules": [
+        "representation/clip",
+        "representation/simclr",
+        "representation/moco",
+        "representation/vicreg",
+        "representation/ijepa"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
     }
   ]
 }

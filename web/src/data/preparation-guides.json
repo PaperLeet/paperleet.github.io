@@ -1150,6 +1150,222 @@
           }
         }
       ]
+    },
+    {
+      "id": "representation/clip",
+      "source": "problems/representation/clip/README.md",
+      "functions": [
+        "contrastive_logits",
+        "clip_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "图文对比学习为什么要训练两个检索方向？相似度矩阵的行、列和正确标签分别是什么？",
+            "en": "Why train both retrieval directions in image-text contrastive learning? What do the rows, columns and correct labels represent?"
+          },
+          "hint": {
+            "zh": "本题的行是图像、列是文本，配对在对角线。分别对 S 与转置矩阵计算 batch 平均交叉熵，再取平均；一般非对称矩阵的两个方向不同。",
+            "en": "Rows are images, columns are text, and pairs lie on the diagonal. Average the batch cross-entropy of S and its transpose; the two directions generally differ for asymmetric scores."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "logit_scale 是温度还是逆温度的对数？怎样在保留正确梯度的同时避免极大输入溢出？",
+            "en": "Is logit_scale a temperature or a log inverse temperature? How can you avoid overflow while retaining the intended gradients?"
+          },
+          "hint": {
+            "zh": "逐行 L2 归一化使用 1e-12 下限。先把 logit_scale 截到 log(100) 再取指数；本题规定上限以下保留梯度，上限以上为零。",
+            "en": "Normalize rows with a 1e-12 norm floor. Clamp logit_scale to log(100) before exponentiating; this exercise retains its gradient below the cap and makes it zero above the cap."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "除了相同的图文特征，还需要什么小例子才能发现遗漏单向损失或温度误用？",
+            "en": "Which small examples, beyond identical image and text features, detect a missing direction or an incorrect temperature interpretation?"
+          },
+          "hint": {
+            "zh": "用非对称配对检索比较两个方向；再检查 s=log(2) 的两个正交配对，其损失为 log(1+exp(-2))。单个配对、零特征和饱和温度用于边界检查。",
+            "en": "Compare both directions on asymmetric paired features. Two orthogonal pairs with s=log(2) give log(1+exp(-2)). Check a single pair, zero features and saturated scale separately."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/simclr",
+      "source": "problems/representation/simclr/README.md",
+      "functions": [
+        "nt_xent_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "SimCLR 的每个锚点有多少合法候选？为什么直接套用 CLIP 的跨视图矩阵会漏掉负样本？",
+            "en": "How many valid candidates does each SimCLR anchor have? Why does reusing a CLIP-style cross-view matrix miss negatives?"
+          },
+          "hint": {
+            "zh": "两组视图共 2B 个锚点。只排除自身，保留一个正样本和 2B-2 个负样本；同一视图内的其他实例也是负样本，正样本仍在分母中。",
+            "en": "There are 2B anchors. Exclude only the anchor itself, retaining one positive and 2B-2 negatives. Other instances in the same view are negatives, and the positive remains in the denominator."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "本题先拼 view1 再拼 view2，正样本索引怎样构造？归约与数值稳定性要避免哪些错误？",
+            "en": "With all of view1 followed by all of view2, how do you construct positive indices and choose a stable reduction?"
+          },
+          "hint": {
+            "zh": "配对索引相差 B，不能使用交错编号中的相邻索引。对屏蔽自身后的行用稳定 logsumexp，再对全部 2B 行取均值，不额外乘 2；两个视图都保留梯度。",
+            "en": "Positive indices differ by B rather than being adjacent. Use stable row-wise logsumexp after masking self-scores, then average all 2B rows without an extra factor of two. Retain both views’ gradients."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用 B=1 和两个正交配对检查候选集合、归约尺度以及两侧梯度？",
+            "en": "How do B=1 and two orthogonal pairs test the candidate set, reduction scale and gradients of both views?"
+          },
+          "hint": {
+            "zh": "B=1 时只有正样本，损失和两侧梯度均为零。两个相同的正交视图对应 log(1+2*exp(-1/temperature))；再做两侧有限差分和成对置换。",
+            "en": "For B=1, only the positive remains, giving zero loss and zero gradients on both sides. Two identical orthogonal views give log(1+2*exp(-1/temperature)); also check paired permutations and finite differences on both views."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/moco",
+      "source": "problems/representation/moco/README.md",
+      "functions": [
+        "moco_loss",
+        "momentum_update",
+        "enqueue"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "MoCo 的正负样本来自哪里，哪些张量应该接收梯度？动量编码器与历史队列各解决什么问题？",
+            "en": "Where do MoCo’s positive and negative keys come from, and which tensors receive gradients? What roles do the momentum encoder and historical queue play?"
+          },
+          "hint": {
+            "zh": "每个 query 的同索引 key 是唯一正样本，队列 K 行为负样本；当前 batch 的其他 key 不自动加入候选。本题只向 query 反传，key 和队列 detach；EMA 让跨 batch 的编码器变化平缓。",
+            "en": "The matching key is the sole positive and the K queue entries are negatives; other current-batch keys are not automatically candidates. Only query receives gradients here. Detach key and queue; EMA changes the key encoder gradually across batches."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "新 key 数量大于队列容量时，怎样实现多次回绕并保持输入不被修改？",
+            "en": "How should enqueue handle more new keys than the queue capacity while leaving its inputs unchanged?"
+          },
+          "hint": {
+            "zh": "按输入顺序从 pointer 逐行覆盖，最终指针为 (pointer+B)%K，保留顺序写入后的最后 K 个 key。归一化并 detach 新 key；返回独立存储。B=0 也返回独立副本。",
+            "en": "Overwrite rows sequentially from pointer, returning (pointer+B)%K and the last K keys in their sequentially written slots. Normalize and detach keys, return independent storage, and preserve that independence for an empty batch."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分损失分母、梯度截断、EMA 边界与队列更新顺序的错误？",
+            "en": "How can you distinguish denominator errors, missing gradient stops, EMA boundary errors and incorrect queue-update order?"
+          },
+          "hint": {
+            "zh": "相同非零向量给出 log(K+1)；分别检查 query 梯度及 key/queue 的 None 梯度。m=0 复制 query、m=1 保留 key；小训练轨迹应入队本步缓存的 key，不在 EMA 后重新编码。",
+            "en": "Identical nonzero vectors give log(K+1). Check query gradients and None gradients for key/queue. At m=0 copy query, at m=1 preserve key. Enqueue keys cached in the current step instead of re-encoding after EMA."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/vicreg",
+      "source": "problems/representation/vicreg/README.md",
+      "functions": [
+        "vicreg_terms",
+        "vicreg_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "VICReg 的不变性、方差和协方差项各限制什么行为？为什么只有配对均方差会留下塌缩解？",
+            "en": "What do VICReg’s invariance, variance and covariance terms constrain? Why does paired mean-squared error alone admit collapse?"
+          },
+          "hint": {
+            "zh": "配对误差让同一样本的两个视图接近；方差项要求特征在样本之间保持变化；非对角协方差惩罚减少特征间冗余。精确常量表示可同时满足配对相等。",
+            "en": "Paired error brings two views of an example together. Variance encourages variation across examples, and off-diagonal covariance penalizes redundant features. Constant representations can still make the paired error vanish."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "本题的统计分母、两个视图的归约和非对角项计数分别怎样规定？",
+            "en": "What are this exercise’s statistical denominator, two-view reductions and off-diagonal counting convention?"
+          },
+          "hint": {
+            "zh": "方差和协方差用 B-1。方差惩罚对两个视图取平均，协方差惩罚对两个视图求和，再除以 D；(i,j) 与 (j,i) 都计数，不能除以特征对数。",
+            "en": "Use B-1 for sample variance and covariance. Average the variance penalties across views, but sum the covariance penalties and divide by D. Count both (i,j) and (j,i), rather than dividing by the number of pairs."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么精确零特征有正的方差惩罚，梯度却仍可能为零？该怎样设计有效的小实验？",
+            "en": "Why can exact zero features have a positive variance penalty yet zero gradients? How would you design an informative small experiment?"
+          },
+          "hint": {
+            "zh": "默认 epsilon 下三项为 (0,0.99,0)，但精确塌缩仍是驻点。使用小幅、相关但不恒定的特征检查展开；D=1 时协方差项应为零，并核对两个视图的梯度。",
+            "en": "With the default epsilon the terms are (0,0.99,0), but exact collapse remains stationary. Start with small, correlated, nonconstant features. Check zero covariance penalty for D=1 and gradients for both views."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/ijepa",
+      "source": "problems/representation/ijepa/README.md",
+      "functions": [
+        "masked_targets",
+        "masked_prediction_loss",
+        "ema_update"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "I-JEPA 的目标准备、预测损失和 EMA 在本题中各输出什么？哪一侧应该停止梯度？",
+            "en": "What do target preparation, prediction loss and EMA return in this I-JEPA exercise, and where should gradients stop?"
+          },
+          "hint": {
+            "zh": "教师 token 特征先 detach，再按特征维做无仿射 layer norm。目标按掩码收集后供预测器拟合；损失保留 prediction 梯度并在内部冻结 target。EMA 返回新的无梯度参数值。",
+            "en": "Detach teacher token features before per-token feature-axis layer normalization. Gather masked targets for prediction. The loss retains prediction gradients and stops target gradients internally; EMA returns new detached parameter values."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "K 个目标块、C 个上下文与 B 个样本怎样排列，才能与预测器输出对齐？",
+            "en": "How should K target blocks, C contexts and B samples be ordered to align targets with predictor outputs?"
+          },
+          "hint": {
+            "zh": "输出为 [K*C*B,M,D]，首维按目标块、上下文、batch 样本排序。每个块重复完整的 B 样本 batch，不能逐张图连续重复；归一化仅沿 D，方差分母为 D。",
+            "en": "Return [K*C*B,M,D] ordered by target block, context and batch sample. Repeat the complete B-sample batch per block, not each image consecutively. Normalize only along D, with variance divided by D."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用可手算的残差、掩码顺序和 EMA 边界验证本题，而不误把题目损失当成论文文字中的 L2？",
+            "en": "How can hand-computable residuals, mask order and EMA boundaries verify this exercise without replacing its specified loss with the paper’s written L2 description?"
+          },
+          "hint": {
+            "zh": "本题按作者代码要求 beta=1 的 smooth L1 均值，残差 [-2,0.5] 得到 0.8125。用两个块、两个上下文和两张图逐项核对顺序；teacher 无梯度，EMA 不改写也不共享输入。",
+            "en": "This exercise follows the released-code convention: mean smooth L1 with beta=1; residuals [-2,0.5] give 0.8125. Enumerate two blocks, two contexts and two images. Verify no teacher gradients and independent, non-mutating EMA output."
+          }
+        }
+      ]
     }
   ]
 }
