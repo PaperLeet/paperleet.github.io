@@ -1,0 +1,11 @@
+# Browse related prompts beside a scoped concept
+
+A handbook reached through a concept-specific experience view previously offered only that concept. Exploring another guide required finding the page's concept-filter control and changing the experience scope. Two native controls now let readers choose the current concept or related concepts within the handbook itself.
+
+Related concepts follow the selected curriculum's order, or the current role's existing curated scope. The current concept stays selected when expanding. An explicitly linked concept outside that curriculum is retained alongside its related options, rather than disappearing. Returning to the current-concept mode restores the source topic. The related control is disabled until alternatives are available. Mode is local to the complete serialized filter scope; locale and progress rerenders retain the deliberate choice, while a different source scope starts pinned to its concept.
+
+Both controls have stable bilingual labels and native pressed states. They stay mounted for predictable focus, wrap on narrow containers and provide 44 px coarse-pointer targets. The existing opened reader is retained when its topic stays the same. Guide titles and questions now use the shared 16 px body scale. A single-concept heading uses the singular English label.
+
+Mode changes and topic selection preserve the URL and existing storage. Practice links capture the newly selected concept and applicable path using the existing company/role/stage/saved/source conventions. The scoped experience list remains scoped to its source concept; guide browsing does not change report counts or learning grades.
+
+The UI regression fails on the previous implementation and verifies ordered related options, an outside-path source, pressed states and focus, open-reader continuity, delayed-import rejection, bilingual and same-filter continuity, new-filter isolation, empty-catalog handling and practice return context. An unrelated mounted textarea fixture retains its draft, caret and scroll. The existing full frontend checks and local/hosted builds also apply. Isolated React and HTTP verification is distinct from browser visual QA; no production records are created.
