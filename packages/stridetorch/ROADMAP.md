@@ -428,6 +428,11 @@ source-commit deployment was superseded and is not claimed as published.
   public/private wheels coinstall and survive independent uninstall. Full
   application adoption remains separate;stable0.28 stays verified on the site
   until the candidate completes integration.
+- Local application gates now pass original78/10218/342/three-repeat CI and
+  exported78/342/29suites904 WASM with unchanged budgets. All23 upstream UI/docs
+  files and7388 immutable assets are preserved;latest targeted inbox/default/
+  actual Pages-profile builds pass. Non-force main adoption and actual remote
+  deployment/live evidence remain separately tracked.
 
 ## Next implementation areas
 

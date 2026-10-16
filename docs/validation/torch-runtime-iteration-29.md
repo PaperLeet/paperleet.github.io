@@ -2,9 +2,10 @@
 
 This candidate expands the former unbatched-only `torch.linalg.solve` to dense
 batched and broadcast systems, vector/matrix right-hand sides and `left=False`.
-It is not yet adopted on main. Initial performance regressions prompted the
-metadata/graph refinements documented below; complete application gates remain
-separate. The verified stable runtime on main/site remains0.28.
+Initial performance regressions prompted the metadata/graph refinements below.
+Local application checks are recorded separately from core proofs and actual
+remote deployment/live verification. Version0.28 is the last runtime with a
+completed exact-source remote deployment/live proof at this milestone.
 
 ## Compatibility and differentiation
 
@@ -138,3 +139,44 @@ separate; the adopted refined proof is `proof-refined`, source `trial-vector`.
 and its receipt archive preserve all96 additional timing children, five source
 trials, both paired recipes, original anomalies and exact final-source proofs.
 The broader main-branch adoption gates are still pending at this core milestone.
+
+
+## Local application integration
+
+The original native catalog passes78 modules/10218 executions/342 mutants with
+three repeats in131.68s. All original budgets remain unchanged. Exported WASM
+passes all78 modules/342 mutants in273754ms at concurrency2, including904 checks
+in29 standalone suites whose hashes match the independent Node/Chrome proof.
+No browser budget is exceeded. Catalog durations are compatibility/budget gates,
+not comparative performance evidence.
+
+Integration preserves23 incoming upstream files byte-for-byte through96200d50:
+21 community-affiliation UI/test files and two later inbox CSS/documentation files.
+No upstream problem/test/judge/package/Python/catalog/lockfile input changes.
+The complete29853-test core/infrastructure gate and native catalog therefore
+retain exact mathematical inputs. All7388 prior immutable assets remain unchanged;
+158 new reachable payloads and three mutable indexes are frozen for later live
+checks. Both runtime profiles carry version0.29 LICENSE/NOTICE.
+
+Complete frontend checks pass57 bilingual guides/171 prompts at123d. After the
+CSS-only962 update, the targeted inbox check and both complete builds pass again.
+Latest default and actual hosted Pages-profile builds each have three initial JS
+assets:402639 raw/130068 gzip and404041 raw/130523 gzip bytes, within existing
+budgets. Actual profile settings come from the revalidated repository variable.
+The condensed React checklist preserves derived eligibility, semantic disabled
+controls, existing owner/route/in-flight guards and deferred parent pages; no
+manual visual UI review is claimed.
+
+The initial targeted Inbox command used the repository root instead of its
+required web working directory and failed module loading before assertions. That
+failed log/receipt is retained; the corrected web-directory command passes with
+no source fix. Full frontend and latest CSS follow-up contexts remain explicit.
+Application wheel/sdist core/license hashes and current server/catalog bytes match
+the same refined source after UI merges; installed public/private ownership and
+independent uninstall proofs remain in the core refinement record.
+
+[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-29-integration-gates.json)
+and its222-file archive preserve actual reports, exports, dependency hashes,
+all process receipts and the corrected-command history. Adoption uses a non-force
+push after latest-main revalidation. Exact remote Quality, eligible actual Pages
+deployment and live-byte verification remain separate pending gates.
