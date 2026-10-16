@@ -162,3 +162,7 @@ Final synchronization preserves all five incoming UI/docs/check files through
 test waits differing from upstream. The complete frontend check and both typed
 builds pass again. All 47 computational resources and 161 exports remain
 unchanged; see `iteration-36-main-sync.json`.
+
+Validated source was adopted non-force on remote `main` at `8666b6a90c9e374958aa71f4be0af97b8a96798c`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-36-main-adoption.json`; no tag, dispatch or online release was created.
