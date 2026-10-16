@@ -65,7 +65,7 @@ const mocks = {
   './useBrowserLearning': `export const useBrowserLearning=()=>globalThis.__paperleetWorkspaceActionTest.learning;`,
   './catalogIndex': `export const loadCatalogIndex=async()=>globalThis.__paperleetWorkspaceActionTest.catalog||({problems:[globalThis.__paperleetWorkspaceActionTest.problem],papers:[],categories:[]});`,
   './ProblemStats': `export const useProblemStats=()=>({stats:{},totalSubmissions:0,refresh:()=>{},loading:false});export const getProblemStats=()=>({});export const ProblemStats=()=>null;`,
-  './PaperViews': `export const PaperDetail=()=>null;export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
+  './PaperViews': `import React from 'react';export const PaperDetail=props=>React.createElement('section',{'data-test-paper-detail':true,'data-practice-ids':props.practiceProblems?.map(p=>p.id).join(','),'data-return-to':props.returnTo});export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
   './ReportView': `import React from 'react';import Report from '/src/ReportView.tsx?fixture_actual=1';globalThis.__paperleetWorkspaceActionTest.calls.detailsLoads++;export default function FixtureReport(props){if(globalThis.__paperleetWorkspaceActionTest.failDetails)throw Error('Fixture detail failure');return React.createElement(Report,props);}`,
   './deferredPages': `import React,{useEffect} from 'react';
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
@@ -320,7 +320,20 @@ try {
     if(scenario==='loading')assert(!find('.topbar .continue-link').textContent.includes('Core modules complete'),'Pending progress must not claim completion');
     await act(async()=>root.unmount());root=undefined;
   }
-  console.log('PASS actual App workspace: source-safe inline judging, retained editor and diagnostics, practice returns, and bilingual empty/filtered-complete/all-complete/optional/loading header states');
+  fixture.practice.ready=true;fixture.practice.loading=false;fixture.practice.saved={};fixture.learning.ready=true;
+  const position={...problem,id:'architecture/positional_encoding',number:29,title:'Sinusoidal positions',translations:{en:{...problem.translations.en,title:'Sinusoidal positions'}}};
+  fixture.catalog={problems:[problem,position],papers:[{...libraryPaper,module_ids:[problem.id,position.id]}],categories:[]};
+  const selectedView=libraryNav.libraryHref(undefined,{...libraryNav.emptyLibraryFilters(),query:'Sinusoidal'});
+  window.history.replaceState(null,'',libraryNav.withLibraryContext('papers/attention',selectedView));
+  await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
+  await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-practice-ids')===position.id);
+  assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),selectedView,'The real App sends its current canonical library selection to paper details');
+  const emptyView=libraryNav.libraryHref(undefined,{...libraryNav.emptyLibraryFilters(),query:'missing-paper'});
+  await act(async()=>{location.hash=libraryNav.withLibraryContext('papers/attention',emptyView);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});
+  await settle(()=>find('[data-test-paper-detail]')?.getAttribute('data-practice-ids')==='');
+  assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),emptyView,'Changing a return view must retire the old recommendation scope');
+  await act(async()=>root.unmount());root=undefined;
+  console.log('PASS actual App workspace: source-safe inline judging, retained editor/diagnostics, exact practice returns, live paper recommendation scope and bilingual empty/filtered-complete/all-complete/optional/loading states');
 } finally {
   if(root)await act(async()=>root.unmount());
   await server.close();dom.window.close();

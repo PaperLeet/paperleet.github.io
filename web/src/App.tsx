@@ -622,6 +622,7 @@ function Workspace() {
           <PaperDetail
             paper={selectedPaper}
             problems={problems}
+            practiceProblems={practiceScope.problems}
             saved={learningSaved}
             stats={problemStats}
             returnTo={libraryReturn}
