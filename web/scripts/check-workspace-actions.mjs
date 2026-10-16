@@ -70,6 +70,7 @@ const mocks = {
   './deferredPages': `import React,{useEffect} from 'react';
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
+    export const InboxBell=()=>null,Messages=()=>null;
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
     export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
