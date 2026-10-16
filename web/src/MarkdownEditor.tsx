@@ -12,11 +12,12 @@ const tools=[
   ['list',List,'无序列表','Bullet list',''],['link',Link,'插入链接','Insert link','K'],
   ['math',SquareFunction,'独立公式','Display math',''],
 ] as const;
-type Selection={start:number;end:number;scroll:number};
-export default function MarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,id,describedBy,autoFocus=false,submitShortcut=false,busy=false}:{
+type Selection={start:number;end:number;scroll:number;left?:number;direction?:HTMLTextAreaElement['selectionDirection']};
+export type MarkdownEditorView={value:string;selection:Selection;instance:object};
+export default function MarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,viewStateRef,id,describedBy,autoFocus=false,submitShortcut=false,busy=false}:{
   value:string;onChange:(value:string)=>void;preview:boolean;onPreviewChange:(preview:boolean)=>void;
   label:string;modeLabel:string;rows?:number;maxLength:number;disabled?:boolean;placeholder?:string;
-  textareaRef?:RefObject<HTMLTextAreaElement|null>;id?:string;describedBy?:string;autoFocus?:boolean;submitShortcut?:boolean;busy?:boolean;
+  textareaRef?:RefObject<HTMLTextAreaElement|null>;viewStateRef?:RefObject<MarkdownEditorView|undefined>;id?:string;describedBy?:string;autoFocus?:boolean;submitShortcut?:boolean;busy?:boolean;
 }){
   const {t,locale}=useI18n(),generatedId=useId(),ownField=useRef<HTMLTextAreaElement>(null);
   const field=textareaRef||ownField,locked=disabled||busy;
@@ -27,25 +28,40 @@ export default function MarkdownEditor({value,onChange,preview,onPreviewChange,l
   const lastValue=useRef(value);lastValue.current=value;
   const live=useRef({disabled:locked,preview,submitShortcut});live.current={disabled:locked,preview,submitShortcut};
   const savedSelection=useRef<Selection>(undefined);
+  const previewValue=useRef<string>(undefined);
+  const viewInstance=useRef({});
   useLayoutEffect(()=>{
     const request=pending.current;if(!request||preview)return;pending.current=undefined;
     const undoLostFocus=document.activeElement===document.body&&request.opener instanceof HTMLElement&&request.opener.matches('button:disabled');
     if(locked||value!==request.value||(document.activeElement!==request.opener&&!undoLostFocus))return;
     const textarea=field.current;if(!textarea)return;
-    textarea.focus({preventScroll:true});textarea.setSelectionRange(request.selection.start,request.selection.end);textarea.scrollTop=request.selection.scroll;
+    textarea.focus({preventScroll:true});textarea.setSelectionRange(request.selection.start,request.selection.end,request.selection.direction);textarea.scrollTop=request.selection.scroll;textarea.scrollLeft=request.selection.left||0;
   },[value,preview,locked,tick,field]);
-  const selection=():Selection=>({start:field.current?.selectionStart??value.length,end:field.current?.selectionEnd??value.length,scroll:field.current?.scrollTop||0});
+  useLayoutEffect(()=>{
+    if(!viewStateRef)return;
+    // Effect replay keeps this editor; only a new editor consumes its snapshot.
+    if(viewStateRef.current?.instance===viewInstance.current)viewStateRef.current=undefined;
+    const node=field.current;
+    return()=>{
+      const current=lastValue.current;
+      const position=node&&node.value===current?(live.current.preview
+        ?previewValue.current===current?savedSelection.current:undefined
+        :{start:node.selectionStart,end:node.selectionEnd,direction:node.selectionDirection,scroll:node.scrollTop,left:node.scrollLeft}):undefined;
+      viewStateRef.current=position?{value:current,selection:position,instance:viewInstance.current}:undefined;
+    };
+  },[field,viewStateRef]);
+  const selection=():Selection=>({start:field.current?.selectionStart??value.length,end:field.current?.selectionEnd??value.length,direction:field.current?.selectionDirection,scroll:field.current?.scrollTop||0,left:field.current?.scrollLeft||0});
   function restore(next:Selection,nextValue:string){pending.current={opener:document.activeElement,selection:next,value:nextValue};setTick(current=>current+1);}
   function format(kind:MarkdownFormat){
     if(live.current.disabled||live.current.preview)return;
     const original=selection(),edit=formatMarkdown(lastValue.current,kind,original.start,original.end,maxLength,locale==='en');
     if(!edit){setError(t('加入此格式会超过长度上限。请精简内容后重试。','This formatting would exceed the length limit. Shorten the text and try again.'));return;}
     setError('');setOperation({...edit,selection:original});onChange(edit.after);
-    restore({start:edit.start,end:edit.end,scroll:original.scroll},edit.after);
+    restore({start:edit.start,end:edit.end,scroll:original.scroll,left:original.left},edit.after);
   }
   function changePreview(next:boolean){
     if(locked)return;
-    if(next)savedSelection.current=selection();
+    if(next){savedSelection.current=selection();previewValue.current=value;}
     else if(savedSelection.current)restore(savedSelection.current,value);
     onPreviewChange(next);
   }
