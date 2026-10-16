@@ -18,3 +18,9 @@
 .markdown-format-error { margin:0; padding:10px 14px; color:var(--text-secondary); font-size:12px; background:var(--surface2); }
 @media (pointer:coarse) { .markdown-format-tools button { min-width:44px; min-height:44px; } }
 @media (max-width:520px) { .markdown-editor .editor-toggle small { display:none; } .markdown-format-tools .markdown-format-undo { margin-left:0; } .markdown-editor-footer { flex-wrap:wrap; } }
+
+.markdown-editor-footer.has-submit-shortcut{flex-wrap:wrap;gap:8px 12px}
+.markdown-submit-shortcut{display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:11px;white-space:nowrap}
+.markdown-submit-shortcut kbd{padding:1px 4px;border:1px solid var(--line);border-radius:4px;background:var(--surface2);font:inherit;line-height:1.6}
+.markdown-editor-footer.has-submit-shortcut>small{margin-inline-start:auto}
+@media(max-width:520px){.markdown-submit-shortcut{flex-basis:100%;order:2}}

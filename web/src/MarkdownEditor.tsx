@@ -13,10 +13,10 @@ const tools=[
   ['math',SquareFunction,'独立公式','Display math',''],
 ] as const;
 type Selection={start:number;end:number;scroll:number};
-export default function MarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,id,describedBy,autoFocus=false}:{
+export default function MarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,id,describedBy,autoFocus=false,submitShortcut=false}:{
   value:string;onChange:(value:string)=>void;preview:boolean;onPreviewChange:(preview:boolean)=>void;
   label:string;modeLabel:string;rows?:number;maxLength:number;disabled?:boolean;placeholder?:string;
-  textareaRef?:RefObject<HTMLTextAreaElement|null>;id?:string;describedBy?:string;autoFocus?:boolean;
+  textareaRef?:RefObject<HTMLTextAreaElement|null>;id?:string;describedBy?:string;autoFocus?:boolean;submitShortcut?:boolean;
 }){
   const {t,locale}=useI18n(),generatedId=useId(),ownField=useRef<HTMLTextAreaElement>(null);
   const field=textareaRef||ownField;
@@ -25,7 +25,7 @@ export default function MarkdownEditor({value,onChange,preview,onPreviewChange,l
   const [tick,setTick]=useState(0);
   const pending=useRef<{opener:Element|null;selection:Selection;value:string}>(undefined);
   const lastValue=useRef(value);lastValue.current=value;
-  const live=useRef({disabled,preview});live.current={disabled,preview};
+  const live=useRef({disabled,preview,submitShortcut});live.current={disabled,preview,submitShortcut};
   const savedSelection=useRef<Selection>(undefined);
   useLayoutEffect(()=>{
     const request=pending.current;if(!request||preview)return;pending.current=undefined;
@@ -50,7 +50,7 @@ export default function MarkdownEditor({value,onChange,preview,onPreviewChange,l
     onPreviewChange(next);
   }
   const canUndo=!!operation&&operation.after===value;
-  const errorId=generatedId+'-error';
+  const errorId=generatedId+'-error',shortcutId=generatedId+'-submit-shortcut';
   return <div className="markdown-editor">
     <div className="editor-toggle" role="group" aria-label={modeLabel}>
       <button type="button" disabled={disabled} className={!preview?'selected':''} aria-pressed={!preview} onClick={()=>changePreview(false)}>{t('编写','Write')}</button>
@@ -65,14 +65,23 @@ export default function MarkdownEditor({value,onChange,preview,onPreviewChange,l
       }}><Undo2 size={15} aria-hidden="true"/>{t('撤销格式','Undo formatting')}</button>
     </div>
     <label hidden={preview} className="markdown-body-label">{label}
-      <textarea ref={field} id={id} required autoFocus={autoFocus} rows={rows} maxLength={maxLength} value={value} disabled={disabled} placeholder={placeholder} aria-describedby={[describedBy,error?errorId:undefined].filter(Boolean).join(' ')||undefined} onChange={event=>{setError('');onChange(event.target.value);}} onKeyDown={event=>{
-        if(event.nativeEvent.isComposing||event.altKey||event.shiftKey||!(event.metaKey||event.ctrlKey))return;
+      <textarea ref={field} id={id} required autoFocus={autoFocus} rows={rows} maxLength={maxLength} value={value} disabled={disabled} placeholder={placeholder} aria-keyshortcuts={submitShortcut&&!disabled&&!preview?'Control+Enter Meta+Enter':undefined} aria-describedby={[describedBy,error?errorId:undefined,submitShortcut&&!preview?shortcutId:undefined].filter(Boolean).join(' ')||undefined} onChange={event=>{setError('');onChange(event.target.value);}} onKeyDown={event=>{
+        if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.shiftKey||!(event.metaKey||event.ctrlKey))return;
+        if(live.current.submitShortcut&&event.key==='Enter'){
+          event.preventDefault();
+          const textarea=event.currentTarget;
+          if(live.current.disabled||live.current.preview||event.repeat||!textarea.isConnected||textarea.matches(':disabled')||textarea.closest('[hidden],[aria-hidden="true"]')||document.activeElement!==textarea)return;
+          const form=textarea.form;
+          const submitter=form?Array.from(form.elements).find(element=>element.matches('button,input')&&(element as HTMLButtonElement).type==='submit') as HTMLButtonElement|HTMLInputElement|undefined:undefined;
+          if(form&&submitter&&!submitter.matches(':disabled')&&submitter.getAttribute('aria-disabled')!=='true'&&!submitter.closest('[hidden],[aria-hidden="true"]'))form.requestSubmit(submitter);
+          return;
+        }
         const kind=({b:'bold',i:'italic',k:'link'} as const)[event.key.toLowerCase() as 'b'|'i'|'k'];
         if(kind){event.preventDefault();format(kind);}
       }}/>
     </label>
     {preview&&<div className="compose-preview" role="region" aria-label={t('正文预览','Content preview')}><CommunityMarkdown body={value||t('写下内容后在这里预览。','Your preview will appear here.')}/></div>}
-    <div className="markdown-editor-footer"><CommunityFormatHelp/><small className={value.length>maxLength?'over-limit':''}>{value.length.toLocaleString(locale)} / {maxLength.toLocaleString(locale)}</small></div>
+    <div className={`markdown-editor-footer${submitShortcut&&!preview?' has-submit-shortcut':''}`}><CommunityFormatHelp/>{submitShortcut&&!preview&&<span id={shortcutId} className="markdown-submit-shortcut"><kbd>⌘ / Ctrl</kbd><span>+</span><kbd>Enter</kbd><span>{t('提交','to submit')}</span></span>}<small className={value.length>maxLength?'over-limit':''}>{value.length.toLocaleString(locale)} / {maxLength.toLocaleString(locale)}</small></div>
     {error&&<p id={errorId} className="markdown-format-error" role="status">{error}</p>}
   </div>;
 }

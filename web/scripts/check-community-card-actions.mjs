@@ -48,6 +48,7 @@ try{
  const expand=()=>document.querySelector('button[aria-expanded]'),like=()=>document.querySelector('button[aria-pressed]');
  const frame=()=>act(async()=>{await new Promise(resolve=>requestAnimationFrame(resolve));});
  const edit=async value=>act(async()=>{const field=document.querySelector('textarea');Object.getOwnPropertyDescriptor(dom.window.HTMLTextAreaElement.prototype,'value').set.call(field,value);field.dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
+ const shortcut=async(init={})=>act(async()=>{const field=document.querySelector('textarea');field.focus();field.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true,...init}));});
  const submit=async()=>act(async()=>document.querySelector('form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
  await render();assert.equal(requests.length,0,'Closed previews make no per-card requests');const original=location.href;
  await click(like());assert.equal(mutations.length,1);assert.equal(like().getAttribute('aria-pressed'),'true');assert(like().textContent.includes('5'));assert.equal(location.href,original);
@@ -74,8 +75,9 @@ try{
  await click(button('Collapse comments'));assert.equal(document.activeElement,expand());assert(!document.querySelector('textarea'));assert.equal(drafts.readReplyDraft(sessionStorage,'alice',id).body,'Saved inline response');
  // A discussion-page draft is restored on reopening, including the intended parent.
  drafts.writeReplyDraft(sessionStorage,'alice',id,{body:'Edited in full discussion',parentId:'7'.repeat(32)});await click(expand());assert.equal(document.querySelector('textarea').value,'Edited in full discussion');assert(document.querySelector('.reply-target'));
- failReply=true;await submit();const first=mutations.at(-1).body;assert.equal(first.parent_id,'7'.repeat(32));assert(document.querySelector('[role=alert]').textContent.includes('connection lost'));assert.equal(document.querySelector('textarea').value,'Edited in full discussion');
- failReply=false;await submit();assert.equal(mutations.at(-1).body.request_id,first.request_id);assert.equal(document.querySelector('textarea').value,'');assert.equal(drafts.readReplyDraft(sessionStorage,'alice',id),undefined);assert(document.querySelector('.card-comment-list>li').textContent.includes('Edited in full discussion'));assert(document.querySelector('footer').textContent.includes('Reply posted'));
+ const beforeIme=mutations.length;await shortcut({isComposing:true});await shortcut({keyCode:229});await shortcut({repeat:true});assert.equal(mutations.length,beforeIme);
+ failReply=true;await shortcut();const first=mutations.at(-1).body;assert.equal(first.parent_id,'7'.repeat(32));assert(document.querySelector('[role=alert]').textContent.includes('connection lost'));assert.equal(document.querySelector('textarea').value,'Edited in full discussion');
+ failReply=false;await shortcut({ctrlKey:false,metaKey:true});assert.equal(mutations.at(-1).body.request_id,first.request_id);assert.equal(document.querySelector('textarea').value,'');assert.equal(drafts.readReplyDraft(sessionStorage,'alice',id),undefined);assert(document.querySelector('.card-comment-list>li').textContent.includes('Edited in full discussion'));assert(document.querySelector('footer').textContent.includes('Reply posted'));
  assert.equal(publications.readPublication(sessionStorage,'alice','reply',id),undefined);
  // Retrying an earlier uncertain publication must retain a newer unsent draft.
  await edit('Earlier uncertain response');failReply=true;await submit();const uncertain=mutations.at(-1).body;await edit('Newer unsent response');failReply=false;

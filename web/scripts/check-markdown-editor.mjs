@@ -76,7 +76,7 @@ try{
   if(kind==='interview')await render(Interview,{owner,company:'google',problems:[],onClose(){},onPublished(){}});
   if(kind==='edit-post')await render(PostEditor,{owner,post,disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true});
   if(kind==='edit-reply')await render(ReplyEditor,{owner,reply,disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true});
-  field=document.querySelector('.markdown-editor textarea');assert(field,kind);await input(field,'A concrete reflection 😀');field.focus();field.setSelectionRange(2,10);field.scrollTop=17;
+  field=document.querySelector('.markdown-editor textarea');assert(field,kind);assert.equal(field.getAttribute('aria-keyshortcuts'),'Control+Enter Meta+Enter',kind+' opts in to native validated shortcut submission');assert(field.getAttribute('aria-describedby').split(' ').some(id=>document.getElementById(id)?.classList.contains('markdown-submit-shortcut')));await input(field,'A concrete reflection 😀');field.focus();field.setSelectionRange(2,10);field.scrollTop=17;
   await click(named('Bold'));assert.equal(field.value,'A **concrete** reflection 😀');
   const draft=kind==='post'?drafts.readPostDraft(sessionStorage,owner,'general'):kind==='reply'?replies.readReplyDraft(sessionStorage,owner,postId):kind==='interview'?interviews.readInterviewDraft(sessionStorage,owner):kind==='edit-post'?postEdits.readPostEdit(sessionStorage,owner,postId):replyEdits.readReplyEdit(sessionStorage,owner,replyId);
   assert.equal(draft.body,field.value,'Existing scoped draft path: '+kind);

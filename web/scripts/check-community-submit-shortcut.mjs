@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {JSDOM,VirtualConsole} from 'jsdom';
+import {createServer} from 'vite';
+const errors=[],virtualConsole=new VirtualConsole();virtualConsole.on('jsdomError',error=>errors.push(error.message));
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/#/community',pretendToBeVisual:true,virtualConsole});
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,location:dom.window.location,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,IS_REACT_ACT_ENVIRONMENT:true};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const cacheDir=await mkdtemp(tmpdir()+'/paperleet-submit-shortcut-');
+const server=await createServer({cacheDir,server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+let root;
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Editor}=await server.ssrLoadModule('/src/MarkdownEditor.tsx');
+ const {useWorkspaceShortcuts}=await server.ssrLoadModule('/src/useWorkspaceShortcuts.ts');
+ const submitted=[],bubbled=[];let invalid=0,runs=0;
+ function Form({name='a',shortcut=true,disabled=false,fieldset=false,submitDisabled=false,ariaDisabled=false,hiddenSubmit=false,noSubmit=false,hiddenForm=false,ariaHidden=false,requiredMissing=false,initial='Keep this draft',forcedPreview=false}){
+  const [value,setValue]=React.useState(initial),[preview,setPreview]=React.useState(false);
+  return React.createElement('form',{id:'form-'+name,hidden:hiddenForm,'aria-hidden':ariaHidden?'true':undefined,onInvalid:()=>invalid++,onSubmit:event=>{event.preventDefault();submitted.push({name,value,submitter:event.nativeEvent.submitter?.id});}},React.createElement('input',{required:true,'aria-label':'Title '+name,value:requiredMissing?'':'A title',onChange(){}}),React.createElement('fieldset',{disabled:fieldset},React.createElement('button',{type:'button'},'Formatting decoy'),React.createElement(Editor,{value,onChange:setValue,preview:forcedPreview||preview,onPreviewChange:setPreview,label:'Body '+name,modeLabel:'Editor '+name,maxLength:10000,disabled,submitShortcut:shortcut,describedBy:'existing-note'}),noSubmit?null:React.createElement('button',{id:'submit-'+name,disabled:submitDisabled,'aria-disabled':ariaDisabled?'true':undefined,hidden:hiddenSubmit},'Publish '+name)));
+ }
+ function Locale(){const {locale,setLocale}=useI18n();return React.createElement('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'Locale');}
+ function Harness({two=false,prevent=false,...props}){useWorkspaceShortcuts({enabled:true,canRun:true,focused:false,onRun(){runs++;},onExitFocus(){}});return React.createElement('section',{onKeyDown:event=>bubbled.push({key:event.key,prevented:event.defaultPrevented}),onKeyDownCapture:prevent?event=>event.preventDefault():undefined},React.createElement(Locale),React.createElement('p',{id:'existing-note'},'Existing helper'),React.createElement('input',{id:'outside'}),React.createElement('textarea',{id:'code',defaultValue:'Private learner code'}),React.createElement(Form,props),two?React.createElement(Form,{name:'b'}):null);}
+ const render=async(props={})=>act(async()=>{root??=createRoot(document.getElementById('root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Harness,props)));});
+ const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;};
+ const field=()=>document.querySelector('#form-a textarea');
+ const press=async(target,init={})=>{const event=new dom.window.KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true,...init});await act(async()=>target.dispatchEvent(event));return event;};
+ await render();let textarea=field();textarea.focus();textarea.setSelectionRange(2,8);textarea.scrollTop=19;const original=textarea.value,storage=JSON.stringify({...sessionStorage});
+ assert.equal(textarea.getAttribute('aria-keyshortcuts'),'Control+Enter Meta+Enter');const ids=textarea.getAttribute('aria-describedby').split(' ');assert(ids.includes('existing-note'));assert(ids.every(id=>document.getElementById(id)));assert(document.querySelector('.markdown-submit-shortcut').textContent.includes('to submit'));
+ let event=await press(textarea);assert(event.defaultPrevented);assert.deepEqual(submitted,[{name:'a',value:original,submitter:'submit-a'}]);assert.equal(runs,0,'A composer command must not run the outer workspace');assert.equal(bubbled.at(-1).prevented,true,'Reading/activity listeners can still observe the handled key');
+ event=await press(textarea,{ctrlKey:false,metaKey:true});assert(event.defaultPrevented);assert.equal(submitted.length,2);assert.equal(document.activeElement,textarea);assert.equal(textarea.value,original);assert.equal(textarea.selectionStart,2);assert.equal(textarea.selectionEnd,8);assert.equal(textarea.scrollTop,19);assert.equal(JSON.stringify({...sessionStorage}),storage);
+ const before=submitted.length;for(const init of [{ctrlKey:false},{shiftKey:true},{altKey:true},{isComposing:true},{keyCode:229},{repeat:true}]){event=await press(textarea,init);assert.equal(submitted.length,before,JSON.stringify(init));if(!init.repeat)assert(!event.defaultPrevented,'Plain, modified and IME Enter retain their native behavior');}
+ await act(async()=>document.getElementById('locale').click());assert(document.querySelector('.markdown-submit-shortcut').textContent.includes('提交'));await stop();localStorage.setItem('paperleet.locale','en');
+ for(const props of [{disabled:true},{fieldset:true},{submitDisabled:true},{ariaDisabled:true},{hiddenSubmit:true},{noSubmit:true},{hiddenForm:true},{ariaHidden:true},{forcedPreview:true}]){
+  await render(props);textarea=field();textarea.focus();const count=submitted.length;await press(textarea);assert.equal(submitted.length,count,'Blocked form cannot publish: '+JSON.stringify(props));assert.equal(textarea.value,'Keep this draft');await stop();
+ }
+ for(const props of [{requiredMissing:true},{initial:''}]){await render(props);textarea=field();textarea.focus();const count=submitted.length,invalidBefore=invalid;await press(textarea);assert.equal(submitted.length,count);assert(invalid>invalidBefore,'Native required-field validation runs before submission');assert.equal(textarea.value,props.initial??'Keep this draft');await stop();}
+ await render({shortcut:false});textarea=field();textarea.focus();const noOptin=submitted.length;event=await press(textarea);assert(!event.defaultPrevented);assert.equal(submitted.length,noOptin);assert(!textarea.getAttribute('aria-keyshortcuts'));assert(!document.querySelector('.markdown-submit-shortcut'));await stop();
+ await render({prevent:true});textarea=field();textarea.focus();const prevented=submitted.length;await press(textarea);assert.equal(submitted.length,prevented,'An outer capture handler can keep ownership of the command');await stop();
+ await render();textarea=field();document.getElementById('outside').focus();const outside=submitted.length;await press(textarea);assert.equal(submitted.length,outside,'An unfocused synthetic field cannot submit another reading context');await stop();
+ await render({two:true});const fields=[...document.querySelectorAll('.markdown-editor textarea')];assert.notEqual(fields[0].getAttribute('aria-describedby'),fields[1].getAttribute('aria-describedby'));fields[1].focus();await press(fields[1]);assert.equal(submitted.at(-1).name,'b');assert.equal(submitted.at(-1).submitter,'submit-b');assert.equal(fields[0].value,'Keep this draft');await stop();
+ await render();const code=document.getElementById('code');code.focus();const runBefore=runs;await press(code,{isComposing:true});await press(code,{keyCode:229});assert.equal(runs,runBefore);await press(code);assert.equal(runs,runBefore+1,'The actual workspace hook still runs code from the code editor');assert.equal(code.value,'Private learner code');await stop();
+ assert.deepEqual(errors,[]);console.log('PASS community submit shortcut: actual native form/submitter and validation, explicit opt-in, Ctrl/Command, IME/229/repeat guards, disabled/hidden/preview/account-equivalent states, focus/form isolation, preserved draft/caret/scroll, bilingual accessible hint and actual workspace capture isolation without suppressing reading-intent events');
+}finally{if(root)await act(async()=>root.unmount());await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();for(const [key,value] of previous){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}
