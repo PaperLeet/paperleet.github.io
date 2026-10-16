@@ -2,7 +2,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {execFileSync} from 'node:child_process';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {runWasmCases, wasmConcurrency} from './wasm-cases.mjs';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {loadPyodide} from 'pyodide';
@@ -22,32 +24,37 @@ const selection = process.argv[2];
 try {
   if (!selection || selection === '--all' || selection === '--smoke') {
     const cases = selection === '--smoke' ? smokeCases : ids;
-    const results = [];
+    const concurrency = wasmConcurrency();
+    const execute = promisify(execFile);
     const started = performance.now();
-    for (const id of cases) {
+    const results = await runWasmCases(cases, concurrency, async id => {
       const entry = catalog.find(entry => entry.id === id);
-      assert(entry, `Unknown smoke module: ${id}`);
-      try {
-        const output = execFileSync(process.execPath, [fileURLToPath(import.meta.url), id, '--json'], {
-          cwd:web, encoding:'utf8', timeout:Math.max(180_000, entry.browser_judge.budgets.total * 3),
-          maxBuffer:1024*1024,
-        });
-        const result = JSON.parse(output);
-        assert.equal(result.id, id);
-        results.push({...result, passed:true});
-        if (result.browser_budget_exceeded.length) {
-          const notice = `${id}: correctness passed; ${result.browser_budget_exceeded.join(', ')} exceeded the browser budget on this runner. Browser timeouts still require native fallback.`;
-          console.warn(process.env.GITHUB_ACTIONS ? `::warning::${notice}` : `WARN ${notice}`);
-        }
-        console.log(`PASS real Pyodide ${result.pyodide} / NumPy ${result.numpy}: ${id}, ${result.tests} tests, ${result.mutants} mutants (${(result.elapsed_ms / 1000).toFixed(2)}s)`);
-      } catch(error) {
-        const detail = String(error?.stderr || error?.message || error).slice(-12000);
-        results.push({id,passed:false,error:detail});
-        console.error(`FAIL real WASM ${id}: ${detail}`);
+      assert(entry, 'Unknown WASM module: ' + id);
+      const {stdout} = await execute(process.execPath, [fileURLToPath(import.meta.url), id, '--json'], {
+        cwd:web, encoding:'utf8', timeout:Math.max(180_000, entry.browser_judge.budgets.total * 3),
+        maxBuffer:1024*1024,
+      });
+      const result = JSON.parse(stdout);
+      assert.equal(result.id, id);
+      assert.equal(result.tests, Object.values(entry.tests).reduce((sum, count) => sum + count, 0));
+      assert(Number.isInteger(result.mutants) && result.mutants >= 0);
+      assert(typeof result.pyodide === 'string' && typeof result.numpy === 'string');
+      assert(Number.isFinite(result.elapsed_ms) && result.elapsed_ms >= 0);
+      assert(Array.isArray(result.browser_budget_exceeded) && result.browser_budget_exceeded.every(value => typeof value === 'string'));
+      return {...result, passed:true};
+    }, result => {
+      if (!result.passed) {
+        console.error('FAIL real WASM ' + result.id + ': ' + result.error);
+        return;
       }
-    }
+      if (result.browser_budget_exceeded.length) {
+        const notice = result.id + ': correctness passed; ' + result.browser_budget_exceeded.join(', ') + ' exceeded the browser budget on this runner. Browser timeouts still require native fallback.';
+        console.warn(process.env.GITHUB_ACTIONS ? '::warning::' + notice : 'WARN ' + notice);
+      }
+      console.log('PASS real Pyodide ' + result.pyodide + ' / NumPy ' + result.numpy + ': ' + result.id + ', ' + result.tests + ' tests, ' + result.mutants + ' mutants (' + (result.elapsed_ms / 1000).toFixed(2) + 's)');
+    });
     const report = {schema_version:1, scope:selection === '--smoke' ? 'smoke' : 'catalog',
-      catalog_modules:ids.length, modules:results.length, passed:results.every(result => result.passed),
+      catalog_modules:ids.length, modules:results.length, concurrency, passed:results.every(result => result.passed),
       elapsed_ms:Math.round(performance.now() - started),
       browser_budget_exceeded:results.filter(result => result.passed && result.browser_budget_exceeded.length).map(result => result.id), results};
     const reportPath = path.join(web, '../reports/browser-wasm.json');

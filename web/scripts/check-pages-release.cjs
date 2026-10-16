@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const {spawnSync} = require('node:child_process');
 const resolve = require('./pages-release-gate.cjs');
 const sha = 'a'.repeat(40), old = 'b'.repeat(40);
 const repository = 'PaperLeet/paperleet.github.io';
@@ -9,7 +10,7 @@ function fixture() {
     context: {repo: {owner: 'PaperLeet', repo: 'paperleet.github.io'}, eventName: 'workflow_run', ref: 'refs/heads/main', sha, payload: {workflow_run: {id: 40}}},
     branch: {commit: {sha}}, workflow: {id: 7},
     run: {id: 40, workflow_id: 7, head_repository: {full_name: repository}, head_branch: 'main', head_sha: sha, event: 'push', status: 'completed', conclusion: 'success'},
-    jobs: ['native', 'browser-wasm', 'pilot'].map(name => ({name, status: 'completed', conclusion: 'success'})),
+    jobs: ['native', 'infrastructure', 'browser-wasm', 'pilot'].map(name => ({name, status: 'completed', conclusion: 'success'})),
   };
 }
 function adapter(f) {
@@ -43,7 +44,7 @@ async function denied(edit, pattern) {
   await denied(f => { f.context.eventName = 'workflow_dispatch'; f.context.sha = old; }, /main quality run/);
   await denied(f => { f.context.eventName = 'workflow_dispatch'; f.runs = []; }, /complete main quality gate/);
   await denied(f => { f.context.payload.workflow_run.id = '40'; }, /complete main quality gate/);
-  for (const name of ['native', 'browser-wasm', 'pilot']) {
+  for (const name of ['native', 'infrastructure', 'browser-wasm', 'pilot']) {
     await denied(f => { f.jobs = f.jobs.filter(job => job.name !== name); }, /missing or unsuccessful/);
     for (const conclusion of ['skipped', 'failure', 'cancelled', null]) {
       await denied(f => { f.jobs.find(job => job.name === name).conclusion = conclusion; }, /missing or unsuccessful/);
@@ -90,5 +91,27 @@ async function denied(edit, pattern) {
   assert.equal(await beforeDeploy(f => { f.run.conclusion = 'failure'; }), 'false', 'A later failed rerun cannot reuse an earlier success');
   assert.equal(await beforeDeploy(f => { f.run.status = 'in_progress'; }), 'false');
   assert.equal(await beforeDeploy(f => { f.run.head_sha = old; }), 'false');
-  console.log('PASS Pages release gating: complete exact-main native/WASM/pilot success, authoritative latest attempts, first-party provenance, manual dispatch, missing/skipped/duplicate job rejection and pre-deploy stale/rerun guards');
+  const ci = fs.readFileSync(path.join(__dirname, '../../.github/workflows/ci.yml'), 'utf8');
+  const infrastructure = ci.split('  infrastructure:\n')[1].split('  browser-wasm:\n')[0];
+  assert.match(infrastructure, /run: python -m pytest tests packages\/stridetorch\/tests -q\n/);
+  assert.match(ci.split('  native:\n')[1].split('  infrastructure:\n')[0], /run: paperleet ci --budget 600\n/);
+  const wasm = ci.split('  browser-wasm:\n')[1].split('  pilot:\n')[0];
+  assert.match(wasm, /PAPERLEET_WASM_CONCURRENCY: '2'/);
+  assert.match(wasm, /npm run check:browser-wasm\n/);
+  const pilot = ci.split('  pilot:\n')[1];
+  assert.match(pilot, /needs: \[native, infrastructure, browser-wasm\]/);
+  assert.match(pilot, /if: always\(\)/);
+  for (const [key, expression] of [['NATIVE_RESULT','needs.native.result'], ['INFRASTRUCTURE_RESULT','needs.infrastructure.result'], ['WASM_RESULT',"needs['browser-wasm'].result"]]) {
+    assert(pilot.includes(key + ': $' + '{{ ' + expression + ' }}'), 'Pilot results must come from their actual required jobs');
+  }
+  const shell = pilot.split('        run: |\n')[1].replace(/^ {10}/gm, '');
+  const successes = {NATIVE_RESULT:'success', INFRASTRUCTURE_RESULT:'success', WASM_RESULT:'success'};
+  const pilotStatus = values => spawnSync('sh', ['-eu', '-c', shell], {env:{...process.env,...values}, encoding:'utf8'}).status;
+  assert.equal(pilotStatus(successes), 0);
+  for (const key of Object.keys(successes)) {
+    for (const status of ['failure', 'cancelled', 'skipped', 'timed_out', '']) {
+      assert.notEqual(pilotStatus({...successes,[key]:status}), 0, 'Every missing or unsuccessful check must block the actual pilot shell');
+    }
+  }
+  console.log('PASS Pages release gating: complete exact-main infrastructure/native/WASM/pilot success, authoritative attempts, provenance, missing/skipped/duplicate rejection, actual pilot failure propagation and stale/rerun guards');
 })().catch(error => { console.error(error); process.exitCode = 1; });
