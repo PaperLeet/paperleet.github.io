@@ -1,4 +1,5 @@
 """Cholesky factors and real differentiation using triangular systems."""
+import sys
 import numpy as np
 
 
@@ -144,7 +145,7 @@ def _solve_values(factor, rhs, upper, *, save_intermediate=False):
     return (value, intermediate) if save_intermediate else value
 
 
-def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper):
+def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper, intermediate=None):
     """Fuse the real JVP without projecting any full-factor reverse edge."""
     x, f, df = value._data, factor._data, factor_direction._data
     transpose = lambda a: a.swapaxes(-1, -2)
@@ -155,12 +156,29 @@ def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper):
     def direction_product(rhs):
         return (df if upper else transpose(df)) @ rhs
 
-    fx, dfx = factor_product(x), direction_product(x)
-    residual = -(transpose(df) @ fx + transpose(f) @ dfx if upper
-                 else df @ fx + f @ dfx)
-    if rhs_direction is not None:
-        residual = rhs_direction._data + residual
-    values = _linalg._solve_layout(_solve_values(f, residual, upper), True)
+    dfx = direction_product(x)
+    reuse = intermediate is not None
+    ft = None
+    if reuse:
+        fx = intermediate
+        first_term = (transpose(df) if upper else df) @ fx
+        reuse = (np.isfinite(first_term).all() and np.isfinite(dfx).all()
+                 and (rhs_direction is None or np.isfinite(rhs_direction._data).all()))
+        if reuse:
+            first_rhs = -first_term if rhs_direction is None else rhs_direction._data - first_term
+            first = _linalg._triangular_values(transpose(f) if upper else f, first_rhs, False, True, False)
+            ft = first - dfx
+            values = _linalg._triangular_values(f if upper else transpose(f), ft, True, True, False)
+            reuse = np.isfinite(ft).all() and np.isfinite(values).all()
+    if not reuse:
+        fx = factor_product(x)
+        residual = -(transpose(df) @ fx + transpose(f) @ dfx if upper
+                     else df @ fx + f @ dfx)
+        if rhs_direction is not None:
+            residual = rhs_direction._data + residual
+        values = _solve_values(f, residual, upper)
+        ft = None
+    values = _linalg._solve_layout(values, True)
     db = rhs_direction if rhs_direction is not None else _tensor.Tensor(np.zeros_like(x))
     inputs = (value, factor, db, factor_direction)
     if not _state._grad_enabled or not any(t.requires_grad for t in inputs):
@@ -170,6 +188,7 @@ def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper):
     saved_output = values if factor.requires_grad else None
     saved_fx = fx if factor_direction.requires_grad else None
     saved_dfx = dfx if factor.requires_grad else None
+    saved_ft = ft if factor.requires_grad else None
     if value.requires_grad and not factor.requires_grad:
         # Native saves the already-formed coefficient direction. Its source
         # direction may change when no factor adjoint needs that source. Keep
@@ -186,13 +205,20 @@ def _narrow_tangent(value, factor, rhs_direction, factor_direction, upper):
         return -(q @ transpose(product_solution) + solution @ transpose(product_q))
 
     def backward(g, needs):
-        q = _solve_values(f, g, upper)
-        fq = factor_product(q) if needs[0] or needs[1] or needs[3] else None
+        product_needed = needs[0] or needs[1] or needs[3]
+        if reuse and product_needed:
+            q, fq = _solve_values(f, g, upper, save_intermediate=True)
+            if not (np.isfinite(q).all() and np.isfinite(fq).all()):
+                fq = factor_product(q)
+        else:
+            q = _solve_values(f, g, upper)
+            fq = factor_product(q) if product_needed else None
         dfq = direction_product(q) if needs[0] or needs[1] else None
         dx = (-(transpose(df) @ fq + transpose(f) @ dfq if upper
                 else df @ fq + f @ dfq)) if needs[0] else None
         if needs[1]:
-            gf = factor_adjoint(q, saved_output, fq, factor_product(saved_output))
+            gf = factor_adjoint(q, saved_output, fq,
+                                saved_ft if saved_ft is not None else factor_product(saved_output))
             gf += factor_adjoint(q, saved_x, dfq, saved_dfx)
         else:
             gf = None
@@ -239,16 +265,20 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
     if isinstance(input, _autograd.ForwardTensor) or isinstance(input2, _autograd.ForwardTensor):
         primal_b = input._primal if isinstance(input, _autograd.ForwardTensor) else input
         primal_f = input2._primal if isinstance(input2, _autograd.ForwardTensor) else input2
-        value = cholesky_solve(primal_b, primal_f, upper)
         direction = input2._tangent if isinstance(input2, _autograd.ForwardTensor) else _tensor.Tensor(np.zeros_like(factor))
         # Native differentiation extends the full factor, including its unused
         # triangle. Only the primal factor solves select a triangle.
-        narrow_direction = f_shape[-1] >= 64 and value.shape[-1] * 4 <= f_shape[-1] and all(
-            np.isfinite(t._data).all() for t in (primal_f, direction, value))
+        narrow_shape = f_shape[-1] >= 64 and b_shape[-1] * 4 <= f_shape[-1]
+        primal = _solve_primal(primal_b, primal_f, upper, batch, capture=narrow_shape)
+        if narrow_shape:
+            value, intermediate, finite_values = primal
+        else:
+            value, intermediate, finite_values = primal, None, False
+        narrow_direction = finite_values and np.isfinite(direction._data).all()
         if narrow_direction:
             tangent = _narrow_tangent(value, primal_f,
                 input._tangent if isinstance(input, _autograd.ForwardTensor) else None,
-                direction, upper)
+                direction, upper, intermediate)
             return _autograd.ForwardTensor(value, _layout.matching_tangent(tangent, value))
         product = direction.transpose(-1, -2) @ primal_f if upper else direction @ primal_f.transpose(-1, -2)
         coefficient_direction = product + product.transpose(-1, -2)
@@ -258,11 +288,25 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
             residual = input._tangent + residual
         tangent = cholesky_solve(residual, primal_f, upper)
         return _autograd.ForwardTensor(value, _layout.matching_tangent(tangent, value))
+    return _solve_primal(input, input2, upper, batch)
+
+
+def _solve_primal(input, input2, upper, batch, *, capture=False):
+    # The public entry has validated both primal tensors, including the
+    # ForwardTensor case. Reuse that validation instead of recursing through it.
+    b, factor = input._data, input2._data
+    b_shape, f_shape = b.shape, factor.shape
     matrix_f = factor if f_shape[:-2] == batch else np.broadcast_to(factor, batch + f_shape[-2:])
     matrix_b = b if b_shape[:-2] == batch else np.broadcast_to(b, batch + b_shape[-2:])
     needs_b, needs_f = input.requires_grad, input2.requires_grad
-    finite_factor = _state._grad_enabled and needs_f and f_shape[-1] >= 64 and np.isfinite(factor).all()
-    triangular_factor = finite_factor and not np.any(_linalg._triangular_part(factor, not upper, True))
+    finite_factor = (capture or _state._grad_enabled and needs_f) and f_shape[-1] >= 64 and np.isfinite(factor).all()
+    # Gradient factors already need this classification for their VJP. A new
+    # scan for frozen factors pays off on WASM, but loses to native CPU BLAS;
+    # very small WASM RHSs also keep the original unclassified path.
+    reuse = _state._grad_enabled and needs_f
+    if capture and not reuse and sys.platform == 'emscripten':
+        reuse = f_shape[-1] > 64 or b_shape[-1] > 4
+    triangular_factor = finite_factor and reuse and not np.any(_linalg._triangular_part(factor, not upper, True))
     if triangular_factor:
         values, forward_intermediate = _solve_values(matrix_f, matrix_b, upper, save_intermediate=True)
     else:
@@ -272,7 +316,8 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
     triangular_factor = triangular_factor and finite_values and np.isfinite(forward_intermediate).all()
     if not triangular_factor:forward_intermediate = None
     if not _state._grad_enabled or not (needs_b or needs_f):
-        return _tensor.Tensor(values, _metadata_owned=True)
+        output = _tensor.Tensor(values, _metadata_owned=True)
+        return (output, forward_intermediate, finite_values) if capture else output
     x_transpose = values.swapaxes(-1, -2) if needs_f else None
     narrow = finite_values and values.shape[-1] * 4 <= f_shape[-1]
 
@@ -316,10 +361,12 @@ def cholesky_solve(input, input2, upper=False, *, out=None):
         def backward(g, needs):
             db, df = factor_pullback(g)
             return reduce_b(db), df
-        return _autograd.joint_result(values, (input, input2), backward)
-    if needs_b:
-        return _autograd.result(values, (input, lambda g: reduce_b(right_gradient(g))), saved=(input2,))
-    return _autograd.result(values, (input2, lambda g: factor_pullback(g)[1]), saved=(input,))
+        output = _autograd.joint_result(values, (input, input2), backward)
+    elif needs_b:
+        output = _autograd.result(values, (input, lambda g: reduce_b(right_gradient(g))), saved=(input2,))
+    else:
+        output = _autograd.result(values, (input2, lambda g: factor_pullback(g)[1]), saved=(input,))
+    return (output, forward_intermediate, finite_values) if capture else output
 
 
 from . import _autograd, _errors, _layout, _linalg, _ops, _state, _tensor

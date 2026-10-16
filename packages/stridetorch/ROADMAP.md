@@ -552,6 +552,18 @@ source-commit deployment was superseded and is not claimed as published.
   reverse-through-JVP workload. No uniform speedup or GPU support is claimed.
 - No automatic CI, tag or online publication. Naming remains pending user choice.
 
+## Version 0.35: reuse narrow Cholesky JVP intermediates
+
+- Actual finite triangular factors reuse primal/tangent/adjoint solve arrays
+  while retaining all four full-factor reverse channels and mutation semantics.
+  Validated-primal dispatch and measured Emscripten/RHS scan policy address
+  prototype regressions for small and frozen-factor workflows.
+- Full core 32,235 passes; Node/Chrome 1,495 each; minimum installed wheel 1,507.
+  Original native/exported WASM catalogs and full application gates pass.
+- [Paired measurements and retained pilots](../../docs/validation/torch-runtime-iteration-35.md)
+  include the older 0.32 composition baseline and frozen/no-reverse workflows.
+  Main adoption is separate from online publication; no CI/tag/dispatch occurs.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

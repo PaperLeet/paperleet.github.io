@@ -187,3 +187,39 @@ def test_narrow_tangent_without_recorded_reverse(upper,disabled,shape):
         x,t=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),(b,f),(db,df))
     close(x.numpy(),np.full(shape,.2));close(t.numpy(),np.full(shape,.03-2*.01*64*.2))
     assert not x.requires_grad and not t.requires_grad
+
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('dtype,exponent',[('float32',-18),('float32',18),('float64',-150),('float64',150)])
+def test_scaled_narrow_jvp_closed_form_and_normalized_adjoints(upper,dtype,exponent):
+    n=64;k=2;s=10.**exponent;tdtype=getattr(torch,dtype)
+    args=(torch.full((n,k),.2*s*s,dtype=tdtype,requires_grad=True),(torch.eye(n,dtype=tdtype)*s).requires_grad_(),
+          torch.full((n,k),.03*s*s,dtype=tdtype,requires_grad=True),torch.full((n,n),.01*s,dtype=tdtype,requires_grad=True))
+    x,t=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),args[:2],args[2:]);close(x.numpy(),np.full((n,k),.2),dtype)
+    tangent=.03-2*n*.01*.2;close(t.numpy(),np.full((n,k),tangent),dtype)
+    gradients=torch.autograd.grad(.17*x.square().sum()+.23*t.square().sum(),args);q=.46*tangent;z=.34*.2-.02*n*q
+    fgrad=-2*k*.2*z-2*k*tangent*q-2*k*.2*n*.01*q;dfgrad=-2*k*.2*q
+    for gradient,scale,reference in zip(gradients,(s*s,s,s*s,s),(z,fgrad,q,dfgrad)):
+        actual=gradient.numpy()*scale;assert np.isfinite(actual).all();close(actual,np.full(actual.shape,reference),dtype)
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('disabled',[False,True])
+@pytest.mark.parametrize('ignored_entry',[False,True])
+@pytest.mark.parametrize('n,width',[(64,8),(128,4),(128,32)])
+def test_constructed_no_reverse_triangular_jvp_batches(dtype,upper,disabled,ignored_entry,n,width):
+    import contextlib
+    rng=np.random.default_rng(351);f=(rng.normal(size=(2,1,n,n))*.01).astype(dtype)
+    f=np.triu(f) if upper else np.tril(f);f[...,np.arange(n),np.arange(n)]=2
+    if ignored_entry:
+        if upper:f[...,1,0]=.02
+        else:f[...,0,1]=.02
+    selected=np.triu(f) if upper else np.tril(f);tr=lambda a:a.swapaxes(-1,-2)
+    a=tr(selected)@selected if upper else selected@tr(selected);df=(rng.normal(size=f.shape)*.01).astype(dtype)
+    partial=tr(df)@f if upper else df@tr(f);da=partial+tr(partial)
+    target=(rng.normal(size=(2,3,n,width))*.1).astype(dtype);desired=(rng.normal(size=target.shape)*.03).astype(dtype)
+    b=a@target;db=da@target+a@desired;args=tuple(torch.tensor(v,requires_grad=disabled) for v in (b,f,db,df))
+    with torch.no_grad() if disabled else contextlib.nullcontext():
+        x,t=torch.func.jvp(lambda b,f:torch.cholesky_solve(b,f,upper),args[:2],args[2:])
+    close(x.numpy(),target,dtype);close(t.numpy(),desired,dtype);assert not x.requires_grad and not t.requires_grad

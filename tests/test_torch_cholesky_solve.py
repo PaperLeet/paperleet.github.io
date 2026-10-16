@@ -183,3 +183,37 @@ def test_narrow_jvp_no_reverse_and_empty_batches(dtype,upper,disabled,config):
         assert not x.requires_grad and not t.requires_grad
         reports.append((x.detach().numpy(),t.detach().numpy(),x.stride(),t.stride()))
     close(reports[0][0],reports[1][0],dtype);close(reports[0][1],reports[1][1],dtype);assert reports[0][2:]==reports[1][2:]
+
+
+@pytest.mark.parametrize('dtype',['float32','float64'])
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('config',[(64,16),(64,17),(128,32),(128,33)])
+@pytest.mark.parametrize('batched',[False,True])
+@pytest.mark.parametrize('direction_triangular',[False,True])
+@pytest.mark.parametrize('ignored_entry',[False,True])
+def test_triangular_jvp_intermediates_at_dispatch_boundary(dtype,upper,config,batched,direction_triangular,ignored_entry):
+    n,k=config;f,b=arrays(dtype,(2,1) if batched else (), (1,3) if batched else (),n,k)
+    f=np.triu(f) if upper else np.tril(f)
+    if ignored_entry:f[...,1,0] = .02 if upper else f[...,1,0];f[...,0,1] = .02 if not upper else f[...,0,1]
+    rng=np.random.default_rng(350);df=(rng.normal(size=f.shape)*.013).astype(dtype);db=(rng.normal(size=b.shape)*.027).astype(dtype)
+    if direction_triangular:df=np.triu(df) if upper else np.tril(df)
+    reports=[]
+    for lib in (lite,native):
+        args=tuple(lib.tensor(v,requires_grad=True).transpose(-1,-2).contiguous().transpose(-1,-2) for v in (b,f,db,df))
+        x,t=lib.func.jvp(lambda b,f:lib.cholesky_solve(b,f,upper),args[:2],args[2:]);gradients=lib.autograd.grad(.17*x.square().mean()+.23*t.square().mean(),args,retain_graph=True)
+        second=lib.autograd.grad(.31*x.sum()-.11*t.sum(),args)
+        reports.append((x.detach().numpy(),t.detach().numpy(),x.stride(),t.stride(),[g.numpy() for g in (*gradients,*second)]))
+    a,b=reports;close(a[0],b[0],dtype);close(a[1],b[1],dtype);assert a[2:4]==b[2:4]
+    for actual,expected in zip(a[4],b[4]):close(actual,expected,dtype)
+
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('dtype,exponent',[('float32',-18),('float32',18),('float64',-150),('float64',150)])
+def test_scaled_triangular_jvp_and_all_native_reverse_channels(upper,dtype,exponent):
+    s=10.**exponent;n=64;k=2;reports=[]
+    for lib in (lite,native):
+        tdtype=getattr(lib,dtype);args=(lib.full((n,k),.2*s*s,dtype=tdtype,requires_grad=True),
+            (lib.eye(n,dtype=tdtype)*s).requires_grad_(),lib.full((n,k),.03*s*s,dtype=tdtype,requires_grad=True),lib.full((n,n),.01*s,dtype=tdtype,requires_grad=True))
+        x,t=lib.func.jvp(lambda b,f:lib.cholesky_solve(b,f,upper),args[:2],args[2:]);gradients=lib.autograd.grad(.17*x.square().sum()+.23*t.square().sum(),args)
+        reports.append([x.detach().numpy(),t.detach().numpy(),*(g.numpy()*scale for g,scale in zip(gradients,(s*s,s,s*s,s)))])
+    for actual,expected in zip(*reports):close(actual,expected,dtype)

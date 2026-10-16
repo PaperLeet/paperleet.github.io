@@ -187,13 +187,16 @@ through their columns to avoid a cubic factor-gradient multiplication. Finite
 triangular factors needing gradients reuse one forward and one adjoint
 intermediate. Finite narrow JVPs use one analytical multi-input pullback while
 keeping all full-factor and direction gradients. Forward and adjoint products
-through RHS columns are shared across the four pullbacks. Unneeded primal/tangent arrays
+through RHS columns are shared across the four pullbacks. Actual finite
+triangular factors also reuse the first primal, tangent and adjoint solves; full
+factor/direction gradients are preserved. Frozen-factor classification is
+selected by runtime and RHS size to avoid scans that lose to native CPU BLAS. Unneeded primal/tangent arrays
 are released; permitted direction edits use a snapshot, while required saved
 values retain native mutation guards. These are graph-local values, not
 cross-call caches. Output
 buffers, half factorization and complex AD remain explicit unsupported cases.
-Version 0.34 validation and integration are tracked in its
-[validation report](../../docs/validation/torch-runtime-iteration-34.md).
+Version 0.35 validation and integration are tracked in its
+[validation report](../../docs/validation/torch-runtime-iteration-35.md).
 
 Factorization failures are checked across numerical runtimes. Cholesky verifies
 its returned diagonal because some WASM NumPy builds return NaN factors without

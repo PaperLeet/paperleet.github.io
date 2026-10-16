@@ -1,0 +1,508 @@
+{
+  "status": "complete_local_scoped_ui_and_both_builds_passed",
+  "context": {
+    "base": "e21b136c2431d2aeeea52b0d1b1124a09c413f6a",
+    "upstream": "3a5673cae508a41814c8dbfea63787e3aaaa0e83",
+    "incoming": {
+      "docs/validation/profile-solutions.md": "42fc372a0ff184242ba58d7ea0f3295383698268217f4b92433ba74804e06c70",
+      "web/package.json": "1a642ea309a85cde59b92bceb834d405885a41cbdf8739f9eaf0cc671c1c7314",
+      "web/scripts/check-profile-solutions.mjs": "9af5b2cd0affa4d5530e4a55570e27d2595259ab4f3fb27352f8481a25ff05b6",
+      "web/src/Community.tsx": "cbaee7f1447144b7628aa643975736c6d272f502c6d6bf201382f28bc2c9db28",
+      "web/src/profile-solutions.css": "95bb45f50a277ae9602a3b8ce4bbac66b9c6d7a91a3f0e97c3a341f89f2eaa86",
+      "web/src/social.tsx": "fc34742fd36385b51b21c5b7e5eadc0e4d1441006a2a717336cc83f84363a8da"
+    },
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "346a8d2fe7e2b0cf30a022f09650cc15a1dca0b0d0006b658f70352045e41f20",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "6d3274710bf4ebd0b335f719b7378db697f6d0315d0f817db67b91b79627b19e",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "5da9b1ca76b26db0424365b7eed26efb69a11c76d554588f6b72b3bb6b9d2823",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "98bc20e8e89956c2609d9cf5d517ceb6f42498f1d3999949b9c6e5ed2574dabb",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "620b9d2971fa6a7ef3d3cd4a5953fff1ce146bff15965111b43392abc039751b",
+      "runtime.py": "87eef377e01a956fe271316ad14b61e9f0e77e15e7103101d39ce7c33e1a7835",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "471a7e89a3ff6331f89a1690fbb1144c26cbbe74898d0e3b223b4d29afbae63f",
+      "_optimizer.py": "835ee1595cd97c37dee6e5c5d6643ef727e77f71852e7958ad16c3c98b41f2ec",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "live_exports": {
+      "browser-judge/1-54d3876ccb6690451c99.json": "54d3876ccb6690451c992163bff29576546c3147b16eed28f7dd0747fbac36b7",
+      "browser-judge/10-485165b957d6d35eec22.json": "485165b957d6d35eec22890cc9652167f316fdd654b355a9ca7d0c1cb3b7c2fe",
+      "browser-judge/11-b0b7dcf22ce5ff7db8e8.json": "b0b7dcf22ce5ff7db8e853bab609afe527e53cee88601832a796e187ce6ae77e",
+      "browser-judge/12-16d80400e0e8f1581cd5.json": "16d80400e0e8f1581cd5c0e2d802abb49e45fce812d133f23b9b0db9a82faaa1",
+      "browser-judge/13-73ac611104f7549615d9.json": "73ac611104f7549615d939584339e17fd32c82c07edb366ff51623f3925b4979",
+      "browser-judge/14-f3c8dd229d1feb1d3d09.json": "f3c8dd229d1feb1d3d09aee8570c743fed8df9aa2818f58daf1155f72cee4078",
+      "browser-judge/15-94be70d4c945c7994666.json": "94be70d4c945c799466628852c61d9bb9b0c568ba165e4756d11341995f56c28",
+      "browser-judge/16-bb0db3a830fcf8cc371a.json": "bb0db3a830fcf8cc371a902f5014c3bc6eba6554474d50a627e5e4a72e7c1a4e",
+      "browser-judge/17-3275d24044d5f37e1314.json": "3275d24044d5f37e1314c76717b1bccc914fda0167119e04035b78880431fedd",
+      "browser-judge/18-2009b37129f7b10f7c07.json": "2009b37129f7b10f7c07970f347cf86b80a9047b672af47985a0ee015ff41cba",
+      "browser-judge/19-3f583d66fc4ecae010e0.json": "3f583d66fc4ecae010e070b20b1527b4b48a8639458bb40f52b9a16061620a73",
+      "browser-judge/2-7620ed2499a976455edd.json": "7620ed2499a976455eddc3add04c49b3bd539ef0c0b235f17470f9c01f70f6e2",
+      "browser-judge/20-4f71435bfb93b304b4eb.json": "4f71435bfb93b304b4ebec5a4f62b8726c3c88da7f77512da81ffef04ebad7bb",
+      "browser-judge/21-d2be9766a32f8a9dad39.json": "d2be9766a32f8a9dad39110d3377e9b04b8ad7dddfd24fea3bed99edec854611",
+      "browser-judge/22-c331dc219d2c42f68049.json": "c331dc219d2c42f68049aeffb6c5814b6f9021cf5b4946da7011ce245a1e2d16",
+      "browser-judge/23-cbca428a9f60dd9ca3e3.json": "cbca428a9f60dd9ca3e3078fe801b9ee59f7225575b86ddef8c0e8ddb2fabdbd",
+      "browser-judge/24-3de281e4b4a85bfe831e.json": "3de281e4b4a85bfe831e6dcb58c8cda4af91841f3a0285a333608aee8b40c2ab",
+      "browser-judge/25-6e939e3b3044e6086994.json": "6e939e3b3044e608699496b52722980e47a173b5383eb6c675028852644b604a",
+      "browser-judge/26-e928e8782820c1d30be7.json": "e928e8782820c1d30be7e1fca949c64922eacbed73478e26922f3aa81d5527d1",
+      "browser-judge/27-703f8422f1592b462177.json": "703f8422f1592b462177dabc62242ddea403d934ea6cb8c0ce34a3c35d33e293",
+      "browser-judge/28-04a12db0d523330e5247.json": "04a12db0d523330e5247908ec00111d4c0dd3748512cd41787b7bae7167d2c5b",
+      "browser-judge/29-863d5034c1a5abeec574.json": "863d5034c1a5abeec57426f71ecb5c2af4540467569ab3ee57441d3569f56f48",
+      "browser-judge/3-c42facb1807258b59a5e.json": "c42facb1807258b59a5ed6c5b903e5594e63363e1dbc0e75167460c9c0bfd898",
+      "browser-judge/30-5375cad6dfe061c8cb5d.json": "5375cad6dfe061c8cb5dcc62854b2de8d732108d86feebedf16061900ff0b379",
+      "browser-judge/31-0891af9ededdb98a8f1d.json": "0891af9ededdb98a8f1d5d01da1e807065481dfe148c22b72be70be48da9871b",
+      "browser-judge/32-456bf572ad7c03082da9.json": "456bf572ad7c03082da9eaa0a15b6a8134bd5bdaa23db1be2fa545befcef928d",
+      "browser-judge/33-108df082cf97f9fe2ed4.json": "108df082cf97f9fe2ed4849be6a220d8f63b4ed821ed94d530629093ef299cd6",
+      "browser-judge/34-f2a92067e908f723fd9c.json": "f2a92067e908f723fd9ca09cb033420b1dd66eb14124cfe1a12b2943e6a2b263",
+      "browser-judge/35-a0dc038af91112f2ebe6.json": "a0dc038af91112f2ebe62b32b7ad151864a4007f2556da585eb7763903de2c8d",
+      "browser-judge/36-524833cd95a1a8a03a89.json": "524833cd95a1a8a03a89e5117f4b7bb6533d409942b3b9f825d7885018dc4b11",
+      "browser-judge/37-b36ed8db762b20163a0e.json": "b36ed8db762b20163a0ef8faea7abc0ee7c0b5d511b35ede838c43edff0fe446",
+      "browser-judge/38-2e40a0af8431d26b6f92.json": "2e40a0af8431d26b6f92e7e64ab9b62abddbbaaa0a436b17520ae30c32d926d5",
+      "browser-judge/39-3e955b9396561b2f248e.json": "3e955b9396561b2f248e0f8cf19a5fc81da05a802d3842f12afa515c1b61e9c3",
+      "browser-judge/4-7949527fbf11e8ba6215.json": "7949527fbf11e8ba6215fc31ab2faf73e6a47386f7255751adecd40866291826",
+      "browser-judge/40-b9d6782ec2940e79da6f.json": "b9d6782ec2940e79da6f06d681ec11596b7cfaaf260b3431567b2ab88ab67082",
+      "browser-judge/41-660b2fc2ae74cb83f14e.json": "660b2fc2ae74cb83f14e4b0ad35093b08970072107d9cad4a1393139fbbbb823",
+      "browser-judge/42-7325bc4b763861349fea.json": "7325bc4b763861349fea72d4c8a1c78b2a7b66025813e7cc740be7e9053666f5",
+      "browser-judge/43-f01d9fd7e5968cf5193b.json": "f01d9fd7e5968cf5193b085fdd2a2beba71dd62bc0dd266bb9901412675cdd43",
+      "browser-judge/44-3cbe783681663a2cc6cb.json": "3cbe783681663a2cc6cb30fb50e77a448644404fc6ec0006144bbd26480387d5",
+      "browser-judge/45-5c2d94d71233d9cd77b8.json": "5c2d94d71233d9cd77b8395df715fc659b3b9456fa2cbce417cd5c898cd9d776",
+      "browser-judge/46-53ba77c400f345ee046d.json": "53ba77c400f345ee046d09217a904ac0d5ec0dcaa42f2d26ddd1e62292274358",
+      "browser-judge/47-c0389bb4c720b53a2603.json": "c0389bb4c720b53a2603383ad83c8e85150a8cc2cd9e2526d8dc3afedac08549",
+      "browser-judge/48-2b95b17efddfac6fd184.json": "2b95b17efddfac6fd184b1f549e9b6467b111d9ee919da1495864cc5ca48549a",
+      "browser-judge/49-833ca3508909ad1d576d.json": "833ca3508909ad1d576d6ffb832d1b8d1c63e1e315ff423e176980a8fae5f65e",
+      "browser-judge/5-f05a740b6e4eafd99338.json": "f05a740b6e4eafd9933825203bf6e1dc28a7e6963d8958d0e5cbb515a1481a0d",
+      "browser-judge/50-a15b80dde02a5c2b2990.json": "a15b80dde02a5c2b2990d2bd6cffb339881d8c430afa03c471aa8014bec66bcf",
+      "browser-judge/51-02f333282e1079d5f4b8.json": "02f333282e1079d5f4b80f4490dfbcc0f3caec0b4eb2f72d24c5da77ad6da95f",
+      "browser-judge/52-80b72e05db2a641a8a7e.json": "80b72e05db2a641a8a7e92d51b039d1478044234242f43be5c0e5e099eecf5fe",
+      "browser-judge/53-06d1a2537f8a3d390f9b.json": "06d1a2537f8a3d390f9b56b963c09a419797fbda0d59fd7c3221a3ceb5c801ca",
+      "browser-judge/54-9742e698dbc7a0858e44.json": "9742e698dbc7a0858e440b299c0b98f5a74f2abeb1a94ae30b3fe2f1c70d96d0",
+      "browser-judge/55-45003017035e56b4ac19.json": "45003017035e56b4ac19baca2305c2c10acb6f7fbf4adc505feaedb6a2873833",
+      "browser-judge/56-9f7a4907feff53dc3409.json": "9f7a4907feff53dc34093b7cc765b5aae9594abf8476f376be54762449f79419",
+      "browser-judge/57-c532bdb7c90f2dd44cc6.json": "c532bdb7c90f2dd44cc61c2c76724b499170505853b017b69c522d4fd3ca9bae",
+      "browser-judge/58-9c2671aabab73afb6d14.json": "9c2671aabab73afb6d1420e31e940f94950889d19ac17538736becb45df7acc7",
+      "browser-judge/59-7e313aaa63ccef6217ec.json": "7e313aaa63ccef6217ec67e7eb32e34a666d91d351409ab1280225df12884af8",
+      "browser-judge/6-3f10c4106196a99b4d89.json": "3f10c4106196a99b4d89a1b5ed530b798eeebf79c5a1611060fc99af1e5dbe81",
+      "browser-judge/60-8262ea8cd9cc312e6aa0.json": "8262ea8cd9cc312e6aa070b9c92b25073cb67fe243e5a34104ad8a55d879a81e",
+      "browser-judge/61-e62d5114f7b48abe9177.json": "e62d5114f7b48abe91770cfb9f18e37fb9d7aca76d6bb86fe9387c9d8bed55fd",
+      "browser-judge/62-63225284d6ccdaacf0bc.json": "63225284d6ccdaacf0bcf12f41a006d6e83c59b0674b0843fa4c7a0ca6eff7dc",
+      "browser-judge/63-e920858152cbd1ccde08.json": "e920858152cbd1ccde0817e7e404381201c1dc515143433790f2d4ae90724515",
+      "browser-judge/64-2e1f2951f9595d342e01.json": "2e1f2951f9595d342e019b11e0d054da4f68d8d314e2a6e8f758425dc0cd1652",
+      "browser-judge/65-9f17c8bc567b67691a81.json": "9f17c8bc567b67691a818e03ed599c55eba08776a438c8bac71353b211322a20",
+      "browser-judge/66-9b7f86fb59f914035aeb.json": "9b7f86fb59f914035aeb6745f7662820c0a9bb4500b744013e322952e66eaa81",
+      "browser-judge/67-7d470ce51d290c8ae613.json": "7d470ce51d290c8ae6132c34d9f480bccfc5dd4c7972f3ab9389133e7b695d2b",
+      "browser-judge/68-50d6a252d7a4804d90d3.json": "50d6a252d7a4804d90d357487095107cb68d6ca980abcaf35401ee508e4a851a",
+      "browser-judge/69-dd0cae21d518861bb966.json": "dd0cae21d518861bb9660498807c7286ef6c358c265002df01f9402335dae5a4",
+      "browser-judge/7-c87e5f5b78d8bb65e9ef.json": "c87e5f5b78d8bb65e9ef144a08b42c5d6eb7a44167bebe426777bb0c22de2ade",
+      "browser-judge/8-ccb4afcaa303776e6237.json": "ccb4afcaa303776e6237b1678710bd4cb082c42f988bc0cb5ebe3a5854a98fa0",
+      "browser-judge/84-a2accb04b41357d51e7a.json": "a2accb04b41357d51e7a4b6e78bc7244002ccdf4ed1b4f2f5fe7cdd7e188316b",
+      "browser-judge/85-e88a391c117d1595d4c8.json": "e88a391c117d1595d4c843cd00b998d29686948ea03cbb49c0973d1fae505464",
+      "browser-judge/86-a404d7e3763a87af57d9.json": "a404d7e3763a87af57d9b5c28e0cfa7670bac60cfe020efc9a896d192e9953d4",
+      "browser-judge/87-9cfbf1598918039bc5f5.json": "9cfbf1598918039bc5f57a9153bb0ce6a944243b96ea95aa0017240873b882a2",
+      "browser-judge/88-27647437d066cbab1efd.json": "27647437d066cbab1efd07e3b1c90f4ee35824311cd30eddd7daba3de9e2012a",
+      "browser-judge/89-28b9c4cb0d8e13d2ec56.json": "28b9c4cb0d8e13d2ec56f27fe8512e6963c5c4757a093c45a2e48c243f092390",
+      "browser-judge/9-b65b5b91b8eda66f7d0e.json": "b65b5b91b8eda66f7d0e3c0ab65cf54fc4091d8c7a8868c6264bfc221e325dac",
+      "browser-judge/90-30826fdfde78376e0b2a.json": "30826fdfde78376e0b2af64b2dcae784e0b17705c8b25fb2b6cffd4fcf6d4d88",
+      "browser-judge/91-3aaa41a1f084bdfbc54b.json": "3aaa41a1f084bdfbc54bce212c7a4f810b71a20f7a13426e10f6c186021cbf0f",
+      "browser-judge/92-de88f64526a5b91c41a5.json": "de88f64526a5b91c41a50b8825684bd6eafbfc481a83c8b3d521ec9eda040217",
+      "browser-judge/runtime-023c5ef32642ced3e262.json": "023c5ef32642ced3e2628b800caef05107ee9899c6d6464ef278a3d91fb45990",
+      "browser-judge/runtime-fed0b3bf757e755c7429.json": "fed0b3bf757e755c7429e3892fbaf88c0fd17b07364b338ee5049bd47d487cc6",
+      "catalog.json": "4e22c4d97b8699968d55c546a99ebde3d8006da86ddba86234e02dd49306cc21",
+      "index-v3.json": "7b0953d305fa3d8518f7dcce1144b498f04a080e2b7e88bd58dcd37668df180b",
+      "index.json": "475d186f11dec1826a845918b0ba0c5be3f0e61893fc5aa9c84fae3952bca3fe",
+      "modules/1-34f3cade67af5fe4df1f.json": "34f3cade67af5fe4df1f1d7355c5e4955483a0e6d6bcac37a22ccf8087a5f296",
+      "modules/10-27861e82fb95dbb51639.json": "27861e82fb95dbb51639f62f2b496cf6d8e8199906f1ec7353c9886d77587608",
+      "modules/11-cddba08d45da0fdafad5.json": "cddba08d45da0fdafad5ee56bedcbe1ddb4031e86f42700b43b71941503b0abc",
+      "modules/12-a7262e4fc02f58edeb9d.json": "a7262e4fc02f58edeb9d5bf8fd864bdccd6b19aea7382d819637c6adb6bf1eb1",
+      "modules/13-fe1b992c5ec473084be3.json": "fe1b992c5ec473084be32521b09d57018239c8b02aabe71d93e032c586c56c0f",
+      "modules/14-d004dcb3d909e4e562db.json": "d004dcb3d909e4e562dbc22be86b75145a778426623713898467c23b04607b35",
+      "modules/15-b070734709a6c9a3cb53.json": "b070734709a6c9a3cb53b9bb8bd05b4b8fb96b9357c5d30adc13d0305ec1040a",
+      "modules/16-f198cf052a1e02e1d73c.json": "f198cf052a1e02e1d73cd0bae7b0095550c2f385821326aef35afb5a5297da45",
+      "modules/17-862eb67433e83b1af54a.json": "862eb67433e83b1af54a120ca968623e3e902aa5c4017356a8cc55019fec5a3a",
+      "modules/18-c80f5fad143fe633bfa7.json": "c80f5fad143fe633bfa794d98e3231058249a66fb3dd12a330c0ce285e4ecf29",
+      "modules/19-b596919c0849c0ac4573.json": "b596919c0849c0ac4573d734abf2eff7b412b40d72779d5d8196f816a3b0f139",
+      "modules/2-450c4da7e812199bba39.json": "450c4da7e812199bba392a52f8716f31ed4bee18df4ca7eab001e8817a444522",
+      "modules/20-9595030df1bb7fde0083.json": "9595030df1bb7fde00835c2b033983abfb61875ce8e62814dd32049ed533a33e",
+      "modules/21-38b983b7dddc97ad6d90.json": "38b983b7dddc97ad6d902ab2d011433791170ea99470ea8dd8385dd83df007e1",
+      "modules/22-0c00a58789324de5986c.json": "0c00a58789324de5986c94aea8fc9b4bd35dc31064ea998e2aa9e285790c8f2e",
+      "modules/23-d391c2f879e95a86bf76.json": "d391c2f879e95a86bf76567a0490e84b592695454dea6dd679a0b62658bfc148",
+      "modules/24-3be414eaa14fc4d3344a.json": "3be414eaa14fc4d3344a710d5891e9b8ed158ae207e93f0e1fa09f0560d7360b",
+      "modules/25-40232e2350c2f5d787e9.json": "40232e2350c2f5d787e906a43a10b3a084bd54f1fcac26cc44563a2c2bc8a763",
+      "modules/26-e10405290514412bf67d.json": "e10405290514412bf67d5dbebb5cb5f7b59416b3b52e0e4240ef260f1a47cd38",
+      "modules/27-63d9eecd4ccabded8d41.json": "63d9eecd4ccabded8d416cf844632beb84c385227d6a160e991c49a8cea7697e",
+      "modules/28-9ece220627813bd4d095.json": "9ece220627813bd4d0956dfc18cdc8d86260276cf3f6aa33901a3eb49888f694",
+      "modules/29-7ef24e2239fbf25c09ce.json": "7ef24e2239fbf25c09cedffd24eb02f02f34679e94f7668c55b907a82bd56ef3",
+      "modules/3-245b810cae62f2a78eca.json": "245b810cae62f2a78eca786a4c1a53871df88d823bc9321a2774dd48ee7e010a",
+      "modules/30-7e657a8d2cfe4a83da6e.json": "7e657a8d2cfe4a83da6ecdaac9868762e7a7555b4aba019da5a7b11b66ad3deb",
+      "modules/31-cd0590042d6fefc51e03.json": "cd0590042d6fefc51e03d3b87d9f2a074c258ce902ba281f203e1425115a93fb",
+      "modules/32-5ef3ee0b0c3f0d7d486d.json": "5ef3ee0b0c3f0d7d486df06b530d651f73ae7f29f59996f4bab81770b32e4c23",
+      "modules/33-b22bb060c6b8fc19a6d7.json": "b22bb060c6b8fc19a6d7991e096c3778b46b6ed90ec849945af324fb92cccaf1",
+      "modules/34-95667e9ffaf3b005ef64.json": "95667e9ffaf3b005ef6429f186fd92a7d619ce99980e3fd85939b897e1835681",
+      "modules/35-052999c907b22190c8bf.json": "052999c907b22190c8bfc328b285be231c9554c7494d6764233feef914af974b",
+      "modules/36-f21810e59cdb53524377.json": "f21810e59cdb535243776e3dddb8475d729d6e3f6d43f298eb5a815c660a1928",
+      "modules/37-737c84ec023559522714.json": "737c84ec0235595227143bb5ada50b00450be5ca33db7b6f84ede11e467be972",
+      "modules/38-f21dba551080555dbfb6.json": "f21dba551080555dbfb6fdbdd51ad64edb8f1b523264db95d4dc8430b88bad7a",
+      "modules/39-d35943717f7cf3ef322e.json": "d35943717f7cf3ef322ed594416418127dd07e0a5c4113855451c7c905b4f325",
+      "modules/4-36c194d17d8be0ee2e64.json": "36c194d17d8be0ee2e64cf5d9c550aaaeca8ae0875db78b9edb411170df83ebf",
+      "modules/40-fa5be8eea0987cdcef44.json": "fa5be8eea0987cdcef441b1804a2030c0c3767692397bd46f288cff21d0d3778",
+      "modules/41-11c661cbdb0a9863db99.json": "11c661cbdb0a9863db99b4ac76ab1a17c7324ef2985bb67de954f06a95cddecf",
+      "modules/42-17e5568bc217799fb217.json": "17e5568bc217799fb217ab6370cbd071dba321d6dcdb43af89a45db3033b9ee0",
+      "modules/43-f569d773aaf2918b5181.json": "f569d773aaf2918b51816cfdc68298d854baa99403d9e7eb59039ee7203e588f",
+      "modules/44-48128b948b553a5e45df.json": "48128b948b553a5e45df9835354f164984ae1a82e37a6dc0dcb89c60fd538166",
+      "modules/45-1a61fb2e974581295478.json": "1a61fb2e974581295478502b4dd48489aa221f343fb517486ebe37871a37c9f7",
+      "modules/46-62fcf343d23089feca5a.json": "62fcf343d23089feca5a39e289bd00ac8d4a8d53d314b44d50ca24cf3d2d692b",
+      "modules/47-43f64422ebe5474c952c.json": "43f64422ebe5474c952c73972d4b006b2ebd1d954d4398b24b6a118c1bb6731a",
+      "modules/48-98bc89993be7f2cde40c.json": "98bc89993be7f2cde40c147a00a778014672eeca634e23a59a399f594856950b",
+      "modules/49-019bd9f402fb5a99fa70.json": "019bd9f402fb5a99fa708c3342c07f74678d79c46a4bd9829e151392f06b3d66",
+      "modules/5-f196e8434e46a85ca49f.json": "f196e8434e46a85ca49f63225810fa2ca43f14c32acc9b5594d255be681b64f8",
+      "modules/50-fbada8c58ad9fe0a8483.json": "fbada8c58ad9fe0a84833a2d811454b7720187d14b7682e01d116228ac57350c",
+      "modules/51-beeb3a5bfccac5402d9b.json": "beeb3a5bfccac5402d9b1dc590f36ee81494ca16146fda031c9a36242f85197a",
+      "modules/52-8d720616318cae44a945.json": "8d720616318cae44a945b1bfa03975f30265a81ac0888c60caa6d2b92639906a",
+      "modules/53-5285e4b4a1a5f809a680.json": "5285e4b4a1a5f809a680b77f0ab3eb1ce0d4299a9b8af16875bff67ddb167dba",
+      "modules/54-8598876ae16de3fd21f5.json": "8598876ae16de3fd21f5f59ee2599e7c15619e888760cb27ccc8b417d65c9641",
+      "modules/55-df513196d7b53bc8ee55.json": "df513196d7b53bc8ee55c85ad7a3105f10f2663b300c4affa24982d51ded5e3c",
+      "modules/56-83248a453a565dc7661b.json": "83248a453a565dc7661bcc33a8c3f851de6b35e08cc4e1ea1e49de861854e667",
+      "modules/57-dd0ec7920f5e696cf021.json": "dd0ec7920f5e696cf021b13e86fb37bf04587eddfe24f1e2c9fdcf409f89b08a",
+      "modules/58-4f85b4bdf3d98b431b66.json": "4f85b4bdf3d98b431b6637cbb7a5c71a88148cad69611908911694e9a63403b9",
+      "modules/59-091e44b6d5ea02ed807f.json": "091e44b6d5ea02ed807f7e804075d0e8102e27cc0f5b34930ab4536fe92bec98",
+      "modules/6-184011b779369ea73daf.json": "184011b779369ea73daf8f4c264d5a15d4bf5f12dda047c80c79ac199b6037a3",
+      "modules/60-74455bace707858ae640.json": "74455bace707858ae64082e6bfbaf3a4a8176e1089c3791d6cd109a7744b44fd",
+      "modules/61-066cae0df2c43a6d2d3c.json": "066cae0df2c43a6d2d3c93eb0c9edffb88fc09818a9e18d2f53f3264aa88f3c4",
+      "modules/62-64054ee128d8f9a18f1b.json": "64054ee128d8f9a18f1bc485aca75f2706c357b33c4a640f591b0f49c3933e5a",
+      "modules/63-134ab0f2619ea5c52109.json": "134ab0f2619ea5c52109dbaea8dabd27543310124715e938eb67b85b3761b2da",
+      "modules/64-68ab1b497afb8f6926fa.json": "68ab1b497afb8f6926fa88048c37fb0cc4052d9ffa37100c8aaaa9ff4692e026",
+      "modules/65-d9956deeaa446e196bb6.json": "d9956deeaa446e196bb6bafe4a1d2c8f66bda3afacf490fd6b2bf1885a08bde1",
+      "modules/66-3ce8234ab6264ab8ea51.json": "3ce8234ab6264ab8ea51ba29fe16997354d1e3976accffa7f2019169865b86f7",
+      "modules/67-8cea1b4647cdcf1b46e1.json": "8cea1b4647cdcf1b46e1cbc0244d046a697ab9aa8e4ef7f9570f9646d708b422",
+      "modules/68-0e6c305f9b37cd188d70.json": "0e6c305f9b37cd188d70a85b95131b3274d506e1230d3b33d4185ba0ca6e922e",
+      "modules/69-0ac1ff2da1b53c89b0ae.json": "0ac1ff2da1b53c89b0ae87c546e3ed2f3d18847e77d282dcf2f4005f65c00802",
+      "modules/7-aecaee5c238955af4acb.json": "aecaee5c238955af4acbb4bf115d23f98cb3968c36447a12af7d2c94baa324ae",
+      "modules/8-a638df476dedec67ed72.json": "a638df476dedec67ed727a977a1ae125902419b710a174ca5fe1fda0e7512020",
+      "modules/84-d3fe5a790fe180a94780.json": "d3fe5a790fe180a94780ab87e357cdfe84205030222031c9b4748b195bde2f19",
+      "modules/85-6540dd0014306fbc509a.json": "6540dd0014306fbc509ac7424cef6e18e14707290ac39d30b77695d3f83e668e",
+      "modules/86-e014d94867c08c52ae20.json": "e014d94867c08c52ae205d44a784da50fc86427b41308ecb4209029281e42685",
+      "modules/87-5c689e81cd90836a27ee.json": "5c689e81cd90836a27eee9879500ac5077e75f742ae9e2e61a6ef30da8a8a445",
+      "modules/88-29574c657ce8c6956582.json": "29574c657ce8c6956582aa862f8d285da779339377d13a5362ed20ec9f80d434",
+      "modules/89-093f9568ef262ece3e1d.json": "093f9568ef262ece3e1d9138fb95575d0f27e79a782e68e71ce8b3a679f41ae5",
+      "modules/9-1939fa771b65301b7822.json": "1939fa771b65301b78228eb8f56d5de21b8797b382e5f3e5ee835dce979ddf12",
+      "modules/90-7a021dbe0a2fa25798da.json": "7a021dbe0a2fa25798da9aada6af9fac2a08f3b9384cb5a8b89cd59f9ad60b73",
+      "modules/91-2f8c2f60a3736ba20c4b.json": "2f8c2f60a3736ba20c4b29d40b960317e8fb1e605e5dda234c6e9c2cec237b0e",
+      "modules/92-edcc70b81f63d8ca999d.json": "edcc70b81f63d8ca999d63bf424f2a3dfdf5d29a5ff392ce4104b756021a22e9"
+    },
+    "checks": [
+      "check-profile",
+      "check-profile-solutions",
+      "check-profile-save",
+      "check-profile-settings",
+      "check-deferred-features",
+      "check-community-navigation",
+      "check-community-solutions",
+      "check-solution-reading",
+      "check-reply-viewport",
+      "check-community-card-actions",
+      "check-community-feed-timeout",
+      "check-community-anonymous",
+      "check-discussion-reading",
+      "check-discussion-replies",
+      "check-reply-quotes",
+      "check-post-preview",
+      "check-reading-tabs",
+      "check-reading-return",
+      "check-workspace-ui",
+      "check-workspace-actions"
+    ],
+    "scope": "Six upstream UI/docs/check files preserved byte for byte. No runtime, Python tests/catalog, lock, dependency or WASM driver input changed. Earlier core/native/exported-WASM proofs remain applicable to identical inputs; affected mounted UI tests and both typed builds are rerun. Source review checks hook lifetime/abort behavior, native keyboard controls, deferred feature stylesheet and capability gating; no manual visual QA claim."
+  },
+  "receipts": [
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-profile.mjs"
+      ],
+      "log": "check-profile.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.174069500004407,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-profile-solutions.mjs"
+      ],
+      "log": "check-profile-solutions.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.036002541994094,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-profile-save.mjs"
+      ],
+      "log": "check-profile-save.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 0.5789417080086423,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-profile-settings.mjs"
+      ],
+      "log": "check-profile-settings.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 0.5485832080012187,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-deferred-features.mjs"
+      ],
+      "log": "check-deferred-features.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 0.537838832999114,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-community-navigation.mjs"
+      ],
+      "log": "check-community-navigation.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.074937500001397,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-community-solutions.mjs"
+      ],
+      "log": "check-community-solutions.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 0.9833949169988045,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-solution-reading.mjs"
+      ],
+      "log": "check-solution-reading.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.0306093339895597,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-reply-viewport.mjs"
+      ],
+      "log": "check-reply-viewport.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 0.942050041994662,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-community-card-actions.mjs"
+      ],
+      "log": "check-community-card-actions.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 2.1963485839951318,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-community-feed-timeout.mjs"
+      ],
+      "log": "check-community-feed-timeout.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.0740265830099816,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-community-anonymous.mjs"
+      ],
+      "log": "check-community-anonymous.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.0411203330004355,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-discussion-reading.mjs"
+      ],
+      "log": "check-discussion-reading.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.2473387089994503,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-discussion-replies.mjs"
+      ],
+      "log": "check-discussion-replies.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.4201705000014044,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-reply-quotes.mjs"
+      ],
+      "log": "check-reply-quotes.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.1614180839969777,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-post-preview.mjs"
+      ],
+      "log": "check-post-preview.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 2.465492582996376,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-reading-tabs.mjs"
+      ],
+      "log": "check-reading-tabs.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 1.0453925829933723,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-reading-return.mjs"
+      ],
+      "log": "check-reading-return.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 2.828171540997573,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-workspace-ui.mjs"
+      ],
+      "log": "check-workspace-ui.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 0.8869381660042563,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "/opt/homebrew/bin/node",
+        "scripts/check-workspace-actions.mjs"
+      ],
+      "log": "check-workspace-actions.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 2.2712857500009704,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log": "build-default.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 14.061901749999379,
+      "overrides": {}
+    },
+    {
+      "args": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log": "build-pages.log",
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "exit_code": 0,
+      "elapsed_s": 12.927474167008768,
+      "overrides": {
+        "VITE_PUBLIC_SITE": "0",
+        "VITE_APP_EDITION": "hosted",
+        "VITE_API_ORIGIN": "https://app.paperleet.com",
+        "VITE_HOSTED_APP_AVAILABLE": "1",
+        "VITE_HOSTED_APP_URL": "https://app.paperleet.com"
+      }
+    }
+  ],
+  "archive": {
+    "file": "iteration-35-main-sync-harness.tar.gz",
+    "bytes": 67857,
+    "sha256": "fde5b23aac0008ab3b7c1328173d859e37d393c821242a099e7528a4396be418"
+  },
+  "publication": "No CI, tag, dispatch or deployment requested."
+}
