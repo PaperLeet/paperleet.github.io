@@ -32,9 +32,8 @@ def create_torch(name='torch', *, register=False):
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         module = types.ModuleType(root_name + '.' + name)
-        def missing(key, _name=name):
-            if key.startswith('_'): raise AttributeError(key)
-            return _errors.unsupported('torch.' + _name + '.' + key)
+        def missing(key, _name=name, _module=module):
+            return _errors.missing_attribute(_module, key, 'torch.' + _name + '.' + key)
         module.__getattr__ = missing
         modules['torch.' + name] = module
         if register: sys.modules[module.__name__] = module
@@ -237,7 +236,9 @@ def create_torch(name='torch', *, register=False):
                                     'backward': _autograd.autograd_backward}, reverse='control')
     registry.add('torch.func.jvp', _autograd.jvp, reverse='control')
     torch._browser_capabilities = types.MappingProxyType(registry.capabilities)
-    torch.__getattr__ = _errors.unsupported
+    def missing_root(key):
+        return _errors.missing_attribute(torch, key)
+    torch.__getattr__ = missing_root
     torch._compat_modules = types.MappingProxyType(modules)
     return torch
 

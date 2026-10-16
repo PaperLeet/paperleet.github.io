@@ -14,6 +14,31 @@ def test_runtime_submodule_uses_normal_package_imports():
     assert 'stridetorch/_tensor.py' in runtime.source_files()
 
 
+def test_minimal_schedules_export_is_self_contained_for_feature_detection(tmp_path):
+    from stridetorch import runtime
+    for name,source in runtime.source_files('schedules').items():
+        target=tmp_path/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(source,encoding='utf-8')
+    script='''
+import sys
+sys.path.insert(0,sys.argv[1])
+from stridetorch._legacy import install
+from stridetorch import UnsupportedOperation
+torch=install();x=torch.tensor([.1,.2]);sentinel=object()
+for target in (torch,x):
+    assert not hasattr(target,'not_a_real_symbol')
+    assert getattr(target,'not_a_real_symbol',sentinel) is sentinel
+    try:getattr(target,'not_a_real_symbol')
+    except UnsupportedOperation as error:assert isinstance(error,AttributeError) and error.obj is target
+    else:raise AssertionError('Missing symbol was accepted')
+try:torch.tensor([1.],requires_grad=True)
+except UnsupportedOperation as error:assert not isinstance(error,AttributeError)
+else:raise AssertionError('Schedules unexpectedly accepted autograd')
+assert abs(float(x.square().numpy().sum())-.05)<1e-6
+assert 'stridetorch._api' not in sys.modules and 'stridetorch._tensor' not in sys.modules
+'''
+    subprocess.run([sys.executable,'-I','-c',script,str(tmp_path)],cwd=tmp_path,check=True,capture_output=True,text=True)
+
+
 @pytest.mark.parametrize('profile', ['autograd', 'schedules'])
 def test_embedded_runtime_carries_redistribution_notices(profile):
     from importlib.resources import files

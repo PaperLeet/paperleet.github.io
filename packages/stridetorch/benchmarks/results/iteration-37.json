@@ -1,0 +1,2189 @@
+{
+  "status": "complete_local_core_and_application_gates_passed_main_adoption_pending",
+  "version": "0.37.0",
+  "baseline_main": "0ad30894e62c34df33cd76b47967c1ed17b5c1a6",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "692b67dc679f6460bfaba37ecb284aa693df5d310e15c5e9fa9f1d986025e4b4",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+    "__init__.py": "393b386cb15f14aa9dcbf9433fae336d2d439f1ebee1594fb789d9e0958b5697",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+    "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+    "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "standalone_test_hashes": {
+    "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+    "test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+    "test_feature_detection.py": "64720a88f93955b8e4c2dd77f715a0946a9d30944455e69d8eddd5b35f11452b",
+    "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+    "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+    "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+    "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+    "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+  },
+  "native_test_hashes": {
+    "test_torch_classification.py": "19cf93bb1afd2e1ed3d41856f3af26c14d7ff2bb178aea877e4707b75d37f76e",
+    "test_torch_nan_reductions.py": "38c389a42a326312114dd9451be4d545ab2ca570759eee8158c38e8c9e009e16",
+    "test_torch_mean.py": "cac51d9c31426b84da8f579e86852b6384cbe13a504a52cfcc1dbe097100fd19",
+    "test_torch_cholesky.py": "3750adc3d1a9201355f4c1073ad7dbde3f44a90afe0f4e60d54259d8a241171e",
+    "test_torch_batchnorm.py": "f12ddcfd8dc9fe273304e9b5dd31f717a1f41a61c8af6cb40d8b565a6f691388",
+    "test_torch_numpy_inputs.py": "80cbb33b4f1c88e910597a4bb25948dd2f4bd51129d751f121e7c4b250c604ab",
+    "test_browser_judge.py": "9d748c362ea50706107471c901ef1703065ad5208a89b765577d0083b541b90f",
+    "test_torch_triangular.py": "e5c94a60ee79e60ff3093173d64abe17796a654205522b74f0f3a47cda013e39",
+    "test_torch_promotion.py": "ad2aa7259e3d44411571b66b654e2a562407b6fe8251f9618ef2eab3ccf41681",
+    "test_torch_graph_lifecycle.py": "5353e27e7584858d0851439e8ecff3099c4549b9ddfe3819393694145a6bc23e",
+    "test_torch_layout.py": "30d1b207c370cd49f9af8bae03e051a64924ae0e5043d5bdaf9e8d3a26b9a1e4",
+    "test_torch_arithmetic.py": "01d81d88df00ab1531320e1d347afe9f78854189b84e6144a9fdc7ed36128a5f",
+    "test_torch_ieee.py": "9eaf11ec3b7d6a197f6d7f2fb728d37c41232708900a38fac513e84ef0fa34c7",
+    "test_torch_nn_blocks.py": "4d575ebd244dfa1257acdbc3ef78a56b67555b0a67d9b6868d70deebf7588e4a",
+    "test_torch_groupnorm.py": "1e9aea2c5c333dcbf65c0bc98959c4d788cda38d501b76c7f625596ccdc2c9ae",
+    "test_torch_indexing.py": "15fc385d0a304075e4b25b888234af77059830227848f66f28396986ddcebce1",
+    "test_torch_grad_mode.py": "4e7172a8f2401b65cbf0e2ced4a82b3f6f469361879b85439393653f784c8472",
+    "test_torch_axis_transforms.py": "26979a38d6b1a2b40ae537da78548b9c38c6a1e9eb1b0e93cf3ed79886502ac5",
+    "test_torch_module_hooks.py": "86d4dda744002d7442767d7e62283d005a68fb14166ee5b9cd4aee2df849321d",
+    "test_torch_statistics.py": "41d6d1d6d4d5bd839d17a56206d5408645e269d573790902c088500f3ce93ce1",
+    "test_torch_convolution.py": "ae8cc0f07e4525922a2cb20731c9fc43ddc1dff3f9815d8129398d329ae3ac24",
+    "test_torch_gradient_layout.py": "ee4ccbc10272a1011e0dcd671545c8a9b5d9ad82b061af5a96a7c07d7cb7befe",
+    "test_torch_tensor_hooks.py": "1f628581360bfba9984c911cd558b74e5f762759cbeb3c10f2fd32d1e013aea5",
+    "test_torch_model_conversion.py": "801f1251aec3a4613bf164ed89b91fe4ab4d2aa6565fb7f598510d749d1f7437",
+    "test_torch_schedulers.py": "cc590cb167efc7cc352fa5f43ac18ba3169b35d1e614258836bc471b0925abf3",
+    "test_torch_runtime_kernels.py": "346caa072254dd65cab730db575ccb9be9e37a935bc20845c7c37a62a4870566",
+    "test_torch_optimizer_lifecycle.py": "f3062b539fc44f6f8339cae53056d912a610c0800b7292dad48b0899a2d5d7b0",
+    "test_torch_linalg_failures.py": "88839ae303566cafdc752cb83b7df0e6cce991fe09712fccb3d0fc1492005370",
+    "test_torch_shape_ops.py": "251aaee06b85150332b52ecdc9d04192f537da2c62d59f7e1e1eb1863c5487c3",
+    "test_torch_cholesky_solve.py": "a8bb1e156463d6d56e5a756de5700faef4ac14fcfaa09c7ee37c402f31030992",
+    "test_torch_serialization.py": "93645d53407fd4e394f7358cdfdb543c0acdc5319649bd4e580bfd9cbc533707",
+    "test_torch_cholesky_inverse.py": "6aec3c89ffea7356289d872ce5cb3b74ef969c018334e2c7494c302af0b02eeb",
+    "test_torch_feature_detection.py": "47f631faf0b94d38d2164bbe5d2cd36e1fe29053768fade471342638868859f6",
+    "test_torch_module_lifecycle.py": "0fce9c352d14e24dd4ac767dacb75b06da105714879550944a68d45baf913bbe",
+    "test_torch_copy.py": "c7547370826a04052b4f48cd603385c5cbdb92053dcbab9e246351ffe432a7bf",
+    "test_torch_construction.py": "a4daf4138d21e631920b866646f3783bb019985ebf9098c48917ba90d5f03687",
+    "test_torch_solve.py": "6007d3d4cde762c534c6153146ad693be1a1240f207f3a8551780b2e1ae7834b"
+  },
+  "full_cpu": {
+    "exit_code": 0,
+    "elapsed_s": 256.65138137500617,
+    "passed": 32549,
+    "skipped": 1,
+    "warnings": 34,
+    "duration_s": 253.1
+  },
+  "focused_passed": 124,
+  "minimal_passed": 1594,
+  "minimal_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.37.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "692b67dc679f6460bfaba37ecb284aa693df5d310e15c5e9fa9f1d986025e4b4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "393b386cb15f14aa9dcbf9433fae336d2d439f1ebee1594fb789d9e0958b5697",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 45,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.37.0-py3-none-any.whl": "f1fe7a45dc33284c314d11d38ced76f440710940a4c2a2e781d1f2c465361045",
+      "stridetorch-0.37.0.tar.gz": "3f42a00dfccac2eb11ed04b9a8836f646ab419fe8da040f6250beb39b050cfc5"
+    },
+    "receipts": {
+      "python310-stride037-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.07716412500303704,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/python310-stride037-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride037-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.39249145801295526,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/python310-stride037-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/dist-preflight/stridetorch-0.37.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride037-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 8.259512333010207,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/python310-stride037-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/python310-stride037-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "node_wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.37.0",
+    "numpy": "2.2.5",
+    "passed": 1581,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "393b386cb15f14aa9dcbf9433fae336d2d439f1ebee1594fb789d9e0958b5697",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "692b67dc679f6460bfaba37ecb284aa693df5d310e15c5e9fa9f1d986025e4b4",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2"
+    }
+  },
+  "actual_chrome_worker": {
+    "status": "success",
+    "library": "0.37.0",
+    "numpy": "2.2.5",
+    "passed": 1581,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "692b67dc679f6460bfaba37ecb284aa693df5d310e15c5e9fa9f1d986025e4b4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "393b386cb15f14aa9dcbf9433fae336d2d439f1ebee1594fb789d9e0958b5697",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+      "test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+      "test_feature_detection.py": "64720a88f93955b8e4c2dd77f715a0946a9d30944455e69d8eddd5b35f11452b",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+      "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+      "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "25cd8d963eb9e3d031cab4eaf37b9c4d2a4e9257ca6a8c654b2324f9e2f2f8e5",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "01609cd69f7999ce28de012989d732f5536ba248c00bfcd539c7b9274b65d6aa"
+    }
+  },
+  "coinstall": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "0e84b07d13933c19daa1f5e27b8df476386c5b23aec1d9d3ad59a547200f881e",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "692b67dc679f6460bfaba37ecb284aa693df5d310e15c5e9fa9f1d986025e4b4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "393b386cb15f14aa9dcbf9433fae336d2d439f1ebee1594fb789d9e0958b5697",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.37.0-py3-none-any.whl": "f1fe7a45dc33284c314d11d38ced76f440710940a4c2a2e781d1f2c465361045",
+      "paperleet-0.1.0-py3-none-any.whl": "ce57006f7901ab6443bef4683d408a07dae70301ecf18b82fde0cad46a09e6d9"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.08406079100677744
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/dist-preflight/stridetorch-0.37.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.3595418330078246
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.37.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nimport pickle\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch;legacy=importlib.import_module(name+'._legacy').install()\n for obj in (t,t.nn,t.tensor([1.]),legacy,legacy.tensor([1.])):\n  key='not_a_real_torch_symbol_37';sentinel=object()\n  assert not hasattr(obj,key) and getattr(obj,key,sentinel) is sentinel\n  try:getattr(obj,key)\n  except AttributeError as error:\n   assert isinstance(error,m.UnsupportedOperation) and error.obj is obj and error.name==key\n   restored=pickle.loads(pickle.dumps(error));reference=pickle.loads(pickle.dumps(AttributeError(str(error),name=key,obj=obj)))\n   assert isinstance(restored,m.UnsupportedOperation) and isinstance(restored,AttributeError) and restored.name==reference.name and restored.obj is None\n  else:raise AssertionError('Missing symbol accepted')\n with m.as_torch():\n  try:exec('from torch.nn import not_a_real_torch_symbol_37',{})\n  except ImportError:pass\n  else:raise AssertionError('Unavailable from-import accepted')\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.071190583999851
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.020681166992289945
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.37.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nimport pickle\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch;legacy=importlib.import_module(name+'._legacy').install()\n for obj in (t,t.nn,t.tensor([1.]),legacy,legacy.tensor([1.])):\n  key='not_a_real_torch_symbol_37';sentinel=object()\n  assert not hasattr(obj,key) and getattr(obj,key,sentinel) is sentinel\n  try:getattr(obj,key)\n  except AttributeError as error:\n   assert isinstance(error,m.UnsupportedOperation) and error.obj is obj and error.name==key\n   restored=pickle.loads(pickle.dumps(error));reference=pickle.loads(pickle.dumps(AttributeError(str(error),name=key,obj=obj)))\n   assert isinstance(restored,m.UnsupportedOperation) and isinstance(restored,AttributeError) and restored.name==reference.name and restored.obj is None\n  else:raise AssertionError('Missing symbol accepted')\n with m.as_torch():\n  try:exec('from torch.nn import not_a_real_torch_symbol_37',{})\n  except ImportError:pass\n  else:raise AssertionError('Unavailable from-import accepted')\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.12387841599411331
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.016976124999928288
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.01241258300433401
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.37.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nimport pickle\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch;legacy=importlib.import_module(name+'._legacy').install()\n for obj in (t,t.nn,t.tensor([1.]),legacy,legacy.tensor([1.])):\n  key='not_a_real_torch_symbol_37';sentinel=object()\n  assert not hasattr(obj,key) and getattr(obj,key,sentinel) is sentinel\n  try:getattr(obj,key)\n  except AttributeError as error:\n   assert isinstance(error,m.UnsupportedOperation) and error.obj is obj and error.name==key\n   restored=pickle.loads(pickle.dumps(error));reference=pickle.loads(pickle.dumps(AttributeError(str(error),name=key,obj=obj)))\n   assert isinstance(restored,m.UnsupportedOperation) and isinstance(restored,AttributeError) and restored.name==reference.name and restored.obj is None\n  else:raise AssertionError('Missing symbol accepted')\n with m.as_torch():\n  try:exec('from torch.nn import not_a_real_torch_symbol_37',{})\n  except ImportError:pass\n  else:raise AssertionError('Unavailable from-import accepted')\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.1956285000051139
+      }
+    ],
+    "scope": "ZIP checkpoint alias/shared-storage/model-optimizer-scheduler resume verified in each namespace. Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP,matrix views and batched right-solve VJP/JVP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "gate_receipts": {
+    "build-public": {
+      "exit_code": 0,
+      "elapsed_s": 1.8630569160013692,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/dist-preflight"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch"
+    },
+    "build-private": {
+      "exit_code": 0,
+      "elapsed_s": 2.012869166996097,
+      "args": [
+        "/Users/david/.local/bin/uv",
+        "build",
+        "--out-dir",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/private-dist"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "node-wasm": {
+      "exit_code": 0,
+      "elapsed_s": 15.457558750000317,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/wasm-contracts.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "chrome-worker": {
+      "exit_code": 0,
+      "elapsed_s": 16.13548162499501,
+      "args": [
+        "/opt/homebrew/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/chrome-contracts/run.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "coinstall": {
+      "exit_code": 0,
+      "elapsed_s": 2.921728749992326,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/check-coinstall.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    },
+    "minimal-wheel": {
+      "exit_code": 0,
+      "elapsed_s": 8.86502191600448,
+      "args": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/proof/check-wheel.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release"
+    }
+  },
+  "pilot_reports": {
+    "performance-first": {
+      "cpu-float32": {
+        "exit_code": 0,
+        "elapsed_s": 1.0942087910079863
+      },
+      "cpu-float64": {
+        "exit_code": 0,
+        "elapsed_s": 1.047493709003902
+      },
+      "wasm-float32": {
+        "exit_code": 0,
+        "elapsed_s": 4.331212207995122
+      },
+      "wasm-float64": {
+        "exit_code": 0,
+        "elapsed_s": 4.300931667006807
+      }
+    },
+    "performance-profiles": {
+      "cpu-float32": {
+        "exit_code": 0,
+        "elapsed_s": 1.2447604589979164
+      },
+      "cpu-float64": {
+        "exit_code": 0,
+        "elapsed_s": 1.1015627079905244
+      },
+      "wasm-float32": {
+        "exit_code": 0,
+        "elapsed_s": 4.685717000000295
+      },
+      "wasm-float64": {
+        "exit_code": 0,
+        "elapsed_s": 4.840076124994084
+      }
+    }
+  },
+  "final_performance": {
+    "summary": {
+      "cpu": {
+        "tiny-inference": {
+          "median_reductions_percent": [
+            0.323223196110789,
+            0.052555820425503885,
+            -1.2386065008803016,
+            -0.8412624142300151
+          ],
+          "baseline_median_us": [
+            13.400016662975153,
+            9.300700185121968,
+            12.153466620172065,
+            9.49375001558413
+          ],
+          "candidate_median_us": [
+            13.478483257737633,
+            9.387499934139973,
+            12.344449836139876,
+            9.609016706235707
+          ]
+        },
+        "small-inference": {
+          "median_reductions_percent": [
+            0.46408784168786577,
+            0.09909425142237138,
+            -4.279312676163816,
+            0.15199530823546414
+          ],
+          "baseline_median_us": [
+            30.944433092372492,
+            20.27154987445101,
+            29.20626672372843,
+            19.65000022513171
+          ],
+          "candidate_median_us": [
+            29.774300007071965,
+            20.280566483658426,
+            28.604866626362007,
+            19.623616632695
+          ]
+        },
+        "large-inference": {
+          "median_reductions_percent": [
+            -4.136573403227328,
+            -0.053777596848125775,
+            -1.6644469317338206,
+            -0.2012259659647464
+          ],
+          "baseline_median_us": [
+            226.7500021844171,
+            152.70850417437032,
+            226.74999490845948,
+            155.79149476252496
+          ],
+          "candidate_median_us": [
+            232.37449931912124,
+            153.27100118156523,
+            230.27099814498797,
+            157.35399938421324
+          ]
+        },
+        "upper-inference": {
+          "median_reductions_percent": [
+            -0.6506152153113787,
+            0.26334248511289404,
+            -0.9405511380946141,
+            0.0893416036724326
+          ],
+          "baseline_median_us": [
+            210.27100592618808,
+            150.3750027040951,
+            216.10449766740203,
+            162.3954958631657
+          ],
+          "candidate_median_us": [
+            211.18750009918585,
+            150.60399164212868,
+            213.54150521801785,
+            163.27099729096517
+          ]
+        },
+        "batch-inference": {
+          "median_reductions_percent": [
+            -0.30662240596337487,
+            -0.30593311235858067,
+            -0.8049615521678044,
+            0.28949303144730765
+          ],
+          "baseline_median_us": [
+            189.22216501475003,
+            143.58333282871172,
+            213.64583274892843,
+            143.9861637967018
+          ],
+          "candidate_median_us": [
+            189.39583484704298,
+            143.5556672125434,
+            210.38200065959245,
+            145.04849968943745
+          ]
+        },
+        "tiny-backward": {
+          "median_reductions_percent": [
+            0.43708759175359324,
+            1.0107894717638732,
+            -1.952027834917458,
+            -1.2701179172816879
+          ],
+          "baseline_median_us": [
+            60.44723340892233,
+            41.52708352194168,
+            59.5611166014957,
+            40.79791688127443
+          ],
+          "candidate_median_us": [
+            61.412500023531415,
+            41.38609995910277,
+            59.148616855964065,
+            40.84236643393524
+          ]
+        },
+        "small-backward": {
+          "median_reductions_percent": [
+            -1.0548025817262774,
+            0.6576341848870237,
+            -1.538353309395979,
+            -0.9866860323025417
+          ],
+          "baseline_median_us": [
+            90.56041672010906,
+            65.24721660146801,
+            80.42710008642948,
+            62.50901666741508
+          ],
+          "candidate_median_us": [
+            91.13335011837384,
+            64.96528318772712,
+            84.36735006398521,
+            63.185400116102144
+          ]
+        },
+        "large-backward": {
+          "median_reductions_percent": [
+            0.5052256888192441,
+            0.26130163270046136,
+            0.9219287376584839,
+            1.143345025365794
+          ],
+          "baseline_median_us": [
+            318.0619969498366,
+            229.83350208960474,
+            341.18750045308843,
+            267.5834984984249
+          ],
+          "candidate_median_us": [
+            319.25000803312287,
+            231.02099657990038,
+            343.24999433010817,
+            270.3755017137155
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            0.04741343354967009,
+            -0.8375549347456213,
+            -0.6053685289161503,
+            -1.1477804465861219
+          ],
+          "baseline_median_us": [
+            91.07359995444615,
+            62.86181669565849,
+            82.63405009832545,
+            61.97916663950309
+          ],
+          "candidate_median_us": [
+            95.88958346284926,
+            62.88609996166391,
+            81.36320005481443,
+            62.48333350716469
+          ]
+        },
+        "optional-sgd": {
+          "median_reductions_percent": [
+            -1.4977297138453638,
+            0.13042979415266442,
+            -3.1209603252192464,
+            -1.136540335470304
+          ],
+          "baseline_median_us": [
+            106.21805001089038,
+            70.30695002564849,
+            98.12291682465002,
+            68.59860004624352
+          ],
+          "candidate_median_us": [
+            105.35278318760297,
+            70.4111167578958,
+            99.14030015352182,
+            69.0305501242013
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            2.595007396701232,
+            0.7603177958058871,
+            0.6961389589996481,
+            -0.7830101130355649
+          ],
+          "baseline_median_us": [
+            316.3125002174638,
+            205.52783341069397,
+            296.7778321666022,
+            213.3264982451995
+          ],
+          "candidate_median_us": [
+            306.4514991516868,
+            205.055500070254,
+            302.4931672068002,
+            214.52083698629093
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            -1.6901157684206414,
+            0.5450744674165953,
+            -4.17355143693301,
+            -0.25532195763033894
+          ],
+          "baseline_median_us": [
+            63.9041667454876,
+            45.9097168156101,
+            63.036799838300794,
+            45.3180500092761
+          ],
+          "candidate_median_us": [
+            63.98401674232446,
+            45.50140001811087,
+            62.85484996624291,
+            45.26736641613146
+          ]
+        },
+        "large-jvp": {
+          "median_reductions_percent": [
+            -1.7143333910011327,
+            0.3039972662224111,
+            -0.5902179501461768,
+            2.14626885364243
+          ],
+          "baseline_median_us": [
+            307.18750349478796,
+            210.79200087115169,
+            311.5210056421347,
+            255.45850076014176
+          ],
+          "candidate_median_us": [
+            319.06249205349013,
+            212.91699522407725,
+            313.4165017399937,
+            254.9170021666214
+          ]
+        },
+        "jvp-backward": {
+          "median_reductions_percent": [
+            -0.6810353432880722,
+            -0.14154535907560106,
+            1.4534580812816,
+            -0.43946186326235814
+          ],
+          "baseline_median_us": [
+            200.81805002215938,
+            152.5784832968687,
+            210.2083334951506,
+            152.15069991730465
+          ],
+          "candidate_median_us": [
+            204.6166666938613,
+            153.2888833025936,
+            196.520133370844,
+            152.50833312165923
+          ]
+        },
+        "large-jvp-backward": {
+          "median_reductions_percent": [
+            3.5354427991648785,
+            0.003344141112271437,
+            -2.174150409903919,
+            -0.11077959666125903
+          ],
+          "baseline_median_us": [
+            276.3679998073106,
+            211.76400089946884,
+            330.15983596366516,
+            232.2153328956726
+          ],
+          "candidate_median_us": [
+            274.5625000291814,
+            209.29849900615713,
+            342.3958357113103,
+            232.0969991463547
+          ]
+        },
+        "fixed-factor-jvp": {
+          "median_reductions_percent": [
+            -1.267449765589923,
+            0.49312849185871865,
+            -0.7939634167155818,
+            -0.015921006102970203
+          ],
+          "baseline_median_us": [
+            403.97899283561856,
+            317.20849801786244,
+            532.1245043887757,
+            389.45849519222975
+          ],
+          "candidate_median_us": [
+            408.0205035279505,
+            317.1250064042397,
+            538.0209986469708,
+            389.833003282547
+          ]
+        },
+        "legacy-inference": {
+          "median_reductions_percent": [
+            0.4882480872378747,
+            0.28029374266030915,
+            -0.9734392299518335,
+            0.28504709013283946
+          ],
+          "baseline_median_us": [
+            10.20485021096344,
+            7.202083361335099,
+            12.02221659089749,
+            8.1361167152257
+          ],
+          "candidate_median_us": [
+            10.919433407252654,
+            7.168766751419753,
+            11.926383497969557,
+            8.163883224672949
+          ]
+        },
+        "legacy-optional-inference": {
+          "median_reductions_percent": [
+            -1.380275062727443,
+            -0.522287002192412,
+            -0.6232584720610612,
+            0.5261248372727123
+          ],
+          "baseline_median_us": [
+            11.265966653202971,
+            7.7368000347632915,
+            12.263183210355539,
+            8.718066722697888
+          ],
+          "candidate_median_us": [
+            11.373616628892098,
+            7.761116770173734,
+            12.357633386272937,
+            8.809050147344049
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            -2.759055461175919,
+            0.8892515648093235,
+            -0.7724147378037394,
+            -2.4977280390691803
+          ],
+          "baseline_median_us": [
+            61.615283630089834,
+            43.97776671491253,
+            57.381249886627,
+            41.58333322266117
+          ],
+          "candidate_median_us": [
+            63.31528347800486,
+            43.834016590456784,
+            57.16664988237123,
+            41.777083242777735
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            -1.6830183696054268,
+            0.06271100467626356,
+            3.263199864941735,
+            0.4516467555326198
+          ],
+          "baseline_median_us": [
+            93.18403317593038,
+            67.92361649180141,
+            92.34096675451534,
+            66.11736680497415
+          ],
+          "candidate_median_us": [
+            96.20694982004352,
+            68.24859980649005,
+            89.7694333010198,
+            65.35279996266277
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            0.19726155325077155,
+            -1.1131605951745227,
+            -11.356595088767008,
+            -1.1699050661607702
+          ],
+          "baseline_median_us": [
+            39.54443357846078,
+            29.606250124440216,
+            41.12918322789483,
+            28.716666565742344
+          ],
+          "candidate_median_us": [
+            39.96875020675361,
+            29.67221662402153,
+            43.7923500915834,
+            29.286100228394695
+          ]
+        }
+      },
+      "wasm": {
+        "tiny-inference": {
+          "median_reductions_percent": [
+            2.217953905706116,
+            -0.30868982464602457,
+            0.9346829190128303,
+            0.8970889913893609
+          ],
+          "baseline_median_us": [
+            42.015966666664184,
+            35.448616666666766,
+            37.52499999999752,
+            32.05486666666424
+          ],
+          "candidate_median_us": [
+            45.86943333332686,
+            37.11804999999568,
+            39.370833333340904,
+            31.20208333333707
+          ]
+        },
+        "small-inference": {
+          "median_reductions_percent": [
+            0.6118644894117509,
+            -0.9737959894290382,
+            -0.06385787629357154,
+            0.668952491405006
+          ],
+          "baseline_median_us": [
+            59.086116666666,
+            54.31180000000276,
+            51.12916666666726,
+            45.11318333333403
+          ],
+          "candidate_median_us": [
+            55.568750000004975,
+            55.513883333335734,
+            53.39859999999863,
+            43.782616666665504
+          ]
+        },
+        "large-inference": {
+          "median_reductions_percent": [
+            -0.6510488425698346,
+            0.6827310344840187,
+            1.2648313345983264,
+            0.16539455875461684
+          ],
+          "baseline_median_us": [
+            1778.0419999999797,
+            1795.1665000000005,
+            1780.7915000001008,
+            1461.3540000001367
+          ],
+          "candidate_median_us": [
+            1784.2500000002647,
+            1781.4169999998962,
+            1765.1459999998842,
+            1461.3960000000593
+          ]
+        },
+        "upper-inference": {
+          "median_reductions_percent": [
+            -0.11163519773007557,
+            0.30465946749729245,
+            -0.1460433811084405,
+            -0.6307493887232063
+          ],
+          "baseline_median_us": [
+            1796.312500000008,
+            1767.0000000000741,
+            1765.8750000000277,
+            1624.603999999863
+          ],
+          "candidate_median_us": [
+            1775.687999999942,
+            1769.916500000024,
+            1757.5210000000397,
+            1625.2500000000225
+          ]
+        },
+        "batch-inference": {
+          "median_reductions_percent": [
+            0.2968777509988474,
+            -0.06718754887053979,
+            1.0194477725951945,
+            -0.9200623340381853
+          ],
+          "baseline_median_us": [
+            1071.5486666666625,
+            1034.2083333333048,
+            1041.7429999999654,
+            1019.8264999999503
+          ],
+          "candidate_median_us": [
+            1054.6319999999998,
+            1038.8958333333126,
+            1028.0973333333482,
+            1035.2014999999901
+          ]
+        },
+        "tiny-backward": {
+          "median_reductions_percent": [
+            4.777482472878858,
+            1.7710004243608135,
+            3.82688366888968,
+            4.935244503639824
+          ],
+          "baseline_median_us": [
+            133.32431666666827,
+            122.08679999999491,
+            126.08471666666344,
+            141.30138333334023
+          ],
+          "candidate_median_us": [
+            128.10208333333685,
+            117.95973333332822,
+            126.15764999999169,
+            134.95903333332984
+          ]
+        },
+        "small-backward": {
+          "median_reductions_percent": [
+            0.375266414393427,
+            1.8428539844576597,
+            -0.14959829532925628,
+            1.058949496452044
+          ],
+          "baseline_median_us": [
+            161.53471666666695,
+            148.1840166666674,
+            150.40278333333657,
+            181.38888333334435
+          ],
+          "candidate_median_us": [
+            155.5916666666694,
+            148.14444999999841,
+            152.21458333333587,
+            181.05625000000754
+          ]
+        },
+        "large-backward": {
+          "median_reductions_percent": [
+            -0.39617082595970743,
+            0.6275832161005024,
+            1.0238274389437918,
+            -3.9941779479432116
+          ],
+          "baseline_median_us": [
+            5369.062500000022,
+            5776.728999999925,
+            6287.583000000208,
+            7047.833499999933
+          ],
+          "candidate_median_us": [
+            5424.125000000224,
+            5800.312000000085,
+            6209.854500000001,
+            7542.854499999807
+          ]
+        },
+        "sgd-factor": {
+          "median_reductions_percent": [
+            1.4113508420399823,
+            2.346244454920554,
+            0.616684225447528,
+            2.728060978395519
+          ],
+          "baseline_median_us": [
+            143.9708166666535,
+            159.14028333332553,
+            154.13125000000397,
+            193.88124999999422
+          ],
+          "candidate_median_us": [
+            141.93888333333683,
+            153.23680000000434,
+            158.05346666666333,
+            188.4250000000032
+          ]
+        },
+        "optional-sgd": {
+          "median_reductions_percent": [
+            4.1595396096836605,
+            3.7845572673790406,
+            3.232871550801064,
+            3.4415952534295857
+          ],
+          "baseline_median_us": [
+            147.18263333333147,
+            162.27361666666752,
+            152.90901666666173,
+            174.57153333332678
+          ],
+          "candidate_median_us": [
+            145.8923666666667,
+            162.27846666666915,
+            155.69653333333082,
+            168.01805000000354
+          ]
+        },
+        "spd-chain": {
+          "median_reductions_percent": [
+            2.1060044956706325,
+            -1.3238813248934278,
+            1.5716771189670409,
+            1.2548056332555069
+          ],
+          "baseline_median_us": [
+            1769.3193333333154,
+            1881.034666666596,
+            1992.3403333333608,
+            2001.3056666666382
+          ],
+          "candidate_median_us": [
+            1743.4026666665047,
+            1871.0208333333849,
+            1923.902833333324,
+            1968.9930000000486
+          ]
+        },
+        "jvp": {
+          "median_reductions_percent": [
+            1.0958578172902245,
+            0.01967393480482027,
+            -3.665110221592549,
+            3.024195473445901
+          ],
+          "baseline_median_us": [
+            103.18054999998161,
+            109.62223333333594,
+            106.28263333333592,
+            122.85069999999897
+          ],
+          "candidate_median_us": [
+            105.02916666667399,
+            107.47499999999762,
+            109.70346666667001,
+            118.62848333333471
+          ]
+        },
+        "large-jvp": {
+          "median_reductions_percent": [
+            0.461945513025952,
+            1.4438635505348962,
+            0.7054517894113155,
+            0.5894279591622031
+          ],
+          "baseline_median_us": [
+            5371.12449999988,
+            5475.436999999861,
+            5540.208500000254,
+            5989.125499999747
+          ],
+          "candidate_median_us": [
+            5352.729000000167,
+            5380.771000000006,
+            5551.958499999899,
+            5988.874499999853
+          ]
+        },
+        "jvp-backward": {
+          "median_reductions_percent": [
+            -1.2764060952297873,
+            0.8051214812663243,
+            1.5684885883116895,
+            -0.00701367119944063
+          ],
+          "baseline_median_us": [
+            345.82638333334376,
+            374.0354166666589,
+            364.19583333334356,
+            362.38820000000044
+          ],
+          "candidate_median_us": [
+            346.73611666666085,
+            367.1631999999943,
+            359.9833333333358,
+            362.06388333333746
+          ]
+        },
+        "large-jvp-backward": {
+          "median_reductions_percent": [
+            0.017376602440033473,
+            0.8115766163762972,
+            1.0220017688721272,
+            -0.03221013628174063
+          ],
+          "baseline_median_us": [
+            2445.3195000001906,
+            2383.3679999998303,
+            2427.7638333332816,
+            2370.9931666666685
+          ],
+          "candidate_median_us": [
+            2424.9236666666893,
+            2330.0346666665914,
+            2402.36816666665,
+            2393.9098333332076
+          ]
+        },
+        "fixed-factor-jvp": {
+          "median_reductions_percent": [
+            0.25657373820670015,
+            0.30840527896414116,
+            0.5365606553994762,
+            -0.10808769587125067
+          ],
+          "baseline_median_us": [
+            9215.916499999643,
+            9049.72900000045,
+            9806.917000000138,
+            8207.458000000224
+          ],
+          "candidate_median_us": [
+            9139.375000000171,
+            8781.812000000056,
+            9737.874999999894,
+            8243.270500000399
+          ]
+        },
+        "legacy-inference": {
+          "median_reductions_percent": [
+            -0.5415260548929934,
+            0.4532079785106946,
+            -0.32127222667845956,
+            0.42228166500803965
+          ],
+          "baseline_median_us": [
+            15.803483333328336,
+            16.42431666666333,
+            16.956949999998493,
+            14.099299999988563
+          ],
+          "candidate_median_us": [
+            15.906250000015849,
+            16.449999999990084,
+            17.022233333345106,
+            14.014583333343822
+          ]
+        },
+        "legacy-optional-inference": {
+          "median_reductions_percent": [
+            0.4801306825110152,
+            0.643012766072304,
+            1.2280019714770773,
+            0.3096840656774402
+          ],
+          "baseline_median_us": [
+            17.884716666675498,
+            18.984733333334464,
+            19.820833333339394,
+            15.829850000000551
+          ],
+          "candidate_median_us": [
+            17.708333333329072,
+            18.693066666664038,
+            19.533333333325114,
+            15.702083333331748
+          ]
+        },
+        "generic-control": {
+          "median_reductions_percent": [
+            2.890862486527368,
+            1.4076700792754138,
+            -0.7529168404056596,
+            0.3833429713646419
+          ],
+          "baseline_median_us": [
+            106.22638333333731,
+            111.3958333333424,
+            96.09929999999285,
+            81.88055000000934
+          ],
+          "candidate_median_us": [
+            102.78611666668289,
+            106.8951333333364,
+            98.83679999999433,
+            81.80695000000367
+          ]
+        },
+        "cholesky-control": {
+          "median_reductions_percent": [
+            1.3125085195760056,
+            0.8309344879204428,
+            -1.0990617923023693,
+            0.33467096504958826
+          ],
+          "baseline_median_us": [
+            172.68333333332703,
+            184.27846666666525,
+            168.06666666666638,
+            131.16043333332902
+          ],
+          "candidate_median_us": [
+            171.82986666666918,
+            182.74723333332096,
+            176.89305000000803,
+            131.19096666667218
+          ]
+        },
+        "unary-control": {
+          "median_reductions_percent": [
+            -0.8833098101997727,
+            0.9278157315618096,
+            0.6609326167813068,
+            1.098757176184828
+          ],
+          "baseline_median_us": [
+            81.92569999999992,
+            91.46666666666192,
+            85.57846666666555,
+            66.04583333332432
+          ],
+          "candidate_median_us": [
+            83.0694499999988,
+            86.05416666666403,
+            85.77221666666486,
+            65.74096666665716
+          ]
+        }
+      }
+    },
+    "source_footprint": {
+      "previous_036": {
+        "raw_bytes": 525692,
+        "local_gzip_estimate_bytes": 123816
+      },
+      "candidate_037": {
+        "raw_bytes": 525960,
+        "local_gzip_estimate_bytes": 123901
+      }
+    },
+    "receipts": {
+      "cpu-float32-1": {
+        "exit_code": 0,
+        "elapsed_s": 1.6205570829915814,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library.py"
+        ]
+      },
+      "cpu-float64-1": {
+        "exit_code": 0,
+        "elapsed_s": 1.522848624998005,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library.py"
+        ]
+      },
+      "wasm-float32-1": {
+        "exit_code": 0,
+        "elapsed_s": 6.325888125007623,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library-wasm.mjs"
+        ]
+      },
+      "wasm-float64-1": {
+        "exit_code": 0,
+        "elapsed_s": 6.011500207998324,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library-wasm.mjs"
+        ]
+      },
+      "wasm-float32-2": {
+        "exit_code": 0,
+        "elapsed_s": 5.930099374993006,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library-wasm.mjs"
+        ]
+      },
+      "wasm-float64-2": {
+        "exit_code": 0,
+        "elapsed_s": 5.825960499991197,
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library-wasm.mjs"
+        ]
+      },
+      "cpu-float32-2": {
+        "exit_code": 0,
+        "elapsed_s": 1.1097522500058403,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library.py"
+        ]
+      },
+      "cpu-float64-2": {
+        "exit_code": 0,
+        "elapsed_s": 1.0606897910038242,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-37/bench-library.py"
+        ]
+      }
+    },
+    "scope": "Eight sequential paired children after heavy gates; two dtypes and two fresh processes per runtime;21 complete autograd/schedules workflows,9 ABBA/BAAB blocks,GC enabled and real SGD. Both namespaces use the same inverse and native-ordered JVP APIs. Optional-probe workloads compare Python default lookup to the explicit legacy unsupported-error workaround. Shared host; effective vendor threads unverified; no uniform math speedup or cross-runtime throughput claim."
+  },
+  "cold_namespace_imports": {
+    "scope": "16fresh alternating CPU processes after all compatibility gates;NumPy included/preloaded reported separately;shared host;no browser wire-size or nativeTorch import comparison.",
+    "summary": {
+      "0": {
+        "previous_036": {
+          "samples_ms": [
+            83.74954100872856,
+            82.94274999934714,
+            83.5009159927722,
+            83.96629200433381
+          ],
+          "median_ms": 83.62522850075038
+        },
+        "candidate_037": {
+          "samples_ms": [
+            82.86133300862275,
+            85.28558300167788,
+            81.53929100080859,
+            82.50000000407454
+          ],
+          "median_ms": 82.68066650634864
+        }
+      },
+      "1": {
+        "previous_036": {
+          "samples_ms": [
+            60.51712499174755,
+            60.92475001059938,
+            60.17908400099259,
+            60.18645800941158
+          ],
+          "median_ms": 60.351791500579566
+        },
+        "candidate_037": {
+          "samples_ms": [
+            60.74337499740068,
+            60.71479199454188,
+            60.155125000164844,
+            59.56520799372811
+          ],
+          "median_ms": 60.434958497353364
+        }
+      }
+    },
+    "receipts": [
+      {
+        "name": "0-0-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.1088779580022674
+      },
+      {
+        "name": "0-0-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10706300000310875
+      },
+      {
+        "name": "0-1-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.11025845901167486
+      },
+      {
+        "name": "0-1-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10799416698864661
+      },
+      {
+        "name": "0-2-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10901929199462757
+      },
+      {
+        "name": "0-2-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10634733400365803
+      },
+      {
+        "name": "0-3-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10758791699481662
+      },
+      {
+        "name": "0-3-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10886233299970627
+      },
+      {
+        "name": "1-0-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10782491699501406
+      },
+      {
+        "name": "1-0-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10862516700581182
+      },
+      {
+        "name": "1-1-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10905250000359956
+      },
+      {
+        "name": "1-1-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10872779200144578
+      },
+      {
+        "name": "1-2-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10785462499188725
+      },
+      {
+        "name": "1-2-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10787000000709668
+      },
+      {
+        "name": "1-3-candidate_037",
+        "exit_code": 0,
+        "elapsed_s": 0.10668479099695105
+      },
+      {
+        "name": "1-3-previous_036",
+        "exit_code": 0,
+        "elapsed_s": 0.10770866699749604
+      }
+    ]
+  },
+  "numerical_source_audit": {
+    "status": "success",
+    "changed_resources": [
+      "__init__.py",
+      "_api.py",
+      "_errors.py",
+      "_legacy.py",
+      "_optimizer.py",
+      "_tensor.py",
+      "runtime.py"
+    ],
+    "unchanged_resources": 40,
+    "unchanged_function_counts": {
+      "_tensor.py": 202,
+      "_optimizer.py": 18,
+      "_legacy.py": 28
+    },
+    "registry_wiring": "All non-lookup API registration statements unchanged after removing only missing helpers and __getattr__ assignments.",
+    "legacy": "All numeric functions and install statements unchanged except lookup wiring; unsupported mode errors use the shared compatible base.",
+    "unsupported_operations": "Original generic unsupported operation helper unchanged.",
+    "scope": "AST/source evidence complements runtime tests. Python feature discovery intentionally changes; this is not proof that all third-party code or all interpreters are supported."
+  },
+  "native_feature_probe": [
+    {
+      "library": "native",
+      "path": "torch",
+      "operation": "hasattr",
+      "result": false
+    },
+    {
+      "library": "native",
+      "path": "torch",
+      "operation": "getattr-default",
+      "result": null
+    },
+    {
+      "library": "native",
+      "path": "torch",
+      "operation": "lookup",
+      "error": "AttributeError",
+      "attribute": true,
+      "unsupported": false,
+      "message": "module 'torch' has no attribute 'not_a_real_torch_symbol'"
+    },
+    {
+      "library": "native",
+      "path": "torch.nn",
+      "operation": "hasattr",
+      "result": false
+    },
+    {
+      "library": "native",
+      "path": "torch.nn",
+      "operation": "getattr-default",
+      "result": null
+    },
+    {
+      "library": "native",
+      "path": "torch.nn",
+      "operation": "lookup",
+      "error": "AttributeError",
+      "attribute": true,
+      "unsupported": false,
+      "message": "module 'torch.nn' has no attribute 'not_a_real_torch_symbol'"
+    },
+    {
+      "library": "native",
+      "path": "torch.nn.functional",
+      "operation": "hasattr",
+      "result": false
+    },
+    {
+      "library": "native",
+      "path": "torch.nn.functional",
+      "operation": "getattr-default",
+      "result": null
+    },
+    {
+      "library": "native",
+      "path": "torch.nn.functional",
+      "operation": "lookup",
+      "error": "AttributeError",
+      "attribute": true,
+      "unsupported": false,
+      "message": "module 'torch.nn.functional' has no attribute 'not_a_real_torch_symbol'"
+    },
+    {
+      "library": "native",
+      "path": "Tensor",
+      "operation": "hasattr",
+      "result": false
+    },
+    {
+      "library": "native",
+      "path": "Tensor",
+      "operation": "getattr-default",
+      "result": null
+    },
+    {
+      "library": "native",
+      "path": "Tensor",
+      "operation": "lookup",
+      "error": "AttributeError",
+      "attribute": true,
+      "unsupported": false,
+      "message": "'Tensor' object has no attribute 'not_a_real_torch_symbol'"
+    },
+    {
+      "library": "stride036",
+      "path": "torch",
+      "operation": "hasattr",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch",
+      "operation": "getattr-default",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch",
+      "operation": "lookup",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch.nn",
+      "operation": "hasattr",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "torch.nn.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch.nn",
+      "operation": "getattr-default",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "torch.nn.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch.nn",
+      "operation": "lookup",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "torch.nn.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch.nn.functional",
+      "operation": "hasattr",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "torch.nn.functional.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch.nn.functional",
+      "operation": "getattr-default",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "torch.nn.functional.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "torch.nn.functional",
+      "operation": "lookup",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "torch.nn.functional.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "Tensor",
+      "operation": "hasattr",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "Tensor.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "Tensor",
+      "operation": "getattr-default",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "Tensor.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "library": "stride036",
+      "path": "Tensor",
+      "operation": "lookup",
+      "error": "BrowserUnsupported",
+      "attribute": false,
+      "unsupported": true,
+      "message": "Tensor.not_a_real_torch_symbol is outside the CPU/WASM autodiff backend"
+    },
+    {
+      "candidate_error": "TypeError('CandidateMissing() takes no keyword arguments')"
+    }
+  ],
+  "export_inventory": {
+    "namespaces": 32,
+    "exports": {
+      "torch.nn": {
+        "ConvTranspose1d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "ConvTranspose2d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "MaxPool2d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "AvgPool2d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "InstanceNorm2d": {
+          "exported": false,
+          "capability_registered": false
+        }
+      },
+      "torch.nn.functional": {
+        "conv_transpose2d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "max_pool2d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "avg_pool2d": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "instance_norm": {
+          "exported": false,
+          "capability_registered": false
+        }
+      },
+      "torch.linalg": {
+        "cholesky_ex": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "solve_ex": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "lu_factor": {
+          "exported": false,
+          "capability_registered": false
+        },
+        "svd": {
+          "exported": true,
+          "capability_registered": true
+        },
+        "eigh": {
+          "exported": true,
+          "capability_registered": true
+        }
+      }
+    },
+    "scope": "Actual namespace dictionaries and registered capabilities; missing exports do not imply every similarly named operation is absent elsewhere."
+  },
+  "archive": {
+    "file": "iteration-37-harness.tar.gz",
+    "files": 513,
+    "bytes": 1252932,
+    "sha256": "f8a67929ea7b9d0f6ffc56aeedb90841a827a9a173798990308afcf19eed710a"
+  },
+  "scope": "Missing public symbols on all32 torch namespaces, Tensors and optimizers follow Python AttributeError/default protocols while retaining UnsupportedOperation/NotImplementedError catches. Model Module attributes retain their existing ordinary AttributeError. Unavailable from-imports produce standard ImportError and retain browser fallback. Both runtime profiles share error definitions; minimal schedules explicitly embeds errors and retains no-AD boundaries. No negative symbol cache, numerical algorithm change, new dependency or GPU backend.",
+  "retained_findings": [
+    "Initial CPython3.10 tests incorrectly required AttributeError.name to survive copy/pickle; actual standard exception drops it there. Assertions now compare against each interpreter standard behavior; original three failures retained.",
+    "Probe with NotImplementedError before AttributeError rejected name/obj keywords; AttributeError-first MRO preserves current native metadata and existing backend catches. Python advises against multiple built-in exception bases because layouts can change; gates validate Python3.10.19/3.12.11 and actual Pyodide3.13.2, not untested/future interpreters.",
+    "Initial19-workflow and expanded21-workflow pilots retain raw samples, controls and requested thread settings. This is a usability change; no uniform numerical speedup is claimed."
+  ],
+  "primary_sources": [
+    "https://peps.python.org/pep-0562/",
+    "https://docs.python.org/3/library/exceptions.html#inheriting-from-built-in-exceptions",
+    "https://docs.python.org/3/library/functions.html#hasattr"
+  ],
+  "release_policy": "No CI, tag, dispatch, package upload or online publication; user will explicitly release later.",
+  "cpu_variability_followup": {
+    "scope": "Four additional paired CPU children after the full exported WASM gate. Follow-up of the initial CPU unary-control outlier and absolute-time variability; no source changes or discarded original measurements.",
+    "receipts": {
+      "previous-cpu-float32-1": {
+        "exit_code": 0,
+        "elapsed_s": 1.1567031250015134
+      },
+      "previous-cpu-float64-1": {
+        "exit_code": 0,
+        "elapsed_s": 1.0538937079982134
+      },
+      "previous-cpu-float32-2": {
+        "exit_code": 0,
+        "elapsed_s": 1.104235000006156
+      },
+      "previous-cpu-float64-2": {
+        "exit_code": 0,
+        "elapsed_s": 1.0962451670056907
+      }
+    },
+    "summary": {
+      "tiny-inference": [
+        0.16731378573714428,
+        -0.5175133760234374,
+        -0.9349738311670297,
+        -0.8279589819619515
+      ],
+      "small-inference": [
+        -0.5288093006080574,
+        0.34378070481578815,
+        0.5515231918701735,
+        0.04774370742105516
+      ],
+      "large-inference": [
+        0.3748356016853083,
+        -0.3288158240390304,
+        0.7409963859283164,
+        1.0710591521916335
+      ],
+      "upper-inference": [
+        -0.35579569454136095,
+        0.07141541107871241,
+        0.443210058187693,
+        0.2603904249801614
+      ],
+      "batch-inference": [
+        -0.5568542236830787,
+        -0.03694548173143186,
+        -0.3654956132021159,
+        -0.4086586942146253
+      ],
+      "tiny-backward": [
+        0.6460423988591146,
+        -1.1355538647160657,
+        0.19615871717586497,
+        0.09827702890590206
+      ],
+      "small-backward": [
+        -1.2228477984768782,
+        -0.8032595020772471,
+        -0.12202391728950435,
+        0.15645925959517637
+      ],
+      "large-backward": [
+        1.1259211896666121,
+        0.6418672298904915,
+        1.6459134083694482,
+        1.0848784184493088
+      ],
+      "sgd-factor": [
+        -0.16085128579639285,
+        0.5678442853641719,
+        -0.18123667957701262,
+        0.5525858089378555
+      ],
+      "optional-sgd": [
+        0.5415541356993292,
+        -0.9622173842299464,
+        -1.5197657459058211,
+        0.5775446707864784
+      ],
+      "spd-chain": [
+        -0.658772470455693,
+        0.4470231573419525,
+        0.010818303395576656,
+        0.15736512760758936
+      ],
+      "jvp": [
+        -0.1922675463146506,
+        1.0053416345990773,
+        1.2622070583202416,
+        0.7941877966663902
+      ],
+      "large-jvp": [
+        0.991710684900815,
+        -0.9802965998378266,
+        0.22802036070103116,
+        0.4528266450953278
+      ],
+      "jvp-backward": [
+        -0.3883628525241045,
+        -0.5887398305944203,
+        -0.054892242132353886,
+        -0.18397444887061631
+      ],
+      "large-jvp-backward": [
+        -0.16497109539899135,
+        0.4220217295169526,
+        0.30476306107879436,
+        0.13940334367297247
+      ],
+      "fixed-factor-jvp": [
+        -0.06161605978243223,
+        -0.8284167024815714,
+        -0.037385981895510234,
+        0.19267028095211192
+      ],
+      "legacy-inference": [
+        0.514430165123636,
+        0.4046964041892198,
+        1.438236101693191,
+        0.7282958697219177
+      ],
+      "legacy-optional-inference": [
+        0.49899292496121683,
+        0.29205451447291697,
+        -1.208478244255562,
+        -0.34216028692848344
+      ],
+      "generic-control": [
+        -1.4021161340644905,
+        -2.56438473200562,
+        -0.7255251970106791,
+        0.9349065638178611
+      ],
+      "cholesky-control": [
+        -1.490836148585184,
+        0.6087187763828217,
+        0.34794876712831435,
+        0.19950383851616849
+      ],
+      "unary-control": [
+        0.48673908223840767,
+        -1.4173618336366989,
+        1.7089795626518578,
+        -1.221253300839864
+      ]
+    }
+  },
+  "unary_lookup_probe": {
+    "baseline": {
+      "missing_lookup_counts": {},
+      "gradient": [
+        [
+          0.1480909697298765,
+          0.1336383374125559
+        ],
+        [
+          0.11552639334609756,
+          0.09584669871483305
+        ]
+      ]
+    },
+    "candidate": {
+      "missing_lookup_counts": {},
+      "gradient": [
+        [
+          0.1480909697298765,
+          0.1336383374125559
+        ],
+        [
+          0.11552639334609756,
+          0.09584669871483305
+        ]
+      ]
+    }
+  }
+}

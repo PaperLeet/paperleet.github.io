@@ -92,6 +92,25 @@ retains its explicit unsupported error. Axis lists and integer Tensor arguments
 are converted to immutable metadata at forward time and are not retained by the
 tape. Detached view writes still invalidate computations that saved those values.
 
+## Optional feature detection
+
+Modules, Tensors and optimizers support ordinary Python feature checks:
+`hasattr(value, name)` returns false for a missing symbol, and
+`getattr(value, name, default)` returns the supplied default. Dynamic attributes
+are honored; missing names are not cached. For example,
+`getattr(torch.nn.functional, "conv_transpose2d", None)` can select your own
+optional implementation when that operator is unavailable.
+Both offline browser profiles share this behavior; the smaller Schedules
+profile retains its explicit unsupported-autograd boundary.
+
+A direct missing public lookup raises an `AttributeError` that also matches
+`UnsupportedOperation`, preserving explicit backend fallback handlers. An
+unavailable `from torch import ...` follows Python's `ImportError` behavior.
+Existing errors from unsupported modes and real descriptor failures still
+propagate; attribute existence alone does not establish dtype, gradient or
+device support. The compatibility and validation scope is recorded in the
+[0.37 report](../../docs/validation/torch-runtime-iteration-37.md).
+
 ## Linear systems
 
 `torch.linalg.solve(A, B, *, left=True)` handles dense batched/broadcast systems,

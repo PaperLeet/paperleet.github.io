@@ -66,6 +66,7 @@ try {
     const started = performance.now();
     const id = selection;
     const independentContracts = [];
+    const independentRuntimeProfiles = [];
     const entry = catalog.find(p => p.id === id);
     assert(entry, `Unknown catalog module: ${id}`);
     const read = relative => {
@@ -135,8 +136,34 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
     }
     if (runtime.backend === 'numpy-autograd-wasm') {
       if (id === 'architecture/attention') {
-        // Run the independent NumPy-only model/checkpoint suite against the
-        // exported library, including ordinary torch aliases in a real VM.
+        // SDK contracts cover both exported profiles. Supplement this test VM
+        // only after the learner/reference checks, using published profile
+        // assets rather than checkout runtime code. Shared files must agree.
+        independentRuntimeProfiles.push({backend:runtime.backend,
+          runtime_bundle_url:manifest.runtime_bundle_url,supplemented_files:[]});
+        const smallEntry = catalog.find(item => item.browser_judge.backend === 'numpy-wasm');
+        assert(smallEntry, 'Schedules profile is required for cross-profile SDK contracts');
+        const smallManifest = read(smallEntry.browser_judge.bundle_url);
+        const smallRuntime = read(smallManifest.runtime_bundle_url);
+        assert.equal(smallManifest.problem,smallEntry.id);
+        assert.equal(smallRuntime.backend,'numpy-wasm');
+        const supplemented = [];
+        for (const [name, source] of Object.entries(smallRuntime.files)) {
+          if (!name.startsWith('stridetorch/')) continue;
+          if (Object.hasOwn(runtime.files,name)) {
+            assert.equal(runtime.files[name],source,`Runtime profiles disagree on ${name}`);
+            continue;
+          }
+          assert(/^stridetorch\/[a-z_][a-z0-9_]*\.py$/.test(name) && typeof source === 'string',
+            `Unexpected supplementary SDK resource: ${name}`);
+          const target = '/judge/' + name;
+          py.FS.mkdirTree(path.posix.dirname(target));
+          py.FS.writeFile(target,source);
+          supplemented.push({name,source_sha256:createHash('sha256').update(source).digest('hex')});
+        }
+        independentRuntimeProfiles.push({backend:smallRuntime.backend,
+          runtime_bundle_url:smallManifest.runtime_bundle_url,supplemented_files:supplemented});
+        py.runPython("import importlib\nimportlib.invalidate_caches()");
         const contracts = path.join(web, '../packages/stridetorch/tests');
         // Launcher/install contracts need host processes; every other maintained
         // NumPy-only suite also runs against the actual exported VM library.
@@ -152,15 +179,17 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
 import pytest
 class _LibraryContractResults:
     passed = 0
+    def __init__(self): self.failures = []
     def pytest_runtest_logreport(self, report):
         if report.when == 'call' and report.passed: self.passed += 1
+        if report.failed: self.failures.append(dict(nodeid=report.nodeid,message=str(report.longrepr)[-3000:]))
 _library_contract_record = _LibraryContractResults()
 _library_contract_exit = pytest.main([
     library_contract_path, '-q', '--noconftest', '-p', 'no:cacheprovider', '--import-mode=importlib'
 ], plugins=[_library_contract_record])
-json.dumps(dict(exit_code=int(_library_contract_exit), passed=_library_contract_record.passed))
+json.dumps(dict(exit_code=int(_library_contract_exit), passed=_library_contract_record.passed,failures=_library_contract_record.failures))
 `));
-          assert.equal(result.exit_code, 0, `Standalone ${suite} contracts must pass on WASM`);
+          assert.equal(result.exit_code, 0, `Standalone ${suite} contracts must pass on WASM: ${JSON.stringify(result.failures)}`);
           assert(result.passed > 0, `Standalone ${suite} must execute contracts`);
           independentContracts.push({suite, passed:result.passed,
             source_sha256:createHash('sha256').update(source).digest('hex')});
@@ -232,6 +261,7 @@ for dtype in (np.float32,np.float64):
       tests:report.tests.length, mutants:Object.keys(calibration.mutants_caught).length,
       ...(independentContracts.length ? {independent_contracts:{
         passed:independentContracts.reduce((total,suite) => total + suite.passed,0), suites:independentContracts,
+        runtime_profiles:independentRuntimeProfiles,
       }} : {}),
       packages:manifest.packages, bundle_url:entry.browser_judge.bundle_url,
       runtime_bundle_url:manifest.runtime_bundle_url, source_sha256:report.source_sha256,

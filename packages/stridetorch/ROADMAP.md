@@ -578,6 +578,22 @@ source-commit deployment was superseded and is not claimed as published.
 - Quiet main adoption is separate from publication. No CI, tag, dispatch or
   online release; browser-oriented naming remains pending user choice.
 
+## Version 0.37: Python-compatible optional feature discovery
+
+- Missing public namespace/Tensor/optimizer attributes follow AttributeError,
+  hasattr and getattr-default rules while retaining typed unsupported catches.
+  Standard import failures preserve actual browser fallback; real operation and
+  descriptor errors remain visible. Both browser profiles share the behavior.
+- The minimal Schedules export explicitly carries shared errors and starts
+  independently of the full API. Dynamic attributes, copy/pickle, object
+  lifetimes and both installed namespaces are validated across tested runtimes.
+- Full core 32,549 passes; Node/Chrome 1,581 each; minimum wheel 1,594.
+  Complete native/exported WASM catalogs and frontend/builds pass. No uniform
+  numerical speedup is claimed; all controls and outlier follow-up are retained
+  in the [validation record](../../docs/validation/torch-runtime-iteration-37.md).
+- Quiet main adoption is separate from publication. No CI/tag/dispatch/online
+  release. Actual missing pooling/transpose-convolution APIs remain future work.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

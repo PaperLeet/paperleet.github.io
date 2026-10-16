@@ -114,6 +114,9 @@ syntax = run_suite(bundle, 'def broken(', sys.argv[2])
 assert not syntax['passed'] and any('SyntaxError' in row['message'] for row in syntax['tests'])
 missing = run_suite(bundle, source + '\nimport torch\ntorch.linalg\n', sys.argv[2])
 assert not missing['passed'] and any('BrowserUnsupported' in row['message'] for row in missing['tests'])
+for statement in ('from torch import not_a_real_torch_symbol_37', 'from torch.nn import not_a_real_torch_symbol_37', 'import torch.not_a_real_torch_module_37'):
+    unavailable = run_suite(bundle, source + '\n' + statement + '\n', sys.argv[2])
+    assert not unavailable['passed'] and any(row['unsupported_api'] for row in unavailable['tests']), unavailable
 import torch
 assert torch.tensor([1]).dtype == torch.long
 assert torch.arange(3).dtype == torch.long

@@ -151,8 +151,7 @@ class Tensor:
     data = property(lambda self: self.detach())
 
     def __getattr__(self, name):
-        if name.startswith('_'): raise AttributeError(name)
-        return _errors.unsupported(f'Tensor.{name}')
+        return _errors.missing_attribute(self, name, f'Tensor.{name}')
     def _real_only(self):
         if self.dtype.kind == 'c': raise _errors.BrowserUnsupported('This complex operation requires the server')
     def __array__(self, dtype=None, copy=None):

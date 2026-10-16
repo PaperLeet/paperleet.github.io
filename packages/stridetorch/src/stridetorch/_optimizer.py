@@ -61,9 +61,7 @@ class Optimizer:
             self.add_param_group(group)
 
     def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError(name)
-        return _errors.unsupported(f'{type(self).__name__}.{name}')
+        return _errors.missing_attribute(self, name, f'{type(self).__name__}.{name}')
 
     @property
     def params(self):

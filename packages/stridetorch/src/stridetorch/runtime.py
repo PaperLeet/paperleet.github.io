@@ -10,7 +10,7 @@ def source_files(profile='autograd'):
     """
     package = Path(__file__).resolve().parent
     if profile == 'schedules':
-        names = ['__init__.py', '_integration.py', '_legacy.py']
+        names = ['__init__.py', '_integration.py', '_legacy.py', '_errors.py']
     elif profile == 'autograd':
         names = [p.name for p in sorted(package.glob('*.py'))
                  if p.name not in ('_legacy.py', 'runtime.py', '_cli.py', '__main__.py')]

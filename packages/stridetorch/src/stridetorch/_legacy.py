@@ -5,10 +5,7 @@ raise BrowserUnsupported so the caller can use the native server judge instead.
 """
 import types
 import numpy as np
-
-
-class BrowserUnsupported(NotImplementedError):
-    pass
+from ._errors import BrowserUnsupported, missing_attribute as _missing_attribute
 
 
 class Tensor(np.ndarray):
@@ -95,9 +92,7 @@ class Tensor(np.ndarray):
 
     def __getattr__(self, name):
         # NumPy probes these private attributes during normal ufunc dispatch.
-        if name.startswith("_"):
-            raise AttributeError(name)
-        raise BrowserUnsupported(f"Tensor.{name} is outside the Schedules browser backend")
+        return _missing_attribute(self, name, f'Tensor.{name}')
 
 
 def _shape(args):
@@ -140,10 +135,8 @@ def _like(fn):
     return lambda x, dtype=None: Tensor(fn(np.asarray(x)), dtype=dtype or x.dtype)
 
 
-def _unsupported(name):
-    if name.startswith("_"):
-        raise AttributeError(name)
-    raise BrowserUnsupported(f"torch.{name} is outside the Schedules browser backend")
+def _unsupported(name, obj=None):
+    return _missing_attribute(obj, name, 'torch.' + name)
 
 
 def install():
@@ -170,5 +163,5 @@ def install():
     torch.isclose = lambda x, y, rtol=1e-5, atol=1e-8: Tensor(np.isclose(np.asarray(x), np.asarray(y), rtol=rtol, atol=atol))
     torch.unravel_index = lambda index, shape: np.unravel_index(int(index), shape)
     torch.manual_seed = np.random.seed
-    torch.__getattr__ = _unsupported
+    torch.__getattr__ = lambda name: _unsupported(name, torch)
     return torch
