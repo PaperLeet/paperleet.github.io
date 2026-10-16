@@ -1136,6 +1136,8 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string
                   )}
                 </article>
               ))
+            ) : replyList.query ? (
+              <div className="discussion-reply-empty"><p>{t('没有匹配的回复，可换个关键词或清空搜索。','No replies match. Try another term or clear the search.')}</p><button type="button" className="button subtle" disabled={repliesLocked} onClick={()=>replyList.chooseQuery('')}>{t('清空回复搜索','Clear reply search')}</button></div>
             ) : replyList.authorOnly&&post.replies.length ? (
               <div className="discussion-reply-empty"><p>{t('楼主暂未回复，其他人的讨论仍可查看。','The author has not replied yet. You can still read everyone else’s replies.')}</p><button type="button" className="button subtle" disabled={repliesLocked} onClick={()=>replyList.chooseAuthor(false)}>{t('查看全部回复','Show all replies')}</button></div>
             ) : (
