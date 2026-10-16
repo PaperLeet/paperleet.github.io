@@ -337,7 +337,7 @@ profile builds pass. Main `22a0f289` passes exact Quality; runtime-identical
 `90ac44ef` passes all four required jobs and actual Pages run38900518818. Live
 starters/manifests/details, 158 immutable payloads, runtime25 and notices match.
 
-## Version 0.26 candidate
+## Version 0.26 milestone
 
 Functional gather, strict indexing/sorting schemas, half scatter-add opmath and
 gather/sort/topk JVP cover the next core gaps. Metadata/selected-index pullbacks
@@ -352,7 +352,31 @@ export preserves all6,914 published immutable files and adds158 reachable assets
 All31 latest upstream UI/catalog/parallel-CI files remain exact, and frontend,
 actual hosted profile and application packaging checks pass. Complete exported
 two-process WASM passes78/78 without budget violations and includes all26/821
-independent contracts. Main adoption and actual remote deployment remain gates.
+independent contracts. Main adopted11434fb8 by non-force push. Its actual remote
+Quality38903517940 passed all four required jobs:26803 base tests,78 original
+modules/342 mutants, and821 independent contracts in exported WASM. Pages built
+successfully but its deploy action was skipped after main advanced. Runtime and
+all161 frozen export hashes are identical on descendant3c85b178; its actual
+Quality/Pages/live verification is being followed separately. This is not yet
+positive evidence of0.26 site publication.
+
+## Version 0.27 candidate
+
+- First dense non-overlapping leaf gradients preserve parameter layout, with
+  ordinary C/F fast paths and bounded general dense allocation. Gapped and
+  overlapping leaves use C order. Scalars/singletons/empties are covered.
+- Stored gradients own separate bytes from parameters, user seeds and hook
+  returns. Existing leaf gradients keep their objects/layouts/versions semantics;
+  retained non-leaf gradients start contiguous and subsequent updates replace
+  their object, preserving earlier snapshots.
+- Independent strided SGD and ownership tests run on minimum Python/NumPy and
+  real Node/Chrome WASM. Complete base27059, minimum853 and WASM841 pass. Original
+  native catalog78/10218/342/three repeats passes unchanged budgets.
+- Dtype-asserted ABBA timings retain both wins and costs: full F-layout backward
+  improves in these samples; external contiguous seed conversion to F/permuted
+  layout costs more than the former incorrect C copy. Initial generic-layout
+  and incorrectly labeled float32 first-copy trials remain in the audit trail.
+  Immutable export/full exported WASM/latest-main adoption remain gates.
 
 ## Next implementation areas
 
@@ -364,9 +388,9 @@ independent contracts. Main adoption and actual remote deployment remain gates.
    unknown-option errors explicit. Profile small-parameter update overhead.
 3. Core tensor/autograd coverage: audit shape/dtype promotion, views and mutation,
    remaining retention corner cases, graph-node callbacks and forward-mode gaps.
-   In particular, first leaf gradient allocation currently makes a C-order copy;
-   native dense strided leaf gradients preserve their layout. Audit engine layout
-   and seed/gradient ownership before changing this broader behavior. Add APIs
+   Profile first-gradient descriptor checks and strided copies after the0.27
+   layout/ownership fix, including optimizer access and many small parameters.
+   Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
 4. Neural-network coverage: expand instance normalization, attention options,
    transpose convolution and pooling, with masked/empty/non-contiguous

@@ -115,7 +115,21 @@ pass. No application browser visual QA is claimed.
 [Integration gates](../../packages/stridetorch/benchmarks/results/iteration-26-integration-gates.json)
 and the [194-file receipt archive](../../packages/stridetorch/benchmarks/results/iteration-26-integration-gates-harness.tar.gz)
 preserve real reports, frozen live bytes, actual profile settings and package
-artifacts. Latest-main revalidation/non-force adoption, exact remote Quality and
-eligible deployment/live checks remain gates. An existing broader leaf-gradient
-layout difference remains engine work; full memory-format compatibility is not
-claimed. Main's deployed 0.25 remains independently verified.
+artifacts. Main adopted `11434fb8fceaa765cad52802ac1355303a61211f` by non-force
+push after latest-upstream integration. Actual
+[Quality38903517940](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38903517940)
+passed all four required jobs. Its infrastructure job reports26803 passed/one
+optional Docker skip; original native CI passes78/10218/342/three repeats in
+222.41s; exported WASM passes78/342/no budget violations in450155ms, including
+all26/821 independent contracts with matching frozen test hashes. These are
+remote budget/compatibility gates, not comparative timing evidence.
+
+[Pages38904560589](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38904560589)
+completed its build, but the actual deploy action was skipped after main advanced.
+The successor `3c85b1783093be12ab079a713b581946fc00bfc2` changes only four UI/docs
+files; all45 core/resource hashes and161 frozen exports match byte-for-byte.
+Its Quality/eligible deployment/live verification is followed separately.
+[Remote quality evidence](../../packages/stridetorch/benchmarks/results/iteration-26-remote-quality.json)
+preserves the original reports and this distinction. The0.27 candidate addresses
+the broader leaf-gradient layout/ownership audit; full memory-format compatibility
+is not claimed. Main's deployed0.25 remains the last positively verified site.

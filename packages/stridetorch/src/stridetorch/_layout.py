@@ -99,6 +99,37 @@ def contiguous_empty(data):
         strides=tuple(v*data.itemsize for v in reversed(values)),writeable=data.flags.writeable)
 
 
+def gradient_copy(gradient, parameter=None):
+    """Own gradient bytes; dense leaf layouts follow the parameter, not the seed.
+
+    Retained non-leaf gradients and non-dense leaves use C order. Singleton
+    strides do not consume storage; empty layouts cannot address any elements.
+    Allocate a real bounded buffer before constructing a dense descriptor.
+    """
+    if parameter is None:
+        return contiguous_empty(gradient.copy())
+    if parameter.size and parameter.flags.c_contiguous and 1 not in parameter.shape:
+        return gradient.copy()
+    if parameter.shape != gradient.shape:
+        return contiguous_empty(gradient.copy())
+    if parameter.size and parameter.flags.f_contiguous and 1 not in parameter.shape:
+        return gradient.copy(order='F')
+    strides = element_strides(parameter)
+    if parameter.size:
+        extent = 1
+        for step, size in sorted((s,n) for s,n in zip(strides,parameter.shape) if n>1):
+            if step != extent:
+                return gradient.copy()
+            extent *= size
+    # Nonempty dense descriptors own exactly numel * itemsize bytes. NumPy
+    # normalizes empty strides unless given a buffer, so preserve those explicitly.
+    buffer = np.empty(0, dtype=gradient.dtype) if not gradient.size else None
+    result = np.ndarray(gradient.shape, dtype=gradient.dtype, buffer=buffer,
+                        strides=tuple(s*gradient.itemsize for s in strides))
+    result[...] = gradient
+    return result
+
+
 
 def arguments(args, kwargs):
     if not kwargs and (len(args)!=1 or not isinstance(args[0],np.dtype)):return args

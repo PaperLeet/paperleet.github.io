@@ -276,13 +276,18 @@ class Tensor:
 
     def _accumulate_gradient(self, grad):
         if self.grad is None:
-            self.grad = Tensor(grad.copy(), _metadata_owned=True)
+            self.grad = Tensor(_layout.gradient_copy(grad, self._data if self._grad_node is None else None),
+                               _metadata_owned=True)
         else:
             if not isinstance(self.grad, Tensor) or self.grad.shape != grad.shape or self.grad.dtype.kind != 'f':
                 raise RuntimeError('Existing gradient must be a floating Tensor of the correct shape')
             with np.errstate(all='ignore'):
-                self.grad._data[...] += grad
-            self.grad._storage.bump()
+                if self._grad_node is None:
+                    self.grad._data[...] += grad
+                    self.grad._storage.bump()
+                else:
+                    self.grad = Tensor(_layout.contiguous_empty(self.grad._data + grad),
+                                       _metadata_owned=True)
 
     def __getitem__(self, index):
         original_data = self._data

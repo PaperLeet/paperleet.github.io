@@ -63,6 +63,24 @@ gradient mode, storage tracking and RNG
 state; they are not independent execution engines. Create a fresh Worker for each
 untrusted submission, as PaperLeet does.
 
+## Gradient accumulation and storage
+
+The first `.grad` for a non-overlapping dense leaf follows the parameter's
+strides, including transposes, dense permutations and singleton/empty layouts.
+Sliced layouts with gaps and overlapping/broadcast leaves receive C-contiguous
+gradients. Existing leaf gradients retain their object, storage and layout during
+accumulation; resetting `.grad = None` selects the first-allocation rule again.
+
+Gradient allocations own their bytes: changing a supplied backward seed or a
+hook's returned tensor after backward cannot change the stored gradient.
+Post-accumulation hooks observe the allocated layout. `retain_grad()` on a
+non-leaf instead copies its first gradient in C order and replaces the gradient
+object on subsequent accumulation, preserving previously held snapshots.
+`autograd.grad` results keep their operator's derivative layout; this rule governs
+stored `.grad` buffers rather than forcing every returned derivative to match a
+parameter. Sparse/complex gradients and general higher-order graph construction
+remain outside the supported contract.
+
 ## Indexing and value selection
 
 `torch.gather` and `Tensor.gather` support dense analytic gradients, float32/64
