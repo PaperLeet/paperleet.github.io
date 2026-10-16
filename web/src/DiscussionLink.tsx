@@ -1,23 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
-import { useI18n } from './i18n';
-import { communityPostHref, communityShareUrl } from './communityNavigation';
+import {Check,Copy,Link2} from 'lucide-react';
+import {useI18n} from './i18n';
+import {communityPostHref,communityShareUrl} from './communityNavigation';
+import {useClipboardCopy} from './useClipboardCopy';
+import './discussion-link.css';
 
-export default function DiscussionLink({postId,replyId,returnTo}:{postId:string;replyId?:string;returnTo?:string}) {
-  const {t}=useI18n();
-  const [status,setStatus]=useState<''|'copying'|'copied'|'failed'>('');
-  const [fallback,setFallback]=useState('');
-  const mounted=useRef(true);
-  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
-  async function copy() {
-    const url=communityShareUrl(location.href,postId,replyId);
-    setFallback(url);setStatus('copying');
-    try {await navigator.clipboard.writeText(url);if(mounted.current)setStatus('copied');}
-    catch {if(mounted.current)setStatus('failed');}
-  }
+type Props={postId:string;replyId?:string;returnTo?:string};
+
+export default function DiscussionLink(props:Props) {
+  return <ScopedDiscussionLink key={JSON.stringify([props.postId,props.replyId,props.returnTo])} {...props}/>;
+}
+
+function ScopedDiscussionLink({postId,replyId,returnTo}:Props) {
+  const {t}=useI18n(),{status,value,copy}=useClipboardCopy();
+  let localReplyHref:string|undefined;
+  try {if(replyId&&/^[a-f0-9]{32}$/.test(postId))localReplyHref=communityPostHref(postId,returnTo,replyId);}catch {/* Invalid targets cannot become local reply links. */}
   return <span className="discussion-share">
-    {replyId&&<a href={communityPostHref(postId,returnTo,replyId)} aria-label={t('定位这条回复','Link to this reply')}>{t('链接','Link')}</a>}
-    <button className="text-button" type="button" disabled={status==='copying'} onClick={()=>void copy()}>{status==='copied'?t('已复制链接','Link copied'):replyId?t('复制回复链接','Copy reply link'):t('复制讨论链接','Copy discussion link')}</button>
-    {status==='copied'&&<span className="sr-only" role="status">{t('链接已复制。','Link copied.')}</span>}
-    {status==='failed'&&<label className="discussion-link-fallback">{t('自动复制不可用，请选择并复制链接。','Automatic copy is unavailable. Select and copy the link.')}<input aria-label={t('可手动复制的讨论链接','Discussion link to copy manually')} readOnly value={fallback} onFocus={event=>event.currentTarget.select()}/></label>}
+    {localReplyHref&&<a href={localReplyHref} aria-label={t('定位这条回复','Link to this reply')}><Link2 size={15} aria-hidden="true"/>{t('定位回复','View reply')}</a>}
+    <button className="text-button discussion-copy" type="button" aria-disabled={status==='copying'} aria-busy={status==='copying'} onClick={()=>copy(()=>communityShareUrl(location.href,postId,replyId))}>
+      {status==='copied'?<Check size={15} aria-hidden="true"/>:<Copy size={15} aria-hidden="true"/>}
+      {status==='copied'?t('已复制链接','Link copied'):status==='copying'?t('正在复制…','Copying…'):replyId?t('复制回复链接','Copy reply link'):t('复制讨论链接','Copy discussion link')}
+    </button>
+    <span className="sr-only" role="status">{status==='copying'?t('正在复制链接…','Copying link…'):status==='copied'?t('链接已复制。','Link copied.'):status==='failed'&&value?t('自动复制不可用，请使用下方的手动复制链接。','Automatic copy is unavailable. Use the manual link below.'):null}</span>
+    {status==='failed'&&(value?<label className="discussion-link-fallback">{t('自动复制不可用，请选择并复制链接。','Automatic copy is unavailable. Select and copy the link.')}<input aria-label={t('可手动复制的讨论链接','Discussion link to copy manually')} readOnly value={value} onFocus={event=>event.currentTarget.select()}/></label>:<span className="discussion-link-error" role="alert">{t('当前链接无法分享，请重新打开帖子后重试。','This link cannot be shared. Reopen the discussion and try again.')}</span>)}
   </span>;
 }

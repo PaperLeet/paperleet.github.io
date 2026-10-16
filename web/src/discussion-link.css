@@ -1,0 +1,10 @@
+.discussion-share { display:inline-flex; flex-wrap:wrap; align-items:center; gap:4px 10px; min-width:0; max-width:100%; font-size:var(--type-small); }
+.discussion-share a,.discussion-share .discussion-copy { display:inline-flex; align-items:center; gap:5px; min-height:40px; padding:6px 0; box-sizing:border-box; color:var(--accent); font-size:var(--type-small); line-height:1.5; }
+.discussion-share a:hover,.discussion-share .discussion-copy:hover { text-decoration:underline; text-underline-offset:3px; }
+.discussion-share svg { flex:none; }
+.discussion-share .discussion-copy[aria-disabled="true"] { cursor:wait; }
+.discussion-share :is(a,button,input):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+.discussion-share .discussion-link-fallback { display:grid; flex:1 1 100%; gap:8px; max-width:100%; min-width:0; color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; }
+.discussion-share .discussion-link-fallback input { width:100%; max-width:360px; min-width:0; min-height:44px; padding:8px 10px; box-sizing:border-box; border:1px solid var(--line); border-radius:5px; background:var(--bg); color:var(--text); font:var(--type-small)/1.5 var(--font-sans); }
+.discussion-link-error { flex:1 1 100%; color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; overflow-wrap:anywhere; }
+@media(pointer:coarse) { .discussion-share a,.discussion-share .discussion-copy { min-height:44px; } }

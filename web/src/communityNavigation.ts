@@ -98,7 +98,7 @@ export function communityReplyTarget(route:string,id:string):string|undefined {
 /** Share only the public thread/reply, never feed searches or current query data. */
 export function communityShareUrl(pageUrl:string,id:string,replyId?:string):string {
   const page=new URL(pageUrl);
-  if(!['http:','https:'].includes(page.protocol))throw Error('Unsupported page URL');
+  if(!['http:','https:'].includes(page.protocol)||!/^[a-f0-9]{32}$/.test(id))throw Error('Invalid discussion share URL');
   return page.origin+page.pathname+communityPostHref(id,undefined,replyId);
 }
 
