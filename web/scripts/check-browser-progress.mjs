@@ -3,11 +3,13 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { createServer } from 'vite';
 
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+const server = await createServer({ server: { middlewareMode: true, hmr:false, ws:false }, appType: 'custom', optimizeDeps:{noDiscovery:true,include:[]} });
 const originalStorage = globalThis.localStorage;
 try {
   const { advanceBrowserProgress, browserProgressText } = await server.ssrLoadModule('/src/browserProgress.ts');
-  const { BrowserRunProgress } = await server.ssrLoadModule('/src/BrowserRunProgress.tsx');
+  const { BrowserRunProgressFrame } = await server.ssrLoadModule('/src/BrowserRunProgress.tsx');
+  const { default: Details } = await server.ssrLoadModule('/src/BrowserRunProgressDetails.tsx');
+  const BrowserRunProgress = ({progress,onStop})=>React.createElement(BrowserRunProgressFrame,{onStop},React.createElement(Details,{progress}));
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const totals = { tests: 7, mutants: 3 };
   let current = { stage:'loading', step:'bundle' };

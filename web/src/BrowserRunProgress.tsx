@@ -1,35 +1,33 @@
-import { useI18n } from './i18n';
-import { browserProgressText, type BrowserProgress } from './browserProgress';
+import type {ReactNode} from 'react';
+import {useI18n} from './i18n';
+import {deferredFeature} from './deferredFeature';
+import type {BrowserProgress} from './browserProgress';
 
-export function BrowserRunProgress({ progress, onStop }: { progress: BrowserProgress; onStop: () => void }) {
-  const { t, locale } = useI18n();
-  const phases = ['loading', 'calibrating', 'running'];
-  const titles = [t('准备环境', 'Prepare runtime'), t('校验判题', 'Validate runtime'), t('执行测试', 'Run tests')];
-  const active = phases.indexOf(progress.stage);
-  const hasCount = progress.completed !== undefined && progress.total !== undefined;
-  return <section className="browser-run-progress" aria-label={t('浏览器判题进度', 'Browser judging progress')}>
-    <div className="browser-run-progress-header">
-      <strong>{t('正在浏览器运行', 'Running in your browser')}</strong>
-      <button type="button" onClick={onStop}>{t('停止运行', 'Stop run')}</button>
-    </div>
-    <ol aria-label={t('判题步骤', 'Judging steps')}>
-      {phases.map((stage, index) => <li key={stage} data-state={index < active ? 'done' : index === active ? 'current' : 'next'} aria-current={index === active ? 'step' : undefined}>
-        <span aria-hidden="true">{index < active ? '✓' : index + 1}</span>{titles[index]}
-      </li>)}
-    </ol>
-    <div role="status" aria-live="polite" aria-atomic="true">
-      <p>{browserProgressText(progress, locale === 'en')}</p>
-      <progress aria-label={t('当前阶段进度', 'Current stage progress')} value={hasCount ? progress.completed : undefined} max={hasCount ? progress.total : undefined} />
-      {progress.activity && <div className="browser-run-activity">
-        <p>{t('当前测试', 'Current test')} · {progress.activity.layer} · <code>{progress.activity.test}</code></p>
-        {progress.activity.mutant && <p>{t('错误实现', 'Mutation case')} · <code>{progress.activity.mutant}</code></p>}
-        <p>{progress.activity.why}</p>
-      </div>}
-    </div>
-    <p className="browser-run-progress-hint">{progress.stage === 'loading'
-      ? t('首次运行需要下载环境，之后可复用缓存。你可以继续编辑或停止运行。', 'The first run downloads the runtime; later runs can reuse cached assets. You can keep editing or stop the run.')
-      : progress.stage === 'calibrating'
-        ? t('先确认参考解通过、错误实现会失败，再执行你的代码。', 'The reference must pass and mutation cases must fail before your code runs.')
-        : t('这里统计已完成的测试，通过情况将在运行结束后显示。', 'This counts finished tests. Pass/fail results appear when the run ends.')}</p>
+const Details=deferredFeature(()=>import('./BrowserRunProgressDetails'),['',''],{
+  loading:props=><ProgressFallback progress={props.progress}/>,
+  failure:(props,retry)=><ProgressFallback progress={props.progress} retry={retry}/>,
+});
+
+/** The stop control stays mounted while optional detail rendering loads or retries. */
+export function BrowserRunProgress({progress,onStop}:{progress:BrowserProgress;onStop:()=>void}){
+  return <BrowserRunProgressFrame onStop={onStop}><Details progress={progress}/></BrowserRunProgressFrame>;
+}
+export function BrowserRunProgressFrame({onStop,children}:{onStop:()=>void;children:ReactNode}){
+  const {t}=useI18n();
+  return <section className="browser-run-progress" aria-label={t('浏览器判题进度','Browser judging progress')}>
+    <div className="browser-run-progress-header"><strong>{t('正在浏览器运行','Running in your browser')}</strong><button type="button" className="browser-progress-stop" onClick={onStop}>{t('停止运行','Stop run')}</button></div>
+    <div className="browser-run-progress-body">{children}</div>
   </section>;
+}
+function ProgressFallback({progress,retry}:{progress:BrowserProgress;retry?:()=>void}){
+  const {t}=useI18n(),hasCount=progress.completed!==undefined&&progress.total!==undefined;
+  const phase=progress.stage==='running'?hasCount?t('已完成测试','Tests completed'):t('正在执行测试…','Running tests…'):progress.stage==='calibrating'?progress.step==='mutants'?t('校验错误实现','Checking mutation cases'):progress.step==='reference'?t('校验参考测试','Checking reference tests'):t('正在校验判题…','Validating judging…'):t('正在准备运行环境…','Preparing the runtime…');
+  return <div className="browser-progress-fallback">
+    <div role="status" aria-live="polite" aria-atomic="true"><p>{phase}{hasCount&&` · ${progress.completed} / ${progress.total}`}</p><progress aria-label={t('当前阶段进度','Current stage progress')} value={hasCount?progress.completed:undefined} max={hasCount?progress.total:undefined}/></div>
+    <p className="browser-progress-recovery" role={retry?'alert':undefined}>{retry?t('详细进度暂不可用，判题仍在继续。','Detailed progress is unavailable. Judging is still running.'):t('正在加载详细进度…','Loading detailed progress…')}</p>
+    {retry&&<button type="button" className="browser-progress-retry" onClick={event=>{
+      if(document.activeElement===event.currentTarget&&!event.currentTarget.closest('[hidden]'))event.currentTarget.closest('.browser-run-progress')?.querySelector<HTMLButtonElement>('.browser-progress-stop')?.focus({preventScroll:true});
+      retry();
+    }}>{t('重试详细进度','Retry detailed progress')}</button>}
+  </div>;
 }

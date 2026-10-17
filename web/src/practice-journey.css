@@ -48,16 +48,7 @@
 .browser-judge-panel > .browser-run-progress:first-child { margin-top: 0; margin-bottom: 10px; }
 .browser-run-progress-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .browser-run-progress-header button { flex: none; }
-.browser-run-progress ol { display: flex; gap: 12px; flex-wrap: wrap; list-style: none; padding: 0; margin: 9px 0 5px; color: var(--muted); }
-.browser-run-progress li { display: flex; align-items: center; gap: 5px; font-size: var(--type-meta); }
-.browser-run-progress li span { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--line); border-radius: 50%; font-size: var(--type-caption); }
-.browser-run-progress li[data-state="current"] { color: var(--accent); font-weight: 600; }
-.browser-run-progress li[data-state="done"] span { color: var(--accent); }
 .browser-run-progress progress { display: block; width: 100%; height: 5px; margin-top: 6px; accent-color: var(--accent); }
-.browser-run-activity { margin-top: 8px; padding: 8px; border-radius: 5px; background: var(--surface); font-size: var(--type-meta); line-height: 1.5; overflow-wrap: anywhere; }
-.browser-run-activity p:last-child { color: var(--muted); }
-.browser-run-activity code { white-space: normal; }
-.browser-run-progress .browser-run-progress-hint { margin-top: 8px; color: var(--muted); font-size: var(--type-meta); overflow-wrap: anywhere; }
 
 .server-judge-panel { padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: var(--type-small); line-height: 1.6; }
 .server-judge-panel strong, .server-judge-panel small { display: block; }
@@ -96,3 +87,11 @@
 .reset-code-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .reset-code-actions .button { min-height: 40px; font-size: var(--type-body); }
 @media (max-width: 500px) { .reset-code-dialog { padding: 18px; } .reset-code-actions { flex-direction: column; } .reset-code-actions .button { width: 100%; } }
+
+.browser-run-progress-body { min-height:104px; }
+.browser-run-progress-header button,.browser-progress-retry { min-height:40px; padding:8px 12px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--accent); font:inherit; font-size:var(--type-small); line-height:1.6; cursor:pointer; }
+.browser-run-progress-header button:hover,.browser-progress-retry:hover { background:var(--surface2); }
+.browser-run-progress-header button:focus-visible,.browser-progress-retry:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.browser-progress-fallback p { margin:10px 0; font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }
+.browser-progress-fallback .browser-progress-recovery { color:var(--muted); }
+@media(pointer:coarse) { .browser-run-progress-header button,.browser-progress-retry { min-height:44px; } }
