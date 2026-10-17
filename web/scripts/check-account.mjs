@@ -80,7 +80,7 @@ try {
     providers: [{ id: "google", available: true }, { id: "microsoft", available: true }],
   }));
   assert(quota.includes("加入 waitlist") && quota.includes("使用 Google 登录") && quota.includes("使用 Microsoft 登录"));
-  assert(organization.includes("此次登录已过期") && organization.includes("等待名单"));
+  assert(organization.includes("此次登录已过期") && organization.includes("均可注册并立即使用") && !organization.includes("会进入等待名单"));
   assert(!organization.includes("其他个人账号不开放注册"));
   assert.equal(accountReturnHref("account/error/expired/22"), "#/22");
   assert.equal(accountReturnHref("account/error/identity/https://evil.test"), undefined);

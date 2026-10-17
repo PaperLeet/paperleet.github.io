@@ -13,7 +13,7 @@ import { currentQuotaMessage } from "./publicationQuota";
 import { currentProfileEditLimitMessage, readProfileEditPolicy } from "./profileEditPolicy";
 import type { ProfileEditPolicy } from "./profileEditPolicy";
 import { safeAvatarPath } from "./profileAvatar";
-import { AccountAccessGate } from './Waitlist';
+const AccountAccessGate = lazy(() => import('./Waitlist').then(module => ({ default: module.AccountAccessGate })));
 
 
 export type Institution = { id: string; name: string; name_en?: string };
@@ -42,6 +42,8 @@ export type AccountUser = PublicUser & {
   show_progress: boolean;
   institution: Institution | null;
   institution_verified?: boolean;
+  affiliation_verified?: boolean;
+  affiliation_email?: string | null;
   email_verified?: boolean;
   can_publish_community?: boolean;
   login_username?: string;
@@ -71,6 +73,7 @@ export type AccountCapabilities = {
   work_email_registration?: boolean;
   email_verification_required?: boolean;
   email_login_available?: boolean;
+  affiliation_verification_available?: boolean;
   email_waitlist_available?: boolean;
   email_login_policy?: "education_and_approved_domains";
   session_idle_days?: number;
@@ -260,11 +263,11 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         refreshHealth,
       }}
     >
-      <AccountAccessGate user={user} refreshFailed={Boolean(error)} onRefresh={refresh} onSignOut={async () => {
+      {user?.status === 'waitlisted' ? <Suspense fallback={null}><AccountAccessGate user={user} refreshFailed={Boolean(error)} onRefresh={refresh} onSignOut={async () => {
         await socialApi('account/logout', {});
         setUser(null);
         location.hash = '#/account';
-      }}>{children}</AccountAccessGate>
+      }}>{children}</AccountAccessGate></Suspense> : children}
     </AccountContext.Provider>
   );
 }

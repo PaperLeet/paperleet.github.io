@@ -1,6 +1,6 @@
 # Organization affiliation display
 
-Reviewed 2026-10-15. These mappings translate already-public, verified-mailbox affiliation data into readable organization names. They are display metadata, not an email registration allowlist, enrollment/employment verification, or authorization rule. Backend account verification remains authoritative.
+Reviewed 2026-10-15. These mappings translate already-public, verified-mailbox affiliation data into readable organization names. They are display metadata, not an email registration allowlist, enrollment/employment verification, or authorization rule. Backend account verification remains authoritative. Google/Microsoft personal accounts can sign in without an affiliation; they may optionally verify a school/company email in account settings. Managed school/company sign-in establishes this proof automatically. Verification does not replace the original sign-in identity, and only the organization name is public.
 
 `AffiliationBadge` shows only the localized organization name, without a logo or fallback icon. It never displays the email address or the raw domain. Recognized domains and their subdomains map to a reviewed display name; suffix matches require a dot boundary. Unknown domains produce a readable organization label, never a guessed university name. Server-provided readable organization names are preserved.
 

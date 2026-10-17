@@ -1,3 +1,4 @@
+import AffiliationVerification from "./AffiliationVerification";
 import AffiliationBadge from "./AffiliationBadge";
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import { useEffect, useRef, useState } from "react";
@@ -114,12 +115,12 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
           </button>;
         })}
       </div>
-      <p className="social-description">{t("目前仅向学校／企业账户和已获邀请的账户开放使用。个人账户也可以注册，将先加入等待名单，后续开放后即可使用。", "Access is currently open to school/company accounts and invited accounts. Personal accounts can also register and join the waitlist for future access.")}</p>
+      <p className="social-description">{t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用。邮箱验证码登录仍限学校／已审核企业邮箱。", "School, company and personal Google/Microsoft accounts can register and get access immediately. Email code sign-in remains limited to school and reviewed company email addresses.")}</p>
     </section>
     <aside className="social-panel login-card">
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
-      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号可以直接使用。个人 Gmail、Outlook 等账号登录后会进入等待名单；已获邀请的账户按现有资格使用。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts receive access. Personal Gmail, Outlook and similar accounts join the waitlist; invited accounts retain their existing access. Some organizations require administrator approval.")}</p>
-      <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。可用账号的所属学校或公司名称会公开展示，完整邮箱保持私密；等待名单账号不会公开个人主页。组织账号不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Active accounts show their school or company name publicly; full email addresses stay private. Waitlisted accounts have no public profile. An organization account is not an endorsement by a school or employer.")}</p>
+      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号自动认证邮箱归属。个人 Gmail、Outlook 等账号可在账号设置中补充学校／企业邮箱认证；未认证也可登录练习和浏览。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts automatically verify their affiliation. Personal Gmail, Outlook and similar accounts can verify a school/company email in account settings; verification is optional for practice and browsing. Some organizations require administrator approval.")}</p>
+      <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。已认证的学校或公司名称会公开展示，完整邮箱保持私密。邮箱归属认证不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Verified school/company names are public; full email addresses stay private. Mailbox affiliation is not an endorsement by a school or employer.")}</p>
       {emailLoginAvailable === true && <p className="social-description">{t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
       <p className="account-fineprint">{t("登录后会自动保持登录；连续 90 天未使用、主动退出或账号权限被撤销时，需要重新登录。请勿在公共电脑上保留登录。", "Sign-in is renewed while you use PaperLeet. After 90 days of inactivity, signing out, or access revocation, you must sign in again. Sign out on shared computers.")}</p>
     </aside>
@@ -805,7 +806,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           </div>
           {!user.is_test_user && <div className="public-affiliation-setting">
             <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
-            <p>{t("根据已验证的注册邮箱显示所属学校或公司，机构名称固定公开，不能隐藏，完整邮箱不公开。", "Your school or company is identified from your verified registration email. Its name is always public and cannot be hidden; your full email stays private.")}</p>
+            <p>{t("根据已认证的学校／企业邮箱显示所属机构，机构名称固定公开，不能隐藏，完整邮箱不公开。", "Your affiliation is identified from a verified school/company email. Its name is public; your full email stays private.")}</p>
             <PublishingAffiliationNotice/>
           </div>}
           <label>
@@ -906,6 +907,8 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             </button>
             <p className="account-fineprint">{t("活跃使用自动保持登录；连续 90 天未使用需重新登录。退出会立即撤销服务器上的登录凭据。", "Active use keeps you signed in. Sign in again after 90 days of inactivity. Signing out immediately revokes the server session.")}</p>
           </section>
+          {!user.is_test_user && <AffiliationVerification user={user} />}
+          {!user.is_test_user && !user.affiliation && <InstitutionRequest openRegistration />}
           <section className="social-panel">
             <h3>{t("公开预览", "Public preview")}</h3>
             <div className="profile-preview">

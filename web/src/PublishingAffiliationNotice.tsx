@@ -19,7 +19,7 @@ export default function PublishingAffiliationNotice() {
   return <div className="publishing-affiliation-notice" role="status">
     <ShieldCheck size={18} aria-hidden="true"/>
     <div><strong>{t('验证机构邮箱后可发布', 'Verify a school or work email to publish')}</strong>
-      <p>{t('发帖和回复需要已验证的学校或企业邮箱。所属机构将公开展示，完整邮箱不会公开。请使用学校或企业账号登录；当前草稿会保留。', 'Posts and replies require a verified school or work email. Your affiliation will be public; your full email stays private. Sign in with your school or work account. Your current draft is kept.')}</p>
+      <p>{t('发帖和回复需要已验证的学校或企业邮箱。所属机构将公开展示，完整邮箱不会公开。可前往账号设置认证学校／企业邮箱；当前草稿会保留。', 'Posts and replies require a verified school or work email. Your affiliation will be public; your full email stays private. Verify a school or work email in account settings. Your current draft is kept.')}</p>
       <div className="publishing-affiliation-actions"><a href="#/account">{t('账号设置', 'Account settings')}</a><button type="button" disabled={checking || loading} onClick={() => void check()}>{checking || loading ? t('正在检查…', 'Checking…') : t('刷新账号', 'Refresh account')}</button></div>
       {(error || accountError) && <p className="publishing-affiliation-error" role="alert">{error || accountError}</p>}
     </div>
