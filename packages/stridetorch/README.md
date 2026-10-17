@@ -113,6 +113,18 @@ device support. The compatibility and validation scope is recorded in the
 
 ## Max pooling
 
+`torch.nn.MaxPool1d` and its functional entry points support CL/NCL inputs,
+stride, padding, dilation, ceil mode, returned indices and float32/float64
+reverse AD, JVP and reverse-over-forward. The root `torch.max_pool1d` returns
+values; `torch.max_pool1d_with_indices` returns values and indices. The 1D path
+shares numerical kernels without adding Tensor view graph nodes. MaxPool1d and
+MaxPool2d remain sibling Module types, preserving dimensional type checks.
+Float16 inference is supported. Integer 1D inference requires returned indices,
+matching the targeted native CPU dispatch; value-only integer 1D pooling is an
+explicit unsupported operation. Valid 1D kernels above 8,000,000 taps require
+the server. Conventional contiguous strides are preserved for empty values
+and indices.
+
 `torch.nn.MaxPool2d`, `torch.nn.functional.max_pool2d` and
 `max_pool2d_with_indices` support batched/unbatched 2D inputs, noncontiguous
 arrays, empty batches, stride, padding, dilation and ceil mode. Indices are
@@ -126,7 +138,10 @@ indices retain native-style storage-version guards; detached output edits do
 not invalidate the pool's backward rule. The existing general restrictions on
 direct edits of differentiable non-leaf tensors still apply.
 
-Specialized 2×2 pooling, window packing and scanning share these semantics.
+Specialized 1×2/2×2 pooling, window packing and scanning share these semantics.
+Scanning visits only kernel offsets that can reach an input sample, retaining
+their original order. Huge padding with a tiny input therefore avoids iterating
+every nominal kernel position, including on the bounded-workspace fallback.
 Window packing has a conservative 32 MiB temporary-workspace limit and falls
 back to scanning beyond it. Extreme dilated/padded windows with no real input
 sample reproduce native inference values/indices but reject derivatives

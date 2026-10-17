@@ -1,9 +1,9 @@
-"""2D max pooling with native index selection and bounded window packing."""
+"""1D/2D max pooling with ordered selection and bounded window packing."""
 import math
 import numbers
 import numpy as np
 
-from . import _autograd, _errors, _state, _tensor
+from . import _autograd, _errors, _layout, _state, _tensor
 from ._module import Module
 
 _ALGORITHM = 'auto'  # Private correctness/performance comparison, not an API option.
@@ -24,25 +24,48 @@ def _pair(value, name):
     return tuple(int(v) for v in value) * (2 if len(value) == 1 else 1)
 
 
-def _geometry(input, kernel_size, stride, padding, dilation, ceil_mode):
-    if not isinstance(input, _tensor.Tensor): raise TypeError('max_pool2d input must be a Tensor')
-    if input.ndim not in (3, 4) or any(n == 0 for n in input.shape[-3:]):
-        raise RuntimeError('max_pool2d expects nonempty channels and spatial axes in a 3D/4D input')
-    if input.dtype not in _DTYPES:
-        raise _errors.BrowserUnsupported('max_pool2d requires real floating or supported integer input')
-    if type(ceil_mode) is not bool: raise TypeError('max_pool2d ceil_mode must be bool')
-    kernel = _pair(kernel_size, 'kernel_size')
-    stride = kernel if stride is None or isinstance(stride, (tuple, list)) and not stride else _pair(stride, 'stride')
-    padding, dilation = _pair(padding, 'padding'), _pair(dilation, 'dilation')
-    if min(*kernel, *stride, *dilation) <= 0: raise RuntimeError('max_pool2d kernel, stride and dilation must be positive')
+def _single_int(value, name):
+    if isinstance(value, numbers.Integral) and not isinstance(value, (bool, np.bool_)):
+        value = int(value)
+        if not -(2**63) <= value < 2**63: raise ValueError(f'{name} exceeds int64')
+        return value
+    if not isinstance(value, (tuple, list)):
+        raise TypeError(f'{name} must be an integer or single-element sequence')
+    if any(not isinstance(v, numbers.Integral) or isinstance(v, (bool, np.bool_)) for v in value):
+        raise TypeError(f'{name} entries must be integers')
+    if len(value) != 1: raise RuntimeError(f'{name} requires one entry')
+    return _single_int(value[0], name)
+
+
+def _geometry(input, kernel_size, stride, padding, dilation, ceil_mode, *, spatial_dims=2, return_indices=False):
+    if not isinstance(input, _tensor.Tensor): raise TypeError('max pooling input must be a Tensor')
+    if input.ndim not in (spatial_dims + 1, spatial_dims + 2) or any(n == 0 for n in input.shape[-spatial_dims-1:]):
+        raise RuntimeError('max pooling expects nonempty channels/spatial axes and optional empty batch')
+    if input.dtype not in _DTYPES or spatial_dims == 1 and not return_indices and input.dtype.kind != 'f':
+        raise _errors.BrowserUnsupported('This max-pooling input dtype requires the server')
+    if type(ceil_mode) is not bool: raise TypeError('max pooling ceil_mode must be bool')
+    if spatial_dims == 1:
+        k = _single_int(kernel_size, 'kernel_size')
+        step = k if stride is None or isinstance(stride, (tuple, list)) and not stride else _single_int(stride, 'stride')
+        kernel, stride = (1, k), (1, step)
+        padding, dilation = (0, _single_int(padding, 'padding')), (1, _single_int(dilation, 'dilation'))
+        shape = (*input.shape[:-1], 1, input.shape[-1])
+    else:
+        kernel = _pair(kernel_size, 'kernel_size')
+        stride = kernel if stride is None or isinstance(stride, (tuple, list)) and not stride else _pair(stride, 'stride')
+        padding, dilation = _pair(padding, 'padding'), _pair(dilation, 'dilation')
+        shape = input.shape
+    if min(*kernel, *stride, *dilation) <= 0: raise RuntimeError('max pooling kernel, stride and dilation must be positive')
     if any(p < 0 or p > k // 2 for p, k in zip(padding, kernel)):
-        raise RuntimeError('max_pool2d padding must be between zero and half the kernel size')
+        raise RuntimeError('max pooling padding must be between zero and half the kernel size')
     out = []
-    for size, k, s, p, d in zip(input.shape[-2:], kernel, stride, padding, dilation):
+    for size, k, s, p, d in zip(shape[-2:], kernel, stride, padding, dilation):
         length = (size + 2 * p - d * (k - 1) - 1 + (s - 1 if ceil_mode else 0)) // s + 1
         if ceil_mode and (length - 1) * s >= size + p: length -= 1
-        if length <= 0: raise RuntimeError('max_pool2d calculated output size is too small')
+        if length <= 0: raise RuntimeError('max pooling calculated output size is too small')
         out.append(length)
+    if spatial_dims == 1 and math.prod(kernel) > 8_000_000:
+        raise _errors.BrowserUnsupported('This max-pooling kernel requires the server')
     return kernel, stride, padding, dilation, tuple(out)
 
 
@@ -64,12 +87,17 @@ def _scan(data, geometry, need_indices):
     _, first = _coordinates(data.shape, geometry)
     indices = np.broadcast_to(first[0][:, None] * data.shape[-1] + first[1], shape).copy() if need_indices else None
     seen = np.zeros(out, dtype=bool)
-    for ky in range(kernel[0]):
+    # A tap outside these intervals cannot reach any input sample, even at
+    # the first/last output. Skip it without changing valid-tap tie/NaN order.
+    taps = [range(max(0, (p - (n - 1) * s + d - 1) // d),
+                  min(k, (size - 1 + p) // d + 1))
+            for size, k, s, p, d, n in zip(data.shape[-2:], kernel, stride, padding, dilation, out)]
+    for ky in taps[0]:
         offset_y = ky * dilation[0] - padding[0]
         lo_y = max((-offset_y + stride[0] - 1) // stride[0], 0)
         hi_y = min((data.shape[-2] - offset_y + stride[0] - 1) // stride[0], out[0])
         if hi_y <= lo_y: continue
-        for kx in range(kernel[1]):
+        for kx in taps[1]:
             offset_x = kx * dilation[1] - padding[1]
             lo_x = max((-offset_x + stride[1] - 1) // stride[1], 0)
             hi_x = min((data.shape[-1] - offset_x + stride[1] - 1) // stride[1], out[1])
@@ -135,17 +163,17 @@ def _window(data, geometry, need_indices):
 
 def _block_eligible(data, geometry):
     kernel, stride, padding, dilation, out = geometry
-    return (kernel == stride == (2, 2) and padding == (0, 0) and dilation == (1, 1)
-            and out == (data.shape[-2] // 2, data.shape[-1] // 2))
+    return (kernel == stride and kernel in ((2, 2), (1, 2)) and padding == (0, 0) and dilation == (1, 1)
+            and out == (data.shape[-2] // kernel[0], data.shape[-1] // kernel[1]))
 
 
 def _block(data, geometry, need_indices):
-    out = geometry[-1];height, width = out[0] * 2, out[1] * 2
-    value = data[..., :height:2, :width:2].copy()
-    base = (np.arange(out[0], dtype=np.int64) * 2 * data.shape[-1])[:, None] + np.arange(out[1], dtype=np.int64) * 2 if need_indices else None
+    out = geometry[-1];kh = geometry[0][0];height, width = out[0] * kh, out[1] * 2
+    value = data[..., :height:kh, :width:2].copy()
+    base = (np.arange(out[0], dtype=np.int64) * kh * data.shape[-1])[:, None] + np.arange(out[1], dtype=np.int64) * 2 if need_indices else None
     indices = np.broadcast_to(base, value.shape).copy() if need_indices else None
-    for y, x in ((0, 1), (1, 0), (1, 1)):
-        source = data[..., y:height:2, x:width:2]
+    for y, x in (((0, 1),) if kh == 1 else ((0, 1), (1, 0), (1, 1))):
+        source = data[..., y:height:kh, x:width:2]
         mask = source > value
         if data.dtype.kind == 'f': mask |= np.isnan(source)
         np.copyto(value, source, where=mask)
@@ -162,32 +190,43 @@ def _scatter(seed, indices, shape, nonoverlap):
     return result.reshape(shape)
 
 
-def _apply(input, geometry, return_indices):
+def _apply(input, geometry, return_indices, *, spatial_dims=2):
     forward = isinstance(input, _autograd.ForwardTensor)
     primal = input._primal if forward else input
     kernel, stride, _, dilation, out = geometry
-    shape = primal.shape
+    original_shape = primal.shape
+    one_dimensional = spatial_dims == 1
+    values = primal._data[..., None, :] if one_dimensional else primal._data
+    shape = values.shape
     need_indices = bool(return_indices) or forward or primal.requires_grad and _state._grad_enabled
     if (forward or primal.requires_grad and _state._grad_enabled) and math.prod(shape[:-2]):
         _, first = _coordinates(shape, geometry)
         if np.any(first[0] >= shape[-2]) or np.any(first[1] >= shape[-1]):
             raise _errors.BrowserUnsupported('max_pool2d derivatives for empty dilated sampling windows require the server')
     if _ALGORITHM not in ('auto', 'scan', 'window', 'block'): raise ValueError('Unknown internal pooling algorithm')
-    block = _ALGORITHM in ('auto', 'block') and _block_eligible(primal._data, geometry)
+    block = _ALGORITHM in ('auto', 'block') and _block_eligible(values, geometry)
     window = (_ALGORITHM == 'window' or _ALGORITHM == 'auto' and (need_indices or math.prod(kernel) >= 16))
-    window = window and _window_workspace(primal._data, geometry) <= _WINDOW_WORKSPACE_BYTES
+    window = window and _window_workspace(values, geometry) <= _WINDOW_WORKSPACE_BYTES
     compute = _block if block else _window if window else _scan
-    data, indices = compute(primal._data, geometry, need_indices)
+    data, indices = compute(values, geometry, need_indices)
+    if one_dimensional: data = data[..., 0, :]
+    if not data.size: data = _layout.contiguous_empty(data)
     if not need_indices: return _tensor.Tensor(data, _metadata_owned=True)
-    index = _tensor.Tensor(indices, _metadata_owned=True)
+    public_indices = indices[..., 0, :] if one_dimensional else indices
+    if not public_indices.size: public_indices = _layout.contiguous_empty(public_indices)
+    index = _tensor.Tensor(public_indices, _metadata_owned=True)
     nonoverlap = all(s >= d * (k - 1) + 1 for s, d, k in zip(stride, dilation, kernel))
-    def backward(seed): return _scatter(seed, indices, shape, nonoverlap)
+    def backward(seed):
+        if one_dimensional: seed = seed[..., None, :]
+        result = _scatter(seed, indices, shape, nonoverlap)
+        return result.reshape(original_shape) if one_dimensional else result
     value = _autograd.result(data, (primal, backward), versioned=(primal, index))
     if forward:
         tangent = input._tangent
         planes = math.prod(shape[:-2]);points = math.prod(out)
         gathered = np.take_along_axis(tangent._data.reshape(planes, shape[-2] * shape[-1]),
                                      indices.reshape(planes, points), axis=1).reshape(data.shape)
+        if not gathered.size: gathered = _layout.contiguous_empty(gathered)
         dual = _autograd.result(gathered, (tangent, backward), versioned=(tangent, index))
         value = _autograd.ForwardTensor(value, dual)
     return (value, index) if return_indices else value
@@ -206,7 +245,7 @@ def torch_max_pool2d(input, kernel_size, stride=None, padding=0, dilation=1, cei
     return max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
 
 
-class MaxPool2d(Module):
+class _MaxPoolNd(Module):
     def __init__(self, kernel_size, stride=None, padding=0, dilation=1, return_indices=False, ceil_mode=False):
         super().__init__()
         self.kernel_size = kernel_size
@@ -214,10 +253,36 @@ class MaxPool2d(Module):
         self.padding, self.dilation = padding, dilation
         self.return_indices, self.ceil_mode = return_indices, ceil_mode
 
+    def extra_repr(self):
+        return (f'kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}, '
+                f'dilation={self.dilation}, ceil_mode={self.ceil_mode}')
+
+
+class MaxPool2d(_MaxPoolNd):
     def forward(self, input):
         return max_pool2d(input, self.kernel_size, self.stride, self.padding,
                           self.dilation, self.ceil_mode, self.return_indices)
 
-    def extra_repr(self):
-        return (f'kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}, '
-                f'dilation={self.dilation}, ceil_mode={self.ceil_mode}')
+
+def max_pool1d(input, kernel_size, stride=None, padding=0, dilation=1, ceil_mode=False, return_indices=False):
+    geometry = _geometry(input, kernel_size, stride, padding, dilation, ceil_mode,
+                         spatial_dims=1, return_indices=bool(return_indices))
+    return _apply(input, geometry, bool(return_indices), spatial_dims=1)
+
+
+def max_pool1d_with_indices(input, kernel_size, stride=None, padding=0, dilation=1, ceil_mode=False, return_indices=False):
+    return max_pool1d(input, kernel_size, stride, padding, dilation, ceil_mode, True)
+
+
+def torch_max_pool1d(input, kernel_size, stride=None, padding=0, dilation=1, ceil_mode=False):
+    return max_pool1d(input, kernel_size, stride, padding, dilation, ceil_mode)
+
+
+def torch_max_pool1d_with_indices(input, kernel_size, stride=None, padding=0, dilation=1, ceil_mode=False):
+    return max_pool1d(input, kernel_size, stride, padding, dilation, ceil_mode, True)
+
+
+class MaxPool1d(_MaxPoolNd):
+    def forward(self, input):
+        return max_pool1d(input, self.kernel_size, self.stride, self.padding,
+                          self.dilation, self.ceil_mode, self.return_indices)

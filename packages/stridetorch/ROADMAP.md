@@ -663,6 +663,23 @@ source-commit deployment was superseded and is not claimed as published.
 - Full local catalog/frontend and export-identity gates precede main adoption.
   GitHub Actions, tag releases, package upload and deployment remain user-controlled.
 
+## 0.42: direct 1D max pooling, pair blocks and reachable scans
+
+- Add CL/NCL max pooling, root/functional/Module aliases, indices, stride,
+  padding, dilation and ceil mode with native dtype and linear-AD boundaries.
+- Keep 1D/2D Modules as sibling types; preserve type checks, pickle, checkpoint
+  state and native input/index/tangent version rules. Normalize empty outputs.
+- Share a 1x2 block kernel with existing 2D pooling. Bound ordered scan loops
+  to globally reachable offsets, retaining tie/NaN order under huge padding.
+- Validate independent regions/scatter, native selection/metadata/parameters,
+  four-route seeded 1D/2D geometry, million-tap examples and checkpointed Conv1d
+  training across CPU, minimum packaging and actual Node/Chrome WASM.
+- Measure 52 complete flows with candidate-composition controls plus a separate
+  forced-scan study, legacy flows and imports; retain every sample/regression.
+  See the [0.42 validation record](../../docs/validation/torch-runtime-iteration-42.md).
+- Full original catalog, latest frontend, typed builds and immutable export
+  identity gates precede main adoption; CI/tag/publishing remain user-controlled.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

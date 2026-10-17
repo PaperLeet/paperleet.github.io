@@ -5,6 +5,27 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_max_pooling_1d.py` accepts the same source-directory, sample-count,
+iteration-count, reverse-order and output arguments as the average-pooling
+comparison below. Its baseline needs 0.41: 2D max pooling plus 1D adaptive
+average pooling for the complete training flow. The 52 float32/float64 cases
+cover pair/overlap/dilated/global/large-pair pools, contiguous and strided calls,
+returned indices, full VJP/JVP and Conv1d–SiLU–max pool–adaptive average–linear
+training with momentum SGD. The candidate also executes the original 2D
+composition, separating the shared pair-block kernel from direct 1D graph work.
+Outputs, gradients, indices and a complete training update are compared before
+timing. Source/license hashes and all samples are retained. Large-padding
+correctness tests are separate from these ordinary-call timing comparisons.
+
+`bench_pooling_scan.py` uses the same source-directory interface with seven
+samples and four calls by default. It compares forced ordered scan routes on
+identical 1,024/4,096-tap kernels, half-kernel padding and seven input elements.
+All 12 float32/float64 forward/VJP/JVP flows check exact values and derivatives
+before timing. Both namespaces receive the same private algorithm override;
+results measure that fallback, not automatic dispatch or application throughput.
+The million-tap cases remain functional regression tests rather than slow
+baseline timing loops. Keep this script beside `bench_max_pooling_1d.py`.
+
 `bench_average_pooling_1d.py` compares the supported 2D unsqueeze/pool/squeeze
 composition with the direct 1D API. Pass `--baseline-source` and
 `--candidate-source` directories containing their respective `__init__.py`.
