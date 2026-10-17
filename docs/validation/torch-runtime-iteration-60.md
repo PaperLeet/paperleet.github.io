@@ -104,3 +104,13 @@ Numerical baseline: 8eac281c6c9efdafe3cf72f3704eb4a938619f6b (0.59); integration
 - Archive SHA-256: 303fc0e49e5fb80945b5af7b09fdea5238f91ea3e833cee9db2f77b13296963c.
 
 Runtime versions: Apple M4 arm64; native Torch 2.14.1 / NumPy 2.5.4 / Python 3.12.11; Pyodide 0.29.4 / NumPy 2.2.5; Chrome 155.0.8059.82. Locally owned validation/timing children were observed terminal before closure.
+
+## Main adoption
+
+Validated source `8106b0de4d48b73343e313db5f06c7b03d307498` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 60 source/license resources, 161 active exports, 12,599 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
