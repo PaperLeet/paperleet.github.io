@@ -133,6 +133,31 @@ sample reproduce native inference values/indices but reject derivatives
 explicitly. See the [0.38 validation record](../../docs/validation/torch-runtime-iteration-38.md)
 for measured complete CNN flows and the remaining compatibility boundaries.
 
+## Average pooling
+
+`nn.AvgPool2d`, `nn.AdaptiveAvgPool2d` and their functional entry points support
+float32/float64 reverse AD, JVP and reverse-over-forward. Area interpolation
+shares the adaptive rule; bicubic forward AD retains its explicit unsupported
+boundary. Float16 inference is supported, and fixed average pooling also accepts
+int64 inference. Fixed pooling implements ceil mode, padding inclusion and
+nonzero positive/negative divisor overrides.
+
+NaN/Inf values and gradient seeds affect only their actual regions. Ordered
+fallbacks retain overflow and ill-conditioned cancellation behavior. The global
+1×1 specialization follows mean's stateless backward behavior; other adaptive
+outputs retain native-style input version guards. Zero-sized adaptive outputs
+are valid for forward evaluation and reject backward as native PyTorch does.
+
+Geometry and inverse-region caches are bounded and hold no user tensors. Finite
+forward matrix paths check live values and require each plane to have no mixed
+signs. Adaptive adjoints gather contributions in native output order rather
+than reassociating them with matrix products. Larger or exceptional regions use bounded packing,
+tiling or streaming. Oversized adjoints reject inverse-gather plans before
+allocating full-length inverse indices. The packing estimate is separate from output allocations
+and total process memory. Correct IEEE behavior adds overhead to some small
+pooling calls; identity resizing, upsampling and complete CNN flows have their
+own measured results in the [0.39 validation record](../../docs/validation/torch-runtime-iteration-39.md).
+
 ## Linear systems
 
 `torch.linalg.solve(A, B, *, left=True)` handles dense batched/broadcast systems,

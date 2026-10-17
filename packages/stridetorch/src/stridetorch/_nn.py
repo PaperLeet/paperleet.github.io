@@ -543,8 +543,7 @@ def _resize_2d(input, size, *, cubic=False, align=False, factors=None):
 
 
 def adaptive_avg_pool2d(input, output_size):
-    size=_spatial_pair(output_size,'adaptive_avg_pool2d',input.shape[-2:])
-    return _resize_2d(input,size)
+    return _average_pooling.adaptive_avg_pool2d(input,output_size)
 
 
 def interpolate(input, size=None, scale_factor=None, mode='nearest', align_corners=None, recompute_scale_factor=None, antialias=False):
@@ -564,8 +563,11 @@ def interpolate(input, size=None, scale_factor=None, mode='nearest', align_corne
         shape=tuple(math.floor(n*f) for n,f in zip(input.shape[-2:],factors))
         shape=_spatial_pair(shape,'interpolate')
         if recompute_scale_factor or mode=='area':factors=None
-    return _resize_2d(input,shape,cubic=mode=='bicubic',align=bool(align_corners),factors=factors)
+    if mode=='area':return adaptive_avg_pool2d(input,shape)
+    if isinstance(input,_autograd.ForwardTensor):
+        raise _errors.BrowserUnsupported('Bicubic interpolation forward AD requires the server')
+    return _resize_2d(input,shape,cubic=True,align=bool(align_corners),factors=factors)
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _classification, _device, _errors, _normalization, _ops, _random, _state
+from . import _autograd, _average_pooling, _classification, _device, _errors, _normalization, _ops, _random, _state

@@ -53,6 +53,7 @@ def create_torch(name='torch', *, register=False):
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
         (_pooling,('MaxPool2d',)),
+        (_average_pooling,('AvgPool2d','AdaptiveAvgPool2d')),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
@@ -71,7 +72,7 @@ def create_torch(name='torch', *, register=False):
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'conv':('Conv1d','Conv2d','Conv3d'),
-        'pooling':('MaxPool2d',),
+        'pooling':('MaxPool2d','AvgPool2d','AdaptiveAvgPool2d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
@@ -216,9 +217,10 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.max_pool2d', _pooling.torch_max_pool2d, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
         'max_pool2d': _pooling.max_pool2d, 'max_pool2d_with_indices': _pooling.max_pool2d_with_indices,
+        'avg_pool2d': _average_pooling.avg_pool2d,
+        'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d, 'interpolate': _nn.interpolate,
     }, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
-        'interpolate': _nn.interpolate, 'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d,
         'normalize': _nn.normalize, 'smooth_l1_loss': _nn.smooth_l1_loss,
         'scaled_dot_product_attention': _nn.scaled_dot_product_attention_oracle,
     }, reverse='analytic')
@@ -250,4 +252,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _average_pooling, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _promotion, _random, _registry, _schedulers, _serialization, _tensor

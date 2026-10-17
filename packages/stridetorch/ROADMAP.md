@@ -609,6 +609,25 @@ source-commit deployment was superseded and is not claimed as published.
 - Quiet main adoption remains separate from publication. No CI/tag/dispatch
   or online release. Broader pooling/convolution/normalization remains active.
 
+## 0.39: local average pooling and ordered adjoints
+
+- Add AvgPool2d/AdaptiveAvgPool2d, fixed average-pooling geometry and linear
+  VJP/JVP rules; share the adaptive rule with area interpolation.
+- Preserve local NaN/Inf behavior, sum-before-divide overflow and output-ordered
+  gradient cancellation. Replace the failed separable matrix adjoint with
+  bounded inverse-region gathering; retain scanning/scatter fallbacks.
+- Full Python suite: 34,887 passes; actual Node/Chrome: 2,154 each;
+  isolated wheel: 2,167. Native and actual exported WASM catalogs pass all
+  78 problems; source and payload identities are preserved.
+- Preserve measured regressions: irregular/upsampled adaptive and area calls
+  can take roughly 2–4.4 times the old implementation's time. Next, optimize
+  ordered packing and cached geometry without weakening cancellation or IEEE
+  behavior. New fixed-pooling CNN training is 20–29% faster than this version's
+  generic scan on the measured cases; this is a different comparison.
+- A separate one-dimensional pooling prototype has native reference coverage;
+  it requires independent contracts, runtime checks and complete-flow timing
+  before integration. See the [validation record](../../docs/validation/torch-runtime-iteration-39.md).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
