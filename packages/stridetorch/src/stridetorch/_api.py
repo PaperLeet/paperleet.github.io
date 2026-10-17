@@ -260,6 +260,8 @@ def create_torch(name='torch', *, register=False):
         'qr': _linalg.qr, 'eigvalsh': _linalg.eigvalsh, 'det': _linalg.det,
         'svdvals': lambda input,*,driver=None,out=None: _linalg.svd(input,False,driver=driver,out=out).S,
     }, reverse='analytic')
+    registry.group('torch', {'slogdet':_determinants.slogdet,'logdet':_determinants.logdet}, reverse='analytic', forward=True)
+    registry.add('torch.linalg.slogdet', _determinants.linalg_slogdet, reverse='analytic', forward=True)
     registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)
     registry.add('torch.linalg.solve_triangular', _linalg.solve_triangular, reverse='analytic', forward=True)
     registry.add('torch.linalg.cholesky', _cholesky.cholesky, reverse='analytic', forward=True)
@@ -284,4 +286,4 @@ def create_torch(name='torch', *, register=False):
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
 from . import _defaults
-from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer
+from . import _determinants, _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer

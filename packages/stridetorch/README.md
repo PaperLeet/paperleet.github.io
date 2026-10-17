@@ -388,6 +388,36 @@ behavior for zero pivots. Native linalg makes no general cross-backend guarantee
 for NaN inputs; StrideTorch consistently rejects a non-positive/NaN Cholesky
 factor diagonal while continuing to ignore unused input triangles.
 
+## Stable log determinants
+
+`torch.slogdet(input)`, `torch.linalg.slogdet(A)` and `Tensor.slogdet()` return
+a `(sign, logabsdet)` named tuple. `torch.logdet(input)` and `Tensor.logdet()`
+return the logarithm directly. They use a log factorization rather than taking
+the logarithm of an already overflowed or underflowed determinant. Square
+matrices, batches, strided views and empty matrices are supported.
+
+Float32/64 support first-order reverse gradients and real JVPs. Real slogdet's
+sign is a differentiable graph output with an unused input-gradient edge:
+backward through sign alone leaves the input gradient `None`. Both outputs
+share saved-graph lifetime and the sign's mutation guard. Negative real logdet
+returns NaN with zero derivative, matching the validated native behavior.
+Singular log derivatives are undefined; the implementation preserves the
+tested IEEE Inf/NaN results without replacing zero pivots. Complex64/128 support
+forward evaluation only; singular complex logdet preserves its `-Inf` real
+component and NaN imaginary component.
+
+Reverse differentiation through these JVPs follows the validated PyTorch 2.14.1
+saved-factor contract: it differentiates the direction and has no reverse edge
+to the original matrix. This does not promise arbitrary higher derivatives or
+parity with future native versions. Complex AD and output buffers remain
+explicitly unsupported.
+
+Ordinary invertible `det` backward uses a linear solve instead of an SVD.
+Singular, underflowed and overflowed determinants retain the existing
+polynomial-cofactor path. That legacy singular-gradient contract can differ
+from native PyTorch's first backward. `det` still requires finite real input;
+its JVP remains unsupported.
+
 ## Gradient accumulation and storage
 
 The first `.grad` for a non-overlapping dense leaf follows the parameter's

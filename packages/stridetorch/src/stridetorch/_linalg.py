@@ -392,7 +392,14 @@ def det(input, *, out=None):
     if input.shape[-2] != input.shape[-1]: raise RuntimeError('det expects square matrices')
     source = input._data
     value = np.linalg.det(source)
+    if not value.size:value=_layout.contiguous_empty(value)
     def vjp(g):
+        if np.all(value!=0) and np.all(np.isfinite(value)):
+            # Ordinary invertible determinants need an adjoint solve, not an
+            # SVD plus two more determinant factorizations. Singular/extreme
+            # values retain the existing polynomial-cofactor contract below.
+            try:return _determinants._diagonal_solve(source,g*value)
+            except np.linalg.LinAlgError:pass
         # Products of all other singular values give the cofactor matrix
         # without dividing by a singular determinant or singular value.
         u, s, vh = np.linalg.svd(source, full_matrices=False)
@@ -428,4 +435,7 @@ def linalg_norm(input, ord=None, dim=None, keepdim=False, *, out=None, dtype=Non
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _autograd, _errors, _layout, _ops, _state, _tensor
+from . import _autograd, _errors, _layout, _ops, _state, _tensor, _determinants
+
+logdet = _determinants.logdet
+slogdet = _determinants.slogdet

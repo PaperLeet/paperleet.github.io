@@ -808,6 +808,8 @@ class Tensor:
         shape,dtype = self.shape,self.dtype
         return _autograd.result(np.trace(original_data), (self, lambda g: np.eye(*shape, dtype=dtype) * g), saves_tensors=False)
     def det(self): return _linalg.det(self)
+    def slogdet(self): return _linalg.slogdet(self)
+    def logdet(self): return _linalg.logdet(self)
     def cholesky_solve(self, input2, upper=False):
         return _cholesky.cholesky_solve(self, input2, upper)
 

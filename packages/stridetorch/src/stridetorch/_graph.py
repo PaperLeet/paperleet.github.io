@@ -99,7 +99,17 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
     for node in reversed(order):
         key = id(node)
         gradient = pending.pop(key, None)
-        if gradient is None or needed is not None and key not in needed:
+        if needed is not None and key not in needed:
+            continue
+        if gradient is None:
+            if not accumulate and targets is not None and key in targets:
+                continue
+            # An unused edge still consumes the saved ancestor graph. This
+            # matters for shared outputs such as real slogdet's sign/log pair.
+            if isinstance(node,Node) and node.saved:
+                if node.released:
+                    raise RuntimeError('Trying to backward through the graph a second time: saved tensors were freed; use retain_graph=True')
+                if not retain_graph:node.release()
             continue
         parents = node._parents
         leaf = not parents
@@ -136,7 +146,11 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
             raise _errors.BrowserUnsupported('A tensor saved for backward was modified in-place; this graph requires the server')
         if node.joint is None:
             for parent, vjp, dtype in edges:
-                incoming = np.asarray(vjp(gradient), dtype=dtype)
+                value = vjp(gradient)
+                # None is an unused edge; a zero array is still a real gradient.
+                if value is None:
+                    continue
+                incoming = np.asarray(value, dtype=dtype)
                 if needed is not None and id(parent) not in needed:
                     continue
                 parent_key = id(parent)
