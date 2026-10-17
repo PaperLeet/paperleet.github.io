@@ -33,8 +33,8 @@ try{
   if(answer==='fail')throw Error('Solutions unavailable');
   return {items:answer==='empty'?[]:[answer==='wrong-module'?{...post,problem_id:other.id}:post],total:answer==='empty'?0:25,sort:params.get('sort')||'latest',...(answer==='no-ack'?{}:{solutions:true})};
  }};
- let embedded=true;
- const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(React.Fragment,null,React.createElement('textarea',{'aria-label':'Practice code',defaultValue:'def solve(): return 1'}),embedded?React.createElement(ProblemSolutions,{topic}):React.createElement(Community,{route:location.hash,topics:[topic,other]}))));});
+ let embedded=true,scopedTopic;
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(React.Fragment,null,React.createElement('textarea',{'aria-label':'Practice code',defaultValue:'def solve(): return 1'}),embedded?React.createElement(ProblemSolutions,{topic}):React.createElement(Community,{route:location.hash,topics:[topic,other],...(scopedTopic?{topicId:scopedTopic.id,topic:scopedTopic}:{})}))));});
  const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
  const button=text=>[...document.querySelectorAll('button')].find(node=>node.textContent===text);
  const change=async(node,value)=>act(async()=>{Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?dom.window.HTMLTextAreaElement.prototype:node.tagName==='SELECT'?dom.window.HTMLSelectElement.prototype:dom.window.HTMLInputElement.prototype,'value').set.call(node,value);node.dispatchEvent(new dom.window.Event(node.tagName==='SELECT'?'change':'input',{bubbles:true}));});
@@ -75,6 +75,26 @@ try{
  const picker=form().querySelector('select');assert.equal(picker.required,true);await submit();assert.equal(mutations.length,2);
  await change(picker,other.id);await change(form().querySelector('input[type="text"],input:not([type])'),'LoRA reasoning');await change(form().querySelector('textarea'),'Factorization and rank constraints');
  await submit();assert.equal(mutations.at(-1).body.problem_id,other.id);assert.equal(drafts.readPostDraft(sessionStorage,'alice','general').body,'Keep this');
+ // Public topic lists link directly between the same module's solutions and discussions.
+ const topicsNav=await server.ssrLoadModule('/src/communityTopics.ts');
+ scopedTopic=topic;location.hash=nav.solutionsHref(topic.id);await render();
+ const context=()=>document.querySelector('.problem-discussion-context');
+ assert.equal(document.querySelector('.social-back').getAttribute('href'),nav.solutionsHref());
+ assert.equal(document.querySelector('.social-back').textContent,'All community solutions');
+ assert.equal(context().querySelector('a').textContent,'Module discussions');
+ assert.equal(context().querySelector('a').getAttribute('href'),topicsNav.topicHref(topic.id));
+ assert(button('All solutions'));assert.equal(requests.at(-1).params.get('problem_id'),topic.id);
+ const beforeSwitch=mutations.length;
+ location.hash=context().querySelector('a').getAttribute('href');await render();
+ assert.equal(context().querySelector('a').textContent,'Module solutions');
+ assert.equal(context().querySelector('a').getAttribute('href'),nav.solutionsHref(topic.id));
+ assert.equal(requests.at(-1).params.get('solutions'),null);assert(button('All'));
+ assert.equal(document.querySelector('.social-back').getAttribute('href'),'#/community');
+ scopedTopic={...topic,retired:true};await render();
+ assert(context().textContent.includes('retired'));assert(!context().querySelector('a.button'));
+ assert.equal(context().querySelector('a').getAttribute('href'),nav.solutionsHref(topic.id));
+ assert.equal(mutations.length,beforeSwitch);assert.equal(drafts.readPostDraft(sessionStorage,'alice','general').body,'Keep this');
+ scopedTopic=undefined;
  // Old servers cannot silently return an unfiltered discussion feed.
  embedded=true;account.capabilities.community_solutions=false;const before=requests.length;await render();assert.equal(requests.length,before);assert(document.body.textContent.includes('Community solutions are unavailable'));
  account.loading=true;await render();assert.equal(requests.length,before);

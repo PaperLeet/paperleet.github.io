@@ -129,6 +129,7 @@ function TopicContext({ topic, discussion = false, solutions=false }: {
         {discussion && (
           <a href={solutions?solutionsHref(topic.id):topicHref(topic.id)}>{solutions?t("查看本题题解","All module solutions"):t("查看题目讨论", "All module discussions")}</a>
         )}
+        <a href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</a>
         {!topic.retired && (
           <a className="button subtle" href={practiceHref(topic.id)}>
             <Code2 size={15} />{t("返回练习", "Back to practice")}
@@ -636,8 +637,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   return (
     <FeedRoot ref={reading.container} className={embedded?"problem-solutions community-page":"social-page community-page"}>
       {!embedded&&topicId && (
-        <a className="social-back" href="#/community">
-          <ArrowLeft size={14} />{t("所有社区讨论", "All community discussions")}
+        <a className="social-back" href={solutions?solutionsHref():"#/community"}>
+          <ArrowLeft size={14} />{solutions?t("所有社区题解","All community solutions"):t("所有社区讨论", "All community discussions")}
         </a>
       )}
       <div className="community-layout">
@@ -691,7 +692,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 aria-pressed={!following && !saved}
                 onClick={() => choose({ following: false, saved: false })}
               >
-                {t("所有讨论", "All")}
+                {solutions?t("全部题解","All solutions"):t("所有讨论", "All")}
               </button>
               <button
                 className={following && !saved ? "selected" : ""}
@@ -721,7 +722,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                   {t("重新加载题目信息", "Reload module details")}
                 </button>
               </div>
-            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} />
+            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
           )}
           {compose && user && (
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
@@ -1001,7 +1002,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string
     <main className="social-page discussion-page">
       <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
-        {returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
+        {returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? post.solution?t("返回本题题解","Back to module solutions"):t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>
