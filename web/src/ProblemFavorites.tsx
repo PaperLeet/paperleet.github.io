@@ -9,7 +9,10 @@ import {status,type Problem,type Saved} from './types';
 import {createFavoriteStore,type FavoriteState} from './problemFavoriteStore';
 import {useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
+import StudyListButton from './StudyListButton';
+import {deferredFeature} from './deferredFeature';
 import './problem-favorites.css';
+const StudyLists=deferredFeature<Parameters<typeof import('./StudyLists').default>[0]>(()=>import('./StudyLists'),['私人题单','private study lists']);
 
 const changedKey='paperleet.problem-favorites.changed';
 const stores=new Map<string,ReturnType<typeof createFavoriteStore>>();
@@ -74,7 +77,7 @@ function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:But
   if(!loading&&!user)return <a className="problem-favorite-button" href={hostedAppHref(signInHref(returnTo))} aria-label={t('登录后收藏题目','Sign in to save this problem')} title={t('登录后收藏题目','Sign in to save this problem')}><Bookmark size={16}/>{label&&<span>{label}</span>}</a>;
   const reloading=!!state.error||recovering,unavailable=!reloading&&!canSave&&!active&&!pending;
   const action=reloading?t('重试收藏加载','Retry saved problems'):unavailable?t('已移除，题目暂不可用','Removed; this problem is currently unavailable'):pending?.error?pending.active?t('重试收藏题目','Retry saving problem'):t('重试取消收藏','Retry removing saved problem'):active?t('取消收藏题目','Remove saved problem'):t('收藏题目','Save problem');
-  return <span className="problem-favorite-control">
+  return <div className="problem-favorite-control">
     <button ref={actionButton} data-favorite-control={problemId} type="button" className="problem-favorite-button" aria-pressed={reloading?undefined:active} aria-disabled={unavailable||undefined} aria-busy={!!pending?.busy||recovering||undefined} aria-label={action} title={state.error||pending?.error||action} disabled={loading||checking||recovering||state.loading&&!state.snapshot||!!pending?.busy||!state.snapshot&&!state.error} onClick={()=>{if(unavailable)return;if(reloading)void retryLoad();else void store?.set(problemId,!active);}}>
       {reloading?<RefreshCw size={16}/>:<Bookmark size={16} fill={active?'currentColor':'none'}/>}
       {label&&<span>{recovering?t('重试中…','Retrying…'):reloading?t('重试加载','Retry loading'):pending?.busy?t('保存中…','Saving…'):pending?.error?pending.active?t('重试收藏','Retry save'):t('重试取消','Retry removal'):label}</span>}
@@ -84,7 +87,8 @@ function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:But
     {pending?.error&&label&&<span className="favorite-feedback" role="status">{t('收藏操作未确认，请重试。','Bookmark unconfirmed. Please retry.')}
       {pending.accountError&&<><button type="button" data-favorite-control={problemId} className="text-button" disabled={checking} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><a href={hostedAppHref(signInHref(returnTo))}>{t('重新登录','Sign in again')}</a>{authError}</>}
     </span>}
-  </span>;
+    <StudyListButton problemId={problemId} canSave={canSave}/>
+  </div>;
 }
 
 function FavoriteProblemRow({id,problem,isSaved,returnTo,saved,progressReady,catalogError,resumed}:{id:string;problem?:Problem;isSaved:boolean;returnTo:string;saved?:Saved;progressReady:boolean;catalogError?:string;resumed:boolean}){
@@ -105,6 +109,7 @@ type PageProps={route?:string;onFilters?:(href:string)=>void;problems:Problem[];
 export function ProblemFavoritesPage(props:PageProps){
   const {t}=useI18n();
   if(!hostedAppAvailable)return <main className="problem-favorites-page"><a className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</a><div className="favorites-empty"><Bookmark size={30}/><h1>{t('当前版本暂无题目收藏','Saved problems are unavailable here')}</h1><p>{t('可返回题库继续练习。','Return to papers to keep practicing.')}</p></div></main>;
+  if(readFavoriteRoute(props.route||'favorites')?.list)return <StudyLists route={props.route} onFilters={props.onFilters} problems={props.problems} catalogReady={props.catalogReady} catalogError={props.catalogError} onRetryCatalog={props.onRetryCatalog}/>;
   return <AccountProblemFavoritesPage {...props}/>;
 }
 function AccountProblemFavoritesPage({route='favorites',onFilters,problems,saved,progressReady,catalogReady,catalogError,onRetryCatalog}:PageProps){
@@ -156,6 +161,7 @@ function AccountProblemFavoritesPage({route='favorites',onFilters,problems,saved
     <header className="favorites-heading"><div><span className="favorites-eyebrow"><Bookmark size={15}/>{t('我的学习清单','My study list')}</span><h1>{t('收藏题目','Saved problems')}</h1><p>{t('把想练习和回顾的题留在这里，随时继续。','Keep problems to practice or revisit, then pick up where you left off.')}</p></div>{user&&<span className="favorites-private">{t('仅自己可见 · 同步到账号','Private · Synced to your account')}</span>}</header>
     <ReadingReturnNotice kind="problem" notice={reading.notice} onRestore={reading.restore}/>
     {loading?<p role="status">{t('正在确认账号…','Checking your account…')}</p>:!user?<div className="favorites-empty"><Bookmark size={30}/><h2>{t('登录后保存你的练习清单','Sign in to keep your practice list')}</h2><p>{t('收藏会同步到账号，可在不同设备上继续练习。','Your saved problems sync across devices.')}</p><a className="button" href={hostedAppHref(signInHref(returnTo))}>{t('登录账号','Sign in')}</a></div>:!capabilities?.problem_bookmarks?<SocialNotice error={t('题目收藏暂未开放，请稍后重试。','Saved problems are currently unavailable. Please try again later.')}/>:<>
+      {capabilities.study_lists===true&&<StudyLists compact route={route} onFilters={onFilters} problems={problems} catalogReady={catalogReady} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>}
       {state.error&&<div className="favorites-error"><SocialNotice error={state.error}/><button type="button" className="button subtle" data-favorite-retry="" disabled={state.loading} onClick={()=>void store?.refresh()}>{t('重试加载','Retry loading')}</button></div>}
       {catalogError&&<div className="favorites-error"><SocialNotice error={catalogError}/><button type="button" className="button subtle" onClick={onRetryCatalog}>{t('重试题库加载','Retry catalog')}</button></div>}
       {!state.snapshot?<p role="status">{state.loading?t('正在加载收藏…','Loading saved problems…'):t('尚未读取收藏。','Saved problems have not loaded.')}</p>:<>

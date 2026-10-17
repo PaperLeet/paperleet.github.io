@@ -76,6 +76,7 @@ const mocks = {
     export const PaperDetail=props=>React.createElement('section',{'data-test-paper-detail':true,'data-practice-ids':props.practiceProblems?.map(p=>p.id).join(','),'data-return-to':props.returnTo,'data-reload-blocked':String(!!props.recovery?.blocked)});
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
+    export const StudyListPracticeNavigation=props=>React.createElement('nav',{'data-test-study-current':props.problemId,'data-test-study-return':props.returnTo,'data-test-study-catalog':props.problems.map(p=>p.id).join(',')});
     export const InboxBell=()=>null,Messages=()=>null;
     export {default as SubmissionCompletionNotice} from '/src/SubmissionCompletionNotice.tsx';
     export const Achievements=props=>React.createElement('a',{'data-test-achievement-return':true,href:props.returnTo},'Back to where you left off');
@@ -446,6 +447,29 @@ try {
     await act(async()=>{location.hash=libraryNav.withLibraryContext('papers/attention',otherPost);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});await settle(()=>find('[data-test-paper-detail]'));assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),otherPost);
     await act(async()=>root.unmount());root=undefined;reading.discardReadingReturn();
   }
+  // A private list replaces global module navigation without remounting the editor.
+  fixture.practice.ready=true;fixture.practice.loading=false;fixture.learning.ready=true;
+  fixture.practice.saved={[problem.id]:{code:'private list implementation'}};
+  fixture.catalog={problems:[problem],papers:[libraryPaper],categories:[]};
+  for(const locale of ['en','zh']){
+    localStorage.setItem('paperleet.locale',locale);
+    const firstList=libraryNav.favoriteHref({query:'注意力 & review',state:'started',list:'a'.repeat(32)}),secondList=libraryNav.favoriteHref({query:'Keep scope',state:'todo',list:'b'.repeat(32)});
+    window.history.replaceState(null,'',libraryNav.withLibraryContext(problem.number,firstList));
+    await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});
+    await settle(()=>find('[data-test-study-current]')&&find('#problem-editor-panel textarea'));
+    const currentEditor=find('#problem-editor-panel textarea');currentEditor.setSelectionRange(1,7,'backward');currentEditor.scrollTop=41;currentEditor.scrollLeft=13;
+    assert.equal(find('[data-test-study-current]').getAttribute('data-test-study-current'),problem.id);
+    assert.equal(find('[data-test-study-current]').getAttribute('data-test-study-return'),firstList);
+    assert.equal(find('[data-test-study-current]').getAttribute('data-test-study-catalog'),problem.id);
+    assert.equal(find('.workspace-toolbar .back-link').getAttribute('href'),firstList);
+    await act(async()=>{location.hash=libraryNav.withLibraryContext(problem.number,secondList);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});
+    await settle(()=>find('[data-test-study-current]')?.getAttribute('data-test-study-return')===secondList);
+    assert(find('#problem-editor-panel textarea')===currentEditor);assert.deepEqual([currentEditor.value,currentEditor.selectionStart,currentEditor.selectionEnd,currentEditor.selectionDirection,currentEditor.scrollTop,currentEditor.scrollLeft],['private list implementation',1,7,'backward',41,13]);
+    await act(async()=>{location.hash='#/'+problem.number;window.dispatchEvent(new window.HashChangeEvent('hashchange'));});await settle(()=>!find('[data-test-study-current]'));
+    assert(find('#problem-editor-panel textarea')===currentEditor);
+    await act(async()=>root.unmount());root=undefined;
+  }
+  console.log('PASS private study-list App routes: canonical list/query/status return and current/catalog props, scoped toolbar navigation, named-list transitions and ordinary navigation restoration, bilingual editor identity/source/caret/direction/both-scroll preservation');
   fixture.catalog=undefined;
   const acceptedLibraryReport={problem:problem.id,tests:[{id:'pass',layer:'T0',passed:true}],summary:{T0:[1,1]}};
   for(const locale of ['en','zh']) for(const scenario of ['empty','filtered-complete','all-complete','optional-only','loading']) {

@@ -111,5 +111,6 @@ export const BrowserDraftBackups = deferredFeature<Parameters<typeof import('./B
 
 export const ProblemFavoriteButton = deferredFeature<Parameters<typeof import('./ProblemFavorites').ProblemFavoriteButton>[0]>(()=>import('./ProblemFavorites').then(module=>({default:module.ProblemFavoriteButton})),customRecoveryLabel,{loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试收藏入口','Retry bookmark']}/>});
 export const ProblemFavoritesPage = deferredFeature<Parameters<typeof import('./ProblemFavorites').ProblemFavoritesPage>[0]>(()=>import('./ProblemFavorites').then(module=>({default:module.ProblemFavoritesPage})),['收藏题目','saved problems']);
+export const StudyListPracticeNavigation = deferredFeature<Parameters<typeof import('./StudyLists').StudyListPracticeNavigation>[0]>(()=>import('./StudyLists').then(module=>({default:module.StudyListPracticeNavigation})),['题单导航','study-list navigation']);
 
 export const SubmissionCompletionNotice=deferredFeature(()=>import('./SubmissionCompletionNotice'),customRecoveryLabel,{loading:()=>null,failure:props=><SubmissionCompletionFallback {...props}/>});

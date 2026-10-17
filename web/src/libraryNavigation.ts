@@ -76,14 +76,17 @@ export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]
   return { ...filters, category, tag, runtime: 'all' };
 }
 
-export function readFavoriteRoute(route:string):{query:string;state:string}|undefined {
+export function readFavoriteRoute(route:string):{query:string;state:string;list?:string}|undefined {
   const value=parts(route);
-  if(!value||value.path!=='favorites'||!only(value.params,['q','state']))return;
+  if(!value||value.path!=='favorites'||!only(value.params,['q','state','list']))return;
   const query=value.params.get('q')||'',state=value.params.get('state')||'all';
-  return bounded(query,200)&&['all','todo','started','done'].includes(state)?{query,state}:undefined;
+  const list=value.params.get('list');if(list!==null&&!/^[a-f0-9]{32}$/.test(list))return;
+  return bounded(query,200)&&['all','todo','started','done'].includes(state)?{query,state,...(list?{list}:{})}:undefined;
 }
-export function favoriteHref(view:{query:string;state:string}):string {
+export function favoriteHref(view:{query:string;state:string;list?:string}):string {
   const params=new URLSearchParams();if(view.query)params.set('q',view.query);if(view.state!=='all')params.set('state',view.state);
+  if(view.list)params.set('list',view.list);
+  if(view.list!==undefined&&!/^[a-f0-9]{32}$/.test(view.list))throw Error('Invalid private study-list ID');
   return '#/favorites'+(params.size?'?'+params:'');
 }
 

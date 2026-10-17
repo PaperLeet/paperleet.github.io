@@ -44,6 +44,9 @@ assert(manifest['src/MarkdownSectionNav.tsx']?.isDynamicEntry&&!initial.has('src
 assert(manifest['src/ProblemSolutionPanel.tsx']?.isDynamicEntry&&!initial.has('src/ProblemSolutionPanel.tsx'), 'Per-problem solution navigation must remain deferred');
 assert(manifest['src/EditorTools.tsx']?.isDynamicEntry&&!initial.has('src/EditorTools.tsx'), 'Optional editor controls must remain deferred');
 assert(manifest['src/LibraryOverview.tsx']?.isDynamicEntry&&!initial.has('src/LibraryOverview.tsx'), 'Practice overview and company interview preparation must remain deferred');
+const studyLists=manifest['src/StudyLists.tsx']?[['src/StudyLists.tsx',manifest['src/StudyLists.tsx']]]:Object.entries(manifest).filter(([,entry])=>entry.name==='StudyLists'&&entry.isDynamicEntry);
+assert(studyLists.length===1&&studyLists[0][1].isDynamicEntry&&!initial.has(studyLists[0][0]), 'Private study-list reading and editing must remain uniquely deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Could not confirm your private study lists.')), 'Private study-list stores must not grow the library shell');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Company interview practice')), 'Library interview preparation must not grow the initial shell');
 assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichText|SolutionHistory)-/.test(file)), 'Optional runtime dependencies must not be pulled back into the shell');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your implementation goal')), 'Problem overview and statistics rendering must stay deferred');
@@ -57,6 +60,8 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.study-list-popover')), 'Private study-list presentation must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.study-list-popover'))), 'Deferred study-list views must include their styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.library-interview-guide')), 'Library interview preparation styles must remain deferred');
 assert((manifest['src/LibraryOverview.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.library-interview-guide')), 'Deferred overview must include interview preparation styles');
 assert([...css].some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.description-scroll[hidden]')), 'Initial workspace styles must hide inactive retained reading panels');

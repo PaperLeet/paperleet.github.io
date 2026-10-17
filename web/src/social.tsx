@@ -55,6 +55,7 @@ export type AccountCapabilities = {
   inbox_read_all?: boolean;
   direct_messages?: boolean;
   problem_bookmarks?: boolean;
+  study_lists?: boolean;
   community_anonymous_posts?: boolean;
   community_feed_sorting?: boolean;
   community_feed_period?: boolean;

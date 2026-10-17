@@ -71,7 +71,7 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
     </div>
     <div className="account-menu-links">
       {user&&<a className="account-menu-row" href={hostedAppHref('#/drafts')} onClick={onClose}><FilePenLine size={16}/><span>{t('创作草稿','Writing drafts')}</span><ChevronRight size={14}/></a>}
-      {hostedAppAvailable&&<a className="account-menu-row" href="#/favorites" onClick={onClose}><Bookmark size={16}/><span>{t("收藏题目","Saved problems")}</span><ChevronRight size={14}/></a>}
+      {hostedAppAvailable&&<a className="account-menu-row" href="#/favorites" onClick={onClose}><Bookmark size={16}/><span>{t("收藏与题单","Saved problems & lists")}</span><ChevronRight size={14}/></a>}
       {user&&savedAvailable&&<a className="account-menu-row" href={hostedAppHref('#/interviews?saved=1&days=all')} onClick={onClose}><Bookmark size={16}/><span>{t('收藏面经','Saved interviews')}</span><ChevronRight size={14}/></a>}
       {user&&<a className="account-menu-row" href={hostedAppHref('#/account')} onClick={onClose}><ShieldCheck size={16}/><span>{t('账号与隐私','Account & privacy')}</span><ChevronRight size={14}/></a>}
       {user&&onBackup&&<button type="button" className="account-menu-row" disabled={!backupReady} onClick={()=>{onClose();onBackup();}}><Download size={16}/><span>{t('代码备份','Code backups')}</span><ChevronRight size={14}/></button>}
