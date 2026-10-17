@@ -152,3 +152,13 @@ dispatch, release, PyPI upload or deployment is initiated by the local gates.
 Transformer composition, broader core coverage, further numerical and buffer
 optimization and measurement of optional persistent GPU execution remain work
 for the overall goal. Project renaming awaits the user's selection.
+
+## Main adoption
+
+Validated source `36af3288619d2fe79cf9617a6a62891308f6788e` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 56 source/license resources, 161 active exports, 11,335 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
