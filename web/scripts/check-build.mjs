@@ -46,6 +46,10 @@ assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('di
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('failure-frame-link')), 'Interactive traceback controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Search test details')), 'Test-detail search controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Jump to experience page')), 'Interview page-jump controls must remain deferred');
+assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Jump to list page')), 'Community page-jump controls must remain deferred');
+assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Jump to list page')), 'Deferred community views must include page navigation');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.page-jump')), 'Shared page-jump styles must remain deferred');
+assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.page-jump'))), 'Deferred list views must include page-jump styles');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.interview-page-jump')), 'Interview page-jump styles must remain deferred');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Jump to experience page')), 'Deferred interviews must include direct page navigation');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.report-test-search')), 'Test-detail search styles must remain deferred');

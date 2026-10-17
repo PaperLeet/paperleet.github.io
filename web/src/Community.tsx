@@ -34,8 +34,6 @@ import {
   Building2,
   Check,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Code2,
   Coffee,
   Globe2,
@@ -87,6 +85,8 @@ import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
+import Pagination from './CommunityPagination';
+import {revealReadingTarget} from './readingViewport';
 import RelatedModuleSearch from './RelatedModuleSearch';
 import {searchRelatedModules} from './relatedModuleMatching';
 import { canEditReply } from './replyEdits';
@@ -177,38 +177,6 @@ function Loading() {
       {t("正在加载…", "Loading…")}
     </div>
   );
-}
-function Pagination({
-  offset,
-  total,
-  onChange,
-}: {
-  offset: number;
-  total: number;
-  onChange: (offset: number) => void;
-}) {
-  const { t } = useI18n();
-  return total > PAGE_SIZE ? (
-    <div className="community-pagination">
-      <span>
-        {offset + 1}–{Math.min(total, offset + PAGE_SIZE)} / {total}
-      </span>
-      <button
-        disabled={!offset}
-        aria-label={t("上一页", "Previous page")}
-        onClick={() => onChange(Math.max(0, offset - PAGE_SIZE))}
-      >
-        <ChevronLeft size={17} />
-      </button>
-      <button
-        disabled={offset + PAGE_SIZE >= total}
-        aria-label={t("下一页", "Next page")}
-        onClick={() => onChange(offset + PAGE_SIZE)}
-      >
-        <ChevronRight size={17} />
-      </button>
-    </div>
-  ) : null;
 }
 function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
   const { t } = useI18n();
@@ -566,10 +534,11 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const savedAvailable = capabilities?.community_bookmarks === true;
   const savedGate = saved && savedAvailable;
   const waitingForSavedAccount = saved && accountLoading;
+  const feedAccessReady = (!following || !!user) && (!saved || !!user && savedAvailable && !accountLoading);
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
-  const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
+  const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState<FeedFailure>(),
@@ -579,7 +548,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
-  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&!((following||saved)&&!user)&&!(saved&&!savedAvailable)&&!sortingUnavailable&&!solutionUnavailable);
+  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions:true}:{})};
     if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
@@ -754,7 +723,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} />
           )}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
-          <div className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
+          <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
             {solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
@@ -813,12 +782,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)
             )}
           </div>
-          {!pending && !error && !sortingUnavailable && !solutionUnavailable && (
-            <Pagination
-              offset={offset}
-              total={data.total}
-              onChange={(offset) => choose({ page: Math.floor(offset / PAGE_SIZE) + 1 })}
-            />
+          {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && (
+            <Pagination key={requestKey} offset={offset} total={data.total} count={data.items.length} label={solutions?t('题解分页','Solution pages'):t('讨论分页','Discussion pages')}
+              onChange={next=>{if(next===offset)return;const target=feedList.current;if(target){target.focus({preventScroll:true});revealReadingTarget(target);}choose({page:next/PAGE_SIZE+1});}}/>
           )}
         </section>
       </div>
@@ -1693,11 +1659,8 @@ function UserProfileContents({ username,route }: { username: string;route:string
               </Empty>
             )}
           </section>
-          {!activityPending&&!activityError&&<Pagination
-            offset={offset}
-            total={connectionTab ? connections.total : activity.total}
-            onChange={next=>{setActivityLoading(true);revealIntent.current=undefined;location.hash=profileFeedHref(username,{tab,page:Math.floor(next/PAGE_SIZE)+1});}}
-          />}
+          {!activityPending&&!activityError&&<Pagination key={activityKey} offset={offset} total={connectionTab?connections.total:activity.total} count={connectionTab?connections.items.length:activity.items.length} label={t('个人主页列表分页','Profile list pages')}
+            onChange={next=>{if(next===offset)return;revealIntent.current=undefined;const target=document.getElementById('profile-community-panel');if(target){target.focus({preventScroll:true});revealReadingTarget(target);}setActivityLoading(true);location.hash=profileFeedHref(username,{tab,page:next/PAGE_SIZE+1});}}/>}
           </section>
           </div>
         </div>

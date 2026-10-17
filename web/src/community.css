@@ -643,15 +643,15 @@
   color: var(--text-secondary);
   font-size: var(--type-body);
 }
-.community-pagination span {
+.community-pagination > span {
   margin-right: 8px;
 }
-.community-pagination button {
+.community-pagination > button {
   padding: 5px;
   border: 1px solid var(--line);
   border-radius: 4px;
 }
-.community-pagination button:disabled {
+.community-pagination > button:disabled {
   opacity: 0.3;
   cursor: default;
 }

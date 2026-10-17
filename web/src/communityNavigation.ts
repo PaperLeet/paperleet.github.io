@@ -8,7 +8,7 @@ export const solutionsHref = (topicId?:string) => communityFeedHref(topicId,{...
 export const COMMUNITY_PAGE_SIZE = 20;
 export const emptyCommunityFeed = (): CommunityFeedState => ({ category: '', following: false, search: '', page: 1 });
 const moduleId = /^[a-z0-9_-]+\/[a-z0-9_-]+$/;
-const maxPage = Math.floor(Number.MAX_SAFE_INTEGER / COMMUNITY_PAGE_SIZE);
+export const MAX_COMMUNITY_PAGE = Math.floor(Number.MAX_SAFE_INTEGER / COMMUNITY_PAGE_SIZE);
 
 function parts(route: string) {
   const raw = route.replace(/^#\/?/, '');
@@ -40,7 +40,7 @@ export function readCommunityFeed(route: string): { topicId?: string; state: Com
   const page = value.params.get('page') || '1';
   if ((category !== '' && !isCommunityCategory(category)) || !['', '1', 'true', '0', 'false'].includes(following)
     || !['', '1', 'true', '0', 'false'].includes(saved) || !['', '1', 'true', '0', 'false'].includes(solutions) || !['latest','active','top'].includes(sort)
-    || Array.from(search).length > 200 || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page)) || Number(page) > maxPage) return;
+    || Array.from(search).length > 200 || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page)) || Number(page) > MAX_COMMUNITY_PAGE) return;
   return { topicId, state: { category, following: following === '1' || following === 'true',
     ...(solutions === '1' || solutions === 'true' ? {solutions:true} : {}),
     ...(saved === '1' || saved === 'true' ? {saved: true} : {}), ...(sort === 'active' || sort === 'top' ? {sort} : {}), search, page: Number(page) } };
