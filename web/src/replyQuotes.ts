@@ -10,6 +10,11 @@ const clip=(text:string,limit:number)=>{
 };
 const escape=(text:string)=>text.replace(/[\\`*_{}\[\]()<>#!|~.+-]/g,'\\$&');
 export type ReplyQuote={before:ReplyDraft;after:ReplyDraft;replyId:string};
+export type ReplyQuoteSelection={start:number;end:number;direction:'forward'|'backward'|'none';scroll:number;left:number};
+export function captureReplyQuoteSelection(field:HTMLTextAreaElement|null,fallback=0):ReplyQuoteSelection{
+  return {start:field?.selectionStart??fallback,end:field?.selectionEnd??fallback,direction:field?.selectionDirection||'none',scroll:field?.scrollTop||0,left:field?.scrollLeft||0};
+}
+
 export type ReplyQuoteResult={ok:true;quote:ReplyQuote}|{ok:false;reason:'unavailable'|'length'};
 
 /** Copy a bounded visible excerpt, never hidden link destinations, images or return filters. */

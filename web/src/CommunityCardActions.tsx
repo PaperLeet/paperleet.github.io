@@ -1,6 +1,6 @@
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
-import {ChevronDown,ChevronUp,Heart,MessageCircle,PenLine,Repeat2,X} from 'lucide-react';
+import {ChevronDown,ChevronUp,Heart,MessageCircle,PenLine,Quote,Repeat2,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import {DateLabel,SocialError,SocialNotice,errorMessage,socialApi,useAccount} from './social';
 import CommunityAuthor from './CommunityAuthor';
@@ -18,6 +18,8 @@ import {clearPublication,preparePublication,readPublication,replyPublication,sam
 import {withConfirmedReply,type Post,type PostDetail,type Reply} from './communityDiscussion';
 import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import {postPreview} from './postExcerpt';
+import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
+import './reply-quotes.css';
 import {keepReadingTriggerVisible,readingScrollRoot} from './readingViewport';
 import './community-card-actions.css';
 
@@ -34,11 +36,13 @@ export default function CommunityCardActions(props:CardProps){
   return <CardActions key={`${props.post.id}:${user?.id||'guest'}`} {...props} owner={user?.id||''} accountLoading={loading}/>;
 }
 function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,children}:CardProps&{owner:string;accountLoading:boolean}){
-  const {t}=useI18n(),{user,capabilities,refresh:refreshAccount}=useAccount(),regionId=useId(),fieldId=useId();
+  const {t,locale}=useI18n(),{user,capabilities,refresh:refreshAccount}=useAccount(),regionId=useId(),fieldId=useId();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const href=communityPostHref(initial.id,returnTo),path=`community/posts/${encodeURIComponent(initial.id)}`;
   const [post,setPost]=useState(initial),[detail,setDetail]=useState<PostDetail>(),[open,setOpen]=useState(false);
   const [postedId,setPostedId]=useState<string>();
+  const [quoteNotice,setQuoteNotice]=useState<''|'added'|'exists'|'length'|'unavailable'>('');
+  const quoteEdit=useRef<ReplyQuote&{selection:ReplyQuoteSelection}>(undefined);
   const [loading,setLoading]=useState(false),[loadError,setLoadError]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState('');
   const [busy,setBusy]=useState<'like'|'reply'|'account'|''>(''),[pendingLike,setPendingLike]=useState<boolean>();
   const [accountRecovery,setAccountRecovery]=useState(false);
@@ -48,7 +52,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const current=useRef(draft),mounted=useRef(true),working=useRef(false),readVersion=useRef(0),request=useRef<AbortController|undefined>(undefined);
   const textarea=useRef<HTMLTextAreaElement>(null),toggle=useRef<HTMLButtonElement>(null),composePrompt=useRef<HTMLButtonElement>(null);
   const editorView=useRef<MarkdownEditorView|undefined>(undefined);
-  const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string}|undefined>(undefined),formId=fieldId+'-form';
+  const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string;source:string;selection?:ReplyQuoteSelection;atEnd?:boolean}|undefined>(undefined),formId=fieldId+'-form';
   const closing=useRef<{opener:HTMLElement;href:string}|undefined>(undefined);
   const retryLike=useRef<HTMLButtonElement>(null),accountFocus=useRef<{opener:Element|null;href:string}|undefined>(undefined);
   useLayoutEffect(()=>{
@@ -67,9 +71,11 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   useLayoutEffect(()=>{
     const intent=opening.current;if(!intent||!writing||preview)return;opening.current=undefined;
     const active=document.activeElement;
-    if(location.href===intent.href&&(active===intent.opener||active===document.body&&intent.opener instanceof HTMLElement&&!!intent.opener.closest('[hidden]'))){
-      const field=textarea.current;if(!field)return;
+    if(location.href===intent.href&&intent.source===current.current.body&&(active===intent.opener||active===document.body&&intent.opener instanceof HTMLElement&&(!intent.opener.isConnected||!!intent.opener.closest('[hidden]')))){
+      const field=textarea.current;if(!field||field.value!==intent.source)return;
       if(readingScrollRoot(field)){field.focus({preventScroll:true});keepReadingTriggerVisible(field);}else field.focus();
+      if(intent.selection){field.setSelectionRange(intent.selection.start,intent.selection.end,intent.selection.direction);field.scrollTop=intent.selection.scroll;field.scrollLeft=intent.selection.left;}
+      else if(intent.atEnd){field.setSelectionRange(field.value.length,field.value.length,'none');field.scrollTop=field.scrollHeight;field.scrollLeft=0;}
     }
   },[writing,preview,focusTick]);
   useLayoutEffect(()=>{
@@ -116,8 +122,8 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     current.current=restored;setDraft(restored);setPublication(readPublication(tabDraftStorage(),owner,'reply',initial.id));
     setOpen(true);if(!busy)void load();
   }
-  function focusReply(){
-    opening.current={opener:document.activeElement,href:location.href};setFocusTick(value=>value+1);
+  function focusReply(selection?:ReplyQuoteSelection,atEnd=false){
+    opening.current={opener:document.activeElement,href:location.href,source:current.current.body,selection,atEnd};setFocusTick(value=>value+1);
   }
   function writeComment(){
     if(!owner){location.hash=signInHref(returnTo||'community');return;}
@@ -126,7 +132,22 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   }
   function edit(change:Partial<ReplyDraft>){
     const next={...current.current,...change};current.current=next;setDraft(next);
-    setSaved(writeReplyDraft(tabDraftStorage(),owner,initial.id,next));setNotice('');
+    setSaved(writeReplyDraft(tabDraftStorage(),owner,initial.id,next));setNotice('');setQuoteNotice('');
+  }
+  function quoteComment(row:Reply){
+    if(!owner||!mounted.current||working.current||busy||loading||accountLoading||accountRecovery||!detail?.replies.some(reply=>reply.id===row.id))return;
+    const previous=quoteEdit.current;
+    if(previous?.replyId===row.id&&sameReplyDraft(previous.after,current.current)){setQuoteNotice('exists');setWriting(true);setPreview(false);focusReply(undefined,true);return;}
+    const name=row.author.anonymous?t('匿名用户','Anonymous'):row.author.display_name||t('用户','User');
+    const result=quoteReplyDraft(current.current,initial.id,row,name,locale==='en');
+    if(!result.ok){setQuoteNotice(result.reason);return;}
+    quoteEdit.current={...result.quote,selection:captureReplyQuoteSelection(textarea.current,current.current.body.length)};
+    edit(result.quote.after);setQuoteNotice('added');setWriting(true);setPreview(false);focusReply(undefined,true);
+  }
+  function undoQuote(){
+    const operation=quoteEdit.current;
+    if(!operation||working.current||busy||loading||accountLoading||accountRecovery||!sameReplyDraft(operation.after,current.current))return;
+    edit({body:operation.before.body,parentId:operation.before.parentId});quoteEdit.current=undefined;setWriting(true);setPreview(false);focusReply(operation.selection);
   }
   async function reportFailure(e:unknown){
     if(!mounted.current)return;
@@ -173,7 +194,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       setPublication(undefined);
       setDetail(value=>withConfirmedReply(value,row));
       setPost(value=>({...value,counts:{...value.counts,replies:value.counts.replies+(detail.replies.some(item=>item.id===row.id)?0:1)},last_reply_at:row.created_at}));
-      if(sendsCurrent&&sameReplyDraft(current.current,submitted)){current.current={body:''};setDraft(current.current);setSaved(true);setPreview(false);}
+      if(sendsCurrent&&sameReplyDraft(current.current,submitted)){current.current={body:''};setDraft(current.current);setSaved(true);setPreview(false);setQuoteNotice('');quoteEdit.current=undefined;}
       setNotice(t('回复已发布。','Reply posted.'));
       setPostedId(row.id);
     }catch(e){await reportFailure(e);}
@@ -211,12 +232,13 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
           <InlineCommentBody body={row.body}/>
           <div className="card-comment-links"><a href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</a>
-            {owner&&<button type="button" disabled={!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}
+            {owner&&<button type="button" disabled={!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}{owner&&<button type="button" disabled={!!busy||loading||accountLoading||accountRecovery} aria-label={t(`引用${row.author.anonymous?'匿名用户':row.author.display_name||'用户'}的评论`,`Quote comment from ${row.author.anonymous?'Anonymous':row.author.display_name||'user'}`)} onClick={()=>quoteComment(row)}><Quote size={12} aria-hidden="true"/>{t('引用','Quote')}</button>}
             <ReplyReadingReturn list={replies} replyId={row.id}/>
           </div>
         </li>;})}</ol>:<p className="card-comments-empty">{t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}</p>}
         {replies.total>replies.shown.length&&<button type="button" className="card-more-comments" disabled={accountLoading} onClick={replies.showMore}><ChevronDown size={14}/>{t('再展开','Show')} {Math.min(3,replies.total-replies.shown.length)} {t('条评论','more comments')}</button>}
       </>}
+      {quoteNotice&&<div className="reply-quote-notice card-reply-quote-notice" role="status"><span>{quoteNotice==='added'?t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'):quoteNotice==='exists'?t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'):quoteNotice==='length'?t('引用会超过评论长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the comment limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This comment could not be quoted. You can still reply directly.')}</span>{(quoteNotice==='added'||quoteNotice==='exists')&&quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={!!busy||loading||accountLoading||accountRecovery} onClick={undoQuote}>{t('撤销引用','Undo quote')}</button>}</div>}
       {accountLoading?<p className="card-account-checking" role="status">{t('正在确认账号，评论草稿已保留…','Checking your account. Your comment draft is kept…')}</p>:owner&&user?<>
       <button ref={composePrompt} type="button" className="card-comment-compose-prompt" hidden={writing} aria-expanded={false} aria-controls={formId} disabled={!!busy||accountRecovery} onClick={writeComment}><PenLine size={16} aria-hidden="true"/><span><b>{publication?t('继续处理待确认评论','Continue pending comment'):hasReplyDraft(draft)?t('继续编辑评论草稿','Continue comment draft'):t('写下你的想法…','Share your thoughts…')}</b><small>{!saved?t('草稿未能保存，请先复制内容。','Draft could not be saved. Copy it first.'):publication||hasReplyDraft(draft)?t('草稿已保留，点击继续','Your draft is kept. Pick up where you left off.'):t('无需离开当前列表','Stay in this feed')}</small></span></button>
       <form id={formId} hidden={!writing} aria-label={t('评论编辑器','Comment editor')} className="social-form card-reply-form" onSubmit={event=>{event.preventDefault();void publish();}}>

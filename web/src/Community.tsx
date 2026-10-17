@@ -24,7 +24,7 @@ import {useWritingDisclosure,type WritingPanelProps} from './useWritingDisclosur
 import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
-import {quoteReplyDraft,type ReplyQuote} from './replyQuotes';
+import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
 import './reply-quotes.css';
 import './profile-solutions.css';
 import MarkdownEditor from "./MarkdownEditor";
@@ -838,17 +838,17 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
   const [discardReply, setDiscardReply] = useState(false);
   const [replyPreview, setReplyPreview] = useState(false);
   const replyField=useRef<HTMLTextAreaElement>(null);
-  const quoteEdit=useRef<(ReplyQuote&{selection:{start:number;end:number;scroll:number}})>(undefined);
+  const quoteEdit=useRef<(ReplyQuote&{selection:ReplyQuoteSelection})>(undefined);
   const [quoteNotice,setQuoteNotice]=useState('');
-  const [replyFocus,setReplyFocus]=useState<{href:string;source:string;opener:Element|null;selection?:{start:number;end:number;scroll:number}}>();
+  const [replyFocus,setReplyFocus]=useState<{href:string;source:string;opener:Element|null;selection?:ReplyQuoteSelection}>();
   useLayoutEffect(()=>{
     if(!replyFocus||replyPreview)return;setReplyFocus(undefined);
     if(replyFocus.href!==location.href||replyFocus.source!==draft.body||!mounted.current||busy)return;
     if(document.activeElement!==replyFocus.opener&&!(document.activeElement===document.body&&!replyFocus.opener?.isConnected))return;
     const field=replyField.current;if(!field)return;
     field.focus({preventScroll:true});field.scrollIntoView({block:'center'});
-    field.setSelectionRange(replyFocus.selection?.start??draft.body.length,replyFocus.selection?.end??draft.body.length);
-    field.scrollTop=replyFocus.selection?.scroll??field.scrollHeight;
+    field.setSelectionRange(replyFocus.selection?.start??draft.body.length,replyFocus.selection?.end??draft.body.length,replyFocus.selection?.direction||'none');
+    field.scrollTop=replyFocus.selection?.scroll??field.scrollHeight;field.scrollLeft=replyFocus.selection?.left??0;
   },[replyFocus,replyPreview,draft.body,busy]);
   const [replyNotice, setReplyNotice] = useState<'' | 'posted' | 'refresh-failed'>('');
   const [postedReplyId, setPostedReplyId] = useState<string>();
@@ -872,7 +872,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
     setReplyDraftKept(false);
     setQuoteNotice('');
   }
-  function focusReply(selection?:{start:number;end:number;scroll:number}){
+  function focusReply(selection?:ReplyQuoteSelection){
     if(!user||busy||loading||editingReply)return;
     setReplyPreview(false);setReplyFocus({href:location.href,source:currentDraft.current.body,opener:document.activeElement,selection});
   }
@@ -883,13 +883,13 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
     const result=quoteReplyDraft(currentDraft.current,id,row,authorName(row.author)||t('用户','User'),locale==='en');
     if(!result.ok){setQuoteNotice(result.reason==='length'?t('引用会超过回复长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the reply limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This reply could not be quoted. You can still reply directly.'));return;}
     const field=replyField.current;
-    quoteEdit.current={...result.quote,selection:{start:field?.selectionStart??body.length,end:field?.selectionEnd??body.length,scroll:field?.scrollTop||0}};
+    quoteEdit.current={...result.quote,selection:captureReplyQuoteSelection(field,currentDraft.current.body.length)};
     editReply(result.quote.after);setQuoteNotice(t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'));focusReply();
   }
   function undoQuote(){
     const operation=quoteEdit.current;
     if(!operation||busy||loading||!sameReplyDraft(operation.after,currentDraft.current))return;
-    editReply(operation.before);quoteEdit.current=undefined;focusReply(operation.selection);
+    editReply({body:operation.before.body,parentId:operation.before.parentId});quoteEdit.current=undefined;focusReply(operation.selection);
   }
   async function refresh() {
     if (!mounted.current) return false;
