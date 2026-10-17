@@ -4,3 +4,6 @@
 .post-bookmark-recovery { flex-basis: 100%; max-width: 520px; padding: 8px 0; font-size: var(--type-small); overflow-wrap: anywhere; }
 .post-bookmark-recovery p { margin: 6px 0; }
 .post-bookmark-recovery > button { margin: 4px 12px 4px 0; font: inherit; }
+.post-bookmark>button,.post-bookmark-signin,.post-bookmark-recovery>button { min-height:40px; }
+.post-bookmark :is(button,a):focus-visible,.post-bookmark-signin:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media(pointer:coarse) { .post-bookmark>button,.post-bookmark-signin,.post-bookmark-recovery>button { min-height:44px; } }

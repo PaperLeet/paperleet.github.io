@@ -6,8 +6,8 @@ import { socialApi, errorMessage, SocialError, SocialNotice } from './social';
 import { confirmedBookmark } from './communityBookmarks';
 import './post-bookmark.css';
 
-export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,disabled,onChange,onBusyChange,onAccountRefresh}:{
-  postId:string;owner:string;bookmarked?:boolean;enabled:boolean;returnTo:string;disabled:boolean;
+export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,disabled,hidden=false,onChange,onBusyChange,onAccountRefresh}:{
+  postId:string;owner:string;bookmarked?:boolean;enabled:boolean;returnTo:string;disabled:boolean;hidden?:boolean;
   onChange:(saved:boolean)=>void;onBusyChange:(busy:boolean)=>void;
   onAccountRefresh?:()=>Promise<void>;
 }) {
@@ -17,17 +17,20 @@ export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,d
   const trigger=useRef<HTMLButtonElement>(null);
   const root=useRef<HTMLDivElement>(null),focusRetained=useRef(false);
   const recovery=useRef<HTMLDivElement>(null);
-  const focusConfirmed=useRef(false);
+  const focusConfirmed=useRef(false),focusHref=useRef('');
   const uncertain=pending!==undefined&&pending!==bookmarked;
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;controller.current?.abort();};},[]);
   useEffect(()=>{
+    if(hidden||!enabled){focusRetained.current=false;focusConfirmed.current=false;return;}
     if(busy||disabled)return;
+    if(focusHref.current!==location.href||(document.activeElement!==document.body&&!root.current?.contains(document.activeElement))){focusRetained.current=false;focusConfirmed.current=false;return;}
     if(error&&uncertain&&focusRetained.current)recovery.current?.querySelector<HTMLButtonElement>('button')?.focus();
     else if(focusConfirmed.current){focusConfirmed.current=false;trigger.current?.focus();}
-  },[busy,disabled,error,uncertain,bookmarked]);
+  },[busy,disabled,hidden,enabled,error,uncertain,bookmarked]);
   async function confirm(active?:boolean) {
-    if(disabled||working.current||!owner||!enabled)return;
+    if(hidden||disabled||working.current||!owner||!enabled)return;
     focusRetained.current=!!root.current?.contains(document.activeElement);
+    focusHref.current=location.href;focusConfirmed.current=false;
     working.current=true;setBusy(true);onBusyChange(true);setError('');
     const request=new AbortController();controller.current=request;
     const timer=setTimeout(()=>request.abort(),20_000);
@@ -54,7 +57,7 @@ export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,d
       if(mounted.current){setBusy(false);onBusyChange(false);}
     }
   }
-  if(!enabled||typeof bookmarked!=='boolean')return null;
+  if(hidden||!enabled||typeof bookmarked!=='boolean')return null;
   if(!owner)return <a className="post-bookmark-signin" href={signInHref(returnTo)}><Bookmark size={16}/>{t('登录收藏','Sign in to save')}</a>;
   return <div className="post-bookmark" aria-busy={busy} ref={root} onBlur={event=>{
     if(event.relatedTarget&&!event.currentTarget.contains(event.relatedTarget as Node))focusRetained.current=false;

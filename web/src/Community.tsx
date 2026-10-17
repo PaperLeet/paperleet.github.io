@@ -237,8 +237,11 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean }) {
-  const { locale } = useI18n();
+function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void }) {
+  const { t,locale } = useI18n();
+  const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
+  const [bookmarked,setBookmarked]=useState(post.viewer.bookmarked),[bookmarkBusy,setBookmarkBusy]=useState(false);
+  const bookmarkAvailable=capabilities?.community_bookmarks===true&&typeof bookmarked==='boolean';
   const returnTo=privateProfile?undefined:sourceReturnTo;
   return (
     <article className="community-post-card" data-reading-post={post.id} data-reading-private-profile={privateProfile?"true":undefined} data-reading-resumed={resumed||undefined}>
@@ -264,7 +267,15 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
           <InlinePostBody postId={post.id} body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
-          <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}/>
+          <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}>
+            <PostBookmark key={`${post.id}:${user?.id||'guest'}`} postId={post.id} owner={user?.id||''} bookmarked={bookmarked}
+              enabled={capabilities?.community_bookmarks===true} returnTo={postHref(post.id,returnTo)} disabled={accountLoading} hidden={accountLoading}
+              onChange={setBookmarked} onBusyChange={setBookmarkBusy} onAccountRefresh={refreshAccount}/>
+          </CommunityCardActions>
+          {savedView&&user&&bookmarkAvailable&&bookmarked===false&&!bookmarkBusy&&!accountLoading&&<div className="post-card-unsaved-notice" role="status">
+            <span>{t('已取消收藏。可以重新收藏，或刷新列表后移除。','Unsaved. Save it again, or refresh to remove it from this list.')}</span>
+            {onReloadSaved&&<button type="button" onClick={onReloadSaved}>{t('刷新收藏列表','Refresh saved posts')}</button>}
+          </div>}
         </div>
       </div>
     </article>
@@ -542,8 +553,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
-  const boards = useRef<HTMLDivElement>(null);
-  const [data, setData] = useState<Page<Post> & { requestKey?: string }>({ items: [], total: 0 }),
+  const boards = useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
+  const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState<FeedFailure>(),
     [compose, setCompose] = useState(false),
@@ -574,6 +585,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   useEffect(() => {
     let live = true;
     let redirected = false;
+    const generation=++resultGeneration.current;
     const controller = new AbortController();
     setLoading(true);
     setFailure(undefined);
@@ -612,7 +624,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           location.replace(communityFeedHref(topicId, { category, following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), search, page: lastPage }));
           return;
         }
-        setData({ ...data, requestKey });
+        setData({ ...data, requestKey,generation });
       })
       .catch((e) => {
         if (live) setFailure({requestKey,kind:'request',message:errorMessage(e)});
@@ -778,7 +790,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {(category || following || search) && <button className="button subtle" onClick={() => choose({...emptyCommunityFeed(),...(solutions?{solutions:true}:{})})}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={post.id} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode}/>)
+              data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)
             )}
           </div>
           {!pending && !error && !sortingUnavailable && !solutionUnavailable && (
@@ -1061,7 +1073,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string
               </button>
               <PostBookmark key={`${id}:${owner}`} postId={id} owner={owner} bookmarked={post.viewer.bookmarked}
                 enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,providedReturnTo,replyTarget)}
-                disabled={busy||loading||editingPost||!!editingReply} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
+                disabled={busy||loading||accountLoading||editingPost||!!editingReply} hidden={accountLoading} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
               <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复','replies')}</button>
               {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
@@ -1271,7 +1283,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
   const [profile, setProfile] = useState<Profile>(),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
-    [activity, setActivity] = useState<Page<Activity>>({ items: [], total: 0 }),
+    [activity, setActivity] = useState<Page<Activity> & {generation?:number}>({ items: [], total: 0 }),
     [connections, setConnections] = useState<Page<Connection>>({
       items: [],
       total: 0,
@@ -1282,6 +1294,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
     [busy, setBusy] = useState(false),
     [revision, setRevision] = useState(0),
     [activityReveal, setActivityReveal] = useState(0);
+  const activityGeneration=useRef(0);
   const requested=readProfileRoute(route),view=requested?.username===username?requested:{username,tab:'posts' as ProfileTab,page:1};
   const waitingForSolutions=view.tab==='solutions'&&accountLoading;
   const unavailableSolutions=view.tab==='solutions'&&!accountLoading&&!profileSolutionsAvailable;
@@ -1330,6 +1343,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
     setActivityLoading(true);
     setActivityError("");
     if(waitingForSolutions)return;
+    const generation=++activityGeneration.current;
     const params = new URLSearchParams({
       offset: String(offset),
       limit: String(PAGE_SIZE),
@@ -1354,7 +1368,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
             const lastOffset=Math.max(0,Math.floor((data.total-1)/PAGE_SIZE)*PAGE_SIZE);
             if(offset>lastOffset){redirected=true;if(currentProfileHref()===returnTo)location.replace(profileFeedHref(username,{tab,page:lastOffset/PAGE_SIZE+1}));return;}
           }
-          setActivity(data);setLoadedActivityKey(activityKey);
+          setActivity({...data,generation});setLoadedActivityKey(activityKey);
         });
     promise
       .catch((e) => {
@@ -1614,7 +1628,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
             ) : activity.items.length ? (
               activity.items.map((item, index) => (
                 <div
-                  key={`${item.kind}-${item.reply?.id || item.post.id}-${index}`}
+                  key={`${activityKey}:${activity.generation}:${item.kind}-${item.reply?.id || item.post.id}-${index}`}
                 >
                   {item.reply ? (
                     <article className="profile-reply-card" data-reading-post={item.post.id} data-reading-reply={item.reply.id} data-reading-private-profile={profile.viewer.is_self&&item.post.anonymous===true?"true":undefined} data-reading-resumed={reading.resumedReply===item.reply.id||undefined}>
