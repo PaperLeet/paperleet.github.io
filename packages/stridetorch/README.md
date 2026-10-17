@@ -418,7 +418,14 @@ parity with future native versions. Complex AD and output buffers remain
 explicitly unsupported.
 
 Ordinary invertible `det` backward uses a linear solve instead of an SVD.
-Singular, underflowed and overflowed determinants retain the existing
+For 1×1 matrices, the value is copied directly and the derivative is exactly
+the incoming seed, including extreme finite scales and signed zero. Raw VJPs
+retain native seed-view layouts; stored leaf gradients still own their buffers.
+Factorization arithmetic is isolated from NumPy's floating-point error policy
+on runtimes that report IEEE status flags; the caller's policy and callback
+are restored. This also prevents valid finite matrices from raising a spurious
+NumPy floating-point error.
+Other singular, underflowed and overflowed determinants retain the existing
 polynomial-cofactor path. That legacy singular-gradient contract can differ
 from native PyTorch's first backward. `det` still requires finite real input;
 its JVP remains unsupported.

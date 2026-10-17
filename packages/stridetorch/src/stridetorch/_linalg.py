@@ -391,7 +391,20 @@ def det(input, *, out=None):
     if out is not None: raise _errors.BrowserUnsupported('Determinant output buffers require the server')
     if input.shape[-2] != input.shape[-1]: raise RuntimeError('det expects square matrices')
     source = input._data
-    value = np.linalg.det(source)
+    if source.shape[-1]==1:
+        # det([a]) == a, even at subnormal/maximum finite scales. Forming
+        # det*g and solving divides unnecessarily and can overflow its slope.
+        value=_layout.contiguous_empty(source[...,0,0].copy())
+        def scalar_vjp(g):
+            if not source.size:return _layout.gradient_copy(np.zeros_like(source),source)
+            seed=np.asarray(g)
+            return _layout.metadata_view(seed,source.shape,seed.strides+(seed.itemsize,seed.itemsize))
+        return _autograd.result(value,(input,scalar_vjp))
+    if _NUMPY_ERRORS_RAISE:
+        # LAPACK may leave IEEE status flags after a valid factorization.
+        # NumPy policy must not turn a finite Torch operation into an error.
+        with np.errstate(all='ignore'):value=np.linalg.det(source)
+    else:value=np.linalg.det(source)
     if not value.size:value=_layout.contiguous_empty(value)
     def vjp(g):
         if np.all(value!=0) and np.all(np.isfinite(value)):
