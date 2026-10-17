@@ -82,6 +82,10 @@ assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.e
 assert((manifest['src/EditorTools.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.editor-copy-manual')), 'Deferred editor controls must include recovery styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-share')), 'Batch sharing styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-share'))), 'Interview batches must include sharing styles');
+assert(manifest['src/InterviewBatchSave.tsx']?.isDynamicEntry&&!initial.has('src/InterviewBatchSave.tsx'), 'Private batch saving must load only after an explicit visit');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Save these ')), 'Private batch editing must stay out of the initial library shell');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-save-confirmed')), 'Private batch saving styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-save-confirmed'))), 'Batch saving must include its deferred confirmation styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.inbox-list-refresh')), 'Inbox reading continuity styles must remain deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.community-code-disclosure')), 'Code preview styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.community-code-disclosure'))), 'Long code readers must include disclosure styles');

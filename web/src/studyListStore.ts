@@ -4,7 +4,7 @@ export type StudyListsSnapshot={owner_id:string;revision:number;lists:StudyList[
 export type StudyListOperation={list_id:string}&({action:'create';title:string;problem_ids?:string[]}|{action:'rename';title:string}|{action:'delete'}|{action:'add';problem_ids:string[]}|{action:'remove';problem_id:string}|{action:'reorder';problem_ids:string[]});
 export type StudyListCommand=StudyListOperation&{expected_user_id:string;expected_revision:number;request_id:string};
 export type StudyListPending={command:StudyListCommand;busy:boolean;error?:string;conflict?:boolean;rejected?:boolean};
-export type StudyListsState={snapshot?:StudyListsSnapshot;loading:boolean;error:string;pending?:StudyListPending};
+export type StudyListsState={snapshot?:StudyListsSnapshot;loading:boolean;error:string;pending?:StudyListPending;confirmation?:{request_id:string;list_id:string;revision:number}};
 const id=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{32}$/.test(value);
 const problem=(value:unknown):value is string=>typeof value==='string'&&value.length<=180&&/^[a-z0-9_-]+\/[a-z0-9_-]+$/.test(value);
 const date=(value:unknown)=>typeof value==='string'&&Number.isFinite(Date.parse(value));
@@ -43,7 +43,7 @@ export function createStudyListStore(owner:string,request:(body?:StudyListComman
   try{
    const response=await request(command,AbortSignal.timeout(20_000)),snapshot=studyListsSnapshot(response,owner),ack=(response as {ack?:{request_id:string;operation:StudyListOperation;revision:number}}).ack;
    if(!ack||ack.request_id!==command.request_id||!same(ack.operation,operation(command))||!Number.isSafeInteger(ack.revision)||ack.revision<command.expected_revision||(['create','delete'].includes(command.action)&&ack.revision===command.expected_revision)||ack.revision>snapshot.revision||snapshot.revision===ack.revision&&!applied(snapshot,operation(command)))throw Error('The study-list change has not been confirmed. Retry to confirm it.');
-   emit({...state,snapshot:accept(snapshot),pending:undefined,error:''});changed();return true;
+   emit({...state,snapshot:accept(snapshot),pending:undefined,error:'',confirmation:{request_id:command.request_id,list_id:command.list_id,revision:ack.revision}});changed();return true;
   }catch(error){const e=error as {status?:number;code?:string};emit({...state,pending:{command,busy:false,error:error instanceof Error?error.message:'Could not save the study list.',conflict:e.code==='study_list_changed',rejected:!!e.status&&e.status>=400&&e.status<500&&![408,429].includes(e.status)&&e.code!=='study_list_changed'}});return false;}
  }
  return {subscribe:(fn:()=>void)=>{listeners.add(fn);return()=>{listeners.delete(fn);};},getSnapshot:()=>state,refresh,

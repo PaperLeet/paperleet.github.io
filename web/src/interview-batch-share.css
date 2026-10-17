@@ -1,14 +1,16 @@
 .interview-batch-share { margin-top:14px; padding-top:12px; border-top:1px solid var(--line); min-width:0; }
 .interview-batch-share-actions { display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; }
-.interview-batch-share-actions>button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:40px; padding:7px 9px; border:1px solid var(--line); border-radius:6px; color:var(--text-secondary); background:var(--surface); font:var(--type-small)/1.6 var(--font-sans); }
-.interview-batch-share-actions>button:hover { color:var(--accent); background:var(--surface2); }
-.interview-batch-share-actions>button[aria-disabled="true"] { cursor:wait; }
+.interview-batch-share-actions>:is(button,a) { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:40px; padding:7px 9px; border:1px solid var(--line); border-radius:6px; color:var(--text-secondary); background:var(--surface); font:var(--type-small)/1.6 var(--font-sans); }
+.interview-batch-share-actions>:is(button,a):hover { color:var(--accent); background:var(--surface2); }
+.interview-batch-share-actions>:is(button,a)[aria-disabled="true"] { cursor:wait; }
 .interview-batch-share>small { display:block; margin-top:7px; color:var(--muted); font-size:var(--type-small); line-height:1.7; }
 .interview-batch-share-feedback { margin:8px 0 0; color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }
 .interview-batch-share-manual { display:flex; flex-direction:column; gap:8px; margin-top:10px; color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; }
 .interview-batch-share-manual :is(input,textarea) { width:100%; min-width:0; box-sizing:border-box; padding:9px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface2); color:var(--text); font:var(--type-small)/1.7 var(--font-mono); }
 .interview-batch-share-manual textarea { resize:vertical; max-height:360px; overflow:auto; }
-@media(pointer:coarse) { .interview-batch-share-actions>button { min-height:44px; } }
-@media(max-width:480px) { .interview-batch-share-actions>button { flex:1 1 180px; } }
+@media(pointer:coarse) { .interview-batch-share-actions>:is(button,a) { min-height:44px; } }
+@media(max-width:480px) { .interview-batch-share-actions>:is(button,a) { flex:1 1 180px; } }
 
-.interview-batch-share :is(button,input,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.interview-batch-share :is(button,a,input,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+.interview-batch-save-panel[hidden] { display:none; }
