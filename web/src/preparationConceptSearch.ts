@@ -7,7 +7,7 @@ export function searchPreparationConcepts(problems:Problem[],query:string){
  const terms=fold(preparationConceptQuery(query)).split(/\s+/u).filter(Boolean);
  if(!terms.length)return problems;
  return problems.filter(problem=>{
-  const text=fold([problem.number,problem.id,problem.title,problem.translations?.en?.title,...(problem.module?.required_functions||[])].join('\n'));
+  const text=fold([`${problem.number}.`,problem.id,problem.title,problem.translations?.en?.title,...(problem.module?.required_functions||[])].join('\n'));
   return terms.every(term=>text.includes(term));
  });
 }

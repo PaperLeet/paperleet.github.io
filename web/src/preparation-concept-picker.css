@@ -4,3 +4,11 @@
 .preparation-concept-picker .preparation-guide-selector { min-width:0; padding:0; border:0; background:transparent; }
 .preparation-concept-picker .preparation-guide-selector select { min-height:44px; font-size:var(--type-body); }
 .preparation-concept-picker select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.preparation-concept-navigation { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding-top:2px; }
+.preparation-concept-navigation button { display:inline-flex; align-items:center; gap:6px; min-height:40px; max-width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:7px; color:var(--text-secondary); background:var(--surface); font:inherit; font-size:var(--type-small); text-align:start; white-space:normal; }
+.preparation-concept-navigation button svg { flex:none; }
+.preparation-concept-navigation button[aria-disabled=true] { color:var(--muted); cursor:default; background:var(--surface2); }
+.preparation-concept-navigation button:hover:not([aria-disabled=true]) { color:var(--accent); border-color:var(--accent); }
+.preparation-concept-navigation button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.preparation-concept-position { min-width:0; color:var(--muted); font-size:var(--type-small); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+@media(pointer:coarse) { .preparation-concept-navigation button { min-height:44px; } }
