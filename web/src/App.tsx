@@ -518,12 +518,13 @@ function Workspace() {
             <button
               className={`continue-link ${problem ? "active" : ""}`}
               aria-current={problem ? 'page' : undefined}
+              title={problem ? t("当前练习工作区", "Current practice workspace") : progressReady && problems.length > 0 && !resumeProblem ? idlePracticeLabel : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? t("继续练习", "Continue practice") : t("开始练习", "Start practice")}
               disabled={!problem && !resumeProblem}
               onClick={() => {
                 if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number, practiceReturn).slice(1);
               }}
             >
-              {problem ? <BilingualText zh="工作区" en="Workspace" /> : progressReady && problems.length > 0 && !resumeProblem ? idlePracticeLabel : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? <BilingualText zh="继续练习" en="Continue" /> : <BilingualText zh="开始练习" en="Start practice" />}
+              <BilingualText zh="工作区" en="Workspace" />
             </button>
             {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} aria-current={submissionPage ? 'page' : undefined} href={hostedAppHref("#/submit")}>
               <BilingualText zh="提交论文" en="Submit paper" />

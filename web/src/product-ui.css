@@ -157,7 +157,6 @@ input, select, textarea { accent-color: var(--accent); }
 .paper-source-card .text-button { display: inline-flex; align-items: center; gap: 6px; font-size: var(--type-small); }
 
 /* Make the workspace feel like a single instrument, with distinct control bands. */
-.workspace-view .nav-inner { max-width: none; padding-inline: 22px; }
 .workspace-view .workspace-toolbar { min-height: 48px; padding-inline: 22px; gap: 10px; }
 .workspace-toolbar > b { font-weight: 500; }
 .workspace-focus-toggle { border-radius: 6px; min-height: 32px; }

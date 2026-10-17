@@ -1,8 +1,9 @@
-/* Navigation items own their complete hit area and a symmetrically inset underline. */
+/* Keep navigation geometry stable across page, workspace and active states. */
+html { scrollbar-gutter:stable; }
 .app > .topbar { position:relative; z-index:60; }
 .topbar .nav-actions { gap:8px; }
 .topbar .nav-inner > nav { gap:4px; }
-.topbar .nav-inner > nav > :is(a,button) { display:inline-flex; justify-content:center; box-sizing:border-box; flex:none; min-width:0; padding-inline:12px; white-space:nowrap; }
+.topbar .nav-inner > nav > :is(a,button) { display:inline-flex; justify-content:center; box-sizing:border-box; flex:none; min-width:0; padding-inline:12px; white-space:nowrap; font-weight:600; }
 /* Center short labels within the space reserved for both translations. */
 .topbar .nav-inner > nav .bilingual-text { text-align:center; }
 .topbar .nav-inner > nav > .active::after { left:12px; right:12px; bottom:0; height:3px; border-radius:3px 3px 0 0; }
