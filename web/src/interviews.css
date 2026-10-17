@@ -59,6 +59,8 @@
 .interview-active-filters > button:not(.text-button) svg { flex:none; }
 .interview-active-filters > button:not(.text-button):hover { border-color:var(--line); color:var(--text); }
 .interview-active-filters > .text-button { margin-left:auto; min-height:40px; font-size:var(--type-small); }
+.interview-filter-bar:focus-visible,.interview-results-heading:focus-visible { outline:2px solid var(--accent); outline-offset:4px; border-radius:8px; }
+.interview-results-heading { scroll-margin-top:100px; }
 .interview-results-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-block:18px 12px; font-size:var(--type-small); color:var(--muted); }
 .interview-report-list { display:grid; gap:12px; }
 .interview-report-card { padding:20px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
