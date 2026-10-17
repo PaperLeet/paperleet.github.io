@@ -120,10 +120,10 @@ def test_pdist_empty_geometry_has_independent_zero_gradient_contract(shape,p,wor
 
 
 @pytest.mark.parametrize('kind',['cdist','pdist'])
-@pytest.mark.parametrize('rows',[3,32])
-def test_distance_saved_arrays_release_with_the_graph_and_do_not_keep_nonleaf_tensor(kind,rows):
-    a=torch.tensor(np.sin(np.arange(rows*2)+.2).reshape(rows,2),dtype=torch.float64,requires_grad=True)
-    b=torch.tensor([[.3,-.1],[1.4,.6]],dtype=torch.float64,requires_grad=True)
+@pytest.mark.parametrize('rows,features',[(3,2),(32,2),(128,128)])
+def test_distance_saved_arrays_release_with_the_graph_and_do_not_keep_nonleaf_tensor(kind,rows,features):
+    a=torch.tensor(np.sin(np.arange(rows*features)+.2).reshape(rows,features),dtype=torch.float64,requires_grad=True)
+    b=torch.tensor(np.cos(np.arange(2*features)+.3).reshape(2,features),dtype=torch.float64,requires_grad=True)
     x=a*2;y=b*3;owner=weakref.ref(x);storage=weakref.ref(x._data)
     value=torch.cdist(x,y,p=1.5) if kind=='cdist' else torch.pdist(x,p=1.5)
     del x,y;gc.collect();assert owner() is None and storage() is not None
@@ -189,8 +189,9 @@ def test_zero_distance_vjp_is_zero_even_for_nonfinite_upstream(kind,p,seed):
 
 @pytest.mark.parametrize('dtype',[torch.float32,torch.float64])
 @pytest.mark.parametrize('p',_ORDERS)
-def test_condensed_medium_pdist_values_and_gradients_match_scalar_pair_loops(dtype,p,workspace):
-    data=np.cos(np.arange(17*3)*.19+.2).reshape(17,3).astype(dtype)
+@pytest.mark.parametrize('features',[3,71])
+def test_condensed_medium_pdist_values_and_gradients_match_scalar_pair_loops(dtype,p,workspace,features):
+    data=np.cos(np.arange(17*features)*.19+.2).reshape(17,features).astype(dtype)
     seed=np.sin(np.arange(17*16//2)+.3).astype(dtype)
     expected=[];gradient=np.zeros(data.shape,dtype='float64');index=0
     for i in range(17):
@@ -202,4 +203,40 @@ def test_condensed_medium_pdist_values_and_gradients_match_scalar_pair_loops(dty
     (value*torch.tensor(seed)).sum().backward()
     tolerance=(3e-5,8e-6) if dtype==torch.float32 else (3e-12,3e-12)
     np.testing.assert_allclose(value.numpy(),expected,rtol=tolerance[0],atol=tolerance[1])
-    np.testing.assert_allclose(x.grad.numpy(),gradient,rtol=tolerance[0],atol=tolerance[1])
+    if dtype==torch.float32 and p==.5 and features==71:
+        # Cancellation also breaks strict componentwise native checks for this
+        # fixture; retain the documented compensated-reference norm contract.
+        error=x.grad.numpy().astype('float64')-gradient
+        assert np.linalg.norm(error)/np.linalg.norm(gradient)<=3e-6
+        assert np.max(np.abs(error))/np.max(np.abs(gradient))<=3e-6
+    else:np.testing.assert_allclose(x.grad.numpy(),gradient,rtol=tolerance[0],atol=tolerance[1])
+
+
+@pytest.mark.parametrize('dtype',[torch.float32,torch.float64])
+def test_feature_heavy_pdist_matches_independent_line_geometry_and_weighted_gradient(dtype):
+    rows,features=17,4097
+    data=np.broadcast_to(np.arange(rows,dtype=dtype)[:,None],(rows,features)).copy()
+    expected=[];gradient=np.zeros(rows);seed=np.arange(rows*(rows-1)//2)%7+1;position=0
+    for i in range(rows):
+        for j in range(i+1,rows):
+            expected.append((j-i)*math.sqrt(features))
+            gradient[i]-=float(seed[position])/math.sqrt(features);gradient[j]+=float(seed[position])/math.sqrt(features);position+=1
+    x=torch.tensor(data,requires_grad=True);value=torch.pdist(x)
+    (value*torch.tensor(seed,dtype=dtype)).sum().backward()
+    tolerance=3e-6 if dtype==torch.float32 else 3e-12
+    np.testing.assert_allclose(value.numpy(),expected,rtol=tolerance,atol=tolerance)
+    np.testing.assert_allclose(x.grad.numpy(),np.broadcast_to(gradient[:,None],data.shape),rtol=tolerance,atol=tolerance)
+
+
+@pytest.mark.parametrize('dtype',[torch.float32,torch.float64])
+def test_condensed_order_and_l1_weighted_gradient_cross_diagonal_and_feature_tiles(dtype,workspace):
+    rows,features=33,129
+    data=np.broadcast_to(np.arange(rows,dtype=dtype)[:,None],(rows,features)).copy()
+    seed=np.arange(rows*(rows-1)//2)%7+1;gradient=np.zeros(rows);expected=[];position=0
+    for i in range(rows):
+        for j in range(i+1,rows):
+            expected.append(features*(j-i));gradient[i]-=seed[position];gradient[j]+=seed[position];position+=1
+    x=torch.tensor(data,requires_grad=True);value=torch.pdist(x,p=1.)
+    (value*torch.tensor(seed,dtype=dtype)).sum().backward()
+    np.testing.assert_array_equal(value.numpy(),np.asarray(expected,dtype=dtype))
+    np.testing.assert_array_equal(x.grad.numpy(),np.broadcast_to(gradient[:,None],data.shape))

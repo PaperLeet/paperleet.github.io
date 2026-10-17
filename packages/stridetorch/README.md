@@ -559,6 +559,16 @@ Inferred complex32 storage is unavailable in NumPy and fails explicitly. Explici
 float32/64 or complex64/128 operands can still absorb a complex wrapped scalar;
 native `full` uses complex64 for complex fills with a float16 default.
 
+### Triangular distance tiles (0.60)
+
+Larger `pdist` forwards pack only diagonal tiles; off-diagonal tiles keep efficient
+broadcast differences. Every computed pair belongs to the condensed output.
+Forward uses a separate two-work-array model within the existing 8 MiB workspace
+budget. Backward retains its eight-work-array block plan and accumulation order.
+Feature chunk boundaries are unchanged. The 0.59 medium-input fast path remains.
+This trades a larger bounded forward working set for fewer tile operations;
+saved tape state and required gradient allocations follow the existing contract.
+
 ### Condensed distance forward scheduling (0.59)
 
 Medium `pdist` inputs calculate only the packed upper-triangle pairs when all

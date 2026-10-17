@@ -81,6 +81,33 @@ def _finish(value,p):
     return value
 
 
+def _pdist_forward(source,p,width,output):
+    rows,features=source.shape;dtype=source.dtype
+    # Forward has at most two feature work arrays. Backward keeps its own
+    # eight-array plan; both reserve 64 bytes of metadata per rectangular pair.
+    side=max(1,math.isqrt(_WORKSPACE_BYTES//(2*width*dtype.itemsize+64)))
+    for start in range(0,rows,side):
+        end=min(start+side,rows);left=np.arange(start,end)
+        for right in range(start,rows,side):
+            stop=min(right+side,rows);diagonal=right==start
+            if diagonal:
+                ii,jj=np.triu_indices(end-start,k=1);ii+=start;jj+=start
+            else:ii=left[:,None];jj=np.arange(right,stop)[None,:]
+            index=ii*(2*rows-ii-1)//2+jj-ii-1
+            value=np.zeros(index.shape,dtype=dtype)
+            for f in range(0,features,width):
+                span=slice(f,min(f+width,features))
+                if diagonal:
+                    delta=source[ii,span]
+                    np.subtract(delta,source[jj,span],out=delta)
+                else:delta=source[start:end,None,span]-source[None,right:stop,span]
+                part=_norm_chunk(delta,p,triangular=True)
+                if math.isinf(p):np.maximum(value,part,out=value)
+                else:np.add(value,part,out=value)
+                del delta,part
+            output[index]=_finish(value,p)
+
+
 def _direction(difference,lengths,seed,p):
     if p==1:
         np.sign(difference,out=difference);np.multiply(difference,seed[...,None],out=difference)
@@ -183,22 +210,20 @@ def _run(x1,x2,p,*,triangular=False):
             ii,jj=np.triu_indices(rows,k=1)
             output=_finish(_norm_chunk(sources[0][ii]-sources[0][jj],kernel_p,triangular=True),kernel_p)
             flat=output
+        elif triangular and features:
+            _pdist_forward(sources[0],kernel_p,plan[-1],output)
         elif features:
             for b,i,j in _blocks(batch,rows,columns,plan,triangular):
                 coords=_coordinates(b,batch_shape);value=np.zeros((b.stop-b.start,i.stop-i.start,j.stop-j.start),dtype=dtype)
                 for f in range(0,features,plan[-1]):
                     span=slice(f,min(f+plan[-1],features))
                     delta=_source(views[0],coords,i,span)[:,:,None,:]-_source(views[1],coords,j,span)[:,None,:,:]
-                    part=_norm_chunk(delta,kernel_p,triangular=triangular)
-                    if math.isinf(kernel_p):(np.maximum if triangular else np.fmax)(value,part,out=value)
+                    part=_norm_chunk(delta,kernel_p)
+                    if math.isinf(kernel_p):np.fmax(value,part,out=value)
                     else:np.add(value,part,out=value)
                     del delta,part
                 value=_finish(value,kernel_p)
-                if triangular:
-                    ii=np.arange(i.start,i.stop)[:,None];jj=np.arange(j.start,j.stop)[None,:];mask=jj>ii
-                    index=ii*(2*rows-ii-1)//2+jj-ii-1
-                    output[index[mask]]=value[0][mask]
-                else:flat[b,i,j]=value
+                flat[b,i,j]=value
     owner=weakref.ref(x1) if triangular else None
     def backward(seed,needs):
         current=owner() if triangular else None

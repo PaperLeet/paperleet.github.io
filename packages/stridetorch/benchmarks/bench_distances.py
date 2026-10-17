@@ -65,7 +65,7 @@ def run(baseline_source,candidate_source,samples=5):
         for p in [1.,2.]:
             for label,left,right in shapes:
                 for backward in [False,True]:plans.append(('cdist',dtype,p,label,left,right,backward,True))
-        for label,shape in [('small',(5,7)),('medium',(64,64)),('large',(128,128))]:
+        for label,shape in [('small',(5,7)),('medium',(64,64)),('large',(128,128)),('tall',(256,64)),('wide',(64,512)),('large_wide',(128,512)),('feature_tiles',(17,4097))]:
             for backward in [False,True]:plans.append(('pdist',dtype,2.,label,shape,shape,backward,True))
     for p in [0.,.5,1.5,3.,np.inf]:
         for backward in [False,True]:plans.append(('cdist','float32',p,'non_euclidean_order',(16,32),(20,32),backward,True))
@@ -113,9 +113,9 @@ def run(baseline_source,candidate_source,samples=5):
                 times[key].append((time.perf_counter()-start)/calls)
         medians={key:statistics.median(value) for key,value in times.items()}
         rows.append(dict(factory=kind,dtype=dtype,p=str(p),shape=label,left_shape=list(left),right_shape=list(right),mode='backward' if backward else 'forward',matched=matched,calls=calls,calibration=calibration,samples_s=times,median_s=medians,candidate_over_baseline=medians['candidate']/medians['baseline'] if matched else None))
-    assert len(rows)==62
+    assert len(rows)==78
     return dict(versions=dict(baseline=old.__version__,candidate=new.__version__),source_hashes=dict(baseline=oh,candidate=nh),samples=samples,rows=rows,
-                scope='62 matched rows against 0.58, including non-Euclidean orders and larger-feature workloads. Inputs, seeds and conversion are outside timing; graph construction, distance kernels, optional weighted backward, gradient clearing and result destruction are included. Shared calibrated batches >=20 ms, five samples, alternating variant order. No native Torch/GPU, cold-load or universal throughput claim.')
+                scope='78 matched rows against 0.59, including non-Euclidean orders, taller point sets and feature-heavy distance workloads. Inputs, seeds and conversion are outside timing; graph construction, distance kernels, optional weighted backward, gradient clearing and result destruction are included. Shared calibrated batches >=20 ms, five samples, alternating variant order. No native Torch/GPU, cold-load or universal throughput claim.')
 
 
 def memory(baseline_source,candidate_source):
@@ -123,12 +123,12 @@ def memory(baseline_source,candidate_source):
     old,oh=load('_distance_memory_baseline',baseline_source);new,nh=load('_distance_memory_candidate',candidate_source);rows=[]
     for label,module in [('baseline',old),('candidate',new)]:
         t=module.torch
-        for kind,shape in [('cdist',(128,128)),('pdist',(64,64)),('pdist',(128,128))]:
-            x=t.tensor(_data(shape,'float32',.2),requires_grad=True);y=t.tensor(_data((192,128),'float32',.7),requires_grad=True)
+        for kind,shape,dtype in [('cdist',(128,128),'float32'),('pdist',(64,64),'float32'),('pdist',(128,128),'float32'),('pdist',(128,128),'float64')]:
+            x=t.tensor(_data(shape,dtype,.2),requires_grad=True);y=t.tensor(_data((192,128),dtype,.7),requires_grad=True)
             gc.collect();tracemalloc.start()
             value=t.cdist(x,y,compute_mode='donot_use_mm_for_euclid_dist') if kind=='cdist' else t.pdist(x)
             retained,peak=tracemalloc.get_traced_memory();tracemalloc.stop();tracemalloc.start();value.sum().backward();_,backward_peak=tracemalloc.get_traced_memory();tracemalloc.stop()
-            rows.append(dict(variant=label,factory=kind,input_shape=list(shape),new_retained_bytes=retained,forward_peak_bytes=peak,backward_peak_bytes=backward_peak,result_bytes=value.numel()*value.element_size()))
+            rows.append(dict(variant=label,factory=kind,dtype=dtype,input_shape=list(shape),new_retained_bytes=retained,forward_peak_bytes=peak,backward_peak_bytes=backward_peak,result_bytes=value.numel()*value.element_size()))
             del x,y,value;gc.collect()
     return dict(source_hashes=dict(baseline=oh,candidate=nh),rows=rows,scope='CPU tracemalloc incremental tracked allocations with inputs created before tracing; forward retained/peak and separate backward peak. Pre-existing input storage is excluded in both variants. Not total tape memory, process RSS or WASM heap size.')
 
