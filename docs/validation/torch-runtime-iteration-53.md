@@ -194,3 +194,13 @@ in those archives. No CI trigger, tag, workflow dispatch, release, package uploa
 or online deployment is initiated by these local checks. Project renaming,
 broader core coverage, further allocation/kernel work and an optional persistent
 GPU execution chain remain part of the ongoing goal.
+
+## Main adoption
+
+Validated source `6483f99acca4d24736eca4a14dcead69f8455ea7` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 57 source/license resources, 161 active exports, 11,493 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
