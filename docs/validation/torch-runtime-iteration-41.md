@@ -100,3 +100,10 @@ frontend suite and both typed builds. Package dependencies, Python, SDK, catalog
 runtime and publishing-policy inputs did not change. All 49 source/license and
 161 export identities retain the numerical/full-WASM proof. See
 `iteration-41-main-sync.json` and `iteration-41-main-sync-harness.tar.gz`.
+
+Three later frontend/check/documentation changes through `4c10c09da377ab84eb69a195c49c1cd0446eb50d`
+were retained by a local rebase. Five affected suites and both typed builds pass;
+all 49 source/license and 161 active-export hashes remain exact. The earlier
+Community.tsx snapshot is explicitly superseded by this tested snapshot. See
+`iteration-41-main-sync-final.json` and its harness. No numerical/catalog input
+changed, and no numerical gate was replaced by frontend-only evidence.
