@@ -123,65 +123,6 @@ class ReLU(Module):
     def forward(self, input): return input.relu()
 
 
-def scaled_dot_product_attention_oracle(query, key, value, attn_mask=None, dropout_p=0.,
-                                        is_causal=False, *, scale=None, enable_gqa=False):
-    """Raw NumPy SDPA with its own analytical VJP, independent of learner ops."""
-    if dropout_p or enable_gqa or (is_causal and attn_mask is not None):
-        raise _errors.BrowserUnsupported('Dropout, grouped-query or combined causal/masked SDPA requires the server')
-    q, k, v = query._data, key._data, value._data
-    if q.ndim < 2 or k.ndim < 2 or v.ndim < 2 or q.shape[-1] != k.shape[-1] or k.shape[-2] != v.shape[-2]:
-        raise RuntimeError('Invalid SDPA shapes')
-    if q.dtype != k.dtype or q.dtype != v.dtype or q.dtype.kind != 'f':
-        raise RuntimeError('SDPA expects floating tensors with matching dtypes')
-    # A NumPy float64 scalar promotes float32 arrays under NumPy 2.x. A Python
-    # scalar keeps the input dtype, matching native attention's output contract.
-    factor = float(1 / np.sqrt(q.shape[-1])) if scale is None else float(scale)
-    scores = (q @ np.swapaxes(k, -1, -2)) * factor
-    if is_causal:
-        scores = np.where(np.arange(k.shape[-2])[None, :] <= np.arange(q.shape[-2])[:, None], scores, -np.inf)
-    if attn_mask is not None:
-        mask = _ops.wrap(attn_mask)._data
-        if mask.dtype.kind == 'b': scores = np.where(mask, scores, -np.inf)
-        elif mask.dtype == q.dtype: scores = scores + mask
-        else: raise RuntimeError('SDPA mask must be boolean or match the query dtype')
-    if scores.shape[-1]:
-        maximum = scores.max(axis=-1, keepdims=True)
-        exponentials = np.exp(scores - np.where(maximum == -np.inf, 0, maximum))
-        denominator = exponentials.sum(axis=-1, keepdims=True)
-        probabilities = np.divide(exponentials, denominator, out=np.zeros_like(exponentials), where=denominator != 0)
-    else:
-        probabilities = np.zeros_like(scores)
-
-    # One shared raw-NumPy pullback avoids retaining score/probability graph
-    # nodes and their logits allocation. Only probabilities and operands are
-    # needed for backward, and the seed is never cached between traversals.
-    operands, saved = [query, key, value], []
-    mask_shape = None
-    if isinstance(attn_mask, _tensor.Tensor):
-        if attn_mask.dtype.kind == 'f':
-            operands.append(attn_mask)
-            mask_shape = attn_mask.shape
-        else:
-            saved.append(attn_mask)
-
-    def backward(g, needs):
-        logits_gradient = None
-        if needs[0] or needs[1] or (mask_shape is not None and needs[3]):
-            incoming = g @ np.swapaxes(v, -1, -2)
-            logits_gradient = probabilities * (incoming - (incoming * probabilities).sum(axis=-1, keepdims=True))
-            del incoming
-        gradients = [
-            _ops.unbroadcast((logits_gradient @ k) * factor, q.shape) if needs[0] else None,
-            _ops.unbroadcast((np.swapaxes(logits_gradient, -1, -2) @ q) * factor, k.shape) if needs[1] else None,
-            _ops.unbroadcast(np.swapaxes(probabilities, -1, -2) @ g, v.shape) if needs[2] else None,
-        ]
-        if mask_shape is not None:
-            gradients.append(_ops.unbroadcast(logits_gradient, mask_shape) if needs[3] else None)
-        return gradients
-
-    return _autograd.joint_result(probabilities @ v, operands, backward, saved=saved)
-
-
 def layer_norm_oracle(x, normalized_shape, weight=None, bias=None, eps=1e-5):
     return _normalization.layer_norm(x,normalized_shape,weight,bias,eps)
 
@@ -571,3 +512,5 @@ def interpolate(input, size=None, scale_factor=None, mode='nearest', align_corne
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
 from . import _autograd, _average_pooling, _classification, _device, _errors, _normalization, _ops, _random, _state
+
+from ._attention import scaled_dot_product_attention as scaled_dot_product_attention_oracle

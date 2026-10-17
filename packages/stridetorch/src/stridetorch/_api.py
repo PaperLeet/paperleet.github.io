@@ -248,8 +248,8 @@ def create_torch(name='torch', *, register=False):
     }, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
         'normalize': _nn.normalize, 'smooth_l1_loss': _nn.smooth_l1_loss,
-        'scaled_dot_product_attention': _nn.scaled_dot_product_attention_oracle,
     }, reverse='analytic')
+    registry.add('torch.nn.functional.scaled_dot_product_attention', _nn.scaled_dot_product_attention_oracle, reverse='analytic', forward=True)
     registry.group('torch.linalg', {
         'inv': _linalg.inv, 'norm': _linalg.linalg_norm, 'svd': _linalg.svd, 'eigh': _linalg.eigh,
         'qr': _linalg.qr, 'eigvalsh': _linalg.eigvalsh, 'det': _linalg.det,

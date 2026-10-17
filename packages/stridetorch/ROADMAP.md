@@ -831,3 +831,18 @@ source-commit deployment was superseded and is not claimed as published.
 - Preserve10,703 prior payloads, latest upstream frontend work and seven policies.
   See the [iteration49 record](../../docs/validation/torch-runtime-iteration-49.md).
   Broader core API, efficiency and persistent GPU-backend evaluation remain active.
+
+## Math attention, grouped heads and forward AD (0.50)
+
+- Add GQA without repeated K/V storage, attention dropout with one shared mask,
+  exact JVPs and reverse-over-forward for operand/mask channels and shared views.
+- Preserve fused VJPs, explicit dtype/shape policies and a bounded metadata cache.
+- Validate 161 independent tests, 204 native math cases / 2,592 arrays, a native
+  mixed-AD encoder and checkpoint continuation, complete CPU/Node/Chrome/catalog
+  gates and 22 performance flows across 12 fresh children.
+- Record the stable zero derivative for fully-masked rows and native mixed-AD NaN
+  differences explicitly. Keep every ordinary/grouped/training timing and control.
+- See the [iteration 50 record](../../docs/validation/torch-runtime-iteration-50.md).
+  Multihead/Transformer modules, larger-sequence memory/throughput, further core
+  coverage, measured attention validation/setup overhead and a persistent GPU
+  backend remain active work.

@@ -387,3 +387,13 @@ children per CPU/Node/Chrome retain actual strategy/matrix qualification, every
 sample and all source hashes. Safe legacy halos, ordinary/transpose controls
 and same-source padded/gather/tap controls bound the claims. See the
 [0.49 validation record](../../../docs/validation/torch-runtime-iteration-49.md).
+
+## Math attention and grouped heads (0.50)
+
+`bench_attention.py` accepts `--baseline-source`, `--candidate-source`, `--output`,
+optional `--samples`, `--calls` and `--reverse`. It loads actual independent library
+snapshots, compares old explicit K/V repetition with grouped contractions and a
+same-source repeated control, and checks values/all VJPs plus three encoder SGD
+updates before timing. Four fresh CPU/Node/Chrome children per runtime retain all
+22 flows and samples. See the [validation record](../../../docs/validation/torch-runtime-iteration-50.md)
+for regressions, the fully-masked mixed-AD boundary and the scope of each claim.

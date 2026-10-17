@@ -376,8 +376,11 @@ def test_independent_sdpa_oracle_matches_native_values_and_all_gradients(dtype, 
     if mask_kind in ('boolean', 'additive'):
         assert np.count_nonzero(a.numpy()[:, :, 1]) == 0
         assert np.count_nonzero(a_grad[0].numpy()[:, :, 1]) == 0
-    with pytest.raises(wasm.BrowserUnsupported): wasm.scaled_dot_product_attention_oracle(*inputs[:3], dropout_p=.1)
-    with pytest.raises(wasm.BrowserUnsupported): wasm.scaled_dot_product_attention_oracle(*inputs[:3], enable_gqa=True)
+    # Dropout and valid grouped heads now have independently tested local rules.
+    zeroed = wasm.scaled_dot_product_attention_oracle(*inputs[:3], dropout_p=1.)
+    np.testing.assert_array_equal(zeroed.numpy(), 0.)
+    grouped = wasm.scaled_dot_product_attention_oracle(*inputs[:3], enable_gqa=True)
+    np.testing.assert_allclose(grouped.numpy(), wasm.scaled_dot_product_attention_oracle(*inputs[:3]).numpy(), rtol=tolerance, atol=tolerance)
 
 
 @pytest.mark.parametrize('dtype', [np.float32, np.float64])

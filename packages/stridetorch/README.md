@@ -1376,3 +1376,31 @@ in [NOTICE](NOTICE). Installed packages and `runtime.source_files()` include bot
 files, including the smaller schedules profile. PaperLeet's private bundled copy
 carries the same notices. This license applies to `packages/stridetorch/`;
 it does not set a license for the rest of the application or its dependencies.
+
+
+### Math attention, grouped heads and forward AD (0.50)
+
+`torch.nn.functional.scaled_dot_product_attention` supports float32/float64
+math attention, boolean/additive broadcast masks, causal masking, custom scales,
+GQA, dropout, analytical reverse AD and `torch.func.jvp`. K and V head counts may
+differ; each must divide the query head count. Grouped contractions broadcast
+K/V heads inside their query groups instead of materializing repeated K/V arrays.
+The ordinary path keeps a shared fused NumPy pullback. Q/K are scaled before the
+dot product, avoiding premature overflow in tested large finite float32/float64
+cases, including negative and zero scales. A bounded 64-entry cache
+stores immutable shape checks only, with no tensor, activation or RNG state.
+
+Both primal and tangent channels support reverse differentiation, including mask
+primals/tangents and shared operands. Fully masked rows have zero output and
+zero derivatives through mixed AD. This stable behavior differs from NaNs in
+PyTorch 2.14.1 math SDPA's fully-masked mixed-AD corner; independent finite
+differences and a native compositional safe-softmax reference check that rule.
+Ordinary values, JVPs and first derivatives are also compared against native SDPA.
+
+Dropout is applied whenever `dropout_p > 0`, including evaluation code; pass zero
+explicitly for evaluation. Each invocation samples one Bernoulli multiplier shared
+by the primal, tangent and retained backward traversals. It follows this library's
+RNG stream and distribution, not native Torch's seeded dropout bit stream. Valid
+probabilities are in `[0,1]`; negative and NaN values are rejected. A causal flag
+and explicit mask cannot be combined. This is CPU/Pyodide math execution, with
+no FlashAttention, GPU or native PyTorch binary dependency.
