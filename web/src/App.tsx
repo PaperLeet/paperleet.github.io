@@ -5,8 +5,7 @@ import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
-import { Highlight } from "./SyntaxHighlight";
-import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, ProblemSolutions, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
+import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -795,37 +794,7 @@ function Workspace() {
                     />
                   )
                 ) : tab === "solution" ? (
-                  <section className="solution-panel">
-                    <div className="reference-solution">
-                    <h2>{t("参考实现", "Reference implementation")}</h2>
-                    <p>
-                      {t(
-                        "建议先用测试结果定位问题，再对照参考解。",
-                        "Use test results to find the issue before checking the reference.",
-                      )}
-                    </p>
-                    <details>
-                      <summary>
-                        <BookOpen size={16} />
-                        {t(
-                          "展开参考解（包含答案）",
-                          "Reveal reference solution (spoilers)",
-                        )}
-                      </summary>
-                      {problem.solution ? (
-                        <Highlight code={problem.solution} />
-                      ) : (
-                        <div className="notice">
-                          {t(
-                            "参考实现尚未提供。",
-                            "No reference implementation is available yet.",
-                          )}
-                        </div>
-                      )}
-                    </details>
-                    </div>
-                    {hostedAppAvailable&&<ProblemSolutions key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} onCode={openEditor}/>}
-                  </section>
+                  <ProblemSolutionPanel key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor}/>
                 ) : (
                   <>
                     <div className="problem-heading">

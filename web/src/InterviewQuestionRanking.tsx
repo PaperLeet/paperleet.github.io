@@ -1,9 +1,11 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {ArrowRight,BookOpen,CheckCircle2,Clock3,RefreshCw} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
 import {interviewCatalog,type InterviewSummary} from './interviewModels';
 import InterviewCompanySources from './InterviewCompanySources';
+import InterviewSourcePreview from './InterviewSourcePreview';
+import {interviewSourceHref} from './interviewSourcePreviewModel';
 import {rolePreparationPaths} from './interviewPreparation';
 import {interviewHref,type InterviewFilters,type InterviewStudyState} from './interviewNavigation';
 import {interviewPracticeHref} from './interviewPracticeBatch';
@@ -15,9 +17,9 @@ import type {ReactNode} from 'react';
 import './interview-ranking.css';
 
 type PracticeFilter=InterviewStudyState;
-type Props={filters:InterviewFilters;questions:InterviewSummary['questions'];problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;catalogError?:string;onRetryProgress?:()=>void;onRetryCatalog?:()=>void;onClearSearch:()=>void;emptyAction?:ReactNode};
+type Props={filters:InterviewFilters;questions:InterviewSummary['questions'];problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;catalogError?:string;onRetryProgress?:()=>void;onRetryCatalog?:()=>void;onClearSearch:()=>void;emptyAction?:ReactNode;owner?:string;accountLoading?:boolean;sourceReturn?:{id:number;concept:string};onSourceReturnReady?:(id:number)=>void;onSourceReturnPending?:(id:number)=>void;onSourceReturnCancel?:(id:number)=>void};
 
-export default function InterviewQuestionRanking({filters,questions,problems,saved,ready:loaded,error,catalogError,onRetryProgress,onRetryCatalog,onClearSearch,emptyAction}:Props){
+export default function InterviewQuestionRanking({filters,questions,problems,saved,ready:loaded,error,catalogError,onRetryProgress,onRetryCatalog,onClearSearch,emptyAction,owner='guest',accountLoading=false,sourceReturn,onSourceReturnReady,onSourceReturnPending,onSourceReturnCancel}:Props){
  const {t,locale}=useI18n();
  const source=questions.length?'reports':'curated';
  const curated=source==='curated';
@@ -46,8 +48,16 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  const active=progressResolved?selected:'all';
  const limit=selection.scope===scope&&selection.source===source&&selection.value===selected?selection.limit:6;
  const counts={all:rows.length,todo:rows.filter(row=>row.state==='todo').length,started:rows.filter(row=>row.state==='started').length,done:rows.filter(row=>row.state==='done').length};
- const matching=rows.filter(row=>active==='all'||row.state===active),shown=matching.slice(0,limit);
+ const matching=rows.filter(row=>active==='all'||row.state===active);
+ const returnIndex=sourceReturn?matching.findIndex(row=>row.id===sourceReturn.concept):-1;
+ const shownLimit=Math.max(limit,returnIndex+1),shown=matching.slice(0,shownLimit);
  const moreCount=Math.min(6,matching.length-shown.length);
+ // Keep an origin beyond the compact first page mounted after the return is consumed.
+ useLayoutEffect(()=>{if(returnIndex>=limit)setSelection({scope,source,value:selected,limit:returnIndex+1});},[returnIndex,limit,scope,source,selected]);
+ const returnReady=useRef(onSourceReturnReady);returnReady.current=onSourceReturnReady;
+ useEffect(()=>{
+  if(sourceReturn&&returnIndex<0&&(curated||(!unavailable||!!problems.length||!!catalogError)&&(selected==='all'||ready||!!error)))returnReady.current?.(sourceReturn.id);
+ },[sourceReturn?.id,sourceReturn?.concept,returnIndex,curated,unavailable,problems.length,catalogError,selected,ready,error]);
  const revealFocus=useRef<{id:string;button:HTMLButtonElement}>(undefined);
  useEffect(()=>{
   const request=revealFocus.current;
@@ -78,7 +88,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
   {(candidates.length>0||group.numbers.length>0||!!filters.queue||!!group.change)&&<InterviewPracticeGroup group={group} onRetryCatalog={onRetryCatalog}/>}
   {shown.length?<div className="interview-ranking-list">{shown.map(({id,evidence,problem,matches,rank,state})=>{
    const name=problem?title(problem):id;
-   const sources=interviewHref({...filters,view:'reports',page:1,q:'',concept:id,saved:false});
+   const sources=interviewSourceHref(filters,id);
    const heading=`interview-ranked-${encodeURIComponent(id)}`;
    return <article key={id} className="interview-ranking-row" aria-labelledby={heading}>
     <span className="interview-rank" aria-label={curated?t('编辑推荐练习','Curated exercise'):t(`社区排序第 ${rank} 位`,`Community rank ${rank}`)}>{curated?<BookOpen size={14}/>:String(rank).padStart(2,'0')}</span>
@@ -87,7 +97,8 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
      {problem&&<p className="interview-ranking-module-meta">{[({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[problem.difficulty],problem.estimated_minutes?`${problem.estimated_minutes} min`:''].filter(Boolean).join(' · ')}</p>}
      {evidence?<InterviewCompanySources companies={evidence.companies} problemId={id} name={name} filters={filters}/>:problem&&<p className="interview-curated-goal">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</p>}
     </div>
-    <div className="interview-ranking-actions">{evidence?<span className="interview-ranking-evidence"><span><b>{evidence.contributors}</b> {t('位分享者',evidence.contributors===1?'contributor':'contributors')}</span><a href={sources}>{t(`查看 ${evidence.reports} 篇来源`,`Read ${evidence.reports} source ${evidence.reports===1?'report':'reports'}`)}</a></span>:<small className="interview-curated-label">{t('编辑推荐','Curated practice')}</small>}{problem?<><a className="button subtle" href={practice(problem)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}<ArrowRight size={13}/></a><InterviewGroupToggle problem={problem} name={name} group={group}/></>:<small>{t('练习暂不可用','Practice unavailable')}</small>}</div>
+    <div className="interview-ranking-actions">{!evidence&&<small className="interview-curated-label">{t('编辑推荐','Curated practice')}</small>}{problem?<><a className="button subtle" href={practice(problem)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}<ArrowRight size={13}/></a><InterviewGroupToggle problem={problem} name={name} group={group}/></>:<small>{t('练习暂不可用','Practice unavailable')}</small>}</div>
+    {evidence&&<InterviewSourcePreview concept={id} name={name} reports={evidence.reports} contributors={evidence.contributors} sourceHref={sources} returnTo={scope} owner={owner} accountLoading={accountLoading} returnId={sourceReturn?.concept===id?sourceReturn.id:undefined} onReturnReady={onSourceReturnReady} onReturnPending={onSourceReturnPending} onReturnCancel={onSourceReturnCancel}/>}
     {problem&&<PreparationGuide problemId={problem.id} practiceHref={practice(problem)}/>}
    </article>;
   })}</div>:<div className="interview-empty"><BookOpen size={27}/><h3>{rows.length?t('当前状态下没有知识点','No concepts with this learning state'):filters.q&&unavailable?t('练习信息未齐，搜索暂不完整','Search is waiting for practice details'):filters.q?t('没有匹配的知识点','No matching concepts'):t('当前范围暂无编辑推荐练习','No curated exercises in this view')}</h3><p>{rows.length?curated?t('可以切换学习状态，继续准备其他知识点。','Switch learning states to prepare another concept.'):t('可以切换学习状态，继续阅读来源面经或准备其他知识点。','Switch learning states to read the source experiences or prepare another concept.'):filters.q&&unavailable?curated?t('清除搜索可浏览编辑题单，或重试加载练习信息后再搜索。','Clear search to browse the curated exercises, or retry practice details before searching again.'):t('清除搜索可阅读已汇总的全部来源，或重试加载练习信息后再搜索。','Clear search to read all available sources, or retry practice details before searching again.'):t('可以调整岗位或知识点筛选，或继续浏览下方的准备路径。','Adjust the role or concept filters, or browse the preparation paths below.')}</p>{rows.length?<button type="button" className="button subtle" onClick={()=>choose('all')}>{t('显示全部状态','Show all learning states')}</button>:filters.q?<button type="button" className="button subtle" onClick={onClearSearch}>{t('清空搜索','Clear search')}</button>:emptyAction}</div>}
