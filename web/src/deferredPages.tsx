@@ -24,7 +24,8 @@ export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), 
 
 export const InboxBell = deferredFeature(() => import('./InboxBell'), ['通知', 'notifications'], {loading: () => null});
 export const Messages = deferredFeature(() => import('./Messages'), ['私信', 'messages']);
-export const ReadingTabControls = deferredFeature(() => import('./ReadingTabControls'), ['题目选项导航','problem tab navigation'], {loading:()=>null,failure:()=>null});
+// These optional controls render nothing while loading or after failure.
+export const ReadingTabControls = deferredFeature(() => import('./ReadingTabControls'), ['',''], {loading:()=>null,failure:()=>null});
 
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDetail').default>[0]&{recovery:EditorRecovery}>(() => import('./PaperDetail'), ['论文详情','paper details'], {
@@ -32,7 +33,7 @@ export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDeta
 });
 
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
-export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['公司面经关联','company mentions'], {loading:()=>null,failure:()=>null});
+export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['',''], {loading:()=>null,failure:()=>null});
 export const PreparationGuide = deferredFeature(() => import('./PreparationGuide'), ['面试自测提纲','study prompts'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试自测提纲','Retry study prompts']}/>});
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
 export const DraftCenter = deferredFeature(() => import('./DraftCenter'), ['创作草稿','writing drafts']);
@@ -45,7 +46,7 @@ export const SubmissionResultPage = deferredFeature(() => import('./SubmissionRe
 export const ResizableSplit = deferredFeature(() => import('./ResizableSplit'), ['做题布局', 'workspace layout']);
 export const SettingsPage = deferredFeature(() => import('./Settings'), ['设置', 'settings']);
 export const Achievements = deferredFeature(() => import('./Achievements'), ['学习勋章', 'achievements']);
-export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), ['勋章提示', 'achievement notifications'], {loading: () => null, failure: () => null});
+export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), ['',''], {loading: () => null, failure: () => null});
 export const WorkspaceLayoutMenu = deferredFeature(() => import('./WorkspaceLayoutMenu'), ['布局选项', 'layout options'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试布局选项','Retry layout options']}/>});
 export const JudgeRuntimeDetails = deferredFeature(() => import('./JudgeRuntimeDetails'), ['运行说明','run details'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry}/>});
 function RuntimeDetailsFailure({retry,label=['重试加载运行说明','Retry run details']}:{retry:()=>void;label?:[string,string]}) {

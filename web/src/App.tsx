@@ -817,7 +817,7 @@ function Workspace() {
                       <h1>
                         {problem.number}. {problem.title}
                       </h1>
-                    <ProblemCompanyTags problemId={problem.id} />
+                    <ProblemCompanyTags problemId={problem.id} number={problem.number} onCode={openEditor}/>
                       <div className="heading-tags">
                         <span className={`difficulty ${problem.difficulty}`}>
                           {({ E: t("简单", "Easy"), M: t("中等", "Medium"), H: t("困难", "Hard") } as Record<string,string>)[problem.difficulty] || problem.difficulty}

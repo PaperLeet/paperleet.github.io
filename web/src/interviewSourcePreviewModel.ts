@@ -1,3 +1,4 @@
+import {libraryReturnHref} from './libraryNavigation';
 import {interviewCatalog,readInterviewFeed} from './interviewModels';
 import {interviewHref,readInterviewRoute,type InterviewFilters} from './interviewNavigation';
 
@@ -23,4 +24,17 @@ export function readInterviewSourcePreview(raw:unknown,href:string){
   if(feed.items.some(post=>post.solution===true||!post.interview.questions.includes(filters.concept)||(['company','role','stage'] as const).some(key=>filters[key]&&post.interview[key]!==filters[key])))return;
   if(feed.items.some(post=>(post.anonymous===true||post.author.anonymous===true||post.author.id.startsWith('anonymous:'))&&(post.author.anonymous!==true||post.author.id!=='anonymous:'+post.id||post.author.username!=='')))return;
   return feed;
+}
+
+/** A local practice preview may carry only its known public module and existing library context. */
+export function interviewPracticePreviewScope(href:string,concept:string,number?:number):string|undefined{
+ if(href.length>8192||!href.startsWith('#/'))return;
+ const raw=href.slice(2),query=raw.indexOf('?');
+ try{
+  const path=decodeURIComponent(query<0?raw:raw.slice(0,query));
+  if(path!==concept&&!(Number.isSafeInteger(number)&&number!==undefined&&number>0&&path===String(number)))return;
+  if(!/^[a-z0-9_-]+\/[a-z0-9_-]+$/.test(concept))return;
+  if(query>=0){const params=new URLSearchParams(raw.slice(query+1));if([...params.keys()].length!==1||!params.get('from')||!libraryReturnHref(href))return;}
+  return href;
+ }catch{return;}
 }
