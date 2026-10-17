@@ -33,6 +33,9 @@ try {
   const mount = async () => {
     root = createRoot(find('#root'));
     await act(async () => root.render(h(LocaleProvider, null, h(Library))));
+    const deadline=Date.now()+8000;
+    while(!find('.difficulty-summary.E')&&Date.now()<deadline)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+    assert(find('.difficulty-summary.E'),'The deferred practice overview must become available');
   };
   await mount();
   await click(find('[aria-label="紧凑列表"]'));

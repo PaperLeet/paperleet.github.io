@@ -459,10 +459,10 @@ try {
     const expected=scenario==='empty'||scenario==='optional-only'?(locale==='en'?'No core modules in this view':'当前范围暂无核心模块'):
       scenario==='filtered-complete'?(locale==='en'?'Core modules complete in this view':'本范围核心模块已完成'):
       scenario==='all-complete'?(locale==='en'?'Core modules complete':'核心模块已完成'):undefined;
-    if(expected) await settle(()=>find('.topbar .continue-link')?.textContent===expected);
-    else await settle(()=>find('.topbar .continue-link')?.textContent.includes('Start practice'));
+    await settle(()=>find('.topbar .continue-link')?.title===(expected||(locale==='en'?'Start practice':'开始练习')));
+    assert.equal(find('.topbar .continue-link [aria-hidden="false"]').textContent,locale==='en'?'Workspace':'工作区','Navigation keeps a stable label while its title explains the current practice state');
     assert(find('.topbar .continue-link').disabled, 'An empty, complete or loading view cannot start a fabricated next module');
-    if(scenario==='loading')assert(!find('.topbar .continue-link').textContent.includes('Core modules complete'),'Pending progress must not claim completion');
+    if(scenario==='loading')assert(!find('.topbar .continue-link').title.includes('Core modules complete'),'Pending progress must not claim completion');
     await act(async()=>root.unmount());root=undefined;
   }
   fixture.practice.ready=true;fixture.practice.loading=false;fixture.practice.saved={};fixture.learning.ready=true;
