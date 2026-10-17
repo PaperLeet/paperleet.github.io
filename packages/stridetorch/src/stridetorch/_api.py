@@ -53,6 +53,7 @@ def create_torch(name='torch', *, register=False):
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
         (_pooling,('MaxPool1d','MaxPool2d')),
+        (_pooling3d,('MaxPool3d',)),
         (_average_pooling,('AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d')),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
@@ -72,7 +73,7 @@ def create_torch(name='torch', *, register=False):
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'conv':('Conv1d','Conv2d','Conv3d'),
-        'pooling':('MaxPool1d','MaxPool2d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d'),
+        'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
@@ -218,9 +219,11 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.adaptive_avg_pool1d', _average_pooling.adaptive_avg_pool1d, reverse='analytic', forward=True)
     registry.add('torch.max_pool1d', _pooling.torch_max_pool1d, reverse='analytic', forward=True)
     registry.add('torch.max_pool1d_with_indices', _pooling.torch_max_pool1d_with_indices, reverse='analytic', forward=True)
+    registry.add('torch.max_pool3d', _pooling3d.torch_max_pool3d, reverse='analytic', forward=True)
     registry.add('torch.max_pool2d', _pooling.torch_max_pool2d, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
         'max_pool1d': _pooling.max_pool1d, 'max_pool1d_with_indices': _pooling.max_pool1d_with_indices,
+        'max_pool3d': _pooling3d.max_pool3d, 'max_pool3d_with_indices': _pooling3d.max_pool3d_with_indices,
         'max_pool2d': _pooling.max_pool2d, 'max_pool2d_with_indices': _pooling.max_pool2d_with_indices,
         'avg_pool1d': _average_pooling.avg_pool1d,
         'adaptive_avg_pool1d': _average_pooling.adaptive_avg_pool1d,
@@ -259,4 +262,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _average_pooling, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _average_pooling, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor

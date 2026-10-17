@@ -5,6 +5,20 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_max_pooling_3d.py` uses the source-directory interface below and needs
+the supported 0.42 2D/1D pooling APIs in its baseline. Its 62 float32/float64
+flows compare direct 3D pooling with separable 2D/1D composition, including
+flattened-index recombination and output layout restoration. The candidate
+composition is a control for changes in shared code. Cases cover cube/slab,
+overlap/dilation/larger inputs, strided and NDHWC arrays, returned indices,
+full VJP/JVP and Conv3d–SiLU–pool–linear–loss–momentum SGD. Every result and a
+complete training update are checked before timing. Use seven samples and
+forty calls (five training), alternate `--reverse` across fresh processes,
+and retain every sample and all source/license hashes. Keep this script beside
+`bench_max_pooling_1d.py`, which supplies its loader/timer. The same script runs
+in Pyodide. This is a comparison with an existing-library composition, without
+native-Torch, GPU, import, transfer or uniform-speedup claims.
+
 `bench_max_pooling_1d.py` accepts the same source-directory, sample-count,
 iteration-count, reverse-order and output arguments as the average-pooling
 comparison below. Its baseline needs 0.41: 2D max pooling plus 1D adaptive

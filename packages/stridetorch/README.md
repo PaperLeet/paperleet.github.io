@@ -125,6 +125,19 @@ explicit unsupported operation. Valid 1D kernels above 8,000,000 taps require
 the server. Conventional contiguous strides are preserved for empty values
 and indices.
 
+`nn.MaxPool3d`, `nn.functional.max_pool3d` and `max_pool3d_with_indices`
+support CDHW/NCDHW inputs, empty batches, stride, padding, dilation, ceil mode
+and per-channel flattened int64 indices. The root `torch.max_pool3d` returns
+values. Float16 and supported integer types work with either return form;
+float32/float64 support reverse AD, JVP and reverse-over-forward. Positive
+strided NumPy inputs with an NDHWC layout preserve native channels-last output
+and index strides. JVP follows the native contiguous layout for ambiguous
+singleton outputs. This does not add general `channels_last_3d` conversion APIs.
+The three MaxPool Module classes are siblings. Three-dimensional packing uses
+the same 32 MiB workspace guard, with specialized 1/2-edge blocks and an ordered
+scan fallback. Valid kernels or outputs above 8,000,000 points and input spatial
+indices beyond the runtime's pointer range require the server.
+
 `torch.nn.MaxPool2d`, `torch.nn.functional.max_pool2d` and
 `max_pool2d_with_indices` support batched/unbatched 2D inputs, noncontiguous
 arrays, empty batches, stride, padding, dilation and ceil mode. Indices are

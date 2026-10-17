@@ -680,6 +680,24 @@ source-commit deployment was superseded and is not claimed as published.
 - Full original catalog, latest frontend, typed builds and immutable export
   identity gates precede main adoption; CI/tag/publishing remain user-controlled.
 
+## 0.43: volumetric max pooling and native layout routes
+
+- Add MaxPool3d and functional/root value/index aliases, CDHW/NCDHW geometry,
+  integer/half inference, float32/64 VJP/JVP/reverse tangent and empty batches.
+- Preserve ordered selection and flattened index storage, NDHWC value/index
+  strides and native ambiguous-singleton tangent strides. Keep public MaxPool
+  classes as siblings and share the existing graph/scatter machinery.
+- Add cube/slab block kernels, bounded packing and reachable-tap 3D scans.
+  Retain explicit resource/empty-sampling/AD dtype boundaries.
+- Validate 37,450 CPU tests, 3,822 tests in Node and Chrome WASM each, 3,835
+  minimum-environment wheel tests, 944 native-reference trials, original 78/342
+  catalog flows and complete 62-flow performance cases in 12 fresh children.
+- Preserve all 9,755 prior immutable payloads and all release rules. See
+  [the 0.43 validation record](../../docs/validation/torch-runtime-iteration-43.md).
+  The measured overlap-window regression motivates a separable numerical
+  reduction path next, preserving native NaN/index/layout and derivative rules.
+  Independent-library, broader core API and GPU/backend work remains active.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

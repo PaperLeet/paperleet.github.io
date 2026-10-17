@@ -181,16 +181,16 @@ def _block(data, geometry, need_indices):
     return value, indices
 
 
-def _scatter(seed, indices, shape, nonoverlap):
-    planes = math.prod(shape[:-2]);points = math.prod(indices.shape[-2:])
-    result = np.zeros((planes, shape[-2] * shape[-1]), dtype=seed.dtype)
+def _scatter(seed, indices, shape, nonoverlap, spatial_dims=2):
+    planes = math.prod(shape[:-spatial_dims]);points = math.prod(indices.shape[-spatial_dims:])
+    result = np.zeros((planes, math.prod(shape[-spatial_dims:])), dtype=seed.dtype)
     key = np.arange(planes)[:, None], indices.reshape(planes, points)
     if nonoverlap: result[key] += seed.reshape(planes, points)
     else: np.add.at(result, key, seed.reshape(planes, points))
     return result.reshape(shape)
 
 
-def _apply(input, geometry, return_indices, *, spatial_dims=2):
+def _apply(input, geometry, return_indices, *, spatial_dims=2, engine=None):
     forward = isinstance(input, _autograd.ForwardTensor)
     primal = input._primal if forward else input
     kernel, stride, _, dilation, out = geometry
@@ -198,17 +198,24 @@ def _apply(input, geometry, return_indices, *, spatial_dims=2):
     one_dimensional = spatial_dims == 1
     values = primal._data[..., None, :] if one_dimensional else primal._data
     shape = values.shape
+    dimensions = len(kernel)
     need_indices = bool(return_indices) or forward or primal.requires_grad and _state._grad_enabled
-    if (forward or primal.requires_grad and _state._grad_enabled) and math.prod(shape[:-2]):
+    if (forward or primal.requires_grad and _state._grad_enabled) and math.prod(shape[:-dimensions]):
         _, first = _coordinates(shape, geometry)
-        if np.any(first[0] >= shape[-2]) or np.any(first[1] >= shape[-1]):
-            raise _errors.BrowserUnsupported('max_pool2d derivatives for empty dilated sampling windows require the server')
+        if any(np.any(start >= size) for start, size in zip(first, shape[-dimensions:])):
+            raise _errors.BrowserUnsupported('max pooling derivatives for empty dilated sampling windows require the server')
     if _ALGORITHM not in ('auto', 'scan', 'window', 'block'): raise ValueError('Unknown internal pooling algorithm')
-    block = _ALGORITHM in ('auto', 'block') and _block_eligible(values, geometry)
+    block_eligible = _block_eligible if engine is None else engine._block_eligible
+    workspace = _window_workspace if engine is None else engine._window_workspace
+    block = _ALGORITHM in ('auto', 'block') and block_eligible(values, geometry)
     window = (_ALGORITHM == 'window' or _ALGORITHM == 'auto' and (need_indices or math.prod(kernel) >= 16))
-    window = window and _window_workspace(values, geometry) <= _WINDOW_WORKSPACE_BYTES
-    compute = _block if block else _window if window else _scan
+    window = window and workspace(values, geometry) <= _WINDOW_WORKSPACE_BYTES
+    if engine is None: compute = _block if block else _window if window else _scan
+    else: compute = engine._block if block else engine._window if window else engine._scan
     data, indices = compute(values, geometry, need_indices)
+    if engine is not None:
+        data = engine._format_output(values, data)
+        if indices is not None: indices = engine._format_output(values, indices)
     if one_dimensional: data = data[..., 0, :]
     if not data.size: data = _layout.contiguous_empty(data)
     if not need_indices: return _tensor.Tensor(data, _metadata_owned=True)
@@ -218,14 +225,15 @@ def _apply(input, geometry, return_indices, *, spatial_dims=2):
     nonoverlap = all(s >= d * (k - 1) + 1 for s, d, k in zip(stride, dilation, kernel))
     def backward(seed):
         if one_dimensional: seed = seed[..., None, :]
-        result = _scatter(seed, indices, shape, nonoverlap)
+        result = _scatter(seed, indices, shape, nonoverlap, dimensions)
         return result.reshape(original_shape) if one_dimensional else result
     value = _autograd.result(data, (primal, backward), versioned=(primal, index))
     if forward:
         tangent = input._tangent
-        planes = math.prod(shape[:-2]);points = math.prod(out)
-        gathered = np.take_along_axis(tangent._data.reshape(planes, shape[-2] * shape[-1]),
+        planes = math.prod(shape[:-dimensions]);points = math.prod(out)
+        gathered = np.take_along_axis(tangent._data.reshape(planes, math.prod(shape[-dimensions:])),
                                      indices.reshape(planes, points), axis=1).reshape(data.shape)
+        if engine is not None: gathered = engine._format_tangent(values, data, gathered)
         if not gathered.size: gathered = _layout.contiguous_empty(gathered)
         dual = _autograd.result(gathered, (tangent, backward), versioned=(tangent, index))
         value = _autograd.ForwardTensor(value, dual)
