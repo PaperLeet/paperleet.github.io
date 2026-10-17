@@ -242,6 +242,19 @@ ordered accumulation and return independent output storage. Oversized plans
 keep the existing bounded fallbacks. See the
 [0.40 validation record](../../docs/validation/torch-runtime-iteration-40.md).
 
+Version 0.46 adds ordered inverse-region adjoints for fixed/adaptive 3D pooling.
+Each output seed is scaled once before gathering contributions in native output
+order. A separate 32-entry readonly inverse-geometry cache holds no tensors or
+seed values; each optional gather-index/mask plan is at most 128 KiB. Cache keys
+use bounded immutable coordinate bytes. Input-axis construction, the scaled seed
+copy and packing estimates must fit before selecting this path. Shapes with
+nominal inverse work over twice the scatter work retain the existing adjoint.
+The estimate excludes required input/output storage and resident cache metadata;
+it is not a measured process-memory limit. Selected inverse calls avoid a
+previously discarded zero-gradient allocation, and complete disjoint blocks fill
+their result directly. Float32/float64 cancellation-sensitive seeds, nonfinite
+locality, strided seeds and reverse-over-forward retain their ordered rules.
+
 ## Linear systems
 
 `torch.linalg.solve(A, B, *, left=True)` handles dense batched/broadcast systems,

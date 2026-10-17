@@ -10,6 +10,7 @@ from ._module import Module
 
 _ALGORITHM = 'auto'  # Private numerical-route comparison, not an API option.
 _BACKWARD_ALGORITHM = 'auto'
+_INVERSE_MODE = 'auto'  # Private same-source control: auto/off.
 _WORKSPACE_BYTES = 32 * 1024 * 1024
 _Geometry = namedtuple('_Geometry', 'start end out divisor adaptive partition pack', defaults=(None,))
 
@@ -183,16 +184,68 @@ def _forward(data,g):
     return value
 
 
+def _inverse_cost_allowed(spatial,start,end):
+    widths=[int((np.arange(len(a))+1-np.searchsorted(b,a,side='right')).max()) for a,b in zip(start,end)]
+    inverse_work=math.prod(spatial)*math.prod(widths)
+    scatter_work=math.prod(len(a) for a in start)*math.prod(int((b-a).max()) for a,b in zip(start,end))
+    return inverse_work<=2*scatter_work
+
+
+def _make_inverse_geometry(spatial,start,end,budget):
+    first=[];last=[]
+    for size,a,b in zip(spatial,start,end):
+        index=np.arange(size,dtype=np.int64)
+        first.append(np.searchsorted(b,index,side='right'))
+        last.append(np.searchsorted(a,index,side='right'))
+    for array in (*first,*last):array.setflags(write=False)
+    inverse=_Geometry(tuple(first),tuple(last),spatial,1,False,None)
+    return inverse._replace(pack=_pack_plan(tuple(len(a) for a in start),inverse,budget))
+
+
+@lru_cache(maxsize=32)
+def _cached_inverse_geometry(spatial,start,end,budget,force):
+    start=tuple(np.frombuffer(a,dtype=np.int64) for a in start);end=tuple(np.frombuffer(a,dtype=np.int64) for a in end)
+    if not force and not _inverse_cost_allowed(spatial,start,end):return None
+    return _make_inverse_geometry(spatial,start,end,budget)
+
+
+def _inverse_backward(seed,shape,g):
+    """Scale each output once, then gather native-ordered contributions."""
+    spatial=shape[-3:]
+    axis_bytes=sum(spatial)*24+sum(g.out)*16
+    # Check the cheapest possible one-tap plan before input-axis allocation.
+    minimum=math.prod(shape)*(seed.itemsize*2+2)+axis_bytes+seed.nbytes
+    if max(minimum,axis_bytes*2)>_WORKSPACE_BYTES:return None
+    remaining=_WORKSPACE_BYTES-seed.nbytes-axis_bytes
+    plan_budget=min(remaining,512*1024)
+    if sum(spatial)<=2048 and sum(g.out)<=2048:
+        start=tuple(a.tobytes() for a in g.start);end=tuple(a.tobytes() for a in g.end)
+        inverse=_cached_inverse_geometry(spatial,start,end,plan_budget,_BACKWARD_ALGORITHM=='inverse')
+    else:
+        if _BACKWARD_ALGORITHM!='inverse' and not _inverse_cost_allowed(spatial,g.start,g.end):return None
+        inverse=_make_inverse_geometry(spatial,g.start,g.end,plan_budget)
+    if inverse is None:return None
+    estimate=_packing_bytes(seed,inverse)
+    if estimate>remaining:return None
+    delta=_divide(np.array(seed,copy=True,order='C'),g)
+    return _packed(delta,inverse)
+
+
+
 def _backward(seed,shape,g):
     if not math.prod(g.out):raise RuntimeError('Average-pooling backward requires nonempty output spatial axes')
-    result=np.zeros(shape,dtype=seed.dtype)
-    if not seed.size:return result
+    if not seed.size:return np.zeros(shape,dtype=seed.dtype)
     points=math.prod(g.out);planes=math.prod(shape[:-3]);taps=math.prod(int((b-a).max()) for a,b in zip(g.start,g.end))
-    if _BACKWARD_ALGORITHM not in ('auto','loop','scatter','block'):raise ValueError('Unknown internal 3D average backward algorithm')
+    if _BACKWARD_ALGORITHM not in ('auto','loop','scatter','block','inverse'):raise ValueError('Unknown internal 3D average backward algorithm')
     if g.partition is not None and _BACKWARD_ALGORITHM in ('auto','block') and seed.nbytes<=_WORKSPACE_BYTES:
         delta=_divide(np.array(seed,copy=True,order='C'),g);kd,kh,kw=g.partition
+        result=np.empty(shape,dtype=seed.dtype)
         view=result.reshape(*shape[:-3],g.out[0],kd,g.out[1],kh,g.out[2],kw)
         np.add(delta[..., :,None,:,None,:,None],0,out=view);return result
+    if (_BACKWARD_ALGORITHM=='inverse' or _BACKWARD_ALGORITHM=='auto' and _INVERSE_MODE!='off') and seed.dtype in (np.dtype('float32'),np.dtype('float64')) and (points>16 or _BACKWARD_ALGORITHM=='inverse'):
+        inverse=_inverse_backward(seed,shape,g)
+        if inverse is not None:return inverse
+    result=np.zeros(shape,dtype=seed.dtype)
     if _BACKWARD_ALGORITHM=='loop' or points<=16 or taps*96>_WORKSPACE_BYTES:
         for z,y,x in np.ndindex(g.out):
             sub=_Geometry(tuple(a[i:i+1] for a,i in zip(g.start,(z,y,x))),tuple(b[i:i+1] for b,i in zip(g.end,(z,y,x))),(1,1,1),

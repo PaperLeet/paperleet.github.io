@@ -725,6 +725,16 @@ source-commit deployment was superseded and is not claimed as published.
   Overlapping windows and some adaptive adjoints remain optimization targets.
 - See [the 0.45 validation record](../../docs/validation/torch-runtime-iteration-45.md).
 
+## 0.46: ordered inverse 3D pooling adjoints
+
+- Scale seeds once; gather inverse regions in native output order with bounded
+  readonly caches, cost fallback and workspace admission before allocation.
+- Avoid discarded gradient buffers and zero filling exact disjoint blocks. Keep
+  cancellation, nonfinite locality, strided seeds, JVP and reverse-tangent rules.
+- Complete CPU, installed-wheel, Node/Chrome, 78-problem application and whole-flow
+  evidence is retained; unselected paths have no universal speedup.
+- See [the 0.46 validation record](../../docs/validation/torch-runtime-iteration-46.md).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

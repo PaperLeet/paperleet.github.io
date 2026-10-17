@@ -5,7 +5,7 @@ import pytest
 from stridetorch import torch,as_torch,UnsupportedOperation
 
 
-@pytest.fixture(params=[('scan','loop'),('packed','scatter'),('block','block'),('auto','auto')],autouse=True)
+@pytest.fixture(params=[('scan','loop'),('packed','scatter'),('block','block'),('auto','auto'),('packed','inverse')],autouse=True)
 def algorithm(request,monkeypatch):
     from stridetorch import _average_pooling3d
     monkeypatch.setattr(_average_pooling3d,'_ALGORITHM',request.param[0]);monkeypatch.setattr(_average_pooling3d,'_BACKWARD_ALGORITHM',request.param[1])
@@ -196,6 +196,49 @@ def test_readonly_plan_bounds_and_live_input_values(strided):
     assert np.isnan(second[...,:2,:2,:2]).all()
     mask=np.ones(second.shape,dtype=bool);mask[...,:2,:2,:2]=False
     np.testing.assert_array_equal(second[mask],first[mask])
+
+
+def test_inverse_cache_bounds_and_live_seed_values(monkeypatch):
+    from stridetorch import _average_pooling3d as engine
+    monkeypatch.setattr(engine,'_BACKWARD_ALGORITHM','inverse')
+    engine._cached_inverse_geometry.cache_clear()
+    spatial=(8,8,8)
+    for size in range(2,42):
+        g=engine._geometry((1,2,*spatial),(size,2,3))
+        inverse=engine._cached_inverse_geometry(spatial,tuple(a.tobytes() for a in g.start),tuple(a.tobytes() for a in g.end),512*1024,True)
+        for array in (*inverse.start,*inverse.end):assert not array.flags.writeable
+        if inverse.pack is not None:
+            assert sum(a.nbytes for a in inverse.pack)<=128*1024
+            assert all(not a.flags.writeable for a in inverse.pack)
+    assert engine._cached_inverse_geometry.cache_info().currsize==32
+    g=engine._geometry((1,2,*spatial),(7,8,9));seed=np.ones((1,2,7,8,9),dtype=np.float64)
+    first=engine._inverse_backward(seed,(1,2,*spatial),g)
+    seed[...,0,0,0]=np.nan
+    second=engine._inverse_backward(seed,(1,2,*spatial),g)
+    assert np.isnan(second[...,:2,:1,:1]).all()
+    assert np.isfinite(first).all() and not np.shares_memory(seed,second)
+
+
+def test_inverse_rejects_large_axis_before_coordinate_allocation(monkeypatch):
+    from stridetorch import _average_pooling3d as engine
+    shape=(1,1,1_000_000_000,1,1)
+    g=engine._Geometry((np.array([0,500_000_000]),np.array([0]),np.array([0])),(np.array([500_000_000,1_000_000_000]),np.array([1]),np.array([1])),(2,1,1),None,True,None)
+    seed=np.ones((1,1,2,1,1),dtype=np.float64)
+    def forbidden(*args,**kwargs):raise AssertionError('Unbounded inverse coordinate allocation')
+    monkeypatch.setattr(np,'arange',forbidden)
+    assert engine._inverse_backward(seed,shape,g) is None
+
+
+@pytest.mark.parametrize('dtype',[torch.float32,torch.float64])
+def test_inverse_gradient_order_near_cancellation(monkeypatch,dtype):
+    from stridetorch import _average_pooling3d as engine
+    seed=np.resize(np.array([1e20,1.,-1e20,2.,3.,-0.],dtype=dtype),(1,1,5,5,5))
+    x=torch.ones(1,1,2,2,2,dtype=dtype,requires_grad=True)
+    monkeypatch.setattr(engine,'_BACKWARD_ALGORITHM','scatter')
+    torch.nn.functional.adaptive_avg_pool3d(x,5).backward(torch.from_numpy(seed));expected=x.grad.numpy().copy();x.grad=None
+    monkeypatch.setattr(engine,'_BACKWARD_ALGORITHM','inverse')
+    torch.nn.functional.adaptive_avg_pool3d(x,5).backward(torch.from_numpy(seed))
+    np.testing.assert_array_equal(x.grad.numpy(),expected)
 
 
 def test_aliases_modules_checkpoint_and_convolution_training():

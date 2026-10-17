@@ -346,3 +346,12 @@ The composition reassociates sums; no bitwise equivalence is claimed for
 exceptional or ill-conditioned values. See the
 [0.45 validation record](../../../docs/validation/torch-runtime-iteration-45.md)
 and `results/iteration-45*.json` plus the four raw harness archives.
+
+## Inverse volume-pooling adjoints (0.46)
+
+`bench_average_pooling_inverse.py` compares direct baseline 3D APIs with inverse
+adjoints and a same-source inverse-disabled control. It imports the neighboring
+`bench_average_pooling_3d.py` helper. Baseline/candidate source paths and output
+are required; samples/iterations/reverse order are optional. Each of 46 flows
+checks values, gradients or SGD updates and actual route selection before timing.
+See the [0.46 validation record](../../../docs/validation/torch-runtime-iteration-46.md).
