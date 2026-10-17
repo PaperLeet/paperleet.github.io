@@ -1,3 +1,4 @@
+export const MAX_INTERVIEW_PAGE=5000;
 export type InterviewStudyState='all'|'todo'|'started'|'done';
 export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string};
 export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:''});
@@ -15,7 +16,7 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     else if(key==='track'){if(!['training-generation','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation','world-models','representation-shape','policy-distillation','visual-quantization','feedback-distillation','advanced-architecture','off-policy-passk','generation-targets','low-rank-quantization','block-generation','inverse-diffusion'].includes(value))return;filters.track=value;}
     else if(key==='study'){if(!['all','todo','started','done'].includes(value))return;filters.study=value as InterviewStudyState;}
     else if(key==='queue'){if(!/^[1-9]\d{0,4}(?:,[1-9]\d{0,4}){0,79}$/.test(value)||new Set(value.split(',')).size!==value.split(',').length)return;filters.queue=value;}
-    else if(key==='page'){if(!/^[1-9]\d{0,3}$/.test(value)||Number(value)>5000)return;filters.page=Number(value);}
+    else if(key==='page'){if(!/^[1-9]\d{0,3}$/.test(value)||Number(value)>MAX_INTERVIEW_PAGE)return;filters.page=Number(value);}
     else if(key==='q'){if(Array.from(value).length>200||/[\u0000-\u001f\u007f]/.test(value))return;filters.q=value;}
     else if(key==='days'){if(!['all','30','90','365'].includes(value))return;filters.days=value as InterviewFilters['days'];}
     else if(key==='sort'){if(!['recent','helpful'].includes(value))return;filters.sort=value as InterviewFilters['sort'];}
