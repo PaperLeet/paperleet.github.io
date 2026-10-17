@@ -53,7 +53,7 @@ def create_torch(name='torch', *, register=False):
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
         (_pooling,('MaxPool2d',)),
-        (_average_pooling,('AvgPool2d','AdaptiveAvgPool2d')),
+        (_average_pooling,('AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d')),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
@@ -72,7 +72,7 @@ def create_torch(name='torch', *, register=False):
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'conv':('Conv1d','Conv2d','Conv3d'),
-        'pooling':('MaxPool2d','AvgPool2d','AdaptiveAvgPool2d'),
+        'pooling':('MaxPool2d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
@@ -214,9 +214,13 @@ def create_torch(name='torch', *, register=False):
         if inplace: raise _errors.BrowserUnsupported('In-place ReLU requires the server')
         return input.relu()
     registry.add('torch.nn.functional.relu', relu, reverse='analytic', forward=True)
+    registry.add('torch.avg_pool1d', _average_pooling.avg_pool1d, reverse='analytic', forward=True)
+    registry.add('torch.adaptive_avg_pool1d', _average_pooling.adaptive_avg_pool1d, reverse='analytic', forward=True)
     registry.add('torch.max_pool2d', _pooling.torch_max_pool2d, reverse='analytic', forward=True)
     registry.group('torch.nn.functional', {
         'max_pool2d': _pooling.max_pool2d, 'max_pool2d_with_indices': _pooling.max_pool2d_with_indices,
+        'avg_pool1d': _average_pooling.avg_pool1d,
+        'adaptive_avg_pool1d': _average_pooling.adaptive_avg_pool1d,
         'avg_pool2d': _average_pooling.avg_pool2d,
         'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d, 'interpolate': _nn.interpolate,
     }, reverse='analytic', forward=True)

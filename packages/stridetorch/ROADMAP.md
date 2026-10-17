@@ -646,6 +646,23 @@ source-commit deployment was superseded and is not claimed as published.
   retained; the separately bounded plan metadata is a memory/latency tradeoff.
   See the [validation record](../../docs/validation/torch-runtime-iteration-40.md).
 
+## 0.41: one-dimensional average pooling and direct graph nodes
+
+- Add fixed/adaptive 1D average pooling, Modules and functional/root aliases for
+  CL/NCL inputs. Reuse ordered kernels without extra Tensor view graph nodes.
+- Preserve native constructor normalization, stride/padding/ceil behavior,
+  dtype boundaries, empty length/channel cases, saved versions and linear JVP.
+- Correct conventional strides for empty 1D/2D pooling outputs. Native layout
+  probes extend the independent oracle rather than relying only on passing values.
+- Validate region sums/transpose scatter, native values/VJP/JVP, full Conv1d
+  training and checkpoint continuation, independent packaging and actual WASM.
+- Measure 34 complete flows against the supported 0.40 composition in four fresh
+  CPU/Node/Chrome processes each, retaining same-candidate composition controls,
+  legacy workflows, import costs, every sample and regressions. See the
+  [0.41 validation record](../../docs/validation/torch-runtime-iteration-41.md).
+- Full local catalog/frontend and export-identity gates precede main adoption.
+  GitHub Actions, tag releases, package upload and deployment remain user-controlled.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

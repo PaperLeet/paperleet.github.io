@@ -3,8 +3,9 @@ import math
 import numbers
 from functools import lru_cache
 from collections import namedtuple
+from collections.abc import Iterable
 import numpy as np
-from . import _autograd, _errors, _pooling, _state, _tensor
+from . import _autograd, _errors, _layout, _pooling, _state, _tensor
 from ._module import Module
 
 _ALGORITHM = 'auto'  # Private comparison of ordered scans and bounded packing.
@@ -333,9 +334,9 @@ def _cached_adjoint_geometry(h, w, oh, ow):
     return _inverse_geometry((h, w), _adaptive_geometry((h, w), (oh, ow)))
 
 
-def _backward(seed, shape, geometry, nonoverlap, partition=None):
+def _backward(seed, shape, geometry, nonoverlap, partition=None, *, allow_empty_channels=False):
     sy, ey, sx, ex, _, adaptive = geometry
-    if not len(sy) or not len(sx) or adaptive and not shape[-3]:
+    if not len(sy) or not len(sx) or adaptive and not shape[-3] and not allow_empty_channels:
         raise RuntimeError('Average-pooling backward requires nonempty output spatial/channel axes')
     if _BACKWARD_ALGORITHM not in ('auto', 'loop', 'scatter', 'packed', 'block'):
         raise ValueError('Unknown internal average-pooling backward algorithm')
@@ -398,14 +399,24 @@ def _backward(seed, shape, geometry, nonoverlap, partition=None):
     return result
 
 
-def _apply(input, geometry, nonoverlap, partition=None):
+def _apply(input, geometry, nonoverlap, partition=None, *, spatial_dims=2):
     if isinstance(input, _autograd.ForwardTensor):
-        primal = _apply(input._primal, geometry, nonoverlap, partition)
-        tangent = _apply(input._tangent, geometry, nonoverlap, partition)
+        primal = _apply(input._primal, geometry, nonoverlap, partition, spatial_dims=spatial_dims)
+        tangent = _apply(input._tangent, geometry, nonoverlap, partition, spatial_dims=spatial_dims)
         return _autograd.ForwardTensor(primal, tangent)
-    shape = input.shape
-    data = _forward(input._data, geometry, partition)
-    return _autograd.result(data, (input, lambda seed:_backward(seed, shape, geometry, nonoverlap, partition)), versioned=(input,))
+    one_dimensional = spatial_dims == 1
+    original_shape = input.shape
+    values = input._data[..., None, :] if one_dimensional else input._data
+    shape = values.shape
+    data = _forward(values, geometry, partition)
+    if one_dimensional: data = data[..., 0, :]
+    if not data.size: data = _layout.contiguous_empty(data)
+    def backward(seed):
+        if one_dimensional: seed = seed[..., None, :]
+        result = _backward(seed, shape, geometry, nonoverlap, partition,
+                           allow_empty_channels=one_dimensional and len(original_shape) == 2)
+        return result.reshape(original_shape)
+    return _autograd.result(data, (input, backward), versioned=(input,))
 
 
 def adaptive_avg_pool2d(input, output_size):
@@ -418,16 +429,20 @@ def adaptive_avg_pool2d(input, output_size):
     return _apply(input, geometry, nonoverlap, partition)
 
 
-def _global_mean(input):
+def _global_mean(input, *, spatial_dims=2):
     if isinstance(input, _autograd.ForwardTensor):
-        return _autograd.ForwardTensor(_global_mean(input._primal), _global_mean(input._tangent))
-    shape = input.shape;count = shape[-2] * shape[-1];dtype = input.dtype
+        return _autograd.ForwardTensor(_global_mean(input._primal, spatial_dims=spatial_dims),
+                                       _global_mean(input._tangent, spatial_dims=spatial_dims))
+    shape = input.shape;count = math.prod(shape[-spatial_dims:]);dtype = input.dtype
     with np.errstate(all='ignore'):
         accumulator = _accumulator(dtype)
-        value = input._data.sum(axis=(-2,-1), keepdims=True, dtype=accumulator)
+        value = input._data.sum(axis=tuple(range(-spatial_dims, 0)), keepdims=True, dtype=accumulator)
         np.divide(value, accumulator.type(count), out=value)
         value = value.astype(dtype, copy=False)
-    def backward(seed):return np.broadcast_to(np.divide(seed, count, dtype=seed.dtype), shape)
+        if not value.size: value = _layout.contiguous_empty(value)
+    def backward(seed):
+        if not count: return np.zeros(shape, dtype=seed.dtype)
+        return np.broadcast_to(np.divide(seed, count, dtype=seed.dtype), shape)
     return _autograd.result(value, (input, backward), saves_tensors=False)
 
 
@@ -442,16 +457,21 @@ def avg_pool2d(input, kernel_size, stride=None, padding=0, ceil_mode=False, coun
         if divisor_override == 0: raise RuntimeError('divisor_override must not be zero')
     kernel, stride, padding, _, out = _pooling._geometry(input, kernel_size, stride, padding, 1, ceil_mode)
     _allocation(input.shape, out)
+    geometry, nonoverlap, partition = _fixed_geometry(input.shape, kernel, stride, padding, out, count_include_pad, divisor_override)
+    return _apply(input, geometry, nonoverlap, partition)
+
+
+def _fixed_geometry(shape, kernel, stride, padding, out, count_include_pad, divisor_override=None):
     ranges, counts = [], []
-    for size, count, k, s, p in zip(input.shape[-2:], out, kernel, stride, padding):
+    for size, count, k, s, p in zip(shape[-2:], out, kernel, stride, padding):
         start = np.arange(count, dtype=np.int64) * s - p
         end = np.minimum(start + k, size + p)
         real_start, real_end = np.maximum(start, 0), np.minimum(end, size)
         ranges.extend((real_start, real_end))
         counts.append(end - start if count_include_pad else real_end - real_start)
-    partition = kernel if stride == kernel and padding == (0,0) and tuple(n*k for n,k in zip(out,kernel)) == input.shape[-2:] else None
+    partition = kernel if stride == kernel and padding == (0,0) and tuple(n*k for n,k in zip(out,kernel)) == shape[-2:] else None
     divisor = divisor_override if divisor_override is not None else math.prod(kernel) if partition else counts[0][:, None] * counts[1]
-    return _apply(input, (*ranges, divisor, False), all(s >= k for s, k in zip(stride, kernel)), partition)
+    return (*ranges, divisor, False), all(s >= k for s, k in zip(stride, kernel)), partition
 
 
 class AdaptiveAvgPool2d(Module):
@@ -468,3 +488,79 @@ class AvgPool2d(Module):
     def forward(self, input):
         return avg_pool2d(input, self.kernel_size, self.stride, self.padding, self.ceil_mode, self.count_include_pad, self.divisor_override)
     def extra_repr(self):return f'kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}'
+
+
+def _one(value, name):
+    if isinstance(value, numbers.Integral) and not isinstance(value, (bool, np.bool_)):
+        value = int(value)
+        if not -(2**63) <= value < 2**63: raise ValueError(f'{name} exceeds int64')
+        return value
+    if not isinstance(value, (tuple, list)):
+        raise TypeError(f'{name} must be an integer or single-element sequence')
+    if any(not isinstance(v, numbers.Integral) or isinstance(v, (bool, np.bool_)) for v in value):
+        raise TypeError(f'{name} entries must be integers')
+    if len(value) != 1: raise RuntimeError(f'{name} requires one entry')
+    return _one(value[0], name)
+
+
+def _input_1d(input, *, adaptive, allow_empty_length=False):
+    if not isinstance(input, _tensor.Tensor): raise TypeError('Average pooling input must be a Tensor')
+    if input.ndim not in (2, 3) or input.shape[-1] == 0 and not allow_empty_length:
+        raise RuntimeError('1D average pooling expects CL/NCL with nonempty length')
+    if not adaptive and input.shape[-2] == 0: raise RuntimeError('avg_pool1d requires nonempty channels')
+    if input.dtype not in _FLOATS and (adaptive or input.dtype != np.dtype('int64')):
+        raise _errors.BrowserUnsupported('This average-pooling input dtype requires the server')
+    return (*input.shape[:-1], 1, input.shape[-1])
+
+
+def avg_pool1d(input, kernel_size, stride=None, padding=0, ceil_mode=False, count_include_pad=True):
+    shape = _input_1d(input, adaptive=False)
+    kernel = _one(kernel_size, 'kernel_size')
+    step = kernel if stride is None or isinstance(stride, (tuple, list)) and not stride else _one(stride, 'stride')
+    pad = _one(padding, 'padding')
+    if type(ceil_mode) is not bool or type(count_include_pad) is not bool:
+        raise TypeError('ceil_mode and count_include_pad must be bool')
+    if min(kernel, step) <= 0: raise RuntimeError('avg_pool1d kernel and stride must be positive')
+    if pad < 0 or pad > kernel // 2: raise RuntimeError('avg_pool1d padding exceeds half the kernel size')
+    length = (input.shape[-1] + 2 * pad - kernel + (step - 1 if ceil_mode else 0)) // step + 1
+    if ceil_mode and (length - 1) * step >= input.shape[-1] + pad: length -= 1
+    if length <= 0: raise RuntimeError('avg_pool1d calculated output size is too small')
+    out = (1, length); _allocation(shape, out)
+    geometry, nonoverlap, partition = _fixed_geometry(shape, (1, kernel), (1, step), (0, pad), out, count_include_pad)
+    return _apply(input, geometry, nonoverlap, partition, spatial_dims=1)
+
+
+def adaptive_avg_pool1d(input, output_size):
+    size = _one(output_size, 'output_size')
+    shape = _input_1d(input, adaptive=True, allow_empty_length=size == 1)
+    if size < 0: raise RuntimeError('output_size must be nonnegative')
+    out = (1, size); _allocation(shape, out)
+    if size == 1: return _global_mean(input, spatial_dims=1)
+    geometry = _adaptive_geometry(shape, out)
+    nonoverlap = bool(size and input.shape[-1] % size == 0)
+    partition = (1, input.shape[-1] // size) if nonoverlap else None
+    return _apply(input, geometry, nonoverlap, partition, spatial_dims=1)
+
+
+def _single(value):
+    # Module construction follows native normalization; validation occurs at forward.
+    return tuple(value) if isinstance(value, Iterable) else (value,)
+
+
+class AvgPool1d(Module):
+    def __init__(self, kernel_size, stride=None, padding=0, ceil_mode=False, count_include_pad=True):
+        super().__init__()
+        self.kernel_size = _single(kernel_size)
+        self.stride = _single(kernel_size if stride is None else stride)
+        self.padding = _single(padding)
+        self.ceil_mode, self.count_include_pad = ceil_mode, count_include_pad
+    def forward(self, input):
+        return avg_pool1d(input, self.kernel_size, self.stride, self.padding, self.ceil_mode, self.count_include_pad)
+    def extra_repr(self):
+        return f'kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}'
+
+
+class AdaptiveAvgPool1d(Module):
+    def __init__(self, output_size): super().__init__(); self.output_size = output_size
+    def forward(self, input): return adaptive_avg_pool1d(input, self.output_size)
+    def extra_repr(self): return f'output_size={self.output_size}'

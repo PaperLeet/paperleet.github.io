@@ -135,6 +135,16 @@ for measured complete CNN flows and the remaining compatibility boundaries.
 
 ## Average pooling
 
+`nn.AvgPool1d`, `nn.AdaptiveAvgPool1d` and their functional/root entry points
+accept CL/NCL input with float32/float64 reverse AD, JVP and
+reverse-over-forward. They share the ordered 2D reduction kernels without
+creating extra Tensor view nodes. Float16 inference and fixed int64 inference
+are supported. Fixed 1D pooling implements stride, padding, ceil mode and
+padding inclusion; divisor overrides are a 2D-only option. Global adaptive
+length 1 follows mean's stateless backward, including NaN output and empty
+gradient for empty input length. Other adaptive lengths preserve native
+empty-channel and saved-input version rules.
+
 `nn.AvgPool2d`, `nn.AdaptiveAvgPool2d` and their functional entry points support
 float32/float64 reverse AD, JVP and reverse-over-forward. Area interpolation
 shares the adaptive rule; bicubic forward AD retains its explicit unsupported
@@ -147,6 +157,7 @@ fallbacks retain overflow and ill-conditioned cancellation behavior. The global
 1×1 specialization follows mean's stateless backward behavior; other adaptive
 outputs retain native-style input version guards. Zero-sized adaptive outputs
 are valid for forward evaluation and reject backward as native PyTorch does.
+Empty average-pooling outputs preserve conventional contiguous element strides.
 
 Geometry and inverse-region caches are bounded and hold no user tensors. Finite
 forward matrix paths check live values and require each plane to have no mixed

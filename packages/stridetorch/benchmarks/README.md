@@ -5,6 +5,21 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_average_pooling_1d.py` compares the supported 2D unsqueeze/pool/squeeze
+composition with the direct 1D API. Pass `--baseline-source` and
+`--candidate-source` directories containing their respective `__init__.py`.
+It also times the same composition in the candidate as a control. Its 34 flows
+cover float32/float64 fixed, irregular, global and upsampling pools; contiguous
+and strided inference; full VJP/JVP calls; and Conv1d–SiLU–pool–linear training
+with loss, zeroing, momentum SGD and parameter updates. Values/gradients and
+one complete training update are checked before timing. `--samples 7
+--iterations 40 --output pooling.json` records all samples and all source/license
+hashes. Training uses `max(4, iterations // 8)` calls per sample. Alternate
+`--reverse` across fresh processes to change variant order; keep control drift
+and shared-host variance in the report. The same Python script can run inside
+Pyodide with both source directories mounted in its filesystem. This comparison
+does not time unsupported baseline 1D calls, native Torch, GPU, import or transfer.
+
 From the repository root, with the standalone package installed:
 
 ```sh
