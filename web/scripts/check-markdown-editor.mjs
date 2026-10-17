@@ -155,7 +155,7 @@ try{
  }
  const receipts=await server.ssrLoadModule('/src/publicationRequests.ts');
  const submitForm=async()=>act(async()=>document.querySelector('.community-composer form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
- for(const [category,label,hint] of [['admissions','Graduate admissions','MS / PhD'],['career','Job search','Internships']]){
+ for(const [category,label,hint] of [['admissions','School','MS / PhD'],['career','Job search','Internships']]){
   sessionStorage.clear();location.hash='#/community?category='+category;
   await render(Community,{route:'community?category='+category});await click(named('New post'));
   let categorySelect=document.querySelector('.community-composer select');

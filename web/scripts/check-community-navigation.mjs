@@ -111,7 +111,7 @@ try {
   const markup=renderToString(React.createElement(Community,{route:decodeProblemHash(route),topicId:'architecture/attention'}));
   assert(markup.includes('value="mask &amp; gradient"') && markup.includes('maxLength="400"') && markup.includes('最多200个字符') && markup.includes('type="search"'));
   assert(markup.includes('aria-pressed="true"') && markup.includes(signInHref(route).replaceAll('&','&amp;')));
-  for(const [locale,admissions,career] of [['zh','求学','求职'],['en','Graduate admissions','Job search']]){
+  for(const [locale,admissions,career] of [['zh','求学','求职'],['en','School','Job search']]){
     const render=await localizedRenderer(server,locale);
     const html=render(React.createElement(Community,{route:'community?category=admissions'}));
     assert(html.includes(admissions)&&html.includes(career),'Both distinct boards must be visible in '+locale);

@@ -72,7 +72,7 @@ try{
  response='error';await navigate('#/community?sort=active');assert(document.body.textContent.includes('Network unavailable'));assert(select());response='normal';await choose('top');assert(document.querySelector('[data-reading-post]'));
  account.capabilities.community_feed_sorting=false;await render();assert(!select());assert(document.body.textContent.includes('This order is currently unavailable'));const before=requests.length;await render();assert.equal(requests.length,before);await click([...document.querySelectorAll('button')].find(node=>node.textContent==='Use default order'));assert(!nav.readCommunityFeed(location.hash).state.sort);assert(document.querySelector('[data-reading-post]'));
  account.loading=true;await navigate('#/community?sort=top');const waiting=requests.length;assert(!document.querySelector('[data-reading-post]'));account.capabilities.community_feed_sorting=true;account.loading=false;await render();assert.equal(requests.length,waiting+1);assert.equal(select().value,'top');
- for(const [category,label] of [['admissions','Graduate admissions'],['career','Job search']]){
+ for(const [category,label] of [['admissions','School'],['career','Job search']]){
   post.category=category;
   await click([...document.querySelectorAll('.community-sidebar button')].find(node=>node.textContent.trim()===label));
   assert.equal(nav.readCommunityFeed(location.hash).state.category,category);

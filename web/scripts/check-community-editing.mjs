@@ -78,7 +78,7 @@ export async function checkCommunityEditing(server) {
     globalThis.localStorage={getItem:()=> 'en'};
     const english=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(PostEditor,{post:latest,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true})));
     assert(english.includes('Latest post content')&&english.includes('Reviewed; continue from this version')&&english.includes('Save changes'));
-    for(const [locale,label,career] of [['en','Graduate admissions','Job search'],['zh','求学','求职']]){
+    for(const [locale,label,career] of [['en','School','Job search'],['zh','求学','求职']]){
       const render=await localizedRenderer(server,locale);
       const admissionPost={...post,id:'admissions-post',category:'admissions'};
       const markup=render(React.createElement(PostEditor,{post:admissionPost,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));

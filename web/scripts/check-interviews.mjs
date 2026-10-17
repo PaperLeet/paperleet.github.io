@@ -34,7 +34,7 @@ try {
  assert(drafts.writeInterviewDraft(storage,'model-alice',draft));assert.deepEqual(drafts.readInterviewDraft(storage,'model-alice'),draft);assert.equal(drafts.readInterviewDraft(storage,'model-bob'),undefined);
  const first=receipts.preparePublication(storage,'model-alice','interview','general',drafts.interviewPublication(draft));
  assert.equal(first.receipt.payload.category,'career','Interview publication stays in Job search');
- assert.throws(()=>receipts.preparePublication(storage,'misclassified-interview','interview','general',{...drafts.interviewPublication(draft),category:'admissions'}),/Invalid publication request/,'Graduate admissions cannot become an interview-report board');
+ assert.throws(()=>receipts.preparePublication(storage,'misclassified-interview','interview','general',{...drafts.interviewPublication(draft),category:'admissions'}),/Invalid publication request/,'School cannot become an interview-report board');
  assert.equal(receipts.preparePublication(storage,'model-alice','interview','general',drafts.interviewPublication({...draft,interview:{...details,questions:[...details.questions].reverse()}})).receipt.requestId,first.receipt.requestId,'Canonical metadata keeps a retry identical');
  const changed={...draft,interview:{...details,company:'google'}},second=receipts.preparePublication(storage,'model-alice','interview','general',drafts.interviewPublication(changed));
  assert.notEqual(second.receipt.requestId,first.receipt.requestId);assert.equal(receipts.clearPublication(storage,first.receipt),false);

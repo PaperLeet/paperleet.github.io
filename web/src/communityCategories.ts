@@ -2,7 +2,7 @@ export const communityCategories = [
   { id: 'papers', zh: '论文讨论', en: 'Papers' },
   { id: 'implementation', zh: '代码实现', en: 'Implementation' },
   { id: 'questions', zh: '问题求助', en: 'Questions' },
-  { id: 'admissions', zh: '求学', en: 'Graduate admissions' },
+  { id: 'admissions', zh: '求学', en: 'School' },
   { id: 'career', zh: '求职', en: 'Job search' },
   { id: 'lounge', zh: '闲聊', en: 'Lounge' },
 ] as const;

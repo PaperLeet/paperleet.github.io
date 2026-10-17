@@ -24,7 +24,7 @@ try{
  const receipts=await server.ssrLoadModule('/src/publicationRequests.ts');
  assert.equal(loads,0,'Reading the feed must not load optional writing prompts');
  assert.deepEqual(Object.keys(model.communityOutlines).sort(),["admissions","career","implementation","lounge","papers","questions","solution"]);
- assert.deepEqual(model.communityOutlines.admissions.name,{zh:'求学',en:'Graduate admissions'});
+ assert.deepEqual(model.communityOutlines.admissions.name,{zh:'求学',en:'School'});
  assert.deepEqual(model.communityOutlines.career.name,{zh:'求职',en:'Job search'});
  for(const id of Object.keys(model.communityOutlines))for(const en of [true,false]){
   const text=model.communityOutlineText(id,en);assert(!model.hasCommunityDraftContent(text));assert(model.hasCommunityDraftContent(text+'My actual observations.'));
