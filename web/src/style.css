@@ -3914,3 +3914,7 @@ html { scrollbar-gutter: stable; }
 .account-logout-nav:disabled { opacity: .6; cursor: wait; }
 .account-nav-error { position: absolute; right: 0; top: 100%; z-index: 20; width: min(300px, 80vw); padding: 12px; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 8px; overflow-wrap: anywhere; }
 @media (max-width: 480px) { .account-logout-nav span { display: none; } .account-nav-actions { gap: 4px; } }
+
+.editor-tools-recovery { display:inline-flex; align-items:center; flex-wrap:wrap; gap:4px 8px; color:var(--muted); font-size:var(--type-small); line-height:1.5; }
+.editor-tools-recovery .text-button { min-height:40px; padding-inline:6px; color:var(--accent); }
+@media(pointer:coarse) { .editor-tools-recovery .text-button { min-height:44px; } }

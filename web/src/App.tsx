@@ -1,3 +1,6 @@
+import {deferredFeature} from './deferredFeature';
+import EditorToolsFallback from './EditorToolsFallback';
+import {editorFontSizes} from './editorPreferences';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
 import {DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
@@ -7,7 +10,7 @@ import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
-import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemOverview, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
+import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemOverview, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -19,7 +22,6 @@ import {
   Maximize2,
   Minimize2,
   Code2,
-  Copy,
   FileCode2,
   FlaskConical,
   LockKeyhole,
@@ -69,7 +71,7 @@ import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
-const editorFontSizes = [13, 14, 15, 16, 17, 18, 20];
+const EditorTools=deferredFeature(()=>import('./EditorTools'),['编辑工具','editor tools'],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -467,19 +469,6 @@ function Workspace() {
   function signInToSubmit() {
     if (publicSite && !hostedAppAvailable) return;
     location.assign(hostedAppHref(signInHref(id)));
-  }
-  async function copy(text: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      setToast(t("已复制", "Copied"));
-    } catch {
-      setToast(
-        t(
-          "剪贴板不可用，请手动复制。",
-          "Clipboard unavailable. Please copy manually.",
-        ),
-      );
-    }
   }
   const tabs = [
     ["description", t("题目", "Description")],
@@ -1020,61 +1009,24 @@ function Workspace() {
                       solution.py
                     </span>
                     <div>
-                      <label className="editor-font-size">
-                        <span aria-hidden="true">Aa</span>
-                        <select
-                          className="editor-font-size-select"
-                          value={font}
-                          title={t("代码字号", "Code font size")}
-                          aria-label={t("代码字号", "Code font size")}
-                          onChange={(event) => {
-                            const size = Number(event.target.value);
-                            setFont(size);
-                            try {
-                              localStorage.setItem(
-                                "paperleet.editor.fontSize",
-                                String(size),
-                              );
-                            } catch {
-                              // Keep the selected size for this session.
-                            }
-                          }}
-                        >
-                          {editorFontSizes.map((size) => (
-                            <option key={size} value={size}>{size} px</option>
-                          ))}
-                        </select>
-                      </label>
+                      <EditorTools owner={practice.owner} problem={problem} saved={current} ready={practice.ready}
+                        busy={practice.pending||practice.saving||running} conflict={!!practice.conflicts[problem.id]} failed={!!practice.error} signedIn={!!user}
+                        font={font} onFont={setFont} canUseCode={()=>practice.ready&&practice.owns(practice.owner)&&[problem.id,String(problem.number)].includes(routePath(getId()))}
+                        onReset={expected=>{
+                          if(!practice.resetToStarter(problem,expected))return false;
+                          setToast(t('已恢复初始代码，已提交的解答仍可在提交记录中查看。','Starter restored. Submitted solutions remain in your submission history.'));return true;
+                        }}/>
                       <button
-                        className="icon-button"
-                        title={t("复制代码", "Copy code")}
-                        aria-label={t("复制代码", "Copy code")}
-                        onClick={() => copy(current.code ?? problem.starter)}
-                      >
-                        <Copy size={14} />
-                      </button>
-                      <button
-                        className="icon-button"
                         title={t("下载实现", "Download code")}
+                        disabled={!practice.ready} className="icon-button editor-download-code"
                         aria-label={t("下载实现", "Download code")}
-                        onClick={() =>
-                          download(
-                            `problem-${problem.number}.py`,
-                            current.code ?? problem.starter,
-                          )
-                        }
+                        onClick={()=>{if(practice.ready&&practice.owns(practice.owner)&&[problem.id,String(problem.number)].includes(routePath(getId())))download(`problem-${problem.number}.py`,current.code??problem.starter);}}
                       >
                         <ArrowDownToLine size={14} />
                       </button>
-                      <ResetCodeButton key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} saved={current}
-                        ready={practice.ready} busy={practice.pending || practice.saving || running} conflict={!!practice.conflicts[problem.id]} failed={!!practice.error} signedIn={!!user}
-                        onReset={expected => {
-                          if (!practice.resetToStarter(problem,expected)) return false;
-                          setToast(t("已恢复初始代码，已提交的解答仍可在提交记录中查看。", "Starter restored. Submitted solutions remain in your submission history."));
-                          return true;
-                        }} />
                     </div>
                   </div>
+                  <div className="editor-copy-recovery"/>
                   <div className="code-editor">
                     <PythonEditor
                       key={`${practice.owner}:${problem.id}`}

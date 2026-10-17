@@ -52,6 +52,7 @@ try{
  const reveal=async()=>act(async()=>{const details=pane('reference').querySelector('details');details.open=true;details.dispatchEvent(new dom.window.Event('toggle'));});
  await render();
  assert.equal(tab('community').getAttribute('aria-selected'),'true');assert(!pane('community').hidden);assert(pane('reference').hidden);
+ assert.equal(document.querySelector('.problem-solution-context').textContent,'#1 · Attention');
  assert.equal(requests.length,1);assert(requests[0].includes('solutions=true'));
  assert.equal(new URLSearchParams(requests[0].split('?')[1]).get('problem_id'),topic.id);
  assert.equal(highlights.length,0);assert(!document.body.textContent.includes(solution));
@@ -82,11 +83,13 @@ try{
  assert.equal(mutations.length,1);assert.equal(mutations[0].body.solution,true);assert.equal(mutations[0].body.problem_id,topic.id);assert.equal(mutations[0].body.body,field.value);
  assert(!JSON.stringify(mutations).includes(solution));assert(!JSON.stringify(mutations).includes(editor.value));assert(document.querySelector('.community-composer textarea').value===field.value);
  await click(document.querySelector('#language'));assert.equal(tab('community').textContent,'社区题解');assert.equal(requests.length,requestCount);assert.equal(document.querySelector('.community-composer textarea'),field);
+ assert.equal(document.querySelector('.problem-solution-context').textContent,'#1 · 注意力');
  const allSolutions=readCommunityFeed(document.querySelector('.problem-solutions-heading a').getAttribute('href'));
  assert.equal(allSolutions.topicId,topic.id);assert.equal(allSolutions.state.solutions,true);assert.equal(allSolutions.state.sort,'top');
  topic={id:'finetuning/lora',number:22,title:'LoRA'};solution='new_reference_answer';await render();
  assert.equal(tab('community').getAttribute('aria-selected'),'true');assert(!document.querySelector('.community-composer'));assert(!pane('reference').querySelector('details').open);assert(!document.body.textContent.includes(solution));
  assert.equal(new URLSearchParams(requests.at(-1).split('?')[1]).get('problem_id'),topic.id);
+ assert.equal(document.querySelector('.problem-solution-context').textContent,'#22 · LoRA');
  // Offline editions show the independent reference without any community request.
  available=false;const beforeOffline=requests.length;await render();assert(!tab('community'));assert(!pane('community'));assert(!pane('reference').hidden);assert.equal(requests.length,beforeOffline);
  solution=undefined;await render();await reveal();assert(pane('reference').textContent.includes('参考实现尚未提供'));assert(!pane('reference').querySelector('[data-reference-code]'));
