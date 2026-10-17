@@ -92,6 +92,8 @@ function navigation(event:HashChangeEvent){
  const row=currentReadingReturn();if(!row)return;
  try{
   const before=new URL(event.oldURL).hash,after=new URL(event.newURL).hash;
+  // A queued hashchange can arrive after a newer navigation or history replacement.
+  if(after!==location.hash)return;
   if(isDestination(after,row))pending={...row,phase:'reading'};
   else if(row.phase==='reading'&&isDestination(before,row)&&readingListHref(after)===row.href)pending={...row,phase:'returning'};
   else{discardReadingReturn(row.id);return;}
