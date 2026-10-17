@@ -49,10 +49,13 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('This 
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('No headings match.')), 'Reader heading filters must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('copying includes the full code.')), 'Long code preview presentation must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Updates available')), 'Inbox reading continuity presentation must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Copy study checklist')), 'Interview batch sharing must remain deferred');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-share')), 'Batch sharing styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-share'))), 'Interview batches must include sharing styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.inbox-list-refresh')), 'Inbox reading continuity styles must remain deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.community-code-disclosure')), 'Code preview styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.community-code-disclosure'))), 'Long code readers must include disclosure styles');

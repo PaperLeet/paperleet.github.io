@@ -5,8 +5,10 @@ import {interviewHref,interviewBatchView,type InterviewFilters} from './intervie
 import {withLibraryContext} from './libraryNavigation';
 import {status,type Problem,type Saved} from './types';
 import './interview-practice-group.css';
+import InterviewBatchShare from './InterviewBatchShare';
+import {PRACTICE_GROUP_LIMIT,interviewBatchShareHref} from './interviewBatchSharing';
 
-export const PRACTICE_GROUP_LIMIT=6;
+export {PRACTICE_GROUP_LIMIT} from './interviewBatchSharing';
 type Source='reports'|'curated';
 type Change={kind:'add'|'remove'|'move'|'clear'|'fill';number?:number;position?:number;count?:number};
 type Selection={scope:string;source:Source;numbers:number[];change?:Change};
@@ -79,7 +81,8 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  }
  const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
  const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
- return {root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
+ const shareHref=numbers.length&&!missing?interviewBatchShareHref(filters,modules):undefined;
+ return {shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
 }
 export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
 
@@ -110,6 +113,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
     <div className="practice-group-controls"><button type="button" data-group-number={number} data-group-action="up" disabled={index===0} aria-label={t(`上移${name}`,`Move ${name} up`)} onClick={event=>group.move(number,-1,event.currentTarget)}><ArrowUp size={13}/></button><button type="button" data-group-number={number} data-group-action="down" disabled={index===group.numbers.length-1} aria-label={t(`下移${name}`,`Move ${name} down`)} onClick={event=>group.move(number,1,event.currentTarget)}><ArrowDown size={13}/></button><button type="button" data-group-number={number} data-group-action="remove" aria-label={t(`从练习组移除${name}`,`Remove ${name} from this batch`)} onClick={event=>group.remove(number,event.currentTarget)}><X size={13}/></button></div>
    </li>;})}</ol>
    {group.missing>0&&<p className="practice-group-unavailable" role="status">{t('部分练习尚不可用，请重试加载题库或先移除这些题目。','Some practice modules are unavailable. Retry the catalog or remove those concepts first.')}{onRetryCatalog&&<button type="button" className="text-button" onClick={event=>group.retryCatalog(event.currentTarget,onRetryCatalog)}>{t('重试题库','Retry catalog')}</button>}</p>}
+   <InterviewBatchShare href={group.shareHref} modules={group.modules}/>
    <footer><small>{group.completed!==undefined?t(`${group.completed} 道已通过 · ${group.numbers.length-group.completed} 道待练习`,`${group.completed} passed · ${group.numbers.length-group.completed} remaining`):t('沿用当前工作区，进度就绪后显示完成情况。','Uses your workspace; completion appears when progress is ready.')}{estimate!==undefined&&<> · {t(`整组约 ${estimate} 分钟`,`About ${estimate} min for the whole batch`)}</>}</small>{group.startHref?<a className="button" href={group.startHref}>{allDone?t('复习这组','Review this batch'):group.continuing?t('继续这组练习','Resume this batch'):group.ready?t('开始这组练习','Start this batch'):t('打开这组练习','Open this batch')}<ArrowRight size={13}/></a>:<button type="button" className="button" disabled>{t('练习组暂不可用','Batch unavailable')}</button>}</footer>
   </>}
  </section>;
