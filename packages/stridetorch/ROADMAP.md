@@ -750,7 +750,7 @@ source-commit deployment was superseded and is not claimed as published.
    Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
 4. Neural-network coverage: expand attention options,
-   transpose convolution and pooling, with masked/empty/non-contiguous
+   further pooling/convolution options, with masked/empty/non-contiguous
    cases and numerical checks. Optimize exact array erf and continue auditing
    low-precision/statistic accumulation behavior across numerical runtimes.
 5. Runtime efficiency: profile allocation/graph overhead and larger linear algebra
@@ -800,3 +800,18 @@ source-commit deployment was superseded and is not claimed as published.
 - Preserve 10,387 prior payloads and seven release-policy files. See the
   [iteration 47 record](../../docs/validation/torch-runtime-iteration-47.md).
   Broader core APIs, efficiency and optional persistent GPU backend work remain active.
+
+## Transposed convolution milestone (0.48)
+
+- Add grouped ConvTranspose1d/2d/3d, functional/root entries, `_ConvTransposeNd`,
+  output-size resolution, native weight/reset state and 2D output layout rules.
+- Use clipped scatter and bounded packed contraction, analytical VJPs, bilinear
+  mixed AD and large-padding gather/tap fallbacks that retain native IEEE behavior.
+  Correct existing regular-convolution empty output/tangent strides.
+- Validate 515 transposed +207 regular convolution cases, 144×5 native numeric
+  cases plus68 state/boundary cases, 39,229 CPU passes, 5,600 actual Node/Chrome
+  contracts and all78 exported problems. Retain38 timing flows across12 fresh
+  CPU/Node/Chrome children with direct/matrix controls and decoder SGD updates.
+- Preserve10,545 prior payloads, latest upstream frontend work and seven canonical
+  policy files. See the [iteration48 record](../../docs/validation/torch-runtime-iteration-48.md).
+  Broader core APIs, efficiency and persistent GPU backend evaluation remain active.

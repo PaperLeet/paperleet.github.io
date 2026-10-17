@@ -365,3 +365,14 @@ Pyodide Worker. The formal record retains four fresh children per CPU/Node/Chrom
 runtime, every sample and exact source hashes. This is a same-source composition
 comparison, since 0.46 did not expose InstanceNorm. See the
 [0.47 validation record](../../../docs/validation/torch-runtime-iteration-47.md).
+
+## Transposed convolution (0.48)
+
+`bench_transpose_convolution.py` checks auto/direct/matrix transposed convolution
+against finite zero insertion + flipped grouped regular convolution, then times
+38 forward/reverse/JVP and decoder-SGD flows. `run(samples=5, calls=12,
+reverse_order=False)` also works in a Pyodide Worker. The formal record retains
+four fresh children per CPU/Node/Chrome runtime, every sample, algorithm
+qualification and source hashes. Version0.47 did not expose this API; this is a
+same-source composition comparison. See the
+[0.48 validation record](../../../docs/validation/torch-runtime-iteration-48.md).

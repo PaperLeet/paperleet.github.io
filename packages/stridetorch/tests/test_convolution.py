@@ -101,6 +101,8 @@ def test_empty_values_gradients_and_jvp(dim,empty):
     shape=(0,2,*([3]*dim)) if empty=='batch' else (2,0,*([3]*dim));x=torch.ones(shape,requires_grad=True);w=torch.ones((4,shape[1],*([1]*dim)),requires_grad=True);b=torch.zeros(4,requires_grad=True)
     p,t=torch.func.jvp(lambda x,w,b:getattr(torch.nn.functional,f'conv{dim}d')(x,w,b),(x,w,b),(torch.ones_like(x),torch.ones_like(w),torch.ones_like(b)));(p.sum()+t.sum()).backward()
     assert p.shape==(shape[0],0 if not shape[1] else 4,*([3]*dim));assert x.grad.shape==x.shape and w.grad.shape==w.shape;np.testing.assert_array_equal(w.grad.numpy(),np.zeros(w.shape));assert b.grad.tolist()==[0.]*4
+    expected=tuple(math.prod(max(1,n) for n in p.shape[i+1:]) for i in range(p.ndim))
+    assert p.stride()==t.stride()==expected
 
 
 @pytest.mark.parametrize('value',[float('inf'),float('nan')])

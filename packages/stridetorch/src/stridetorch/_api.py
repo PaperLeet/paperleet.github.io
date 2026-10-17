@@ -52,6 +52,7 @@ def create_torch(name='torch', *, register=False):
         (_groupnorm,('GroupNorm',)),
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
+        (_transpose_convolution,('ConvTranspose1d','ConvTranspose2d','ConvTranspose3d')),
         (_pooling,('MaxPool1d','MaxPool2d')),
         (_pooling3d,('MaxPool3d',)),
         (_average_pooling,('AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d')),
@@ -74,7 +75,7 @@ def create_torch(name='torch', *, register=False):
         'linear':('Linear','Identity'),
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
-        'conv':('Conv1d','Conv2d','Conv3d'),
+        'conv':('Conv1d','Conv2d','Conv3d','ConvTranspose1d','ConvTranspose2d','ConvTranspose3d'),
         'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d','AvgPool3d','AdaptiveAvgPool3d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'instancenorm':('InstanceNorm1d','InstanceNorm2d','InstanceNorm3d'),
@@ -94,6 +95,7 @@ def create_torch(name='torch', *, register=False):
     modules['torch.nn.modules.instancenorm']._InstanceNorm = _instancenorm._InstanceNorm
     modules['torch.nn.modules.instancenorm']._NormBase = _batchnorm._NormBase
     modules['torch.nn.modules.conv']._ConvNd = _convolution._ConvNd
+    modules['torch.nn.modules.conv']._ConvTransposeNd = _transpose_convolution._ConvTransposeNd
     torch.optim.Optimizer = _optim.Optimizer
     torch.optim.Adam, torch.optim.AdamW, torch.optim.SGD = _optim.Adam, _optim.AdamW, _optim.SGD
     for name, cls in (('optimizer', _optim.Optimizer), ('sgd', _optim.SGD),
@@ -202,6 +204,8 @@ def create_torch(name='torch', *, register=False):
     from . import _statistics
     registry.add('torch.var_mean', _statistics.var_mean, reverse='analytic', forward=True, unsupported_keywords=('out',))
     registry.add('torch.instance_norm', _instancenorm.torch_instance_norm, reverse='analytic', forward=True)
+    for dim in (1,2,3):
+        registry.add(f'torch.conv_transpose{dim}d', getattr(_transpose_convolution,f'conv_transpose{dim}d'), reverse='analytic', forward=True)
     registry.add('torch.std_mean', _statistics.std_mean, reverse='analytic', forward=True, unsupported_keywords=('out',))
     registry.add('torch.logit', lambda input,eps=None: input.logit(eps), reverse='analytic')
 
@@ -216,6 +220,9 @@ def create_torch(name='torch', *, register=False):
         'instance_norm': _instancenorm.instance_norm,
         'group_norm': _groupnorm.group_norm,
         'conv1d': _convolution.conv1d, 'conv2d': _convolution.conv2d, 'conv3d': _convolution.conv3d,
+        'conv_transpose1d': _transpose_convolution.conv_transpose1d,
+        'conv_transpose2d': _transpose_convolution.conv_transpose2d,
+        'conv_transpose3d': _transpose_convolution.conv_transpose3d,
         'cross_entropy': _classification.cross_entropy, 'nll_loss': _classification.nll_loss,
         'embedding': _nn.embedding, 'mse_loss': _nn.mse_loss,
     }, reverse='analytic', forward=True)
@@ -271,4 +278,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution

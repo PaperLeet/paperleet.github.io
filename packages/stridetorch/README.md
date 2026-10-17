@@ -993,6 +993,41 @@ are checked according to the active native tape; CE input/output mutations do
 not invalidate the loss itself, while NLL saves its input version.
 
 
+
+## Transposed convolution
+
+`nn.ConvTranspose1d/2d/3d`, `nn.functional.conv_transpose1d/2d/3d` and their
+`torch.conv_transpose1d/2d/3d` aliases support dense real float32/float64 on CPU
+and Pyodide WASM. Batched/unbatched inputs, groups, per-axis stride/padding/dilation,
+output padding, bias, module `output_size`, state dictionaries and dtype conversion
+are supported. Ordinary `torch.nn.modules.conv` imports expose the modules and
+`_ConvTransposeNd`/`_ConvNd` bases. Weight layout is `(in_channels,
+out_channels // groups, *kernel)`; reset bounds use output channels per group.
+
+Direct clipped scatter and bounded matrix contraction share analytical input,
+weight and bias VJPs and bilinear JVPs. Reverse differentiation of JVPs retains
+both bilinear terms, including explicit zero tangents and nonfinite behavior.
+Input and weight versions are saved even for bias-only tapes; detached bias or
+output edits do not invalidate this operation's own backward. Empty batch
+outputs and tangents have native conventional strides; zero channels and
+nonempty zero-spatial inputs are rejected. Batched 2D channels-last input and
+2D channels-last weight layouts select the checked native output layout.
+
+Output padding must be smaller than either stride or dilation on each axis;
+it can exceed stride when dilation is larger. Module `output_size` accepts the
+spatial sizes or a full output shape and resolves only the native stride-sized
+range. Only zero padding mode is supported. Constructor padding strings retain
+native metadata but are invalid for forward execution.
+
+Optional matrix workspace uses a conservative 32 MiB logical-array estimate,
+not measured process peak memory. Large theoretical padding does not allocate
+that full activation span: matrix backward gathers into packed order, and the
+direct fallback evaluates tap slices. Implicit padded zeros retain native
+`0 * Inf` backward behavior. CPU/WASM float16/complex convolution, general
+non-leaf mutation, storage rebinding across saved graphs and GPU execution are
+outside this version's validated support.
+
+
 ## Instance normalization
 
 `nn.InstanceNorm1d`, `nn.InstanceNorm2d`, `nn.InstanceNorm3d`,

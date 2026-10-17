@@ -4,7 +4,7 @@ import math
 import numbers
 import weakref
 import numpy as np
-from . import _autograd, _errors, _random, _state, _tensor
+from . import _autograd, _errors, _layout, _random, _state, _tensor
 from ._module import Module, Parameter
 from ._normalization import parameter_dtype
 
@@ -175,7 +175,7 @@ def _primal(input, weight, bias, geometry, mode):
     patches = maps = None
     with np.errstate(all='ignore'):
         if empty:
-            value = np.empty((shape[0], 0 if not shape[1] else outputs, *out), dtype=input_dtype)
+            value = _layout.contiguous_empty(np.empty((shape[0], 0 if not shape[1] else outputs, *out), dtype=input_dtype))
         else:
             data, maps = _pad(input._data.reshape(shape), pairs, mode)
             patches = _windows(data, shape, groups, kernel, stride, dilation, effective, out)
@@ -251,6 +251,8 @@ def _conv(input, weight, bias, stride, padding, dilation, groups, dim, mode='zer
             term = _autograd.result(np.empty(primal.shape, dtype=primal.dtype), (db, lambda g: np.zeros(bias_shape, dtype=bias_dtype)))
         else: term = db.reshape(broadcast).expand_as(primal)
         tangent = tangent + term
+    if not primal.numel():
+        tangent = _autograd.view_result(_layout.contiguous_empty(tangent._data),tangent,lambda g:g)
     return _autograd.ForwardTensor(primal, tangent)
 
 
@@ -268,6 +270,7 @@ def conv3d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1):
 
 class _ConvNd(Module):
     _dimension = None
+    _transposed = False
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros', device=None, dtype=None):
         super().__init__();dim = self._dimension
         self.in_channels = _integer(in_channels, 'in_channels');self.out_channels = _integer(out_channels, 'out_channels');self.groups = _integer(groups, 'groups')
@@ -283,16 +286,17 @@ class _ConvNd(Module):
             self.padding = padding
         else: self.padding = _tuple(padding, dim, 'padding')
         if padding_mode not in ('zeros', 'reflect', 'replicate', 'circular'): raise ValueError('Invalid convolution padding_mode')
-        self.padding_mode = padding_mode;self.transposed = False;self.output_padding = (0,) * dim
+        self.padding_mode = padding_mode;self.transposed = self._transposed;self.output_padding = (0,) * dim
         pairs = _padding(self.padding, dim, self.kernel_size, (1,) * dim, self.dilation) if isinstance(self.padding, str) else tuple((p, p) for p in self.padding)
         reversed_padding = [v for pair in reversed(pairs) for v in pair]
         self._reversed_padding_repeated_twice = reversed_padding if isinstance(self.padding, str) else tuple(reversed_padding)
         dtype = parameter_dtype(dtype, device)
-        self.weight = Parameter(_tensor.Tensor(np.empty((self.out_channels, self.in_channels // self.groups, *self.kernel_size), dtype=dtype)))
+        weight_channels = (self.in_channels, self.out_channels // self.groups) if self.transposed else (self.out_channels, self.in_channels // self.groups)
+        self.weight = Parameter(_tensor.Tensor(np.empty((*weight_channels, *self.kernel_size), dtype=dtype)))
         self.register_parameter('bias', Parameter(_tensor.Tensor(np.empty(self.out_channels, dtype=dtype))) if bias else None)
         self.reset_parameters()
     def reset_parameters(self):
-        fan = self.in_channels // self.groups * math.prod(self.kernel_size)
+        fan = self.weight.shape[1] * math.prod(self.kernel_size)
         bound = 1 / math.sqrt(fan) if fan else 0.
         with _autograd.no_grad():
             for value in (self.weight, self.bias):
@@ -303,6 +307,7 @@ class _ConvNd(Module):
         result = f'{self.in_channels}, {self.out_channels}, kernel_size={self.kernel_size}, stride={self.stride}'
         if isinstance(self.padding, str) or any(self.padding): result += f', padding={self.padding}'
         if any(v != 1 for v in self.dilation): result += f', dilation={self.dilation}'
+        if any(self.output_padding): result += f', output_padding={self.output_padding}'
         if self.groups != 1: result += f', groups={self.groups}'
         if self.bias is None: result += ', bias=False'
         if self.padding_mode != 'zeros': result += f', padding_mode={self.padding_mode}'
