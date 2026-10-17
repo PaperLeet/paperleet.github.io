@@ -2,9 +2,8 @@ import {interviewCatalog} from './interviewModels';
 
 export type PreparationPrompt={focus:'explain'|'implement'|'verify';question:{zh:string;en:string};hint:{zh:string;en:string}};
 export type PreparationGuide={id:string;source:string;functions:string[];prompts:PreparationPrompt[]};
-// Individual exercise guides supplement the curated preparation paths.
-export const additionalPreparationGuideIds=["diffusion/block_diffusion","diffusion/daps","finetuning/svdquant","representation/moge_alignment","diffusion/diffusion_nft","diffusion/fd_population","diffusion/fd_loss"];
-export const preparationGuideIds=[...new Set([...interviewCatalog.paths.flatMap(path=>path.modules),...additionalPreparationGuideIds])];
+// Every published exercise belongs to a maintained preparation path.
+export const preparationGuideIds=[...new Set(interviewCatalog.paths.flatMap(path=>path.modules))];
 export const hasPreparationGuide=(id:string)=>preparationGuideIds.includes(id);
 export function readPreparationGuides(raw:unknown):PreparationGuide[]|undefined{
  const value=raw as {version:number;reviewed_on:string;modules:PreparationGuide[]};

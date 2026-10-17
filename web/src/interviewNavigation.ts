@@ -12,7 +12,7 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     if(key==='saved'){if(!['0','1'].includes(value))return;filters.saved=value==='1';}
     else if(key==='concept'){if(!/^[a-z0-9_-]{1,80}\/[a-z0-9_-]{1,80}$/.test(value))return;filters.concept=value;}
     // Keep the routing list aligned with the catalog without importing its deferred metadata here.
-    else if(key==='track'){if(!['training-generation','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation','world-models','representation-shape','policy-distillation','visual-quantization','feedback-distillation','advanced-architecture','off-policy-passk','generation-targets'].includes(value))return;filters.track=value;}
+    else if(key==='track'){if(!['training-generation','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation','world-models','representation-shape','policy-distillation','visual-quantization','feedback-distillation','advanced-architecture','off-policy-passk','generation-targets','low-rank-quantization','block-generation','inverse-diffusion'].includes(value))return;filters.track=value;}
     else if(key==='study'){if(!['all','todo','started','done'].includes(value))return;filters.study=value as InterviewStudyState;}
     else if(key==='queue'){if(!/^[1-9]\d{0,4}(?:,[1-9]\d{0,4}){0,79}$/.test(value)||new Set(value.split(',')).size!==value.split(',').length)return;filters.queue=value;}
     else if(key==='page'){if(!/^[1-9]\d{0,3}$/.test(value)||Number(value)>5000)return;filters.page=Number(value);}

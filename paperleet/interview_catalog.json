@@ -618,14 +618,15 @@
         "representation/vicreg",
         "representation/sigreg",
         "representation/visreg",
-        "representation/repa"
+        "representation/repa",
+        "representation/moge_alignment"
       ],
       "roles": [
         "ml",
         "research"
       ],
-      "description": "从 VICReg 的统计约束，练到 SIGReg 特征函数、VISReg 尺度与形状分离，再连接 REPA 逐 patch 对齐。",
-      "description_en": "Connect VICReg statistics, SIGReg characteristic functions and VISReg scale/shape separation with REPA patch alignment."
+      "description": "从 VICReg 统计约束、SIGReg / VISReg 分布正则与 REPA 逐 patch 对齐，走到 MoGe 的尺度和 z 轴平移约束。",
+      "description_en": "Compare VICReg statistics, SIGReg/VISReg distribution regularization and REPA patch alignment, then MoGe scale and camera-z shift constraints."
     },
     {
       "id": "policy-distillation",
@@ -718,13 +719,69 @@
       "id": "generation-targets",
       "name": "生成目标与梯度",
       "name_en": "Generation targets & gradients",
-      "description": "从旋转参数化与连续路径，比较预测空间、速度监督和冻结漂移目标。",
-      "description_en": "Connect rotation parameterization and continuous paths, then compare prediction spaces, velocity supervision and frozen drifting targets.",
+      "description": "从旋转参数化与连续路径，比较预测空间、冻结漂移目标、正负流匹配与总体分布损失。",
+      "description_en": "Connect rotation parameterization and continuous paths with prediction spaces, frozen drifting targets, positive/negative flow matching and population-distribution losses.",
       "modules": [
         "diffusion/param_conversion",
         "diffusion/flow_matching",
         "diffusion/jit",
-        "diffusion/drifting"
+        "diffusion/drifting",
+        "diffusion/diffusion_nft",
+        "diffusion/fd_population",
+        "diffusion/fd_loss"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
+    },
+    {
+      "id": "low-rank-quantization",
+      "name": "低秩适配与量化",
+      "name_en": "Low-rank updates & quantization",
+      "description": "从冻结基座上的低秩更新，练到 NF4 重建，再比较平滑、截断 SVD 与残差量化。",
+      "description_en": "Practice low-rank updates on a frozen base and NF4 reconstruction, then compare smoothing, truncated SVD and residual quantization.",
+      "modules": [
+        "finetuning/lora",
+        "finetuning/qlora",
+        "finetuning/svdquant"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research"
+      ]
+    },
+    {
+      "id": "block-generation",
+      "name": "语言生成与分块掩码",
+      "name_en": "Token objectives & block masks",
+      "description": "连接下一词目标、有效回答掩码与注意力，再检查噪声和干净双流的块级可见性。",
+      "description_en": "Connect next-token objectives, response masks and attention, then inspect block visibility between noisy and clean token streams.",
+      "modules": [
+        "foundations/next_token_loss",
+        "foundations/sft_loss_mask",
+        "architecture/attention",
+        "diffusion/block_diffusion"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research",
+        "software"
+      ]
+    },
+    {
+      "id": "inverse-diffusion",
+      "name": "扩散采样与观测约束",
+      "name_en": "Diffusion sampling & observations",
+      "description": "从噪声调度和预测参数化，练到反向采样，再比较 DAPS 的干净空间校正与独立重加噪。",
+      "description_en": "Practice noise schedules, prediction parameterization and reverse sampling, then compare DAPS clean-space correction and independent renoising.",
+      "modules": [
+        "diffusion/schedules",
+        "diffusion/param_conversion",
+        "diffusion/ddpm_sampling",
+        "diffusion/daps"
       ],
       "roles": [
         "ml",

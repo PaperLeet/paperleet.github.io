@@ -17,6 +17,8 @@ def test_shared_interview_taxonomy_and_preparation_paths_are_publishable():
         assert all(row['name'] and row['name_en'] for row in rows)
     published = {row['id'] for row in problems()}
     assert len(catalog['paths']) >= 3
+    assert len({path['id'] for path in catalog['paths']}) == len(catalog['paths'])
+    assert {module for path in catalog['paths'] for module in path['modules']} == published
     for path in catalog['paths']:
         assert path['name'] and path['name_en'] and path['description'] and path['description_en']
         assert path['modules'] and len(set(path['modules'])) == len(path['modules'])
