@@ -34,7 +34,7 @@ function ReferenceReader({solution,onCode}:{solution?:string|null;onCode:()=>voi
     </summary>
     <div id={regionId} role="region" aria-label={t('参考实现代码','Reference implementation code')}>
       {open&&<>
-        {solution?<CommunityCodeBlock code={solution} language="python"/>:<div className="notice">{t('参考实现尚未提供。','No reference implementation is available yet.')}</div>}
+        {solution?<CommunityCodeBlock code={solution} language="python" initiallyExpanded/>:<div className="notice">{t('参考实现尚未提供。','No reference implementation is available yet.')}</div>}
         <div className="reference-reading-actions" role="group" aria-label={t('参考实现阅读操作','Reference reading actions')}>
           <button type="button" onClick={event=>collapse(event.currentTarget)}><ArrowUp size={15} aria-hidden="true"/>{t('收起参考解','Collapse reference')}</button>
           <button type="button" onClick={onCode}><Code2 size={15} aria-hidden="true"/>{t('返回代码','Back to code')}</button>

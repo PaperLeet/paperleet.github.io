@@ -15,3 +15,11 @@
 .community-code-manual { display:flex; flex-direction:column; gap:8px; padding:12px; border-top:1px solid var(--line); color:var(--text-secondary); font:var(--type-small)/1.6 var(--font-sans); }
 .community-code-manual textarea { width:100%; min-width:0; min-height:80px; max-height:300px; padding:10px; resize:vertical; box-sizing:border-box; border:1px solid var(--line); border-radius:5px; background:var(--bg); color:var(--text); font:var(--type-small)/1.6 var(--font-mono); white-space:pre; overflow:auto; }
 @media(pointer:coarse) { .community-code-header .community-code-actions button { min-height:44px; } }
+
+.community-code-header>span>small { display:inline-block; margin-inline-start:8px; color:var(--muted); font:var(--type-caption)/1.5 var(--font-sans); }
+.community-code-content { min-width:0; }
+.community-code-disclosure { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; padding:10px 12px; border-top:1px solid var(--line); background:var(--surface2); }
+.community-code-disclosure>span { color:var(--text-secondary); font:var(--type-small)/1.6 var(--font-sans); }
+.community-code-disclosure>button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-height:40px; padding:6px 8px; margin-inline-start:auto; border-radius:5px; color:var(--accent); font:var(--type-small)/1.5 var(--font-sans); }
+.community-code-disclosure>button:hover { background:var(--surface); }
+@media(pointer:coarse) { .community-code-disclosure>button { min-height:44px; } }
