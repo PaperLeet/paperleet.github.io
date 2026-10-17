@@ -77,6 +77,7 @@ const mocks = {
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
     export const InboxBell=()=>null,Messages=()=>null;
+    export {default as SubmissionCompletionNotice} from '/src/SubmissionCompletionNotice.tsx';
     export const Achievements=props=>React.createElement('a',{'data-test-achievement-return':true,href:props.returnTo},'Back to where you left off');
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
     export {default as WorkspaceTestResults} from '/src/WorkspaceTestResults.tsx';
@@ -101,7 +102,7 @@ try {
   root=createRoot(document.querySelector('#root'));
   const find=selector=>document.querySelector(selector);
   const action=text=>[...document.querySelectorAll('.workspace-run-controls button')].find(button=>button.textContent.trim()===text);
-  const click=async element=>{assert(element,'Expected an interactive control');await act(async()=>element.dispatchEvent(new window.MouseEvent('click',{bubbles:true})));};
+  const click=async element=>{assert(element,'Expected an interactive control');await act(async()=>element.dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true})));};
   const change=async mutate=>act(async()=>{mutate();notify();});
   const settle=async predicate=>{for(let i=0;i<150&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));assert(predicate(),'Workspace did not settle; detail loads: '+calls.detailsLoads+'; '+document.querySelector('.workspace-test-details')?.textContent.slice(0,700));};
   const resultSelected=()=>find('#reading-tab-result')?.getAttribute('aria-selected')==='true';
@@ -110,7 +111,8 @@ try {
   const finishSubmission=async report=>act(async()=>{fixture.judge.active=false;fixture.judge.pending=undefined;fixture.judge.job={status:'completed'};fixture.onServerReport(report,fixture.practice.owner);notify();});
   await act(async()=>root.render(React.createElement(App)));
   await settle(()=>find('#problem-editor-panel textarea'));
-  const editor=find('#problem-editor-panel textarea');
+  const editor=find('#problem-editor-panel textarea');editor.getClientRects=()=>[new window.DOMRect(0,0,500,600)];
+  find('#problem-results-panel').getClientRects=()=>find('#problem-results-panel').hidden||find('.app').dataset.focusMode||fixture.narrow&&find('.app').dataset.mobilePane==='code'?[]:[new window.DOMRect(0,0,500,600)];
   assert(find('.workspace-toolbar').contains(action('Run tests')));
   assert(find('.workspace-toolbar').contains(action('Submit')));
   assert.equal(find('#reading-tab-description').getAttribute('aria-selected'),'true');
@@ -262,8 +264,9 @@ try {
   await settle(()=>find('.workspace-test-results > .result-head h3')?.textContent==='Accepted');
   assert(!resultSelected()&&find('#reading-tab-description').getAttribute('aria-selected')==='true','Server completion respects the reader tab selected after submission');
   assert(chosenDescription===find('#problem-reading-content')&&chosenArticle===find('#problem-reading-content article'));assert.equal(chosenDescription.scrollTop,247);assert(document.activeElement===find('#reading-tab-description'));
-  assert(document.body.textContent.includes('Submission complete. Open Result to review.'));
-  await click(find('#reading-tab-result'));assert(resultSelected(),'The explicit Result action opens the completed authoritative report');
+  const completeNotice=find('.submission-completion-notice');assert(completeNotice&&completeNotice.textContent.includes('Submission complete'));assert.equal(completeNotice.querySelector('a').getAttribute('href'),'#/submission/'+accepted.run_id);
+  const runsBeforeNotice=calls.runs.length;const noticeChord=new window.KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true});await act(async()=>{completeNotice.querySelector('a').focus();completeNotice.querySelector('a').dispatchEvent(noticeChord);});assert(!noticeChord.defaultPrevented&&calls.runs.length===runsBeforeNotice,'The completion link keeps native modified activation rather than rerunning code');
+  await click(completeNotice.querySelector('a'));await settle(()=>document.activeElement===find('#reading-tab-result'));assert(resultSelected(),'The explicit notification action opens the completed authoritative report');assert(!find('.submission-completion-notice'));assert.equal(location.hash,'#/1');
   assert.equal(calls.appliedReports.at(-1).report,accepted,'Server completion still saves the authoritative report');
   assertInline('Successful server submission must not redirect to a submission page');
   assert.equal(editor.value,editedSource);
@@ -282,6 +285,23 @@ try {
   assertInline('Failed server submission must not redirect to a submission page');
   assert.equal(editor.value,pendingEdit,'A queued result cannot overwrite edits made after submitting');
   assert.equal(editor.selectionStart,6);assert.equal(editor.selectionEnd,15);assert.equal(editor.scrollTop,63);
+  assert(!find('.submission-completion-notice'),'Visible Result completion does not add a redundant notification');
+  // Stored Result selection does not mean its panel is visible on a narrow code pane.
+  fixture.narrow=true;await click(action('Submit'));await click(find('.mobile-workspace-switch button:last-child'));editor.focus();editor.setSelectionRange(5,14,'backward');editor.scrollTop=71;
+  const mobileAccepted={...accepted,source_sha256:createHash('sha256').update(pendingEdit).digest('hex'),run_id:'c'.repeat(32)};
+  await finishSubmission(mobileAccepted);await settle(()=>find('.submission-completion-notice'));
+  assert.equal(find('.app').dataset.mobilePane,'code');assert(document.activeElement===editor,'Completion arrival never takes focus');assert(resultSelected(),'The stored Result selection is retained while the code pane stays active');
+  const dismiss=find('.submission-completion-notice button');await act(async()=>dismiss.focus());await click(dismiss);await settle(()=>document.activeElement===editor);assert(!find('.submission-completion-notice'));assert.equal(editor.selectionStart,5);assert.equal(editor.selectionEnd,14);assert.equal(editor.scrollTop,71);
+  await click(action('Submit'));await click(find('.mobile-workspace-switch button:last-child'));editor.focus();
+  const mobileAgain={...mobileAccepted,run_id:'d'.repeat(32)};await finishSubmission(mobileAgain);await settle(()=>find('.submission-completion-notice'));
+  await change(()=>{fixture.practice.saved={[problem.id]:{...fixture.practice.saved[problem.id],report:{...mobileAgain,run_id:'e'.repeat(32)}}};});
+  const savedAction=find('.submission-completion-notice a');assert.equal(savedAction.textContent,'View saved result');let nativeSaved;
+  document.addEventListener('click',event=>{if(event.target===savedAction){nativeSaved={prevented:event.defaultPrevented,href:savedAction.getAttribute('href')};event.preventDefault();}},{once:true});
+  await click(savedAction);assert.deepEqual(nativeSaved,{prevented:false,href:'#/submission/'+mobileAgain.run_id},'A newer report keeps the old completion action bound to its immutable original record');assert.equal(find('.app').dataset.mobilePane,'code');assert.equal(location.hash,'#/1');
+  await click(action('Submit'));await click(find('.mobile-workspace-switch button:last-child'));editor.focus();const newestCompletion={...mobileAccepted,run_id:'f'.repeat(32)};await finishSubmission(newestCompletion);await settle(()=>find('.submission-completion-notice'));
+  await change(()=>{fixture.account.loading=true;});assert(!find('.submission-completion-notice'),'Account checking immediately hides the private result action');await change(()=>{fixture.account.loading=false;});await settle(()=>find('.submission-completion-notice'));
+  const inlineAction=find('.submission-completion-notice a');await act(async()=>inlineAction.focus());await click(inlineAction);await settle(()=>document.activeElement===find('#reading-tab-result'));assert.equal(find('.app').dataset.mobilePane,'read');assert(!find('.submission-completion-notice'));assert(editor===find('#problem-editor-panel textarea')&&editor.value===pendingEdit);assert.equal(editor.selectionStart,5);assert.equal(editor.selectionEnd,14);assert.equal(location.hash,'#/1');fixture.narrow=false;
+
 
   await click(find('#reading-tab-description'));
   await click(action('Submit'));

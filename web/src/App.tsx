@@ -5,7 +5,7 @@ import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemOverview, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
@@ -62,7 +62,8 @@ import { useWorkspaceShortcuts } from "./useWorkspaceShortcuts";
 import { matchesBrowserSubmission } from './browserVerification';
 import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
-import { submissionDestination } from './submissionNavigation';
+import {submissionCompletion,resultPanelVisible,type SubmissionCompletion} from './submissionCompletion';
+import {SubmissionCompletionNotice} from './deferredPages';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
@@ -138,7 +139,7 @@ function Workspace() {
     [toast, setToast] = useState(""),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
-  const [resultNotice, setResultNotice] = useState<{owner:string; href:string}>();
+  const [resultNotice, setResultNotice] = useState<SubmissionCompletion>();
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number}}>();
@@ -149,12 +150,19 @@ function Workspace() {
   const readingTabsViewport = useRef<HTMLDivElement>(null);
   const readingTabsContent = useRef<HTMLDivElement>(null);
   const navigationIntent=useWorkspaceIntent(JSON.stringify([practice.owner,id,accountLoading]));
-  function selectReadingTab(nextTab: string) {
+  const completionRef=useRef(resultNotice);
+  useLayoutEffect(()=>{completionRef.current=resultNotice;},[resultNotice]);
+  function ownsCompletion(notice:SubmissionCompletion) {
+    return !!user&&completionRef.current===notice&&notice.owner===`user:${user.id}`&&practice.owns(notice.owner)&&navigationIntent.isCurrent()&&getId()===id;
+  }
+  function selectReadingTab(nextTab: string,focus=false) {
     if(getId()!==id||!navigationIntent.isCurrent())return;
+    if(nextTab==='result'&&resultNotice?.problem===problem?.id&&resultNotice?.runId===report?.run_id)setResultNotice(undefined);
     const claim=navigationIntent.create();
     setTab(nextTab); setMobilePane("read"); setFocusMode(false);
     requestAnimationFrame(() => {
       if(!claim())return;
+      if(focus)document.getElementById(`reading-tab-${nextTab}`)?.focus({preventScroll:true});
       document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
       if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
     });
@@ -235,16 +243,14 @@ function Workspace() {
     practice.applyReport(entry, report, runOwner);
     browser.clear(entry.id);
     learning.dismiss(entry,runOwner);
-    const destination = submissionDestination(report, runOwner, entry);
+    const completion=submissionCompletion(report,runOwner,entry);
     void refreshProblemStats();
     setSubmissionRevision(value => value + 1);
-    if ([entry.id, String(entry.number)].includes(routePath(getId()))) {
-      setResultNotice(undefined);
-      setToast(tab==='result'?'':t('提交已完成，可在「结果」查看。','Submission complete. Open Result to review.'));
-    } else if (destination) {
-      setResultNotice({owner:runOwner, href:destination.href});
+    if(completion) {
+      const visible=[entry.id,String(entry.number)].includes(routePath(getId()))&&resultPanelVisible(document.getElementById('problem-results-panel'));
+      setResultNotice(visible?undefined:completion);setToast('');
     } else {
-      setToast(t("测试已完成", "Run complete"));
+      setResultNotice(undefined);setToast(t("测试已完成","Run complete"));
     }
   });
   useEffect(() => { runToken.current = undefined; setPreparingRun(false); }, [practice.owner]);
@@ -1120,14 +1126,23 @@ function Workspace() {
         </>
       )}
       <AchievementObserver key={practice.owner} problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} />
-      {resultNotice?.owner === practice.owner && (
-        <div role="status" className="toast">
-          <CheckCircle2 size={16} />
-          {t('提交已完成', 'Submission complete')}
-          <a href={resultNotice.href} onClick={() => setResultNotice(undefined)}>{t('查看结果', 'View result')}</a>
-          <button className="icon-button" aria-label={t('关闭提示', 'Dismiss notification')} onClick={() => setResultNotice(undefined)}><X size={13} /></button>
-        </div>
-      )}
+      {resultNotice?.owner===practice.owner&&user&&resultNotice.owner===`user:${user.id}`&&!accountLoading&&<SubmissionCompletionNotice key={`${resultNotice.owner}:${resultNotice.runId}`} notice={resultNotice}
+        inline={resultNotice.problem===problem?.id&&resultNotice.runId===report?.run_id}
+        onView={(inline,modified)=>{
+          const notice=resultNotice;
+          if(!ownsCompletion(notice))return 'ignore';
+          if(!inline){if(!modified)setResultNotice(previous=>previous===notice?undefined:previous);return 'saved';}
+          setResultNotice(previous=>previous===notice?undefined:previous);
+          if(notice.problem===problem?.id&&notice.runId===report?.run_id){selectReadingTab('result',true);return 'inline';}
+          return 'saved';
+        }}
+        onDismiss={target=>{
+          const notice=resultNotice;
+          if(!ownsCompletion(notice))return;
+          const claim=target?navigationIntent.create():undefined;
+          setResultNotice(previous=>previous===notice?undefined:previous);
+          if(target&&claim)requestAnimationFrame(()=>{if(claim()&&target.isConnected&&!target.closest('[hidden]')&&target.getClientRects().length)target.focus({preventScroll:true});});
+        }}/>}
       {toast && !resultNotice && (
         <div role="status" className="toast">
           <CheckCircle2 size={16} />
