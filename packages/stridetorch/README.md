@@ -1404,3 +1404,29 @@ RNG stream and distribution, not native Torch's seeded dropout bit stream. Valid
 probabilities are in `[0,1]`; negative and NaN values are rejected. A causal flag
 and explicit mask cannot be combined. This is CPU/Pyodide math execution, with
 no FlashAttention, GPU or native PyTorch binary dependency.
+
+
+### Attention validation and retained-tape buffers (0.51)
+
+Attention's bounded 64-entry validation cache stores shapes, canonical dtype
+strings and configuration only. It does not retain NumPy dtype metadata, tensor
+objects, activations, gradients or RNG state. Scalar options and tensor types are
+checked on every call; matching shapes with new values do not reuse results.
+Single K/V heads use ordinary matrix broadcasting in both regular and forward AD.
+Balanced signed Q/K prescaling and the existing fully-masked-row rule remain.
+
+The ordinary fused VJP saves values only for the gradients that existed when the
+graph was built. With attention dropout and all gradients active, it retains two
+score-shaped arrays (probabilities and one multiplier) instead of three; it
+regenerates their product only for the V pullback. A V-only tape retains just that
+product and releases unneeded scaled Q/K arrays from the pullback. Active leaf
+storage can still remain live for accumulation. A Q-only or K-only tape saves
+only the needed opposite scaled operand and V values. Repeated backwards use the
+original multiplier without consuming random draws. Saved-version guards still
+cover original inputs and masks.
+
+These are retained logical buffer counts, not process peak-memory measurements.
+The compositional JVP/mixed-AD tape does not gain that two-buffer bound. Independent
+scalar math, weak-reference lifetime checks, dtype-metadata collection and cache
+warm-up tests validate the selective rules. The benchmark includes actual-library
+forward/reverse/JVP and complete encoder SGD flows, with and without dropout.

@@ -846,3 +846,20 @@ source-commit deployment was superseded and is not claimed as published.
   Multihead/Transformer modules, larger-sequence memory/throughput, further core
   coverage, measured attention validation/setup overhead and a persistent GPU
   backend remain active work.
+
+## Attention validation and selective saved buffers (0.51)
+
+- Cache canonical shape/dtype metadata without retaining NumPy dtype metadata,
+  tensor values or RNG state. Keep scalar/type guards per call and the 64-entry cap.
+- Use singleton-head matrix broadcasting and release unneeded scaled operands.
+  Dropout ordinary VJPs retain two score-shaped arrays with all gradients or one
+  with V-only gradients, versus three before; active leaf storage remains scoped.
+- Preserve signed balanced prescaling, fully-masked behavior, all AD channels,
+  original version guards, original multipliers and retained backwards.
+- Validate 131 new cases, 161 existing attention cases, source-identified native
+  primitive/extreme/encoder oracles, 192 tape observations, full CPU/Node/Chrome,
+  minimum package/coinstall and 78 exported problems. Retain 40 primary and 22
+  legacy timing flows across 24 fresh children, including every regression.
+- See the [iteration 51 record](../../docs/validation/torch-runtime-iteration-51.md).
+  Core API coverage, Multihead/Transformer modules, temporary work and persistent
+  GPU-backend evaluation continue toward independent-library quality.

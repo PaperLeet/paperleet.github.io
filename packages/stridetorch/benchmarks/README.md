@@ -397,3 +397,15 @@ same-source repeated control, and checks values/all VJPs plus three encoder SGD
 updates before timing. Four fresh CPU/Node/Chrome children per runtime retain all
 22 flows and samples. See the [validation record](../../../docs/validation/torch-runtime-iteration-50.md)
 for regressions, the fully-masked mixed-AD boundary and the scope of each claim.
+
+## Attention validation and saved buffers (0.51)
+
+The updated `bench_attention.py` compares actual builtin attention in 0.50/0.51
+over 40 forward/reverse/JVP/dropout/encoder-SGD flows, with a repeated K/V control
+for supported forward/reverse/SGD paths. It checks values/all VJPs/JVP/mixed AD and
+three matching optimizer updates before timing. Timed training avoids diagnostic
+weight copies. The preserved 22-flow legacy harness separately compares 0.49/0.51
+with singleton broadcasting retained. Four fresh children per runtime/phase,
+alternating orders and every sample are kept. See the
+[validation record](../../../docs/validation/torch-runtime-iteration-51.md) for
+scope, regressions and retained-buffer versus peak-memory distinctions.
