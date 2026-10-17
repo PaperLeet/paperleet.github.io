@@ -1,0 +1,17 @@
+.related-module-search{display:flex;align-items:center;gap:7px;min-width:0;min-height:44px;padding:1px 3px 1px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--muted)}
+.related-module-search>svg{flex:none}
+.related-module-search>input[type=search]{flex:1;min-width:0;width:100%;min-height:40px;padding:0;border:0;outline:none;background:transparent;color:var(--text);border-radius:0;box-shadow:none;font:inherit;font-size:var(--type-body);line-height:1.5}
+.related-module-search:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.related-module-search>button{display:grid;place-items:center;flex:none;width:40px;min-height:40px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer}
+.related-module-search>button:hover:not(:disabled){background:var(--surface2);color:var(--text)}
+.related-module-search>button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+.related-module-search>input::-webkit-search-cancel-button,.related-module-search>input::-webkit-search-decoration{-webkit-appearance:none}
+.related-module-search>button:disabled{opacity:.5;cursor:default}
+.solution-module-selector{display:grid;gap:10px;min-width:0;padding:14px;border:1px solid var(--line);border-radius:9px;background:var(--surface2)}
+.solution-module-selector>p{margin:0;font-size:var(--type-small);line-height:1.7;color:var(--muted);overflow-wrap:anywhere}
+.interview-module-results{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px;min-width:0}
+.interview-module-results>span{font-size:var(--type-small);color:var(--muted);line-height:1.7}
+.interview-module-results>button{min-height:40px;font-size:var(--type-small)}
+@media(pointer:coarse){.related-module-search{min-height:48px}.related-module-search>input[type=search],.related-module-search>button,.interview-module-results>button{min-height:44px}.related-module-search>button{width:44px}}
+
+.interview-question-selector>b:focus-visible,.interview-module-options>button:focus-visible,.interview-selected-questions>button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}

@@ -33,8 +33,8 @@ try{
   if(answer==='fail')throw Error('Solutions unavailable');
   return {items:answer==='empty'?[]:[answer==='wrong-module'?{...post,problem_id:other.id}:post],total:answer==='empty'?0:25,sort:params.get('sort')||'latest',...(answer==='no-ack'?{}:{solutions:true})};
  }};
- let embedded=true,scopedTopic;
- const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(React.Fragment,null,React.createElement('textarea',{'aria-label':'Practice code',defaultValue:'def solve(): return 1'}),embedded?React.createElement(ProblemSolutions,{topic}):React.createElement(Community,{route:location.hash,topics:[topic,other],...(scopedTopic?{topicId:scopedTopic.id,topic:scopedTopic}:{})}))));});
+ let embedded=true,scopedTopic,catalogTopics=[topic,other];
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(React.Fragment,null,React.createElement('textarea',{'aria-label':'Practice code',defaultValue:'def solve(): return 1'}),embedded?React.createElement(ProblemSolutions,{topic}):React.createElement(Community,{route:location.hash,topics:catalogTopics,...(scopedTopic?{topicId:scopedTopic.id,topic:scopedTopic}:{})}))));});
  const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
  const button=text=>[...document.querySelectorAll('button')].find(node=>node.textContent===text);
  const change=async(node,value)=>act(async()=>{Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?dom.window.HTMLTextAreaElement.prototype:node.tagName==='SELECT'?dom.window.HTMLSelectElement.prototype:dom.window.HTMLInputElement.prototype,'value').set.call(node,value);node.dispatchEvent(new dom.window.Event(node.tagName==='SELECT'?'change':'input',{bubbles:true}));});
@@ -73,7 +73,19 @@ try{
  // The general community can select a module without overwriting an ordinary draft.
  embedded=false;location.hash=nav.solutionsHref();drafts.writePostDraft(sessionStorage,'alice','general',{title:'Ordinary draft',body:'Keep this',category:'questions'});await render();await click(button('Share a solution'));
  const picker=form().querySelector('select');assert.equal(picker.required,true);await submit();assert.equal(mutations.length,2);
+ const unchosenSearch=form().querySelector('input[aria-label="Filter practice modules"]'),beforeUnchosenSearch=JSON.stringify({...sessionStorage});await change(unchosenSearch,'finetuning/lora');assert.equal(picker.value,'');assert(picker.validity.valueMissing);assert.equal(JSON.stringify({...sessionStorage}),beforeUnchosenSearch);await change(unchosenSearch,'');
  await change(picker,other.id);await change(form().querySelector('input[type="text"],input:not([type])'),'LoRA reasoning');await change(form().querySelector('textarea'),'Factorization and rank constraints');
+ const moduleSearch=form().querySelector('input[aria-label="Filter practice modules"]'),solutionCode=form().querySelector('textarea');
+ solutionCode.setSelectionRange(2,9,'backward');solutionCode.scrollTop=42;solutionCode.scrollLeft=17;
+ const beforeModuleSearch=JSON.stringify({...sessionStorage}),beforeModuleWrites=mutations.length;
+ await change(moduleSearch,'architecture attention');assert.equal(picker.value,other.id);assert(picker.querySelector('optgroup option'));assert(picker===form().querySelector('select'));
+ await change(moduleSearch,'no matching module');assert.equal(picker.value,other.id);assert(form().querySelector('.solution-module-selector [role=status]').textContent.includes('Found 0 modules'));assert(!document.querySelector('.form-footer button').disabled);
+ await act(async()=>{const enter=new dom.window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true});moduleSearch.dispatchEvent(enter);assert(enter.defaultPrevented);});
+ assert.equal(mutations.length,beforeModuleWrites);assert.equal(JSON.stringify({...sessionStorage}),beforeModuleSearch);
+ await act(async()=>moduleSearch.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
+ assert.equal(moduleSearch.value,'');assert(document.activeElement===moduleSearch);assert.equal(picker.value,other.id);
+ assert.equal(solutionCode.value,'Factorization and rank constraints');assert.deepEqual([solutionCode.selectionStart,solutionCode.selectionEnd,solutionCode.selectionDirection,solutionCode.scrollTop,solutionCode.scrollLeft],[2,9,'backward',42,17]);
+ catalogTopics=[];await render();assert.equal(picker.value,other.id);assert(picker.querySelector('option:checked').disabled);assert(form().querySelector('.form-footer button').disabled);assert.equal(solutionCode.value,'Factorization and rank constraints');catalogTopics=[topic,other];await render();assert.equal(picker.value,other.id);assert(!form().querySelector('.form-footer button').disabled);
  await submit();assert.equal(mutations.at(-1).body.problem_id,other.id);assert.equal(drafts.readPostDraft(sessionStorage,'alice','general').body,'Keep this');
  // Public topic lists link directly between the same module's solutions and discussions.
  const topicsNav=await server.ssrLoadModule('/src/communityTopics.ts');

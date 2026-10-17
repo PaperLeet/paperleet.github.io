@@ -84,6 +84,8 @@ import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
+import RelatedModuleSearch from './RelatedModuleSearch';
+import {searchRelatedModules} from './relatedModuleMatching';
 import { canEditReply } from './replyEdits';
 import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
@@ -309,6 +311,9 @@ function Composer({
   const [publication,setPublication] = useState(() => readPublication(tabDraftStorage(),owner,'post',scope));
   const publishing = useRef(false);
   const { title, body, category: board } = draft;
+  const [moduleSearch,setModuleSearch]=useState('');
+  const moduleHintId=useId(),solutionTopics=topics.filter(row=>!row.retired),matchingTopics=searchRelatedModules(solutionTopics,moduleSearch);
+  const selectedTopic=topics.find(row=>row.id===draft.problemId),selectedOutsideSearch=!!draft.problemId&&!matchingTopics.some(row=>row.id===draft.problemId);
   const categoryHint = communityCategoryHint(board), categoryHintId = useId();
   const [preview, setPreview] = useState(false),
     [discardRequested, setDiscardRequested] = useState(false),
@@ -455,7 +460,15 @@ function Composer({
         }}
       >
         <PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
-        {solution&&!topic&&<label>{t("关联题目","Practice module")}<select required value={draft.problemId||""} disabled={busy} onChange={event=>edit({problemId:event.target.value})}><option value="">{t("选择一道题目","Choose a practice module")}</option>{topics.filter(row=>!row.retired).map(row=><option key={row.id} value={row.id}>{topicTitle(row,locale==="en")}</option>)}</select></label>}
+        {solution&&!topic&&<div className="solution-module-selector">
+          <RelatedModuleSearch value={moduleSearch} onChange={setModuleSearch} label={t('筛选关联题目','Filter practice modules')} disabled={busy}/>
+          <label>{t("关联题目","Practice module")}<select required value={draft.problemId||""} disabled={busy} aria-describedby={moduleHintId} onChange={event=>edit({problemId:event.target.value})}>
+            <option value="">{t("选择一道题目","Choose a practice module")}</option>
+            {selectedOutsideSearch&&<optgroup label={t('保留当前选择','Current selection')}><option value={draft.problemId} disabled={!selectedTopic||selectedTopic.retired}>{selectedTopic?topicTitle(selectedTopic,locale==='en'):draft.problemId}{(!selectedTopic||selectedTopic.retired)&&t('（暂不可用）',' (unavailable)')}</option></optgroup>}
+            {matchingTopics.map(row=><option key={row.id} value={row.id}>{topicTitle(row,locale==="en")}</option>)}
+          </select></label>
+          <p id={moduleHintId} role="status">{t(`找到 ${matchingTopics.length} 道题目`,`Found ${matchingTopics.length} ${matchingTopics.length===1?'module':'modules'}`)}{selectedOutsideSearch?t(' · 已选题目保留，搜索不会更换关联。',' · Your selection is kept. Searching does not change the linked module.'):!matchingTopics.length?t(' · 试试题号、名称或模块 ID。',' · Try a number, title or module ID.'):''}</p>
+        </div>}
         <label>
           {t("版块", "Category")}
           <select value={board} disabled={busy||solution} aria-describedby={categoryHint ? categoryHintId : undefined} onChange={(e) => edit({ category: e.target.value })}>
