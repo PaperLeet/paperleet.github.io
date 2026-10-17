@@ -1,4 +1,4 @@
-"""Paired determinant workflows, stable-log compositions and graph controls."""
+"""Paired determinant workflows and graph controls."""
 import gc
 import hashlib
 import importlib.util
@@ -72,11 +72,11 @@ def run(baseline_source,candidate_source,samples=5):
         for label,shape in [('graph_scalar',(1,)),('graph_vector',(32,))]:plans.append(('graph',dtype,label,shape,True,True))
     for dtype in ['complex64','complex128']:
         for label,shape in [('small',(2,2)),('medium',(8,8)),('large',(32,32))]:
-            for operation in ['logdet','slogdet']:plans.append((operation,dtype,label,shape,False,False))
+            for operation in ['logdet','slogdet']:plans.append((operation,dtype,label,shape,False,True))
     for operation,dtype,label,shape,backward,matched in plans:
         data=np.full(shape,.3,dtype=dtype) if operation=='graph' else _data(shape,dtype)
         variants={'candidate':_method(new,data,operation,backward,False)}
-        if matched:variants['baseline']=_method(old,data,operation,backward,True)
+        if matched:variants['baseline']=_method(old,data,operation,backward,False)
         actual=variants['candidate'][1]()
         if matched:want=variants['baseline'][1]()
         else:
@@ -102,9 +102,9 @@ def run(baseline_source,candidate_source,samples=5):
                 for _ in range(calls):methods[key]()
                 times[key].append((time.perf_counter()-start)/calls)
         medians={key:statistics.median(value) for key,value in times.items()}
-        rows.append(dict(operation=operation,dtype=dtype,shape=label,input_shape=list(shape),mode='full_step' if backward else 'forward',matched=matched,baseline_kind='det.log' if operation=='logdet' else 'det.abs.log' if operation=='slogdet' else operation,calls=calls,calibration=calibration,samples_s=times,median_s=medians,candidate_over_baseline=medians['candidate']/medians['baseline'] if matched else None))
-    assert len(rows)==100 and sum(v['matched'] for v in rows)==88
-    return dict(versions=dict(baseline=old.__version__,candidate=new.__version__),source_hashes=dict(baseline=oh,candidate=nh),samples=samples,rows=rows,scope='88 matched ordinary-SPD determinant/log-composition or graph-control rows against 0.60; 12 candidate-only complex-forward rows. Inputs, conversions and seeds are outside timing; dispatch, graph construction, kernels, optional weighted backward, gradient clearing and result destruction are inside. Five alternating samples in common calibrated batches >=20 ms. Float32 old/new gradients use a separately labeled 1e-5 normwise comparison; native accuracy is independently qualified. No native-Torch/GPU, cold-start or universal-throughput claim.')
+        rows.append(dict(operation=operation,dtype=dtype,shape=label,input_shape=list(shape),mode='full_step' if backward else 'forward',matched=matched,baseline_kind=operation,calls=calls,calibration=calibration,samples_s=times,median_s=medians,candidate_over_baseline=medians['candidate']/medians['baseline'] if matched else None))
+    assert len(rows)==100 and sum(v['matched'] for v in rows)==100
+    return dict(versions=dict(baseline=old.__version__,candidate=new.__version__),source_hashes=dict(baseline=oh,candidate=nh),samples=samples,rows=rows,scope='100 matched determinant/log/graph workflows against actual 0.61 APIs, including complex forward. Inputs, conversions and seeds are outside timing; dispatch, graph construction, kernels, optional weighted backward, gradient clearing and result destruction are inside. Five alternating samples in common calibrated batches >=20 ms. Float32 old/new gradients use a separately labeled 1e-5 normwise comparison; native accuracy is independently qualified. No native-Torch/GPU, cold-start or universal-throughput claim.')
 
 
 def memory(baseline_source,candidate_source):
@@ -116,7 +116,7 @@ def memory(baseline_source,candidate_source):
             for shape in [(64,64),(4,32,32)]:
                 for operation in ['det','logdet','slogdet']:
                     x=t.tensor(_data(shape,dtype),requires_grad=True);weight=t.ones(shape[:-2],dtype=getattr(t,dtype))
-                    gc.collect();tracemalloc.start();value=_value(t,x,operation,label=='baseline');retained,peak=tracemalloc.get_traced_memory();tracemalloc.stop()
+                    gc.collect();tracemalloc.start();value=_value(t,x,operation,False);retained,peak=tracemalloc.get_traced_memory();tracemalloc.stop()
                     tracemalloc.start();(value*weight).sum().backward();_,back_peak=tracemalloc.get_traced_memory();tracemalloc.stop()
                     rows.append(dict(variant=label,operation=operation,dtype=dtype,input_shape=list(shape),new_retained_bytes=retained,forward_peak_bytes=peak,backward_peak_bytes=back_peak,result_bytes=value.numel()*value.element_size()))
                     del x,weight,value;gc.collect()

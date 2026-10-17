@@ -99,9 +99,9 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
     for node in reversed(order):
         key = id(node)
         gradient = pending.pop(key, None)
-        if needed is not None and key not in needed:
-            continue
-        if gradient is None:
+        if gradient is None or needed is not None and key not in needed:
+            if needed is not None and key not in needed:
+                continue
             if not accumulate and targets is not None and key in targets:
                 continue
             # An unused edge still consumes the saved ancestor graph. This

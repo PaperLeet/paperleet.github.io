@@ -16,6 +16,12 @@ def _component(value):
     return _layout.contiguous_empty(data) if not data.size else data
 
 
+def _any(mask):
+    # A scalar predicate already has a truth value; do not dispatch another
+    # NumPy reduction for the common single-matrix path.
+    return bool(mask) if mask.ndim==0 else bool(mask.any())
+
+
 def _check(input):
     if not isinstance(input,_tensor.Tensor):raise TypeError('Log determinants expect a Tensor')
     if input.ndim<2 or input.shape[-2]!=input.shape[-1]:raise RuntimeError('Log determinants expect square matrices')
@@ -84,10 +90,11 @@ def _log_values(source):
         # WASM LAPACK can classify a NaN pivot as singular without reporting
         # an error. Preserve NaN batches instead of silently returning -Inf.
         invalid=np.isnan(source).any(axis=(-2,-1))
-        logabs=np.where(invalid,np.asarray(np.nan,dtype=logabs.dtype),logabs)
-        if source.dtype.kind=='c':
-            sign=np.where(invalid,np.asarray(complex(np.nan,np.nan),dtype=sign.dtype),sign)
-    if source.dtype.kind!='c':
+        if _any(invalid):
+            logabs=np.where(invalid,np.asarray(np.nan,dtype=logabs.dtype),logabs)
+            if source.dtype.kind=='c':
+                sign=np.where(invalid,np.asarray(complex(np.nan,np.nan),dtype=sign.dtype),sign)
+    if source.dtype.kind!='c' and _any(np.isnan(logabs)):
         # Native real sgn maps a NaN pivot to zero; NumPy can report +/-1.
         sign=np.where(np.isnan(logabs),np.copysign(np.zeros_like(sign),sign),sign)
     return _component(sign),_component(logabs)
@@ -146,12 +153,13 @@ def logdet(input):
             value.real[...]=np.where(np.isnan(sign.real)|np.isnan(sign.imag),np.nan,logabs)
             value.imag[...]=np.where(sign==0,np.nan,np.angle(sign))
         return _tensor.Tensor(_component(value))
-    value=np.where(sign<0,np.asarray(np.nan,dtype=source.dtype),logabs)
+    negative=sign<0;has_negative=_any(negative)
+    value=np.where(negative,np.asarray(np.nan,dtype=source.dtype),logabs) if has_negative else logabs
     def backward(g):
-        seed=np.where(sign<0,np.zeros((),dtype=source.dtype),g)
+        seed=np.where(negative,np.zeros((),dtype=source.dtype),g) if has_negative else g
         return _diagonal_solve(source,seed)
     output=_autograd.result(_component(value),(primal,backward),versioned=(primal,))
-    return _autograd.ForwardTensor(output,_directional(primal,input._tangent,sign<0)) if forward else output
+    return _autograd.ForwardTensor(output,_directional(primal,input._tangent,negative if has_negative else None)) if forward else output
 
 
 from . import _autograd, _errors, _layout, _linalg, _tensor

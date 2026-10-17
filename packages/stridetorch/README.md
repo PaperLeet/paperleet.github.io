@@ -396,6 +396,11 @@ return the logarithm directly. They use a log factorization rather than taking
 the logarithm of an already overflowed or underflowed determinant. Square
 matrices, batches, strided views and empty matrices are supported.
 
+Ordinary inputs reuse the log factorization's results without constructing
+unused NaN/negative corrections. Single-matrix predicates avoid redundant
+NumPy reductions. Special-value handling, saved-value guards and gradient
+contracts retain the same validated behavior.
+
 Float32/64 support first-order reverse gradients and real JVPs. Real slogdet's
 sign is a differentiable graph output with an unused input-gradient edge:
 backward through sign alone leaves the input gradient `None`. Both outputs
