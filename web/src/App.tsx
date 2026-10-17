@@ -1,3 +1,4 @@
+import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
 import {DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
@@ -147,9 +148,13 @@ function Workspace() {
   const readingTabsContainer = useRef<HTMLDivElement>(null);
   const readingTabsViewport = useRef<HTMLDivElement>(null);
   const readingTabsContent = useRef<HTMLDivElement>(null);
+  const navigationIntent=useWorkspaceIntent(JSON.stringify([practice.owner,id,accountLoading]));
   function selectReadingTab(nextTab: string) {
+    if(getId()!==id||!navigationIntent.isCurrent())return;
+    const claim=navigationIntent.create();
     setTab(nextTab); setMobilePane("read"); setFocusMode(false);
     requestAnimationFrame(() => {
+      if(!claim())return;
       document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
       if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
     });
@@ -157,13 +162,7 @@ function Workspace() {
   function showTests() {
     selectReadingTab("result");
   }
-  function openEditor() {
-    setRightTab("code"); setMobilePane("code");
-    requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>('#problem-editor-panel [contenteditable="true"], #problem-editor-panel textarea')?.focus({ preventScroll: true });
-      if (window.matchMedia("(max-width: 850px)").matches) document.querySelector(".mobile-workspace-switch")?.scrollIntoView({ block: "start" });
-    });
-  }
+  function openEditor() { focusEditor(); }
   const [details, setDetails] = useState<Record<string, Problem>>({});
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
@@ -241,8 +240,7 @@ function Workspace() {
     setSubmissionRevision(value => value + 1);
     if ([entry.id, String(entry.number)].includes(routePath(getId()))) {
       setResultNotice(undefined);
-      selectReadingTab("result");
-      setToast("");
+      setToast(tab==='result'?'':t('提交已完成，可在「结果」查看。','Submission complete. Open Result to review.'));
     } else if (destination) {
       setResultNotice({owner:runOwner, href:destination.href});
     } else {
@@ -255,16 +253,21 @@ function Workspace() {
   const hasCurrentSyntaxError = !!syntaxFailure && syntaxFailure.source === (current.code ?? problem?.starter);
   const reportSource = useReportSource(report, current.code ?? problem?.starter ?? "");
   const currentSource = current.code ?? problem?.starter ?? '';
-  const [editorFocus, setEditorFocus] = useState<(EditorFocusRequest & { owner: string; problem: string })>();
+  const [editorFocus, setEditorFocus] = useState<(EditorFocusRequest & { owner: string; problem: string; href:string })>();
   useEffect(() => {
     setEditorFocus(previous => previous && previous.owner === practice.owner && previous.problem === problem?.id && previous.source === currentSource ? previous : undefined);
   }, [practice.owner, problem?.id, currentSource]);
-  function locateSource(location: SourceLocation) {
-    if (!problem || !practice.ready || !practice.owns(practice.owner) || ![problem.id,String(problem.number)].includes(routePath(getId()))) return;
-    openEditor();
-    setEditorFocus({ owner: practice.owner, problem: problem.id, source: currentSource, location });
+  function focusEditor(location?:SourceLocation) {
+    if(getId()!==id||!navigationIntent.isCurrent()||!problem||!practice.owns(practice.owner)||![problem.id,String(problem.number)].includes(routePath(id)))return;
+    setRightTab("code");setMobilePane("code");
+    navigationIntent.cancel();
+    if(accountLoading||!practice.ready)return;
+    setEditorFocus({owner:practice.owner,problem:problem.id,href:window.location.href,source:currentSource,location,claimFocus:navigationIntent.create()});
   }
-  function editorFocused(request: EditorFocusRequest) {
+  function locateSource(location: SourceLocation) { focusEditor(location); }
+  function editorFocused(request: EditorFocusRequest,focused=false) {
+    if(focused&&editorFocus===request&&editorFocus.href===location.href&&practice.owns(editorFocus.owner)&&window.matchMedia("(max-width: 850px)").matches)
+      document.querySelector(".mobile-workspace-switch")?.scrollIntoView({block:"start"});
     setEditorFocus(previous => previous === request ? undefined : previous);
   }
   const browserAvailable = !!problem?.browser_judge;

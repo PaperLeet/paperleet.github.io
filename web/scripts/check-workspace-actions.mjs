@@ -83,7 +83,7 @@ const mocks = {
     export {default as JudgeRuntimeDetails} from '/src/JudgeRuntimeDetails.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
     export {default as ReadingTabControls} from '/src/ReadingTabControls.tsx';
-    export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
+    export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);const focused=!focusRequest.claimFocus||focusRequest.claimFocus();if(focused)document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest,focused);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content})=>React.createElement('article',null,content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
     ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
@@ -154,6 +154,21 @@ try {
   await click([...document.querySelectorAll('button')].find(b=>b.textContent==='Retry problem details'));
   await act(async()=>fixture.resolveOverview());await settle(()=>find('.module-scope-card'));
   assert(editor===find('#problem-editor-panel textarea')&&editor.value===source&&editor.selectionStart===4&&editor.scrollTop===41,'Details retry does not remount or overwrite code');
+
+  assert(calls.focusRequests.some(request=>!request.location&&typeof request.claimFocus==='function'),'The real App returns to code through a guarded selection-preserving request');
+  const normalFrame=globalThis.requestAnimationFrame,queuedFrames=[];
+  globalThis.requestAnimationFrame=callback=>{queuedFrames.push(callback);return queuedFrames.length;};
+  try {
+    await click(find('#reading-tab-explanation'));await click(find('#reading-tab-description'));
+    const reader=find('#problem-reading-content');reader.scrollTop=331;find('#problem-results-panel').scrollTop=332;
+    await act(async()=>document.dispatchEvent(new window.WheelEvent('wheel',{bubbles:true})));
+    await act(async()=>{for(const callback of queuedFrames.splice(0))callback(0);});
+    assert.equal(reader.scrollTop,331);assert.equal(find('#problem-results-panel').scrollTop,332,'A newer user scroll cancels queued reader resets');
+    await click(find('#reading-tab-explanation'));await click(find('#reading-tab-description'));
+    const latestReader=find('#problem-reading-content');let resets=0;latestReader.scrollTo=function(x,y){resets++;this.scrollLeft=x;this.scrollTop=y;};
+    await act(async()=>{for(const callback of queuedFrames.splice(0))callback(0);});
+    assert.equal(resets,1,'Only the latest tab request resets the current reader');assert(editor===find('#problem-editor-panel textarea')&&editor.value===source);
+  } finally {globalThis.requestAnimationFrame=normalFrame;}
 
   await click(action('Run tests'));
   assert.deepEqual(calls.runs,[{id:problem.id,source}]);
@@ -241,9 +256,14 @@ try {
   assert(find('#problem-results-panel .judge-queue-notice').textContent.includes('Running tests…'));
   const accepted={...report,runtime:'server',source_sha256:createHash('sha256').update(editedSource).digest('hex'),run_id:'a'.repeat(32)};
   await click(find('#reading-tab-description'));
+  await act(async()=>new Promise(resolve=>setTimeout(resolve,0)));
+  const chosenDescription=find('#problem-reading-content'),chosenArticle=chosenDescription.querySelector('article');chosenDescription.scrollTop=247;find('#reading-tab-description').focus();
   await finishSubmission(accepted);
   await settle(()=>find('.workspace-test-results > .result-head h3')?.textContent==='Accepted');
-  assert(resultSelected(),'Successful server completion selects the inline Result tab');
+  assert(!resultSelected()&&find('#reading-tab-description').getAttribute('aria-selected')==='true','Server completion respects the reader tab selected after submission');
+  assert(chosenDescription===find('#problem-reading-content')&&chosenArticle===find('#problem-reading-content article'));assert.equal(chosenDescription.scrollTop,247);assert(document.activeElement===find('#reading-tab-description'));
+  assert(document.body.textContent.includes('Submission complete. Open Result to review.'));
+  await click(find('#reading-tab-result'));assert(resultSelected(),'The explicit Result action opens the completed authoritative report');
   assert.equal(calls.appliedReports.at(-1).report,accepted,'Server completion still saves the authoritative report');
   assertInline('Successful server submission must not redirect to a submission page');
   assert.equal(editor.value,editedSource);
@@ -254,7 +274,9 @@ try {
   const pendingEdit=editedSource.replace('* 3','* 4');
   await change(()=>{fixture.practice.saved={[problem.id]:{...fixture.practice.saved[problem.id],code:pendingEdit}};});
   editor.setSelectionRange(6,15);editor.scrollTop=63;
+  find('#problem-results-panel').scrollTop=390;
   await finishSubmission(serverFailed);
+  assert.equal(find('#problem-results-panel').scrollTop,390,'Completion updates a visible report without resetting its reader scroll');
   await settle(()=>find('#problem-results-panel .feedback-diagnostic')?.textContent.includes('Server output mismatch'));
   assert(resultSelected(),'Failed server completion appears in the inline Result tab');
   assertInline('Failed server submission must not redirect to a submission page');

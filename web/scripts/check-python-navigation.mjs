@@ -122,6 +122,12 @@ print(json.dumps(results))`;
   assert.equal(handled,1);
   await render({focusRequest:{...request}});assert.equal(handled,2,'A newly requested diagnostic still works after manual navigation');
   assert.equal(editor.state.doc.lineAt(editor.state.selection.main.head).number,2);
+  const selection=editor.state.selection,sourceBefore=editor.state.doc.toString(),changedBefore=changes.length;
+  const acknowledgements=[];let claims=0;
+  await render({focusRequest:{source:props.value,claimFocus:()=>{claims++;return true;}},onFocusHandled:(_request,focused)=>acknowledgements.push(focused)});
+  assert.equal(claims,1);assert.equal(acknowledgements.at(-1),true);assert(document.activeElement===editor.contentDOM);assert(editor.state.selection===selection,'Returning without a diagnostic preserves the exact CodeMirror selection object');
+  select().focus();await render({focusRequest:{source:props.value,location:{line:1},claimFocus:()=>false}});
+  assert(document.activeElement===select(),'A retired diagnostic cannot steal newer focus');assert(editor.state.selection===selection);assert.equal(acknowledgements.at(-1),false);assert.equal(editor.state.doc.toString(),sourceBefore);assert.equal(changes.length,changedBefore);
   await render({value:'# no definitions\n',focusRequest:undefined});await settle(()=>select().disabled);assert.equal(view(),editor);
   console.log(`PASS Python navigation: AST parity for ${maintained.length} maintained sources, strings/comments, Unicode/CRLF, decorators/async/nesting, duplicates, partial syntax and full-document coverage; actual CodeMirror jumps preserve source/view/focus with live locale, stale-source/read-only and diagnostic ownership guards`);
 } finally {

@@ -24,13 +24,18 @@ export default function PythonEditor({ value, readOnly, theme, onChange, font, l
     if (!view || !focusRequest || handledFocus.current === focusRequest || readOnly || focusRequest.source !== value) return;
     if (view.state.doc.toString() !== source) return;
     handledFocus.current = focusRequest;
-    const position = sourceOffset(source, focusRequest.location);
-    if (position !== undefined) {
-      view.dom.scrollIntoView({ block: 'nearest' });
-      view.dispatch({ selection: { anchor: position }, effects: EditorView.scrollIntoView(position, { y: 'center' }) });
+    const allowed=!focusRequest.claimFocus||focusRequest.claimFocus();
+    const position=focusRequest.location?sourceOffset(source,focusRequest.location):undefined;
+    let focused=false;
+    if(allowed&&(!focusRequest.location||position!==undefined)) {
+      if(focusRequest.location&&position!==undefined) {
+        view.dom.scrollIntoView({block:'nearest'});
+        view.dispatch({selection:{anchor:position},effects:EditorView.scrollIntoView(position,{y:'center'})});
+      }
       view.focus();
+      focused=view.contentDOM.ownerDocument.activeElement===view.contentDOM;
     }
-    onFocusHandled?.(focusRequest);
+    onFocusHandled?.(focusRequest,focused);
   }, [view, value, source, readOnly, focusRequest, onFocusHandled]);
   function acknowledgeFocusRequest() {
     if (focusRequest && handledFocus.current !== focusRequest) { handledFocus.current = focusRequest; onFocusHandled?.(focusRequest); }

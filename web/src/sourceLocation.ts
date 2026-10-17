@@ -2,7 +2,8 @@ import type { ReportSourceState } from './reportSource';
 
 export type SourceLocation = { line: number; column?: number };
 export type LearnerTraceFrame = { row: number; location: SourceLocation };
-export type EditorFocusRequest = { source: string; location: SourceLocation };
+/** Without a location, focus the existing selection; a claim is a single-use permission. */
+export type EditorFocusRequest = { source: string; location?: SourceLocation; claimFocus?: () => boolean };
 
 export const editorSource = (source: string) => source.replace(/\r\n|\r/g, '\n');
 

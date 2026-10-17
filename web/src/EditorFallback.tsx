@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { editorSource, sourceOffset, type EditorFocusRequest } from './sourceLocation';
 
 export type EditorRecovery = { blocked: boolean; reason: string; reload: () => void };
-export type PythonEditorProps = { value: string; readOnly: boolean; theme: 'light' | 'dark'; font: number; label: string; onChange: (value: string) => void; recovery?: EditorRecovery; focusRequest?: EditorFocusRequest; onFocusHandled?: (request: EditorFocusRequest) => void };
+export type PythonEditorProps = { value: string; readOnly: boolean; theme: 'light' | 'dark'; font: number; label: string; onChange: (value: string) => void; recovery?: EditorRecovery; focusRequest?: EditorFocusRequest; onFocusHandled?: (request: EditorFocusRequest, focused?: boolean) => void };
 const label: [string, string] = ['代码编辑器', 'code editor'];
 export function EditorLoading({ value, font }: PythonEditorProps) {
   return <div className="editor-fallback" aria-busy="true"><FeatureLoading label={label} /><pre style={{ fontSize: font }}>{value}</pre></div>;
@@ -12,18 +12,25 @@ export function EditorLoading({ value, font }: PythonEditorProps) {
 export function EditorFailure({ value, readOnly, font, label: accessibleLabel, onChange, retry, recovery, focusRequest, onFocusHandled }: PythonEditorProps & { retry: () => void }) {
   const { t } = useI18n();
   const textarea = useRef<HTMLTextAreaElement>(null);
+  const handledFocus=useRef<typeof focusRequest>(undefined);
   useEffect(() => {
     const editor = textarea.current;
-    if (!editor || !focusRequest || readOnly || focusRequest.source !== value) return;
-    const position = sourceOffset(editorSource(value), focusRequest.location);
-    if (position !== undefined) {
-      editor.focus();
-      editor.setSelectionRange(position, position);
-      editor.scrollIntoView({ block: 'nearest' });
-      const lineHeight = parseFloat(getComputedStyle(editor).lineHeight);
-      if (Number.isFinite(lineHeight)) editor.scrollTop = Math.max(0, (focusRequest.location.line - 1) * lineHeight - editor.clientHeight / 2);
+    if (!editor || !focusRequest || handledFocus.current===focusRequest || readOnly || focusRequest.source !== value) return;
+    handledFocus.current=focusRequest;
+    const allowed=!focusRequest.claimFocus||focusRequest.claimFocus();
+    const position=focusRequest.location?sourceOffset(editorSource(value),focusRequest.location):undefined;
+    let focused=false;
+    if(allowed&&(!focusRequest.location||position!==undefined)) {
+      editor.focus({preventScroll:true});
+      focused=editor.ownerDocument.activeElement===editor;
+      if(focusRequest.location&&position!==undefined) {
+        editor.setSelectionRange(position,position);
+        editor.scrollIntoView({block:'nearest'});
+        const lineHeight=parseFloat(getComputedStyle(editor).lineHeight);
+        if(Number.isFinite(lineHeight))editor.scrollTop=Math.max(0,(focusRequest.location.line-1)*lineHeight-editor.clientHeight/2);
+      }
     }
-    onFocusHandled?.(focusRequest);
+    onFocusHandled?.(focusRequest,focused);
   }, [value, readOnly, focusRequest, onFocusHandled]);
   return <div className="editor-fallback">
     {recovery ? <div className="feature-failure editor-recovery-notice">
