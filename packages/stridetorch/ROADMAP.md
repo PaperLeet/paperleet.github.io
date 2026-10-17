@@ -749,7 +749,7 @@ source-commit deployment was superseded and is not claimed as published.
    layout/ownership fix, including optimizer access and many small parameters.
    Add APIs
    with native value, VJP/JVP and boundary tests, independent of course coverage.
-4. Neural-network coverage: expand instance normalization, attention options,
+4. Neural-network coverage: expand attention options,
    transpose convolution and pooling, with masked/empty/non-contiguous
    cases and numerical checks. Optimize exact array erf and continue auditing
    low-precision/statistic accumulation behavior across numerical runtimes.
@@ -787,3 +787,16 @@ source-commit deployment was superseded and is not claimed as published.
   behavior; never silently pass off another backend's result as GPU execution.
 - A stable repository version is an integration milestone. Independent-library
   readiness and optional GPU adoption remain separate goals requiring evidence.
+
+## InstanceNorm milestone (0.47)
+
+- Add batched/unbatched InstanceNorm1d/2d/3d, functional/root entries, native
+  shared `_NormBase` state and optional bias. Preserve running snapshots,
+  counters, mutation guards, empty boundaries, analytical VJP/JVP and mixed AD.
+- Validate 182 focused tests, 118 native differential cases, 38,714 CPU passes,
+  5,085 actual Node/Chrome contracts and all 78 exported PaperLeet problems.
+- Compare 26 direct/composed flows across 12 fresh CPU/Node/Chrome processes,
+  including complete convolution/SGD steps; retain every timing sample.
+- Preserve 10,387 prior payloads and seven release-policy files. See the
+  [iteration 47 record](../../docs/validation/torch-runtime-iteration-47.md).
+  Broader core APIs, efficiency and optional persistent GPU backend work remain active.

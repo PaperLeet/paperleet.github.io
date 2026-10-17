@@ -189,10 +189,10 @@ def batch_norm(input, running_mean, running_var, weight=None, bias=None, trainin
     return _autograd.ForwardTensor(primal, tangent)
 
 
-class _BatchNorm(Module):
+class _NormBase(Module):
     _version = 2
 
-    def __init__(self, num_features, eps=1e-5, momentum=.1, affine=True, track_running_stats=True, device=None, dtype=None):
+    def __init__(self, num_features, eps=1e-5, momentum=.1, affine=True, track_running_stats=True, device=None, dtype=None, *, bias=True):
         super().__init__()
         if not isinstance(num_features, numbers.Integral) or isinstance(num_features, (bool, np.bool_)):
             raise TypeError('num_features must be an integer')
@@ -201,7 +201,7 @@ class _BatchNorm(Module):
         self.num_features, self.eps, self.momentum = int(num_features), eps, momentum
         self.affine, self.track_running_stats = affine, track_running_stats
         self.register_parameter('weight', Parameter(_tensor.Tensor(np.empty(num_features, dtype=dtype))) if affine else None)
-        self.register_parameter('bias', Parameter(_tensor.Tensor(np.empty(num_features, dtype=dtype))) if affine else None)
+        self.register_parameter('bias', Parameter(_tensor.Tensor(np.empty(num_features, dtype=dtype))) if affine and bias else None)
         self.register_buffer('running_mean', _tensor.Tensor(np.empty(num_features, dtype=dtype)) if track_running_stats else None)
         self.register_buffer('running_var', _tensor.Tensor(np.empty(num_features, dtype=dtype)) if track_running_stats else None)
         self.register_buffer('num_batches_tracked', _tensor.Tensor(np.array(0, dtype=np.int64)) if track_running_stats else None)
@@ -219,8 +219,21 @@ class _BatchNorm(Module):
         if self.affine:
             with _autograd.no_grad():
                 self.weight.fill_(1)
-                self.bias.zero_()
+                if self.bias is not None: self.bias.zero_()
 
+    def extra_repr(self):
+        return f'{self.num_features}, eps={self.eps}, momentum={self.momentum}, affine={self.affine}, bias={self.bias is not None}, track_running_stats={self.track_running_stats}'
+
+    def _load_from_state_dict(self, state, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs):
+        version = local_metadata.get('version')
+        if self.track_running_stats and (version is None or version < 2):
+            name = prefix + 'num_batches_tracked'
+            if name not in state:
+                state[name] = self.num_batches_tracked if self.num_batches_tracked is not None else _tensor.Tensor(np.array(0, dtype=np.int64))
+        super()._load_from_state_dict(state, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs)
+
+
+class _BatchNorm(_NormBase):
     def forward(self, input):
         self._check_input_dim(input)
         factor = 0. if self.momentum is None else self.momentum
@@ -234,16 +247,6 @@ class _BatchNorm(Module):
         variance = self.running_var if not self.training or self.track_running_stats else None
         return batch_norm(input, mean, variance, self.weight, self.bias, training, factor, self.eps)
 
-    def extra_repr(self):
-        return f'{self.num_features}, eps={self.eps}, momentum={self.momentum}, affine={self.affine}, track_running_stats={self.track_running_stats}'
-
-    def _load_from_state_dict(self, state, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs):
-        version = local_metadata.get('version')
-        if self.track_running_stats and (version is None or version < 2):
-            name = prefix + 'num_batches_tracked'
-            if name not in state:
-                state[name] = self.num_batches_tracked if self.num_batches_tracked is not None else _tensor.Tensor(np.array(0, dtype=np.int64))
-        super()._load_from_state_dict(state, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs)
 
 
 class BatchNorm1d(_BatchNorm):

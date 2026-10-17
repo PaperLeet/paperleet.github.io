@@ -355,3 +355,13 @@ adjoints and a same-source inverse-disabled control. It imports the neighboring
 are required; samples/iterations/reverse order are optional. Each of 46 flows
 checks values, gradients or SGD updates and actual route selection before timing.
 See the [0.46 validation record](../../../docs/validation/torch-runtime-iteration-46.md).
+
+## Instance normalization (0.47)
+
+`bench_instance_norm.py` checks direct InstanceNorm against an existing BatchNorm
+composition before timing 26 forward/reverse/JVP and convolution/SGD flows.
+`run(samples=5, calls=12, reverse_order=False)` also works when mounted in a
+Pyodide Worker. The formal record retains four fresh children per CPU/Node/Chrome
+runtime, every sample and exact source hashes. This is a same-source composition
+comparison, since 0.46 did not expose InstanceNorm. See the
+[0.47 validation record](../../../docs/validation/torch-runtime-iteration-47.md).

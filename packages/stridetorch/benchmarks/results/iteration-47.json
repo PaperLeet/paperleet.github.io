@@ -1,0 +1,3148 @@
+{
+  "status": "validated_locally",
+  "version": "0.47.0",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+    "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+    "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "baseline": {
+    "commit": "2b2795fd6de3d36986c4d90963dcc2d614c0a73f",
+    "source": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "3aac2b507f5e918d5d55805259b1a7b9e61de128895a6386fc59d64df02fbe15",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "99e61853bf8a108e8d000f45bd011810f666b8f06ce25b856c7771a6452fc90c",
+      "__init__.py": "8b45a6405e81b98a57db3f9e5cd58789c4d6e276894a5564b043abe9d069eec4",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    }
+  },
+  "unchanged_resources": 48,
+  "changed_resources": [
+    "__init__.py",
+    "_api.py",
+    "_batchnorm.py"
+  ],
+  "added_resources": [
+    "_instancenorm.py"
+  ],
+  "full_cpu": {
+    "exit_code": 0,
+    "elapsed_s": 327.92102429200895,
+    "passed": 38714,
+    "skipped": 1,
+    "warnings": 34,
+    "duration_s": 325.05
+  },
+  "focused_instance_norm": 182,
+  "native_differential": {
+    "status": "success",
+    "numeric_cases": 54,
+    "semantic_cases": 64,
+    "array_state_checks": 2142,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+      "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "native_version": "2.14.1",
+    "candidate_version": "0.47.0",
+    "tolerances": {
+      "float32": {
+        "rtol": 8e-06,
+        "atol": 8e-06
+      },
+      "float64": {
+        "rtol": 3e-12,
+        "atol": 3e-12
+      }
+    },
+    "scope": "Float32/64 C/F/strided values, VJP, JVP, reverse-over-forward, state values/versions; mutation snapshots/guards; partial/empty state; epsilon boundaries. Native and candidate separate Python processes."
+  },
+  "node_wasm": {
+    "numpy_fenv_traps": false,
+    "library": "0.47.0",
+    "numpy": "2.2.5",
+    "passed": 5085,
+    "source_hashes": {
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2"
+    }
+  },
+  "chrome_worker": {
+    "status": "success",
+    "library": "0.47.0",
+    "numpy": "2.2.5",
+    "passed": 5085,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+      "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "test_hashes": {
+      "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+      "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+      "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+      "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+      "test_average_pooling.py": "580b03a8db0a3e3b3511cbefb3a91c810d7217d31aa24d3be032640c4de7d983",
+      "test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+      "test_feature_detection.py": "64720a88f93955b8e4c2dd77f715a0946a9d30944455e69d8eddd5b35f11452b",
+      "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+      "test_pooling.py": "1e3084a7e1cbf621a7ae89fe6f3dc09fd2a8bed5fe2fc589cee6c19f8a448989",
+      "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+      "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+      "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+      "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+      "test_convolution.py": "f353e83ea0a27409090dd8af2f8646b7f483d06b6ec28ad1ca084526579a7b60",
+      "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+      "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+      "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+      "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+      "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+      "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+      "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+      "test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+      "test_pooling_1d.py": "4b1024f2980e68165f411cf79ff158c2e1ba962988e08d0ab168a9745c4d1307",
+      "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+      "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+      "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+      "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+      "test_pooling_3d.py": "a44ac8c6d64af2312342a0969de66203be1a6766be4152ec3059e159752031eb",
+      "test_average_pooling_plans.py": "e3178c03b2737785f4efcd21573bd50437330b73ae12c9e3377b812e57a3350b",
+      "test_instancenorm.py": "c796b279cb74d953d2b9c96df73f595b7778fd4728c6ca94a5b5bfe3c861cd08",
+      "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+      "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+      "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+      "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+      "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+      "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+      "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+      "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+      "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+      "test_average_pooling_1d.py": "87a7ef3de39c98a3dd3147d972719d9cdb7f7d85dcbf635ab6ab8cc3d8127792",
+      "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+      "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+      "test_average_pooling_3d.py": "9ef4a808534c6b3ecf3733da524ed93700351e7e2a49399a629492b32ae29c43",
+      "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "harness": {
+      "run.mjs": "6135cf820cc1fe8646b37763202e4c4c933b675d87640a9c05f86d39cfdbac04",
+      "worker.mjs": "6cb438cfcd836fed85ba652b23ac3a84bc2aef34bd67aefa23816f07773325c0",
+      "plan.json": "d27788abb99167184398838d1e38af254cdfe285e6d0388ddb8423050b81414a"
+    }
+  },
+  "minimal_wheel": {
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "library": "0.47.0",
+    "native_torch": false,
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+      "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "status": "success",
+    "all_children_terminal": true,
+    "package_modules": 50,
+    "license": "Apache-2.0",
+    "artifacts": {
+      "stridetorch-0.47.0-py3-none-any.whl": "a7dc9b736962a0c1d3d18ef50a2d42b78efee1617638caee07c93b8cc529e43c",
+      "stridetorch-0.47.0.tar.gz": "49fe49264f7a41f30d7bbda36a5f8291c7beede3fba221f0b20cc917ff1b5b56"
+    },
+    "receipts": {
+      "python310-stride047-venv.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.07006058300612494,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/python310-stride047-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ]
+      },
+      "python310-stride047-install.log": {
+        "exit_code": 0,
+        "elapsed_s": 0.3168699169764295,
+        "args": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/python310-stride047-env/bin/python",
+          "numpy==1.26.4",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/dist-preflight/stridetorch-0.47.0-py3-none-any.whl"
+        ]
+      },
+      "python310-stride047-tests.log": {
+        "exit_code": 0,
+        "elapsed_s": 17.803181750001386,
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/python310-stride047-env/bin/python",
+          "-m",
+          "pytest",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/python310-stride047-tests",
+          "-q",
+          "--noconftest"
+        ]
+      }
+    }
+  },
+  "coinstall": {
+    "status": "success",
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+      "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "wheels": {
+      "stridetorch-0.47.0-py3-none-any.whl": "a7dc9b736962a0c1d3d18ef50a2d42b78efee1617638caee07c93b8cc529e43c",
+      "paperleet-0.1.0-py3-none-any.whl": "527dbc5bdb49e9d17d373b9cdc9128090f90e869987d1234c45168f1594e946d"
+    },
+    "receipts": [
+      {
+        "label": "coinstall-venv",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "venv",
+          "--clear",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env",
+          "--python",
+          "/Users/david/.local/share/uv/python/cpython-3.10.19-macos-aarch64-none/bin/python3.10"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.07896004201029427
+      },
+      {
+        "label": "coinstall-install",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "numpy==1.26.4",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/dist-preflight/stridetorch-0.47.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.2638014590193052
+      },
+      {
+        "label": "coinstall-both",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch', 'paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.47.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n layer=t.nn.InstanceNorm2d(3,affine=True,track_running_stats=True,dtype=t.float64)\n value=t.tensor(np.sin(np.arange(72)).reshape(2,3,3,4),requires_grad=True)\n y,dy=t.func.jvp(layer,(value,),(t.ones_like(value),))\n (y.square().sum()+dy.square().sum()).backward()\n assert layer.num_batches_tracked.item()==0 and np.isfinite(value.grad.numpy()).all()\n assert layer.running_mean._version==2\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nimport pickle\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch;legacy=importlib.import_module(name+'._legacy').install()\n for obj in (t,t.nn,t.tensor([1.]),legacy,legacy.tensor([1.])):\n  key='not_a_real_torch_symbol_37';sentinel=object()\n  assert not hasattr(obj,key) and getattr(obj,key,sentinel) is sentinel\n  try:getattr(obj,key)\n  except AttributeError as error:\n   assert isinstance(error,m.UnsupportedOperation) and error.obj is obj and error.name==key\n   restored=pickle.loads(pickle.dumps(error));reference=pickle.loads(pickle.dumps(AttributeError(str(error),name=key,obj=obj)))\n   assert isinstance(restored,m.UnsupportedOperation) and isinstance(restored,AttributeError) and restored.name==reference.name and restored.obj is None\n  else:raise AssertionError('Missing symbol accepted')\n with m.as_torch():\n  try:exec('from torch.nn import not_a_real_torch_symbol_37',{})\n  except ImportError:pass\n  else:raise AssertionError('Unavailable from-import accepted')\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n x=t.tensor([[[[1.,2.,3.],[4.,9.,6.],[7.,8.,5.]]]],dtype=t.float64,requires_grad=True)\n p,i=t.nn.functional.max_pool2d(x,2,1,return_indices=True)\n assert p.tolist()==[[[[9.,9.],[9.,9.]]]] and i.tolist()==[[[[4,4],[4,4]]]]\n p.sum().backward();assert x.grad.tolist()==[[[[0.,0.,0.],[0.,4.,0.],[0.,0.,0.]]]]\n v=t.ones_like(x,requires_grad=True)\n p,dual=t.func.jvp(lambda z:t.nn.functional.max_pool2d(z,2,1),(x,),(v,));dual.sum().backward()\n assert v.grad.tolist()==[[[[0.,0.,0.],[0.,4.,0.],[0.,0.,0.]]]]\n model=t.nn.MaxPool2d(2);restored=pickle.loads(pickle.dumps(model));assert restored(x).shape==model(x).shape\n with m.as_torch():\n  from torch.nn.modules.pooling import MaxPool2d\n  assert MaxPool2d is t.nn.MaxPool2d\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n x=t.ones(1,1,4,4,dtype=t.float64,requires_grad=True)\n p=t.nn.functional.adaptive_avg_pool2d(x,2);p.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),.25)\n v=t.ones_like(x,requires_grad=True);p,dual=t.func.jvp(lambda z:t.nn.functional.adaptive_avg_pool2d(z,2),(x,),(v,));dual.sum().backward();np.testing.assert_array_equal(v.grad.numpy(),.25)\n model=t.nn.AdaptiveAvgPool2d(2);restored=pickle.loads(pickle.dumps(model));assert restored(x).shape==model(x).shape\n a=np.ones((1,1,4,4));a[...,0,0]=np.inf\n np.testing.assert_array_equal(t.nn.functional.adaptive_avg_pool2d(t.tensor(a),2).numpy(),[[[[np.inf,1.],[1.,1.]]]])\n assert t.nn.AvgPool2d(2)(x).shape==(1,1,2,2)\n with m.as_torch():\n  from torch.nn.modules.pooling import AvgPool2d,AdaptiveAvgPool2d\n  assert AvgPool2d is t.nn.AvgPool2d and AdaptiveAvgPool2d is t.nn.AdaptiveAvgPool2d\nplans=[]\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n a=np.arange(17*23,dtype=np.float64).reshape(1,1,17,23);a[...,::2]*=-1\n x=api.tensor(a,requires_grad=True);y=api.nn.functional.adaptive_avg_pool2d(x,(5,3));y.sum().backward()\n assert np.isfinite(x.grad.numpy()).all() and not np.shares_memory(x.numpy(),y.numpy())\n module=importlib.import_module(name+'._average_pooling');plan=module._cached_pack_plan(17,23,5,3,np.dtype('float64').str,False)\n assert plan is not None and plan.flat is not None and not plan.flat.flags.writeable\n plans.append(module._cached_pack_plan)\nassert len({id(value) for value in plans}) == len(plans)\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n with m.as_torch() as api:\n  import torch\n  from torch.nn.modules.pooling import AvgPool1d,AdaptiveAvgPool1d\n  assert torch is api and AvgPool1d is api.nn.AvgPool1d\n  x=api.arange(14,dtype=api.float64).reshape(1,2,7).requires_grad_()\n  model=api.nn.Sequential(AvgPool1d(3,2,1,True,False),AdaptiveAvgPool1d(3))\n  y=model(x);y.sum().backward();assert np.isfinite(x.grad.numpy()).all()\n  _,t=api.func.jvp(model,(x,),(api.ones_like(x),))\n  np.testing.assert_array_equal(t.numpy(),1.)\n  np.testing.assert_array_equal(api.avg_pool1d(x,2).numpy(),api.nn.functional.avg_pool1d(x,2).numpy())\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n with m.as_torch() as api:\n  from torch.nn.modules.pooling import MaxPool1d,MaxPool2d\n  assert not isinstance(MaxPool1d(2),MaxPool2d)\n  x=api.arange(7,dtype=api.float64).reshape(1,1,7).requires_grad_()\n  y,i=api.max_pool1d_with_indices(x,1_000_000,1,500_000)\n  np.testing.assert_array_equal(y.numpy(),6.);np.testing.assert_array_equal(i.numpy(),6)\n  y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),[[[0,0,0,0,0,0,8]]])\n  layer=api.nn.Sequential(api.nn.Conv1d(2,3,3,padding=1),api.nn.SiLU(),MaxPool1d(2),api.nn.AdaptiveAvgPool1d(3),api.nn.Flatten(),api.nn.Linear(9,2)).double()\n  opt=api.optim.SGD(layer.parameters(),lr=.01,momentum=.9);data=api.ones(1,2,17,dtype=api.float64)\n  layer(data).square().mean().backward();opt.step()\n  stream=io.BytesIO();api.save({'model':layer.state_dict(),'optimizer':opt.state_dict()},stream);stream.seek(0);loaded=api.load(stream)\n  layer.load_state_dict(loaded['model']);opt.load_state_dict(loaded['optimizer']);opt.zero_grad();layer(data).square().mean().backward();opt.step()\n  assert np.isfinite(layer(data).numpy()).all()\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as api:\n  from torch.nn.modules.pooling import MaxPool3d\n  a=api.arange(64,dtype=api.float64).reshape(1,1,4,4,4).requires_grad_()\n  y,i=MaxPool3d(2,return_indices=True)(a)\n  assert i.tolist()==[[[[[21,23],[29,31]],[[53,55],[61,63]]]]]\n  y.sum().backward();assert a.grad.sum().item()==8.\n  _,tan=api.func.jvp(lambda z:api.max_pool3d(z,2),(a,),(api.ones_like(a),))\n  np.testing.assert_array_equal(tan.numpy(),1.)\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch():\n  from torch.nn.modules.pooling import AvgPool3d,AdaptiveAvgPool3d\n  assert AvgPool3d is t.nn.AvgPool3d and AdaptiveAvgPool3d is t.nn.AdaptiveAvgPool3d\n  x=t.arange(64,dtype=t.float64).reshape(1,1,4,4,4).requires_grad_()\n  y=AvgPool3d(2)(x);y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),.125)\n  x.grad=None\n  _,tan=t.func.jvp(lambda z:AdaptiveAvgPool3d((3,2,4))(z),(x,),(t.ones_like(x),))\n  np.testing.assert_array_equal(tan.numpy(),1.)\n  assert pickle.loads(pickle.dumps(AvgPool3d(2)))(x).shape==(1,1,2,2,2)\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.8728392500197515
+      },
+      {
+        "label": "coinstall-uninstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "paperleet"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.017320459010079503
+      },
+      {
+        "label": "coinstall-public-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['stridetorch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.47.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n layer=t.nn.InstanceNorm2d(3,affine=True,track_running_stats=True,dtype=t.float64)\n value=t.tensor(np.sin(np.arange(72)).reshape(2,3,3,4),requires_grad=True)\n y,dy=t.func.jvp(layer,(value,),(t.ones_like(value),))\n (y.square().sum()+dy.square().sum()).backward()\n assert layer.num_batches_tracked.item()==0 and np.isfinite(value.grad.numpy()).all()\n assert layer.running_mean._version==2\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nimport pickle\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch;legacy=importlib.import_module(name+'._legacy').install()\n for obj in (t,t.nn,t.tensor([1.]),legacy,legacy.tensor([1.])):\n  key='not_a_real_torch_symbol_37';sentinel=object()\n  assert not hasattr(obj,key) and getattr(obj,key,sentinel) is sentinel\n  try:getattr(obj,key)\n  except AttributeError as error:\n   assert isinstance(error,m.UnsupportedOperation) and error.obj is obj and error.name==key\n   restored=pickle.loads(pickle.dumps(error));reference=pickle.loads(pickle.dumps(AttributeError(str(error),name=key,obj=obj)))\n   assert isinstance(restored,m.UnsupportedOperation) and isinstance(restored,AttributeError) and restored.name==reference.name and restored.obj is None\n  else:raise AssertionError('Missing symbol accepted')\n with m.as_torch():\n  try:exec('from torch.nn import not_a_real_torch_symbol_37',{})\n  except ImportError:pass\n  else:raise AssertionError('Unavailable from-import accepted')\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n x=t.tensor([[[[1.,2.,3.],[4.,9.,6.],[7.,8.,5.]]]],dtype=t.float64,requires_grad=True)\n p,i=t.nn.functional.max_pool2d(x,2,1,return_indices=True)\n assert p.tolist()==[[[[9.,9.],[9.,9.]]]] and i.tolist()==[[[[4,4],[4,4]]]]\n p.sum().backward();assert x.grad.tolist()==[[[[0.,0.,0.],[0.,4.,0.],[0.,0.,0.]]]]\n v=t.ones_like(x,requires_grad=True)\n p,dual=t.func.jvp(lambda z:t.nn.functional.max_pool2d(z,2,1),(x,),(v,));dual.sum().backward()\n assert v.grad.tolist()==[[[[0.,0.,0.],[0.,4.,0.],[0.,0.,0.]]]]\n model=t.nn.MaxPool2d(2);restored=pickle.loads(pickle.dumps(model));assert restored(x).shape==model(x).shape\n with m.as_torch():\n  from torch.nn.modules.pooling import MaxPool2d\n  assert MaxPool2d is t.nn.MaxPool2d\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n x=t.ones(1,1,4,4,dtype=t.float64,requires_grad=True)\n p=t.nn.functional.adaptive_avg_pool2d(x,2);p.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),.25)\n v=t.ones_like(x,requires_grad=True);p,dual=t.func.jvp(lambda z:t.nn.functional.adaptive_avg_pool2d(z,2),(x,),(v,));dual.sum().backward();np.testing.assert_array_equal(v.grad.numpy(),.25)\n model=t.nn.AdaptiveAvgPool2d(2);restored=pickle.loads(pickle.dumps(model));assert restored(x).shape==model(x).shape\n a=np.ones((1,1,4,4));a[...,0,0]=np.inf\n np.testing.assert_array_equal(t.nn.functional.adaptive_avg_pool2d(t.tensor(a),2).numpy(),[[[[np.inf,1.],[1.,1.]]]])\n assert t.nn.AvgPool2d(2)(x).shape==(1,1,2,2)\n with m.as_torch():\n  from torch.nn.modules.pooling import AvgPool2d,AdaptiveAvgPool2d\n  assert AvgPool2d is t.nn.AvgPool2d and AdaptiveAvgPool2d is t.nn.AdaptiveAvgPool2d\nplans=[]\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n a=np.arange(17*23,dtype=np.float64).reshape(1,1,17,23);a[...,::2]*=-1\n x=api.tensor(a,requires_grad=True);y=api.nn.functional.adaptive_avg_pool2d(x,(5,3));y.sum().backward()\n assert np.isfinite(x.grad.numpy()).all() and not np.shares_memory(x.numpy(),y.numpy())\n module=importlib.import_module(name+'._average_pooling');plan=module._cached_pack_plan(17,23,5,3,np.dtype('float64').str,False)\n assert plan is not None and plan.flat is not None and not plan.flat.flags.writeable\n plans.append(module._cached_pack_plan)\nassert len({id(value) for value in plans}) == len(plans)\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n with m.as_torch() as api:\n  import torch\n  from torch.nn.modules.pooling import AvgPool1d,AdaptiveAvgPool1d\n  assert torch is api and AvgPool1d is api.nn.AvgPool1d\n  x=api.arange(14,dtype=api.float64).reshape(1,2,7).requires_grad_()\n  model=api.nn.Sequential(AvgPool1d(3,2,1,True,False),AdaptiveAvgPool1d(3))\n  y=model(x);y.sum().backward();assert np.isfinite(x.grad.numpy()).all()\n  _,t=api.func.jvp(model,(x,),(api.ones_like(x),))\n  np.testing.assert_array_equal(t.numpy(),1.)\n  np.testing.assert_array_equal(api.avg_pool1d(x,2).numpy(),api.nn.functional.avg_pool1d(x,2).numpy())\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n with m.as_torch() as api:\n  from torch.nn.modules.pooling import MaxPool1d,MaxPool2d\n  assert not isinstance(MaxPool1d(2),MaxPool2d)\n  x=api.arange(7,dtype=api.float64).reshape(1,1,7).requires_grad_()\n  y,i=api.max_pool1d_with_indices(x,1_000_000,1,500_000)\n  np.testing.assert_array_equal(y.numpy(),6.);np.testing.assert_array_equal(i.numpy(),6)\n  y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),[[[0,0,0,0,0,0,8]]])\n  layer=api.nn.Sequential(api.nn.Conv1d(2,3,3,padding=1),api.nn.SiLU(),MaxPool1d(2),api.nn.AdaptiveAvgPool1d(3),api.nn.Flatten(),api.nn.Linear(9,2)).double()\n  opt=api.optim.SGD(layer.parameters(),lr=.01,momentum=.9);data=api.ones(1,2,17,dtype=api.float64)\n  layer(data).square().mean().backward();opt.step()\n  stream=io.BytesIO();api.save({'model':layer.state_dict(),'optimizer':opt.state_dict()},stream);stream.seek(0);loaded=api.load(stream)\n  layer.load_state_dict(loaded['model']);opt.load_state_dict(loaded['optimizer']);opt.zero_grad();layer(data).square().mean().backward();opt.step()\n  assert np.isfinite(layer(data).numpy()).all()\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as api:\n  from torch.nn.modules.pooling import MaxPool3d\n  a=api.arange(64,dtype=api.float64).reshape(1,1,4,4,4).requires_grad_()\n  y,i=MaxPool3d(2,return_indices=True)(a)\n  assert i.tolist()==[[[[[21,23],[29,31]],[[53,55],[61,63]]]]]\n  y.sum().backward();assert a.grad.sum().item()==8.\n  _,tan=api.func.jvp(lambda z:api.max_pool3d(z,2),(a,),(api.ones_like(a),))\n  np.testing.assert_array_equal(tan.numpy(),1.)\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch():\n  from torch.nn.modules.pooling import AvgPool3d,AdaptiveAvgPool3d\n  assert AvgPool3d is t.nn.AvgPool3d and AdaptiveAvgPool3d is t.nn.AdaptiveAvgPool3d\n  x=t.arange(64,dtype=t.float64).reshape(1,1,4,4,4).requires_grad_()\n  y=AvgPool3d(2)(x);y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),.125)\n  x.grad=None\n  _,tan=t.func.jvp(lambda z:AdaptiveAvgPool3d((3,2,4))(z),(x,),(t.ones_like(x),))\n  np.testing.assert_array_equal(tan.numpy(),1.)\n  assert pickle.loads(pickle.dumps(AvgPool3d(2)))(x).shape==(1,1,2,2,2)\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.1828650829847902
+      },
+      {
+        "label": "coinstall-reinstall-private",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "--no-deps",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.017603500018594787
+      },
+      {
+        "label": "coinstall-uninstall-public",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "uninstall",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "stridetorch"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.014350125013152137
+      },
+      {
+        "label": "coinstall-private-survives",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/proof/coinstall-env/bin/python",
+          "-c",
+          "NAMES=['paperleet._vendor.torch']\nimport importlib,importlib.util,hashlib,json,pathlib\nexpected=json.loads(pathlib.Path('source-hashes.json').read_text())\nfor name in NAMES:\n m=importlib.import_module(name);p=pathlib.Path(m.__file__).parent\n actual={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.suffix=='.py' or f.name in ('LICENSE','NOTICE')}\n assert actual==expected and m.__version__=='0.47.0'\n t=m.torch;x=t.tensor([1.,float('nan'),3.],requires_grad=True);y=t.nanmean(x);assert y.item()==2.;y.backward();assert x.grad.tolist()==[.5,0.,.5]\nassert importlib.util.find_spec('torch') is None\nimport numpy as np\nfor name in NAMES:\n t=importlib.import_module(name).torch\n layer=t.nn.InstanceNorm2d(3,affine=True,track_running_stats=True,dtype=t.float64)\n value=t.tensor(np.sin(np.arange(72)).reshape(2,3,3,4),requires_grad=True)\n y,dy=t.func.jvp(layer,(value,),(t.ones_like(value),))\n (y.square().sum()+dy.square().sum()).backward()\n assert layer.num_batches_tracked.item()==0 and np.isfinite(value.grad.numpy()).all()\n assert layer.running_mean._version==2\nfor name in NAMES:\n t=importlib.import_module(name).torch\n x=t.from_numpy(np.array([[1.,2.,3.],[4.,5.,6.]],order='F')).requires_grad_()\n x.sum().backward();assert x.grad.stride()==x.stride()\n assert x.t().shape==(3,2) and x.mT.stride()==(2,1)\n assert t.movedim(x,0,1).shape==(3,2)\n y=x*2;y.retain_grad();y.sum().backward(retain_graph=True);old=y.grad\n y.sum().backward();assert y.grad is not old;assert old.tolist()==[[1.,1.,1.],[1.,1.,1.]]\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[[3.,0.],[0.,2.]],[[4.,0.],[0.,5.]]],dtype=t.float64,requires_grad=True)\n b=t.tensor([[[1.,2.]],[[3.,4.]]],dtype=t.float64,requires_grad=True)\n x=t.linalg.solve(a,b,left=False)\n np.testing.assert_allclose(x.numpy(),[[[1/3,1.]],[[.75,.8]]])\n x.sum().backward()\n np.testing.assert_allclose(b.grad.numpy(),[[[1/3,.5]],[[.25,.2]]])\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve(aa,bb,left=False),(a,b),(t.ones_like(a),t.ones_like(b)))\n assert primal.shape==tangent.shape==(2,1,2) and np.isfinite(tangent.numpy()).all()\nimport io\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as aliased:\n  import torch\n  from torch.serialization import save,load\n  assert torch is aliased and save is torch.save and load is torch.load\n  base=torch.arange(12,dtype=torch.float64);state={'base':base,'view':base[1::2]}\n  stream=io.BytesIO();save(state,stream);stream.seek(0);loaded=load(stream,weights_only=True)\n  np.testing.assert_array_equal(loaded['view'].numpy(),[1,3,5,7,9,11]);loaded['base'][1]=23.;assert loaded['view'][0].item()==23.\n  layer=torch.nn.Linear(2,1).double();opt=torch.optim.AdamW(layer.parameters(),lr=.01);sched=torch.optim.lr_scheduler.StepLR(opt,2)\n  x=torch.tensor([[1.,2.]],dtype=torch.float64);layer(x).square().mean().backward();opt.step();sched.step()\n  stream=io.BytesIO();save({'model':layer.state_dict(),'optimizer':opt.state_dict(),'scheduler':sched.state_dict()},stream);stream.seek(0);loaded=load(stream)\n  target=torch.nn.Linear(2,1).double();newopt=torch.optim.AdamW(target.parameters());newsched=torch.optim.lr_scheduler.StepLR(newopt,2)\n  target.load_state_dict(loaded['model']);newsched.load_state_dict(loaded['scheduler']);newopt.load_state_dict(loaded['optimizer'])\n  np.testing.assert_array_equal(target(x).numpy(),layer(x).numpy())\n  newopt.zero_grad();target(x).square().mean().backward();newopt.step();newsched.step()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[2.,.2],[.9,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.linalg.solve_triangular(a,b,upper=True,left=False,unitriangular=True)\n np.testing.assert_allclose(x.numpy(),[[1.,.8],[1.,.8]]);assert x.stride()==(1,2)\n x.square().mean().backward();assert a.grad[0,0].item()==a.grad[1,1].item()==a.grad[1,0].item()==0.\n a.grad=b.grad=None\n primal,tangent=t.func.jvp(lambda aa,bb:t.linalg.solve_triangular(aa,bb,upper=True,left=False,unitriangular=True),(a,b),(t.ones_like(a),t.ones_like(b)))\n np.testing.assert_allclose(tangent.numpy(),[[1.,-.2],[1.,-.2]])\n tangent.sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(b.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n a=t.tensor([[4.,1.],[1.,3.]],dtype=t.float64,requires_grad=True)\n factor=t.linalg.cholesky(a);np.testing.assert_allclose(factor.numpy(),[[2.,0.],[.5,np.sqrt(2.75)]])\n factor.square().sum().backward();np.testing.assert_allclose(a.grad.numpy(),np.eye(2),atol=1e-14)\n a.grad=None;direction=t.tensor([[.2,.3],[.7,.4]],dtype=t.float64,requires_grad=True)\n _,tangent=t.func.jvp(lambda v:t.linalg.cholesky(v,upper=True),(a,),(direction,))\n np.testing.assert_allclose(tangent.numpy(),[[.05,.3375],[0.,.048995593493886595]])\n tangent.square().sum().backward();assert np.isfinite(a.grad.numpy()).all() and np.isfinite(direction.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);b=t.ones(2,2,dtype=t.float64,requires_grad=True)\n x=t.cholesky_solve(b,f);np.testing.assert_allclose(x.numpy(),np.linalg.solve(f.numpy()@f.numpy().T,b.numpy()))\n x.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\n f.grad=b.grad=None\n dF=t.ones_like(f)*.13;dB=t.ones_like(b)*.27\n _,tangent=t.func.jvp(lambda bb,ff:bb.cholesky_solve(ff),(b,f),(dB,dF))\n tangent.square().sum().backward();assert np.isfinite(b.grad.numpy()).all() and np.isfinite(f.grad.numpy()).all()\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=(t.eye(64,dtype=t.float64)*2).requires_grad_();b=t.full((64,2),.2,dtype=t.float64,requires_grad=True)\n db=t.full_like(b,.03,requires_grad=True);df=t.full_like(f,.01,requires_grad=True)\n x,tangent=t.func.jvp(lambda bb,ff:t.cholesky_solve(bb,ff),(b,f),(db,df))\n np.testing.assert_allclose(x.numpy(),.05);np.testing.assert_allclose(tangent.numpy(),-.0245)\n (x.square().sum()+tangent.square().sum()).backward()\n assert all(a.grad is not None and np.isfinite(a.grad.numpy()).all() for a in (b,f,db,df))\nfor name in NAMES:\n t=importlib.import_module(name).torch\n f=t.tensor([[2.,0.],[.4,3.]],dtype=t.float64,requires_grad=True);df=t.full_like(f,.13,requires_grad=True)\n x,tangent=t.func.jvp(lambda f:f.cholesky_inverse(),(f,),(df,))\n expected=np.linalg.inv(f.numpy()@f.numpy().T);np.testing.assert_allclose(x.numpy(),expected)\n partial=-expected@df.numpy()@expected@f.numpy().T\n np.testing.assert_allclose(tangent.numpy(),partial+partial.T)\n (x.square().sum()+tangent.square().sum()).backward()\n assert np.isfinite(f.grad.numpy()).all() and np.isfinite(df.grad.numpy()).all()\nimport pickle\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch;legacy=importlib.import_module(name+'._legacy').install()\n for obj in (t,t.nn,t.tensor([1.]),legacy,legacy.tensor([1.])):\n  key='not_a_real_torch_symbol_37';sentinel=object()\n  assert not hasattr(obj,key) and getattr(obj,key,sentinel) is sentinel\n  try:getattr(obj,key)\n  except AttributeError as error:\n   assert isinstance(error,m.UnsupportedOperation) and error.obj is obj and error.name==key\n   restored=pickle.loads(pickle.dumps(error));reference=pickle.loads(pickle.dumps(AttributeError(str(error),name=key,obj=obj)))\n   assert isinstance(restored,m.UnsupportedOperation) and isinstance(restored,AttributeError) and restored.name==reference.name and restored.obj is None\n  else:raise AssertionError('Missing symbol accepted')\n with m.as_torch():\n  try:exec('from torch.nn import not_a_real_torch_symbol_37',{})\n  except ImportError:pass\n  else:raise AssertionError('Unavailable from-import accepted')\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n x=t.tensor([[[[1.,2.,3.],[4.,9.,6.],[7.,8.,5.]]]],dtype=t.float64,requires_grad=True)\n p,i=t.nn.functional.max_pool2d(x,2,1,return_indices=True)\n assert p.tolist()==[[[[9.,9.],[9.,9.]]]] and i.tolist()==[[[[4,4],[4,4]]]]\n p.sum().backward();assert x.grad.tolist()==[[[[0.,0.,0.],[0.,4.,0.],[0.,0.,0.]]]]\n v=t.ones_like(x,requires_grad=True)\n p,dual=t.func.jvp(lambda z:t.nn.functional.max_pool2d(z,2,1),(x,),(v,));dual.sum().backward()\n assert v.grad.tolist()==[[[[0.,0.,0.],[0.,4.,0.],[0.,0.,0.]]]]\n model=t.nn.MaxPool2d(2);restored=pickle.loads(pickle.dumps(model));assert restored(x).shape==model(x).shape\n with m.as_torch():\n  from torch.nn.modules.pooling import MaxPool2d\n  assert MaxPool2d is t.nn.MaxPool2d\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n x=t.ones(1,1,4,4,dtype=t.float64,requires_grad=True)\n p=t.nn.functional.adaptive_avg_pool2d(x,2);p.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),.25)\n v=t.ones_like(x,requires_grad=True);p,dual=t.func.jvp(lambda z:t.nn.functional.adaptive_avg_pool2d(z,2),(x,),(v,));dual.sum().backward();np.testing.assert_array_equal(v.grad.numpy(),.25)\n model=t.nn.AdaptiveAvgPool2d(2);restored=pickle.loads(pickle.dumps(model));assert restored(x).shape==model(x).shape\n a=np.ones((1,1,4,4));a[...,0,0]=np.inf\n np.testing.assert_array_equal(t.nn.functional.adaptive_avg_pool2d(t.tensor(a),2).numpy(),[[[[np.inf,1.],[1.,1.]]]])\n assert t.nn.AvgPool2d(2)(x).shape==(1,1,2,2)\n with m.as_torch():\n  from torch.nn.modules.pooling import AvgPool2d,AdaptiveAvgPool2d\n  assert AvgPool2d is t.nn.AvgPool2d and AdaptiveAvgPool2d is t.nn.AdaptiveAvgPool2d\nplans=[]\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n a=np.arange(17*23,dtype=np.float64).reshape(1,1,17,23);a[...,::2]*=-1\n x=api.tensor(a,requires_grad=True);y=api.nn.functional.adaptive_avg_pool2d(x,(5,3));y.sum().backward()\n assert np.isfinite(x.grad.numpy()).all() and not np.shares_memory(x.numpy(),y.numpy())\n module=importlib.import_module(name+'._average_pooling');plan=module._cached_pack_plan(17,23,5,3,np.dtype('float64').str,False)\n assert plan is not None and plan.flat is not None and not plan.flat.flags.writeable\n plans.append(module._cached_pack_plan)\nassert len({id(value) for value in plans}) == len(plans)\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n with m.as_torch() as api:\n  import torch\n  from torch.nn.modules.pooling import AvgPool1d,AdaptiveAvgPool1d\n  assert torch is api and AvgPool1d is api.nn.AvgPool1d\n  x=api.arange(14,dtype=api.float64).reshape(1,2,7).requires_grad_()\n  model=api.nn.Sequential(AvgPool1d(3,2,1,True,False),AdaptiveAvgPool1d(3))\n  y=model(x);y.sum().backward();assert np.isfinite(x.grad.numpy()).all()\n  _,t=api.func.jvp(model,(x,),(api.ones_like(x),))\n  np.testing.assert_array_equal(t.numpy(),1.)\n  np.testing.assert_array_equal(api.avg_pool1d(x,2).numpy(),api.nn.functional.avg_pool1d(x,2).numpy())\nfor name in NAMES:\n m=importlib.import_module(name);api=m.torch\n with m.as_torch() as api:\n  from torch.nn.modules.pooling import MaxPool1d,MaxPool2d\n  assert not isinstance(MaxPool1d(2),MaxPool2d)\n  x=api.arange(7,dtype=api.float64).reshape(1,1,7).requires_grad_()\n  y,i=api.max_pool1d_with_indices(x,1_000_000,1,500_000)\n  np.testing.assert_array_equal(y.numpy(),6.);np.testing.assert_array_equal(i.numpy(),6)\n  y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),[[[0,0,0,0,0,0,8]]])\n  layer=api.nn.Sequential(api.nn.Conv1d(2,3,3,padding=1),api.nn.SiLU(),MaxPool1d(2),api.nn.AdaptiveAvgPool1d(3),api.nn.Flatten(),api.nn.Linear(9,2)).double()\n  opt=api.optim.SGD(layer.parameters(),lr=.01,momentum=.9);data=api.ones(1,2,17,dtype=api.float64)\n  layer(data).square().mean().backward();opt.step()\n  stream=io.BytesIO();api.save({'model':layer.state_dict(),'optimizer':opt.state_dict()},stream);stream.seek(0);loaded=api.load(stream)\n  layer.load_state_dict(loaded['model']);opt.load_state_dict(loaded['optimizer']);opt.zero_grad();layer(data).square().mean().backward();opt.step()\n  assert np.isfinite(layer(data).numpy()).all()\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch() as api:\n  from torch.nn.modules.pooling import MaxPool3d\n  a=api.arange(64,dtype=api.float64).reshape(1,1,4,4,4).requires_grad_()\n  y,i=MaxPool3d(2,return_indices=True)(a)\n  assert i.tolist()==[[[[[21,23],[29,31]],[[53,55],[61,63]]]]]\n  y.sum().backward();assert a.grad.sum().item()==8.\n  _,tan=api.func.jvp(lambda z:api.max_pool3d(z,2),(a,),(api.ones_like(a),))\n  np.testing.assert_array_equal(tan.numpy(),1.)\nfor name in NAMES:\n m=importlib.import_module(name);t=m.torch\n with m.as_torch():\n  from torch.nn.modules.pooling import AvgPool3d,AdaptiveAvgPool3d\n  assert AvgPool3d is t.nn.AvgPool3d and AdaptiveAvgPool3d is t.nn.AdaptiveAvgPool3d\n  x=t.arange(64,dtype=t.float64).reshape(1,1,4,4,4).requires_grad_()\n  y=AvgPool3d(2)(x);y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),.125)\n  x.grad=None\n  _,tan=t.func.jvp(lambda z:AdaptiveAvgPool3d((3,2,4))(z),(x,),(t.ones_like(x),))\n  np.testing.assert_array_equal(tan.numpy(),1.)\n  assert pickle.loads(pickle.dumps(AvgPool3d(2)))(x).shape==(1,1,2,2,2)\nprint('PASS isolated ownership,aliases,ZIP resume,triangular,Cholesky and Cholesky solve VJP/JVP/full tangent reverse')\n\nassert importlib.util.find_spec('stridetorch') is None"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.25062645800062455
+      }
+    ],
+    "scope": "ZIP checkpoint alias/shared-storage/model-optimizer-scheduler resume verified in each namespace. Both no-deps distributions coinstalled in a new NumPy-only Python3.10 environment; both namespaces execute nanmean/VJP,matrix views and batched right-solve VJP/JVP; uninstall each owner without changing the other; native Torch absent. This is not an installed PaperLeet application dependency gate."
+  },
+  "performance": {
+    "status": "success",
+    "children": 12,
+    "all_children_terminal": true,
+    "summary": {
+      "cpu": [
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 4.071354245146115e-05,
+            "direct": 3.0527792356830716e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              4.184025116652871e-05,
+              4.082641680724919e-05,
+              4.060066809567312e-05,
+              3.7458332371897995e-05
+            ],
+            "direct": [
+              2.9486167477443814e-05,
+              3.156941723621761e-05,
+              3.222225010783101e-05,
+              2.9416667530313134e-05
+            ]
+          },
+          "time_reduction_percent": 25.01808853104327
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 8.88611248228699e-05,
+            "direct": 6.32864588017886e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.429508307017386e-05,
+              9.589583351043984e-05,
+              9.334375014683853e-05,
+              8.437849949890126e-05
+            ],
+            "direct": [
+              6.115625001257285e-05,
+              6.828125090881561e-05,
+              6.541666759100433e-05,
+              6.092008212969328e-05
+            ]
+          },
+          "time_reduction_percent": 28.780488736846632
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00016642362485678558,
+            "direct": 0.00013426912482827902
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00015959724987624213,
+              0.000171694417076651,
+              0.0001737847487675026,
+              0.00016115283263692012
+            ],
+            "direct": [
+              0.00012870141654275358,
+              0.00014031591854291037,
+              0.00013983683311380446,
+              0.00012865624982320392
+            ]
+          },
+          "time_reduction_percent": 19.320874699236267
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 3.595658199628815e-05,
+            "direct": 2.7005207812180743e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              3.380558337084949e-05,
+              3.676041766690711e-05,
+              3.618749906308949e-05,
+              3.572566492948681e-05
+            ],
+            "direct": [
+              2.5968748862699915e-05,
+              2.8757000109180808e-05,
+              2.7968749539771427e-05,
+              2.604166608459006e-05
+            ]
+          },
+          "time_reduction_percent": 24.894952988110695
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 8.777083348832093e-05,
+            "direct": 6.097566680788684e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.082291606115177e-05,
+              9.286108252126724e-05,
+              9.71596673480235e-05,
+              8.268058445537463e-05
+            ],
+            "direct": [
+              5.795483351297056e-05,
+              6.51215838540035e-05,
+              6.304858349418889e-05,
+              5.890275012158478e-05
+            ]
+          },
+          "time_reduction_percent": 30.52855443602406
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00017150695809201957,
+            "direct": 0.00013686979218618944
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00015564233278079578,
+              0.00016697225025078902,
+              0.00017604166593325013,
+              0.00022362500021699816
+            ],
+            "direct": [
+              0.0001242812504642643,
+              0.00014221524907043204,
+              0.0001402708342842137,
+              0.0001334687500881652
+            ]
+          },
+          "time_reduction_percent": 20.195778813385555
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 4.0682291000848636e-05,
+            "direct": 3.284029056279299e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              3.90174148681884e-05,
+              4.2281249382843576e-05,
+              4.438541509443894e-05,
+              3.9083332618853696e-05
+            ],
+            "direct": [
+              3.160766452007616e-05,
+              3.407291660550982e-05,
+              3.528125186373169e-05,
+              3.132991696475074e-05
+            ]
+          },
+          "time_reduction_percent": 19.276201622696387
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 9.335416568016322e-05,
+            "direct": 6.876733338382715e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              9.108683298109099e-05,
+              9.562149837923546e-05,
+              0.00010279166599502787,
+              8.784724923316389e-05
+            ],
+            "direct": [
+              6.703125109197572e-05,
+              7.05034156756786e-05,
+              7.324650020260985e-05,
+              6.568750056127708e-05
+            ]
+          },
+          "time_reduction_percent": 26.337156052116605
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0001670069165508418,
+            "direct": 0.00013930204174054475
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00016205899980074415,
+              0.00017195483330093944,
+              0.00017645483361169076,
+              0.00016107983295417702
+            ],
+            "direct": [
+              0.00013356941538707665,
+              0.00014389925005768114,
+              0.00014741666624710584,
+              0.00013470483342340836
+            ]
+          },
+          "time_reduction_percent": 16.589058335115638
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 4.096350069933881e-05,
+            "direct": 3.0800375194909676e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              4.252083211516341e-05,
+              3.9680499564080186e-05,
+              4.224650183459744e-05,
+              3.624658226423586e-05
+            ],
+            "direct": [
+              3.002433368237689e-05,
+              3.1576416707442455e-05,
+              3.365624919145679e-05,
+              2.9597249522339553e-05
+            ]
+          },
+          "time_reduction_percent": 24.810197690436098
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 9.56979589924837e-05,
+            "direct": 7.163191670163846e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              9.212850030356397e-05,
+              9.926741768140346e-05,
+              9.973608393920586e-05,
+              9.164933241360511e-05
+            ],
+            "direct": [
+              6.8652751603319e-05,
+              7.425341755151749e-05,
+              7.936808348555739e-05,
+              6.901041585175942e-05
+            ]
+          },
+          "time_reduction_percent": 25.147915947439834
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0001755330000984638,
+            "direct": 0.0001460520846497578
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00017033333278959617,
+              0.00018073266740733138,
+              0.0001847534998281238,
+              0.00016801733242270225
+            ],
+            "direct": [
+              0.00014006950126107162,
+              0.00015203466803844398,
+              0.0001677048348938115,
+              0.00013986108388053253
+            ]
+          },
+          "time_reduction_percent": 16.795084361441383
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 4.310066651669331e-05,
+            "direct": 3.4276041939544186e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              4.261458282902216e-05,
+              4.367358390785133e-05,
+              4.3586750204364456e-05,
+              3.9861083981425814e-05
+            ],
+            "direct": [
+              3.380208363523707e-05,
+              3.4750000243851296e-05,
+              3.5524251870810986e-05,
+              3.240275206432367e-05
+            ]
+          },
+          "time_reduction_percent": 20.47445037475525
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 9.800175151516062e-05,
+            "direct": 7.155733328545466e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              9.709725175828983e-05,
+              9.890625127203141e-05,
+              0.00010221183280615757,
+              9.01632496000578e-05
+            ],
+            "direct": [
+              6.937158226113145e-05,
+              7.374308430977787e-05,
+              7.428125051471095e-05,
+              6.736808427376673e-05
+            ]
+          },
+          "time_reduction_percent": 26.983617966884065
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00018123612486912558,
+            "direct": 0.0001471041238498098
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00026265624910593033,
+              0.00017817366703335816,
+              0.000184298582704893,
+              0.00017390624998370185
+            ],
+            "direct": [
+              0.00014464933337876573,
+              0.0001465346649638377,
+              0.00014972916687838733,
+              0.00014767358273578188
+            ]
+          },
+          "time_reduction_percent": 18.83289054208327
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 3.9062501552204296e-05,
+            "direct": 3.0902749131200835e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              3.640275099314749e-05,
+              4.128125146962702e-05,
+              4.148958396399394e-05,
+              3.684375163478156e-05
+            ],
+            "direct": [
+              2.8968749878307182e-05,
+              3.268749909087395e-05,
+              3.37256666777345e-05,
+              2.9117999171527725e-05
+            ]
+          },
+          "time_reduction_percent": 20.88896536771595
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00010051737384249768,
+            "direct": 7.225520797267866e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00010189241584157571,
+              0.00010159024774717788,
+              9.944449993781745e-05,
+              9.391666632533695e-05
+            ],
+            "direct": [
+              6.710766562415908e-05,
+              7.483683536217238e-05,
+              7.435066557566945e-05,
+              7.015975036968787e-05
+            ]
+          },
+          "time_reduction_percent": 28.116697431931982
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00017625341570237651,
+            "direct": 0.0001446389154201218
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0001642222487134859,
+              0.00018169091587575772,
+              0.00018623266563129923,
+              0.0001708159155289953
+            ],
+            "direct": [
+              0.00013621875162546834,
+              0.00014783333123583967,
+              0.00015503824882519743,
+              0.00014144449960440397
+            ]
+          },
+          "time_reduction_percent": 17.936957508749394
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.00014807116773833212,
+            "direct": 0.00013986458361614496
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00013790966719777012,
+              0.00015425350041671967,
+              0.00016406941722379997,
+              0.00014188883505994454
+            ],
+            "direct": [
+              0.00013110066599134976,
+              0.0001442222516440476,
+              0.00015049308422021568,
+              0.00013550691558824232
+            ]
+          },
+          "time_reduction_percent": 5.542324172582768
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0003832535003311932,
+            "direct": 0.000353968749550404
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003539270837791264,
+              0.000395503499021288,
+              0.00039522575146596256,
+              0.00037128124919642386
+            ],
+            "direct": [
+              0.00032358333313216764,
+              0.0003734895823678623,
+              0.00040037841730130214,
+              0.00033444791673294577
+            ]
+          },
+          "time_reduction_percent": 7.641091537450384
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0005125850839249324,
+            "direct": 0.0005034913338022307
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0004619583341991529,
+              0.0005180243339661198,
+              0.0005647847501677461,
+              0.000507145833883745
+            ],
+            "direct": [
+              0.00043442358340447146,
+              0.0004907118345727213,
+              0.0005427430854372991,
+              0.00051627083303174
+            ]
+          },
+          "time_reduction_percent": 1.7740957370569022
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0002608992908790242,
+            "direct": 0.00025142879045840044
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0002378993328117455,
+              0.00027265625006596866,
+              0.00028618400150056306,
+              0.0002491423316920797
+            ],
+            "direct": [
+              0.00023367366520687938,
+              0.0002638610822032206,
+              0.0002739617508874896,
+              0.00023899649871358028
+            ]
+          },
+          "time_reduction_percent": 3.629944868272983
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0006525190838146955,
+            "direct": 0.0006154930415505078
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0005846909989486448,
+              0.0006886006667627953,
+              0.0006910764180550663,
+              0.0006164375008665957
+            ],
+            "direct": [
+              0.0005693576677003875,
+              0.0006383159173613725,
+              0.0006615798338316381,
+              0.000592670165739643
+            ]
+          },
+          "time_reduction_percent": 5.674323277677884
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0008831006671243813,
+            "direct": 0.0008418628349318169
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.000783798583142925,
+              0.0009447395835498659,
+              0.0009279965015593916,
+              0.000838204832689371
+            ],
+            "direct": [
+              0.0007577291665559945,
+              0.0008846735848540751,
+              0.0009024583341670223,
+              0.0007990520850095587
+            ]
+          },
+          "time_reduction_percent": 4.6696638025250365
+        },
+        {
+          "shape": [
+            2,
+            4,
+            12,
+            12
+          ],
+          "dtype": "float32",
+          "mode": "cnn_sgd",
+          "median_s": {
+            "composed": 0.0003808195033343509,
+            "direct": 0.0003573541616788134
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00034933333517983556,
+              0.00038756966629686457,
+              0.00040105566343603033,
+              0.0003740693403718372
+            ],
+            "direct": [
+              0.00032734734122641385,
+              0.00036776399550338584,
+              0.0003687363350763917,
+              0.00034694432785424095
+            ]
+          },
+          "time_reduction_percent": 6.161801444012561
+        },
+        {
+          "shape": [
+            2,
+            4,
+            12,
+            12
+          ],
+          "dtype": "float64",
+          "mode": "cnn_sgd",
+          "median_s": {
+            "composed": 0.0003745278324155758,
+            "direct": 0.0003641873336164281
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00035520833140860003,
+              0.0003921249978399525,
+              0.0004477916712251802,
+              0.0003569306669911991
+            ],
+            "direct": [
+              0.0003326110017951578,
+              0.0003628470003604889,
+              0.00037336100164490443,
+              0.00036552766687236726
+            ]
+          },
+          "time_reduction_percent": 2.760942686810497
+        }
+      ],
+      "node": [
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0001668055833333552,
+            "direct": 0.00011207466666666535
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00011115274999999129,
+              0.00021158333333330207,
+              0.00020005558333335838,
+              0.00013355558333335202
+            ],
+            "direct": [
+              8.740625000001427e-05,
+              0.00011737500000001215,
+              0.0001151805833333371,
+              0.00010896874999999362
+            ]
+          },
+          "time_reduction_percent": 32.81120186325659
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0002720399166666887,
+            "direct": 0.0001927395833333419
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0002014583333333301,
+              0.00027798608333336655,
+              0.0003036701666666586,
+              0.00026609375000001084
+            ],
+            "direct": [
+              0.00014765275000000466,
+              0.000212045166666656,
+              0.00019760066666666778,
+              0.00018787850000001605
+            ]
+          },
+          "time_reduction_percent": 29.150256442148482
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004754583333333451,
+            "direct": 0.00036116141666668134
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00035914583333333344,
+              0.0005560381666666429,
+              0.0005001319166666832,
+              0.0004507847500000069
+            ],
+            "direct": [
+              0.000285427083333345,
+              0.0004177291666666398,
+              0.0003690277500000283,
+              0.0003532950833333344
+            ]
+          },
+          "time_reduction_percent": 24.03931294364966
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 9.494962499998852e-05,
+            "direct": 7.322916666666993e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              7.75694166666822e-05,
+              0.00010456941666666293,
+              9.793399999998471e-05,
+              9.196524999999234e-05
+            ],
+            "direct": [
+              5.884716666667197e-05,
+              7.77881666666665e-05,
+              9.385416666666628e-05,
+              6.867016666667336e-05
+            ]
+          },
+          "time_reduction_percent": 22.875770529184525
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00021106770833332714,
+            "direct": 0.00015095833333332123
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.000166232583333333,
+              0.0002571874999999964,
+              0.00021566666666665105,
+              0.00020646875000000323
+            ],
+            "direct": [
+              0.00012001041666666785,
+              0.00016501733333333193,
+              0.00015509716666665488,
+              0.00014681949999998759
+            ]
+          },
+          "time_reduction_percent": 28.47871684145953
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004403958333333476,
+            "direct": 0.00034438020833332805
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00032679166666667775,
+              0.0004429270833333406,
+              0.00044565625000000014,
+              0.0004378645833333546
+            ],
+            "direct": [
+              0.00026604166666666096,
+              0.00037979866666667156,
+              0.0003602221666666461,
+              0.00032853825000001
+            ]
+          },
+          "time_reduction_percent": 21.802119305552715
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.00010800695833335094,
+            "direct": 8.6713541666672e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.877783333333111e-05,
+              0.000106086833333352,
+              0.00010992708333334988,
+              0.0001123889166666503
+            ],
+            "direct": [
+              7.024658333334062e-05,
+              8.445133333334631e-05,
+              9.272575000000376e-05,
+              8.897574999999769e-05
+            ]
+          },
+          "time_reduction_percent": 19.714856334495856
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00023199649999999794,
+            "direct": 0.00017335245833333124
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0001879722500000014,
+              0.0002485174166666863,
+              0.00023370133333333598,
+              0.0002302916666666599
+            ],
+            "direct": [
+              0.00013924658333334486,
+              0.00017649658333333354,
+              0.00019668750000001456,
+              0.00017020833333332894
+            ]
+          },
+          "time_reduction_percent": 25.27798551558632
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004397100833333223,
+            "direct": 0.00035874304166668336
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003519444999999973,
+              0.00044095141666666837,
+              0.00045847224999998976,
+              0.0004384687499999762
+            ],
+            "direct": [
+              0.00030277083333333604,
+              0.0004011284999999957,
+              0.00035328125000000377,
+              0.0003642048333333629
+            ]
+          },
+          "time_reduction_percent": 18.41373321549732
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 9.369620833334555e-05,
+            "direct": 7.40815833333112e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              7.502774999999333e-05,
+              9.84340000000176e-05,
+              9.381950000001786e-05,
+              9.357291666667322e-05
+            ],
+            "direct": [
+              5.7631999999992654e-05,
+              7.527774999997276e-05,
+              7.674999999999581e-05,
+              7.288541666664965e-05
+            ]
+          },
+          "time_reduction_percent": 20.934278290377407
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00022143920833334052,
+            "direct": 0.00016098087499999414
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0001724895833333425,
+              0.00022582983333333898,
+              0.00023245491666668006,
+              0.00021704858333334207
+            ],
+            "direct": [
+              0.0001265069166666762,
+              0.00016295133333332767,
+              0.0001792395833333608,
+              0.0001590104166666606
+            ]
+          },
+          "time_reduction_percent": 27.302451895662593
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00042625516666666696,
+            "direct": 0.00034803645833331176
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003470520833333361,
+              0.0004623958333333326,
+              0.00043030550000000556,
+              0.00042220483333332837
+            ],
+            "direct": [
+              0.0002854583333333401,
+              0.00036735075000001355,
+              0.0003517916666666565,
+              0.000344281249999967
+            ]
+          },
+          "time_reduction_percent": 18.350207680772236
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.00010968054166665686,
+            "direct": 8.820829166666933e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.538541666667603e-05,
+              0.00011294441666664934,
+              0.00011471875000002019,
+              0.00010641666666666438
+            ],
+            "direct": [
+              6.860416666665259e-05,
+              9.102774999999082e-05,
+              9.093400000000547e-05,
+              8.548258333333318e-05
+            ]
+          },
+          "time_reduction_percent": 19.577082382804413
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00022601387499998626,
+            "direct": 0.0001733593749999966
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00018169791666666768,
+              0.0002416458333333408,
+              0.00022301733333333443,
+              0.0002290104166666381
+            ],
+            "direct": [
+              0.00013479858333333614,
+              0.00017997566666668371,
+              0.00017502775000000081,
+              0.00017169099999999235
+            ]
+          },
+          "time_reduction_percent": 23.297021034656773
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004476406666666747,
+            "direct": 0.0003750208333333319
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00035343749999999785,
+              0.0004858506666666947,
+              0.00046844450000001664,
+              0.0004268368333333328
+            ],
+            "direct": [
+              0.000284899333333329,
+              0.0003973610833333252,
+              0.00039111108333330275,
+              0.00035893058333336114
+            ]
+          },
+          "time_reduction_percent": 16.222796260693052
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 9.773958333331167e-05,
+            "direct": 7.590804166668352e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              7.61319166666663e-05,
+              9.908683333333575e-05,
+              9.901041666663761e-05,
+              9.646874999998574e-05
+            ],
+            "direct": [
+              5.824308333333509e-05,
+              7.652783333333968e-05,
+              7.68645833333359e-05,
+              7.528825000002737e-05
+            ]
+          },
+          "time_reduction_percent": 22.336438239334612
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0002233177083333186,
+            "direct": 0.00016224479166665473
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00017244091666666442,
+              0.00022801041666664634,
+              0.00022816666666665894,
+              0.00021862499999999083
+            ],
+            "direct": [
+              0.00012642358333333123,
+              0.0001694687500000125,
+              0.00016303124999998234,
+              0.00016145833333332713
+            ]
+          },
+          "time_reduction_percent": 27.34799542878521
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004329652916666612,
+            "direct": 0.0003530954583333042
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003446666666666783,
+              0.00044762499999998856,
+              0.00043800699999999954,
+              0.0004279235833333228
+            ],
+            "direct": [
+              0.00028373958333333116,
+              0.00042710766666664846,
+              0.00035302774999997527,
+              0.0003531631666666331
+            ]
+          },
+          "time_reduction_percent": 18.447167676167574
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0005811388333333463,
+            "direct": 0.00056601045833334
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0004676492499999796,
+              0.0007471250000000337,
+              0.0005848680000000162,
+              0.0005774096666666765
+            ],
+            "direct": [
+              0.00044763891666665945,
+              0.0007461319166666888,
+              0.000562086833333327,
+              0.0005699340833333529
+            ]
+          },
+          "time_reduction_percent": 2.603229062018053
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0013802326250000143,
+            "direct": 0.0012946146250000234
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0011617778333333033,
+              0.0015082638333333194,
+              0.0014294722500000079,
+              0.001330993000000021
+            ],
+            "direct": [
+              0.0010894617499999832,
+              0.0014459305833333103,
+              0.0013171285000000237,
+              0.0012721007500000232
+            ]
+          },
+          "time_reduction_percent": 6.2031572395262025
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0019136232499999775,
+            "direct": 0.0018316736249999928
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0016226909166666692,
+              0.002190784749999971,
+              0.00201507633333331,
+              0.0018121701666666452
+            ],
+            "direct": [
+              0.0015675937499999664,
+              0.002006899333333312,
+              0.0019156041666666586,
+              0.001747743083333327
+            ]
+          },
+          "time_reduction_percent": 4.282432553010929
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0005431371666666702,
+            "direct": 0.000520777791666649
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00046279516666665926,
+              0.0005816458333333477,
+              0.000563302083333328,
+              0.0005229722500000126
+            ],
+            "direct": [
+              0.00044394441666669354,
+              0.0005557847499999916,
+              0.0005426319999999688,
+              0.0004989235833333291
+            ]
+          },
+          "time_reduction_percent": 4.116708701274252
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0012734149583333298,
+            "direct": 0.0012091927083333434
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0010684583333333182,
+              0.0013383924166666672,
+              0.0013783992499999769,
+              0.0012084374999999925
+            ],
+            "direct": [
+              0.0010315416666666726,
+              0.0012677222500000103,
+              0.0013405971666666423,
+              0.0011506631666666767
+            ]
+          },
+          "time_reduction_percent": 5.043308905687882
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.002175083333333346,
+            "direct": 0.002068578124999998
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0019098924166666513,
+              0.0023094687500000064,
+              0.0026603506666667,
+              0.002040697916666686
+            ],
+            "direct": [
+              0.0018441632499999934,
+              0.0022325000000000075,
+              0.002583173583333339,
+              0.0019046562499999882
+            ]
+          },
+          "time_reduction_percent": 4.8966035784076105
+        },
+        {
+          "shape": [
+            2,
+            4,
+            12,
+            12
+          ],
+          "dtype": "float32",
+          "mode": "cnn_sgd",
+          "median_s": {
+            "composed": 0.0008688960000000634,
+            "direct": 0.0008657154999999565
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0007643056666665574,
+              0.0008462780000000336,
+              0.001148014000000123,
+              0.0008915140000000932
+            ],
+            "direct": [
+              0.0007524860000001077,
+              0.0008590279999999654,
+              0.0010481250000000664,
+              0.0008724029999999475
+            ]
+          },
+          "time_reduction_percent": 0.36603920378350807
+        },
+        {
+          "shape": [
+            2,
+            4,
+            12,
+            12
+          ],
+          "dtype": "float64",
+          "mode": "cnn_sgd",
+          "median_s": {
+            "composed": 0.0008525278333332646,
+            "direct": 0.0007880068333333916
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0007437220000000208,
+              0.0008692083333333341,
+              0.001075847333333287,
+              0.000835847333333195
+            ],
+            "direct": [
+              0.0007091803333332258,
+              0.0008084026666666707,
+              0.0010898333333333454,
+              0.0007676110000001124
+            ]
+          },
+          "time_reduction_percent": 7.568198653128421
+        }
+      ],
+      "chrome": [
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.00014583333333332654,
+            "direct": 0.0001041666666666737
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00011666666666667232,
+              0.00014166666666666958,
+              0.00020000000000001497,
+              0.00014999999999998348
+            ],
+            "direct": [
+              9.166666666667507e-05,
+              0.00010000000000000749,
+              0.00012500000000000475,
+              0.0001083333333333399
+            ]
+          },
+          "time_reduction_percent": 28.571428571420434
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.000245833333333334,
+            "direct": 0.00019583333333333028
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00023333333333334463,
+              0.00023333333333334463,
+              0.00029166666666665303,
+              0.00025833333333332337
+            ],
+            "direct": [
+              0.000150000000000002,
+              0.00019999999999999649,
+              0.0002083333333333289,
+              0.00019166666666666407
+            ]
+          },
+          "time_reduction_percent": 20.338983050848924
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00044166666666665505,
+            "direct": 0.0003666666666666726
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003749999999999957,
+              0.00043333333333332263,
+              0.0005083333333333329,
+              0.00044999999999998747
+            ],
+            "direct": [
+              0.00029166666666665303,
+              0.00035000000000001696,
+              0.0004416666666666365,
+              0.00038333333333332814
+            ]
+          },
+          "time_reduction_percent": 16.981132075468174
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0001083333333333399,
+            "direct": 7.500000000001024e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.333333333332416e-05,
+              0.0001083333333333399,
+              0.00012500000000000475,
+              0.0001083333333333399
+            ],
+            "direct": [
+              6.666666666665932e-05,
+              7.500000000001024e-05,
+              8.333333333336117e-05,
+              7.500000000001024e-05
+            ]
+          },
+          "time_reduction_percent": 30.76923076922552
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00020833333333334741,
+            "direct": 0.00014583333333332654
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00016666666666666682,
+              0.0002083333333333659,
+              0.00023333333333334463,
+              0.0002083333333333289
+            ],
+            "direct": [
+              0.00011666666666667232,
+              0.00014999999999998348,
+              0.0001666666666666483,
+              0.00014166666666666958
+            ]
+          },
+          "time_reduction_percent": 30.000000000007987
+        },
+        {
+          "shape": [
+            4,
+            16,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004166666666666763,
+            "direct": 0.0003374999999999906
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00033333333333333365,
+              0.0004083333333333439,
+              0.00045833333333333837,
+              0.0004250000000000087
+            ],
+            "direct": [
+              0.0002583333333333419,
+              0.0003416666666666475,
+              0.0003749999999999772,
+              0.00033333333333333365
+            ]
+          },
+          "time_reduction_percent": 19.000000000004125
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.00011666666666667233,
+            "direct": 9.166666666665657e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              9.166666666667507e-05,
+              0.00011666666666669083,
+              0.00012500000000000475,
+              0.00011666666666665382
+            ],
+            "direct": [
+              6.666666666665932e-05,
+              9.166666666667507e-05,
+              9.999999999998899e-05,
+              9.166666666663807e-05
+            ]
+          },
+          "time_reduction_percent": 21.428571428583897
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00024166666666667708,
+            "direct": 0.00017500000000001772
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00019166666666666407,
+              0.00024166666666669556,
+              0.00033333333333333365,
+              0.00024166666666665856
+            ],
+            "direct": [
+              0.00014166666666666958,
+              0.0001666666666666853,
+              0.00020000000000001497,
+              0.00018333333333335014
+            ]
+          },
+          "time_reduction_percent": 27.586206896547505
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004208333333333333,
+            "direct": 0.0003499999999999985
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003583333333333309,
+              0.0004083333333333439,
+              0.0005083333333333329,
+              0.00043333333333332263
+            ],
+            "direct": [
+              0.00029166666666667157,
+              0.00033333333333333365,
+              0.0004166666666666578,
+              0.0003666666666666633
+            ]
+          },
+          "time_reduction_percent": 16.83168316831718
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 9.166666666665657e-05,
+            "direct": 7.499999999999174e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.333333333334265e-05,
+              9.166666666667507e-05,
+              0.00011666666666665382,
+              9.166666666663807e-05
+            ],
+            "direct": [
+              6.666666666665932e-05,
+              7.499999999997324e-05,
+              8.333333333332416e-05,
+              7.500000000001024e-05
+            ]
+          },
+          "time_reduction_percent": 18.181818181818176
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0002083333333333289,
+            "direct": 0.00015000000000000197
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00018333333333333165,
+              0.0002083333333333289,
+              0.00023333333333334463,
+              0.0002083333333333289
+            ],
+            "direct": [
+              0.00012500000000000475,
+              0.00014999999999998348,
+              0.00017499999999999924,
+              0.00015000000000002048
+            ]
+          },
+          "time_reduction_percent": 27.999999999997527
+        },
+        {
+          "shape": [
+            2,
+            8,
+            16,
+            16
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00039583333333333603,
+            "direct": 0.0003375000000000091
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003583333333333309,
+              0.00039166666666667904,
+              0.00044999999999998747,
+              0.00039999999999999297
+            ],
+            "direct": [
+              0.0003083333333333364,
+              0.00033333333333333365,
+              0.00038333333333332814,
+              0.00034166666666668455
+            ]
+          },
+          "time_reduction_percent": 14.736842105261438
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.00010416666666666444,
+            "direct": 8.333333333334267e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              9.166666666667507e-05,
+              9.999999999998899e-05,
+              0.00011666666666669083,
+              0.0001083333333333399
+            ],
+            "direct": [
+              7.499999999999174e-05,
+              8.333333333336117e-05,
+              9.166666666667507e-05,
+              8.333333333332416e-05
+            ]
+          },
+          "time_reduction_percent": 19.999999999989328
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00022499999999999373,
+            "direct": 0.0001666666666666483
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0002083333333333474,
+              0.00022499999999999373,
+              0.0002500000000000095,
+              0.00022499999999999373
+            ],
+            "direct": [
+              0.0001583333333333344,
+              0.0001666666666666483,
+              0.00018333333333331314,
+              0.0001666666666666483
+            ]
+          },
+          "time_reduction_percent": 25.925925925932024
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0004250000000000087,
+            "direct": 0.0003541666666666554
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003749999999999957,
+              0.0004083333333333439,
+              0.0004750000000000032,
+              0.00044166666666667354
+            ],
+            "direct": [
+              0.000300000000000004,
+              0.0003416666666666475,
+              0.000500000000000019,
+              0.0003666666666666633
+            ]
+          },
+          "time_reduction_percent": 16.666666666671016
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 9.583333333333202e-05,
+            "direct": 7.083333333333477e-05
+          },
+          "all_child_median_s": {
+            "composed": [
+              8.333333333332416e-05,
+              9.166666666667507e-05,
+              0.00011666666666665382,
+              9.999999999998899e-05
+            ],
+            "direct": [
+              5.8333333333345415e-05,
+              6.666666666665932e-05,
+              8.333333333332416e-05,
+              7.500000000001024e-05
+            ]
+          },
+          "time_reduction_percent": 26.086956521736614
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.00021666666666666132,
+            "direct": 0.00015416666666667744
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.00018333333333335014,
+              0.0002083333333333289,
+              0.0002750000000000252,
+              0.00022499999999999373
+            ],
+            "direct": [
+              0.00013333333333333716,
+              0.00015000000000002048,
+              0.00017500000000003624,
+              0.0001583333333333344
+            ]
+          },
+          "time_reduction_percent": 28.846153846147114
+        },
+        {
+          "shape": [
+            2,
+            4,
+            8,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.00042916666666664716,
+            "direct": 0.00034583333333334154
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0003583333333333494,
+              0.000391666666666642,
+              0.0004666666666666523,
+              0.00048333333333331713
+            ],
+            "direct": [
+              0.000300000000000004,
+              0.0003250000000000197,
+              0.0003666666666666633,
+              0.0005083333333333329
+            ]
+          },
+          "time_reduction_percent": 19.417475728149768
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0005583333333333274,
+            "direct": 0.0005291666666666731
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0004750000000000032,
+              0.0005166666666666838,
+              0.0005999999999999709,
+              0.0006083333333333588
+            ],
+            "direct": [
+              0.00044999999999998747,
+              0.0004833333333333541,
+              0.0005749999999999922,
+              0.0005833333333333061
+            ]
+          },
+          "time_reduction_percent": 5.223880597012753
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0013624999999999887,
+            "direct": 0.0013416666666666668
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.001200000000000016,
+              0.0012583333333333242,
+              0.0014666666666666532,
+              0.0015000000000000198
+            ],
+            "direct": [
+              0.0012416666666666594,
+              0.0011916666666666649,
+              0.0014416666666666744,
+              0.0014499999999999884
+            ]
+          },
+          "time_reduction_percent": 1.5290519877667608
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float32",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0019791666666666616,
+            "direct": 0.0018916666666666617
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0016583333333333543,
+              0.0019249999999999916,
+              0.0022249999999999956,
+              0.0020333333333333314
+            ],
+            "direct": [
+              0.0016000000000000088,
+              0.001866666666666646,
+              0.002108333333333342,
+              0.0019166666666666776
+            ]
+          },
+          "time_reduction_percent": 4.421052631578959
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "forward",
+          "median_s": {
+            "composed": 0.0005833333333333431,
+            "direct": 0.0005416666666666625
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0004666666666666523,
+              0.0006166666666666728,
+              0.0006250000000000236,
+              0.0005500000000000135
+            ],
+            "direct": [
+              0.00045000000000002444,
+              0.0005583333333333274,
+              0.0005749999999999922,
+              0.0005249999999999977
+            ]
+          },
+          "time_reduction_percent": 7.142857142859416
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "reverse",
+          "median_s": {
+            "composed": 0.0013124999999999942,
+            "direct": 0.00128333333333334
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0011166666666666547,
+              0.001399999999999994,
+              0.0015416666666666634,
+              0.0012249999999999945
+            ],
+            "direct": [
+              0.0010583333333333094,
+              0.001383333333333329,
+              0.0014666666666666532,
+              0.0011833333333333511
+            ]
+          },
+          "time_reduction_percent": 2.2222222222212817
+        },
+        {
+          "shape": [
+            4,
+            32,
+            32,
+            32
+          ],
+          "dtype": "float64",
+          "mode": "jvp",
+          "median_s": {
+            "composed": 0.0022916666666666545,
+            "direct": 0.0022083333333333495
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.001966666666666672,
+              0.0024333333333333242,
+              0.0025999999999999726,
+              0.0021499999999999853
+            ],
+            "direct": [
+              0.0019250000000000285,
+              0.002375000000000016,
+              0.0024250000000000105,
+              0.0020416666666666825
+            ]
+          },
+          "time_reduction_percent": 3.6363636363624274
+        },
+        {
+          "shape": [
+            2,
+            4,
+            12,
+            12
+          ],
+          "dtype": "float32",
+          "mode": "cnn_sgd",
+          "median_s": {
+            "composed": 0.000983333333333336,
+            "direct": 0.000983333333333336
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0008333333333333156,
+              0.0010333333333332935,
+              0.001100000000000101,
+              0.0009333333333333785
+            ],
+            "direct": [
+              0.0007999999999999119,
+              0.0010666666666666973,
+              0.0010333333333332935,
+              0.0009333333333333785
+            ]
+          },
+          "time_reduction_percent": 0.0
+        },
+        {
+          "shape": [
+            2,
+            4,
+            12,
+            12
+          ],
+          "dtype": "float64",
+          "mode": "cnn_sgd",
+          "median_s": {
+            "composed": 0.0009666666666667083,
+            "direct": 0.0008999999999999749
+          },
+          "all_child_median_s": {
+            "composed": [
+              0.0008000000000000599,
+              0.0009666666666667822,
+              0.0009666666666667822,
+              0.0009666666666666343
+            ],
+            "direct": [
+              0.0007666666666666563,
+              0.0008999999999999749,
+              0.0009666666666667822,
+              0.0008999999999999749
+            ]
+          },
+          "time_reduction_percent": 6.8965517241445395
+        }
+      ]
+    },
+    "receipts": {
+      "cpu-0": {
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-cpu.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/cpu-0.json"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.7847387079964392
+      },
+      "node-0": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-wasm.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/node-0.json"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 2.9553446669888217
+      },
+      "chrome-0": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-chrome.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/chrome-0.json"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.451442207995569
+      },
+      "chrome-1": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-chrome.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/chrome-1.json",
+          "--reverse"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.436294167011511
+      },
+      "node-1": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-wasm.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/node-1.json",
+          "--reverse"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.9968179159914143
+      },
+      "cpu-1": {
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-cpu.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/cpu-1.json",
+          "--reverse"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.891952207981376
+      },
+      "cpu-2": {
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-cpu.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/cpu-2.json"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.8329884170088917
+      },
+      "node-2": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-wasm.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/node-2.json"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.8864510410057846
+      },
+      "chrome-2": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-chrome.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/chrome-2.json"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 5.347767083992949
+      },
+      "chrome-3": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-chrome.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/chrome-3.json",
+          "--reverse"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 4.537019458017312
+      },
+      "node-3": {
+        "args": [
+          "/opt/homebrew/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-wasm.mjs",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/node-3.json",
+          "--reverse"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 3.729235915991012
+      },
+      "cpu-3": {
+        "args": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-21/stride-dev-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/bench-cpu.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-47/performance/cpu-3.json",
+          "--reverse"
+        ],
+        "exit_code": 0,
+        "elapsed_s": 0.862277209002059
+      }
+    },
+    "source_hashes": {
+      "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+      "_nn.py": "c8208a039d73c4637158e40771b88990f5c0af5fc94080b15c4c06bf3d3f5bd3",
+      "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "_convolution.py": "6c9ce4bd7e03e731b2186ff30da804ae4de00892ac4344609c058a8f3e0dc266",
+      "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+      "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+      "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+      "_api.py": "4e073610e14e190863e0469f6bf0d559b5ebc4e0d10a412977d93f78174cc931",
+      "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+      "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+      "__init__.py": "0021d22e8e7bf8a475974150d504496c8b3d562880a43ea843b2949589f81e00",
+      "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+      "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+      "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+      "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+      "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+      "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+      "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+      "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+      "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+      "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+      "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+      "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+      "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+      "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+      "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+      "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+      "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+      "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+      "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+      "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+    },
+    "load_before": [
+      3.9501953125,
+      5.2841796875,
+      5.3173828125
+    ],
+    "load_after": [
+      4.5517578125,
+      5.251953125,
+      5.3017578125
+    ],
+    "scope": "Same final source direct InstanceNorm versus existing BatchNorm composition (0.46 had no InstanceNorm API). Four fresh processes per runtime, alternating first method and runtime order, five samples/12 ordinary calls or3SGD steps. Every value/JVP/reverse-over-forward and three SGD updates checked before timings. All samples retained. Shared host; not a native Torch, GPU, memory or universal speed comparison."
+  },
+  "source_footprint": {
+    "baseline": {
+      "raw_source_license_bytes": 610370,
+      "local_concatenated_gzip_bytes": 142106
+    },
+    "candidate": {
+      "raw_source_license_bytes": 622660,
+      "local_concatenated_gzip_bytes": 144376
+    },
+    "scope": "Sorted source/license concatenation and local gzip estimate only; not network transfer, wheel size, peak memory or GPU data."
+  },
+  "release_policy": {
+    "status": "unchanged",
+    "baseline": "13d2782a494415ba72bc604a0ef7e4c4f875ba25",
+    "files": {
+      ".github/workflows/ci.yml": "aee11cb79f3a906508b002aaf1129fec793a458c0b09edce38e4b85211fe1962",
+      ".github/workflows/pages.yml": "9fd2354a3e95e819e9e74ac17dc0eaa16228313562ef7f5ec0e666212186f43c",
+      "web/scripts/check-release-request.cjs": "15c2458b8bd6429226a2ba40d5a41b1d7644ee032ecf43c5a854c3c153487d6a",
+      "web/scripts/pages-release-gate.cjs": "cb57661501e723c30dc4540855ecd1f27c0ff7b1bb826bf0e0fe3fa86c3dfd14",
+      "web/scripts/check-pages-release.cjs": "98fd0331127d0fc3210230fc515cb5a64137388d913525edc87d2135ee78092f",
+      "web/scripts/check-pages-backfill.cjs": "6353d0e303defba12cc915133c1ffa7ecf4f3d040c3c94d27b74961c743909a8",
+      "docs/releasing.md": "209a00612c57e015659ae0bf4c4095fb713afdd9a89c19f3e96a5120928fec4d"
+    }
+  },
+  "upstream_syncs": [],
+  "raw_archives": {
+    "iteration-47-harness.tar.gz": {
+      "sha256": "9994ee8348d234fcc230c3e0dc1c58dcea8e033add5925786edf360befa02229",
+      "bytes": 491708
+    },
+    "iteration-47-integration-harness.tar.gz": {
+      "sha256": "a587caeb6deb0e7fc8d49da8ad15e2fe1ac37fc4da75c36140e6fd62025ba213",
+      "bytes": 110073
+    },
+    "iteration-47-runtime-harness.tar.gz": {
+      "sha256": "6d9998b1c17700f5b02e8e53830f02b32c0b6632e83aee3106ae0f5e747630b2",
+      "bytes": 520136
+    },
+    "iteration-47-performance-harness.tar.gz": {
+      "sha256": "88306d2414382a2d3ad4db15e24ff1bb1fe711edcd777dab551dfa55d1725fae",
+      "bytes": 183190
+    }
+  }
+}

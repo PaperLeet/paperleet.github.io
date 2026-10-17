@@ -27,7 +27,7 @@ def create_torch(name='torch', *, register=False):
     modules = {'torch': torch}
     for name in ('nn', 'nn.functional', 'nn.parameter', 'nn.modules', 'nn.modules.module',
                  'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
-                 'nn.modules.normalization', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
+                 'nn.modules.normalization', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.instancenorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
                  'nn.modules.flatten', 'nn.modules.distance', 'nn.modules.pooling',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
@@ -57,6 +57,7 @@ def create_torch(name='torch', *, register=False):
         (_average_pooling,('AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d')),
         (_average_pooling3d,('AvgPool3d','AdaptiveAvgPool3d')),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
+        (_instancenorm,('InstanceNorm1d','InstanceNorm2d','InstanceNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
     ):
@@ -76,6 +77,7 @@ def create_torch(name='torch', *, register=False):
         'conv':('Conv1d','Conv2d','Conv3d'),
         'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d','AvgPool3d','AdaptiveAvgPool3d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
+        'instancenorm':('InstanceNorm1d','InstanceNorm2d','InstanceNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
         'loss':('NLLLoss','MSELoss','SmoothL1Loss','CrossEntropyLoss','BCEWithLogitsLoss','KLDivLoss'),
@@ -88,6 +90,9 @@ def create_torch(name='torch', *, register=False):
             setattr(child,name,getattr(torch.nn,name))
             setattr(torch.nn.modules,name,getattr(torch.nn,name))
     modules['torch.nn.modules.batchnorm']._BatchNorm = _batchnorm._BatchNorm
+    modules['torch.nn.modules.batchnorm']._NormBase = _batchnorm._NormBase
+    modules['torch.nn.modules.instancenorm']._InstanceNorm = _instancenorm._InstanceNorm
+    modules['torch.nn.modules.instancenorm']._NormBase = _batchnorm._NormBase
     modules['torch.nn.modules.conv']._ConvNd = _convolution._ConvNd
     torch.optim.Optimizer = _optim.Optimizer
     torch.optim.Adam, torch.optim.AdamW, torch.optim.SGD = _optim.Adam, _optim.AdamW, _optim.SGD
@@ -196,6 +201,7 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.broadcast_to', _ops.broadcast_to, reverse='analytic', forward=True)
     from . import _statistics
     registry.add('torch.var_mean', _statistics.var_mean, reverse='analytic', forward=True, unsupported_keywords=('out',))
+    registry.add('torch.instance_norm', _instancenorm.torch_instance_norm, reverse='analytic', forward=True)
     registry.add('torch.std_mean', _statistics.std_mean, reverse='analytic', forward=True, unsupported_keywords=('out',))
     registry.add('torch.logit', lambda input,eps=None: input.logit(eps), reverse='analytic')
 
@@ -207,6 +213,7 @@ def create_torch(name='torch', *, register=False):
         'kl_div': _nn.kl_div, 'silu': _nn.silu, 'gelu': _activation.gelu, 'dropout': _activation.dropout,
         'layer_norm': _normalization.layer_norm, 'rms_norm': _normalization.rms_norm,
         'batch_norm': _batchnorm.batch_norm,
+        'instance_norm': _instancenorm.instance_norm,
         'group_norm': _groupnorm.group_norm,
         'conv1d': _convolution.conv1d, 'conv2d': _convolution.conv2d, 'conv3d': _convolution.conv3d,
         'cross_entropy': _classification.cross_entropy, 'nll_loss': _classification.nll_loss,
@@ -264,4 +271,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor

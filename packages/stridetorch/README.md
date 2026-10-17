@@ -992,6 +992,36 @@ reverse-over-forward. Zero-class probability JVP and legacy `size_average` /
 are checked according to the active native tape; CE input/output mutations do
 not invalidate the loss itself, while NLL saves its input version.
 
+
+## Instance normalization
+
+`nn.InstanceNorm1d`, `nn.InstanceNorm2d`, `nn.InstanceNorm3d`,
+`nn.functional.instance_norm` and the low-level `torch.instance_norm` entry
+support dense float32/float64 on NumPy CPU and Pyodide WASM. Modules accept
+batched and unbatched inputs, optional affine parameters (`bias=False` included),
+train/eval, running statistics, dtype conversion and version-2 checkpoints.
+Ordinary `torch.nn.modules.instancenorm` imports and `_InstanceNorm`/`_NormBase`
+base aliases work. BatchNorm also accepts the keyword-only `bias` option.
+
+Training normalizes each sample/channel over its spatial axes. Running mean
+and unbiased running variance are averaged over samples. Unlike BatchNorm,
+`momentum=None` freezes the running values, `num_batches_tracked` stays zero,
+and tracked training JVP is supported. Statistics buffers are nondifferentiable;
+their dual tangents are ignored. Automatic training updates increase each
+running buffer's version, including empty inputs. An empty batch produces NaN
+running statistics; an empty spatial extent preserves their values. Native
+empty-batch/channel affine errors and the functional spatial-singleton check
+are retained.
+
+Analytical input/weight/bias VJPs, JVPs and saved-statistic reverse-over-forward
+rules avoid the temporary repeated parameters and graph nodes of a BatchNorm
+composition. Affine parameters and evaluation statistics use forward snapshots,
+so subsequent mutations preserve the saved backward values. Contiguous input
+storage is version-guarded; noncontiguous input is copied before normalization.
+Detached output mutations do not invalidate this operator's backward. General
+non-leaf in-place edits and float16/complex normalization remain unsupported.
+
+
 ## Group and batch normalization
 
 `nn.GroupNorm` and `nn.functional.group_norm` normalize each sample independently
