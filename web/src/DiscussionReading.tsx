@@ -2,7 +2,7 @@ import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ChevronDown,ListTree} from 'lucide-react';
 import CommunityMarkdown from './CommunityMarkdown';
 import {markdownOutline} from './markdownOutline';
-import {readingScrollRoot,revealReadingSection} from './readingViewport';
+import {readingScrollRoot,readingToolbar,readingToolbarInset,revealReadingSection} from './readingViewport';
 import {useI18n} from './i18n';
 import './discussion-reading.css';
 
@@ -16,21 +16,27 @@ export default function DiscussionReading({body,postId,compact=false,instance=fa
   useEffect(()=>{
     if(!open||sections.length<2)return;
     const headings=sections.map(section=>document.getElementById(section.id)).filter((node):node is HTMLElement=>!!node&&!!root.current?.contains(node));
-    const pane=root.current?readingScrollRoot(root.current):null;
+    let pane=root.current?readingScrollRoot(root.current):null,viewport:HTMLElement|Window=pane||window;
     let frame:number|undefined,live=true;
     const measure=()=>{
       if(!live)return;
       frame=undefined;
+      const next=root.current?readingScrollRoot(root.current):null;
+      if(next!==pane){
+        viewport.removeEventListener('scroll',schedule);if(pane)observer?.unobserve?.(pane);
+        pane=next;viewport=pane||window;viewport.addEventListener('scroll',schedule,{passive:true});if(pane)observer?.observe(pane);
+      }
       let left=0,right=headings.length-1,index=0;
-      const edge=pane?pane.getBoundingClientRect().top+pane.clientTop+24:110;
+      const inset=root.current?readingToolbarInset(root.current):24;
+      const edge=pane?pane.getBoundingClientRect().top+pane.clientTop+inset:root.current&&readingToolbar(root.current)?inset:110;
       while(left<=right){const middle=Math.floor((left+right)/2);if(headings[middle].getBoundingClientRect().top<=edge){index=middle;left=middle+1;}else right=middle-1;}
       setActive(headings[index]?.id||'');
     };
     const schedule=()=>{if(live&&frame===undefined)frame=window.requestAnimationFrame(measure);};
-    const viewport=pane||window;
-    measure();viewport.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);
     const observer=typeof ResizeObserver==='undefined'?undefined:new ResizeObserver(schedule);
     if(root.current)observer?.observe(root.current);if(pane)observer?.observe(pane);
+    const toolbar=root.current?readingToolbar(root.current):null;if(toolbar)observer?.observe(toolbar);
+    measure();viewport.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);
     return()=>{live=false;viewport.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);observer?.disconnect();if(frame!==undefined)window.cancelAnimationFrame(frame);};
   },[sections,open]);
   useLayoutEffect(()=>{

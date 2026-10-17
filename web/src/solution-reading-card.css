@@ -9,7 +9,15 @@
 .solution-reading-card>details:not([open])>.solution-reading-content { padding-top:0; }
 .solution-reading-collapse,.solution-reading-page,.solution-reading-code { display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:7px 0; color:var(--accent); font-size:var(--type-small); }
 .solution-reading-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
+.solution-reading-toolbar { position:sticky; top:0; z-index:6; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 12px; margin-bottom:16px; padding:6px 0; border-bottom:1px solid var(--line); background:var(--surface); }
+.solution-reading-toolbar>button { min-width:0; max-width:100%; overflow-wrap:anywhere; }
+.solution-reading-toolbar>.solution-reading-code { padding-inline:10px; border:1px solid var(--line); border-radius:7px; background:var(--surface2); font-size:var(--type-control); }
+.problem-solutions .feed-items { overflow:visible; }
 .solution-reading-card :is(summary,button,a):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
 .solution-reading-card .discussion-section-heading { scroll-margin-top:24px; }
+@media(max-width:850px) {
+  .workspace-view:has(.solution-reading-toolbar),.workspace.resizable-split>.description-pane:has(.solution-reading-toolbar) { overflow:clip; }
+  .solution-reading-toolbar { top:58px; }
+}
 @media(pointer:coarse) { .solution-reading-collapse,.solution-reading-page,.solution-reading-code { min-height:44px; } }
 @media(prefers-reduced-motion:reduce) { .solution-reading-card>details>summary>svg { transition:none; } }

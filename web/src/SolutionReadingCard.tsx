@@ -38,11 +38,14 @@ export default function SolutionReadingCard({id,title,body,returnTo,onCode}:{id:
       </summary>
       <div id={regionId} className="solution-reading-content" role="region" aria-label={t('题解全文','Full solution')}>
         {open&&<>
+          {onCode&&<div className="solution-reading-toolbar" role="group" aria-label={t('题解阅读操作','Solution reading actions')}>
+            <button type="button" className="solution-reading-collapse" onClick={event=>collapse(event.currentTarget)}><ArrowUp size={15} aria-hidden="true"/>{t('收起题解','Collapse solution')}</button>
+            <button type="button" className="solution-reading-code" onClick={onCode}><Code2 size={15} aria-hidden="true"/>{t('返回代码','Back to code')}</button>
+          </div>}
           <FeatureBoundary fallback={<><p role="status">{t('格式暂时无法显示，以下是原始题解。收起后可重新展开。','Formatting is unavailable. The original solution is below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{body}</pre></>}>
             <DiscussionReading body={body} postId={id} compact/>
           </FeatureBoundary>
-          <div className="solution-reading-footer"><button type="button" className="solution-reading-collapse" onClick={event=>collapse(event.currentTarget)}><ArrowUp size={15} aria-hidden="true"/>{t('收起题解','Collapse solution')}</button>
-          {onCode&&<button type="button" className="solution-reading-code" onClick={onCode}><Code2 size={15} aria-hidden="true"/>{t('返回代码','Back to code')}</button>}</div>
+          {!onCode&&<div className="solution-reading-footer"><button type="button" className="solution-reading-collapse" onClick={event=>collapse(event.currentTarget)}><ArrowUp size={15} aria-hidden="true"/>{t('收起题解','Collapse solution')}</button></div>}
         </>}
       </div>
     </details>
