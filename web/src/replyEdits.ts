@@ -26,3 +26,15 @@ export function clearSavedReplyEdit(storage:DraftStorage|undefined,owner:string,
   if(!saved||saved.body!==submitted.body||saved.baseVersion!==submitted.baseVersion)return false;
   try{storage!.removeItem(replyEditKey(owner,reply));return true;}catch{return false;}
 }
+
+export type ReplyEditOrigin={href:string;opener:Element|null};
+export type ReplyEditConfirmation={origin:ReplyEditOrigin;baseVersion:string;keepEditing:boolean};
+
+/** A save acknowledgement must describe the exact reply and submitted source. */
+export function confirmedReplyEdit(original:Reply,owner:string,submitted:ReplyEditDraft,value:unknown):Reply|undefined {
+  const row=value as Reply;
+  if(!row||typeof row!=='object'||Array.isArray(row)||row.id!==original.id||row.post_id!==original.post_id||row.parent_id!==original.parent_id||row.created_at!==original.created_at)return;
+  if(!row.author||typeof row.author.id!=='string'||row.author.id!==original.author.id||!!row.author.anonymous!==!!original.author.anonymous||row.body!==submitted.body.trim()||!canEditReply(row,owner))return;
+  if(row.body!==original.body&&row.edit_version===submitted.baseVersion)return;
+  return row;
+}

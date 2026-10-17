@@ -117,3 +117,9 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-order:disabled{cursor:default;opacity:.6}
 @media(pointer:coarse),(max-width:600px){.card-comment-order{min-height:44px}}
 @media(pointer:coarse){.card-actions>button,.card-comment-links button,.card-more-comments,.card-collapse-comments{min-height:44px}}
+
+.card-comment-editor { margin-top:12px; }
+.card-comment-editor .reply-editor { margin:0; padding:16px; border-color:color-mix(in srgb,var(--accent) 30%,var(--line)); }
+.card-comment-editor .panel-title h3 { margin:0; font-size:var(--type-body); }
+.card-comment-edit-notice { display:flex; align-items:center; flex-wrap:wrap; gap:8px; color:var(--green); font-size:var(--type-small); line-height:1.7; }
+.card-comment-edited { display:inline-flex; flex-wrap:wrap; gap:5px; color:var(--text-secondary); }

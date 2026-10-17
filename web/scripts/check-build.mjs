@@ -42,6 +42,9 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Comment changes saved.')), 'Inline comment editing must remain deferred with community reading');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.card-comment-editor')), 'Inline comment editing styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.card-comment-editor'))), 'Deferred community readers must include edit styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Quote comment from')), 'Inline quote actions must remain deferred with community reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-quote-notice')), 'Quote feedback styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-quote-notice'))), 'Deferred comment readers must include quote feedback styles');

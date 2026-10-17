@@ -76,7 +76,7 @@ import {
   useAccount,
 } from "./social";
 import type { PublicUser } from "./social";
-import { withConfirmedReply, type Counts, type Post, type Reply, type PostDetail } from './communityDiscussion';
+import { withConfirmedReply, withConfirmedReplyEdit, type Counts, type Post, type Reply, type PostDetail } from './communityDiscussion';
 import { readPublication, preparePublication, clearPublication, postPublication, replyPublication, samePublication, type PublicationReceipt } from './publicationRequests';
 import {deferredFeature} from './deferredFeature';
 import {communityOutlines,hasCommunityDraftContent,insertCommunityOutline,type CommunityOutlineEdit,type CommunityOutlineId} from './communityWriting';
@@ -89,10 +89,10 @@ import PostBookmark from './PostBookmark';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
 import Pagination from './CommunityPagination';
-import {revealReadingTarget} from './readingViewport';
+import {revealReadingTarget,keepReadingTriggerVisible} from './readingViewport';
 import RelatedModuleSearch from './RelatedModuleSearch';
 import {searchRelatedModules} from './relatedModuleMatching';
-import { canEditReply } from './replyEdits';
+import { canEditReply,type ReplyEditOrigin } from './replyEdits';
 import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
 import PaperPreviewCard from './PaperPreviewCard';
@@ -813,9 +813,16 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
   const [editingReply,setEditingReply]=useState<string>(), [replyEdited,setReplyEdited]=useState<string>();
-  function closeReplyEditing(identifier:string) {
-    setEditingReply(undefined);
-    requestAnimationFrame(()=>document.getElementById(`edit-reply-${identifier}`)?.focus());
+  const replyEditOrigin=useRef<ReplyEditOrigin>(undefined),replyEditClosing=useRef<{identifier:string;origin:ReplyEditOrigin}>(undefined);
+  useLayoutEffect(()=>{
+    const intent=replyEditClosing.current;if(editingReply||!intent)return;replyEditClosing.current=undefined;
+    const active=document.activeElement,opener=intent.origin.opener;
+    if(location.href!==intent.origin.href||active!==opener&&!(active===document.body&&opener instanceof HTMLElement&&(!opener.isConnected||opener.matches(':disabled')||!!opener.closest('[hidden]'))))return;
+    const target=document.getElementById(`edit-reply-${intent.identifier}`)||document.getElementById('discussion-replies-heading');
+    target?.focus({preventScroll:true});if(target)keepReadingTriggerVisible(target,100);
+  },[editingReply]);
+  function closeReplyEditing(identifier:string,origin:ReplyEditOrigin={opener:document.activeElement,href:location.href}) {
+    replyEditClosing.current={identifier,origin};replyEditOrigin.current=undefined;setEditingReply(undefined);
   }
   function closePostEditing() {
     setEditingPost(false);
@@ -879,7 +886,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
   function quoteReply(row:Reply){
     if(!user||busy||loading||editingReply||!post?.replies.some(reply=>reply.id===row.id))return;
     const previous=quoteEdit.current;
-    if(previous?.replyId===row.id&&sameReplyDraft(previous.after,currentDraft.current)){setQuoteNotice(t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'));focusReply();return;}
+    if(previous?.replyId===row.id&&previous.sourceBody===row.body&&sameReplyDraft(previous.after,currentDraft.current)){setQuoteNotice(t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'));focusReply();return;}
     const result=quoteReplyDraft(currentDraft.current,id,row,authorName(row.author)||t('用户','User'),locale==='en');
     if(!result.ok){setQuoteNotice(result.reason==='length'?t('引用会超过回复长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the reply limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This reply could not be quoted. You can still reply directly.'));return;}
     const field=replyField.current;
@@ -1101,7 +1108,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
                     <DateLabel value={r.created_at} />
                     <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={providedReturnTo}/>
                     {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
-                    {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={()=>{setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}
+                    {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={event=>{replyEditOrigin.current={opener:event.currentTarget,href:location.href};setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}
                     {r.parent_id && (
                       <button
                         className="reply-context"
@@ -1126,9 +1133,10 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
                   </div>
                   <CommunityMarkdown body={r.body} />
                   {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
-                  {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={confirmed=>{
-                    setPost(previous=>previous&&previous.id===confirmed.post_id?{...previous,replies:previous.replies.map(row=>row.id===confirmed.id?confirmed:row)}:previous);
-                    closeReplyEditing(r.id);setReplyEdited(r.id);
+                  {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
+                    readVersion.current++;setLoading(false);
+                    setPost(previous=>withConfirmedReplyEdit(previous,confirmed,confirmation?.baseVersion||r.edit_version!));
+                    if(!confirmation?.keepEditing){closeReplyEditing(r.id,confirmation?.origin);setReplyEdited(r.id);}
                   }}/>}
                   {user && (
                     <div className="reply-respond-actions"><button type="button"
@@ -1160,6 +1168,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
             )}
             <MoreReplies list={replyList} disabled={repliesLocked}/>
           </section>
+          {editingReply&&(!post.replies.some(row=>row.id===editingReply&&canEditReply(row,owner)))&&<div role="status"><p>{t('这条回复已删除或暂不可编辑，修改草稿已保留。','This reply is deleted or cannot be edited now. Your edit draft is kept.')}</p><button type="button" className="text-button" onClick={()=>closeReplyEditing(editingReply)}>{t('关闭编辑','Close editor')}</button></div>}
           {user ? (
             <section className="social-panel reply-composer">
               <div className="panel-title">

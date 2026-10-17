@@ -24,3 +24,14 @@ export function withConfirmedReply(post: PostDetail | undefined, reply: Reply): 
   const replies = [...post.replies, reply];
   return {...post,replies,counts:{...post.counts,replies:Math.max(post.counts.replies + 1,replies.length)}};
 }
+
+/** A late save may replace its reviewed version, never a newer cached reply. */
+export function withConfirmedReplyEdit(post:PostDetail|undefined,reply:Reply,baseVersion:string):PostDetail|undefined {
+  if(!post||post.id!==reply.post_id)return post;
+  let changed=false;
+  const replies=post.replies.map(row=>{
+    if(row.id!==reply.id||row.post_id!==reply.post_id||row.edit_version===reply.edit_version||row.edit_version!==baseVersion)return row;
+    changed=true;return reply;
+  });
+  return changed?{...post,replies}:post;
+}

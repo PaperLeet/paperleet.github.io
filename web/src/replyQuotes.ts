@@ -9,7 +9,7 @@ const clip=(text:string,limit:number)=>{
   return letters.slice(0,limit).join('')+(letters.length>limit?'…':'');
 };
 const escape=(text:string)=>text.replace(/[\\`*_{}\[\]()<>#!|~.+-]/g,'\\$&');
-export type ReplyQuote={before:ReplyDraft;after:ReplyDraft;replyId:string};
+export type ReplyQuote={before:ReplyDraft;after:ReplyDraft;replyId:string;sourceBody:string};
 export type ReplyQuoteSelection={start:number;end:number;direction:'forward'|'backward'|'none';scroll:number;left:number};
 export function captureReplyQuoteSelection(field:HTMLTextAreaElement|null,fallback=0):ReplyQuoteSelection{
   return {start:field?.selectionStart??fallback,end:field?.selectionEnd??fallback,direction:field?.selectionDirection||'none',scroll:field?.scrollTop||0,left:field?.scrollLeft||0};
@@ -43,5 +43,5 @@ export function quoteReplyDraft(draft:ReplyDraft,postId:string,reply:{id:string;
   const prefix=`> [${label}](${href})\n>\n${content.split('\n').map(line=>'> '+line).join('\n')}\n\n`;
   const after={body:prefix+draft.body,parentId:reply.id};
   if(after.body.length>10000)return {ok:false,reason:'length'};
-  return {ok:true,quote:{before:{...draft},after,replyId:reply.id}};
+  return {ok:true,quote:{before:{...draft},after,replyId:reply.id,sourceBody:reply.body}};
 }
