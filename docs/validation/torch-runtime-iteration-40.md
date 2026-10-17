@@ -196,3 +196,7 @@ and lockfile remain unchanged. Five affected interaction/reading suites and
 both typed builds pass on this final tree. All 49 runtime/license resources
 and 161 active exports preserve their full numerical/WASM-test identities.
 See `iteration-40-main-sync-final.json`.
+
+Validated source was adopted non-force on remote `main` at `0543fc8f24a05ed03d09492e954cdca14611071d`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-40-main-adoption.json`; no tag, dispatch or online release was created.
