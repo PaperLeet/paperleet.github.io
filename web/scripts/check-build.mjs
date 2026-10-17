@@ -42,6 +42,9 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Insert current code')), 'Practice code insertion controls must stay deferred with solution writing');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-code-draft')), 'Solution code import styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-code-draft'))), 'Deferred solution writers must include code insertion styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Practice progress for this experience')), 'Experience progress UI must remain deferred with report reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-report-progress')), 'Report practice progress styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-report-progress'))), 'Deferred report readers must include linked-practice progress styles');

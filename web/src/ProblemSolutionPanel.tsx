@@ -6,15 +6,16 @@ import {Highlight} from './SyntaxHighlight';
 import {navigateTabs} from './tabNavigation';
 import type {ProblemTopic} from './communityTopics';
 import './problem-solution-panel.css';
+import type {SolutionCodeSource} from './solutionCodeDraft';
 
-type Props={topic:ProblemTopic;solution?:string|null;communityAvailable:boolean;onCode:()=>void};
+type Props={topic:ProblemTopic;solution?:string|null;communityAvailable:boolean;onCode:()=>void;practiceCode?:SolutionCodeSource};
 
 /** Keep a solution draft, feed filters and expanded replies alive while consulting the reference. */
 export default function ProblemSolutionPanel(props:Props){
   return <SolutionPanel key={props.topic.id} {...props}/>;
 }
 
-function SolutionPanel({topic,solution,communityAvailable,onCode}:Props){
+function SolutionPanel({topic,solution,communityAvailable,onCode,practiceCode}:Props){
   const {t}=useI18n(),id=useId();
   const [view,setView]=useState<'community'|'reference'>(communityAvailable?'community':'reference');
   const active=communityAvailable?view:'reference';
@@ -31,7 +32,7 @@ function SolutionPanel({topic,solution,communityAvailable,onCode}:Props){
       <button type="button" className="problem-solution-code" onClick={onCode}><Code2 size={16} aria-hidden="true"/>{t('返回代码','Back to code')}</button>
     </div>
     {communityAvailable&&<div id={`${id}-community`} role="tabpanel" aria-labelledby={`${id}-community-tab`} tabIndex={0} hidden={active!=='community'}>
-      <ProblemSolutions topic={topic} onCode={onCode}/>
+      <ProblemSolutions topic={topic} onCode={onCode} practiceCode={practiceCode}/>
     </div>}
     <div id={`${id}-reference`} className="reference-solution" role="tabpanel" aria-labelledby={`${id}-reference-tab`} tabIndex={0} hidden={active!=='reference'}>
       <h2>{t('参考实现','Reference implementation')}</h2>

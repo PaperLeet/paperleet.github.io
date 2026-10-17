@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import {postSearchIndex,postSearchQuery,postSearchWindow} from './postSearchModel';
 
-export type PostMarkdownNode={type:string;value?:string;alt?:string|null;depth?:number;position?:{start:{offset?:number}};children?:PostMarkdownNode[]};
+export type PostMarkdownNode={type:string;value?:string;lang?:string|null;alt?:string|null;depth?:number;position?:{start:{offset?:number}};children?:PostMarkdownNode[]};
 type PreviewNode=PostMarkdownNode;
 export type PostContentKind='code'|'math'|'table';
 export type PostPreviewSummary={text:string;truncated:boolean;kinds:PostContentKind[];rich:boolean;unavailable?:boolean;search?:'text'|PostContentKind|'source'|'outside';searchRange?:{start:number;end:number}};

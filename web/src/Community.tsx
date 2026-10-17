@@ -25,6 +25,8 @@ import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,Re
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
 import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
+import {insertSolutionCode,ownsSolutionCode,type SolutionCodeSource,type SolutionCodeEdit} from './solutionCodeDraft';
+import './solution-code-draft.css';
 import './reply-quotes.css';
 import './profile-solutions.css';
 import MarkdownEditor from "./MarkdownEditor";
@@ -258,6 +260,7 @@ function Composer({
   scope,
   papersAvailable,
   solution=false,
+  practiceCode,
   topics=[],
   returnTo,
   onDraftChange,
@@ -270,6 +273,7 @@ function Composer({
   scope: string;
   papersAvailable: boolean;
   solution?:boolean;
+  practiceCode?:SolutionCodeSource;
   topics?:ProblemTopic[];
   returnTo?:string;
   panelProps?:WritingPanelProps;
@@ -304,7 +308,7 @@ function Composer({
     const next = { ...currentDraft.current, ...change };
     currentDraft.current = next;
     setDraft(next);
-    if(change.body!==undefined){setWritingError('');setWritingNotice('');}
+    if(change.body!==undefined){setWritingError('');setWritingNotice('');setCodeNotice('');}
     setSaved(writePostDraft(tabDraftStorage(), owner, scope, next));
     onDraftChange(hasDraft(next));
   }
@@ -312,6 +316,36 @@ function Composer({
     [error, setError] = useState("");
   const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),writingHint=useId();
   const [writingOpen,setWritingOpen]=useState(false),[writingError,setWritingError]=useState(''),[writingNotice,setWritingNotice]=useState('');
+  const [codeNotice,setCodeNotice]=useState<''|'inserted'|'existing'|'length'|'position'>('');
+  const codeEdit=useRef<(SolutionCodeEdit&{selection:ReplyQuoteSelection})>(undefined),latestCode=useRef(practiceCode);latestCode.current=practiceCode;
+  const [codeFocus,setCodeFocus]=useState<{opener:HTMLElement;href:string;body:string;selection:ReplyQuoteSelection}>();
+  const canInsertCode=solution&&!accountLoading&&user?.id===owner&&ownsSolutionCode(practiceCode,owner,topic?.id||draft.problemId);
+  useLayoutEffect(()=>{
+    const intent=codeFocus;if(!intent||preview)return;setCodeFocus(undefined);
+    if(busy||!mounted.current||currentActor.current!==owner||location.href!==intent.href||currentDraft.current.body!==intent.body)return;
+    const active=document.activeElement;
+    if(active!==intent.opener&&!(active===document.body&&(!intent.opener.isConnected||intent.opener.matches(':disabled'))))return;
+    // Textarea values use LF even when a restored draft/source keeps CRLF bytes.
+    const field=editor.current;if(!field||field.value!==intent.body.replace(/\r\n?/g,'\n'))return;
+    field.focus({preventScroll:true});field.setSelectionRange(intent.selection.start,intent.selection.end,intent.selection.direction);field.scrollTop=intent.selection.scroll;field.scrollLeft=intent.selection.left;keepReadingTriggerVisible(field);
+  },[codeFocus,preview,busy,owner]);
+  function addCurrentCode(opener:HTMLElement){
+    const source=latestCode.current,body=currentDraft.current.body;
+    if(!solution||publishing.current||busy||accountLoading||!mounted.current||currentActor.current!==owner||writingRoute!==location.href||!ownsSolutionCode(source,owner,topic?.id||currentDraft.current.problemId))return;
+    const previous=codeEdit.current;
+    if(previous?.code===source.code&&previous.after===body){setCodeNotice('existing');return;}
+    const result=insertSolutionCode(body,source.code);
+    if(!result.ok){setCodeNotice(result.reason==='position'?'position':'length');return;}
+    codeEdit.current={...result.edit,selection:captureReplyQuoteSelection(editor.current,body.length)};
+    edit({body:result.edit.after});setCodeNotice('inserted');setPreview(false);
+    setCodeFocus({opener,href:location.href,body:result.edit.after,selection:{start:result.edit.after.length,end:result.edit.after.length,direction:'none',scroll:editor.current?.scrollHeight||0,left:0}});
+  }
+  function undoCurrentCode(opener:HTMLElement){
+    const operation=codeEdit.current;
+    if(!operation||publishing.current||busy||accountLoading||!mounted.current||currentActor.current!==owner||writingRoute!==location.href||operation.after!==currentDraft.current.body)return;
+    edit({body:operation.before});codeEdit.current=undefined;setPreview(false);
+    setCodeFocus({opener,href:location.href,body:operation.before,selection:operation.selection});
+  }
   const writingEdit=useRef<(CommunityOutlineEdit&{selection:{start:number;end:number;scroll:number}})>(undefined);
   const [writingFocus,setWritingFocus]=useState<{opener:HTMLElement;href:string;source:string;start:number;end:number;scroll?:number}>();
   useLayoutEffect(()=>{
@@ -475,6 +509,12 @@ function Composer({
         <details className="community-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲组织内容','Organize your post with prompts')} · {communityOutlines[outlineCategory].name[locale==='en'?'en':'zh']}</span><ChevronDown size={14}/></summary>{writingOpen&&<CommunityWritingGuide category={outlineCategory} outline={communityOutlines[outlineCategory]} hasBody={!!body.trim()} hasContent={contentReady} busy={busy} canUndo={!!writingEdit.current&&writingEdit.current.after===body} editedAfterInsert={!!writingEdit.current&&writingEdit.current.after!==body} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
         {writingError&&<p className="community-writing-hint" role="alert">{writingError}</p>}
         {writingNotice&&<p className="community-writing-hint" role="status">{writingNotice}</p>}
+        {solution&&practiceCode&&<div className="solution-code-draft">
+          <button type="button" className="text-button" disabled={busy||!canInsertCode} onClick={event=>addCurrentCode(event.currentTarget)}><Code2 size={14} aria-hidden="true"/>{t('插入当前代码','Insert current code')}</button>
+          <small>{t('仅加入本题题解草稿，发布前仍可编辑。','Adds code to this solution draft. You can edit it before publishing.')}</small>
+          {codeNotice&&<p role={codeNotice==='length'||codeNotice==='position'?'alert':'status'}>{codeNotice==='length'?t('代码无法完整加入正文，原草稿已保留。请精简后重试。','The complete code exceeds the post limit. Your draft is kept; shorten it and retry.'):codeNotice==='position'?t('请先补全正文中未闭合的代码、公式或 HTML 块，再插入代码。原草稿已保留。','Close any unfinished code, math or HTML block before inserting code. Your draft is kept.'):codeNotice==='existing'?t('这份代码已在草稿中，可继续编辑。','This code is already in your draft. You can keep editing.'):t('代码已加入草稿，可预览后继续完善思路。','Code added to the draft. Preview it and develop your explanation.')}</p>}
+          {codeEdit.current?.after===body&&<button type="button" className="text-button" disabled={busy||accountLoading} onClick={event=>undoCurrentCode(event.currentTarget)}>{t('撤销代码插入','Undo code insertion')}</button>}
+        </div>}
         <MarkdownEditor scopeKey={JSON.stringify(['post',owner,scope])} submitShortcut value={body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
           textareaRef={editor} describedBy={body.trim()&&!contentReady&&!pendingMatches?writingHint:undefined} label={t('正文','Post body')} modeLabel={t('帖子编辑模式','Post editor mode')} maxLength={20000} busy={busy}
           placeholder={solution?t('分享解题思路、关键代码、复杂度与边界情况…','Explain your approach, key code, complexity and edge cases…'):board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
@@ -508,6 +548,7 @@ type CommunityProps = {
   topics?:ProblemTopic[];
   embedded?:boolean;
   onCode?:()=>void;
+  practiceCode?:SolutionCodeSource;
 };
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
@@ -517,10 +558,10 @@ export default function Community({ postId, route, ...scope }: CommunityProps) {
     <CommunityFeed key={`${scope.topicId || "all"}:${readCommunityFeed(route||"")?.state.solutions?"solutions":"posts"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
 }
-export function ProblemSolutions({topic,onCode}:{topic:ProblemTopic;onCode?:()=>void}) {
-  return <Community embedded onCode={onCode} topic={topic} topicId={topic.id} route={solutionsHref(topic.id)}/>;
+export function ProblemSolutions({topic,onCode,practiceCode}:{topic:ProblemTopic;onCode?:()=>void;practiceCode?:SolutionCodeSource}) {
+  return <Community embedded onCode={onCode} practiceCode={practiceCode} topic={topic} topicId={topic.id} route={solutionsHref(topic.id)}/>;
 }
-function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false, onCode }: Omit<CommunityProps, "postId">) {
+function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false, onCode,practiceCode }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
   const { user, capabilities, loading: accountLoading } = useAccount();
   const solutions=embedded||readCommunityFeed(route||"")?.state.solutions===true;
@@ -729,7 +770,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
           )}
           {writing.expanded && user && (
-            <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} />
+            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} />
           )}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}

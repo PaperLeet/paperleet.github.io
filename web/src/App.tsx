@@ -796,7 +796,7 @@ function Workspace() {
                     />
                   )
                 ) : tab === "solution" ? (
-                  <ProblemSolutionPanel key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor}/>
+                  <ProblemSolutionPanel key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>
                 ) : (
                   <>
                     <div className="problem-heading">
@@ -1041,7 +1041,7 @@ function Workspace() {
                   {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
                     onEdit={openEditor} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={selectedPaper?.kind === "course"} current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')}/>}
+                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={selectedPaper?.kind === "course"} current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
                   </WorkspaceTestResults>}
                   </div>
                   </div>
