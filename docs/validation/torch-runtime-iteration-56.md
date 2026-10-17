@@ -150,3 +150,13 @@ backend investigation, not implied by these CPU/WASM results.
 The raw archive preserves frozen baseline/candidate source and tests, native arrays and metadata,
 CPU/Node/Chrome qualifications, wheel/sdist artifacts, frontend/catalog receipts, diagnostic pilots,
 and all 12 final benchmark children. Environments, caches and third-party C++ source are excluded.
+
+## Main adoption
+
+Validated source `4a130415a37f528f25581c8892a890318c508666` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 59 source/license resources, 161 active exports, 11,967 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
