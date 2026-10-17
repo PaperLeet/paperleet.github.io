@@ -38,12 +38,15 @@ for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achieveme
   assert(manifest[key]?.isDynamicEntry && !initial.has(key), `${key} must load with practice rather than the library`);
 }
 const files = [...initial].map(key => manifest[key].file);
+assert(manifest['src/MarkdownSectionNav.tsx']?.isDynamicEntry&&!initial.has('src/MarkdownSectionNav.tsx'), 'Optional writing section navigation must remain deferred');
 assert(manifest['src/ProblemSolutionPanel.tsx']?.isDynamicEntry&&!initial.has('src/ProblemSolutionPanel.tsx'), 'Per-problem solution navigation must remain deferred');
 assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichText|SolutionHistory)-/.test(file)), 'Optional runtime dependencies must not be pulled back into the shell');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.markdown-section-nav')), 'Writing section navigation styles must stay deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.markdown-section-controls'))), 'Writing editors must include section navigation styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Pick up a post, solution or interview.')), 'Writing draft inventory must remain deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.draft-center')), 'Writing draft styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.draft-center-card'))), 'The deferred writing draft center must include its styles');

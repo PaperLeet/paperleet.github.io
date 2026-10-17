@@ -1,10 +1,19 @@
 import {useDeferredValue,useId,useLayoutEffect,useRef,useState} from 'react';
 import type {RefObject} from 'react';
-import {Bold,Italic,Code,SquareCode,List,ListOrdered,Heading2,Quote,Link,SquareFunction,Undo2,LoaderCircle} from 'lucide-react';
+import {Bold,Italic,Code,SquareCode,List,ListOrdered,Heading2,Quote,Link,SquareFunction,Undo2,LoaderCircle,ListTree,ChevronDown} from 'lucide-react';
 import CommunityMarkdown,{CommunityFormatHelp} from './CommunityMarkdown';
 import {useI18n} from './i18n';
 import {formatMarkdown,type MarkdownEdit,type MarkdownFormat} from './markdownFormatting';
 import './markdown-editor.css';
+import './markdown-sections.css';
+import {deferredFeature} from './deferredFeature';
+import {revealReadingTarget} from './readingViewport';
+import {writingDomOffset,writingSectionScroll,type WritingSection} from './writingSections';
+const MarkdownSectionNav=deferredFeature(()=>import('./MarkdownSectionNav'),['正文目录','writing sections'],{failure:(_props,retry)=><SectionNavFailure retry={retry}/>});
+function SectionNavFailure({retry}:{retry:()=>void}){
+  const {t}=useI18n();
+  return <p className="markdown-section-empty" role="alert">{t('目录暂时无法加载，正文仍可编辑。','Sections could not load. You can keep writing.')} <button type="button" className="text-button" onClick={retry}>{t('重试目录','Retry sections')}</button></p>;
+}
 
 const tools=[
   ['heading',Heading2,'小标题','Section heading',''],
@@ -20,12 +29,12 @@ export type MarkdownEditorView={value:string;selection:Selection;instance:object
 type Props={
   value:string;onChange:(value:string)=>void;preview:boolean;onPreviewChange:(preview:boolean)=>void;
   label:string;modeLabel:string;rows?:number;maxLength:number;disabled?:boolean;placeholder?:string;
-  textareaRef?:RefObject<HTMLTextAreaElement|null>;viewStateRef?:RefObject<MarkdownEditorView|undefined>;id?:string;describedBy?:string;autoFocus?:boolean;submitShortcut?:boolean;busy?:boolean;scopeKey?:string;
+  textareaRef?:RefObject<HTMLTextAreaElement|null>;viewStateRef?:RefObject<MarkdownEditorView|undefined>;id?:string;describedBy?:string;autoFocus?:boolean;sectionNavigation?:boolean;submitShortcut?:boolean;busy?:boolean;scopeKey?:string;
 };
 export default function MarkdownEditor(props:Props){
   return <ScopedMarkdownEditor key={props.scopeKey} {...props}/>;
 }
-function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,viewStateRef,id,describedBy,autoFocus=false,submitShortcut=false,busy=false,scopeKey}:Props){
+function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,viewStateRef,id,describedBy,autoFocus=false,sectionNavigation=false,submitShortcut=false,busy=false,scopeKey}:Props){
   const {t,locale}=useI18n(),generatedId=useId(),ownField=useRef<HTMLTextAreaElement>(null);
   const field=textareaRef||ownField,locked=disabled||busy;
   const [operation,setOperation]=useState<(MarkdownEdit&{selection:Selection})>();
@@ -39,6 +48,22 @@ function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,mode
   const savedSelection=useRef<Selection>(undefined);
   const previewValue=useRef<string>(undefined);
   const viewInstance=useRef({});
+  const [sectionsOpen,setSectionsOpen]=useState(false),[sectionTick,setSectionTick]=useState(0);
+  const sectionSummary=useRef<HTMLElement>(null),sectionJump=useRef<{opener:HTMLElement;href:string;source:string;offset:number}>(undefined);
+  useLayoutEffect(()=>{
+    const intent=sectionJump.current;if(!intent||preview)return;sectionJump.current=undefined;
+    if(locked||value!==intent.source||globalThis.location?.href!==intent.href||document.activeElement!==intent.opener)return;
+    const textarea=field.current;if(!textarea||textarea.value!==value.replace(/\r\n?/g,'\n'))return;
+    const offset=writingDomOffset(value,intent.offset);
+    textarea.focus({preventScroll:true});textarea.setSelectionRange(offset,offset,'none');
+    textarea.scrollTop=writingSectionScroll(textarea,offset);textarea.scrollLeft=0;revealReadingTarget(textarea,'center');
+  },[sectionTick,preview,locked,value,field]);
+  function jumpSection(source:string,section:WritingSection,opener:HTMLElement){
+    const href=globalThis.location?.href;
+    if(!href||locked||live.current.disabled||source!==lastValue.current||!opener.isConnected||!!opener.closest('[hidden],[aria-hidden="true"]'))return;
+    sectionJump.current={opener,href,source,offset:section.offset};onPreviewChange(false);setSectionTick(tick=>tick+1);
+  }
+
   useLayoutEffect(()=>{
     const request=pending.current;if(!request||preview)return;pending.current=undefined;
     const undoLostFocus=document.activeElement===document.body&&request.opener instanceof HTMLElement&&request.opener.matches('button:disabled');
@@ -91,6 +116,10 @@ function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,mode
         onChange(operation.before);restore(operation.selection,operation.before);setOperation(undefined);setError('');
       }}><Undo2 size={15} aria-hidden="true"/>{t('撤销格式','Undo formatting')}</button>
     </div>
+    {sectionNavigation&&<details className="markdown-section-nav" onToggle={event=>setSectionsOpen(event.currentTarget.open)} onKeyDown={event=>{
+      if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||!event.currentTarget.open)return;
+      event.preventDefault();event.stopPropagation();event.currentTarget.open=false;sectionSummary.current?.focus({preventScroll:true});
+    }}><summary ref={sectionSummary}><ListTree size={15} aria-hidden="true"/>{t('正文目录','Writing sections')}<ChevronDown size={14} aria-hidden="true"/></summary>{sectionsOpen&&<MarkdownSectionNav source={deferredValue} ready={deferredValue===value} locked={locked} onJump={jumpSection}/>}</details>}
     <div className="markdown-editor-body"><label hidden={preview} className="markdown-body-label">{label}
       <textarea ref={field} id={id} required autoFocus={autoFocus} rows={rows} maxLength={maxLength} value={value} disabled={disabled} readOnly={busy} aria-busy={busy||undefined} placeholder={placeholder} aria-keyshortcuts={submitShortcut&&!locked&&!preview?'Control+Enter Meta+Enter':undefined} aria-describedby={[describedBy,error?errorId:undefined,showShortcut?shortcutId:undefined,busy?busyId:undefined].filter(Boolean).join(' ')||undefined} onChange={event=>{setError('');onChange(event.target.value);}} onKeyDown={event=>{
         if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.shiftKey||!(event.metaKey||event.ctrlKey))return;

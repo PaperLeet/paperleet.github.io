@@ -89,7 +89,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       </select>{categoryHint&&<small id={categoryHintId}>{t(...categoryHint)}</small>}</label>
       {draft.category==='papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl=>edit({paperUrl})} owner={owner} available={capabilities?.community_papers===true} disabled={busy} initialPaper={post.paper} onUseTitle={title=>edit({title:title.slice(0,180)})}/>}
       <label>{t('标题','Title')}<input autoFocus required maxLength={180} value={draft.title} disabled={busy} onChange={e=>edit({title:e.target.value})}/></label>
-      <MarkdownEditor scopeKey={JSON.stringify(['post-edit',owner,post.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
+      <MarkdownEditor sectionNavigation scopeKey={JSON.stringify(['post-edit',owner,post.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
         label={t('正文','Post body')} modeLabel={t('帖子修改模式','Post edit mode')} rows={10} maxLength={20000} busy={busy} disabled={disabled}/>
       <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||!canPublish||needsReview||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>

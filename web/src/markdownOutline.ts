@@ -4,7 +4,7 @@ export function headingAnchor(scope:string,offset:number|undefined):string|undef
   if(!/^reading-[a-f0-9]{32}(?:-instance-(?:[a-f0-9]{4}){1,64})?$/.test(scope)||!Number.isSafeInteger(offset)||offset===undefined||offset<0)return;
   return `${scope}-${offset}`;
 }
-function label(root:PostMarkdownNode){
+export function markdownHeadingLabel(root:PostMarkdownNode){
   const stack=[root],pieces:string[]=[];
   while(stack.length){
     const node=stack.pop()!;
@@ -23,7 +23,7 @@ export function markdownOutline(body:string,scope:string):MarkdownSection[]{
     while(stack.length){
       const node=stack.pop()!;
       if(node.type==='heading'){
-        const id=headingAnchor(scope,node.position?.start.offset),text=label(node);
+        const id=headingAnchor(scope,node.position?.start.offset),text=markdownHeadingLabel(node);
         if(id&&text&&node.depth&&node.depth>=1&&node.depth<=6)sections.push({id,label:text,depth:node.depth});
       }
       for(const child of [...node.children||[]].reverse())stack.push(child);
