@@ -23,12 +23,20 @@ try{
  const drafts=await server.ssrLoadModule('/src/communityDrafts.ts');
  const receipts=await server.ssrLoadModule('/src/publicationRequests.ts');
  assert.equal(loads,0,'Reading the feed must not load optional writing prompts');
- assert.deepEqual(Object.keys(model.communityOutlines).sort(),["career","implementation","lounge","papers","questions","solution"]);
+ assert.deepEqual(Object.keys(model.communityOutlines).sort(),["admissions","career","implementation","lounge","papers","questions","solution"]);
+ assert.deepEqual(model.communityOutlines.admissions.name,{zh:'求学',en:'Graduate admissions'});
+ assert.deepEqual(model.communityOutlines.career.name,{zh:'求职',en:'Job search'});
  for(const id of Object.keys(model.communityOutlines))for(const en of [true,false]){
   const text=model.communityOutlineText(id,en);assert(!model.hasCommunityDraftContent(text));assert(model.hasCommunityDraftContent(text+'My actual observations.'));
   const result=model.insertCommunityOutline('',id,en);assert(result.ok);
   const html=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Markdown,{body:result.edit.after})));
   const view=new JSDOM(html);assert.equal(view.window.document.querySelectorAll('h2').length,4,'Inserted outlines are actual reader headings');view.window.close();
+ }
+ for(const language of ['zh','en']){
+  const legacy=(language==='zh'?['背景与目标','可选方向与约束','我的考虑与依据','希望获得的建议']:['Background and goal','Options and constraints','My reasoning and evidence','Advice I am looking for']).map(heading=>`## ${heading}\n\n`).join('');
+  assert(!model.hasCommunityDraftContent(legacy),'Saved empty career outlines must remain blocked after the category split');
+  const replaced=model.insertCommunityOutline(legacy,'admissions',language==='en');assert(replaced.ok);assert.equal(replaced.edit.after,model.communityOutlineText('admissions',language==='en'),'An old empty career outline can be replaced without retaining stale headings');
+  assert(model.hasCommunityDraftContent(legacy+'My actual job search experience.'));
  }
  for(const text of ['## My own heading','---','```python\nx=1\n```','$$x^2$$'])assert(model.hasCommunityDraftContent(text));
  assert.equal(model.hasCommunityDraftContent('  \n'),false);
@@ -57,11 +65,17 @@ try{
  await compose();assert.equal(loads,0);await edit(field('Title'),'A real question');const before=drafts.readPostDraft(sessionStorage,owner,'general');await open();assert.equal(loads,1);assert.deepEqual(drafts.readPostDraft(sessionStorage,owner,'general'),before);assert.equal(requests.length,0);
  for(const language of ['en','zh']){
   await click(button(language==='en'?'English':'Chinese'));
-  for(const category of ["papers","implementation","questions","career","lounge"]){
+  for(const category of ["papers","implementation","questions","admissions","career","lounge"]){
    await edit(field(language==='en'?'Category':'版块'),category);const items=[...document.querySelectorAll('.community-writing-panel li')];assert.equal(items.length,4);assert.deepEqual(items.map(node=>node.querySelector('b').textContent.replace(/^\d\. /,'')),model.communityOutlines[category].sections.map(section=>section[language]));assert(items.every(node=>node.querySelector('p').textContent.length>15));
+   const guide=document.querySelector('.community-writing-panel'),interviewLink=guide.querySelector('a[href="#/interviews"]');
+   assert.equal(!!interviewLink,category==='career','Only job search prompts point to company interview reports');
+   if(category==='admissions')for(const topic of language==='en'?['MS','PhD','universities','research','statement of purpose','interviews','admitted']:['MS','PhD','学校','研究','个人陈述','面试','录取'])assert(guide.textContent.includes(topic),`Admissions guidance covers ${topic}`);
+   if(category==='career')for(const topic of language==='en'?['job','internship','recruiting']:['工作','实习','招聘'])assert(guide.textContent.includes(topic),`Job-search guidance covers ${topic}`);
   }
  }
- await click(button('English'));await edit(field('Category'),'questions');const original='My own notes 😀\nKeep the second paragraph.';await edit(body(),original);const originalField=body();body().setSelectionRange(0,8);body().scrollTop=27;const prompt=document.querySelector('.community-writing-panel li p').textContent;await click(button('Insert outline at cursor'));const inserted=body().value;assert(inserted.startsWith(original.slice(0,8))&&inserted.endsWith(original.slice(8)));assert(!inserted.includes(prompt));assert.equal(body(),originalField);assert.equal(document.activeElement,body());assert.equal(body().scrollTop,27,'Inserting an outline must not force the editor back to the top');
+ await click(button('English'));await edit(field('Category'),'admissions');await click(button('Insert outline'));assert.equal(body().value,model.communityOutlineText('admissions',true));assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').category,'admissions');assert(publish().disabled,'An admissions outline still needs the applicant’s own content');
+ await edit(field('Category'),'career');await click(button('Replace empty outline'));assert.equal(body().value,model.communityOutlineText('career',true));assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').category,'career');assert(publish().disabled);
+ await edit(field('Category'),'questions');const original='My own notes 😀\nKeep the second paragraph.';await edit(body(),original);const originalField=body();body().setSelectionRange(0,8);body().scrollTop=27;const prompt=document.querySelector('.community-writing-panel li p').textContent;await click(button('Insert outline at cursor'));const inserted=body().value;assert(inserted.startsWith(original.slice(0,8))&&inserted.endsWith(original.slice(8)));assert(!inserted.includes(prompt));assert.equal(body(),originalField);assert.equal(document.activeElement,body());assert.equal(body().scrollTop,27,'Inserting an outline must not force the editor back to the top');
  await click(button('Insert outline at cursor'));assert.equal(body().value,inserted,'Repeat taps cannot duplicate an unchanged outline');await close();await open();assert(!button('Undo outline').disabled);await edit(field('Title'),'A refined title');await click(document.querySelector('.publishing-identity input'));await click(button('Undo outline'));assert.equal(body().value,original);assert.equal(body().selectionStart,0);assert.equal(body().selectionEnd,8);assert.equal(body().scrollTop,27);assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').title,'A refined title');assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').anonymous,true);
  await click(button('Insert outline at cursor'));await edit(body(),body().value+'\nLater writing');const later=body().value;assert(button('Undo outline').disabled);await click(button('Undo outline'));assert.equal(body().value,later);
  await click(button('Preview'));assert(body().closest('label').hidden);await click(button('Insert outline at cursor'));assert.equal(body(),originalField);assert(!body().closest('label').hidden);const englishBody=body().value;await click(button('Chinese'));assert.equal(body().value,englishBody);await click(button('English'));assert.equal(body().value,englishBody);
@@ -78,5 +92,5 @@ try{
  await stop();location.hash='#/community?category=questions';owner='writer-failure';account.user=user();await compose();await edit(body(),'Keep this exact draft');const saved=body(),savedBody=saved.value;globalThis.__communityWriting.fail=true;await open();assert(document.querySelector('.community-writing-failure'));assert(caught>0);assert.equal(body(),saved);assert.equal(body().value,savedBody);globalThis.__communityWriting.fail=false;await click(button('Retry writing prompts'));await settle(()=>document.querySelector('.community-writing-panel'));assert.equal(body(),saved);assert.equal(body().value,savedBody);
  await stop();topicId='architecture/attention';location.hash='#/community/problem/architecture/attention';await compose();assert.equal(body().value,'');assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').body,savedBody);
  await open();const storageDescriptor=Object.getOwnPropertyDescriptor(dom.window.Storage.prototype,'setItem');try{Object.defineProperty(dom.window.Storage.prototype,'setItem',{...storageDescriptor,value(){throw Error('Storage fixture unavailable');}});await click(button('Insert outline'));assert(body().value.includes('## '));assert(document.body.textContent.includes('This tab cannot save your draft'));}finally{Object.defineProperty(dom.window.Storage.prototype,'setItem',storageDescriptor);}
- console.log('PASS community writing: six bilingual deferred guides, real Markdown/Unicode/block safety, explicit insertion, exact guarded undo/focus, repeat protection, mounted preview, blank-outline publication guard, account/topic drafts, captured retries, legacy receipts and local prompt failure recovery');
+ console.log('PASS community writing: seven bilingual deferred guides, separate MS/PhD admissions and job-search prompts, legacy empty-outline recognition, real Markdown/Unicode/block safety, explicit insertion, exact guarded undo/focus, repeat protection, mounted preview, blank-outline publication guard, account/topic drafts, captured retries, legacy receipts and local prompt failure recovery');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

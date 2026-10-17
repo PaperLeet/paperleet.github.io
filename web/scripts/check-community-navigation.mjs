@@ -14,8 +14,8 @@ try {
   const {confirmedBookmark}=await server.ssrLoadModule('/src/communityBookmarks.ts');
   const id='a'.repeat(32), topics=[undefined,'architecture/attention','retired/module'];
   for (const topic of topics) {
-    for (const search of ['', 'mask gradient', '张量 & mask=1? 100%_% # + /', '中文 😀']) {
-      const state={category:'questions',following:true,search,page:3};
+    for (const category of ['questions','admissions','career']) for (const search of ['', 'mask gradient', '张量 & mask=1? 100%_% # + /', '中文 😀']) {
+      const state={category,following:true,search,page:3};
       const href=communityFeedHref(topic,state);
       assert.deepEqual(readCommunityFeed(href),{topicId:topic,state});
       assert.deepEqual(readCommunityFeed(decodeProblemHash(href)),{topicId:topic,state});
@@ -111,5 +111,11 @@ try {
   const markup=renderToString(React.createElement(Community,{route:decodeProblemHash(route),topicId:'architecture/attention'}));
   assert(markup.includes('value="mask &amp; gradient"') && markup.includes('maxLength="400"') && markup.includes('最多200个字符') && markup.includes('type="search"'));
   assert(markup.includes('aria-pressed="true"') && markup.includes(signInHref(route).replaceAll('&','&amp;')));
+  for(const [locale,admissions,career] of [['zh','求学','求职'],['en','Graduate admissions','Job search']]){
+    const render=await localizedRenderer(server,locale);
+    const html=render(React.createElement(Community,{route:'community?category=admissions'}));
+    assert(html.includes(admissions)&&html.includes(career),'Both distinct boards must be visible in '+locale);
+    assert(!html.includes('学术与职业')&&!html.includes('Research &amp; careers'),'The combined board label is retired');
+  }
   console.log('PASS community navigation: scoped filter/page URLs, reserved Unicode search text, post return context, login round trips, public-only targets and malformed/recursive/external rejection');
 } finally { await server.close(); }

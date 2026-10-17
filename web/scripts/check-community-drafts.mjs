@@ -13,6 +13,16 @@ try {
   const values = new Map();
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
   const original = { title: 'Masked queries', body: 'What happens to the gradient?\n\n```python\nweights = scores.softmax(-1)\n```', category: 'questions' };
+  for(const category of ['admissions','career']){
+    const boardDraft={...original,category};
+    assert(writePostDraft(storage,'board-owner','general',boardDraft));
+    assert.deepEqual(readPostDraft(storage,'board-owner','general'),boardDraft,'Both new admissions and existing career drafts survive refresh');
+    const recategorized={...boardDraft,category:category==='admissions'?'career':'admissions'};
+    assert(writePostDraft(storage,'board-owner','general',recategorized));
+    assert(!clearPublishedDraft(storage,'board-owner','general',boardDraft),'A late response cannot erase a draft moved to the other board');
+    assert.deepEqual(readPostDraft(storage,'board-owner','general'),recategorized);
+    assert(clearPublishedDraft(storage,'board-owner','general',recategorized));
+  }
   assert.equal(writePostDraft(storage, 'alice', 'architecture/attention', original), true);
   assert.deepEqual(readPostDraft(storage, 'alice', 'architecture/attention'), original, 'Refresh/close must recover exact whitespace and code');
   assert.equal(readPostDraft(storage, 'bob', 'architecture/attention'), undefined, 'Never show another account’s draft');

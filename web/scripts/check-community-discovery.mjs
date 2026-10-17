@@ -72,6 +72,15 @@ try{
  response='error';await navigate('#/community?sort=active');assert(document.body.textContent.includes('Network unavailable'));assert(select());response='normal';await choose('top');assert(document.querySelector('[data-reading-post]'));
  account.capabilities.community_feed_sorting=false;await render();assert(!select());assert(document.body.textContent.includes('This order is currently unavailable'));const before=requests.length;await render();assert.equal(requests.length,before);await click([...document.querySelectorAll('button')].find(node=>node.textContent==='Use default order'));assert(!nav.readCommunityFeed(location.hash).state.sort);assert(document.querySelector('[data-reading-post]'));
  account.loading=true;await navigate('#/community?sort=top');const waiting=requests.length;assert(!document.querySelector('[data-reading-post]'));account.capabilities.community_feed_sorting=true;account.loading=false;await render();assert.equal(requests.length,waiting+1);assert.equal(select().value,'top');
+ for(const [category,label] of [['admissions','Graduate admissions'],['career','Job search']]){
+  post.category=category;
+  await click([...document.querySelectorAll('.community-sidebar button')].find(node=>node.textContent.trim()===label));
+  assert.equal(nav.readCommunityFeed(location.hash).state.category,category);
+  assert.equal(requests.at(-1).params.get('category'),category,'Board selection sends its distinct backend category');
+  assert.equal(document.querySelector('.community-post-card .community-category').textContent,label,'Cards display the split board label');
+  assert.equal(nav.communityPostReturn(document.querySelector('[data-reading-link="title"]').getAttribute('href'),id),location.hash,'Opening a discussion preserves its selected board');
+ }
+ post.category='papers';
  account.user=undefined;await navigate('#/community?saved=1&sort=top');assert(document.body.textContent.includes('Sign in to see your saved posts'));assert(!document.querySelector('[data-reading-post]'));
  console.log('PASS community discovery: compact shared search/sort toolbar without count or sort descriptions, pagination and reading fallback, scoped sort/search controls, saved semantics, server order confirmation, abort/stale rejection, errors/retry, capability rollout, guest privacy, bilingual labels, keyboard focus and exact reading/login returns');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

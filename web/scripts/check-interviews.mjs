@@ -33,6 +33,8 @@ try {
  const draft={title:' My interview ',body:' Shared reflection 😀 ',interview:details};
  assert(drafts.writeInterviewDraft(storage,'model-alice',draft));assert.deepEqual(drafts.readInterviewDraft(storage,'model-alice'),draft);assert.equal(drafts.readInterviewDraft(storage,'model-bob'),undefined);
  const first=receipts.preparePublication(storage,'model-alice','interview','general',drafts.interviewPublication(draft));
+ assert.equal(first.receipt.payload.category,'career','Interview publication stays in Job search');
+ assert.throws(()=>receipts.preparePublication(storage,'misclassified-interview','interview','general',{...drafts.interviewPublication(draft),category:'admissions'}),/Invalid publication request/,'Graduate admissions cannot become an interview-report board');
  assert.equal(receipts.preparePublication(storage,'model-alice','interview','general',drafts.interviewPublication({...draft,interview:{...details,questions:[...details.questions].reverse()}})).receipt.requestId,first.receipt.requestId,'Canonical metadata keeps a retry identical');
  const changed={...draft,interview:{...details,company:'google'}},second=receipts.preparePublication(storage,'model-alice','interview','general',drafts.interviewPublication(changed));
  assert.notEqual(second.receipt.requestId,first.receipt.requestId);assert.equal(receipts.clearPublication(storage,first.receipt),false);
@@ -46,6 +48,7 @@ try {
  const post={id:'a'.repeat(32),title:'Interview',body:'Details',category:'career',author:{id:'model-alice'},viewer:{can_edit:true},edit_version:'d'.repeat(64),interview:models.readInterviewDetails(details)};
  const edit=edits.newPostEdit(post);edit.interview.questions.push('rl/dpo');assert.equal(post.interview.questions.length,2);
  assert(edits.writePostEdit(storage,'model-alice',post.id,edit));assert.deepEqual(edits.readPostEdit(storage,'model-alice',post.id),edit);assert.equal(edits.readPostEdit(storage,'model-bob',post.id),undefined);
+ assert(!edits.writePostEdit(storage,'model-alice',post.id,{...edit,category:'admissions'}),'Interview edit drafts must retain career even with a newly supported board');
  assert.equal(edits.samePostEdit(edit,{...edit,interview:{...edit.interview,company:'google'}}),false);
  const summary={reports:0,contributors:0,basis:'published-community-reports',companies:[],questions:[],days:'365',generated_at:new Date().toISOString()};
  assert(models.readInterviewSummary(summary));assert.equal(models.readInterviewSummary({...summary,reports:-1}),undefined);assert.equal(models.readInterviewSummary({...summary,companies:[{company:'amazon',reports:0,contributors:1}]}),undefined);

@@ -28,11 +28,17 @@ const prompts:Record<CommunityOutlineId,readonly Text[]>={
   {zh:'给出最小输入、实际输出和关键报错。只粘贴你希望公开的内容。',en:'Share a minimal input, actual output and the relevant error. Include only the material you intend to publish.'},
   {zh:'记录你已经尝试的方法、结果，以及目前最不确定的一点。',en:'Summarize your attempts, their results and the part you are still most unsure about.'},
  ],
+ admissions:[
+  {zh:'说明你计划申请硕士（MS）还是博士（PhD）、申请季和研究兴趣，补充相关课程或研究经历。',en:'State whether you are applying for an MS or PhD, your application cycle and research interests, with relevant coursework or research experience.'},
+  {zh:'介绍正在考虑的学校、项目或导师，比较研究方向匹配度、经费、地点和申请时间要求。',en:'Describe the universities, programs or advisers you are considering, comparing research fit, funding, location and application timelines.'},
+  {zh:'写出简历、个人陈述、研究计划或推荐信的准备进展，以及申请面试中想讨论的研究问题。',en:'Describe your progress on your CV, statement of purpose, research proposal or references, and the research questions you want to discuss in admissions interviews.'},
+  {zh:'说明目前处于准备、提交、面试、候补还是录取阶段，列出录取条件和待比较的选择，提出最需要的建议。',en:'Share whether you are preparing, submitting, interviewing, waitlisted or admitted. Describe admission conditions and choices, and ask for the advice you need most.'},
+ ],
  career:[
-  {zh:'介绍与问题有关的经历、目标和时间范围，不必写出无关的个人信息。',en:'Share the experience, goal and timeframe relevant to the question, without unrelated personal details.'},
-  {zh:'概括正在比较的方向，以及地点、时间或学习投入方面的约束。',en:'Describe the options you are comparing and any location, time or learning constraints.'},
-  {zh:'区分亲身经历、公开信息和个人判断，说明每个选项的主要取舍。',en:'Separate first-hand experience, public information and personal judgment, and explain the main trade-offs.'},
-  {zh:'告诉读者你最需要哪类建议，以及还有哪些信息没有确定。',en:'Tell readers which advice would help most and which details remain undecided.'},
+  {zh:'说明你在寻找全职工作还是实习、目标岗位和时间范围，介绍相关项目、技能或工作经历。',en:'State whether you are seeking a full-time job or internship, the roles and timeframe, and your relevant projects, skills or work experience.'},
+  {zh:'介绍正在使用的招聘渠道、简历投递和招聘流程进展，指出在哪一步遇到了困难。',en:'Describe the recruiting channels you are using, your applications and progress through hiring, and where you are getting stuck.'},
+  {zh:'分享岗位准备、技能提升或 offer 比较的依据，说明工作内容、团队、地点和入职时间等取舍。',en:'Share your preparation, skill development or reasoning when comparing job offers, including responsibilities, team, location and start date.'},
+  {zh:'提出关于求职、实习或招聘的具体问题，说明已尝试的方法和计划采取的下一步。',en:'Ask a specific question about job search, internships or recruiting, including what you have tried and your planned next step.'},
  ],
  lounge:[
   {zh:'用几句话交代这次分享的起点，让第一次看到的人也能加入。',en:'Introduce what prompted the topic so someone reading it for the first time can join in.'},
@@ -47,7 +53,7 @@ export default function CommunityWritingGuide({category,outline,hasBody,hasConte
  return <div className="community-writing-panel">
   <p>{t('这些提示帮助组织内容。只有标题会插入正文，下面的问题不会自动发布，也不会改写已有文字。','These prompts help organize your post. Only headings are inserted; the questions below are never posted automatically and your writing stays intact.')}</p>
   <ol>{outline.sections.map((section,index)=><li key={section.en}><b><span aria-hidden="true">{index+1}.</span> {section[language]}</b><p>{prompts[category][index][language]}</p></li>)}</ol>
-  {category==='career'&&<p>{t('分享具体面试经历时，可以在面经区关联公司和题目。','For a specific interview experience, use the interview section to link companies and exercises.')} <a href="#/interviews">{t('前往面经区','Go to interviews')}</a></p>}
+  {category==='career'&&<p>{t('分享具体工作或实习面试经历时，可以在面经区关联公司和题目。','For a specific job or internship interview experience, use the interview section to link companies and exercises.')} <a href="#/interviews">{t('前往面经区','Go to interviews')}</a></p>}
   <div className="community-writing-actions"><button type="button" className="button subtle" disabled={busy} onClick={event=>{event.currentTarget.focus({preventScroll:true});onInsert(category,event.currentTarget);}}><Plus size={14}/>{hasContent?t('在光标处插入提纲','Insert outline at cursor'):hasBody?t('更换空提纲','Replace empty outline'):t('插入写作提纲','Insert outline')}</button><button type="button" className="text-button" disabled={busy||!canUndo} onClick={event=>{event.currentTarget.focus({preventScroll:true});onUndo(event.currentTarget);}}><Undo2 size={14}/>{t('撤销提纲','Undo outline')}</button></div>
   {editedAfterInsert&&<small role="status">{t('正文已继续修改，撤销提纲暂不可用，以保留你的新内容。','You edited the post after inserting an outline. Undo is unavailable to keep your new writing.')}</small>}
  </div>;

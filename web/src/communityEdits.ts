@@ -2,10 +2,10 @@ import type { DraftStorage } from './communityDrafts';
 import {isThreadAnonymous} from './communityIdentity';
 import type { Post } from './communityDiscussion';
 import {readInterviewDetails,type InterviewDetails} from './interviewModels';
+import { isCommunityCategory } from './communityCategories';
 
 export type PostEditDraft = { title: string; body: string; category: string; baseVersion: string; interview?:InterviewDetails; paperUrl?:string };
 const version = /^[a-f0-9]{64}$/;
-const categories = new Set(['papers','implementation','questions','career','lounge']);
 export const postEditKey = (owner:string,post:string) =>
   `paperleet.community.post-edit.v1:${encodeURIComponent(owner)}:${encodeURIComponent(post)}`;
 export function canEditPost(post:Post,owner:string):boolean {
@@ -18,8 +18,8 @@ function valid(value:unknown):value is PostEditDraft {
   if(!value || typeof value !== 'object') return false;
   const draft=value as PostEditDraft;
   return typeof draft.title==='string' && draft.title.length<=180 && typeof draft.body==='string' && draft.body.length<=20000
-    && typeof draft.category==='string' && categories.has(draft.category) && typeof draft.baseVersion==='string' && version.test(draft.baseVersion)
-    && (draft.interview===undefined||!!readInterviewDetails(draft.interview))
+    && isCommunityCategory(draft.category) && typeof draft.baseVersion==='string' && version.test(draft.baseVersion)
+    && (draft.interview===undefined||(draft.category==='career'&&!!readInterviewDetails(draft.interview)))
     && (draft.paperUrl===undefined||(typeof draft.paperUrl==='string'&&draft.paperUrl.length<=2048));
 }
 export function samePostEdit(a:PostEditDraft,b:PostEditDraft):boolean {

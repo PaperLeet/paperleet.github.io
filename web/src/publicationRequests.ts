@@ -2,6 +2,7 @@ import type { DraftStorage, PostDraft } from './communityDrafts';
 import type { ReplyDraft } from './replyDrafts';
 import {readInterviewDetails} from './interviewModels';
 import {canonicalArxivUrl} from './communityPapers';
+import { isCommunityCategory } from './communityCategories';
 
 export type PublicationKind = 'post' | 'reply' | 'interview';
 export type PublicationPayload = Record<string,string|null|boolean>;
@@ -30,7 +31,7 @@ function valid(receipt:PublicationReceipt,owner:string,kind:PublicationKind,scop
     try{return !!readInterviewDetails(JSON.parse(p.interview));}catch{return false;}
   }
   return kind==='post' ? (keys==='body,category,problem_id,title'||keys==='body,category,paper_url,problem_id,title') && typeof p.title==='string' && !!p.title.trim() && p.title.length<=180
-    && typeof p.category==='string' && ['papers','implementation','questions','career','lounge'].includes(p.category)
+    && isCommunityCategory(p.category)
     && (!Object.hasOwn(p,'paper_url') || p.paper_url===null || (p.category==='papers' && typeof p.paper_url==='string' && canonicalArxivUrl(p.paper_url)===p.paper_url))
     && (p.solution===true ? scope==='general:solutions'||scope===p.problem_id+':solutions' : scope==='general'?p.problem_id===null:moduleId.test(scope)&&p.problem_id===scope)
     : keys==='body,parent_id' && token.test(scope) && (p.parent_id===null || typeof p.parent_id==='string' && token.test(p.parent_id));

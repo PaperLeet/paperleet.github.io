@@ -36,6 +36,7 @@ import {
   Code2,
   Coffee,
   Globe2,
+  GraduationCap,
   Heart,
   HelpCircle,
   MessageCircle,
@@ -51,6 +52,7 @@ import {
   X,
 } from "lucide-react";
 import { useI18n } from "./i18n";
+import { communityCategories, communityCategoryHint } from './communityCategories';
 import ProfileProgress from "./ProfileProgress";
 import ProfileAchievements from "./ProfileAchievements";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
@@ -103,18 +105,8 @@ type Connection = PublicUser & {
 };
 type Activity = { kind: string; created_at: string; post: Post; reply?: Reply };
 type Page<T> = { items: T[]; total: number; limit?: number; offset?: number };
-const CATEGORIES = [
-  { id: "papers", zh: "论文讨论", en: "Papers", icon: BookOpen },
-  { id: "implementation", zh: "代码实现", en: "Implementation", icon: Code2 },
-  { id: "questions", zh: "问题求助", en: "Questions", icon: HelpCircle },
-  {
-    id: "career",
-    zh: "学术与职业",
-    en: "Research & careers",
-    icon: BriefcaseBusiness,
-  },
-  { id: "lounge", zh: "闲聊", en: "Lounge", icon: Coffee },
-];
+const categoryIcons = { papers: BookOpen, implementation: Code2, questions: HelpCircle, admissions: GraduationCap, career: BriefcaseBusiness, lounge: Coffee };
+const CATEGORIES = communityCategories.map(category => ({ ...category, icon: categoryIcons[category.id] }));
 const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
 export const COMMUNITY_FEED_TIMEOUT = 20_000;
@@ -316,6 +308,7 @@ function Composer({
   const [publication,setPublication] = useState(() => readPublication(tabDraftStorage(),owner,'post',scope));
   const publishing = useRef(false);
   const { title, body, category: board } = draft;
+  const categoryHint = communityCategoryHint(board), categoryHintId = useId();
   const [preview, setPreview] = useState(false),
     [discardRequested, setDiscardRequested] = useState(false),
     [saved, setSaved] = useState<boolean | null>(() => hasDraft(draft) ? true : null);
@@ -464,13 +457,14 @@ function Composer({
         {solution&&!topic&&<label>{t("关联题目","Practice module")}<select required value={draft.problemId||""} disabled={busy} onChange={event=>edit({problemId:event.target.value})}><option value="">{t("选择一道题目","Choose a practice module")}</option>{topics.filter(row=>!row.retired).map(row=><option key={row.id} value={row.id}>{topicTitle(row,locale==="en")}</option>)}</select></label>}
         <label>
           {t("版块", "Category")}
-          <select value={board} disabled={busy||solution} onChange={(e) => edit({ category: e.target.value })}>
+          <select value={board} disabled={busy||solution} aria-describedby={categoryHint ? categoryHintId : undefined} onChange={(e) => edit({ category: e.target.value })}>
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
                 {t(c.zh, c.en)}
               </option>
             ))}
           </select>
+          {categoryHint && <small id={categoryHintId}>{t(...categoryHint)}</small>}
         </label>
         {board === 'papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl => edit({ paperUrl })} owner={owner} available={papersAvailable} required={papersAvailable} disabled={busy} onUseTitle={paperTitle => edit({ title: paperTitle.slice(0, 160) })} />}
         <label>

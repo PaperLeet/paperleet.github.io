@@ -153,6 +153,39 @@ try{
   assert(!document.querySelector('.publishing-affiliation-notice'));assert(!publish.disabled,kind+' resumes after account verification');
   await stop();
  }
+ const receipts=await server.ssrLoadModule('/src/publicationRequests.ts');
+ const submitForm=async()=>act(async()=>document.querySelector('.community-composer form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));
+ for(const [category,label,hint] of [['admissions','Graduate admissions','MS / PhD'],['career','Job search','Internships']]){
+  sessionStorage.clear();location.hash='#/community?category='+category;
+  await render(Community,{route:'community?category='+category});await click(named('New post'));
+  let categorySelect=document.querySelector('.community-composer select');
+  assert.equal(categorySelect.value,category,'The selected board is the initial publication category');
+  assert.equal(categorySelect.selectedOptions[0].textContent,label);
+  assert(document.getElementById(categorySelect.getAttribute('aria-describedby')).textContent.includes(hint));
+  await input(document.querySelector('input[maxlength="160"]'),'A concrete '+category+' question');
+  await input(document.querySelector('.markdown-editor textarea'),'My actual experience and specific question.');
+  await submitForm();
+  const attempt=mutations.at(-1);assert.equal(attempt.path,'community/posts');assert.equal(attempt.payload.category,category);
+  assert.equal(drafts.readPostDraft(sessionStorage,owner,'general').category,category);
+  await stop();await render(Community,{route:'community?category='+category});await click(named('Resume draft'));
+  assert.equal(document.querySelector('.community-composer select').value,category,'A failed post restores its board with the draft');
+  assert(document.querySelector('.publication-recovery'));
+  await submitForm();
+  assert.equal(mutations.at(-1).payload.request_id,attempt.payload.request_id,'Retrying the restored board publication keeps its original request ID');
+  receipts.clearPublication(sessionStorage,receipts.readPublication(sessionStorage,owner,'post','general').receipt);
+  await stop();sessionStorage.clear();
+
+  await render(PostEditor,{owner,post:{...post,category},disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true});
+  categorySelect=document.querySelector('.community-composer select');assert.equal(categorySelect.value,category);
+  assert(document.getElementById(categorySelect.getAttribute('aria-describedby')).textContent.includes(hint));
+  const other=category==='admissions'?'career':'admissions';
+  await act(async()=>{categorySelect.value=other;categorySelect.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});
+  assert.equal(postEdits.readPostEdit(sessionStorage,owner,postId).category,other);
+  assert.equal(document.querySelector('.markdown-editor textarea').value,post.body,'Changing boards preserves the current edited body');
+  await submitForm();assert.equal(mutations.at(-1).path,'community/posts/'+postId+'/edit');assert.equal(mutations.at(-1).payload.category,other);
+  await stop();
+ }
+ console.log('PASS admissions/job-search authoring: selected labels and purpose hints, exact publication categories, failed-response draft/remount/idempotent recovery, and recategorized edits without losing content');
  console.log('PASS Markdown editing: ten bilingual tools, whole-line heading/numbered-step/quote toggles with isolated prose and LF/CRLF, real rendered blocks/outline parity, exact source/Unicode/fence/length safety, shortcuts, mounted preview selection/both-scroll, backward-selection undo/focus and saved structural drafts across seven real authoring surfaces including linked solutions, affiliation/direct/shortcut publication gates and verified-account recovery');
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();

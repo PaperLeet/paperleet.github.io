@@ -27,6 +27,15 @@ export async function checkCommunityEditing(server) {
   for(const target of [{...post,viewer:{}},{...post,viewer:{can_delete:true}},{...post,edit_version:'bad'},{...post,author:{id:'bob'}}])assert(!edits.canEditPost(target,'alice'),'Only an explicit supported author permission enables editing');
   assert(!edits.canEditPost(post,'bob'));assert(!edits.canEditPost(post,''));
   const draft={...edits.newPostEdit(post),title:'x'.repeat(180),body:'  中文 🧪\n\n```python\nx = "<script>"\n```\n'};
+  for(const category of ['admissions','career']){
+    const boardEdit={...draft,category};
+    assert(edits.writePostEdit(storage,'board-owner','post',boardEdit));
+    assert.deepEqual(edits.readPostEdit(storage,'board-owner','post'),boardEdit,'Editing either board keeps the full versioned draft');
+    const moved={...boardEdit,category:category==='admissions'?'career':'admissions'};
+    assert(edits.writePostEdit(storage,'board-owner','post',moved));
+    assert(!edits.clearSavedPostEdit(storage,'board-owner','post',boardEdit));
+    assert(edits.clearSavedPostEdit(storage,'board-owner','post',moved));
+  }
   assert(edits.writePostEdit(storage,'alice','post',draft));
   assert.deepEqual(edits.readPostEdit(storage,'alice','post'),draft);
   assert.equal(edits.readPostEdit(storage,'bob','post'),undefined);assert.equal(edits.readPostEdit(storage,'alice','other'),undefined);
@@ -69,6 +78,13 @@ export async function checkCommunityEditing(server) {
     globalThis.localStorage={getItem:()=> 'en'};
     const english=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(PostEditor,{post:latest,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true})));
     assert(english.includes('Latest post content')&&english.includes('Reviewed; continue from this version')&&english.includes('Save changes'));
+    for(const [locale,label,career] of [['en','Graduate admissions','Job search'],['zh','求学','求职']]){
+      const render=await localizedRenderer(server,locale);
+      const admissionPost={...post,id:'admissions-post',category:'admissions'};
+      const markup=render(React.createElement(PostEditor,{post:admissionPost,owner:'alice',disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true}));
+      assert(markup.includes(`value="admissions" selected="">${label}`)&&markup.includes(`value="career">${career}`));
+      assert(markup.includes('MS / PhD')&&markup.includes('aria-describedby='),'The admission category has a short accessible purpose hint');
+    }
   } finally {
     if(previous===undefined)delete globalThis.window;else globalThis.window=previous;
     if(previousLocale===undefined)delete globalThis.localStorage;else globalThis.localStorage=previousLocale;

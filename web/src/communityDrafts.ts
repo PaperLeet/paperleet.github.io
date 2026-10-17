@@ -1,6 +1,7 @@
+import { isCommunityCategory } from './communityCategories';
+
 export type PostDraft = { title: string; body: string; category: string; paperUrl?: string; anonymous?: boolean; problemId?:string };
 export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
-const categories = new Set(["papers", "implementation", "questions", "career", "lounge"]);
 
 export function draftKey(owner: string, scope: string): string {
   return `paperleet.community.draft.v1:${encodeURIComponent(owner)}:${encodeURIComponent(scope)}`;
@@ -20,7 +21,7 @@ export function readPostDraft(storage: DraftStorage | undefined, owner: string, 
     const draft = value.draft;
     if (typeof draft?.title !== "string" || draft.title.length > 160 ||
         typeof draft.body !== "string" || draft.body.length > 20_000 ||
-        !categories.has(draft.category) || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') ||
+        !isCommunityCategory(draft.category) || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') ||
         (draft.problemId!==undefined&&(typeof draft.problemId!=='string'||draft.problemId.length>200||!/^([a-z0-9_-]+\/[a-z0-9_-]+)?$/.test(draft.problemId))) ||
         (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return undefined;
     return { title: draft.title, body: draft.body, category: draft.category, ...(draft.problemId!==undefined?{problemId:draft.problemId}:{}), ...(draft.anonymous?{anonymous:true}:{}), ...(draft.paperUrl !== undefined ? { paperUrl: draft.paperUrl } : {}) };

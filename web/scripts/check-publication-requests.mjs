@@ -15,6 +15,20 @@ export async function checkPublicationRequests(server){
  assert.equal(samePublication(first.receipt,Object.fromEntries(Object.entries(payload).reverse())),true,'Property order is not a content edit');
  const fresh=await server.ssrLoadModule('/src/publicationRequests.ts?fresh-publication-document');
  assert.equal(fresh.readPublication(storage,owner,'post',scope).receipt.requestId,first.receipt.requestId,'Refresh must recover the persisted request identity');
+ for(const category of ['admissions','career']){
+  const boardOwner='publication-'+category,source={...draft,category};
+  const pending=preparePublication(storage,boardOwner,'post','general',postPublication(source));
+  const recovered=fresh.readPublication(storage,boardOwner,'post','general');
+  assert.equal(recovered.receipt.payload.category,category,'Recovery retains the exact board, including old career receipts');
+  assert.equal(recovered.receipt.requestId,pending.receipt.requestId);
+  assert.equal(preparePublication(storage,boardOwner,'post','general',postPublication(source),recovered.receipt).receipt.requestId,pending.receipt.requestId);
+  const recategorized=postPublication({...source,category:category==='admissions'?'career':'admissions'});
+  assert(!samePublication(pending.receipt,recategorized),'Changing boards is a publication change');
+  const moved=preparePublication(storage,boardOwner,'post','general',recategorized);
+  assert.notEqual(moved.receipt.requestId,pending.receipt.requestId);
+  assert(!clearPublication(storage,pending.receipt),'A late response cannot clear a newer publication on the other board');
+  assert(clearPublication(storage,moved.receipt));
+ }
  const edited={...payload,body:'A newer draft'};
  assert(!samePublication(first.receipt,edited));
  const second=preparePublication(storage,owner,'post',scope,edited);
