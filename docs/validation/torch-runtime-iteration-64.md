@@ -228,3 +228,13 @@ Archive: 6,296,457 bytes; SHA-256 `d824de2bd648fc14f0a8fd077653b1cb1ab78e5cc41cd
 CPU/WASM is the only backend changed this iteration. The prior WebGPU design
 assessment remains applicable; no GPU prototype or GPU performance is claimed.
 The wider independent-library/core-coverage/backend objective remains active.
+
+## Main adoption
+
+Validated source `0a5da0c1b94869e901a1427170ec17ddc5323b41` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 61 source/license resources, 161 active exports, 13,231 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
