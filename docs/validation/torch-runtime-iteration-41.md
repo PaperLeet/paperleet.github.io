@@ -107,3 +107,10 @@ all 49 source/license and 161 active-export hashes remain exact. The earlier
 Community.tsx snapshot is explicitly superseded by this tested snapshot. See
 `iteration-41-main-sync-final.json` and its harness. No numerical/catalog input
 changed, and no numerical gate was replaced by frontend-only evidence.
+
+Five later interview frontend/check/style/documentation updates through
+`867e08231abc0dc319d1728e30ddad6582c64692` were retained. Five affected interview suites and both
+typed builds pass. All 32 latest frontend file snapshots and the
+earlier snapshots/supersessions are verified against Git. All 49 source/license
+and 161 active-export hashes remain exact. See `iteration-41-main-sync-final2.json`
+and its harness. Earlier numerical/native/full-WASM evidence remains applicable.
