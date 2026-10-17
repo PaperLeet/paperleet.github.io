@@ -96,6 +96,10 @@ assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.r
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-quote-notice'))), 'Deferred comment readers must include quote feedback styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Add concepts from this comparison')), 'Comparison practice controls must remain deferred with the interview views');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Company comparison choices')), 'Company comparison must stay deferred with interview preparation');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Linked practice counts could not be confirmed.')), 'Company practice progress must stay deferred with interview preparation');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.company-directory-practice')), 'Company practice progress styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.company-directory-practice'))), 'Deferred interview preparation must include personal company progress styles');
+
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.company-comparison')), 'Company comparison styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.company-comparison'))), 'Deferred interview preparation must include company comparison styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('post-search-match')), 'Search highlighting must remain deferred with community reading');
