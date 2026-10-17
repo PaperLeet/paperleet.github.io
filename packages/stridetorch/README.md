@@ -994,6 +994,28 @@ not invalidate the loss itself, while NLL saves its input version.
 
 
 
+## Bounded zero-padding for regular convolution (0.49)
+
+Regular Conv1d/2d/3d can gather actual samples without materializing the full
+zero-padded activation. Clipping geometry and gathered sampling are shared with transposed convolution;
+its ordinary forward scatter stays inline. Auto keeps the existing padded path for
+modest spans; an excessive padded span selects packed gathering, or per-tap
+execution when a full gather would exceed its 32 MiB logical-array limit.
+Selection considers both a 32 MiB padded-span threshold and the ratio to actual
+sampled patches. A bounded 64-entry cache stores immutable geometry decisions,
+including workspace limits, and never stores tensor/seed values. Existing reflect/replicate/circular padding paths are unchanged.
+
+Forward, input/weight/bias VJPs and bilinear JVPs retain their supported dtype,
+grouping, asymmetric-same, stride and dilation behavior. Bounded input gradients
+scatter directly into the real input shape. Expanded gathered patches are not
+retained on the backward tape; weight gradients regather from saved input data.
+Version guards and bias-only object release remain in effect. Implicit padded
+zeros preserve nonfinite products such as `0 * Inf`; finite tap paths skip only
+mathematically zero regions. These are per-buffer selection estimates and
+allocation policies, not a guarantee of process/BLAS peak memory. Reflect,
+replicate and circular padding do not gain these zero-padding bounds.
+
+
 ## Transposed convolution
 
 `nn.ConvTranspose1d/2d/3d`, `nn.functional.conv_transpose1d/2d/3d` and their

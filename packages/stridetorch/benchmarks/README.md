@@ -376,3 +376,14 @@ four fresh children per CPU/Node/Chrome runtime, every sample, algorithm
 qualification and source hashes. Version0.47 did not expose this API; this is a
 same-source composition comparison. See the
 [0.48 validation record](../../../docs/validation/torch-runtime-iteration-48.md).
+
+## Bounded convolution padding (0.49)
+
+`bench_convolution_padding.py` loads independent baseline/candidate snapshots.
+Pass `--baseline-source`, `--candidate-source` and `--output`; samples/calls and
+reverse order are optional. The32 flows check finite values, VJP/JVP/mixed
+pullbacks and three encoder/decoder SGD updates before timing. Four fresh
+children per CPU/Node/Chrome retain actual strategy/matrix qualification, every
+sample and all source hashes. Safe legacy halos, ordinary/transpose controls
+and same-source padded/gather/tap controls bound the claims. See the
+[0.49 validation record](../../../docs/validation/torch-runtime-iteration-49.md).

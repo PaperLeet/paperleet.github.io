@@ -3,7 +3,8 @@ import itertools
 import math
 import weakref
 import numpy as np
-from . import _autograd, _convolution as _conv, _errors, _layout, _state, _tensor
+from . import _autograd, _convolution as _conv, _convolution_padding as _padding_kernels, _errors, _layout, _state, _tensor
+from ._convolution_padding import tap_slices as _tap
 
 _ALGORITHM = 'auto'
 _MATRIX_WORKSPACE_BYTES = 32 * 1024 * 1024
@@ -75,33 +76,9 @@ def _channels_last(data):
     return distinct and np.moveaxis(data,1,-1).flags.c_contiguous
 
 
-def _tap(position,shape,stride,dilation,padding,out):
-    source,destination = [],[]
-    for k,n,s,d,p,size in zip(position,shape[2:],stride,dilation,padding,out):
-        start = k*d-p
-        lo = max(0,(-start+s-1)//s)
-        hi = min(n,(size-1-start)//s+1)
-        if lo>=hi:return None
-        source.append(slice(lo,hi));destination.append(slice(start+lo*s,start+hi*s,s))
-    return tuple(source),tuple(destination)
-
-
 def _gather_patches(raw,geometry):
-    shape,_,groups,kernel,stride,dilation,padding,_,_,_,outputs = geometry
-    dim = len(kernel)
-    # Allocate directly in packed order. _conv._pack then returns a view rather
-    # than allocating a second im2col buffer. Huge dilation/padding never cause
-    # a huge zero-padded activation allocation here.
-    packed = np.zeros((shape[0],groups,*shape[2:],outputs//groups,*kernel),dtype=raw.dtype)
-    axes = (0,1,2+dim,*range(2,2+dim),*range(3+dim,3+2*dim))
-    patches = packed.transpose(axes)
-    grouped = raw.reshape(shape[0],groups,outputs//groups,*geometry[-2])
-    for position in itertools.product(*[range(k) for k in kernel]):
-        slices = _tap(position,shape,stride,dilation,padding,geometry[-2])
-        if slices is None:continue
-        source,destination = slices
-        patches[(slice(None),slice(None),slice(None),*source,*position)] = grouped[(slice(None),slice(None),slice(None),*destination)]
-    return patches
+    shape,_,groups,kernel,stride,dilation,padding,_,_,out,outputs = geometry
+    return _padding_kernels.gather(raw,(shape[0],outputs,*out),groups,kernel,stride,dilation,padding,shape[2:])
 
 
 def _tapped_backward(raw,saved_input,saved_weights,geometry,needs):

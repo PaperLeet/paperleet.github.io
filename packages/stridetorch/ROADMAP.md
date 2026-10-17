@@ -815,3 +815,19 @@ source-commit deployment was superseded and is not claimed as published.
 - Preserve10,545 prior payloads, latest upstream frontend work and seven canonical
   policy files. See the [iteration48 record](../../docs/validation/torch-runtime-iteration-48.md).
   Broader core APIs, efficiency and persistent GPU backend evaluation remain active.
+
+## Bounded regular-convolution zero padding (0.49)
+
+- Share clipped gather/scatter across regular and transposed convolution. Avoid
+  full theoretical padded activations/adjoints; release expanded gather arrays
+  after forward and regather only for weight VJPs. Preserve implicit-zero IEEE
+  products, mixed AD, native metadata and all existing nonzero padding modes.
+- Validate292 new tests plus722 convolution regressions,96×6 regular native
+  cases,144×5 transposed cases and explicit IEEE/state oracles;39,521 CPU passes,
+  5,892 actual Node/Chrome contracts and all78 exported problems.
+- Retain32 performance flows across12 fresh CPU/Node/Chrome children, actual
+  version baselines and padded/gather/tap controls; ordinary cases and full
+  encoder/decoder SGD measurements keep regressions/noise visible.
+- Preserve10,703 prior payloads, latest upstream frontend work and seven policies.
+  See the [iteration49 record](../../docs/validation/torch-runtime-iteration-49.md).
+  Broader core API, efficiency and persistent GPU-backend evaluation remain active.

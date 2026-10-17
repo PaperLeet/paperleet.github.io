@@ -1,16 +1,20 @@
 """Grouped dense 1D/2D/3D cross-correlation, shared VJPs and bilinear JVPs."""
 import itertools
+from functools import lru_cache
 import math
 import numbers
 import weakref
 import numpy as np
-from . import _autograd, _errors, _layout, _random, _state, _tensor
+from . import _autograd, _convolution_padding as _padding_kernels, _errors, _layout, _random, _state, _tensor
 from ._module import Module, Parameter
 from ._normalization import parameter_dtype
 
 _REAL = (np.dtype('float32'), np.dtype('float64'))
 _ALGORITHM = 'auto'  # Private benchmark/test override, never a public API kwarg.
 _MATRIX_WORKSPACE_BYTES = 32 * 1024 * 1024
+_PADDING_ALGORITHM = 'auto'  # Private validation/control override.
+_PAD_WORKSPACE_BYTES = 32 * 1024 * 1024
+_GATHER_WORKSPACE_BYTES = 32 * 1024 * 1024
 
 
 def _integer(value, name):
@@ -116,13 +120,33 @@ def _matrix_workspace(shape, weight_shape, kernel, padded, out, itemsize):
     return (packed + shape[0] * weights + 2 * weights + 2 * outputs + dx) * itemsize
 
 
-def _use_matrix(input, weight, geometry):
+def _padding_strategy(geometry,itemsize,mode):
+    if _PADDING_ALGORITHM not in ('auto','padded','gather','tap'):
+        raise ValueError('Unknown internal convolution padding algorithm')
+    shape,_,_,kernel,_,_,pairs,padded,_,out = geometry
+    if mode!='zeros' or not any(a or b for a,b in pairs):return 'padded'
+    if _PADDING_ALGORITHM=='padded':return 'padded'
+    return _cached_padding_strategy(shape,kernel,padded,out,itemsize,_PADDING_ALGORITHM,_PAD_WORKSPACE_BYTES,_GATHER_WORKSPACE_BYTES)
+
+
+@lru_cache(maxsize=64)
+def _cached_padding_strategy(shape,kernel,padded,out,itemsize,algorithm,pad_limit,gather_limit):
+    padded_bytes = math.prod((shape[0],shape[1],*padded))*itemsize
+    gathered_bytes = shape[0]*shape[1]*math.prod(out)*math.prod(kernel)*itemsize
+    if algorithm=='auto' and padded_bytes<=pad_limit and padded_bytes<=4*gathered_bytes:
+        return 'padded'
+    if algorithm=='tap' or gathered_bytes>gather_limit:return 'tap'
+    return 'gather'
+
+
+def _use_matrix(input, weight, geometry, clipped=False):
     shape, _, groups, kernel, _, _, _, padded, _, out = geometry
     if _ALGORITHM not in ('auto', 'direct', 'matrix'): raise ValueError('Unknown internal convolution algorithm')
     if _ALGORITHM == 'direct' or not input.numel(): return False
     work = shape[0] * math.prod(out) * weight.numel()
     if _ALGORITHM == 'auto' and (math.prod(kernel) == 1 or work < 32768): return False
-    if _matrix_workspace(shape, weight.shape, kernel, padded, out, input._data.itemsize) > _MATRIX_WORKSPACE_BYTES:
+    workspace_shape = shape[2:] if clipped else padded
+    if _matrix_workspace(shape, weight.shape, kernel, workspace_shape, out, input._data.itemsize) > _MATRIX_WORKSPACE_BYTES:
         return False
     return bool(np.isfinite(input._data).all() and np.isfinite(weight._data).all())
 
@@ -170,20 +194,30 @@ def _primal(input, weight, bias, geometry, mode):
     empty = not input.numel()
     active_x = input.requires_grad and _state._grad_enabled
     active_w = weight.requires_grad and _state._grad_enabled
-    matrix = _use_matrix(input, weight, geometry)
+    strategy = _padding_strategy(geometry,input._data.itemsize,mode)
+    bounded = strategy!='padded'
+    before = tuple(p[0] for p in pairs)
+    matrix = strategy!='tap' and _use_matrix(input, weight, geometry, bounded)
     grouped_weight = weight._data.reshape(groups, outputs // groups, shape[1] // groups, *kernel)
     patches = maps = None
     with np.errstate(all='ignore'):
         if empty:
             value = _layout.contiguous_empty(np.empty((shape[0], 0 if not shape[1] else outputs, *out), dtype=input_dtype))
         else:
-            data, maps = _pad(input._data.reshape(shape), pairs, mode)
-            patches = _windows(data, shape, groups, kernel, stride, dilation, effective, out)
-            value = (_matrix_forward(patches, grouped_weight, out) if matrix else
-                     np.einsum(f'bgi{spatial}{taps},goi{taps}->bgo{spatial}', patches, grouped_weight, optimize=False)).reshape(shape[0], outputs, *out)
+            data = input._data.reshape(shape)
+            if strategy=='tap':
+                value = _padding_kernels.forward_taps(data,grouped_weight,shape,kernel,stride,dilation,before,out)
+            else:
+                if bounded:patches = _padding_kernels.gather(data,shape,groups,kernel,stride,dilation,before,out)
+                else:
+                    data, maps = _pad(data,pairs,mode)
+                    patches = _windows(data,shape,groups,kernel,stride,dilation,effective,out)
+                value = (_matrix_forward(patches,grouped_weight,out) if matrix else
+                    np.einsum(f'bgi{spatial}{taps},goi{taps}->bgo{spatial}',patches,grouped_weight,optimize=False)).reshape(shape[0],outputs,*out)
             if bias is not None: value += bias._data.reshape(1, outputs, *([1] * dim))
             value = np.ascontiguousarray(value)
-    saved_patches = patches if active_w else None
+    saved_patches = patches if active_w and not bounded else None
+    saved_source = input._data.reshape(shape) if active_w and bounded else None
     saved_weight = grouped_weight if active_x else None
     # Native saves both versions even on a bias-only tape, but the analytical
     # pullback needs no input/weight arrays when only bias is differentiable.
@@ -206,7 +240,9 @@ def _primal(input, weight, bias, geometry, mode):
         matrix_backward = matrix and bool(np.isfinite(g).all())
         with np.errstate(all='ignore'):
             if needs[0]:
-                if matrix_backward:
+                if bounded:
+                    dx = _padding_kernels.scatter(g,saved_weight,shape,kernel,stride,dilation,before,out,matrix_backward)
+                elif matrix_backward:
                     dx = _matrix_input_gradient(g, saved_weight, shape, kernel, stride, dilation, padded, out)
                 else:
                     dx = np.zeros((shape[0], groups, shape[1] // groups, *padded), dtype=input_dtype)
@@ -215,11 +251,15 @@ def _primal(input, weight, bias, geometry, mode):
                         delta = np.einsum('goi,bgo...->bgi...', wt, g, optimize=False)
                         key = (slice(None), slice(None), slice(None), *[slice(p * d, p * d + n * st, st) for p, d, n, st in zip(position, dilation, out, stride)])
                         dx[key] += delta
-                dx = _unpad(dx.reshape(shape[0], shape[1], *padded), shape, pairs, maps)
+                if not bounded:dx = _unpad(dx.reshape(shape[0],shape[1],*padded),shape,pairs,maps)
                 result[0] = dx.reshape(input_shape)
             if needs[1]:
-                result[1] = (_matrix_weight_gradient(g, saved_patches, weight_shape) if matrix_backward else
-                    np.einsum(f'bgo{spatial},bgi{spatial}{taps}->goi{taps}', g, saved_patches, optimize=False).reshape(weight_shape))
+                if strategy=='tap':
+                    result[1] = _padding_kernels.weight_gradient_taps(g,saved_source,shape,weight_shape,groups,kernel,stride,dilation,before,out)
+                else:
+                    current_patches = (_padding_kernels.gather(saved_source,shape,groups,kernel,stride,dilation,before,out) if bounded else saved_patches)
+                    result[1] = (_matrix_weight_gradient(g,current_patches,weight_shape) if matrix_backward else
+                        np.einsum(f'bgo{spatial},bgi{spatial}{taps}->goi{taps}',g,current_patches,optimize=False).reshape(weight_shape))
             if len(needs) > 2 and needs[2]: result[2] = g.sum(axis=(0, *range(3, dim + 3))).reshape(outputs)
         return result
     if unbatched: value = value[0]
