@@ -18,6 +18,7 @@ import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
 import SolutionReadingCard from './SolutionReadingCard';
 import CommunityFeedFilters from './CommunityFeedFilters';
+import CommunityFeedPeriod from './CommunityFeedPeriod';
 import {useWritingDisclosure,type WritingPanelProps} from './useWritingDisclosure';
 import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
@@ -528,17 +529,19 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const draftScope = (topicId || "general")+(solutions?":solutions":"");
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
   const filters = embedded?localFilters:readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
-  const { category, following, search, page, sort } = filters;
+  const { category, following, search, page, sort, days } = filters;
   const saved = filters.saved === true;
   const sortingAvailable = capabilities?.community_feed_sorting === true;
   const sortingUnavailable = !!sort && !accountLoading && !sortingAvailable;
+  const periodAvailable=capabilities?.community_feed_period===true;
+  const periodUnavailable=!!days&&!accountLoading&&!periodAvailable;
   const savedAvailable = capabilities?.community_bookmarks === true;
   const savedGate = saved && savedAvailable;
   const waitingForSavedAccount = saved && accountLoading;
   const feedAccessReady = (!following || !!user) && (!saved || !!user && savedAvailable && !accountLoading);
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
-  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
+  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
   const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
@@ -549,7 +552,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
-  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable);
+  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions:true}:{})};
     if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
@@ -579,6 +582,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       category,
       q: search,
       ...(sort ? {sort} : {}),
+      ...(days ? {days} : {}),
       following: following ? "true" : "false",
       ...(saved ? {saved: 'true'} : {}),
       ...(solutions ? {solutions:"true"} : {}),
@@ -586,9 +590,10 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       limit: String(PAGE_SIZE),
       ...(topicId ? { problem_id: topicId } : {}),
     });
-    if (waitingForSavedAccount || (sort && accountLoading) || (solutions && accountLoading)) return;
+    if (waitingForSavedAccount || (sort && accountLoading) || (solutions && accountLoading) || (days && accountLoading)) return;
     if(solutionUnavailable){setData({items:[],total:0,requestKey});setLoading(false);return;}
     if (sortingUnavailable) { setData({items:[],total:0,requestKey});setLoading(false);return; }
+    if (periodUnavailable) { setData({items:[],total:0,requestKey});setLoading(false);return; }
     if ((saved && !savedGate) || ((following || saved) && !user)) {
       setData({ items: [], total: 0, requestKey });
       setLoading(false);
@@ -599,15 +604,16 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       live=false;controller.abort();
       setFailure({requestKey,kind:'timeout'});setLoading(false);
     },COMMUNITY_FEED_TIMEOUT);
-    socialApi<Page<Post> & {sort?:string;solutions?:boolean}>(`community/posts?${params}`,undefined,controller.signal)
+    socialApi<Page<Post> & {sort?:string;solutions?:boolean;days?:string}>(`community/posts?${params}`,undefined,controller.signal)
       .then((data) => {
         if (!live) return;
+        if(days&&data?.days!==days)throw Error(t('暂时无法确认发布时间筛选，请重试。','Could not confirm the publication period. Please retry.'));
         if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort) || (solutions && (data.solutions!==true || data.items.some(post=>post.solution!==true || !post.problem_id || (topicId && post.problem_id!==topicId))))) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
         const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
         if (page > lastPage) {
           redirected = true;
           if(embedded){setLocalFilters(previous=>({...previous,page:lastPage}));return;}
-          location.replace(communityFeedHref(topicId, { category, following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), search, page: lastPage }));
+          location.replace(communityFeedHref(topicId, { category, following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), ...(days?{days}:{}), search, page: lastPage }));
           return;
         }
         setData({ ...data, requestKey,generation });
@@ -623,7 +629,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     return () => {
       live = false; clearTimeout(timer); controller.abort();
     };
-  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded]);
+  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded, days, periodUnavailable]);
   const FeedRoot=embedded?"section":"main";
   return (
     <FeedRoot ref={reading.container} className={embedded?"problem-solutions community-page":"social-page community-page"}>
@@ -700,6 +706,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             </div>
             <div className="community-feed-controls">
               <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
+              <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
               {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
                 <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
               </select></label>}
@@ -724,8 +731,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} />
           )}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
+          {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
-            {solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
+            {solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : periodUnavailable ? <Empty title={t("发布时间筛选暂不可用","Publication periods are unavailable")}><p>{t("当前服务尚未提供此筛选。可以切回不限时间，保留其他筛选继续浏览。","This service does not support publication periods yet. Browse all time with your other filters.")}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t("查看不限时间","Browse all time")}</button></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
                 <button
@@ -762,12 +770,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                           "关注动态会显示在这里",
                           "Your following feed starts here",
                         )
-                      : solutions?t("还没有题解，分享第一篇吧","No solutions yet. Share the first approach."):topicId ? t("还没有这道题的讨论", "No discussions for this module yet") : t("这里还没有帖子", "No discussions yet")
+                      : days?t(`近 ${days} 天还没有${solutions?"题解":"帖子"}`,`No ${solutions?"solutions":"posts"} published in the past ${days} days`): solutions?t("还没有题解，分享第一篇吧","No solutions yet. Share the first approach."):topicId ? t("还没有这道题的讨论", "No discussions for this module yet") : t("这里还没有帖子", "No discussions yet")
                 }
               >
                 <p>
                   {search
                     ? t("换个关键词试试。", "Try a different search term.")
+                    : days ? t('可以扩大发布时间范围继续查找，其他筛选会保留。','Broaden the publication period to keep looking with your other filters.')
                     : saved ? t('在帖子中点击收藏，之后可以在这里继续阅读。','Save a post to return to it here later.') : following
                       ? t(
                           "关注其他研究者，查看他们发布的帖子。",
@@ -778,12 +787,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                           topicId ? "Ask about the formulas, implementation, or test results." : "Share a paper or an implementation question to start the first discussion.",
                         )}
                 </p>
+                {days&&<button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t('查看不限时间','Browse all time')}</button>}
               </Empty>
             ) : (
               data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)
             )}
           </div>
-          {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && (
+          {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && (
             <Pagination key={requestKey} offset={offset} total={data.total} count={data.items.length} label={solutions?t('题解分页','Solution pages'):t('讨论分页','Discussion pages')}
               onChange={next=>{if(next===offset)return;const target=feedList.current;if(target){target.focus({preventScroll:true});revealReadingTarget(target);}choose({page:next/PAGE_SIZE+1});}}/>
           )}

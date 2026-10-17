@@ -57,6 +57,7 @@ export type AccountCapabilities = {
   problem_bookmarks?: boolean;
   community_anonymous_posts?: boolean;
   community_feed_sorting?: boolean;
+  community_feed_period?: boolean;
   community_solutions?: boolean;
   community_profile_solutions?: boolean;
   community_profile_interviews?: boolean;

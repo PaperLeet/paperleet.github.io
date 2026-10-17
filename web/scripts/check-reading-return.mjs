@@ -33,6 +33,7 @@ try{
  const owner='account:alice',id='a'.repeat(32),other='b'.repeat(32);
  const community=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,search:'mask & 梯度 😀',page:3});
  const activeCommunity=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,sort:'active',search:'mask & 梯度 😀',page:3});
+ const periodCommunity=nav.communityFeedHref('architecture/attention',{...nav.readCommunityFeed(activeCommunity).state,days:'7'});
  const interview=interviews.interviewHref({...interviews.emptyInterviewFilters(),company:'google',role:'llm',stage:'technical',days:'90',saved:true,q:'attention',concept:'architecture/attention',page:2});
  const wait=()=>new Promise(resolve=>setTimeout(resolve,5));
  const navigate=async href=>act(async()=>{location.hash=href;viewport=0;await wait();});
@@ -61,7 +62,7 @@ try{
   await stop();await navigate(nav.communityPostHref(id,scope));await render(Thread,{scope});assert.equal(model.currentReadingReturn().phase,'reading');await stop();return record;
  }
  async function returnLoading(scope=community,props={}){await navigate(scope);base=1800;await render(List,{scope,ready:false,...props});assert.equal(scrolls.length,0,'A pending response cannot restore against missing or stale rows');}
- for(const scope of [community,activeCommunity,interview,'#/u/alice?tab=solutions&page=2','#/u/alice?tab=interviews&page=2']){
+ for(const scope of [community,activeCommunity,periodCommunity,interview,'#/u/alice?tab=solutions&page=2','#/u/alice?tab=interviews&page=2']){
   for(const link of ['title','read']){
    await depart(scope,{link});scrolls=[];await returnLoading(scope);assert.equal(model.currentReadingReturn().phase,'returning');
    await render(List,{scope,ready:true});assert.equal(scrolls.length,1);assert.equal(viewport,1592,'Measure after the status notice is committed, retaining the exact viewport offset');
@@ -102,15 +103,15 @@ try{
  await depart();await navigate(nav.communityPostHref(id,community,other));assert.equal(model.currentReadingReturn().phase,'reading');scrolls=[];await returnLoading();await render(List);assert.equal(scrolls.length,1);await stop();
  // Exercise the real feed components and their API readiness gates as well.
  const {default:Hub}=await server.ssrLoadModule('/src/Interviews.tsx'),{default:Community}=await server.ssrLoadModule('/src/Community.tsx');
- const requests=[];globalThis.__readingFixture={account:{user:{id:'alice',username:'alice',display_name:'Alice'},loading:false,capabilities:{community_bookmarks:true}},request(path,body,signal){assert.equal(body,undefined,'Reading returns never mutate posts, saved state or account data');return new Promise(resolve=>requests.push({path,resolve,signal}));}};
+ const requests=[];globalThis.__readingFixture={account:{user:{id:'alice',username:'alice',display_name:'Alice'},loading:false,capabilities:{community_bookmarks:true,community_feed_period:true,community_feed_sorting:true}},request(path,body,signal){assert.equal(body,undefined,'Reading returns never mutate posts, saved state or account data');return new Promise(resolve=>requests.push({path,resolve,signal}));}};
  const take=fragment=>{const index=requests.findIndex(request=>request.path.includes(fragment));assert(index>=0,'Missing request '+fragment);return requests.splice(index,1)[0];};
  const reply=async(request,value)=>act(async()=>request.resolve(value));
  const post={id,title:'A real feed reflection',body:'I clarified the requirements and checked the edge cases.',category:'career',created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',author:{id:'author',username:'author',display_name:'Author',avatar_color:'#48766b'},counts:{replies:0,likes:0,reposts:0},viewer:{bookmarked:true},interview:{company:'google',role:'llm',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:['architecture/attention']}};
  const summary={reports:0,contributors:0,days:'90',basis:'published-community-reports',generated_at:'2026-10-15',companies:[],questions:[]};
- for(const scope of [interview,community]){
+ for(const scope of [interview,community,periodCommunity]){
   const isInterview=scope===interview,Component=isInterview?Hub:Community,props={route:scope.slice(2),...(isInterview?{problems:[{id:'architecture/attention',number:1,title:'Attention',starter:'',module:{optional:false}}],progressReady:false}:{topicId:'architecture/attention',topic:{id:'architecture/attention',title:'Attention'}})};
   const feedFragment=isInterview?'community/interviews?':'community/posts?';
-  const resolveFeed=async()=>{if(isInterview)await reply(take('/summary'),summary);await reply(take(feedFragment),{items:[post],total:100,limit:20,offset:isInterview?20:40,owner_id:'alice'});};
+  const resolveFeed=async()=>{if(isInterview)await reply(take('/summary'),summary);await reply(take(feedFragment),{items:[post],total:100,limit:20,offset:isInterview?20:40,owner_id:'alice',sort:nav.readCommunityFeed(scope)?.state.sort||'latest',...(nav.readCommunityFeed(scope)?.state.days?{days:nav.readCommunityFeed(scope).state.days}:{})});};
   model.discardReadingReturn();await navigate(scope);base=1500;viewport=1250;await render(Component,props);await resolveFeed();await activate(anchor(),{keyboard:true});assert.equal(model.currentReadingReturn().href,scope);await stop();
   const thread=nav.communityPostHref(id,scope);await navigate(thread);await render(Community,{postId:id,route:thread.slice(2)});assert.equal(model.currentReadingReturn().phase,'reading');await stop();
   await navigate(scope);base=1800;scrolls=[];await render(Component,props);assert.equal(scrolls.length,0,'Actual feeds wait for their matching current-owner response');await resolveFeed();assert.equal(scrolls.length,1);assert.equal(viewport,1592);assert.equal(document.activeElement,anchor());assert(document.querySelector('[data-reading-resumed="true"]'));
@@ -159,7 +160,7 @@ try{
 
  // Full thread -> practice -> canonical thread preserves its earlier list only in this owner/tab.
  const sourcePost=nav.communityPostHref(id);
- for(const source of [community,activeCommunity,interview]){
+ for(const source of [community,activeCommunity,periodCommunity,interview]){
   await depart(source);const record=model.currentReadingReturn();
   for(const path of ['architecture/attention','1','papers/attention']){
    await navigate(library.withLibraryContext(path,sourcePost));
@@ -175,7 +176,7 @@ try{
  const sourceRecord=await depart(community);await navigate(library.withLibraryContext(1,sourcePost));const sourceRaw=sessionStorage.getItem(model.READING_RETURN_KEY);model.discardReadingReturn();sessionStorage.setItem(model.READING_RETURN_KEY,sourceRaw);
  const sourceReload=await server.ssrLoadModule('/src/readingReturn.ts?fresh=source-post-practice');sourceReload.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},sourcePost);assert.equal(sourceReload.currentReadingReturn()?.id,sourceRecord.id);await navigate(sourcePost);assert.equal(sourceReload.sourcePostReadingReturn(owner,id,sourcePost),community);await navigate(community);assert.equal(sourceReload.currentReadingReturn()?.phase,'returning');sourceReload.discardReadingReturn();
  // A queued hashchange from an older document route must not erase a newly armed source-post journey.
- for(const scope of [community,activeCommunity,interview,'#/u/alice?tab=solutions&page=2'])for(const phase of ['opening','reading']){
+ for(const scope of [community,activeCommunity,periodCommunity,interview,'#/u/alice?tab=solutions&page=2'])for(const phase of ['opening','reading']){
   model.discardReadingReturn();window.history.replaceState(null,'',scope);model.rememberReadingReturn({owner,href:scope,post:id,link:'title',top:240,focus:true});
   const practice=library.withLibraryContext(1,nav.communityPostHref(id));window.history.replaceState(null,'',practice);
   if(phase==='reading')model.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},nav.communityPostHref(id),practice);

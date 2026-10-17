@@ -42,6 +42,9 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Post publication period')), 'Publication period controls must remain deferred');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.community-period')), 'Publication period styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.community-period'))), 'Deferred community views must include publication period styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('interview-source-preview-toggle')), 'Source previews must remain deferred with interview preparation');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-source-preview')), 'Source preview styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-source-preview'))), 'Deferred interview preparation must include source preview styles');
