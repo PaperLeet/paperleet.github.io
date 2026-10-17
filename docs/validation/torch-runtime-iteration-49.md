@@ -158,3 +158,7 @@ retained in `control-history` in the raw harness. The first formal attempt was
 replaced after hot-path changes; final claims use the new complete frozen run.
 
 No tag, workflow dispatch, release, PyPI upload or deployment is initiated by this work.
+
+## Main adoption
+
+Validated source `7b5e8f78886a64d00caf831ae53d53cf26346be2` was adopted on remote main by ordinary non-force push. The remote SHA was verified exactly; zero Actions runs were observed for this source SHA. All 54 source/license resources, 161 active export identities, 10,861 immutable payloads and seven canonical release-policy files were rechecked. The separate proof commit is verified outside the repository after its push. No tag,dispatch,release,PyPI upload or online deployment was initiated by this work.
