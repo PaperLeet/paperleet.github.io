@@ -46,10 +46,13 @@ assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichT
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your implementation goal')), 'Problem overview and statistics rendering must stay deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Reference reading actions')), 'Reference reading controls must remain deferred with problem solutions');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('This submission is ready to review.')), 'Completion presentation must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('No headings match.')), 'Reader heading filters must remain deferred');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-outline-filter')), 'Directory search styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-outline-filter'))), 'Long article readers must include heading filter styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.submission-completion-notice')), 'Completion styles must remain deferred');
 assert((manifest['src/SubmissionCompletionNotice.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.submission-completion-notice')), 'The completion widget must include its styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.reference-reader')), 'Reference reading styles must remain deferred');
