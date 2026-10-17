@@ -16,7 +16,7 @@ export function hostedAppHref(hash = "#/"): string {
 }
 export function isHostedRoute(hash: string): boolean {
   if (!hash.startsWith("#")) return false;
-  return /^(account(?:\/|\?|$)|community(?:\/|\?|$)|messages(?:\/|\?|$)|u\/|submit(?:$|\?))/.test(decodeProblemHash(hash));
+  return /^(account(?:\/|\?|$)|community(?:\/|\?|$)|messages(?:\/|\?|$)|u\/|submit(?:$|\?)|drafts(?:$|\?))/.test(decodeProblemHash(hash));
 }
 export function startPublicNavigation(): boolean {
   if (hostedEdition) return true;

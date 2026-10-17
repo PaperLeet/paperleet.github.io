@@ -4,7 +4,7 @@ import {useI18n} from './i18n';
 import {socialApi,errorMessage,useAccount} from './social';
 import MarkdownEditor from './MarkdownEditor';
 import InterviewFields,{type InterviewModule} from './InterviewFields';
-import {readInterviewDraft,writeInterviewDraft,clearInterviewDraft,discardInterviewDraft,interviewPublication,type InterviewDraft} from './interviewDrafts';
+import {readInterviewDraft,writeInterviewDraft,isInterviewDraftDurable,clearInterviewDraft,discardInterviewDraft,interviewPublication,type InterviewDraft} from './interviewDrafts';
 import {tabDraftStorage} from './communityDrafts';
 import {clearPublication,preparePublication,readPublication,samePublication,type PublicationReceipt} from './publicationRequests';
 import PublicationRecovery from './PublicationRecovery';
@@ -35,7 +35,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  const [draft,setDraft]=useState<InterviewDraft>(()=>readInterviewDraft(tabDraftStorage(),owner)||{title:'',body:'',interview:{company:company||'other',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]}});
  const latest=useRef(draft),active=useRef(true),inflight=useRef(false),currentOwner=useRef(user?.id);currentOwner.current=user?.id;
  const [pending,setPending]=useState(()=>readPublication(tabDraftStorage(),owner,'interview','general'));
- const [busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState(false),[durable,setDurable]=useState(true),[discard,setDiscard]=useState(false);
+ const [busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState(false),[durable,setDurable]=useState(()=>!readInterviewDraft(tabDraftStorage(),owner)||isInterviewDraftDurable(tabDraftStorage(),owner,draft)),[discard,setDiscard]=useState(false);
  const [confirmedPost,setConfirmedPost]=useState<InterviewPost>();
  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),contentHint=useId();
  const [writingOpen,setWritingOpen]=useState(false),[writingError,setWritingError]=useState(''),[focusTick,setFocusTick]=useState(0);

@@ -261,6 +261,7 @@ function Composer({
   papersAvailable,
   solution=false,
   practiceCode,
+  publicationBlocked=false,
   topics=[],
   returnTo,
   onDraftChange,
@@ -274,6 +275,7 @@ function Composer({
   papersAvailable: boolean;
   solution?:boolean;
   practiceCode?:SolutionCodeSource;
+  publicationBlocked?:boolean;
   topics?:ProblemTopic[];
   returnTo?:string;
   panelProps?:WritingPanelProps;
@@ -391,6 +393,7 @@ function Composer({
     if (busy || publishing.current || !canPublish) return;
     const submitted = { ...currentDraft.current };
     previous ||= publication&&samePublication(publication.receipt,postPublication(submitted,topic?.id,solution))?publication.receipt:undefined;
+    if(!previous&&publicationBlocked)return;
     if(solution&&!previous&&!topic&&!topics.some(row=>row.id===submitted.problemId&&!row.retired)){setError(t("请选择题解对应的题目。","Choose the practice module for your solution."));return;}
     if(!previous&&!hasCommunityDraftContent(submitted.body)){setError(t('提纲已准备好，请补充自己的问题、观察或思考后再发布。','Your outline is ready. Add your own question, observations or thoughts before publishing.'));return;}
     const paperUrl = previous ? previous.payload.paper_url : (submitted.category === 'papers' ? submitted.paperUrl : undefined);
@@ -528,7 +531,7 @@ function Composer({
             )}
             {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
-          <button className="button" disabled={busy || !canPublish || solution&&!topic&&!topics.some(row=>row.id===draft.problemId&&!row.retired) || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
+          <button className="button" disabled={busy || !canPublish || publicationBlocked&&!pendingMatches || solution&&!topic&&!topics.some(row=>row.id===draft.problemId&&!row.retired) || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
             {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id,solution)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>
@@ -537,6 +540,7 @@ function Composer({
     </section>
   );
 }
+export {Composer as DraftPostComposer};
 type CommunityProps = {
   route?: string;
   postId?: string;

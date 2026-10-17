@@ -21,6 +21,14 @@ export function writeInterviewDraft(storage:DraftStorage|undefined,owner:string,
   if(!storage)return false;
   try{storage.setItem(interviewDraftKey(owner),JSON.stringify({version:1,owner,draft}));return true;}catch{return false;}
 }
+/** An in-page recovery may be newer than the persisted copy after a quota failure. */
+export function isInterviewDraftDurable(storage:DraftStorage|undefined,owner:string,draft:InterviewDraft):boolean{
+  try{
+    const raw=storage?.getItem(interviewDraftKey(owner));if(!raw||raw.length>100000)return false;
+    const row=JSON.parse(raw),stored=row?.draft;
+    return row.version===1&&row.owner===owner&&stored?.title===draft.title&&stored.body===draft.body&&!!stored.anonymous===!!draft.anonymous&&!!readInterviewDetails(stored.interview)&&JSON.stringify(readInterviewDetails(stored.interview))===JSON.stringify(readInterviewDetails(draft.interview));
+  }catch{return false;}
+}
 export function clearInterviewDraft(storage:DraftStorage|undefined,owner:string,submitted:InterviewDraft){
   const current=readInterviewDraft(storage,owner);
   if(!current||JSON.stringify(interviewPublication(current))!==JSON.stringify(interviewPublication(submitted)))return false;

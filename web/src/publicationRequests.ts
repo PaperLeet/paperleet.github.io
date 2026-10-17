@@ -9,6 +9,11 @@ export type PublicationPayload = Record<string,string|null|boolean>;
 export type PublicationReceipt = {version:1;owner:string;kind:PublicationKind;scope:string;requestId:string;payload:PublicationPayload};
 export type PendingPublication = {receipt:PublicationReceipt;durable:boolean};
 const memory = new Map<string,PendingPublication>();
+/** Inventory only the current account's retained requests, without exposing mutable receipts. */
+export function heldPublications(owner:string):PendingPublication[]{
+  if(!owner)return [];
+  return [...memory.values()].filter(row=>row.receipt.owner===owner&&valid(row.receipt,owner,row.receipt.kind,row.receipt.scope)).map(row=>structuredClone(row));
+}
 const token = /^[a-f0-9]{32}$/;
 const moduleId = /^[a-z0-9_-]+\/[a-z0-9_-]+$/;
 export const publicationKey = (owner:string,kind:PublicationKind,scope:string) => `paperleet.community.publication.v1:${encodeURIComponent(owner)}:${kind}:${encodeURIComponent(scope)}`;

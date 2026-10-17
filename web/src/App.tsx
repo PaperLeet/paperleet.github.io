@@ -1,5 +1,5 @@
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
-import {ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
+import {DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
@@ -580,6 +580,8 @@ function Workspace() {
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
       ) : interviewPage ? (
         <Interviews route={id} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
+      ) : path === 'drafts' ? (
+        <DraftCenter route={id} topics={problems.map(topicFromProblem)} catalogLoading={!problems.length&&!loadError} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : messagesPage ? (
         <Messages key={`${user?.id || 'guest'}:${messageUsername || ''}`} username={messageUsername} />
       ) : communityPage ? (
