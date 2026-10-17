@@ -1431,7 +1431,7 @@ scalar math, weak-reference lifetime checks, dtype-metadata collection and cache
 warm-up tests validate the selective rules. The benchmark includes actual-library
 forward/reverse/JVP and complete encoder SGD flows, with and without dropout.
 
-### Multihead attention (development)
+### Multihead attention (0.52)
 
 `torch.nn.MultiheadAttention` and
 `torch.nn.functional.multi_head_attention_forward` support float32/float64
