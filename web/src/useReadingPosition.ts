@@ -1,6 +1,7 @@
 import {useEffect,useLayoutEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {communityPostReturn,communityReplyTarget} from './communityNavigation';
-import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingPracticeTarget,privateProfilePostRoute,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
+import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHref,readingPracticeTarget,readingSourceConcept,privateProfilePostRoute,readingReturnRevision,rememberReadingReturn,resumeReadingOrigin,subscribeReadingReturn,type ReadingReturn} from './readingReturn';
+import {readInterviewRoute} from './interviewNavigation';
 
 export type ReadingNotice='restored'|'available'|'missing';
 type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string;practice?:string;reply?:string};
@@ -17,7 +18,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
  const revision=useSyncExternalStore(subscribeReadingReturn,readingReturnRevision,()=>0);
  const here=()=>live.current.owner===owner&&live.current.href===href&&live.current.ready&&readingListHref(location.hash)===href&&!!container.current?.isConnected;
  const targetFor=(row:ReadingReturn)=>{
-  const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]${row.reply?`[data-reading-reply="${row.reply}"]`:""}`);
+  const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]${row.concept?`[data-reading-concept="${row.concept}"]`:""}${row.reply?`[data-reading-reply="${row.reply}"]`:""}`);
   if(row.link==='practice')return card?.querySelector<HTMLElement>(`a[data-reading-link="practice"][data-reading-practice="${row.practice}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link="title"]')||card?.querySelector<HTMLElement>('a[data-reading-link="read"]');
   return card?.querySelector<HTMLElement>(`a[data-reading-link="${row.link}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link]');
  };
@@ -71,8 +72,10 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
    const reply=card.dataset.readingReply;
    if(reply&&(!/^[a-f0-9]{32}$/.test(reply)||communityReplyTarget(destination.hash,post)!==reply))return;
    const privateProfile=card.dataset.readingPrivateProfile==='true'&&live.current.owner.startsWith('account:');
+   const sourceConcept=readingSourceConcept(href,card.dataset.readingConcept);
+   if(readInterviewRoute(href)?.view==='questions'&&!sourceConcept)return;
    if(link.dataset.readingLink==='practice'?practice!==link.dataset.readingPractice||!practice:privateProfile?!privateProfilePostRoute(destination.hash,post):communityPostReturn(destination.hash,post)!==href)return;
-   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(practice?{practice}:{}),...(reply?{reply}:{}),...(privateProfile?{privateProfile:true as const}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
+   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(sourceConcept?{concept:sourceConcept}:{}),...(practice?{practice}:{}),...(reply?{reply}:{}),...(privateProfile?{privateProfile:true as const}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
    setState(undefined);
   };
   document.addEventListener('click',capture);

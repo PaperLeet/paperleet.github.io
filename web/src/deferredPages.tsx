@@ -36,6 +36,7 @@ export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompany
 export const PreparationGuide = deferredFeature(() => import('./PreparationGuide'), ['面试自测提纲','study prompts'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试自测提纲','Retry study prompts']}/>});
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
 export const ProblemSolutions = deferredFeature<Parameters<typeof import('./Community').ProblemSolutions>[0]>(() => import('./Community').then(module=>({default:module.ProblemSolutions})), ['社区题解','community solutions']);
+export const ProblemSolutionPanel = deferredFeature(() => import('./ProblemSolutionPanel'), ['本题题解','problem solutions']);
 export const UserProfile = deferredFeature<Parameters<typeof import('./Community').UserProfile>[0]>(() => import('./Community').then(module => ({ default: module.UserProfile })), ['个人主页', 'profile']);
 export const Account = deferredFeature(() => import('./Account'), ['账号页面', 'account page']);
 export const SolutionHistory = deferredFeature(() => import('./SolutionHistory'), ['提交记录', 'submission history']);

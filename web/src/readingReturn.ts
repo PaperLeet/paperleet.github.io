@@ -3,7 +3,7 @@ import {communityFeedHref,communityPostHref,communityPostReturn,communityReplyTa
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
 import {favoriteHref,readFavoriteRoute,libraryReturnHref} from './libraryNavigation';
 
-export type ReadingReturn={version:1;id:number;owner:string;href:string;post:string;link:'title'|'read'|'practice';practice?:string;reply?:string;privateProfile?:true;top:number;focus:boolean;at:number;phase:'opening'|'reading'|'returning'};
+export type ReadingReturn={version:1;id:number;owner:string;href:string;post:string;link:'title'|'read'|'practice';concept?:string;practice?:string;reply?:string;privateProfile?:true;top:number;focus:boolean;at:number;phase:'opening'|'reading'|'returning'};
 export const READING_RETURN_KEY='paperleet.reading.return.v1';
 const maxAge=6*60*60*1000;
 let pending:ReadingReturn|undefined,hydrated=false,sequence=0,revision=0,watching=false;
@@ -14,14 +14,19 @@ const notify=()=>{revision++;for(const listener of listeners)listener();};
 
 export function readingListHref(route:string){
  if(route.length>8192)return;
- const profile=readProfileRoute(route);if(profile&&['posts','solutions','replies','likes','reposts'].includes(profile.tab))return profileFeedHref(profile.username,profile);
+ const profile=readProfileRoute(route);if(profile&&['posts','solutions','interviews','replies','likes','reposts'].includes(profile.tab))return profileFeedHref(profile.username,profile);
  const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites);
  const feed=readCommunityFeed(route);
  if(feed)return communityFeedHref(feed.topicId,feed.state);
  const interviews=readInterviewRoute(route);
- return interviews?.view==='reports'?interviewHref(interviews):undefined;
+ return interviews&&(interviews.view==='reports'||interviews.view==='questions')?interviewHref(interviews):undefined;
 }
 const moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]{1,100}$/;
+/** A source post can occur under several concepts; bind its return to the originating row. */
+export function readingSourceConcept(href:string,value:unknown){
+ const filters=readInterviewRoute(href);
+ return filters?.view==='questions'&&typeof value==='string'&&moduleId.test(value)&&(!filters.concept||filters.concept===value)?value:undefined;
+}
 function practiceTargetPath(route:string,allowPaper=false){
  try{
   const path=decodeURIComponent(route.replace(/^#\/?/,'').split('?')[0]);
@@ -40,9 +45,10 @@ function valid(value:unknown):value is ReadingReturn{
  // Keep the v1 row identifier for stored reading returns. Only favorite views
  // may use a canonical module ID here, bound to the same practice ID and owner.
  const itemValid=typeof row.post==='string'&&(favorite?moduleId.test(row.post)&&row.post===row.practice&&typeof row.owner==='string'&&row.owner.startsWith('account:'):/^[a-f0-9]{32}$/.test(row.post));
- return Object.keys(row).every(key=>['version','id','owner','href','post','link','practice','reply','privateProfile','top','focus','at','phase'].includes(key))&&row.version===1
+ return Object.keys(row).every(key=>['version','id','owner','href','post','link','concept','practice','reply','privateProfile','top','focus','at','phase'].includes(key))&&row.version===1
   &&Number.isSafeInteger(row.id)&&row.id>0&&typeof row.owner==='string'&&/^(?:guest|account:[a-zA-Z0-9_-]{1,160})$/.test(row.owner)
   &&typeof row.href==='string'&&readingListHref(row.href)===row.href&&itemValid
+  &&(readInterviewRoute(row.href)?.view==='questions'?!!readingSourceConcept(row.href,row.concept):!Object.hasOwn(row,'concept'))
   &&(readProfileRoute(row.href)?.tab==='replies'?typeof row.reply==='string'&&/^[a-f0-9]{32}$/.test(row.reply):!Object.hasOwn(row,'reply'))
   &&(!Object.hasOwn(row,'privateProfile')||row.privateProfile===true&&row.owner.startsWith('account:')&&!!readProfileRoute(row.href))
   &&(row.link==='practice'?typeof row.practice==='string'&&moduleId.test(row.practice)&&(favorite||readInterviewRoute(row.href)?.view==='reports'):['title','read'].includes(row.link)&&!Object.hasOwn(row,'practice'))&&Number.isFinite(row.top)&&Math.abs(row.top)<=1e5

@@ -1,0 +1,64 @@
+import {useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
+import {ArrowRight,ChevronDown,ChevronUp,RefreshCw} from 'lucide-react';
+import {useI18n} from './i18n';
+import {DateLabel} from './social';
+import {useInterviewResource} from './interviewApi';
+import {communityPostHref} from './communityNavigation';
+import {interviewHref,readInterviewRoute} from './interviewNavigation';
+import {interviewSourceRequest,readInterviewSourcePreview} from './interviewSourcePreviewModel';
+import {postPreview} from './postExcerpt';
+import CommunityAuthor from './CommunityAuthor';
+import InterviewMeta from './InterviewMeta';
+import './interview-source-preview.css';
+
+type Props={concept:string;name:string;reports:number;contributors:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
+const currentScope=()=>{const filters=readInterviewRoute(location.hash);return filters?interviewHref(filters):undefined;};
+
+export default function InterviewSourcePreview(props:Props){
+  return <SourcePreview key={JSON.stringify([props.owner,props.returnTo,props.sourceHref])} {...props}/>;
+}
+
+function SourcePreview(props:Props){
+  const {t}=useI18n(),id=useId(),toggle=useRef<HTMLButtonElement>(null),panel=useRef<HTMLDivElement>(null);
+  const [view,setView]=useState<{open:boolean;returned?:number}>({open:false});
+  const reveal=props.returnId!==undefined&&view.returned!==props.returnId;
+  const expanded=view.open||reveal;
+  useLayoutEffect(()=>{if(reveal)setView({open:true,returned:props.returnId});},[reveal,props.returnId]);
+  const close=()=>{
+    if(panel.current?.contains(document.activeElement))toggle.current?.focus({preventScroll:true});
+    setView({open:false,returned:props.returnId??view.returned});
+    if(props.returnId!==undefined)props.onReturnCancel?.(props.returnId);
+  };
+  return <section className="interview-source-preview interview-ranking-evidence">
+    <div className="interview-source-toolbar"><span>{t('榜单统计：','Ranking evidence: ')}<b>{props.contributors}</b> {t('位分享者','contributors')} · <b>{props.reports}</b> {t('篇面经','reports')}</span><div>
+      {props.reports>0&&<button ref={toggle} type="button" className="interview-source-preview-toggle" aria-expanded={expanded} aria-controls={id} aria-label={expanded?t(`收起${props.name}的来源预览`,`Collapse source preview for ${props.name}`):t(`预览${props.name}的来源面经`,`Preview source experiences for ${props.name}`)} onClick={()=>expanded?close():setView({open:true,returned:view.returned})}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起预览','Collapse preview'):t('预览来源','Preview sources')}</button>}
+      <a href={props.sourceHref}>{t(`查看 ${props.reports} 篇来源`,`Read ${props.reports} source ${props.reports===1?'report':'reports'}`)}<ArrowRight size={13} aria-hidden="true"/></a>
+    </div></div>
+    <div id={id} ref={panel} hidden={!expanded} className="interview-source-panel" role="region" aria-label={t(`${props.name}的来源预览`,`Source preview for ${props.name}`)} onKeyDown={event=>{
+      if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
+      event.preventDefault();event.stopPropagation();close();
+    }}>{expanded&&<SourceReports key={`${props.owner}:${!!props.accountLoading}`} {...props}/>}</div>
+  </section>;
+}
+
+function SourceReports({concept,sourceHref,returnTo,owner,accountLoading=false,returnId,onReturnReady,onReturnPending}:Props){
+  const {t,locale}=useI18n(),[,setRouteRevision]=useState(0),[retry,setRetry]=useState(0),busy=useRef(false);
+  const path=interviewSourceRequest(sourceHref),here=currentScope()===returnTo;
+  const resource=useInterviewResource<unknown>(path||'',!!path&&!accountLoading&&here,retry,JSON.stringify([owner,returnTo]));
+  const feed=readInterviewSourcePreview(resource.data,sourceHref),loading=accountLoading||resource.loading;
+  const error=!path?t('来源筛选暂不可用，请查看全部来源。','Source filters are unavailable. Open all source reports.'):resource.error||(resource.data&&!feed?t('暂时无法确认来源面经，请刷新预览。','Could not confirm the source experiences. Refresh this preview.'):undefined);
+  busy.current=loading;
+  useEffect(()=>{const changed=()=>setRouteRevision(value=>value+1);window.addEventListener('hashchange',changed);window.addEventListener('popstate',changed);return()=>{window.removeEventListener('hashchange',changed);window.removeEventListener('popstate',changed);};},[]);
+  const returnCallbacks=useRef({onReturnReady,onReturnPending});returnCallbacks.current={onReturnReady,onReturnPending};
+  useEffect(()=>{if(returnId===undefined||!here)return;if(loading)returnCallbacks.current.onReturnPending?.(returnId);else if(feed||error)returnCallbacks.current.onReturnReady?.(returnId);},[returnId,here,loading,feed,error]);
+  if(!here)return null;
+  return <>
+    <div className="interview-source-panel-heading"><p>{t('当前知识点的公开来源，最多预览 3 篇。','Public source experiences for this concept, up to 3 reports.')} {(readInterviewRoute(returnTo)?.saved||readInterviewRoute(returnTo)?.q)&&t('收藏与知识点搜索仅用于原列表。','Saved and concept-search filters apply to the original list.')}</p><button type="button" className="text-button" aria-disabled={loading||!path} onClick={()=>{if(busy.current||!path||currentScope()!==returnTo)return;busy.current=true;setRetry(value=>value+1);}}><RefreshCw size={13} aria-hidden="true"/>{error?t('重试来源','Retry sources'):t('刷新来源','Refresh sources')}</button></div>
+    <div aria-busy={loading}>
+      {loading?<p className="interview-source-status" role="status"><span className="spinner"/>{accountLoading?t('正在确认账号…','Checking your account…'):t('正在读取来源面经…','Loading source experiences…')}</p>:error?<p className="interview-source-error" role="alert">{error}</p>:feed?.items.length?<><p className="interview-source-status" role="status">{t(`预览 ${feed.items.length} / ${feed.total} 篇公开面经`,`Previewing ${feed.items.length} of ${feed.total} public ${feed.total===1?'experience':'experiences'}`)}</p><div className="interview-source-items">{feed.items.map(post=>{
+        const excerpt=postPreview(post.body,140,locale==='en'?'[formula]':'[公式]').text;
+        return <article key={post.id} className="interview-source-item" data-reading-post={post.id} data-reading-concept={concept}><div className="interview-source-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div><a data-reading-link="title" className="interview-source-title" href={communityPostHref(post.id,returnTo)}>{post.title}</a>{excerpt&&<p className="interview-source-excerpt">{excerpt}</p>}<InterviewMeta details={post.interview} compact browseFrom={sourceHref}/></article>;
+      })}</div></>:<p className="interview-source-status" role="status">{t('当前预览没有匹配的面经，内容可能已修改或删除。仍可刷新预览、查看全部来源或继续练习。','No experiences match this preview. Content may have changed or been removed. Refresh, open all sources or keep practicing.')}</p>}
+    </div>
+  </>;
+}
