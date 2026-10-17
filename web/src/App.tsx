@@ -71,7 +71,7 @@ import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
-const EditorTools=deferredFeature(()=>import('./EditorTools'),['编辑工具','editor tools'],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
+const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {

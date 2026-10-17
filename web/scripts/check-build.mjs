@@ -55,6 +55,9 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Concept list display')), 'Interview list disclosure must stay deferred');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-ranking-display')), 'Interview list display styles must stay deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-ranking-display'))), 'Interview lists must include display controls styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Automatic copy is unavailable. The complete source')), 'Full source copy recovery must stay deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.editor-copy-manual')), 'Source copy recovery styles must stay deferred');
 assert((manifest['src/EditorTools.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.editor-copy-manual')), 'Deferred editor controls must include recovery styles');

@@ -68,3 +68,11 @@
 }
 @media(pointer:coarse) { .interview-search-companies a,.interview-ranking-filters button,.interview-ranking-actions > .button,.interview-question-workbench .interview-company-tags a,.interview-question-workbench .preparation-guide > summary,.interview-ranking-more { min-height:44px; } }
 @media(prefers-reduced-motion:no-preference) { .interview-ranking-resume,.interview-ranking-filters button { transition:background .15s,border-color .15s,color .15s; } }
+
+.interview-ranking-display { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; margin:12px 0; }
+.interview-ranking-display > button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--accent); font:inherit; font-size:var(--type-small); line-height:1.6; cursor:pointer; }
+.interview-ranking-display > button:hover { background:var(--surface2); }
+.interview-ranking-display > button[aria-disabled="true"] { opacity:.5; cursor:default; }
+.interview-ranking-display > .interview-ranking-more { width:auto; margin:0; flex:1; }
+.interview-question-workbench .interview-ranking-row[hidden] { display:none; }
+@media(pointer:coarse) { .interview-ranking-display > button { min-height:44px; } }
