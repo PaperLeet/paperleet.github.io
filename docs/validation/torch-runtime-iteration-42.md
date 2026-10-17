@@ -119,3 +119,7 @@ both typed builds and every changed check script pass. All 49 source/license
 and 161 active-export identities remain exact; existing numerical/native/full-
 WASM evidence retains unchanged inputs. See `iteration-42-main-sync.json`
 and `iteration-42-main-sync-harness.tar.gz`.
+
+Validated source was adopted non-force on remote `main` at `6d7dde478235a78277c779cc8631cdb2bb54bbc2`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-42-main-adoption.json`; no tag, dispatch or online release was created.
