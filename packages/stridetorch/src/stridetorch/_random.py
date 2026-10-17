@@ -40,8 +40,8 @@ _default_generator.rng = np.random
 def normal_samples(generator, shape, dtype):
     """CPU Box-Muller filling and cached scalar draws, matching PyTorch's stream."""
     dtype = np.dtype(dtype)
-    if dtype not in (np.dtype('float32'), np.dtype('float64')):
-        raise _errors.BrowserUnsupported('Normal sampling requires float32/float64')
+    if dtype not in (np.dtype('float16'), np.dtype('float32'), np.dtype('float64')):
+        raise _errors.BrowserUnsupported('Normal sampling requires float16/float32/float64')
     size = math.prod(shape)
     rng = generator.rng
     if size < 16:
@@ -55,16 +55,25 @@ def normal_samples(generator, shape, dtype):
                 value, generator.normal = generator.normal, None
             values[i] = value
         return values.reshape(shape)
-    values = uniform_samples(rng, (size,), dtype)
+    compute_dtype = np.dtype('float32') if dtype==np.dtype('float16') else dtype
+    # Half normal fills operate in float32 blocks before a final cast. Unlike
+    # the full-precision path, an incomplete tail consumes a whole new block,
+    # without first drawing uniforms for the unused tail positions.
+    count = size//16*16 if dtype==np.dtype('float16') else size
+    values = uniform_samples(rng, (count,), compute_dtype)
     def transform(blocks):
         radius = np.sqrt(-2 * np.log(1 - blocks[:, :8]))
-        theta = (2 * math.pi * blocks[:, 8:].astype(np.float64)).astype(dtype)
+        theta = (2 * math.pi * blocks[:, 8:].astype(np.float64)).astype(compute_dtype)
         blocks[:, :8], blocks[:, 8:] = radius * np.cos(theta), radius * np.sin(theta)
     transform(values[:size // 16 * 16].reshape(-1, 16))
     if size % 16:
-        values[-16:] = uniform_samples(rng, (16,), dtype)
-        transform(values[-16:].reshape(1, 16))
-    return values.reshape(shape)
+        tail = uniform_samples(rng, (16,), compute_dtype)
+        transform(tail.reshape(1,16))
+        if dtype==np.dtype('float16'):
+            result=np.empty(size,dtype=dtype);result[:count]=values;result[-16:]=tail
+            return result.reshape(shape)
+        values[-16:] = tail
+    return values.astype(dtype,copy=False).reshape(shape)
 
 
 def multinomial(probabilities, num_samples, replacement=False, *, generator=None):
@@ -112,8 +121,11 @@ def randperm(n, *, generator=None, dtype=np.int64, device=None):
     return _tensor.Tensor(values)
 
 
-def create(kind, *shape, dtype=np.float32, device=None, requires_grad=False, generator=None):
+def create(kind, *shape, dtype=None, device=None, requires_grad=False, generator=None):
     _device.check_device(device)
+    dtype = _defaults._float_dtype if dtype is None else np.dtype(dtype)
+    if kind=='rand' and dtype not in (np.dtype('float16'),np.dtype('float32'),np.dtype('float64')):
+        raise _errors.BrowserUnsupported('Uniform sampling requires float16/float32/float64')
     if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
     rng = generator.rng if generator else np.random
     value = normal_samples(generator or _default_generator, shape, dtype) if kind == 'randn' else uniform_samples(rng, shape, dtype) if kind == 'rand' else getattr(np, kind)(shape, dtype=dtype)
@@ -152,13 +164,20 @@ def randint(low=0, high=None, size=None, *, generator=None, dtype=np.int64, devi
 def uniform_samples(rng, shape, dtype):
     # CPU MT19937 uniforms use the low mantissa bits, unlike NumPy's
     # random_sample conversion. Keep preference-pair sampling reproducible.
-    if np.dtype(dtype) == np.dtype('float64'):
+    dtype=np.dtype(dtype)
+    if dtype == np.dtype('float64'):
         bits = rng.randint(0,2**32,size=tuple(shape)+(2,),dtype=np.uint32).astype(np.uint64)
         raw = ((bits[...,0] << 32) | bits[...,1]) & np.uint64((1 << 53)-1)
         return raw.astype(np.float64) / (1 << 53)
     bits = rng.randint(0,2**32,size=shape,dtype=np.uint32)
-    return (bits & ((1 << 24)-1)).astype(np.float32) / (1 << 24)
+    values = (bits & ((1 << 24)-1)).astype(np.float32) / (1 << 24)
+    if dtype==np.dtype('float16'):
+        values=values.astype(np.float16)
+        # The native opmath uniform kernel wraps a rounded upper endpoint to
+        # the lower endpoint, keeping rand in the half-open interval [0,1).
+        values=np.where(values==1,np.float16(0),values)
+    return values
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _errors, _layout, _ops, _tensor
+from . import _defaults, _errors, _layout, _ops, _tensor

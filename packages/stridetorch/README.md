@@ -516,13 +516,48 @@ PyTorch positional shape allocator. Storage itself must have a supported numeric
 or boolean dtype. Numeric storage acceptance does not promise every kernel or
 autograd rule for every dtype; the computational bounds below still apply.
 
-Builtin scalar defaults remain float32/int64/bool. Out-of-range Python integers
+Builtin scalar defaults start at float32/int64/bool. Out-of-range Python integers
 fail when constructing default int64 tensors; weak integer operands of existing
 integer tensors follow the receiving dtype's arithmetic instead. Factory casts
 isolate NumPy floating-point error settings and restore the caller's settings.
 As in native Torch, out-of-range ndarray floating-to-integer result values are
 platform dependent. Sequence scalar storage instead checks integer range and
 Python numeric protocols, following native construction rather than array casts.
+
+### Default floating dtype (0.55)
+
+`torch.get_default_dtype()` and `torch.set_default_dtype(torch.float64)` control
+Python floating/complex inference, default floating factories, wrapped scalar
+promotion, integer true division and transcendental outputs, and subsequent
+neural-network parameter/buffer initialization. The initial default is float32;
+float16, float32 and float64 dtype constants are accepted. Invalid settings fail
+without changing the previous default. Integer/boolean construction and explicit
+dtypes remain independent. NumPy inputs preserve their own dtype; like/new
+factories inherit the existing tensor's dtype. The NumPy-oriented raw `Tensor`
+class constructor keeps its existing NumPy storage inference conventions.
+
+Existing tensors, models, saved forward/reverse/JVP tapes and checkpoint dtype
+metadata retain their dtypes. CPU Adam/AdamW initialize scalar step counters in
+float64 when the current default is float64, otherwise float32; tensor-valued
+step counters preserve their checkpoint dtype on restore.
+
+The setting is shared by namespaces from the same installed distribution,
+including `as_torch()` aliases, and is not thread-local. The public package and
+PaperLeet's private copy keep independent settings. Changing it never changes an
+installed native PyTorch default. Leaving `as_torch()` restores imports, not the
+floating dtype setting.
+
+Real float16 random factories now follow the PyTorch 2.14.1 CPU opmath sampling
+profile, including cached scalar normals, incomplete vector tails and uniform
+values rounded to the upper endpoint. Stream-position checks include subsequent
+float64/float32 draws. Samples are compared within dtype-appropriate tolerances;
+cross-platform bitwise identity is not promised. This adds sampling/storage
+support; float16 neural-network kernels and forward AD remain unsupported.
+Parameterless normalization and pretrained embeddings still accept existing
+float32/64 inputs or weights when an unused default is float16.
+Inferred complex32 storage is unavailable in NumPy and fails explicitly. Explicit
+float32/64 or complex64/128 operands can still absorb a complex wrapped scalar;
+native `full` uses complex64 for complex fills with a float16 default.
 
 Sequences recursively infer supported Python/NumPy scalar and Tensor dtypes.
 NumPy float64 and small-integer values retain their precision and widths:

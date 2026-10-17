@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 
-from . import _tensor
+from . import _defaults, _tensor
 
 from ._module import Module, Parameter
 from ._containers import Sequential, ModuleList, ModuleDict, ParameterList, ParameterDict
@@ -67,7 +67,7 @@ class Linear(Module):
     def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
         super().__init__()
         _device.check_device(device)
-        dtype = np.dtype(np.float32 if dtype is None else dtype)
+        dtype = _defaults._float_dtype if dtype is None else np.dtype(dtype)
         if dtype not in (np.dtype('float32'), np.dtype('float64')):
             raise _errors.BrowserUnsupported('Linear requires float32/float64')
         if type(in_features) is not int or type(out_features) is not int or min(in_features, out_features) < 0:

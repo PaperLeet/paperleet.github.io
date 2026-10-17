@@ -149,6 +149,9 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
         # Builtin scalar construction already owns a fresh allocation. Avoid
         # an intermediate array and a second copy on common arithmetic paths.
         if kind is float:
+            if _defaults._float_dtype != _defaults._FLOAT:
+                with np.errstate(all='ignore'):
+                    return _tensor.Tensor(data, dtype=_defaults._float_dtype, requires_grad=requires_grad, _metadata_owned=True)
             if -3.4028234663852886e38 <= data <= 3.4028234663852886e38 or not np.isfinite(data):
                 return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
             with np.errstate(all='ignore'):
@@ -161,7 +164,7 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
         if isinstance(data, np.generic) and data.dtype != np.dtype('uint64'):
             return _tensor.Tensor(data, requires_grad=requires_grad, _metadata_owned=True)
         if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) is float:
-            floats, guard = True, False
+            floats, guard = True, _defaults._float_dtype == _defaults._HALF
             for value in data:
                 if type(value) is not float:
                     floats = False
@@ -171,8 +174,8 @@ def tensor(data, dtype=None, *, device=None, requires_grad=False):
             if floats:
                 if guard:
                     with np.errstate(all='ignore'):
-                        return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
-                return _tensor.Tensor(data, dtype=np.float32, requires_grad=requires_grad, _metadata_owned=True)
+                        return _tensor.Tensor(data, dtype=_defaults._float_dtype, requires_grad=requires_grad, _metadata_owned=True)
+                return _tensor.Tensor(data, dtype=_defaults._float_dtype, requires_grad=requires_grad, _metadata_owned=True)
         if kind in (list, tuple) and 0 < len(data) <= 8 and type(data[0]) in (int, bool):
             scalar_kind = type(data[0])
             homogeneous, overflow = True, False
@@ -401,22 +404,41 @@ def cov(x, *, correction=1, fweights=None, aweights=None):
     return _autograd.result(value.squeeze(), (x, vjp))
 
 
+def _factory_number(value):
+    if isinstance(value, _tensor.Tensor):
+        if value.ndim:raise TypeError('Factory endpoints and fill values must be scalars')
+        value = value.item()
+    # Parse a complex Number without asking for inferred complex-half storage.
+    if isinstance(value, complex):return complex(value), np.dtype('complex64')
+    return _promotion.scalar_info(value)
+
+
 def arange(*args, dtype=None, device=None):
     _device.check_device(device)
-    value = np.arange(*args,dtype=dtype or (np.float32 if any(isinstance(x,float) for x in args) else np.int64))
+    values, kinds = zip(*(_factory_number(x) for x in args)) if args else ((), ())
+    if any(k.kind=='c' for k in kinds):raise RuntimeError('arange requires real endpoints')
+    if dtype is None:dtype = _defaults._float_dtype if any(k.kind=='f' for k in kinds) else np.int64
+    value = np.arange(*values,dtype=dtype)
     if not value.size: value = _layout.contiguous_empty(value)
     return _tensor.Tensor(value)
 
 
-def eye(n,m=None,*,dtype=np.float32,device=None,requires_grad=False):
+def eye(n,m=None,*,dtype=None,device=None,requires_grad=False):
     _device.check_device(device)
+    if dtype is None:dtype = _defaults._float_dtype
     value = np.eye(n,m,dtype=dtype)
     if not value.size: value = _layout.contiguous_empty(value)
     return _tensor.Tensor(value,requires_grad=requires_grad)
 
 
-def linspace(start,end,steps,*,dtype=np.float32,device=None,requires_grad=False):
+def linspace(start,end,steps,*,dtype=None,device=None,requires_grad=False):
     _device.check_device(device)
+    (start,a),(end,b) = _factory_number(start),_factory_number(end)
+    if dtype is None:dtype = _defaults.complex_dtype() if a.kind=='c' or b.kind=='c' else _defaults._float_dtype
+    if np.dtype(dtype).kind!='c' and (isinstance(start,complex) or isinstance(end,complex)):
+        if isinstance(start,complex) and start.imag or isinstance(end,complex) and end.imag:
+            raise RuntimeError('Complex endpoint cannot be converted to a real dtype')
+        start,end = start.real if isinstance(start,complex) else start,end.real if isinstance(end,complex) else end
     value = np.linspace(start,end,steps,dtype=dtype)
     if not value.size: value = _layout.contiguous_empty(value)
     return _tensor.Tensor(value,requires_grad=requires_grad)
@@ -424,7 +446,10 @@ def linspace(start,end,steps,*,dtype=np.float32,device=None,requires_grad=False)
 
 def full(shape, fill_value, *, dtype=None, device=None, requires_grad=False):
     _device.check_device(device)
-    if dtype is None: dtype = np.bool_ if isinstance(fill_value, bool) else np.float32 if isinstance(fill_value, float) else np.int64
+    fill_value,kind = _factory_number(fill_value)
+    if dtype is None:
+        # full uses complex64 for a complex Number with default float16.
+        dtype = (np.dtype('complex128') if _defaults._float_dtype==np.dtype('float64') else np.dtype('complex64')) if kind.kind=='c' else kind
     value = np.full(shape, fill_value, dtype=dtype)
     if not value.size: value = _layout.contiguous_empty(value)
     return _tensor.Tensor(value, requires_grad=requires_grad)
@@ -515,7 +540,7 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _layout, _autograd, _construction, _conversion, _device, _errors, _promotion, _state, _tensor
+from . import _layout, _autograd, _construction, _conversion, _defaults, _device, _errors, _promotion, _state, _tensor
 
 
 def permute(input,dims):

@@ -510,6 +510,8 @@ class Tensor:
     def __pow__(self, exponent):
         original_data = self._data
         if not np.isscalar(exponent): raise _errors.BrowserUnsupported('Tensor exponents require the server')
+        if self.dtype.kind in 'biu' and isinstance(exponent,(float,np.floating)):
+            return self.to(dtype=_defaults._float_dtype) ** exponent
         if exponent == 0:
             derivative = lambda g: np.zeros_like(g)
         elif exponent == 2:
@@ -541,9 +543,11 @@ class Tensor:
         self._real_only()
         return _autograd.result(np.maximum(original_data, 0), (self, lambda g: np.where(original_data <= 0, 0, g)))
     def exp(self):
+        if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).exp()
         data = np.exp(self._data)
         return _autograd.result(data, (self, lambda g: g * data))
     def log(self):
+        if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).log()
         original_data = self._data
         return _autograd.result(np.log(original_data), (self, lambda g: g / self._data))
     def logit(self, eps=None):
@@ -890,6 +894,7 @@ class Tensor:
     def logsumexp(self, dim, keepdim=False, *, out=None):
         if out is not None: raise _errors.BrowserUnsupported('logsumexp out arguments require the server')
         if dim is None: raise TypeError('logsumexp requires a dimension')
+        if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).logsumexp(dim,keepdim)
         if self.dtype.kind != 'f': raise _errors.BrowserUnsupported('logsumexp requires a floating tensor')
         axes = _ops.reduction_axes(dim, self.ndim)
         maximum = np.max(self._data, axis=axes, keepdims=True, initial=-np.inf)
@@ -1054,12 +1059,13 @@ class Tensor:
     def clamp_min(self, min): return self.clamp(min=min)
     def clamp_max(self, max): return self.clamp(max=max)
     def sin(self):
-        source=self.float() if self.dtype.kind in 'biu' else self
+        source=self.to(dtype=_defaults._float_dtype) if self.dtype.kind in 'biu' else self
         return _autograd.result(np.sin(source._data), (source, lambda g: g * np.cos(source._data)))
     def cos(self):
-        source=self.float() if self.dtype.kind in 'biu' else self
+        source=self.to(dtype=_defaults._float_dtype) if self.dtype.kind in 'biu' else self
         return _autograd.result(np.cos(source._data), (source, lambda g: -g * np.sin(source._data)))
     def acos(self):
+        if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).acos()
         original_data = self._data
         return _autograd.result(np.arccos(original_data), (self, lambda g: -g / np.sqrt(1 - original_data ** 2)))
     def erfinv(self, *, out=None):
@@ -1079,10 +1085,12 @@ class Tensor:
         value = np.fromiter((inverse(float(x)) for x in self._data.flat), dtype=self.dtype, count=self.numel()).reshape(self.shape)
         return _autograd.result(value, (self, lambda g: g * (math.sqrt(math.pi)/2) * np.exp(value**2)))
     def tanh(self):
+        if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).tanh()
         value = np.tanh(self._data)
         return _autograd.result(value, (self, lambda g: g * (1 - value ** 2)))
     def rsqrt(self): return self ** -.5
     def sigmoid(self):
+        if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).sigmoid()
         self._real_only()
         exp = np.exp(-np.abs(self._data))
         value = np.where(self._data >= 0, 1 / (1 + exp), exp / (1 + exp))
@@ -1141,4 +1149,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _autograd, _cholesky, _conversion, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing
+from . import _arithmetic, _autograd, _cholesky, _conversion, _defaults, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing

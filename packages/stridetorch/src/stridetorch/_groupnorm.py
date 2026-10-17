@@ -135,7 +135,7 @@ class GroupNorm(Module):
         if groups == 0: raise ZeroDivisionError('integer division or modulo by zero')
         if groups < 0 or channels < 0 or channels % groups:
             raise ValueError('num_channels must be divisible by positive num_groups')
-        dtype = parameter_dtype(dtype, device)
+        dtype = parameter_dtype(dtype, device, allocate=affine)
         self.num_groups, self.num_channels, self.eps, self.affine = groups, channels, eps, affine
         self.register_parameter('weight', Parameter(_tensor.Tensor(np.ones(channels, dtype=dtype))) if affine else None)
         self.register_parameter('bias', Parameter(_tensor.Tensor(np.zeros(channels, dtype=dtype))) if affine else None)

@@ -4,7 +4,7 @@ import operator
 
 import numpy as np
 
-from . import _construction, _errors, _tensor
+from . import _construction, _defaults, _errors, _tensor
 
 
 _BOOL = np.dtype('bool')
@@ -26,9 +26,9 @@ def scalar_info(value):
     if type(value) is bool:
         return value, _BOOL
     if type(value) is float:
-        return value, _FLOAT
+        return value, _defaults._float_dtype
     if type(value) is complex:
-        return value, _COMPLEX
+        return value, _defaults.scalar_complex_dtype()
     if isinstance(value, (int, np.integer)):
         number = operator.index(value)
         if -(2**63) <= number < 2**63:
@@ -39,16 +39,16 @@ def scalar_info(value):
             raise TypeError('An integer is required for uint64 scalar arguments')
         return number, _ULONG
     if isinstance(value, complex):
-        return complex(value), _COMPLEX
+        return complex(value), _defaults.scalar_complex_dtype()
     # NumPy complex64 (unlike complex128) is not a Python complex subtype.
     # Native Number argument parsing uses its float protocol, including the
     # usual ComplexWarning. Tensor/sequence construction is a different path.
     if isinstance(value, (float, np.floating, np.bool_, np.complexfloating)):
-        return float(value), _FLOAT
+        return float(value), _defaults._float_dtype
     raise TypeError('Expected a Tensor or numeric scalar')
 
 
-def _combine(higher, lower):
+def _combine(higher, lower, *, wrapped=False):
     if higher.kind == 'c':
         return higher
     if lower.kind == 'c':
@@ -56,6 +56,8 @@ def _combine(higher, lower):
             if higher.itemsize == 2:
                 raise _errors.BrowserUnsupported('Complex float16 storage is unsupported by NumPy')
             return np.dtype('complex128') if higher.itemsize == 8 else _COMPLEX
+        if wrapped and _defaults._float_dtype==np.dtype('float16'):
+            _defaults.complex_dtype()
         return lower
     if higher.kind == 'f':
         return higher
@@ -73,11 +75,14 @@ def operand_dtype(left, right, *, left_info=None, right_info=None):
             return _construction.promote_types(left.dtype, right.dtype)
         return _combine(left.dtype, right.dtype) if left.ndim else _combine(right.dtype, left.dtype)
     if a:
-        return _combine(left.dtype, (right_info if right_info is not None else scalar_info(right))[1])
+        return _combine(left.dtype, (right_info if right_info is not None else scalar_info(right))[1], wrapped=True)
     if b:
-        return _combine(right.dtype, (left_info if left_info is not None else scalar_info(left))[1])
-    return _construction.promote_types((left_info if left_info is not None else scalar_info(left))[1],
-                                      (right_info if right_info is not None else scalar_info(right))[1])
+        return _combine(right.dtype, (left_info if left_info is not None else scalar_info(left))[1], wrapped=True)
+    left_dtype=(left_info if left_info is not None else scalar_info(left))[1]
+    right_dtype=(right_info if right_info is not None else scalar_info(right))[1]
+    if (left_dtype.kind=='c' or right_dtype.kind=='c') and _defaults._float_dtype==np.dtype('float16'):
+        _defaults.complex_dtype()
+    return _construction.promote_types(left_dtype,right_dtype)
 
 
 def result_type(*args, **kwargs):

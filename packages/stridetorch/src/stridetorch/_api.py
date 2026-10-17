@@ -115,6 +115,7 @@ def create_torch(name='torch', *, register=False):
         setattr(torch.optim.lr_scheduler, name, getattr(_schedulers, name))
 
     registry = _registry.OperatorRegistry(modules)
+    registry.group('torch', {'get_default_dtype':_defaults.get_default_dtype, 'set_default_dtype':_defaults.set_default_dtype}, reverse='control', forward=True)
     registry.add('torch.promote_types', _construction.promote_types, reverse='control', forward=True)
     registry.add('torch.result_type', _promotion.result_type, reverse='control', forward=True)
     registry.group('torch.cuda', {'is_available': lambda: False, 'device_count': lambda: 0,
@@ -280,4 +281,5 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
+from . import _defaults
 from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer

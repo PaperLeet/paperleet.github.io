@@ -1,4 +1,4 @@
-"""Actual 0.52 core vs candidate core, plus standard Transformer layer overhead."""
+"""Compare supplied cores on encoder equations and a standard Transformer layer."""
 import importlib.util
 import hashlib
 import json
@@ -112,7 +112,8 @@ def run(baseline_source,candidate_source,samples=5,calls=4):
                     rows.append(dict(case=label,dtype=dtype,pre_norm=pre,mode=mode,samples_s=times,median_s=medians,
                         candidate_core_over_baseline=medians['candidate_control']/medians['baseline'],
                         candidate_layer_over_baseline=medians['candidate_layer']/medians['baseline']))
-    return dict(scope='Actual 0.52 core vs candidate core through identical manual encoder equations; standard candidate layer measured separately. LayerNorm FP32 precision changes are included. No native Torch/GPU timing claim.',
+    return dict(scope='Supplied baseline vs candidate core through identical manual encoder equations; standard candidate layer measured separately. No native Torch/GPU timing claim.',
+                versions=dict(baseline=old.__version__,candidate=new.__version__),
                 source_hashes=dict(baseline=oh,candidate=nh),samples=samples,calls=calls,rows=rows)
 
 

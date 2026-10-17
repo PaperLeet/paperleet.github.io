@@ -197,7 +197,7 @@ class _NormBase(Module):
         if not isinstance(num_features, numbers.Integral) or isinstance(num_features, (bool, np.bool_)):
             raise TypeError('num_features must be an integer')
         if num_features < 0: raise RuntimeError('Negative BatchNorm dimensions')
-        dtype = parameter_dtype(dtype, device)
+        dtype = parameter_dtype(dtype, device, allocate=affine or track_running_stats)
         self.num_features, self.eps, self.momentum = int(num_features), eps, momentum
         self.affine, self.track_running_stats = affine, track_running_stats
         self.register_parameter('weight', Parameter(_tensor.Tensor(np.empty(num_features, dtype=dtype))) if affine else None)

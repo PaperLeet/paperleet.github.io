@@ -3,7 +3,7 @@ import numbers
 import weakref
 import numpy as np
 
-from . import _autograd, _device, _errors, _ops, _tensor
+from . import _autograd, _defaults, _device, _errors, _ops, _tensor
 from ._module import Module, Parameter
 
 
@@ -22,9 +22,10 @@ def _shape(value, *, constructor=False):
     return shape
 
 
-def parameter_dtype(dtype, device):
+def parameter_dtype(dtype, device, *, allocate=True):
     _device.check_device(device)
-    dtype = np.dtype(np.float32 if dtype is None else dtype)
+    if not allocate:return None
+    dtype = _defaults._float_dtype if dtype is None else np.dtype(dtype)
     if dtype not in (np.dtype('float32'),np.dtype('float64')):
         raise _errors.BrowserUnsupported('Neural-network parameters require float32/float64')
     return dtype
@@ -183,7 +184,7 @@ def rms_norm(input, normalized_shape, weight=None, eps=None):
 class LayerNorm(Module):
     def __init__(self, normalized_shape, eps=1e-5, elementwise_affine=True, bias=True, device=None, dtype=None):
         super().__init__()
-        dtype = parameter_dtype(dtype,device)
+        dtype = parameter_dtype(dtype,device,allocate=elementwise_affine)
         self.normalized_shape = _shape(normalized_shape,constructor=True)
         self.eps, self.elementwise_affine = eps, elementwise_affine
         self.register_parameter('weight',Parameter(_tensor.Tensor(np.empty(self.normalized_shape,dtype=dtype))) if elementwise_affine else None)
@@ -204,7 +205,7 @@ class LayerNorm(Module):
 class RMSNorm(Module):
     def __init__(self, normalized_shape, eps=None, elementwise_affine=True, device=None, dtype=None):
         super().__init__()
-        dtype = parameter_dtype(dtype,device)
+        dtype = parameter_dtype(dtype,device,allocate=elementwise_affine)
         self.normalized_shape = _shape(normalized_shape,constructor=True)
         self.eps, self.elementwise_affine = eps, elementwise_affine
         self.register_parameter('weight',Parameter(_tensor.Tensor(np.ones(self.normalized_shape,dtype=dtype))) if elementwise_affine else None)

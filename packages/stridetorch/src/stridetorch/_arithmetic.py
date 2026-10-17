@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from . import _autograd, _errors, _ops, _promotion, _state, _tensor
+from . import _autograd, _defaults, _errors, _ops, _promotion, _state, _tensor
 
 _FLOAT = np.dtype('float32')
 _DOUBLE = np.dtype('float64')
@@ -36,8 +36,8 @@ def operands(owner, other, *, floating=False, subtract=False):
         number, kind = _promotion.scalar_info(other)
         if subtract and (owner.dtype.kind == 'b' or kind.kind == 'b'):
             raise _errors.BrowserUnsupported('Subtraction with boolean operands is unsupported')
-        dtype = _promotion._combine(owner.dtype, kind)
-        if floating and dtype.kind in 'biu': dtype = _FLOAT
+        dtype = _promotion._combine(owner.dtype, kind, wrapped=True)
+        if floating and dtype.kind in 'biu': dtype = _defaults._float_dtype
         # Numbers are immutable constants, with no history or externally
         # mutable Tensor storage. Keep their array without allocating a Tensor.
         return None, _promotion.array(owner, dtype), scalar_data(number, dtype), dtype
@@ -47,7 +47,7 @@ def operands(owner, other, *, floating=False, subtract=False):
         dtype = _promotion.operand_dtype(owner, other)
     if subtract and (owner.dtype.kind == 'b' or other.dtype.kind == 'b'):
         raise _errors.BrowserUnsupported('Subtraction with boolean operands is unsupported')
-    if floating and dtype.kind in 'biu': dtype = _FLOAT
+    if floating and dtype.kind in 'biu': dtype = _defaults._float_dtype
     a = _promotion.array(owner, dtype)
     b = _promotion.array(other, dtype)
     return other, a, b, dtype
@@ -57,7 +57,7 @@ def forward_primal(owner, other):
     if isinstance(other, _autograd.ForwardTensor): return other._primal
     if not isinstance(other, _tensor.Tensor) and _promotion.is_scalar(other):
         number, kind = _promotion.scalar_info(other)
-        return _tensor.Tensor(scalar_data(number, _promotion._combine(owner.dtype, kind)), _metadata_owned=True)
+        return _tensor.Tensor(scalar_data(number, _promotion._combine(owner.dtype, kind, wrapped=True)), _metadata_owned=True)
     return _ops.wrap(other)
 
 
@@ -75,6 +75,7 @@ def _owner(input, other):
     if isinstance(other, _tensor.Tensor): return other, input, True
     if not _promotion.is_scalar(other): raise TypeError('Expected a Tensor or Number operand')
     number, kind = _promotion.scalar_info(input)
+    if kind.kind=='c':kind=_defaults.complex_dtype()
     return _tensor.Tensor(scalar_data(number, kind), _metadata_owned=True), other, False
 
 
@@ -221,7 +222,7 @@ def reciprocal(input, *, out=None):
 
 def reciprocal_values(source):
     """Fresh private output; caller owns the numerical error scope."""
-    if source.dtype.kind in 'biu': source = source.astype(np.float32)
+    if source.dtype.kind in 'biu': source = source.astype(_defaults._float_dtype)
     if source.dtype.kind != 'c': return np.asarray(np.reciprocal(source))
     data = np.asarray(np.divide(np.ones((), dtype=source.dtype), source))
     zero = (source.real == 0) & (source.imag == 0)

@@ -6,7 +6,7 @@ from reprlib import recursive_repr
 
 import numpy as np
 
-from . import _tensor
+from . import _defaults, _tensor
 from ._module_conversion import ModuleConversion
 from ._module_hooks import ModuleHooks
 
@@ -24,7 +24,7 @@ def _unsupported_method(name, *args, **kwargs):
 
 class Parameter(_tensor.Tensor):
     def __init__(self, data=None, requires_grad=True):
-        super().__init__(np.empty(0, dtype=np.float32) if data is None else _ops.wrap(data)._data,
+        super().__init__(np.empty(0, dtype=_defaults._float_dtype) if data is None else _ops.wrap(data)._data,
                          requires_grad=requires_grad)
 
     def __deepcopy__(self, memo):

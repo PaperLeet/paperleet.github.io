@@ -10,7 +10,6 @@ class Embedding(Module):
     def __init__(self,num_embeddings,embedding_dim,padding_idx=None,max_norm=None,norm_type=2.,
                  scale_grad_by_freq=False,sparse=False,_weight=None,_freeze=False,device=None,dtype=None):
         super().__init__()
-        dtype = _normalization.parameter_dtype(dtype,device)
         if any(not isinstance(n,numbers.Integral) or isinstance(n,(bool,np.bool_)) for n in (num_embeddings,embedding_dim)):
             raise TypeError('Embedding dimensions must be integers')
         if min(num_embeddings,embedding_dim)<0:raise RuntimeError('Negative embedding dimensions')
@@ -23,6 +22,7 @@ class Embedding(Module):
         self.padding_idx,self.max_norm,self.norm_type = padding_idx,max_norm,norm_type
         self.scale_grad_by_freq,self.sparse = scale_grad_by_freq,sparse
         if _weight is None:
+            dtype = _normalization.parameter_dtype(dtype,device)
             self.weight = Parameter(_tensor.Tensor(np.empty((num_embeddings,embedding_dim),dtype=dtype)),requires_grad=not _freeze)
             self.reset_parameters()
         else:
@@ -30,6 +30,7 @@ class Embedding(Module):
                 raise AssertionError('Embedding _weight shape must match its dimensions')
             if _weight.dtype not in (np.dtype('float32'),np.dtype('float64')):
                 raise _errors.BrowserUnsupported('Embedding weights require float32/float64')
+            _normalization.parameter_dtype(_weight.dtype,device)
             self.weight = Parameter(_weight,requires_grad=not _freeze)
 
     def reset_parameters(self):

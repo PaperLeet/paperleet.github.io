@@ -2,7 +2,7 @@
 import math
 import numpy as np
 
-from . import _errors, _tensor
+from . import _defaults, _errors, _tensor
 from ._optimizer import Optimizer, group_option, nonnegative, scalar
 
 
@@ -101,7 +101,7 @@ class Adam(Optimizer):
             for parameter in group['params']:
                 value = self.state.get(parameter)
                 if value and 'step' in value and not isinstance(value['step'], _tensor.Tensor):
-                    value['step'] = _tensor.Tensor(np.array(float(value['step']), dtype=np.float32))
+                    value['step'] = _tensor.Tensor(np.array(float(value['step']), dtype=_defaults.step_dtype()))
 
     def step(self, closure=None):
         loss = self._start_step(closure)
@@ -115,7 +115,7 @@ class Adam(Optimizer):
                     gradient = -gradient
                 state = self.state[parameter]
                 if not state:
-                    state.update(step=_tensor.Tensor(np.array(0., dtype=np.float32)),
+                    state.update(step=_tensor.Tensor(np.array(0., dtype=_defaults.step_dtype())),
                                  exp_avg=_tensor.Tensor(np.zeros_like(parameter._data)),
                                  exp_avg_sq=_tensor.Tensor(np.zeros_like(parameter._data)))
                     if group['amsgrad']:

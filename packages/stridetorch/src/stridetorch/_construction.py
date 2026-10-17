@@ -6,7 +6,7 @@ from itertools import chain
 
 import numpy as np
 
-from . import _conversion
+from . import _conversion, _defaults, _errors
 
 
 _BOOL = np.dtype('bool')
@@ -14,8 +14,33 @@ _LONG = np.dtype('int64')
 _FLOAT = np.dtype('float32')
 _COMPLEX = np.dtype('complex64')
 _DOUBLE_COMPLEX = np.dtype('complex128')
+_COMPLEX_HALF = object()  # Inference category only; never allocated or exported.
 _SCALARS = {bool: _BOOL, int: _LONG, float: _FLOAT, complex: _COMPLEX}
 _SCALARS.update({np.dtype(char).type: np.dtype(char) for char in '?bBhHiIlLqQefdFD'})
+
+
+def _scalar_dtype(kind):
+    if kind is float:return _defaults._float_dtype
+    if kind is complex:return _COMPLEX_HALF if _defaults._float_dtype==_defaults._HALF else _defaults.complex_dtype()
+    return _SCALARS.get(kind)
+
+
+def _promote_inferred(left, right):
+    if left is not _COMPLEX_HALF and right is not _COMPLEX_HALF:
+        return promote_types(left,right)
+    other=right if left is _COMPLEX_HALF else left
+    if other is _COMPLEX_HALF:return other
+    if other.kind=='u' and other.itemsize>1:
+        raise RuntimeError('Promotion of uint16, uint32 and uint64 with other dtypes is unsupported')
+    if other==np.dtype('float64') or other==_DOUBLE_COMPLEX:return _DOUBLE_COMPLEX
+    if other==np.dtype('float32') or other==_COMPLEX:return _COMPLEX
+    return _COMPLEX_HALF
+
+
+def _storage_dtype(dtype):
+    if dtype is _COMPLEX_HALF:
+        raise _errors.BrowserUnsupported('Inferred complex32 storage is unsupported by NumPy')
+    return dtype
 
 
 def promote_types(type1, type2):
@@ -58,7 +83,7 @@ def _shape(data):
 
 
 def _infer(data, active):
-    result = _SCALARS.get(type(data))
+    result = _scalar_dtype(type(data))
     if result is not None:
         return result
     if isinstance(data, (np.ndarray, np.generic)):
@@ -66,7 +91,7 @@ def _infer(data, active):
     if isinstance(data, _tensor.Tensor):
         return data.dtype
     if isinstance(data, (float, int, complex)):
-        return _FLOAT if isinstance(data, float) else _LONG if isinstance(data, int) else _COMPLEX
+        return _defaults._float_dtype if isinstance(data, float) else _LONG if isinstance(data, int) else _scalar_dtype(complex)
     if isinstance(data, (str, bytes)):
         raise TypeError('Strings cannot be tensor data')
     if not _sequence(data):
@@ -76,7 +101,7 @@ def _infer(data, active):
     active.add(id(data))
     try:
         if not len(data):
-            return _FLOAT
+            return _defaults._float_dtype
         result, previous_type, previous_dtype = None, None, None
         for value in data:
             kind = type(value)
@@ -85,12 +110,12 @@ def _infer(data, active):
             if kind is previous_type:
                 current = previous_dtype
             else:
-                current = _SCALARS.get(kind)
+                current = _scalar_dtype(kind)
                 if current is not None:
                     previous_type, previous_dtype = kind, current
                 else:
                     current = _infer(value, active)
-            result = current if result is None else result if result == current else promote_types(result, current)
+            result = current if result is None else result if result == current else _promote_inferred(result, current)
             # Native construction stops inference at this maximal dtype. Storage
             # conversion still checks every later element in _store below.
             if result == _DOUBLE_COMPLEX:
@@ -158,15 +183,16 @@ def _flat(data, dtype):
     if not types or not types <= _SCALARS.keys():
         return None
     if dtype is None:
-        dtypes = {_SCALARS[kind] for kind in types}
-        if len(dtypes) > 1 and any(value.kind == 'u' and value.itemsize > 1 for value in dtypes):
+        dtypes = {_scalar_dtype(kind) for kind in types}
+        if len(dtypes) > 1 and any(value is not _COMPLEX_HALF and value.kind == 'u' and value.itemsize > 1 for value in dtypes):
             # Wider unsigned promotion can be order-dependent after a floating
             # or maximal-complex element. Keep the ordered inference path.
             return None
         dtype = next(iter(dtypes))
         for other in dtypes:
             if dtype != other:
-                dtype = promote_types(dtype, other)
+                dtype = _promote_inferred(dtype, other)
+    dtype = _storage_dtype(dtype)
     kind = dtype.kind
     if kind in 'fc':
         if kind == 'f' and complex in types:
@@ -221,7 +247,7 @@ def array(data, dtype=None):
     shape = _shape(data)
     inferred = dtype is None
     if inferred:
-        dtype = _infer(data, set())
+        dtype = _storage_dtype(_infer(data, set()))
     # Inferred ordinary numeric inputs already have a common valid dtype.
     # Integer/explicit/maximal-complex storage needs scalar protocol/range checks;
     # those are different from an ndarray-to-ndarray cast.
