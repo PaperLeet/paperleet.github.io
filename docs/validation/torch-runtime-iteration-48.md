@@ -167,3 +167,7 @@ public benchmark. Prototypes and initial test-oracle failures are excluded from
 formal claims and retained as exploratory evidence.
 
 No tag, workflow dispatch, release, PyPI upload or deployment is initiated by this work.
+
+## Main adoption
+
+Validated source `7cc2485d3656a8b53b0515a6e7fbb2f1c4b43ee8` was adopted on remote main by ordinary non-force push. The remote SHA was verified exactly; zero Actions runs were observed for this source SHA. All 53 source/license resources, 161 active export identities, 10,703 immutable payloads and seven canonical release-policy files were rechecked. The separate proof commit is verified outside the repository after its push. No tag,dispatch,release,PyPI upload or online deployment was initiated by this work.
