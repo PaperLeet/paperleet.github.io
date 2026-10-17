@@ -438,43 +438,6 @@ def full_like(input, fill_value, *, dtype=None, device=None, requires_grad=False
     return _tensor.Tensor(np.full_like(input._data,fill_value,dtype=input.dtype if dtype is None else dtype),requires_grad=requires_grad)
 
 
-def cdist(x1, x2, p=2., compute_mode='use_mm_for_euclid_dist_if_necessary'):
-    if p not in (1, 2) or compute_mode not in ('use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist'):
-        raise _errors.BrowserUnsupported('Only L1 and Euclidean cdist are supported')
-    if x1.ndim < 2 or x2.ndim < 2 or x1.shape[-1] != x2.shape[-1] or x1.dtype != x2.dtype:
-        raise RuntimeError('cdist expects matching floating feature dimensions and dtypes')
-    if x1.dtype not in (np.dtype('float32'), np.dtype('float64')):
-        raise _errors.BrowserUnsupported('cdist requires float32/float64')
-    batch = np.broadcast_shapes(x1.shape[:-2], x2.shape[:-2])
-    size = int(np.prod(batch)) * x1.shape[-2] * x2.shape[-2] * max(1, x1.shape[-1])
-    if size > 16_000_000: raise _errors.BrowserUnsupported('Large pairwise distances require the server')
-    # Direct differences avoid the cancellation of ||a||²+||b||²-2a·b near ties.
-    difference = x1._data[..., :, None, :] - x2._data[..., None, :, :]
-    lengths = np.abs(difference).sum(axis=-1) if p == 1 else np.linalg.norm(difference, axis=-1)
-    def direction(g):
-        # Native L1 chooses zero at equal coordinates and propagates NaN signs.
-        unit = np.sign(difference) if p == 1 else np.divide(difference, lengths[..., None], out=np.zeros_like(difference), where=lengths[..., None] != 0)
-        return g[..., None] * unit
-    return _autograd.result(lengths, (x1, lambda g: unbroadcast(direction(g).sum(axis=-2), x1.shape)),
-                  (x2, lambda g: unbroadcast(-direction(g).sum(axis=-3), x2.shape)))
-
-
-def pdist(x, p=2):
-    if p != 2 or x.ndim != 2: raise _errors.BrowserUnsupported('Only 2D Euclidean pdist is supported')
-    i,j = np.triu_indices(x.shape[0],k=1)
-    source = x._data
-    difference = source[i] - source[j]
-    lengths = np.linalg.norm(difference,axis=1)
-    def vjp(g):
-        if x.dtype != lengths.dtype:
-            raise RuntimeError('pdist backward input and gradient dtypes must match')
-        grad = np.zeros_like(source)
-        direction = np.divide(difference,lengths[:,None],out=np.zeros_like(difference),where=lengths[:,None]!=0)
-        np.add.at(grad,i,g[:,None]*direction);np.add.at(grad,j,-g[:,None]*direction)
-        return grad
-    return _autograd.result(lengths,(x,vjp))
-
-
 def meshgrid(*tensors, indexing=None):
     if len(tensors) == 1 and isinstance(tensors[0], (list, tuple)): tensors = tuple(tensors[0])
     if not tensors or indexing not in (None, 'ij', 'xy'): raise RuntimeError('Invalid meshgrid inputs/indexing')
@@ -578,3 +541,5 @@ def squeeze(input,dim=_layout.UNSPECIFIED_DIM):
 
 
 from ._sequences import arange, linspace, logspace
+
+from ._distance import cdist, pdist

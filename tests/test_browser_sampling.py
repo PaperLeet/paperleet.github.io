@@ -78,7 +78,7 @@ def test_cdist_shared_inputs_ties_strides_zero_gradients_and_modes(dtype, p):
     saved = wasm.cdist(x, x, p=p).sum()
     with wasm.no_grad(): x.detach().fill_(1.)
     with pytest.raises(wasm.BrowserUnsupported): saved.backward()
-    with pytest.raises(wasm.BrowserUnsupported): wasm.cdist(x, x, p=3)
+    np.testing.assert_array_equal(wasm.cdist(x, x, p=3).numpy(), np.zeros((3,3),dtype=dtype))
     with pytest.raises(wasm.BrowserUnsupported): wasm.cdist(x, x, compute_mode='unknown')
     with pytest.raises(RuntimeError): wasm.cdist(x, wasm.Tensor(np.zeros((2, 4), dtype=dtype)))
     # Bound memory before constructing the broadcast pairwise allocation.
@@ -144,13 +144,13 @@ def test_l1_cdist_strided_nonfinite_and_overflow_native_parity(dtype, nonfinite)
         np.testing.assert_allclose(a.numpy(), b.numpy(), rtol=3e-6, atol=1e-6, equal_nan=True)
 
 
-def test_l1_cdist_no_grad_and_unsupported_orders_and_forward_mode():
+def test_l1_cdist_no_grad_invalid_orders_and_forward_mode():
     x = wasm.Tensor([[0., 1.], [2., -1.]], dtype=np.float64, requires_grad=True)
     y = wasm.Tensor([[1., 0.]], dtype=np.float64, requires_grad=True)
     with wasm.no_grad():
         assert not wasm.cdist(x, y, p=1).requires_grad
-    for p in (0, .5, 3, np.inf, np.nan):
-        with pytest.raises(wasm.BrowserUnsupported): wasm.cdist(x, y, p=p)
+    for p in (-1, -np.inf, np.nan):
+        with pytest.raises(RuntimeError): wasm.cdist(x, y, p=p)
     with pytest.raises(wasm.BrowserUnsupported):
         wasm.jvp(lambda a: wasm.cdist(a, y, p=1), (x,), (wasm.Tensor(np.ones(x.shape)),))
 

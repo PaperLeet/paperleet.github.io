@@ -153,6 +153,7 @@ def create_torch(name='torch', *, register=False):
         'scatter': lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce),
         'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
     }, reverse='analytic')
+    registry.add('torch.nn.functional.pdist', _ops.pdist, reverse='analytic')
     registry.add('torch.nan_to_num', _ops.nan_to_num, reverse='analytic', unsupported_keywords=('out',))
     def outer(input, other):
         if input.ndim != 1 or other.ndim != 1: raise RuntimeError('outer expects vectors')

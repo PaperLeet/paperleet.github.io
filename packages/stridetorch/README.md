@@ -559,6 +559,37 @@ Inferred complex32 storage is unavailable in NumPy and fails explicitly. Explici
 float32/64 or complex64/128 operands can still absorb a complex wrapped scalar;
 native `full` uses complex64 for complex fills with a float16 default.
 
+### Direct pairwise distances (0.58)
+
+`torch.cdist`, `torch.pdist` and `torch.nn.functional.pdist` support nonnegative
+Minkowski orders, including zero, fractional orders and infinity, for float32/64.
+Cdist broadcasts batch dimensions; pdist returns the condensed upper triangle.
+Analytical first-order pullbacks share pair-direction work and accumulate
+broadcast contributions without allocating expanded input gradients. Equal
+coordinates and infinity-norm ties follow the native CPU subgradient conventions.
+Other forward/higher derivative modes remain explicitly unsupported.
+
+Large problems use bounded point/batch/feature tiles instead of retaining a
+point-pair-by-feature difference tensor. Small problems bypass tile scheduling
+when the same workspace bound proves a direct calculation fits. Saved state
+contains required input arrays, output distances and metadata; non-leaf Tensor
+objects can be collected, and saved arrays are released with the graph.
+Original-input and saved-distance version guards remain active. No result or
+cross-backward gradient cache is introduced.
+
+The private workspace planner budgets 8 MiB for work arrays; this excludes input,
+output, requested gradients and general runtime overhead and is not a process
+RSS limit. Outputs are capped at 16 million elements and pair-feature work at
+512 million. This permits feature-heavy workloads rejected by the former full
+pair-feature allocation limit, while oversized requests fail before allocation.
+
+Cdist validates all three native compute-mode names and preserves the library's
+stable direct-difference numerical policy. It does not implement the native
+matrix-multiplication rounding path or its AD dispatch. Half/complex kernels,
+output buffers and GPU execution are outside this contract. Long fractional
+norm gradients can be sensitive to reduction order; per-element native checks
+and separately labeled scalar FP64 qualifications are recorded independently.
+
 ### Bounded integer ranges (0.57)
 
 `arange` avoids repeated generic scalar parsing for ordinary Python integer
