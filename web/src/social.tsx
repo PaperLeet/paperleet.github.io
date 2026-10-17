@@ -78,7 +78,7 @@ export type AccountCapabilities = {
   email_login_available?: boolean;
   affiliation_verification_available?: boolean;
   email_waitlist_available?: boolean;
-  email_login_policy?: "education_and_approved_domains";
+  email_login_policy?: "education_and_approved_domains" | "any_email";
   session_idle_days?: number;
   institution_verification_required: boolean;
   institutions: (Institution & { domains: string[] })[];

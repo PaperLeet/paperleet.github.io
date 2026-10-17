@@ -81,6 +81,8 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
   providers: NonNullable<AccountCapabilities["oauth_providers"]>; returnTo?: string; loginError?: string; emailLoginAvailable?: boolean;
 }) {
   const { t } = useI18n();
+  const { capabilities } = useAccount();
+  const anyEmail = capabilities?.email_login_policy === "any_email";
   const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
   const failures: Record<string, string> = {
     identity: t("未能完成身份验证，请重新选择账号。若此邮箱曾使用其他登录方式注册，请使用原来的登录方式。", "We could not verify this sign-in. Choose an account again. If this email was registered with another sign-in method, use the original method."),
@@ -115,18 +117,18 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
           </button>;
         })}
       </div>
-      <p className="social-description">{t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用。邮箱验证码登录仍限学校／已审核企业邮箱。", "School, company and personal Google/Microsoft accounts can register and get access immediately. Email code sign-in remains limited to school and reviewed company email addresses.")}</p>
+      <p className="social-description">{anyEmail ? emailLoginAvailable === true ? t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用，也可使用个人邮箱接收验证码登录。", "School, company and personal Google/Microsoft accounts can register and get access immediately. You can also sign in with a code sent to your personal email.") : t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用。", "School, company and personal Google/Microsoft accounts can register and get access immediately.") : t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用。邮箱验证码登录仍限学校／已审核企业邮箱。", "School, company and personal Google/Microsoft accounts can register and get access immediately. Email code sign-in remains limited to school and reviewed company email addresses.")}</p>
     </section>
     <aside className="social-panel login-card">
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
       <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号自动认证邮箱归属。个人 Gmail、Outlook 等账号可在账号设置中补充学校／企业邮箱认证；未认证也可登录练习和浏览。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts automatically verify their affiliation. Personal Gmail, Outlook and similar accounts can verify a school/company email in account settings; verification is optional for practice and browsing. Some organizations require administrator approval.")}</p>
       <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。已认证的学校或公司名称会公开展示，完整邮箱保持私密。邮箱归属认证不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Verified school/company names are public; full email addresses stay private. Mailbox affiliation is not an endorsement by a school or employer.")}</p>
-      {emailLoginAvailable === true && <p className="social-description">{t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
+      {emailLoginAvailable === true && <p className="social-description">{anyEmail ? t("下方验证码入口支持 Gmail、QQ、Outlook 等个人邮箱。个人邮箱登录不认证学校或企业归属；发帖和回复前，请在账号设置另行认证学校／企业邮箱。", "The email-code option below supports personal addresses such as Gmail, QQ and Outlook. Personal email sign-in does not verify an affiliation; verify a school/company email in account settings before posting or replying.") : t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
       <p className="account-fineprint">{t("登录后会自动保持登录；连续 90 天未使用、主动退出或账号权限被撤销时，需要重新登录。请勿在公共电脑上保留登录。", "Sign-in is renewed while you use PaperLeet. After 90 days of inactivity, signing out, or access revocation, you must sign in again. Sign out on shared computers.")}</p>
     </aside>
   </div>
     {emailLoginAvailable === true && <details className="email-login-alternative">
-      <summary>{t("使用学校／已审核公司邮箱验证码登录", "Use a school / reviewed company email code")}</summary>
+      <summary>{anyEmail ? t("使用邮箱验证码登录", "Sign in with an email code") : t("使用学校／已审核公司邮箱验证码登录", "Use a school / reviewed company email code")}</summary>
       <SignIn enabled={emailLoginAvailable === true} workEmailRegistration onChooseProvider={provider => void signIn(provider)} providers={providers} />
     </details>}
   </>;
@@ -291,6 +293,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
 }) {
   const { t, locale } = useI18n();
   const { setUser, capabilities } = useAccount();
+  const anyEmail = capabilities?.email_login_policy === "any_email";
   const [email, setEmail] = useState(""),
     [code, setCode] = useState(""),
     [sent, setSent] = useState(false);
@@ -316,9 +319,11 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
   const institution = capabilities?.institutions?.find((i) =>
     i.domains.includes(domain),
   );
-  const eligible = Boolean(domain && (domain.endsWith(".edu.cn") || domain.endsWith(".edu") || institution));
+  const validEmail = email.trim().length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const eligible = validEmail && (anyEmail || Boolean(domain && (domain.endsWith(".edu.cn") || domain.endsWith(".edu") || institution)));
   async function sendCode(confirmed = preferEmail) {
     if (!enabled || busy || remaining > 0) return;
+    if (!validEmail) { setError(t("请输入有效的邮箱地址。", "Enter a valid email address.")); return; }
     if (!eligible) { setError(t("早期仅支持 edu.cn、.edu 学校邮箱和已审核的学校／公司域名。请使用 Google／Microsoft，或在下方申请域名审核。", "Email codes currently support edu.cn, .edu and reviewed school/company domains. Use Google/Microsoft or request domain review below.")); return; }
     if (domain?.endsWith(".edu") && !confirmed) { setRecommend(true); return; }
     setBusy(true);
@@ -335,8 +340,8 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
       setSent(true);
       setMessage(
         t(
-          "验证码已发送，请检查学校或公司邮箱。",
-          "A verification code has been sent to your school or company email.",
+          "验证码已发送，请检查你的邮箱。",
+          "A verification code has been sent to your email.",
         ),
       );
     } catch (e) {
@@ -352,6 +357,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
     }
   }
   async function verify() {
+    if (!enabled || busy || !sent) return;
     setBusy(true);
     setError("");
     try {
@@ -372,12 +378,12 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
       <section className="social-panel login-card">
         <h1>{t("加入研究者社区", "Join the community")}</h1>
         <p className="social-description">
-          {t(
+          {anyEmail ? t("使用邮箱验证码注册／登录 PaperLeet，个人邮箱也可使用。", "Register or sign in to PaperLeet with an email code. Personal email addresses are welcome.") : t(
             "使用学校邮箱或已审核的公司邮箱接收验证码，注册／登录 PaperLeet。",
             "Register or sign in to PaperLeet with a school or reviewed company email code.",
           )}
         </p>
-        {capabilities?.invite_only && (
+        {!anyEmail && capabilities?.invite_only && (
           <SocialNotice>
             {t(
               "当前为邀请制内测。机构邮箱验证和管理员邀请均通过后才能登录；需要加入时请联系维护者。",
@@ -385,7 +391,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
             )}
           </SocialNotice>
         )}
-        {workEmailRegistration && (
+        {anyEmail ? <SocialNotice>{t("无需邀请码。登录后可练习和浏览；个人邮箱登录不代表机构认证。发帖和回复前，请在账号设置另行认证学校／企业邮箱。", "No invitation needed. Sign in to practice and browse. Personal email sign-in does not verify an affiliation; verify a school/company email in account settings before posting or replying.")}</SocialNotice> : workEmailRegistration && (
           <SocialNotice>
             {t("无需邀请码：edu.cn 学校邮箱可直接发送；.edu 优先使用 Google／Microsoft，也可继续收取验证码。其他学校和公司邮箱需审核域名。Gmail、QQ、Outlook 等个人邮箱不支持验证码。", "No invitation needed: send directly to edu.cn school addresses. For .edu, try Google/Microsoft first, or continue with a code. Other school and company domains require review. Personal services such as Gmail, QQ and Outlook cannot use email codes.")}
           </SocialNotice>
@@ -411,7 +417,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           }}
         >
           <label>
-            {t("学校／公司邮箱", "School / company email")}
+            {anyEmail ? t("登录邮箱", "Sign-in email") : t("学校／公司邮箱", "School / company email")}
             <input
               type="email"
               autoComplete="email"
@@ -419,7 +425,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
               maxLength={254}
               value={email}
               disabled={busy || sent || !enabled}
-              placeholder="you@university.edu.cn"
+              placeholder={anyEmail ? "you@example.com" : "you@university.edu.cn"}
               onChange={(e) => { setEmail(e.target.value); setPreferEmail(false); setChallenge(""); }}
             />
           </label>
@@ -497,7 +503,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           </div>
         </dialog>
         <p className="account-fineprint">
-          {workEmailRegistration ? t(
+          {anyEmail ? t("验证码 10 分钟有效，只能使用一次。已有 Google／Microsoft 账户请继续使用原方式登录，暂不自动合并不同登录方式。昵称和头像会公开，完整邮箱保持私密。", "Codes expire in 10 minutes and work once. If you already use Google/Microsoft, continue with that method; sign-in identities are not automatically merged. Your display name and avatar are public; your full email stays private.") : workEmailRegistration ? t(
             "验证码 10 分钟有效，只能使用一次。已有 Google／Microsoft 账户请继续使用原方式登录，暂不自动合并不同登录方式。昵称、头像和所属学校或公司名称会公开，完整邮箱保持私密。",
             "Codes expire in 10 minutes and work once. If you already use Google/Microsoft, continue with that method; sign-in identities are not automatically merged. Your display name, avatar and school or company name are public; your full email stays private.",
           ) : t(
@@ -511,18 +517,18 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           <ShieldCheck size={27} className="accent-icon" />
           <h3>{t("学校／公司邮箱验证", "School / company email verification")}</h3>
           <p>
-            {t(
+            {anyEmail ? t("登录邮箱与机构认证分开。你可以先用个人邮箱登录，之后在账号设置认证学校／企业邮箱，获得发帖和回复权限；已认证的机构无需重复验证。机构名称会公开，完整邮箱保持私密。", "Sign-in email and affiliation verification are separate. Sign in with a personal email, then verify a school/company email in account settings to publish posts and replies. Existing verified affiliations do not need verification again. Affiliation names are public; full email addresses stay private.") : t(
               "验证说明你拥有这个机构邮箱，不代表在读或在职身份认证。学校或公司名称会公开，完整邮箱不会出现在公开主页。",
               "Verification confirms access to an institutional mailbox. It does not certify current student or employment status. Your school or company name is public; your full email address is never shown on your public profile.",
             )}
           </p>
         </div>
-        <InstitutionRequest openRegistration={workEmailRegistration} />
+        {!anyEmail && <InstitutionRequest openRegistration={workEmailRegistration} />}
       </aside>
     </div>
   );
 }
-function InstitutionRequest({ openRegistration }: { openRegistration: boolean }) {
+function InstitutionRequest({ openRegistration, forAffiliation = false }: { openRegistration: boolean; forAffiliation?: boolean }) {
   const { t } = useI18n();
   const [name, setName] = useState(""),
     [website, setWebsite] = useState(""),
@@ -553,7 +559,7 @@ function InstitutionRequest({ openRegistration }: { openRegistration: boolean })
         <ChevronDown size={15} />
       </summary>
       <p>
-        {openRegistration ? t(
+        {forAffiliation ? t("其他学校和公司邮箱可在此申请域名审核，以便完成机构认证；此审核不影响使用现有账号登录。", "Request review of another school/company domain for affiliation verification. This review does not affect sign-in to your existing account.") : openRegistration ? t(
           "edu.cn 和 .edu 学校邮箱可按提示登录。其他学校和公司邮箱请先提交域名审核；审核通过后才能发送验证码。",
           "Follow the sign-in prompts for edu.cn and .edu schools. Other school and company domains must be reviewed before they can receive codes.",
         ) : t(
@@ -799,8 +805,8 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             <h3>{t("公开资料", "Public visibility")}</h3>
             <p>
               {t(
-                "昵称、头像和注册邮箱归属始终公开。帖子、回复、点赞、转发和关注关系会展示在你的主页。完整邮箱仅本人可见。",
-                "Your display name, avatar, and registration affiliation are public. Posts, replies, likes, reposts, and follow connections appear on your profile. Your full email stays private.",
+                "昵称、头像和已认证的学校／企业归属会公开。帖子、回复、点赞、转发和关注关系会展示在你的主页。完整邮箱仅本人可见。",
+                "Your display name, avatar, and verified school/company affiliation are public. Posts, replies, likes, reposts, and follow connections appear on your profile. Your full email stays private.",
               )}
             </p>
           </div>
@@ -882,7 +888,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
               </>
             ) : (
               <>
-                <h3>{user.email_verified === true ? t("邮箱已验证", "Email verified") : t("邮箱尚未验证", "Email not verified")}</h3>
+                <h3>{user.email_verified === true ? t("登录邮箱已验证", "Sign-in email verified") : t("登录邮箱尚未验证", "Sign-in email not verified")}</h3>
                 <p className="private-email">{user.email}</p>
                 <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
                 <p>
@@ -908,7 +914,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             <p className="account-fineprint">{t("活跃使用自动保持登录；连续 90 天未使用需重新登录。退出会立即撤销服务器上的登录凭据。", "Active use keeps you signed in. Sign in again after 90 days of inactivity. Signing out immediately revokes the server session.")}</p>
           </section>
           {!user.is_test_user && <AffiliationVerification user={user} />}
-          {!user.is_test_user && !user.affiliation && <InstitutionRequest openRegistration />}
+          {!user.is_test_user && !user.affiliation && <InstitutionRequest openRegistration forAffiliation />}
           <section className="social-panel">
             <h3>{t("公开预览", "Public preview")}</h3>
             <div className="profile-preview">
