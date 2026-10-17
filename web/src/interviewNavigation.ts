@@ -1,8 +1,8 @@
 export const MAX_INTERVIEW_PAGE=5000;
 export type InterviewStudyState='all'|'todo'|'started'|'done';
 export type InterviewCompanyOrder='catalog'|'contributors'|'reports'|'name';
-export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string;company_order:InterviewCompanyOrder};
-export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog'});
+export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string;company_order:InterviewCompanyOrder;outcome:string};
+export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog',outcome:''});
 export function readInterviewRoute(route:string):InterviewFilters|undefined {
   if(route.length>8192)return;
   const value=route.replace(/^#\/?/,'');const [path,search='']=value.split('?');
@@ -10,12 +10,13 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
   try{decodeURIComponent(search.replaceAll('+','%20'));}catch{return;}
   const params=new URLSearchParams(search),filters=emptyInterviewFilters();
   for(const [key,value] of params){
-    if(params.getAll(key).length!==1||!['company','role','stage','q','days','sort','page','view','track','saved','concept','study','queue','company_order'].includes(key))return;
+    if(params.getAll(key).length!==1||!['company','role','stage','q','days','sort','page','view','track','saved','concept','study','queue','company_order','outcome'].includes(key))return;
     if(key==='saved'){if(!['0','1'].includes(value))return;filters.saved=value==='1';}
     else if(key==='concept'){if(!/^[a-z0-9_-]{1,80}\/[a-z0-9_-]{1,80}$/.test(value))return;filters.concept=value;}
     // Keep the routing list aligned with the catalog without importing its deferred metadata here.
     else if(key==='track'){if(!['training-generation','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation','world-models','representation-shape','policy-distillation','visual-quantization','feedback-distillation','advanced-architecture','off-policy-passk','generation-targets','low-rank-quantization','block-generation','inverse-diffusion'].includes(value))return;filters.track=value;}
     else if(key==='study'){if(!['all','todo','started','done'].includes(value))return;filters.study=value as InterviewStudyState;}
+    else if(key==='outcome'){if(!['unknown','pending','offer','rejected','withdrew'].includes(value))return;filters.outcome=value;}
     else if(key==='company_order'){if(!['catalog','contributors','reports','name'].includes(value))return;filters.company_order=value as InterviewCompanyOrder;}
     else if(key==='queue'){if(!/^[1-9]\d{0,4}(?:,[1-9]\d{0,4}){0,79}$/.test(value)||new Set(value.split(',')).size!==value.split(',').length)return;filters.queue=value;}
     else if(key==='page'){if(!/^[1-9]\d{0,3}$/.test(value)||Number(value)>MAX_INTERVIEW_PAGE)return;filters.page=Number(value);}

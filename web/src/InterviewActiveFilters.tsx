@@ -9,6 +9,7 @@ export default function InterviewActiveFilters({filters,problems,onChange}:{filt
  const {t,locale}=useI18n(),en=locale==='en';
  const chips:{key:string;label:string;change:Partial<InterviewFilters>}[]=[];
  for(const key of ['company','role','stage'] as const)if(filters[key])chips.push({key,label:interviewLabel(({company:'companies',role:'roles',stage:'stages'} as const)[key],filters[key],en),change:{[key]:''}});
+ if(filters.outcome)chips.push({key:'outcome',label:t(`结果：${interviewLabel('outcomes',filters.outcome,false)}`,`Outcome: ${interviewLabel('outcomes',filters.outcome,true)}`),change:{outcome:''}});
  if(filters.q)chips.push({key:'q',label:`“${filters.q}”`,change:{q:''}});
  if(filters.days!=='365')chips.push({key:'days',label:filters.days==='all'?t('全部时间','All time'):t(`近 ${filters.days} 天`,`Past ${filters.days} days`),change:{days:'365'}});
  if(filters.concept){const problem=problems.find(problem=>problem.id===filters.concept);chips.push({key:'concept',label:problem?(en?problem.translations?.en?.title||problem.title:problem.title):filters.concept,change:{concept:''}});}

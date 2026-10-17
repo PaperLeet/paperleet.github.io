@@ -48,6 +48,8 @@ assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Se
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Jump to experience page')), 'Interview page-jump controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Jump to list page')), 'Community page-jump controls must remain deferred');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Company directory order')), 'Company directory controls must remain deferred');
+assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('Interview outcome')), 'Interview outcome controls must remain deferred');
+assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Interview outcome')), 'Deferred interviews must include outcome filtering');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Company directory order')), 'Deferred interviews must include company-directory ordering');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.interview-company-directory')), 'Company-directory styles must remain deferred');
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.interview-company-directory'))), 'Deferred interviews must include company-directory styles');
