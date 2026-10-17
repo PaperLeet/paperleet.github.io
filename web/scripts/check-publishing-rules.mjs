@@ -22,6 +22,8 @@ try {
   assert(!canPublishCommunity({...legacyInstitution,email_verified:undefined}));
   assert(!canPublishCommunity({...legacyInstitution,institution_verified:false}));
   assert(!canPublishCommunity(null));
+  assert(canPublishCommunity({id:'personal',status:'active',affiliation:null},{community_open_publishing:true}), 'Current services allow active accounts without an affiliation badge');
+  assert(!canPublishCommunity({id:'personal',can_publish_community:false},{community_open_publishing:true}), 'An explicit account denial remains authoritative');
   assert(canPublishCommunity({id:'dev',is_test_user:true},{auth_mode:'test'}));
   assert(!canPublishCommunity({id:'dev',is_test_user:true,can_publish_community:true},{auth_mode:'oauth'}), 'Test markers only bypass verification in explicit test mode');
   assert(!canPublishCommunity({id:'dev',is_test_user:true,can_publish_community:false},{auth_mode:'test'}));

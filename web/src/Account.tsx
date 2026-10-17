@@ -123,7 +123,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
       <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
       <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号自动认证邮箱归属。个人 Gmail、Outlook 等账号可在账号设置中补充学校／企业邮箱认证；未认证也可登录练习和浏览。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts automatically verify their affiliation. Personal Gmail, Outlook and similar accounts can verify a school/company email in account settings; verification is optional for practice and browsing. Some organizations require administrator approval.")}</p>
       <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。已认证的学校或公司名称会公开展示，完整邮箱保持私密。邮箱归属认证不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Verified school/company names are public; full email addresses stay private. Mailbox affiliation is not an endorsement by a school or employer.")}</p>
-      {emailLoginAvailable === true && <p className="social-description">{anyEmail ? t("下方验证码入口支持 Gmail、QQ、Outlook 等个人邮箱。个人邮箱登录不认证学校或企业归属；发帖和回复前，请在账号设置另行认证学校／企业邮箱。", "The email-code option below supports personal addresses such as Gmail, QQ and Outlook. Personal email sign-in does not verify an affiliation; verify a school/company email in account settings before posting or replying.") : t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
+      {emailLoginAvailable === true && <p className="social-description">{anyEmail ? t("下方验证码入口支持 Gmail、QQ、Outlook 等个人邮箱。登录后即可发帖和回复；学校／企业归属认证为选填。", "The email-code option below supports personal addresses such as Gmail, QQ and Outlook. Signed-in accounts can post and reply. School/company affiliation verification is optional.") : t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
       <p className="account-fineprint">{t("登录后会自动保持登录；连续 90 天未使用、主动退出或账号权限被撤销时，需要重新登录。请勿在公共电脑上保留登录。", "Sign-in is renewed while you use PaperLeet. After 90 days of inactivity, signing out, or access revocation, you must sign in again. Sign out on shared computers.")}</p>
     </aside>
   </div>
@@ -391,7 +391,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
             )}
           </SocialNotice>
         )}
-        {anyEmail ? <SocialNotice>{t("无需邀请码。登录后可练习和浏览；个人邮箱登录不代表机构认证。发帖和回复前，请在账号设置另行认证学校／企业邮箱。", "No invitation needed. Sign in to practice and browse. Personal email sign-in does not verify an affiliation; verify a school/company email in account settings before posting or replying.")}</SocialNotice> : workEmailRegistration && (
+        {anyEmail ? <SocialNotice>{t("无需邀请码。登录后可练习、发帖和回复；个人邮箱登录不代表机构认证，学校／企业归属认证为选填。", "No invitation needed. Sign in to practice, post and reply. Personal email sign-in does not verify an affiliation; school/company verification is optional.")}</SocialNotice> : workEmailRegistration && (
           <SocialNotice>
             {t("无需邀请码：edu.cn 学校邮箱可直接发送；.edu 优先使用 Google／Microsoft，也可继续收取验证码。其他学校和公司邮箱需审核域名。Gmail、QQ、Outlook 等个人邮箱不支持验证码。", "No invitation needed: send directly to edu.cn school addresses. For .edu, try Google/Microsoft first, or continue with a code. Other school and company domains require review. Personal services such as Gmail, QQ and Outlook cannot use email codes.")}
           </SocialNotice>
@@ -517,7 +517,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           <ShieldCheck size={27} className="accent-icon" />
           <h3>{t("学校／公司邮箱验证", "School / company email verification")}</h3>
           <p>
-            {anyEmail ? t("登录邮箱与机构认证分开。你可以先用个人邮箱登录，之后在账号设置认证学校／企业邮箱，获得发帖和回复权限；已认证的机构无需重复验证。机构名称会公开，完整邮箱保持私密。", "Sign-in email and affiliation verification are separate. Sign in with a personal email, then verify a school/company email in account settings to publish posts and replies. Existing verified affiliations do not need verification again. Affiliation names are public; full email addresses stay private.") : t(
+            {anyEmail ? t("登录邮箱与机构认证分开。你可以用个人邮箱登录、发帖和回复，之后自愿在账号设置认证学校／企业邮箱；已认证的机构无需重复验证。机构名称会公开，完整邮箱保持私密。", "Sign-in email and affiliation verification are separate. Sign in with a personal email to post and reply. You may optionally verify a school/company email in account settings. Existing verified affiliations do not need verification again. Affiliation names are public; full email addresses stay private.") : t(
               "验证说明你拥有这个机构邮箱，不代表在读或在职身份认证。学校或公司名称会公开，完整邮箱不会出现在公开主页。",
               "Verification confirms access to an institutional mailbox. It does not certify current student or employment status. Your school or company name is public; your full email address is never shown on your public profile.",
             )}

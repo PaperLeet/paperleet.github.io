@@ -58,7 +58,7 @@ export default function AffiliationVerification({ user }: { user: AccountUser })
       <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
       {user.affiliation_email && <p className="private-email">{user.affiliation_email}</p>}
     </> : <>
-      <p>{t('选填：认证后显示学校／企业归属，并可发帖和回复。未认证也可登录练习和浏览。认证邮箱不会替换原来的登录账号。', 'Optional: verify your affiliation to display your school/company and publish posts and replies. You can practice and browse without verification. Your original sign-in account stays the same.')}</p>
+      <p>{t('选填：认证后可展示已验证的学校／企业归属。未认证也可登录、练习、发帖和回复。认证邮箱不会替换原来的登录账号。', 'Optional: verify your affiliation to display your verified school/company. You can sign in, practice, post and reply without affiliation verification. Your original sign-in account stays the same.')}</p>
       {capabilities?.affiliation_verification_available === true ? <form className="social-form" onSubmit={event => { event.preventDefault(); void (request ? verify() : send()); }}>
         <label>{t('学校／企业邮箱', 'School / company email')}<input type="email" required autoComplete="email" maxLength={254} value={request?.email ?? email} disabled={busy || Boolean(request)} onChange={event => setEmail(event.target.value)} /></label>
         <small>{t('支持 .edu、.edu.cn 和已审核的学校／企业域名。完整邮箱仅本人可见，机构名称会公开；邮箱认证仅证明邮箱归属。', 'Supports .edu, .edu.cn and reviewed school/company domains. Your full email stays private; your affiliation is public. Verification proves mailbox control only.')}</small>

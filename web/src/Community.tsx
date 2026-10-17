@@ -90,6 +90,7 @@ import PostEditor from './PostEditor';
 import ReplyEditor from './ReplyEditor';
 import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
+import PostReport from './PostReport';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
 import Pagination from './CommunityPagination';
@@ -561,8 +562,10 @@ type CommunityProps = {
   onCode?:()=>void;
   practiceCode?:SolutionCodeSource;
 };
+const ModerationQueue=deferredFeature(()=>import('./ModerationQueue'),['举报审核','report review']);
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
+  if(route==='community/moderation')return <ModerationQueue/>;
   return postId ? (
     <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} topics={scope.topics} catalogLoading={scope.catalogLoading} catalogError={scope.catalogError} reloadCatalog={scope.reloadCatalog}/>
   ) : (
@@ -1113,6 +1116,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
             <DiscussionReading body={post.body} postId={post.id} />
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
+              <PostReport postId={post.id} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
               <button
                 className={post.viewer.liked ? "active" : ""}
                 disabled={busy || loading}

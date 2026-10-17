@@ -13,6 +13,7 @@ export function PublishingRules({ action }: { action?: PublicationAction }) {
       : t('社区发布规则', 'Community publishing rules')}</summary>
     <p>{t('每个账号每天最多投稿 1 篇论文、发布 5 个帖子、回复 50 条。UTC 零点重置；删除内容不返还额度。做题代码提交单独计算。',
       'Each account can propose 1 paper, publish 5 posts, and send 50 replies per day. Limits reset at midnight UTC. Deletion does not restore quota. Code submissions have separate limits.')}</p>
+    <p>{t('登录账号即可发帖和回复，学校／企业认证为选填。发现违规内容可使用举报入口，交由管理员人工审核。', 'Signed-in accounts can post and reply; school/company verification is optional. Use Report to send problematic content for human review.')}</p>
     <p>{t('允许 AI 辅助，但发布前须由本人核对内容和引用。禁止无人值守的批量投稿、发帖、自动回复，以及使用多个账号绕过限制。',
       'AI assistance is allowed; review the content and sources yourself before publishing. Unattended bulk proposals, posts, automated replies, and using multiple accounts to bypass limits are prohibited.')}</p>
     <p>{t('论文投稿需经过人工评审后才会进入题库。请勿发布重复内容、广告或他人的私人信息。',

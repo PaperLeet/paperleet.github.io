@@ -1,0 +1,28 @@
+.moderation-page { max-width:1360px; margin:0 auto; padding:32px 28px 64px; }
+.moderation-heading { display:flex; justify-content:space-between; align-items:start; gap:24px; margin-bottom:24px; }
+.moderation-heading>div>span { display:flex; gap:7px; align-items:center; color:var(--accent); font-size:var(--type-small); }
+.moderation-heading h1 { margin:10px 0; font-size:clamp(1.6rem,2.5vw,2rem); }
+.moderation-heading p,.moderation-case p { color:var(--muted); font-size:var(--type-small); line-height:1.8; overflow-wrap:anywhere; }
+.moderation-filters { display:flex; flex-wrap:wrap; gap:14px; align-items:end; padding:18px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+.moderation-filters label { display:grid; gap:6px; font-size:var(--type-small); }
+.moderation-count { color:var(--muted); font-size:var(--type-small); }
+.moderation-layout { display:grid; grid-template-columns:minmax(240px,320px) minmax(0,1fr); gap:22px; align-items:start; }
+.moderation-list { display:grid; gap:10px; min-width:0; }
+.moderation-list>button { text-align:start; display:grid; gap:10px; padding:16px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; }
+.moderation-list>button[aria-pressed=true] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 5%,var(--surface)); }
+.moderation-report-count { display:flex; align-items:center; gap:6px; color:var(--accent); font-size:var(--type-small); }
+.moderation-list b { font-size:var(--type-body); line-height:1.6; overflow-wrap:anywhere; }
+.moderation-list small { color:var(--muted); font-size:var(--type-meta); line-height:1.6; }
+.moderation-case { min-width:0; padding:24px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
+.moderation-case>header,.moderation-report>header { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:10px; }
+.moderation-case h2 { font-size:var(--type-title); margin:0; }
+.moderation-case h3 { margin:24px 0 12px; font-size:var(--type-body); line-height:1.7; }
+.moderation-case form { display:grid; gap:14px; margin-top:20px; padding-top:14px; border-top:1px solid var(--line); }
+.moderation-report { padding:14px; margin:12px 0; border:1px solid var(--line); border-radius:8px; background:var(--surface2); font-size:var(--type-small); line-height:1.8; overflow-wrap:anywhere; }
+.moderation-report header { font-size:var(--type-meta); color:var(--muted); }
+.moderation-report-note { white-space:pre-wrap; }
+.moderation-report details>summary { cursor:pointer; padding:8px 0; color:var(--accent); }
+.moderation-page nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0; font-size:var(--type-small); }
+.moderation-case .moderation-consent { display:flex; align-items:start; gap:10px; }
+.moderation-consent input { margin-top:6px; flex:none; }
+@media(max-width:800px) { .moderation-layout { grid-template-columns:1fr; } .moderation-page { padding:24px 16px 48px; } .moderation-heading { flex-direction:column; } .moderation-case { padding:18px; } }

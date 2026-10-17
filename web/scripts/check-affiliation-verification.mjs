@@ -47,7 +47,7 @@ try {
   }
   async function submit() { await act(async () => container.querySelector('form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }))); }
   await act(async () => render());
-  assert.match(text(), /未认证也可登录练习和浏览/);
+  assert.match(text(), /未认证也可登录、练习、发帖和回复/);
   await input('input[type="email"]', 'Student@school.edu'); await submit();
   assert.deepEqual(requests[0], { path: 'account/affiliation/send-code', payload: { email: 'student@school.edu', expected_user_id: 'personal' } });
   assert.match(text(), /10 分钟/);

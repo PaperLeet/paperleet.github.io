@@ -1,0 +1,14 @@
+.post-report-trigger { display:inline-flex; align-items:center; gap:6px; min-height:40px; color:var(--muted); font:inherit; font-size:var(--type-small); background:none; border:0; cursor:pointer; }
+.post-report-trigger:hover { color:var(--accent); }
+.post-report-dialog { width:min(480px,calc(100vw - 32px)); max-height:calc(100dvh - 40px); box-sizing:border-box; overflow:auto; padding:24px; border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); box-shadow:0 18px 70px #0003; }
+.post-report-dialog::backdrop { background:#11182766; }
+.post-report-dialog header { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.post-report-dialog h2 { margin:0; font-size:var(--type-title); }
+.post-report-dialog p { font-size:var(--type-small); line-height:1.8; color:var(--muted); overflow-wrap:anywhere; }
+.post-report-dialog form { display:grid; gap:16px; }
+.post-report-dialog label,.moderation-case label { display:grid; gap:7px; font-size:var(--type-small); line-height:1.7; }
+.post-report-dialog :is(select,textarea),.moderation-page :is(select,textarea) { width:100%; min-width:0; box-sizing:border-box; padding:10px 12px; min-height:42px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); color:var(--text); font:var(--type-control)/1.7 var(--font-sans); }
+.post-report-dialog textarea,.moderation-case textarea { resize:vertical; }
+.post-report-dialog .report-confirmed { color:var(--green); }
+.post-report-dialog :is(button,select,textarea):focus-visible,.post-report-trigger:focus-visible,.moderation-page :is(button,a,select,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media(pointer:coarse) { .post-report-trigger,.post-report-dialog button,.moderation-page button { min-height:44px; } }

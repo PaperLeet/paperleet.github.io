@@ -61,7 +61,7 @@ try {
     await render({ locale, organization: true });
     assert.equal(container.querySelector('.email-login-alternative>summary').textContent, locale === 'en' ? 'Sign in with an email code' : '使用邮箱验证码登录');
     assert.equal(email().placeholder, 'you@example.com');
-    assert(container.textContent.includes(locale === 'en' ? 'before posting or replying' : '发帖和回复前'));
+    assert(container.textContent.includes(locale === 'en' ? 'verification is optional' : '认证为选填'));
     assert(!container.textContent.includes(locale === 'en' ? 'cannot use email codes' : '个人邮箱不支持验证码'));
     assert(!container.querySelector('.institution-request'), 'Domain review must not block ordinary sign-in');
   }
