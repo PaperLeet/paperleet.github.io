@@ -20,7 +20,7 @@ export default function InterviewReportCard({post,owner,canSave,returnTo,savedVi
  const href=communityPostHref(post.id,returnTo);
  return <article data-reading-post={post.id} data-reading-resumed={resumed||undefined} className="interview-report-card" aria-labelledby={titleId}>
   <div className="interview-report-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div>
-  <InterviewMeta details={post.interview} compact/>
+  <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>
   <a data-reading-link="title" id={titleId} className="interview-report-title" href={href}>{post.title}</a><InlinePostBody postId={post.id} body={post.body}/>
   <InterviewReportPractice key={post.id} questions={post.interview.questions} revealPractice={resumedPractice} problems={problems} returnTo={returnTo} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>
   <CommunityCardActions post={post} returnTo={returnTo}>

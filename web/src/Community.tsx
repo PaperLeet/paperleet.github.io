@@ -231,7 +231,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
               <Code2 size={13} />{topicTitle(post.problem, locale === "en")}
             </a>
           )}
-          {post.interview && <InterviewMeta details={post.interview} compact/>}
+          {post.interview && <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}
           <InlinePostBody postId={post.id} body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
@@ -1029,7 +1029,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
                 )}
               </div>
             </div>
-            {post.interview && <InterviewMeta details={post.interview} returnTo={postHref(id)} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
+            {post.interview && <InterviewMeta details={post.interview} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <DiscussionReading body={post.body} postId={post.id} />
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">

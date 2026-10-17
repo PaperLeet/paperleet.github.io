@@ -72,8 +72,11 @@
 .interview-report-title:hover { color:var(--accent); }
 .interview-report-card > p { margin:10px 0 18px; color:var(--muted); font-size:var(--type-body); line-height:1.85; overflow-wrap:anywhere; }
 .interview-meta-tags { display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
-.interview-meta-tags > :is(a,span) { display:inline-flex; align-items:center; gap:5px; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:var(--surface2); font-size:var(--type-meta); color:var(--muted); }
+.interview-meta-tags > :is(a,span) { display:inline-flex; align-items:center; gap:5px; max-width:100%; min-width:0; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:var(--surface2); font-size:var(--type-meta); color:var(--muted); overflow-wrap:anywhere; }
+.interview-meta-tags > :is(a,span) > :is(svg,.organization-logo) { flex-shrink:0; }
 .interview-meta-tags > a { min-height:40px; font-size:var(--type-small); color:var(--accent); border-color:color-mix(in srgb,var(--accent) 20%,var(--line)); }
+.interview-meta-tags > a:hover { background:color-mix(in srgb,var(--accent) 8%,var(--surface2)); text-decoration:underline; text-underline-offset:3px; }
+.interview-meta-tags > a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .interview-meta-tags > .interview-outcome[data-outcome="offer"] { color:var(--green); }
 .interview-empty { display:flex; align-items:center; flex-direction:column; text-align:center; padding:44px 24px; margin-block:14px; border:1px dashed var(--line); border-radius:12px; background:var(--surface); }
 .interview-empty > svg { margin-bottom:10px; color:var(--accent); opacity:.65; }
