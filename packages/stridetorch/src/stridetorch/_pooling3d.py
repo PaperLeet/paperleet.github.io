@@ -7,6 +7,8 @@ import numpy as np
 
 from . import _errors, _layout, _pooling, _tensor
 
+_SEPARABLE_MODE = 'auto'  # Private route comparison; not a public API option.
+
 
 def _triple(value, name):
     if isinstance(value, numbers.Integral) and not isinstance(value, (bool, np.bool_)):
@@ -183,6 +185,69 @@ def _block(data, geometry, need_indices):
         np.copyto(value, source, where=mask)
         if need_indices:
             np.copyto(indices, base + (tap[0] * data.shape[-2] + tap[1]) * data.shape[-1] + tap[2], where=mask)
+    return value, indices
+
+
+def _separable_reserve(data, geometry, need_indices):
+    """Conservative live intermediates, masks, coordinate vectors and index merge."""
+    out = geometry[-1];planes = math.prod(data.shape[:-3])
+    intermediate = planes * data.shape[-3] * out[1] * out[2]
+    points = planes * math.prod(out)
+    return (intermediate * (data.itemsize + (8 if need_indices else 0) + 4)
+            + points * (24 if need_indices else 4)
+            + 64 * sum(out) + 8 * out[1] * out[2])
+
+
+def _select_compute(data, geometry, need_indices, default):
+    if _SEPARABLE_MODE not in ('auto', 'off', 'force'): raise ValueError('Unknown internal separable-pooling mode')
+    if _SEPARABLE_MODE == 'off' or not data.size: return default
+    kernel, _, _, dilation, out = geometry
+    if _SEPARABLE_MODE != 'force':
+        if default is _block: return default
+        direct = math.prod(kernel) * math.prod(out)
+        split = out[1] * out[2] * (data.shape[-3] * kernel[1] * kernel[2] + out[0] * kernel[0])
+        # Require substantial reuse before paying for a second reduction pass.
+        if 20 * split > 13 * direct: return default
+        if need_indices and (direct-split) * math.prod(data.shape[:-3]) < 16_384: return default
+    if _separable_reserve(data, geometry, need_indices) >= _pooling._WINDOW_WORKSPACE_BYTES: return default
+    if any(d != 1 for d in dilation):
+        _, first = _pooling._coordinates(data.shape, geometry)
+        if any(np.any(start >= size) for start, size in zip(first, data.shape[-3:])): return default
+    return _separable
+
+
+def _reduce_plane(data, geometry, need_indices, budget):
+    if _pooling._block_eligible(data, geometry): compute = _pooling._block
+    elif ((need_indices or math.prod(geometry[0]) >= 16)
+          and _pooling._window_workspace(data, geometry) <= budget): compute = _pooling._window
+    else: compute = _pooling._scan
+    return compute(data, geometry, need_indices)
+
+
+def _separable(data, geometry, need_indices):
+    """Reuse each HW reduction across overlapping depth windows, without Tensor views."""
+    if not data.size: return _initial(data, geometry, need_indices)
+    kernel, stride, padding, dilation, out = geometry
+    budget = _pooling._WINDOW_WORKSPACE_BYTES - _separable_reserve(data, geometry, need_indices)
+    hw_geometry = tuple(v[1:] for v in geometry)
+    spatial, spatial_index = _reduce_plane(data, hw_geometry, need_indices, budget)
+    value, indices = _initial(data, geometry, need_indices)
+    seen = np.zeros((out[0], 1, 1), dtype=bool)
+    k,s,p,d = kernel[0],stride[0],padding[0],dilation[0]
+    taps = range(max(0, (p-(out[0]-1)*s+d-1)//d), min(k, (data.shape[-3]-1+p)//d+1))
+    for tap in taps:
+        offset = tap*d-p;low = max(0,(-offset+s-1)//s);high = min(out[0],(data.shape[-3]-offset+s-1)//s)
+        if high <= low: continue
+        source = spatial[..., offset+low*s:offset+high*s:s, :, :]
+        target = value[..., low:high, :, :]
+        mask = (source > target) | ~seen[low:high]
+        if data.dtype.kind == 'f': mask |= np.isnan(source)
+        np.copyto(target, source, where=mask)
+        if need_indices:
+            depth = offset + np.arange(low,high,dtype=np.int64)*s
+            selected = spatial_index[..., offset+low*s:offset+high*s:s, :, :] + (depth*data.shape[-2]*data.shape[-1])[:,None,None]
+            np.copyto(indices[...,low:high,:,:],selected,where=mask)
+        seen[low:high] = True
     return value, indices
 
 

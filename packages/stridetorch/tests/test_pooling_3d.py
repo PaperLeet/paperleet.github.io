@@ -6,10 +6,11 @@ import pytest
 from stridetorch import torch, as_torch, UnsupportedOperation
 
 
-@pytest.fixture(params=['scan', 'window', 'block', 'auto'], autouse=True)
+@pytest.fixture(params=['scan', 'window', 'block', 'auto', 'separable'], autouse=True)
 def algorithm(request, monkeypatch):
-    from stridetorch import _pooling
-    monkeypatch.setattr(_pooling, '_ALGORITHM', request.param)
+    from stridetorch import _pooling, _pooling3d
+    monkeypatch.setattr(_pooling, '_ALGORITHM', 'auto' if request.param == 'separable' else request.param)
+    monkeypatch.setattr(_pooling3d, '_SEPARABLE_MODE', 'force' if request.param == 'separable' else 'auto')
 
 
 def oracle(a, k, s, p, d, ceil):
@@ -192,3 +193,48 @@ def test_empty_batch_does_not_materialize_spatial_coordinates(monkeypatch):
     y.sum().backward();assert x.grad.shape == x.shape
     _,tangent = torch.func.jvp(lambda z:torch.max_pool3d(z,1),(x,),(torch.ones_like(x),))
     assert tangent.shape == x.shape
+
+
+@pytest.mark.parametrize('shape,k,s', [((1,1,3,4,4),(3,2,2),(1,2,2)),
+    ((2,3,2,2,2),(2,2,2),(2,2,2))])
+def test_canonical_singleton_output_index_and_tangent_strides(shape,k,s):
+    x = torch.arange(int(np.prod(shape)),dtype=torch.float64).reshape(shape)
+    y,i = torch.nn.functional.max_pool3d(x,k,s,return_indices=True)
+    steps=[];step=1
+    for n in reversed(y.shape):steps.append(step);step*=max(1,n)
+    expected=tuple(reversed(steps));assert y.stride()==i.stride()==expected
+    _,tangent=torch.func.jvp(lambda z:torch.max_pool3d(z,k,s),(x,),(torch.ones_like(x),))
+    assert tangent.stride()==expected
+
+
+def test_separable_uses_bounded_scan_stages_when_packing_does_not_fit(monkeypatch):
+    from stridetorch import _pooling,_pooling3d
+    monkeypatch.setattr(_pooling,'_ALGORITHM','auto');monkeypatch.setattr(_pooling3d,'_SEPARABLE_MODE','force')
+    a=np.arange(2*6*8*10,dtype=np.float64).reshape(1,2,6,8,10);x=torch.from_numpy(a).requires_grad_()
+    geometry=_pooling3d._geometry(x,3,1,1,1,False)
+    monkeypatch.setattr(_pooling,'_WINDOW_WORKSPACE_BYTES',_pooling3d._separable_reserve(a,geometry,True)+1)
+    original=_pooling3d._separable;calls=[]
+    def tracked(*args):calls.append(True);return original(*args)
+    def unexpected(*args):raise AssertionError('Packed windows must respect remaining workspace')
+    monkeypatch.setattr(_pooling3d,'_separable',tracked);monkeypatch.setattr(_pooling,'_window',unexpected)
+    y,i=torch.nn.functional.max_pool3d(x,3,1,1,return_indices=True)
+    expected,index=oracle(a,(3,3,3),(1,1,1),(1,1,1),(1,1,1),False)
+    assert calls==[True];np.testing.assert_array_equal(y.numpy(),expected);np.testing.assert_array_equal(i.numpy(),index)
+    y.sum().backward();np.testing.assert_array_equal(x.grad.numpy(),scatter(a.shape,index,np.ones(y.shape)))
+
+
+def test_separable_declines_oversized_intermediate_without_allocating(monkeypatch):
+    from stridetorch import _pooling,_pooling3d
+    monkeypatch.setattr(_pooling3d,'_SEPARABLE_MODE','force')
+    x=torch.zeros(1,1,1,1,1).expand(1,1,3_000_000,1,1)
+    geometry=_pooling3d._geometry(x,(3_000_000,1,1),None,0,1,False)
+    assert _pooling3d._select_compute(x.numpy(),geometry,True,_pooling3d._scan) is _pooling3d._scan
+
+
+def test_small_index_tapes_keep_the_original_route(monkeypatch):
+    from stridetorch import _pooling3d
+    monkeypatch.setattr(_pooling3d,'_SEPARABLE_MODE','auto')
+    x=torch.ones(2,3,4,4,4,dtype=torch.float64)
+    geometry=_pooling3d._geometry(x,3,1,1,1,False)
+    assert _pooling3d._select_compute(x.numpy(),geometry,True,_pooling3d._window) is _pooling3d._window
+    assert _pooling3d._select_compute(x.numpy(),geometry,False,_pooling3d._window) is _pooling3d._separable

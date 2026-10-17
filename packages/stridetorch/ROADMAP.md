@@ -698,6 +698,20 @@ source-commit deployment was superseded and is not claimed as published.
   reduction path next, preserving native NaN/index/layout and derivative rules.
   Independent-library, broader core API and GPU/backend work remains active.
 
+## 0.44: reuse spatial maxima across overlapping depth windows
+
+- Reuse raw HW reductions and carry selected indices through an ordered depth
+  scan, without adding Tensor view nodes or a depth-index gather intermediate.
+- Select by nominal repeated-work reduction and reserve live intermediate and
+  coordinate/mask/index space before packing within the remaining budget.
+  Retain cube/slab paths, empty-batch allocation behavior and sampling boundaries.
+- Validate 37,605 CPU tests, 3,977 Node/Chrome tests each, 3,990 minimum-wheel
+  tests, 1,180 native trials, original 78/342 catalog checks and 76 complete
+  performance flows in twelve fresh processes. Preserve 9,913 prior payloads.
+- See [the 0.44 validation record](../../docs/validation/torch-runtime-iteration-44.md)
+  for measured benefits, regressions and controls. Broader APIs, bounded memory
+  work and GPU/backend evaluation remain active toward an independent library.
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object

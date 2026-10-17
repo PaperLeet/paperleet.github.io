@@ -5,6 +5,18 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_pooling_separable.py` compares direct 3D APIs on both releases (baseline
+0.43 or newer). Its 76 float32/float64 flows retain the earlier cube/slab,
+dilated, strided, NDHWC, index, VJP and JVP cases and add larger overlapping
+windows plus a complete overlapping-pool Conv3d/SGD update. A separate candidate
+namespace disables separable dispatch as a control. Every result and one full
+training update are checked before timing. Default sampling uses seven samples
+and forty calls, five training calls and four larger-overlap calls. Alternate
+`--reverse` across fresh processes and retain all source hashes and samples.
+Keep this script beside the two max-pooling benchmark helpers. The same scripts
+run in Pyodide; these are library-flow comparisons rather than native-Torch,
+GPU, transfer, cold-import or whole-application throughput measurements.
+
 `bench_max_pooling_3d.py` uses the source-directory interface below and needs
 the supported 0.42 2D/1D pooling APIs in its baseline. Its 62 float32/float64
 flows compare direct 3D pooling with separable 2D/1D composition, including

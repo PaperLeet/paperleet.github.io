@@ -211,7 +211,9 @@ def _apply(input, geometry, return_indices, *, spatial_dims=2, engine=None):
     window = (_ALGORITHM == 'window' or _ALGORITHM == 'auto' and (need_indices or math.prod(kernel) >= 16))
     window = window and workspace(values, geometry) <= _WINDOW_WORKSPACE_BYTES
     if engine is None: compute = _block if block else _window if window else _scan
-    else: compute = engine._block if block else engine._window if window else engine._scan
+    else:
+        compute = engine._block if block else engine._window if window else engine._scan
+        if _ALGORITHM == 'auto': compute = engine._select_compute(values, geometry, need_indices, compute)
     data, indices = compute(values, geometry, need_indices)
     if engine is not None:
         data = engine._format_output(values, data)

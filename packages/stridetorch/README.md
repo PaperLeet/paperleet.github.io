@@ -138,6 +138,18 @@ the same 32 MiB workspace guard, with specialized 1/2-edge blocks and an ordered
 scan fallback. Valid kernels or outputs above 8,000,000 points and input spatial
 indices beyond the runtime's pointer range require the server.
 
+Overlapping 3D depth windows can reuse each HW reduction. Automatic dispatch
+requires a substantial reduction in estimated repeated work and bounds the
+live intermediate arrays before selecting this path. Small index/gradient
+tapes retain their original route when fixed processing overhead dominates.
+An ordered depth pass
+carries the selected HW indices directly, preserving first-finite ties and
+last-NaN routes without extra Tensor graph nodes. Each packed HW stage uses the
+remaining temporary-workspace budget; larger stages use ordered scans. The
+existing 3D paths handle geometries without useful reuse or enough workspace,
+including the established empty-sampling derivative boundary. Empty batches
+still avoid spatial coordinate grids.
+
 `torch.nn.MaxPool2d`, `torch.nn.functional.max_pool2d` and
 `max_pool2d_with_indices` support batched/unbatched 2D inputs, noncontiguous
 arrays, empty batches, stride, padding, dilation and ceil mode. Indices are
