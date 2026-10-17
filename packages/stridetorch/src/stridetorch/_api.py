@@ -125,9 +125,10 @@ def create_torch(name='torch', *, register=False):
         'from_numpy': _ops.from_numpy, 'full': _ops.full, 'full_like': _ops.full_like,
         'randint': _random.randint, 'randperm': _random.randperm,
         'eye': _ops.eye,
-        'linspace': _ops.linspace,
-        'arange': _ops.arange,
     }, reverse='factory')
+    registry.add('torch.arange',_ops.arange,reverse='factory',forward=True,unsupported_keywords=('out',))
+    registry.group('torch', {'linspace':_ops.linspace,'logspace':_ops.logspace},
+                   reverse='factory',unsupported_keywords=('out',))
     for name in ('randn', 'rand', 'zeros', 'ones', 'empty'):
         registry.add('torch.' + name, lambda *shape,_kind=name,**kw: _random.create(_kind,*shape,**kw), reverse='factory')
     for name in ('randn', 'zeros', 'ones', 'empty'):

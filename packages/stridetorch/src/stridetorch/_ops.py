@@ -413,33 +413,10 @@ def _factory_number(value):
     return _promotion.scalar_info(value)
 
 
-def arange(*args, dtype=None, device=None):
-    _device.check_device(device)
-    values, kinds = zip(*(_factory_number(x) for x in args)) if args else ((), ())
-    if any(k.kind=='c' for k in kinds):raise RuntimeError('arange requires real endpoints')
-    if dtype is None:dtype = _defaults._float_dtype if any(k.kind=='f' for k in kinds) else np.int64
-    value = np.arange(*values,dtype=dtype)
-    if not value.size: value = _layout.contiguous_empty(value)
-    return _tensor.Tensor(value)
-
-
 def eye(n,m=None,*,dtype=None,device=None,requires_grad=False):
     _device.check_device(device)
     if dtype is None:dtype = _defaults._float_dtype
     value = np.eye(n,m,dtype=dtype)
-    if not value.size: value = _layout.contiguous_empty(value)
-    return _tensor.Tensor(value,requires_grad=requires_grad)
-
-
-def linspace(start,end,steps,*,dtype=None,device=None,requires_grad=False):
-    _device.check_device(device)
-    (start,a),(end,b) = _factory_number(start),_factory_number(end)
-    if dtype is None:dtype = _defaults.complex_dtype() if a.kind=='c' or b.kind=='c' else _defaults._float_dtype
-    if np.dtype(dtype).kind!='c' and (isinstance(start,complex) or isinstance(end,complex)):
-        if isinstance(start,complex) and start.imag or isinstance(end,complex) and end.imag:
-            raise RuntimeError('Complex endpoint cannot be converted to a real dtype')
-        start,end = start.real if isinstance(start,complex) else start,end.real if isinstance(end,complex) else end
-    value = np.linspace(start,end,steps,dtype=dtype)
     if not value.size: value = _layout.contiguous_empty(value)
     return _tensor.Tensor(value,requires_grad=requires_grad)
 
@@ -598,3 +575,6 @@ def unsqueeze(input,dim):
 def squeeze(input,dim=_layout.UNSPECIFIED_DIM):
     if not isinstance(input,_tensor.Tensor):raise TypeError('squeeze input must be a Tensor')
     return input.squeeze() if dim is _layout.UNSPECIFIED_DIM else input.squeeze(dim)
+
+
+from ._sequences import arange, linspace, logspace

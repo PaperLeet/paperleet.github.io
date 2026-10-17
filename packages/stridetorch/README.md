@@ -559,6 +559,44 @@ Inferred complex32 storage is unavailable in NumPy and fails explicitly. Explici
 float32/64 or complex64/128 operands can still absorb a complex wrapped scalar;
 native `full` uses complex64 for complex fills with a float16 default.
 
+### Sequence factories (0.56)
+
+`arange`, `linspace` and `logspace` share bounded scalar parsing and preserve
+factory leaf semantics: Tensor endpoints are scalar controls, not reverse-AD
+parents. Ordinary Tensor controls requiring gradients are rejected by `arange`,
+matching native scalar conversion. `arange` supports native positional/keyword overloads and
+`requires_grad=True` for floating outputs. Its size uses the original bounds,
+while integer output values use truncated start/step. Incorrect step direction,
+zero/NaN steps and non-finite endpoints fail explicitly. Native 2.14.1 empty
+floating ranges with an infinite step are preserved. Scalar-control arange JVP
+is supported; Tensor-endpoint linspace/logspace JVP remains unsupported, matching
+native 2.14.1. Constant factories inside JVP still produce zero tangents.
+
+Integer linspace casts endpoints and truncates interpolated samples toward zero;
+NumPy's integer linspace floor rule is not used. Finite linspace values are
+evaluated from both ends using one owned working array. Float16 intermediates
+are float32, following the current upstream CPU opmath design; this deliberately
+avoids native 2.14.1's half-step overflow on otherwise finite wide intervals.
+Floating values are tolerance-checked rather than promised bitwise identical
+across CPU vector widths or fused arithmetic implementations.
+Four fixed unit intervals with at most 256 elements use a 64-entry immutable
+byte-template cache (at most 128 KiB of numeric bytes plus Python metadata).
+Each result receives a writable independent copy; arbitrary endpoint values or
+Tensor objects are not retained in this cache.
+
+`logspace` supports real bases and real/complex floating, signed integer and
+uint8 outputs. Zero/one-step behavior follows native scalar fill semantics, including
+half opmath conversion and the difference between singleton and multi-element
+integer exponent conversion. Complex non-finite components and zero bases are
+checked separately. Boolean and wider unsigned storage support zero/one-step
+linspace/logspace but have no multi-element generation kernel.
+
+Every result owns independent contiguous storage, including empty stride `(1,)`.
+The limit is 16 million output elements; output buffers, pinned memory and
+non-default layouts remain unsupported. Explicit dtype/device and invalid
+argument checks happen before allocation. Native integer overflow results
+outside representable conversion ranges remain platform-dependent.
+
 Sequences recursively infer supported Python/NumPy scalar and Tensor dtypes.
 NumPy float64 and small-integer values retain their precision and widths:
 
