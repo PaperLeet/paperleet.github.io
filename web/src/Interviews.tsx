@@ -1,5 +1,5 @@
 import {useEffect,useId,useRef,useState} from 'react';
-import {ArrowRight,BookOpen,Building2,ChevronLeft,ChevronRight,Flame,Bookmark,MessageCircle,Plus,RefreshCw,Search,Users,X} from 'lucide-react';
+import {ArrowRight,BookOpen,Building2,ChevronLeft,ChevronRight,Flame,Bookmark,MessageCircle,Plus,RefreshCw,Users,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
 import {useAccount} from './social';
@@ -24,6 +24,7 @@ import {hasPreparationGuide} from './preparationGuides';
 import InterviewStudyPaths from './InterviewStudyPaths';
 import PreparationHandbook from './PreparationHandbook';
 import InterviewViewLink from './InterviewViewLink';
+import CommunitySearch from './CommunitySearch';
 import type {Problem,Saved} from './types';
 import './interviews.css';
 
@@ -32,8 +33,8 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
  const parsed=readInterviewRoute(route),filters=parsed||emptyInterviewFilters();
  const validRoute=!!parsed&&(['company','role','stage'] as const).every(field=>!filters[field]||interviewCatalog[({company:'companies',role:'roles',stage:'stages'} as const)[field]].some(row=>row.id===filters[field]));
  const searchInput=useRef<HTMLInputElement>(null),searchHelp=useId();
- const [search,setSearch]=useState(filters.q),[compose,setCompose]=useState(false),[retry,setRetry]=useState(0);
- useEffect(()=>{setSearch(filters.q);setCompose(false);},[route]);
+ const [compose,setCompose]=useState(false),[retry,setRetry]=useState(0);
+ useEffect(()=>{setCompose(false);},[route]);
  const [statisticsRetry,setStatisticsRetry]=useState(0);
  const params=new URLSearchParams({days:filters.days,sort:filters.sort,limit:'20',offset:String((filters.page-1)*20)});
  for(const key of ['company','role','stage','q'] as const)if(filters[key])params.set(key,filters[key]);
@@ -54,7 +55,7 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',interviewHref(filters),hostedEdition&&validRoute&&filters.view==='reports'&&savedReady&&!accountLoading&&!feed.loading&&!!validFeed&&!ownerMismatch&&!feedError);
  function change(update:Partial<InterviewFilters>){location.hash=interviewHref({...filters,queue:'',page:1,...update}).slice(1);}
  function write(){if(user)setCompose(true);}
- function clearSearch(){setSearch('');change({q:''});searchInput.current?.focus({preventScroll:true});}
+ function clearSearch(){change({q:''});searchInput.current?.focus({preventScroll:true});}
  const moduleTitle=(problem:Problem)=>en?problem.translations?.en?.title||problem.title:problem.title;
  const selected=filters.company||filters.role||filters.stage||filters.q||filters.concept||filters.days!=='365'||filters.view==='questions'&&filters.study!=='all';
  const retryButton=<button className="button subtle" type="button" onClick={()=>{setRetry(value=>value+1);setStatisticsRetry(value=>value+1);}}><RefreshCw size={14}/>{t('重试加载','Retry loading')}</button>;
@@ -65,7 +66,7 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
   {filters.view==='reports'&&summaryError&&<div className="interview-statistics-error" role="status"><span>{t('面经统计暂不可用，仍可继续阅读面经与准备资料。','Report counts are temporarily unavailable. Experiences and preparation resources remain available.')}</span><button type="button" onClick={()=>setStatisticsRetry(value=>value+1)}>{t('重试统计','Retry counts')}<RefreshCw size={12}/></button></div>}
   <div className="interview-layout"><section className="interview-main">
    <div className="interview-view-tabs" role="group" aria-label={t('面试准备视图','Interview preparation view')}>{([{id:'reports',label:t('面经广场','Experiences'),icon:MessageCircle},{id:'questions',label:t('高频知识点','Frequent concepts'),icon:Flame},{id:'companies',label:t('公司索引','Companies'),icon:Building2}] as const).map(view=><button key={view.id} type="button" aria-pressed={filters.view===view.id} onClick={()=>change({view:view.id,q:'',stage:'',concept:'',saved:false})}><view.icon size={15}/>{view.label}</button>)}</div>
-   <div className="interview-filter-bar"><form className="interview-search" onSubmit={event=>{event.preventDefault();const q=search.replace(/[\u0000-\u001f\u007f]/g,' ').trim();setSearch(q);change({q});}}><Search size={16}/><input ref={searchInput} aria-describedby={filters.view!=='reports'?searchHelp:undefined} value={search} onChange={event=>setSearch(Array.from(event.target.value).slice(0,200).join(''))} maxLength={400} aria-label={filters.view==='companies'?t('搜索公司','Search companies'):filters.view==='questions'?t('搜索知识点或来源公司','Search concepts or source companies'):t('搜索面经','Search experiences')} placeholder={filters.view==='reports'?t('搜索面经、面试方向…','Search experiences, topics…'):filters.view==='companies'?t('搜索公司中英文名称…','Search company names…'):t('知识点、论文、公司…','Concepts, papers, companies…')}/>{search&&<button type="button" aria-label={t('清空搜索','Clear search')} onClick={clearSearch}><X size={14}/></button>}<button type="submit" aria-label={t('搜索','Search')}><ArrowRight size={15}/></button></form>
+   <div className="interview-filter-bar"><CommunitySearch key={`${user?.id||'guest'}:${filters.view}`} className="interview-search" inputRef={searchInput} resetScope={route} applied={filters.q} onApply={q=>change({q})} describedBy={filters.view!=='reports'?searchHelp:undefined} label={filters.view==='companies'?t('搜索公司','Search companies'):filters.view==='questions'?t('搜索知识点或来源公司','Search concepts or source companies'):t('搜索面经','Search experiences')} placeholder={filters.view==='reports'?t('搜索面经、面试方向…','Search experiences, topics…'):filters.view==='companies'?t('搜索公司中英文名称…','Search company names…'):t('知识点、论文、公司…','Concepts, papers, companies…')}/>
     <div className="interview-selects">{([['company','companies',t('全部公司','All companies')],['role','roles',t('全部岗位','All roles')]] as const).map(([field,group,label])=><select key={field} aria-label={label} value={filters[field]} onChange={event=>change({[field]:event.target.value,...(field==='company'&&filters.view==='companies'?{q:''}:{})})}><option value="">{label}</option>{interviewCatalog[group].map(row=><option key={row.id} value={row.id}>{en?row.name_en:row.name}</option>)}</select>)}
     {filters.view==='reports'&&<select aria-label={t('面试轮次','Interview stage')} value={filters.stage} onChange={event=>change({stage:event.target.value})}><option value="">{t('全部轮次','All stages')}</option>{interviewCatalog.stages.map(row=><option key={row.id} value={row.id}>{en?row.name_en:row.name}</option>)}</select>}
     <select aria-label={t('面经发布时间范围','Report publication period')} value={filters.days} onChange={event=>change({days:event.target.value as InterviewFilters['days']})}><option value="365">{t('近一年','Past year')}</option><option value="90">{t('近三个月','Past 90 days')}</option><option value="30">{t('近一个月','Past 30 days')}</option><option value="all">{t('全部时间','All time')}</option></select></div>

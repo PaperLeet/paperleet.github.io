@@ -1,14 +1,15 @@
-import {useEffect,useId,useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState,type RefObject} from 'react';
 import {ArrowRight,Search,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import './community-search.css';
 
 const bounded=(value:string)=>Array.from(value).slice(0,200).join('');
 
-export default function CommunitySearch({applied,onApply,label,placeholder,disabled=false}:{applied:string;onApply:(query:string)=>void;label?:string;placeholder?:string;disabled?:boolean}){
- const {t}=useI18n(),hint=useId(),input=useRef<HTMLInputElement>(null),composing=useRef(false),imeEnter=useRef(false);
+export default function CommunitySearch({applied,onApply,label,placeholder,disabled=false,className='community-search',describedBy,inputRef,resetScope}:{applied:string;onApply:(query:string)=>void;label?:string;placeholder?:string;disabled?:boolean;className?:string;describedBy?:string;inputRef?:RefObject<HTMLInputElement|null>;resetScope?:string}){
+ const {t}=useI18n(),hint=useId(),fallback=useRef<HTMLInputElement>(null),composing=useRef(false),imeEnter=useRef(false);
+ const input=inputRef||fallback;
  const [query,setQuery]=useState(applied);
- useEffect(()=>{setQuery(applied);composing.current=false;imeEnter.current=false;},[applied]);
+ useEffect(()=>{setQuery(applied);composing.current=false;imeEnter.current=false;},[applied,resetScope]);
  useEffect(()=>{if(disabled){composing.current=false;imeEnter.current=false;}},[disabled]);
  function change(value:string,transient=composing.current){
   if(disabled)return;
@@ -22,13 +23,13 @@ export default function CommunitySearch({applied,onApply,label,placeholder,disab
   // Cancelling unsubmitted text does not reset the current feed's page.
   if(applied)onApply('');
  }
- return <form className="community-search" role="search" aria-label={label||t('搜索讨论','Search discussions')} onSubmit={event=>{
+ return <form className={className} role="search" aria-label={label||t('搜索讨论','Search discussions')} onSubmit={event=>{
   event.preventDefault();if(disabled||composing.current||imeEnter.current)return;
   const next=bounded(query).replace(/[\u0000-\u001f\u007f]/g,' ').trim();setQuery(next);onApply(next);
  }}>
   <Search size={16} aria-hidden="true"/>
   <span id={hint} className="sr-only">{t('最多200个字符。Enter搜索，Esc清空。','Up to 200 characters. Enter to search; Escape to clear.')}</span>
-  <input ref={input} type="search" enterKeyHint="search" disabled={disabled} aria-label={label||t('搜索讨论','Search discussions')} aria-describedby={hint} placeholder={placeholder||t('搜索讨论…','Search discussions…')} value={query} maxLength={400}
+  <input ref={input} type="search" enterKeyHint="search" disabled={disabled} aria-label={label||t('搜索讨论','Search discussions')} aria-describedby={[hint,describedBy].filter(Boolean).join(' ')} placeholder={placeholder||t('搜索讨论…','Search discussions…')} value={query} maxLength={400}
    onChange={event=>change(event.target.value,composing.current||(event.nativeEvent as InputEvent).isComposing===true)}
    onCompositionStart={()=>{composing.current=true;imeEnter.current=false;}}
    onCompositionEnd={event=>{composing.current=false;change(event.currentTarget.value);}}
