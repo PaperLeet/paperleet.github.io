@@ -3,6 +3,7 @@ import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigat
 import AffiliationBadge from "./AffiliationBadge";
 import { resolveAffiliation } from './affiliationNames';
 import InterviewMeta from './InterviewMeta';
+import {readInterviewFeed} from './interviewModels';
 import {InlinePostBody} from './InlineCommentBody';
 import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
@@ -102,7 +103,7 @@ function CommunityWritingFailure({onRetry}:{onRetry:()=>void}){
   return <div className="community-writing-failure"><p role="alert">{t('写作提示暂时无法加载，正文仍可继续编辑。','Writing prompts could not load. You can keep editing your post.')}</p><button type="button" onClick={onRetry}>{t('重试写作提示','Retry writing prompts')}</button></div>;
 }
 type Profile = PublicUser & {
-  counts: Counts & { posts: number; solutions?:number; followers: number; following: number; likes_received: number; reposts_received: number };
+  counts: Counts & { posts: number; solutions?:number; interviews?:number; followers: number; following: number; likes_received: number; reposts_received: number };
   viewer: { following: boolean; is_self: boolean };
 };
 type Connection = PublicUser & {
@@ -1266,6 +1267,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
   const { t } = useI18n();
   const { user, capabilities,loading:accountLoading } = useAccount();
   const profileSolutionsAvailable=capabilities?.community_profile_solutions===true;
+  const profileInterviewsAvailable=capabilities?.community_profile_interviews===true;
   const [profile, setProfile] = useState<Profile>(),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -1283,6 +1285,8 @@ function UserProfileContents({ username,route }: { username: string;route:string
   const activityGeneration=useRef(0);
   const requested=readProfileRoute(route),view=requested?.username===username?requested:{username,tab:'posts' as ProfileTab,page:1};
   const waitingForSolutions=view.tab==='solutions'&&accountLoading;
+  const waitingForInterviews=view.tab==='interviews'&&accountLoading;
+  const unavailableInterviews=view.tab==='interviews'&&!accountLoading&&!profileInterviewsAvailable;
   const unavailableSolutions=view.tab==='solutions'&&!accountLoading&&!profileSolutionsAvailable;
   const tab=unavailableSolutions?'posts':view.tab,page=unavailableSolutions?1:view.page,offset=(page-1)*PAGE_SIZE;
   const returnTo=profileFeedHref(username,{tab,page}),activityKey=JSON.stringify([username,tab,offset,user?.id]);
@@ -1290,13 +1294,16 @@ function UserProfileContents({ username,route }: { username: string;route:string
     const actual=readProfileRoute(location.hash);
     return actual?.username===username?profileFeedHref(username,actual):undefined;
   }
-  const activityPending=activityLoading||loadedActivityKey!==activityKey||waitingForSolutions;
+  const activityPending=waitingForInterviews||!unavailableInterviews&&(activityLoading||loadedActivityKey!==activityKey||waitingForSolutions);
   const revealIntent=useRef<{href:string;active:Element|null;top:number}|undefined>(undefined);
   const communityContent = useRef<HTMLElement>(null);
   const path = `community/profiles/${encodeURIComponent(username)}`;
   const connectionTab = tab === "following" || tab === "followers";
   const solutionCount=typeof profile?.counts.solutions==="number"&&Number.isSafeInteger(profile.counts.solutions)&&profile.counts.solutions>=0?profile.counts.solutions:undefined;
-  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!!profile&&!loading&&!activityPending&&!activityError&&!connectionTab);
+  const interviewCount=typeof profile?.counts.interviews==="number"&&Number.isSafeInteger(profile.counts.interviews)&&profile.counts.interviews>=0?profile.counts.interviews:undefined;
+  const privateProfileOwner=!!profile?.viewer.is_self&&profile.id===user?.id;
+  const displayActivityError=activityError||(tab==='interviews'&&!activityPending&&!privateProfileOwner&&activity.items.some(item=>item.post?.anonymous===true)?t('暂时无法确认面经列表的可见范围，请重试。','Could not confirm the visibility of these experiences. Please retry.'):'');
+  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',returnTo,!!profile&&!loading&&!activityPending&&!displayActivityError&&!unavailableInterviews&&!connectionTab);
   useEffect(()=>{
     if(unavailableSolutions&&currentProfileHref()===profileFeedHref(username,view))location.replace(returnTo);
   },[unavailableSolutions,route,returnTo,username]);
@@ -1328,7 +1335,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
     let redirected=false;
     setActivityLoading(true);
     setActivityError("");
-    if(waitingForSolutions)return;
+    if(waitingForSolutions||waitingForInterviews||unavailableInterviews)return;
     const generation=++activityGeneration.current;
     const params = new URLSearchParams({
       offset: String(offset),
@@ -1347,10 +1354,11 @@ function UserProfileContents({ username,route }: { username: string;route:string
             if (live){setConnections(data);setLoadedActivityKey(activityKey);}
           },
         )
-      : socialApi<Page<Activity> & {solutions?:boolean}>(`${path}/activity?${params}`,undefined,controller.signal).then((data) => {
+      : socialApi<Page<Activity> & {solutions?:boolean;interviews?:boolean}>(`${path}/activity?${params}`,undefined,controller.signal).then((data) => {
           if(!live)return;
           if(tab==="solutions"&&(!data||data.solutions!==true||!Array.isArray(data.items)||!Number.isSafeInteger(data.total)||data.total<0||data.items.some(item=>item.kind!=="solutions"||item.post?.solution!==true||!item.post.problem_id)))throw Error(t("暂时无法确认题解列表，请重试。","Could not confirm the solution list. Please retry."));
-          if(tab==="solutions"){
+          if(tab==="interviews"&&(!data||data.interviews!==true||!Array.isArray(data.items)||data.limit!==PAGE_SIZE||data.offset!==offset||data.items.some(item=>!item||item.kind!=="interviews"||item.post?.solution===true)||!readInterviewFeed({items:data.items.map(item=>item.post),total:data.total,limit:PAGE_SIZE,offset})||data.items.length>Math.max(0,data.total-offset)))throw Error(t("暂时无法确认面经列表，请重试。","Could not confirm the interview experiences. Please retry."));
+          if(tab==="solutions"||tab==="interviews"){
             const lastOffset=Math.max(0,Math.floor((data.total-1)/PAGE_SIZE)*PAGE_SIZE);
             if(offset>lastOffset){redirected=true;if(currentProfileHref()===returnTo)location.replace(profileFeedHref(username,{tab,page:lastOffset/PAGE_SIZE+1}));return;}
           }
@@ -1371,7 +1379,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
     return () => {
       live = false; clearTimeout(timer); controller.abort();
     };
-  }, [username, tab, offset, user?.id, revision,waitingForSolutions]);
+  }, [username, tab, offset, user?.id, revision,waitingForSolutions,waitingForInterviews,unavailableInterviews]);
   async function follow(target: string, active: boolean) {
     if (!user) {
       location.hash = signInHref(returnTo);
@@ -1395,6 +1403,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
   const tabs:readonly (readonly [ProfileTab,string])[] = [
     ["posts", t("帖子", "Posts")],
     ...(profileSolutionsAvailable?[["solutions",t("题解","Solutions")]] as const:[]),
+    ...(profileInterviewsAvailable||view.tab==='interviews'?[["interviews",t("面经","Experiences")]] as const:[]),
     ["replies", t("回复", "Replies")],
     ["likes", t("点赞", "Likes")],
     ["reposts", t("转发", "Reposts")],
@@ -1511,6 +1520,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
               <div><dt><Heart size={16} />{t("获赞", "Likes received")}</dt><dd>{profile.counts.likes_received}</dd></div>
               <div><dt><Repeat2 size={16} />{t("获转发", "Reposts received")}</dt><dd>{profile.counts.reposts_received}</dd></div>
               {profileSolutionsAvailable&&<div className="profile-solution-contribution"><dt><Code2 size={16}/>{t("题解","Solutions")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看题解","View solutions")} onClick={()=>chooseTab("solutions",true)}>{solutionCount??"—"}</button></dd></div>}
+              {profileInterviewsAvailable&&<div className="profile-interview-contribution"><dt><BriefcaseBusiness size={16}/>{t("面经","Experiences")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看面经","View interview experiences")} onClick={()=>chooseTab("interviews",true)}>{interviewCount??"—"}</button></dd></div>}
             </dl>
             {profile.viewer.is_self && <a href="#/community">{t("加入讨论", "Join a discussion")}<ArrowRight size={14} /></a>}
           </section>
@@ -1546,18 +1556,19 @@ function UserProfileContents({ username,route }: { username: string;route:string
                 onClick={() => chooseTab(key)}
               >
                 {label}
-                <span>{key==="solutions"?solutionCount??"—":profile.counts[key]}</span>
+                <span>{key==="solutions"?solutionCount??"—":key==="interviews"?interviewCount??"—":profile.counts[key]}</span>
               </button>
             ))}
           </div>
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           <section data-reading-list="" tabIndex={-1} className="social-panel profile-activity" id="profile-community-panel" role="tabpanel" aria-labelledby={`profile-tab-${tab}`} aria-busy={activityPending}>
             {tab==="solutions"&&profile.viewer.is_self&&<p className="profile-solutions-note">{t("匿名题解仅在你自己的主页可见。","Anonymous solutions appear here only when you view your own profile.")}</p>}
-            {activityPending ? (
+            {tab==="interviews"&&privateProfileOwner&&<p className="profile-interviews-note">{t("匿名面经仅在你自己的主页可见。","Anonymous experiences appear here only when you view your own profile.")}</p>}
+            {unavailableInterviews ? <Empty title={t("面经分类暂不可用","Interview experiences are unavailable")}><p>{t("当前服务尚未提供个人面经分类，可以先查看全部帖子。","This service does not provide profile experiences yet. You can view all posts instead.")}</p><button type="button" className="button subtle" onClick={()=>chooseTab("posts")}>{t("查看全部帖子","View all posts")}</button></Empty> : activityPending ? (
               <Loading />
-            ) : activityError ? (
+            ) : displayActivityError ? (
               <div className="feed-error">
-                <SocialNotice error={activityError} />
+                <SocialNotice error={displayActivityError} />
                 <button
                   className="button subtle"
                   onClick={() => setRevision((v) => v + 1)}
@@ -1653,13 +1664,14 @@ function UserProfileContents({ username,route }: { username: string;route:string
                 </div>
               ))
             ) : (
-              <Empty title={tab==="solutions"?t("还没有题解","No solutions yet"):t("还没有相关动态", "No activity here yet")}>
-                <p>{tab==="solutions"?t("发布的题解会按题目关联展示在这里。","Published solutions appear here with their practice modules."):t("发布、回复或互动后，记录会显示在这里。","Posts and interactions will appear here as they happen.")}</p>
+              <Empty title={tab==="solutions"?t("还没有题解","No solutions yet"):tab==="interviews"?t("还没有面经","No interview experiences yet"):t("还没有相关动态", "No activity here yet")}>
+                <p>{tab==="solutions"?t("发布的题解会按题目关联展示在这里。","Published solutions appear here with their practice modules."):tab==="interviews"?t("发布的面试复盘会汇总在这里，方便继续阅读与交流。","Published interview reflections appear here to revisit and discuss."):t("发布、回复或互动后，记录会显示在这里。","Posts and interactions will appear here as they happen.")}</p>
                 {tab==="solutions"&&profile.viewer.is_self&&<a className="button subtle" href={solutionsHref()}>{t("去写一篇题解","Share a solution")}</a>}
+                {tab==="interviews"&&privateProfileOwner&&<a className="button subtle" href="#/interviews">{t("前往面经广场","Explore experiences")}</a>}
               </Empty>
             )}
           </section>
-          {!activityPending&&!activityError&&<Pagination key={activityKey} offset={offset} total={connectionTab?connections.total:activity.total} count={connectionTab?connections.items.length:activity.items.length} label={t('个人主页列表分页','Profile list pages')}
+          {!unavailableInterviews&&!activityPending&&!displayActivityError&&<Pagination key={activityKey} offset={offset} total={connectionTab?connections.total:activity.total} count={connectionTab?connections.items.length:activity.items.length} label={t('个人主页列表分页','Profile list pages')}
             onChange={next=>{if(next===offset)return;revealIntent.current=undefined;const target=document.getElementById('profile-community-panel');if(target){target.focus({preventScroll:true});revealReadingTarget(target);}setActivityLoading(true);location.hash=profileFeedHref(username,{tab,page:next/PAGE_SIZE+1});}}/>}
           </section>
           </div>

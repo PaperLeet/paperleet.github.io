@@ -54,7 +54,7 @@ try{
  const {UserProfile,default:Community}=await server.ssrLoadModule('/src/Community.tsx');
  const nav=await server.ssrLoadModule('/src/profileNavigation.ts'),community=await server.ssrLoadModule('/src/communityNavigation.ts'),accountNav=await server.ssrLoadModule('/src/accountNavigation.ts'),{decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
  model=await server.ssrLoadModule('/src/readingReturn.ts');
- const id='a'.repeat(32),reply='b'.repeat(32),tabs=['posts','solutions','replies','likes','reposts','following','followers'];
+ const id='a'.repeat(32),reply='b'.repeat(32),tabs=['posts','solutions','interviews','replies','likes','reposts','following','followers'];
  for(const tab of tabs)for(const page of [1,2,450359962737049]){
   const view={username:'alice',tab,page},href=nav.profileFeedHref('alice',view),thread=community.communityPostHref(id,href,reply);
   assert.deepEqual(nav.readProfileRoute(href),view);assert.deepEqual(nav.readProfileRoute(decodeProblemHash(href)),view);
@@ -67,7 +67,7 @@ try{
  for(const bad of ['u/ab','u/ALICE','u/alice/extra','u/alice?tab=','u/alice?tab=unknown','u/alice?tab=solutions&tab=posts','u/alice?page=0','u/alice?page=01','u/alice?page=1.5','u/alice?page=450359962737050','u/alice?page=2&page=3','u/alice?from=community','u/alice?code=private','u/alice?tab=%GG','u/alice?tab=solutions%0A','https://evil.test/u/alice','u/%2561lice?tab=posts']){
   assert.equal(nav.readProfileRoute(bad),undefined,bad);assert.equal(accountNav.signInHref(bad),'#/account',bad);assert.equal(community.communityPostReturn('#/community/'+id+'?'+new URLSearchParams({from:bad}),id),undefined,bad);
  }
- console.log('PASS profile navigation contracts: seven canonical public categories, safe bounded pages, exact post/reply/sign-in returns, source-free share links and invalid/duplicate/recursive/external context rejection');
+ console.log('PASS profile navigation contracts: eight canonical public categories, safe bounded pages, exact post/reply/sign-in returns, source-free share links and invalid/duplicate/recursive/external context rejection');
  const alice={id:'alice',username:'alice',display_name:'Alice',created_at:'2026-01-01',avatar_color:'#123456'},topic={id:'architecture/attention',number:1,title:'Attention'};
  const counts={posts:22,solutions:22,replies:1,likes:1,reposts:1,following:1,followers:1};
  const post={id,title:'Profile solution',body:'## Approach\nA complete derivation.',solution:true,category:'implementation',problem_id:topic.id,problem:topic,author:alice,counts:{likes:0,reposts:0,replies:0},viewer:{},created_at:'2026-10-16',updated_at:'2026-10-16'};

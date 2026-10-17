@@ -1,7 +1,7 @@
 /** Public profile context contains only a username, activity category and page. */
-export type ProfileTab='posts'|'solutions'|'replies'|'likes'|'reposts'|'following'|'followers';
+export type ProfileTab='posts'|'solutions'|'interviews'|'replies'|'likes'|'reposts'|'following'|'followers';
 export type ProfileView={username:string;tab:ProfileTab;page:number};
-const tabs=['posts','solutions','replies','likes','reposts','following','followers'];
+const tabs=['posts','solutions','interviews','replies','likes','reposts','following','followers'];
 const usernamePattern=/^[a-z0-9_]{3,24}$/;
 const maxPage=Math.floor(Number.MAX_SAFE_INTEGER/20);
 export function readProfileRoute(route:string):ProfileView|undefined{

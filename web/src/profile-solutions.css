@@ -1,2 +1,2 @@
-.profile-community-summary .profile-solution-contribution dt svg { color:var(--accent); }
-.profile-solutions-note { margin:0 0 18px; padding:12px 14px; border-radius:8px; background:var(--surface2); color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }
+.profile-community-summary :is(.profile-solution-contribution,.profile-interview-contribution) dt svg { color:var(--accent); }
+.profile-solutions-note,.profile-interviews-note { margin:0 0 18px; padding:12px 14px; border-radius:8px; background:var(--surface2); color:var(--text-secondary); font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }

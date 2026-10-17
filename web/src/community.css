@@ -1458,16 +1458,18 @@
 .profile-sidebar .profile-workspace-settings { display: flex; justify-content: center; min-width: 0; min-height: 40px; margin: 0 18px 18px; padding: 4px 0; text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .profile-community-summary { padding: 22px; }
 .profile-community-summary h2, .profile-community-content > h2 { font-size: var(--type-body); font-weight: 550; line-height: 1.5; margin: 0; }
-.profile-community-summary dl { display: grid; gap: 18px; margin: 22px 0 0; }
-.profile-community-summary dl > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: var(--type-body); }
+.profile-community-summary dl { display: grid; gap: 6px; margin: 22px 0 0; }
+.profile-community-summary dl > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height:40px; font-size: var(--type-body); }
 .profile-community-summary dt { display: flex; align-items: center; gap: 9px; color: var(--text-secondary); }
 .profile-community-summary dt svg { color: var(--green); }
 .profile-community-summary dl > div:nth-child(2) svg { color: var(--chart-2); }
 .profile-community-summary dl > div:nth-child(3) svg { color: #df828e; }
 .profile-community-summary dl > div:nth-child(4) svg { color: var(--accent); }
-.profile-community-summary dd { margin: 0; font-weight: 550; font-size: var(--type-body); }
-.profile-community-summary dd button { padding: 0 2px; color: var(--text); }
-.profile-community-summary dd button:hover { color: var(--accent); }
+.profile-community-summary dd { display:flex; align-items:center; justify-content:center; min-width:56px; margin: 0; font-weight: 550; font-size: var(--type-body); font-variant-numeric:tabular-nums; }
+.profile-community-summary dd button { display:inline-flex; align-items:center; justify-content:center; min-width:56px; min-height:40px; padding:4px 8px; border-radius:7px; color: var(--text); }
+.profile-community-summary dd button:hover { color: var(--accent); background:var(--surface2); }
+.profile-community-summary dd button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+@media(pointer:coarse) { .profile-community-summary dl > div,.profile-community-summary dd button { min-height:44px; } }
 .profile-community-summary > a { display: inline-flex; align-items: center; gap: 6px; margin-top: 23px; color: var(--text-secondary); font-size: var(--type-small); }
 .profile-community-summary > a:hover { color: var(--accent); }
 .profile-community-content { min-width: 0; scroll-margin-top: 88px; }
