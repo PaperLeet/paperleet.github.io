@@ -1,0 +1,2 @@
+.report-tests .report-test-search { flex-basis:100%; width:100%; margin-top:2px; }
+.report-tests .report-test-filters:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:8px; }
