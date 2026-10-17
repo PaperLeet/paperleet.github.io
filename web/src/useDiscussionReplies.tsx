@@ -2,7 +2,7 @@ import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ArrowLeft,ChevronDown,UserRound} from 'lucide-react';
 import type {Reply} from './communityDiscussion';
 import {useI18n} from './i18n';
-import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,readingScrollRoot,keepReadingTriggerVisible,type ReadingAnchor} from './readingViewport';
+import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,keepReadingTriggerVisible,type ReadingAnchor} from './readingViewport';
 import './discussion-replies.css';
 import CommunitySearch from './CommunitySearch';
 import {matchesReplySearch,replySearchQuery,replySearchTerms,replySearchText} from './replySearch';
@@ -98,7 +98,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   const anchor=origin.row?row:trigger;
   if(anchor&&trigger&&restoreReadingAnchor(anchor,origin)){
    trigger.focus({preventScroll:true});
-   if(readingScrollRoot(trigger))keepReadingTriggerVisible(trigger);
+   keepReadingTriggerVisible(trigger);
   }else{
    setNotice({href:jump.href,kind:'missing'});
    if(root.current){root.current.focus({preventScroll:true});revealReadingTarget(root.current);}

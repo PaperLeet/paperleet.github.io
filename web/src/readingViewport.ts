@@ -19,19 +19,24 @@ export function readingToolbarInset(node:HTMLElement):number {
 }
 
 export function revealReadingSection(target:HTMLElement) {
-  const pane=readingScrollRoot(target);
-  if(!pane&&!readingToolbar(target)){target.scrollIntoView({block:'start'});return;}
   revealReadingTarget(target);
 }
 
 export function revealReadingTarget(target:HTMLElement,block:ScrollLogicalPosition='start') {
+  if(!target.isConnected||target.closest('[hidden]'))return;
   const pane=readingScrollRoot(target);
+  if(block==='nearest'){keepReadingTriggerVisible(target);return;}
   if(!pane){
-    if(block==='start'&&readingToolbar(target))window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-readingToolbarInset(target)),behavior:'instant'});
-    else target.scrollIntoView({block,behavior:'instant'});
+    const range=readingVisibleRange(target,null,0),bounds=target.getBoundingClientRect();
+    if(range.top>0||range.bottom<window.innerHeight){
+      if(range.bottom<=range.top||!Number.isFinite(bounds.top))return;
+      const available=range.bottom-range.top;
+      const offset=block==='center'&&bounds.height<=available?range.top+(available-bounds.height)/2
+        :block==='end'?range.bottom-bounds.height:range.top;
+      window.scrollTo({top:Math.max(0,window.scrollY+bounds.top-offset),behavior:'instant'});
+    }else target.scrollIntoView({block,behavior:'instant'});
     return;
   }
-  if(block==='nearest'){keepReadingTriggerVisible(target);return;}
   const bounds=target.getBoundingClientRect(),top=bounds.top-pane.getBoundingClientRect().top-pane.clientTop;
   const offset=block==='center'&&bounds.height<=pane.clientHeight?(pane.clientHeight-bounds.height)/2
     :block==='end'?pane.clientHeight-bounds.height-24:readingToolbarInset(target);
@@ -55,12 +60,43 @@ export function restoreReadingAnchor(target:HTMLElement,origin:ReadingAnchor):bo
   return true;
 }
 
+/** The page and a nested reader each keep their own scroll position. */
+function readingVisibleRange(target:HTMLElement,pane:HTMLElement|null,pageInset:number){
+  const visual=window.visualViewport,screenHeight=window.innerHeight;
+  const hasVisual=visual&&Number.isFinite(visual.offsetTop)&&Number.isFinite(visual.height)&&visual.height>0;
+  const visualTop=hasVisual?Math.max(0,visual.offsetTop):0;
+  const screenBottom=hasVisual?Math.min(screenHeight,visualTop+visual.height):screenHeight;
+  const paneTop=pane?pane.getBoundingClientRect().top+pane.clientTop:0;
+  const baseBottom=pane?paneTop+pane.clientHeight:screenBottom;
+  const style=window.getComputedStyle(pane||document.documentElement);
+  const pixels=(value:string)=>Math.max(0,Number.parseFloat(value)||0);
+  let top=Math.max(visualTop,paneTop+pixels(style.scrollPaddingTop),pane?0:Number.isFinite(pageInset)?pageInset:0);
+  let bottom=Math.min(screenBottom,baseBottom-pixels(style.scrollPaddingBottom));
+  // Page scroll margins already express header clearance; do not add it twice
+  // or apply that global page offset inside the independent workspace pane.
+  if(!pane){const targetStyle=window.getComputedStyle(target);top=Math.max(top,pixels(targetStyle.scrollMarginTop));bottom=Math.min(bottom,screenBottom-pixels(targetStyle.scrollMarginBottom));}
+  const header=target.closest('.app')?.querySelector<HTMLElement>(':scope > .topbar');
+  if(header&&!header.contains(target)){
+    const position=window.getComputedStyle(header).position,bounds=header.getBoundingClientRect();
+    if((position==='sticky'||position==='fixed')&&bounds.height>0&&bounds.top<=top&&bounds.bottom>top)top=bounds.bottom;
+  }
+  const toolbar=readingToolbar(target);
+  if(toolbar&&!toolbar.contains(target))top=Math.max(top,paneTop+readingToolbarInset(target));
+  return {top,bottom};
+}
+
+/** Reveal only the nearest covered edge; an already visible reading position stays put. */
 export function keepReadingTriggerVisible(target:HTMLElement,pageInset=0) {
+  if(!target.isConnected||target.closest('[hidden]'))return;
   const pane=readingScrollRoot(target),bounds=target.getBoundingClientRect();
-  const top=pane?pane.getBoundingClientRect().top+pane.clientTop:pageInset;
-  const bottom=pane?top+pane.clientHeight:window.innerHeight;
-  if(bounds.top>=top&&bounds.bottom<=bottom)return;
-  if(!pane){target.scrollIntoView({block:'nearest',behavior:'instant'});return;}
-  const delta=bounds.top<top?bounds.top-top:bounds.bottom-bottom;
-  pane.scrollTo({top:Math.max(0,pane.scrollTop+delta),behavior:'instant'});
+  if(!Number.isFinite(bounds.top)||!Number.isFinite(bounds.bottom)||bounds.bottom<=bounds.top)return;
+  const {top,bottom}=readingVisibleRange(target,pane,pageInset);
+  if(!Number.isFinite(top)||!Number.isFinite(bottom)||bottom<=top)return;
+  const start=bounds.top,end=bounds.bottom;
+  if(start>=top&&end<=bottom||start<=top&&end>=bottom)return;
+  const fits=end-start<=bottom-top;
+  const delta=start<top?(fits?start-top:end-bottom):(fits?end-bottom:start-top);
+  if(!delta)return;
+  if(pane)pane.scrollTo({top:Math.max(0,pane.scrollTop+delta),behavior:'instant'});
+  else window.scrollTo({top:Math.max(0,window.scrollY+delta),behavior:'instant'});
 }
