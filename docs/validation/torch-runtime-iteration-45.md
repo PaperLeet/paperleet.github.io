@@ -88,3 +88,7 @@ Preserved all 16 web/docs changes from `cc1da1421eb100e362de5334180365305499dee2
 Preserved all 6 web/docs changes from `11851e524fcaa83ba3f31416035a56b55b56156f` through `8f5ce64dc017a4c5a363ef3d3cb083ab58b7fb16` and reran the complete frontend check and both builds. Scope: Six web files only: searchable test details preserving filters/run boundaries. Mathematical source/tests, SDK/native inputs, exports and release policies unchanged. Repeat complete frontend and both builds on the combined source.
 
 The runtime/test/export/SDK/catalog/release-policy inputs to the CPU, native, installed-package, exported-WASM and performance evidence remain unchanged. Historical upstream hashes are checked against their Git blobs; current files match the latest union. Every original/latest frontend receipt is retained. Existing manually dispatched quality/Pages chains are observed read-only; remote main is held until they are terminal.
+
+## Main adoption
+
+Validated source `7f98aebde57b6afc3486d0d55baef9956eba2379` was adopted on remote main by ordinary non-force push. The remote SHA was verified exactly; zero Actions runs were observed for this source SHA. All 51 source/license resources, 161 active export identities, 10,229 immutable payloads and seven canonical release-policy files were rechecked. The separate proof commit is verified outside the repository after its push. No tag,dispatch,release,PyPI upload or online deployment was initiated by this work.
