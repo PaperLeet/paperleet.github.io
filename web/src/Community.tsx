@@ -1,3 +1,4 @@
+import PostSearchMatch from './PostSearchMatch';
 import {sourcePostReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
@@ -206,7 +207,7 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void }) {
+function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved,searchQuery }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void;searchQuery?:string }) {
   const { t,locale } = useI18n();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const [bookmarked,setBookmarked]=useState(post.viewer.bookmarked),[bookmarkBusy,setBookmarkBusy]=useState(false);
@@ -224,8 +225,8 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             <DateLabel value={post.created_at} />
             <Category value={post.solution ? "solutions" : post.category} />
           </div>
-          {readInPlace&&post.solution ? <SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode}/> : <><a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
-            {post.title}
+          {readInPlace&&post.solution ? <SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery}/> : <><a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
+            <PostSearchMatch text={post.title} query={searchQuery}/>
           </a>
           {post.problem && (
             <a className="post-problem-link" href={post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id)}>
@@ -233,7 +234,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             </a>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}
-          <InlinePostBody postId={post.id} body={post.body} limit={190}/>
+          <InlinePostBody postId={post.id} body={post.body} limit={190} query={searchQuery}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
           <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}>
@@ -790,7 +791,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {days&&<button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t('查看不限时间','Browse all time')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)
+              data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)
             )}
           </div>
           {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && (
