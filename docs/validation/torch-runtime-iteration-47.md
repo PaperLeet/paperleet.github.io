@@ -115,3 +115,7 @@ Prototype runs are not counted as final verification; an unversioned partial CPU
 run was explicitly stopped after source changes and replaced with the frozen run.
 
 No tag, workflow dispatch, release, PyPI upload or deployment is initiated by this work.
+
+## Main adoption
+
+Validated source `890d9d63586b383481925d11fe1addbf62a99aaf` was adopted on remote main by ordinary non-force push. The remote SHA was verified exactly; zero Actions runs were observed for this source SHA. All 52 source/license resources, 161 active export identities, 10,545 immutable payloads and seven canonical release-policy files were rechecked. The separate proof commit is verified outside the repository after its push. No tag,dispatch,release,PyPI upload or online deployment was initiated by this work.
