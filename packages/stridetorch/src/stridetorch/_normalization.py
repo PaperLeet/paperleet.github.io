@@ -45,22 +45,16 @@ def _validate(input, shape, weight, bias, eps):
 
 
 def _layer_statistics(source, axes, shape):
-    mean = source.mean(axis=axes,keepdims=True)
-    centered = source-mean
-    variance = np.mean(centered*centered,axis=axes,keepdims=True)
     if source.dtype==np.dtype('float32'):
-        # Recompute only ill-conditioned rows. A rounded float32 mean can lose
-        # most of the small centered signal even when all inputs are finite.
-        sensitive = (variance>0)&(np.abs(mean)*np.finfo(np.float32).eps > np.sqrt(variance)*1e-3)
-        if sensitive.any():
-            count = int(np.prod(shape))
-            selected = source.reshape(-1,count)[sensitive.reshape(-1)].astype(np.float64)
-            delta = selected-selected.mean(axis=1,keepdims=True)
-            centered = np.ascontiguousarray(centered)
-            centered.reshape(-1,count)[sensitive.reshape(-1)] = delta
-            variance = variance.copy(order='C')
-            variance.reshape(-1)[sensitive.reshape(-1)] = np.mean(delta*delta,axis=1)
-    return centered,variance
+        # Accumulate before rounding. Small ordinary mean/variance errors can
+        # amplify through successive normalization mixed derivatives even when
+        # a row does not meet a large-offset cancellation heuristic.
+        high = source.astype(np.float64)
+        centered = high-high.mean(axis=axes,keepdims=True)
+        variance = np.mean(centered*centered,axis=axes,keepdims=True)
+        return centered.astype(np.float32),variance.astype(np.float32)
+    centered = source-source.mean(axis=axes,keepdims=True)
+    return centered,np.mean(centered*centered,axis=axes,keepdims=True)
 
 
 def _forward(kind, input, shape, weight, bias, eps):
@@ -76,6 +70,25 @@ def _forward(kind, input, shape, weight, bias, eps):
         return _autograd.ForwardTensor(primal,tangent)
     axes = tuple(range(x.ndim-len(shape),x.ndim))
     if kind=='layer':
+        if (x.dtype==np.dtype('float32') and np.isfinite(eps)
+                and eps>=np.finfo(np.float32).eps and np.isfinite(x._data).all()
+                and np.isfinite(primal._data).all()):
+            # Keep the public dtype, but avoid accumulating several FP32
+            # rounding stages in the LayerNorm tangent and its reverse tape.
+            # The mean/inverse remain frozen on that tape, as in the native
+            # LayerNorm JVP. Tiny/non-positive eps and non-finite inputs retain
+            # the original IEEE path below, as do non-finite primal results.
+            data,variance = _layer_statistics(x._data.astype(np.float64),axes,shape)
+            inverse = _tensor.Tensor(1/np.sqrt(variance+eps))
+            centered = _autograd.result(data,(x,lambda g:g))
+            direction = dx.to(dtype=np.float64)
+            projected = direction-direction.mean(axes,True)
+            inverse_tangent = (-inverse.pow(3)*projected*centered).mean(axes,True)
+            tangent = projected*inverse+centered*inverse_tangent
+            if w is not None:
+                tangent = tangent*w.to(dtype=np.float64)+(centered*inverse)*dw.to(dtype=np.float64)
+            if b is not None:tangent = tangent+db.to(dtype=np.float64)
+            return _autograd.ForwardTensor(primal,tangent.to(dtype=np.float32))
         with np.errstate(over='ignore',invalid='ignore'):
             data,variance = _layer_statistics(x._data,axes,shape)
             inverse = _tensor.Tensor(1/np.sqrt(variance+eps))
@@ -173,8 +186,9 @@ class LayerNorm(Module):
         dtype = parameter_dtype(dtype,device)
         self.normalized_shape = _shape(normalized_shape,constructor=True)
         self.eps, self.elementwise_affine = eps, elementwise_affine
-        self.register_parameter('weight',Parameter(_tensor.Tensor(np.ones(self.normalized_shape,dtype=dtype))) if elementwise_affine else None)
-        self.register_parameter('bias',Parameter(_tensor.Tensor(np.zeros(self.normalized_shape,dtype=dtype))) if elementwise_affine and bias else None)
+        self.register_parameter('weight',Parameter(_tensor.Tensor(np.empty(self.normalized_shape,dtype=dtype))) if elementwise_affine else None)
+        self.register_parameter('bias',Parameter(_tensor.Tensor(np.empty(self.normalized_shape,dtype=dtype))) if elementwise_affine and bias else None)
+        self.reset_parameters()
 
     def reset_parameters(self):
         with _autograd.no_grad():

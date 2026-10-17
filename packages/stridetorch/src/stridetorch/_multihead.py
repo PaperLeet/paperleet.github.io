@@ -195,22 +195,7 @@ def multi_head_attention_forward(query, key, value, embed_dim_to_check, num_head
 
 
 class NonDynamicallyQuantizableLinear(_nn.Linear):
-    def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
-        Module.__init__(self)
-        dtype = parameter_dtype(dtype, device)
-        if type(in_features) is not int or type(out_features) is not int or min(in_features, out_features) < 0:
-            raise ValueError('Linear dimensions must be nonnegative integers')
-        self.in_features, self.out_features = in_features, out_features
-        self.weight = Parameter(_tensor.Tensor(np.empty((out_features, in_features), dtype=dtype)))
-        self.register_parameter('bias', Parameter(_tensor.Tensor(np.empty(out_features, dtype=dtype))) if bias else None)
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        bound = self.in_features ** -.5 if self.in_features else 0
-        with _autograd.no_grad():
-            for parameter in [self.weight, self.bias]:
-                if parameter is not None:
-                    parameter[...] = (_random.uniform_samples(np.random, parameter.shape, parameter.dtype) * (2 * bound) - bound).astype(parameter.dtype)
+    pass
 
 
 class MultiheadAttention(Module):

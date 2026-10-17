@@ -7,6 +7,12 @@ from . import _autograd, _errors, _random, _tensor
 from ._module import Module
 
 
+def relu(input, inplace=False):
+    if inplace:
+        raise _errors.BrowserUnsupported('In-place ReLU requires the server')
+    return input.relu()
+
+
 def _gelu_terms(data, approximate, *, curvature=False):
     dtype = data.dtype.type
     half,one,two,three,six = (dtype(v) for v in (.5,1,2,3,6))

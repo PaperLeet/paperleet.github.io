@@ -27,7 +27,7 @@ def create_torch(name='torch', *, register=False):
     modules = {'torch': torch}
     for name in ('nn', 'nn.functional', 'nn.parameter', 'nn.modules', 'nn.modules.module',
                  'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
-                 'nn.modules.normalization', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.instancenorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
+                 'nn.modules.normalization', 'nn.modules.transformer', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.instancenorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
                  'nn.modules.flatten', 'nn.modules.distance', 'nn.modules.pooling',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
@@ -50,6 +50,7 @@ def create_torch(name='torch', *, register=False):
     for module, names in (
         (_normalization,('LayerNorm','RMSNorm')),
         (_multihead,('MultiheadAttention',)),
+        (_transformer,('TransformerEncoderLayer','TransformerDecoderLayer','TransformerEncoder','TransformerDecoder','Transformer')),
         (_groupnorm,('GroupNorm',)),
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
@@ -76,6 +77,7 @@ def create_torch(name='torch', *, register=False):
         'linear':('Linear','Identity'),
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid','MultiheadAttention'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
+        'transformer':('TransformerEncoderLayer','TransformerDecoderLayer','TransformerEncoder','TransformerDecoder','Transformer'),
         'conv':('Conv1d','Conv2d','Conv3d','ConvTranspose1d','ConvTranspose2d','ConvTranspose3d'),
         'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d','AvgPool3d','AdaptiveAvgPool3d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
@@ -228,10 +230,7 @@ def create_torch(name='torch', *, register=False):
         'cross_entropy': _classification.cross_entropy, 'nll_loss': _classification.nll_loss,
         'embedding': _nn.embedding, 'mse_loss': _nn.mse_loss,
     }, reverse='analytic', forward=True)
-    def relu(input, inplace=False):
-        if inplace: raise _errors.BrowserUnsupported('In-place ReLU requires the server')
-        return input.relu()
-    registry.add('torch.nn.functional.relu', relu, reverse='analytic', forward=True)
+    registry.add('torch.nn.functional.relu', _activation.relu, reverse='analytic', forward=True)
     registry.add('torch.avg_pool1d', _average_pooling.avg_pool1d, reverse='analytic', forward=True)
     registry.add('torch.adaptive_avg_pool1d', _average_pooling.adaptive_avg_pool1d, reverse='analytic', forward=True)
     registry.add('torch.max_pool1d', _pooling.torch_max_pool1d, reverse='analytic', forward=True)
@@ -281,4 +280,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead
+from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer

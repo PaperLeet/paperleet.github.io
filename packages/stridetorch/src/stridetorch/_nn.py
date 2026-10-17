@@ -73,14 +73,19 @@ class Linear(Module):
         if type(in_features) is not int or type(out_features) is not int or min(in_features, out_features) < 0:
             raise ValueError('Linear dimensions must be nonnegative integers')
         self.in_features, self.out_features = in_features, out_features
-        bound = in_features ** -.5 if in_features else 0
-        def parameter(shape):
-            return Parameter((_random.uniform_samples(np.random, shape, dtype) * (2 * bound) - bound).astype(dtype))
-        self.weight = parameter((out_features, in_features))
+        self.weight = Parameter(_tensor.Tensor(np.empty((out_features, in_features), dtype=dtype)))
         if bias:
-            self.bias = parameter((out_features,))
+            self.bias = Parameter(_tensor.Tensor(np.empty(out_features, dtype=dtype)))
         else:
             self.register_parameter('bias', None)
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        bound = self.in_features ** -.5 if self.in_features else 0
+        with _autograd.no_grad():
+            for parameter in (self.weight, self.bias):
+                if parameter is not None:
+                    parameter[...] = (_random.uniform_samples(np.random, parameter.shape, parameter.dtype) * (2 * bound) - bound).astype(parameter.dtype)
 
     def forward(self, input):
         return linear(input, self.weight, self.bias)

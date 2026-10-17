@@ -1465,3 +1465,44 @@ output projection, so a nonzero output bias remains. This does not emulate
 native fused inference kernels, nested tensors, GPU kernels or quantization.
 Positive non-boolean integer dimensions and finite dropout in `[0,1]` are
 validated eagerly, including during construction.
+
+### Dense Transformer modules (0.53)
+
+`nn.TransformerEncoderLayer`, `nn.TransformerDecoderLayer`,
+`nn.TransformerEncoder`, `nn.TransformerDecoder` and `nn.Transformer` compose
+the existing attention, Linear, LayerNorm and dropout implementations. They
+support sequence-first/batch-first and unbatched inputs, pre/post normalization,
+ReLU/GELU or callable activation, biasless/zero-width feedforward networks,
+attention/padding masks, causal hints and automatic square-causal-mask detection,
+optional final normalization, independent cloned layers and custom full-model
+encoders/decoders. `Transformer.generate_square_subsequent_mask` creates a
+boolean, floating or complex mask. MHA itself still requires real float32/64.
+
+The encoder accepts `enable_nested_tensor` and `mask_check` as optimization
+preferences but always sets `use_nested_tensor=False`: this backend executes
+dense math. Native fused Transformer inference and actual NestedTensor inputs
+are not implemented. Empty stacks construct but raise IndexError when forwarded,
+matching the dense native path. Layer counts and feedforward widths must be
+nonnegative non-boolean integers. Correct causal hints remain the caller's
+responsibility; explicit false hints disable automatic mask detection.
+
+State keys, independent layer/parameter cloning, initialization streams and
+versions, hooks, dtype conversion, pickle/deepcopy, optimizer and scheduler
+checkpoint continuation are verified. `Linear.reset_parameters()` is available;
+Linear and LayerNorm constructors now perform genuine initialization writes.
+Outputs and parameters retain their requested public dtype.
+
+Float32 LayerNorm statistics accumulate in float64 before rounding back. For
+finite inputs/results with finite epsilon at least float32 machine epsilon,
+LayerNorm tangents and their reverse tape also use float64 intermediates before
+returning float32. This reduces accumulated mixed-AD rounding in deep normalized
+models; it uses additional temporary/intermediate storage. Tiny/non-positive
+epsilon and non-finite cases use the existing tangent formula. The native-style
+frozen mean/inverse convention for LayerNorm's mixed AD remains unchanged.
+
+Native comparisons cover float32/64 outputs, first derivatives, JVPs and mixed
+AD. Five float32 mixed arrays in the current deep-model corpus differ from native
+elementwise tolerances; both backends are additionally checked against an exact-
+input float64 oracle with max error normalized by max(1, oracle max magnitude)
+at most 1e-5. Float64 mixed AD remains checked elementwise. This is numerical
+compatibility with documented floating-point bounds, not bitwise equivalence.
