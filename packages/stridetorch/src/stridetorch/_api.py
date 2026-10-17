@@ -256,12 +256,14 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.nn.functional.scaled_dot_product_attention', _nn.scaled_dot_product_attention_oracle, reverse='analytic', forward=True)
     registry.add('torch.nn.functional.multi_head_attention_forward', _multihead.multi_head_attention_forward, reverse='analytic', forward=True)
     registry.group('torch.linalg', {
-        'inv': _linalg.inv, 'norm': _linalg.linalg_norm, 'svd': _linalg.svd, 'eigh': _linalg.eigh,
+        'norm': _linalg.linalg_norm, 'svd': _linalg.svd, 'eigh': _linalg.eigh,
         'qr': _linalg.qr, 'eigvalsh': _linalg.eigvalsh,
         'svdvals': lambda input,*,driver=None,out=None: _linalg.svd(input,False,driver=driver,out=out).S,
     }, reverse='analytic')
     registry.add('torch.det', _linalg.det, reverse='analytic', forward=True)
     registry.add('torch.linalg.det', _linalg.det, reverse='analytic', forward=True)
+    registry.add('torch.inverse', _linalg.inv, reverse='analytic', forward=True)
+    registry.add('torch.linalg.inv', _linalg.linalg_inv, reverse='analytic', forward=True)
     registry.group('torch', {'slogdet':_determinants.slogdet,'logdet':_determinants.logdet}, reverse='analytic', forward=True)
     registry.add('torch.linalg.slogdet', _determinants.linalg_slogdet, reverse='analytic', forward=True)
     registry.add('torch.linalg.solve', _linalg.solve, reverse='analytic', forward=True)

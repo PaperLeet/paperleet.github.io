@@ -606,7 +606,15 @@ class Tensor:
                 raise RuntimeError('matmul backward operands must have matching dtypes')
             grad = _ops.unbroadcast(np.swapaxes(current, -1, -2) @ promote(g), bb.shape)
             return grad.reshape(b.shape)
-        return _autograd.result(a @ b, (self, left), (other, right))
+        output=_autograd.result(a @ b, (self, left), (other, right),versioned=())
+        if output.requires_grad:
+            # Each derivative saves only its opposite operand. The result is
+            # never read by either pullback, so its mutation is harmless.
+            counters=set()
+            if self.requires_grad:counters.add(other._storage)
+            if other.requires_grad:counters.add(self._storage)
+            output._grad_node.versions=tuple((counter,counter.version) for counter in counters)
+        return output
     def __rmatmul__(self, other): return _ops.wrap(other) @ self
 
     def reshape(self, *shape):
@@ -808,6 +816,7 @@ class Tensor:
         shape,dtype = self.shape,self.dtype
         return _autograd.result(np.trace(original_data), (self, lambda g: np.eye(*shape, dtype=dtype) * g), saves_tensors=False)
     def det(self): return _linalg.det(self)
+    def inverse(self): return _linalg.inv(self)
     def slogdet(self): return _linalg.slogdet(self)
     def logdet(self): return _linalg.logdet(self)
     def cholesky_solve(self, input2, upper=False):

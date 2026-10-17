@@ -23,10 +23,15 @@ def test_inverse_values_and_batched_vjp_match_native(dtype,shape):
         np.testing.assert_allclose(got.numpy(),want.numpy(),atol=2e-6 if dtype==np.float32 else 1e-12,rtol=2e-6)
 
 
-def test_inverse_singular_shape_and_unsupported_complex():
+def test_inverse_singular_shape_complex_forward_and_ad_boundary():
     for data in ([[1.,2.],[2.,4.]],np.zeros((2,3)),np.zeros(3)):
         with pytest.raises(RuntimeError): wasm.inv(wasm.Tensor(data))
-    with pytest.raises(wasm.BrowserUnsupported): wasm.inv(wasm.Tensor(np.eye(2,dtype=np.complex128)))
+    for dtype in [np.complex64,np.complex128]:
+        data=np.diag(np.array([1.+.5j,2.-.2j],dtype=dtype))
+        actual=wasm.inv(wasm.Tensor(data));expected=torch.linalg.inv(torch.from_numpy(data))
+        np.testing.assert_allclose(actual.numpy(),expected.numpy(),rtol=3e-6,atol=0)
+        assert actual.stride()==tuple(expected.stride())
+        with pytest.raises(wasm.BrowserUnsupported):wasm.Tensor(data,requires_grad=True)
     with pytest.raises(wasm.BrowserUnsupported): wasm.inv(wasm.Tensor(np.eye(2)),out=wasm.Tensor(np.eye(2)))
 
 

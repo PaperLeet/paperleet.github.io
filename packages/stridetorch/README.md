@@ -388,6 +388,31 @@ behavior for zero pivots. Native linalg makes no general cross-backend guarantee
 for NaN inputs; StrideTorch consistently rejects a non-positive/NaN Cholesky
 factor diagonal while continuing to ignore unused input triangles.
 
+## Matrix inverses and forward AD
+
+`torch.inverse(input)`, `torch.linalg.inv(A)` and `Tensor.inverse()` support
+real float32/64 matrices and complex64/128 forward evaluation. The existing
+`torch.linalg.inv(input=...)` spelling remains available. Outputs match native
+column-major final axes, including batches and empty matrices. Use `reshape`
+when flattening a layout that cannot be represented by `view`. General inverses
+and JVP final products generate transposed output buffers directly, avoiding a
+second full-matrix layout copy.
+
+Real inputs support `torch.func.jvp` and reverse differentiation through both
+returned channels. The inverse is computed once and reused by both reverse
+paths. Ordinary inverse backward saves its output, so changing the original
+input is allowed; changing the inverse result is guarded. Singleton inversion
+uses the dtype reciprocal, avoiding unnecessary factorization and preserving
+native extreme-scale outcomes. Finite-input restrictions, singular errors and
+unsupported output buffers remain explicit; complex AD requires the server.
+
+The JVP follows native tangent feature-stride copying: a direction with
+different strides is copied when reverse propagation needs its values.
+Otherwise it is protected in place. The returned primal's hooks and retained
+gradient are separate from the private inverse used by the tangent graph.
+Matrix multiplication now protects only operands needed by active derivatives;
+its output is not saved by its own pullbacks.
+
 ## Stable log determinants
 
 `torch.slogdet(input)`, `torch.linalg.slogdet(A)` and `Tensor.slogdet()` return

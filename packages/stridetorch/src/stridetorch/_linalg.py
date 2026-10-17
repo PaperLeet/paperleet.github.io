@@ -280,15 +280,70 @@ def solve_triangular(A, B, *, upper, left=True, unitriangular=False, out=None):
     return output
 
 
+def _inverse_values(source):
+    if source.shape[-1]==1:
+        if np.any(source==0):raise RuntimeError('The matrix is singular')
+        return np.reciprocal(source)
+    # Transposed factorization exposes native column-major cores directly.
+    try:value=np.linalg.inv(source.swapaxes(-1,-2)).swapaxes(-1,-2)
+    except np.linalg.LinAlgError as error:raise RuntimeError('The matrix is singular') from error
+    if not _NUMPY_ERRORS_RAISE and np.isnan(value).any():_check_singular(source)
+    return value
+
+
+def _inverse_primal(input):
+    if _NUMPY_ERRORS_RAISE:
+        with np.errstate(all='ignore'):value=_inverse_values(input._data)
+    else:value=_inverse_values(input._data)
+    if input.shape[-1]==1:value=_layout.contiguous_empty(np.ascontiguousarray(value))
+    elif not value.size:value=_solve_layout(value,True)
+    transpose=np.swapaxes(value,-1,-2)
+    output=_autograd.result(value,(input,lambda g:_layout.contiguous_empty(-(transpose @ (g @ transpose)))),versioned=())
+    if output.requires_grad:
+        counter=output._storage;output._grad_node.versions=((counter,counter.version),)
+    return output
+
+
+def _inverse_jvp(input):
+    primal=input._primal;direction=input._tangent;output=_inverse_primal(primal)
+    value=output._data;transpose=value.swapaxes(-1,-2);e=direction._data
+    # Native forward AD copies a tangent whose feature strides differ. Its
+    # backward then reads that copy, allowing mutation of the original seed.
+    copied=output.requires_grad and e.strides!=primal._data.strides
+    if copied:e=e.copy(order='K')
+    with np.errstate(all='ignore'):
+        left=value @ e;tangent=(-(transpose @ left.swapaxes(-1,-2))).swapaxes(-1,-2)
+    if not tangent.size:tangent=_layout.contiguous_empty(tangent)
+    column_direction=primal.ndim==2 and primal._data.flags.f_contiguous
+    def value_backward(g):
+        negative=-g
+        return _layout.contiguous_empty((negative @ transpose) @ e.swapaxes(-1,-2)+left.swapaxes(-1,-2) @ negative)
+    def direction_backward(g):
+        result=transpose @ ((-g) @ transpose)
+        if not result.size:return _layout.contiguous_empty(result)
+        return np.asfortranarray(result) if column_direction else np.ascontiguousarray(result)
+    versions=(output,direction) if output.requires_grad and not copied else (output,)
+    tangent=_autograd.result(tangent,(output,value_backward),(direction,direction_backward),versioned=versions)
+    exposed=_autograd.view_result(output._data,output,lambda g:g)
+    return _autograd.ForwardTensor(exposed,tangent)
+
+
 def inv(input, *, out=None):
-    if out is not None: raise _errors.BrowserUnsupported('Inverse output buffers require the server')
-    real_matrix(input)
-    if input.shape[-1] != input.shape[-2]: raise RuntimeError('Inverse expects square matrices')
-    try: value = np.linalg.inv(input._data)
-    except np.linalg.LinAlgError as error: raise RuntimeError('The matrix is singular') from error
-    if not _NUMPY_ERRORS_RAISE and np.isnan(value).any():_check_singular(input._data)
-    transpose = np.swapaxes(value, -1, -2)
-    return _autograd.result(value, (input, lambda g: -transpose @ g @ transpose))
+    if out is not None:raise _errors.BrowserUnsupported('Inverse output buffers require the server')
+    if not isinstance(input,_tensor.Tensor):raise TypeError('Inverse expects a Tensor')
+    if input.ndim<2 or input.shape[-1]!=input.shape[-2]:raise RuntimeError('Inverse expects square matrices')
+    if input.dtype.char not in 'fdFD':raise _errors.BrowserUnsupported('Inverse requires float32/64 or complex64/128')
+    if not np.isfinite(input._data).all():raise RuntimeError('Linear algebra requires finite inputs')
+    if isinstance(input,_autograd.ForwardTensor):return _inverse_jvp(input)
+    return _inverse_primal(input)
+
+
+def linalg_inv(A=None, *, out=None, input=None):
+    # Keep the pre-existing input= spelling while accepting native A= calls.
+    if A is None:A=input
+    elif input is not None:raise TypeError('linalg.inv received both A and input')
+    if A is None:raise TypeError('linalg.inv requires a Tensor A')
+    return inv(A,out=out)
 
 
 def real_matrix(input):
