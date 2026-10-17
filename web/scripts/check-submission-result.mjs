@@ -116,7 +116,7 @@ try {
   const originals = new Map();
   const requests = [];
   const globals = {
-    window: dom.window, document: dom.window.document, navigator: dom.window.navigator,
+    window: dom.window, document: dom.window.document, navigator: dom.window.navigator, location: dom.window.location,
     localStorage: dom.window.localStorage, IS_REACT_ACT_ENVIRONMENT: true,
     __submissionResultTestAccount: { user: { id: 'alice' }, loading: false, refresh: async () => {} },
     fetch: (path, options) => new Promise(resolve => requests.push({ path, options, resolve })),
@@ -140,6 +140,9 @@ try {
     assert.equal(document.activeElement?.id, 'submission-result-title', 'A completed result is announced via the focused heading');
     assert(document.body.textContent.includes('Saved to your account'));
     assert(!document.body.textContent.includes(run.code), 'The result landing page does not expose submitted source');
+    const sourcePanel=document.querySelector('.submitted-source-disclosure');assert(sourcePanel&&!sourcePanel.open);
+    await act(async()=>{sourcePanel.open=true;sourcePanel.dispatchEvent(new dom.window.Event('toggle'));});
+    assert.equal(document.querySelector('.submitted-source pre').textContent,run.code,'Only explicit disclosure reveals the immutable submitted source');assert.equal(requests.length,1,'Reading this snapshot does not fetch or submit again');
     assert.equal([...document.querySelectorAll('a')].find(link => link.textContent === 'Next problem')?.getAttribute('href'), '#/4');
 
     const secondId = 'c'.repeat(32);
@@ -178,7 +181,9 @@ try {
     assert(requests[historyRequest].path.startsWith('/api/practice/runs?'));
     await act(async () => requests[historyRequest].resolve(Response.json({ user_id: 'alice', runs: [run] })));
     assert.equal(dom.window.location.href, practiceRoute, 'Loading completed submissions keeps the current practice route');
-    const savedResultLink = document.querySelector('.solution-history-source-heading a');
+    assert.equal(document.querySelectorAll('.solution-history-source').length,0,'History source is mounted only after opening its record');
+    await act(async()=>{const entry=document.querySelector('.solution-history-list details');entry.open=true;entry.dispatchEvent(new dom.window.Event('toggle'));});
+    const savedResultLink = document.querySelector('.submitted-source-actions a');
     assert.equal(savedResultLink?.textContent, 'View result');
     assert.equal(savedResultLink?.getAttribute('href'), `#/submission/${id}`);
     const navigated = new Promise(resolve => dom.window.addEventListener('hashchange', resolve, { once: true }));

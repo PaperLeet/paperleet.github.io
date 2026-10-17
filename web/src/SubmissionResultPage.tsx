@@ -8,6 +8,7 @@ import { withLibraryContext } from './libraryNavigation';
 import { useAccount } from './social';
 import { loadSubmissionResult, submissionFailurePreview, type SubmissionResultState } from './submissionResultData';
 import type { Problem } from './types';
+import {SubmittedSourceDisclosure} from './SubmittedSource';
 import './submission-result.css';
 
 const ResultReport = deferredFeature(() => import('./ReportView'), ['提交测试详情', 'submission test details']);
@@ -123,6 +124,8 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
         {run.accepted && next ? <a className="button subtle" href={problemHref}><Code2 size={16} />{t('返回代码', 'Back to code')}</a> : <a className="button subtle" href={libraryHref}>{t('浏览题库', 'Browse papers')}<ArrowRight size={16} /></a>}
       </div>
     </section>
+
+    <SubmittedSourceDisclosure key={scope} scope={scope} code={run.code}/>
 
     <section className="submission-result-details">
       <button type="button" className="submission-result-details-toggle" aria-expanded={detailOpen} aria-controls="submission-result-tests" onClick={() => setExpanded(detailOpen ? undefined : scope)}>
