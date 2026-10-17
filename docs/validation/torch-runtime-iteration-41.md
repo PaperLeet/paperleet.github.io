@@ -114,3 +114,7 @@ typed builds pass. All 32 latest frontend file snapshots and the
 earlier snapshots/supersessions are verified against Git. All 49 source/license
 and 161 active-export hashes remain exact. See `iteration-41-main-sync-final2.json`
 and its harness. Earlier numerical/native/full-WASM evidence remains applicable.
+
+Validated source was adopted non-force on remote `main` at `509cfc2a9acd1181a9826e604120d1d5ad03e542`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-41-main-adoption.json`; no tag, dispatch or online release was created.
