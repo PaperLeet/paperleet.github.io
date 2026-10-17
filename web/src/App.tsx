@@ -1,6 +1,7 @@
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
 import {ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
+import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
@@ -488,6 +489,7 @@ function Workspace() {
     : practice.loading || !practice.ready ? "loading"
     : practice.saving || practice.pending ? "saving" : "saved";
   return (
+    <PracticeProgressProvider owner={practice.owner} problems={problems} saved={learningSaved} ready={progressReady} failed={!!practice.error||learning.failed} retry={()=>{practice.retry();learning.retry();}}>
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
       <header className="topbar">
         <div className="nav-inner">
@@ -1217,5 +1219,6 @@ function Workspace() {
         </div>
       )}
     </div>
+    </PracticeProgressProvider>
   );
 }

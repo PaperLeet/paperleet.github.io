@@ -283,6 +283,25 @@
 @media(pointer:coarse){.interview-report-practice-toggle,.interview-report-practice-retry button{min-height:44px}}
 
 .interview-report-practice-item{display:inline-flex;align-items:center;min-width:0;max-width:100%}
+.interview-report-practice-state{flex:none;color:var(--text-secondary);font-size:var(--type-meta);white-space:nowrap}
+.interview-report-practice-item a[data-practice-state="done"]>svg{color:var(--green)}
+.interview-report-practice-item a[data-practice-state="started"]>svg{color:var(--accent)}
+.interview-report-progress{flex-basis:100%;display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;min-width:0;margin-top:3px;color:var(--text-secondary);font-size:var(--type-small);line-height:1.7}
+.interview-report-progress-count{display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:5px}
+.interview-report-progress-label{font-weight:500;color:var(--text)}
+.interview-report-progress-count b{color:var(--text);font-variant-numeric:tabular-nums}
+.interview-report-progress-count small{font-size:var(--type-meta)}
+.interview-report-progress progress{width:72px;height:5px;border:0;border-radius:4px;overflow:hidden;accent-color:var(--green);background:var(--surface2)}
+.interview-report-progress progress::-webkit-progress-bar{background:var(--surface2);border-radius:4px}
+.interview-report-progress progress::-webkit-progress-value{background:var(--green);border-radius:4px}
+.interview-report-progress progress::-moz-progress-bar{background:var(--green);border-radius:4px}
+.interview-report-practice-next{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0;max-width:100%;min-height:40px;color:var(--accent);border-radius:6px;padding:4px 6px}
+.interview-report-practice-next b{min-width:0;overflow-wrap:anywhere;font-weight:500}
+.interview-report-practice-next:hover{background:var(--surface2)}
+.interview-report-progress button{display:inline-flex;align-items:center;gap:5px;min-height:40px}
+.interview-report-progress :is(a,button):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.interview-report-progress:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+@media(pointer:coarse){.interview-report-practice-next,.interview-report-progress button{min-height:44px}}
 .interview-report-practice-item:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:7px}
 
 .interview-path-module-disclosure{min-width:0}
