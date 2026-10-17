@@ -28,11 +28,12 @@ def _check(input):
     if input.dtype.char not in 'fdFD':raise _errors.BrowserUnsupported('Log determinants require float32/64 or complex64/128')
 
 
-def _ieee_solve(a,b,transpose=False):
+def _ieee_solve(a,b,transpose=False,*,regularize=False):
     """Dense pivoted-LU fallback when LAPACK reports a singular matrix.
 
     Singular log derivatives are undefined. Preserve IEEE divisions rather than
     replacing zero pivots, clipping the result or treating them as zero slopes.
+    Only determinant JVP explicitly opts into the native zero-pivot epsilon rule.
     """
     lu=a.copy();n=len(a);pivots=[]
     for k in range(n):
@@ -40,6 +41,9 @@ def _ieee_solve(a,b,transpose=False):
         if pivot!=k:lu[[k,pivot]]=lu[[pivot,k]]
         if lu[k,k]!=0:lu[k+1:,k]/=lu[k,k]
         lu[k+1:,k+1:]-=lu[k+1:,k,None]*lu[k,None,k+1:]
+    if regularize:
+        axis=np.arange(n);diagonal=lu[axis,axis]
+        lu[axis,axis]=np.where(diagonal==0,np.finfo(lu.dtype).eps,diagonal)
     value=b.copy()
     if not transpose:
         for k,pivot in enumerate(pivots):
@@ -59,7 +63,7 @@ def _ieee_solve(a,b,transpose=False):
     return value
 
 
-def _solve_values(source,rhs,transpose,*,factor_transposed=None):
+def _solve_values(source,rhs,transpose,*,factor_transposed=None,regularize=False):
     if not source.size:return np.zeros_like(rhs)
     coefficient=source.swapaxes(-1,-2) if transpose else source
     try:
@@ -74,14 +78,19 @@ def _solve_values(source,rhs,transpose,*,factor_transposed=None):
             if not _linalg._NUMPY_ERRORS_RAISE and np.isnan(result).any() and np.linalg.slogdet(source[index])[0]==0:raise np.linalg.LinAlgError()
         except np.linalg.LinAlgError:
             a=source[index].T if use_transpose else source[index]
-            result=_ieee_solve(a,rhs[index],transpose=transpose!=use_transpose)
+            result=_ieee_solve(a,rhs[index],transpose=transpose!=use_transpose,regularize=regularize)
         value[index]=result
     return value
 
 
-def _diagonal_solve(source,seed,*,factor_transposed=None):
+def _diagonal_solve(source,seed,*,factor_transposed=None,regularize=False):
     rhs=np.zeros_like(source);axis=np.arange(source.shape[-1]);rhs[...,axis,axis]=np.asarray(seed)[...,None]
-    return _linalg._solve_layout(_solve_values(source,rhs,True,factor_transposed=factor_transposed),True)
+    if regularize and source.shape[-1]==1:
+        # Native float32 triangular solves take the reciprocal in float32;
+        # NumPy's promoted solve otherwise changes subnormal IEEE results.
+        coefficient=np.where(source==0,np.finfo(source.dtype).eps,source)
+        return _linalg._solve_layout(np.reciprocal(coefficient)*rhs,True)
+    return _linalg._solve_layout(_solve_values(source,rhs,True,factor_transposed=factor_transposed,regularize=regularize),True)
 
 
 def _log_values(source):
@@ -119,6 +128,34 @@ def _directional(primal,direction,negative=None):
         if negative is not None:g=np.where(negative,np.zeros((),dtype=source.dtype),g)
         return _diagonal_solve(source,g,factor_transposed=transposed)
     return _autograd.result(_component(value),(direction,backward),versioned=())
+
+
+def det_jvp(input):
+    primal=input._primal;direction=input._tangent;output=_linalg.det(primal)
+    layout=primal._data;needs_a=_state._grad_enabled and primal.requires_grad
+    needs_e=_state._grad_enabled and direction.requires_grad
+    source=layout.copy(order='K') if needs_a or needs_e else layout
+    empty_layout=layout if not layout.size else None
+    value=output._data;transposed=layout.flags.c_contiguous
+    def matrix_backward(g):
+        if not source.size:return _layout.gradient_copy(np.zeros_like(source),empty_layout)
+        if source.shape[-1]==1:
+            seed=np.asarray(g)
+            return _layout.metadata_view(seed,source.shape,seed.strides+(seed.itemsize,seed.itemsize))
+        return _diagonal_solve(source,g*value,factor_transposed=transposed,regularize=True)
+    # JVP follows native 2.14.1's saved-LU reverse rule. The ordinary
+    # det API retains its established singular-cofactor extension.
+    output=_autograd.result(value,(primal,matrix_backward))
+    with np.errstate(all='ignore'):
+        solved=_solve_values(source,direction._data,False,factor_transposed=transposed,regularize=True)
+        trace=_component(np.trace(solved,axis1=-2,axis2=-1));values=_component(trace*value)
+    def direction_backward(g):
+        return _diagonal_solve(source,g*value,factor_transposed=transposed,regularize=True)
+    tangent=_autograd.result(values,(output,lambda g:g*trace),(direction,direction_backward),versioned=(output,))
+    # Native exposes a primal alias; its retained gradient/hooks are separate
+    # from the private determinant value consumed by the tangent graph.
+    exposed=_autograd.view_result(output._data,output,lambda g:g)
+    return _autograd.ForwardTensor(exposed,_layout.matching_tangent(tangent,exposed))
 
 
 def slogdet(input,*,out=None):
@@ -162,4 +199,4 @@ def logdet(input):
     return _autograd.ForwardTensor(output,_directional(primal,input._tangent,negative if has_negative else None)) if forward else output
 
 
-from . import _autograd, _errors, _layout, _linalg, _tensor
+from . import _autograd, _errors, _layout, _linalg, _state, _tensor

@@ -390,6 +390,7 @@ def det(input, *, out=None):
     real_matrix(input)
     if out is not None: raise _errors.BrowserUnsupported('Determinant output buffers require the server')
     if input.shape[-2] != input.shape[-1]: raise RuntimeError('det expects square matrices')
+    if isinstance(input,_autograd.ForwardTensor):return _determinants.det_jvp(input)
     source = input._data
     if source.shape[-1]==1:
         # det([a]) == a, even at subnormal/maximum finite scales. Forming

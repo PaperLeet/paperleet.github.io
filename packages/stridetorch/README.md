@@ -427,8 +427,20 @@ are restored. This also prevents valid finite matrices from raising a spurious
 NumPy floating-point error.
 Other singular, underflowed and overflowed determinants retain the existing
 polynomial-cofactor path. That legacy singular-gradient contract can differ
-from native PyTorch's first backward. `det` still requires finite real input;
-its JVP remains unsupported.
+from native PyTorch's first backward. `det` still requires finite real input.
+
+`torch.func.jvp` supports `torch.det`, `torch.linalg.det` and `Tensor.det()`
+for real float32/64 matrices, including batches and empty matrices. Both JVP
+channels and reverse differentiation through them follow the validated native
+PyTorch 2.14.1 saved-LU contract. Zero LU pivots use the native epsilon rule;
+at singularity this JVP can be zero even when the polynomial differential is
+not. The ordinary `det` API's existing cofactor extension remains separate.
+The returned primal is an alias of the private determinant result: its hooks
+and retained gradient are independent of the tangent's use of that private
+result. Primal data mutations still trigger saved-value guards. Direction and
+tangent mutations follow the validated native behavior. The implementation
+shares one immutable matrix snapshot between the two reverse paths, releases
+the solve workspace after forming the trace, and skips unrequested pullbacks.
 
 ## Gradient accumulation and storage
 
