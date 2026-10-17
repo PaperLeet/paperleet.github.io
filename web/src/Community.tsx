@@ -16,6 +16,7 @@ import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
 import SolutionReadingCard from './SolutionReadingCard';
+import CommunityFeedFilters from './CommunityFeedFilters';
 import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
@@ -563,7 +564,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable]);
-  const boards = useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
+  const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState<FeedFailure>(),
@@ -700,7 +701,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         </aside>}
         <section className="community-feed">
           {embedded&&<div className="problem-solutions-heading"><div><h2>{t("社区题解","Community solutions")}</h2><p>{t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own.")}</p></div><div>{user?<button type="button" className="button" disabled={accountLoading||!solutionAvailable} onClick={()=>setCompose(true)}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):t("发布题解","Share a solution")}</button>:<a className="button" href={signInHref(returnTo)}>{t("登录写题解","Sign in to contribute")}</a>}<a href={returnTo}>{t("全部题解","All solutions")}<ArrowRight size={14}/></a></div></div>}
-          <div className="community-feed-toolbar">
+          <div ref={toolbar} className="community-feed-toolbar" role="group" tabIndex={-1} aria-label={solutions?t('题解浏览控制','Solution browsing controls'):t('讨论浏览控制','Discussion browsing controls')}>
             <div className="social-tabs compact">
               <button
                 className={!following && !saved ? "selected" : ""}
@@ -723,12 +724,17 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>}
             </div>
             <div className="community-feed-controls">
-              <CommunitySearch applied={search} onApply={query=>choose({search:query})}/>
+              <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
                 <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
               </select></label>}
             </div>
           </div>
+          <CommunityFeedFilters filters={filters} onChange={change=>{
+            // Keep keyboard focus on a stable control group when a chip disappears.
+            // Synchronous intent cannot override a later route/account/editor action.
+            toolbar.current?.focus({preventScroll:true});choose(change);
+          }}/>
           {!embedded&&topicId && (
             catalogLoading ? <Loading /> : catalogError ? (
               <div className="feed-error">
@@ -743,7 +749,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
           )}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
-          <div className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={t('讨论列表','Discussion feed')}>
+          <div className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
             {solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
@@ -797,7 +803,6 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                           topicId ? "Ask about the formulas, implementation, or test results." : "Share a paper or an implementation question to start the first discussion.",
                         )}
                 </p>
-                {(category || following || search) && <button className="button subtle" onClick={() => choose({...emptyCommunityFeed(),...(solutions?{solutions:true}:{})})}>{t('清除筛选', 'Clear filters')}</button>}
               </Empty>
             ) : (
               data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)

@@ -1,0 +1,74 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'https://paperleet.test/#/community',pretendToBeVisual:true});
+dom.window.matchMedia=()=>({matches:false});dom.window.HTMLElement.prototype.scrollIntoView=function(){};
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,requestAnimationFrame:dom.window.requestAnimationFrame.bind(dom.window),IS_REACT_ACT_ENVIRONMENT:true,__feedFiltersFixture:undefined};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'feed-filter-fixture',enforce:'pre',resolveId(source){if(source==='./social')return '\0feed-filter-fixture';},load(name){if(name==='\0feed-filter-fixture')return `import React from 'react';export const useAccount=()=>globalThis.__feedFiltersFixture.account;export const socialApi=(...args)=>globalThis.__feedFiltersFixture.request(...args);export const errorMessage=e=>e.message;export class SocialError extends Error{};export const Avatar=({user})=>React.createElement('span',null,user.display_name);export const profileHref=user=>'#/u/'+user.username;export const PersonLink=({user})=>React.createElement('span',null,user.display_name);export const DateLabel=({value})=>React.createElement('time',null,value);export const SocialNotice=({error})=>React.createElement('p',{role:'alert'},error);export const TestAccountBadge=()=>null;`;}}]});
+let root;
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Community,ProblemSolutions}=await server.ssrLoadModule('/src/Community.tsx');
+ const nav=await server.ssrLoadModule('/src/communityNavigation.ts');
+ function Locale(){const {setLocale,locale}=useI18n();return React.createElement('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'locale');}
+ const topic={id:'architecture/attention',number:1,title:'注意力',title_en:'Attention'};
+ const user={id:'alice',username:'alice',display_name:'Alice',can_publish_community:true,affiliation:{kind:'institution',domain:'test.edu',name:'测试大学',name_en:'Test University'}};
+ const account={user,loading:false,capabilities:{community_solutions:true,community_feed_sorting:true,community_bookmarks:true}};
+ const post={id:'a'.repeat(32),title:'Current explanation',body:'Read the current derivation',solution:true,category:'implementation',problem_id:topic.id,problem:topic,author:user,counts:{likes:3,replies:0,reposts:0},viewer:{},created_at:'2026-10-16T00:00:00Z',updated_at:'2026-10-16T00:00:00Z'};
+ const requests=[],mutations=[];let mode='normal',embedded=false;
+ globalThis.__feedFiltersFixture={account,request:async(path,body,signal)=>{
+  if(body){mutations.push({path,body});throw Error('No publication or social mutation is authorized by filter changes');}
+  const params=new URLSearchParams(path.split('?')[1]),request={params,signal};requests.push(request);
+  if(mode==='hold')return new Promise(resolve=>request.release=resolve);
+  if(mode==='error')throw Error('Network unavailable');
+  return {items:mode==='empty'?[]:[post],total:mode==='empty'?0:42,solutions:params.get('solutions')==='true',sort:params.get('sort')||'latest'};
+ }};
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),React.createElement('textarea',{'aria-label':'Practice code',defaultValue:'def solve(): return 42'}),embedded?React.createElement(ProblemSolutions,{topic}):React.createElement(Community,{route:location.hash,topicId:topic.id,topic,topics:[topic]})));});
+ const navigate=async href=>{location.hash=href;await render();};
+ const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});await render();};
+ const named=name=>[...document.querySelectorAll('button')].find(node=>(node.getAttribute('aria-label')||node.textContent)===name);
+ const remove=label=>click(named('Remove filter: '+label));
+ const change=async(node,value)=>act(async()=>{Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?dom.window.HTMLTextAreaElement.prototype:node.tagName==='SELECT'?dom.window.HTMLSelectElement.prototype:dom.window.HTMLInputElement.prototype,'value').set.call(node,value);node.dispatchEvent(new dom.window.Event(node.tagName==='SELECT'?'change':'input',{bubbles:true}));});
+ const filters=()=>document.querySelector('.community-feed-filters'),toolbar=()=>document.querySelector('.community-feed-toolbar');
+ const state=()=>nav.readCommunityFeed(location.hash).state;
+ const compact=()=>{assert(!document.querySelector('.community-result-summary,.community-feed-summary,.community-feed-result,#community-sort-description'));assert(toolbar().contains(document.querySelector('.community-search')));};
+ await navigate(nav.communityFeedHref(topic.id,{category:'implementation',solutions:true,following:true,saved:true,sort:'top',search:'mask',page:2}));
+ compact();assert.equal(filters().querySelectorAll('.community-feed-filter').length,5);assert.equal(requests.at(-1).params.get('offset'),'20');
+ assert.equal(document.querySelector('.community-search input').getAttribute('aria-label'),'Search solutions');assert.equal(document.querySelector('[data-reading-list]').getAttribute('aria-label'),'Solution feed');
+ const stableToolbar=toolbar();await remove('Following');assert.equal(toolbar(),stableToolbar);assert.equal(document.activeElement,stableToolbar);assert.deepEqual(state(),{category:'implementation',following:false,saved:true,solutions:true,sort:'top',search:'mask',page:1});
+ const search=document.querySelector('.community-search input');await change(search,'Unsubmitted draft search');const beforeRemove=requests.length;await remove('Search: mask');assert.equal(requests.length,beforeRemove+1);assert.equal(state().search,'');assert.equal(search.value,'');assert.equal(state().sort,'top');assert.equal(state().saved,true);
+ account.capabilities.community_feed_sorting=false;const beforeGate=requests.length;await render();assert.equal(requests.length,beforeGate);assert(!document.querySelector('.community-sort select'));assert(named('Remove filter: Most liked'));
+ await remove('Most liked');assert.equal(state().sort,undefined);assert.equal(requests.length,beforeGate+1);assert.equal(state().category,'implementation');assert.equal(state().saved,true);
+ mode='hold';await navigate(nav.communityFeedHref(topic.id,{...state(),search:'old'}));const stale=requests.at(-1);assert(stale.release);
+ mode='normal';await remove('Saved');assert(stale.signal.aborted);assert.equal(state().search,'old');const code=document.querySelector('[aria-label="Practice code"]');code.focus();
+ await act(async()=>stale.release({items:[{...post,title:'Stale saved explanation'}],total:99,solutions:true,sort:'latest'}));assert(!document.body.textContent.includes('Stale saved explanation'));assert.equal(document.activeElement,code);
+ account.capabilities.community_feed_sorting=true;mode='error';await navigate(nav.communityFeedHref(topic.id,{...state(),sort:'active'}));assert(document.body.textContent.includes('Network unavailable'));assert(named('Remove filter: Search: old'));
+ mode='empty';await remove('Search: old');assert.equal(state().sort,'active');assert(document.body.textContent.includes('No solutions yet'));assert(filters());
+ await click(named('Clear filters'));assert.equal(filters(),null);assert.equal(document.activeElement,stableToolbar);assert.equal(nav.readCommunityFeed(location.hash).topicId,topic.id);assert.equal(state().solutions,true);assert.equal(state().category,'');assert.equal(state().sort,undefined);compact();
+ account.loading=true;const beforeHydration=requests.length;await navigate(nav.communityFeedHref(topic.id,{category:'',following:false,saved:true,solutions:true,search:'',page:1}));await remove('Saved');assert.equal(requests.length,beforeHydration);assert(!document.querySelector('[data-reading-post]'));account.loading=false;await render();assert.equal(requests.length,beforeHydration+1);
+ account.capabilities.community_bookmarks=false;const beforeSavedGate=requests.length;await navigate(nav.communityFeedHref(topic.id,{...state(),saved:true}));assert.equal(requests.length,beforeSavedGate);assert(named('Remove filter: Saved'));await remove('Saved');assert.equal(requests.length,beforeSavedGate+1);account.capabilities.community_bookmarks=true;
+ await navigate(nav.communityFeedHref(topic.id,{category:'papers',following:false,sort:'active',search:'literal % _',page:2}));assert.equal(document.querySelector('.community-search input').getAttribute('aria-label'),'Search discussions');assert.equal(document.querySelector('[data-reading-list]').getAttribute('aria-label'),'Discussion feed');
+ await remove('Recently active');assert.equal(state().category,'papers');assert.equal(state().search,'literal % _');assert.equal(state().page,1);assert.equal(requests.at(-1).params.get('solutions'),null);await click(named('Clear filters'));assert.equal(state().solutions,undefined);assert.equal(nav.readCommunityFeed(location.hash).topicId,topic.id);assert.equal(filters(),null);
+ account.user=undefined;mode='normal';const beforeGuest=requests.length;await navigate(nav.communityFeedHref(topic.id,{category:'',following:true,saved:true,solutions:true,search:'',page:1}));assert.equal(requests.length,beforeGuest);await remove('Saved');assert.equal(requests.length,beforeGuest);await remove('Following');assert.equal(requests.length,beforeGuest+1);assert.equal(state().solutions,true);assert.equal(document.activeElement,toolbar());
+ // The embedded problem feed keeps its practice URL and both editors throughout filter recovery.
+ account.user=user;embedded=true;await navigate('#/22?from=collections%2Fllm-basics');const practiceHash=location.hash;assert.equal(filters(),null);
+ const practiceCode=document.querySelector('[aria-label="Practice code"]');practiceCode.setSelectionRange(3,9,'backward');practiceCode.scrollTop=91;practiceCode.scrollLeft=17;
+ await click(named('Share a solution'));const composer=document.querySelector('.community-composer'),draft=composer.querySelector('textarea');await change(draft,'Preserve my unfinished derivation');draft.setSelectionRange(2,8,'backward');draft.scrollTop=28;draft.scrollLeft=11;const stored=JSON.stringify({...sessionStorage});
+ await change(document.querySelector('.community-sort select'),'top');const query='公式😀 <b>literal</b> '+('边界'.repeat(80));await change(document.querySelector('.community-search input'),query);await act(async()=>document.querySelector('.community-search').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true})));await render();assert(named('Remove filter: Search: '+query));assert(!filters().querySelector('b'));
+ await click([...document.querySelectorAll('.community-feed-toolbar button')].find(node=>node.textContent==='Saved'));assert.equal(requests.at(-1).params.get('saved'),'true');
+ await click(document.querySelector('[aria-label="Next page"]'));assert.equal(requests.at(-1).params.get('offset'),'20');
+ await remove('Search: '+query);assert.equal(requests.at(-1).params.get('offset'),'0');assert.equal(requests.at(-1).params.get('q'),'');assert.equal(requests.at(-1).params.get('sort'),'top');assert.equal(requests.at(-1).params.get('saved'),'true');
+ const beforeLocale=requests.length;await click(document.querySelector('#locale'));assert.equal(requests.length,beforeLocale);assert(named('移除筛选：我的收藏'));assert(named('移除筛选：最多赞'));assert.equal(document.querySelector('.community-search input').getAttribute('aria-label'),'搜索题解');await click(document.querySelector('#locale'));
+ mode='hold';await click(named('Clear filters'));const waiting=requests.at(-1);assert.equal(filters(),null);assert.equal(document.activeElement,toolbar());draft.focus();
+ mode='normal';await act(async()=>waiting.release({items:[post],total:42,solutions:true,sort:'latest'}));assert.equal(document.activeElement,draft);
+ assert.equal(location.hash,practiceHash);assert.equal(practiceCode,document.querySelector('[aria-label="Practice code"]'));assert.equal(composer,document.querySelector('.community-composer'));assert.equal(draft,composer.querySelector('textarea'));assert.equal(draft.value,'Preserve my unfinished derivation');
+ assert.deepEqual([practiceCode.selectionStart,practiceCode.selectionEnd,practiceCode.selectionDirection,practiceCode.scrollTop,practiceCode.scrollLeft],[3,9,'backward',91,17]);assert.deepEqual([draft.selectionStart,draft.selectionEnd,draft.selectionDirection,draft.scrollTop,draft.scrollLeft],[2,8,'backward',28,11]);assert.equal(JSON.stringify({...sessionStorage}),stored);
+ assert.equal(requests.at(-1).params.get('problem_id'),topic.id);assert.equal(requests.at(-1).params.get('solutions'),'true');assert.equal(requests.at(-1).params.get('saved'),null);assert.equal(requests.at(-1).params.get('sort'),null);assert.equal(mutations.length,0);compact();
+ mode='hold';await click([...document.querySelectorAll('.community-feed-toolbar button')].find(node=>node.textContent==='Saved'));const outgoing=requests.at(-1);account.user=undefined;mode='empty';await render();assert(outgoing.signal.aborted);practiceCode.focus();await act(async()=>outgoing.release({items:[{...post,title:'Outgoing account saved solution'}],total:1,solutions:true,sort:'latest'}));assert(!document.body.textContent.includes('Outgoing account saved solution'));assert.equal(document.activeElement,practiceCode);assert.equal(location.hash,practiceHash);assert.equal(mutations.length,0);
+ console.log('PASS applied community filters: real discussion/solution feeds, individual and complete recovery through loading/error/empty/guest/capability gates, stable synchronous keyboard focus, stale-result rejection, exact topic/type/page/return scope, bilingual escaped labels and unchanged practice/editor drafts/caret/scroll with no social writes or extra count row');
+}finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
