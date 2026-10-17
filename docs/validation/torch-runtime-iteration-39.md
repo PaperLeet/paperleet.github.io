@@ -3,8 +3,8 @@
 Version 0.39 adds `nn.AvgPool2d`, `nn.AdaptiveAvgPool2d` and functional
 `avg_pool2d`, and replaces the existing adaptive average/area interpolation
 implementation. The package name remains unchanged while browser-oriented
-naming is under discussion. Main adoption and publication are separate steps;
-this record does not establish that the candidate has been adopted.
+naming is under discussion. The verified main adoption is recorded below;
+public package publication remains a separate step.
 
 ## Numerical behavior and derivatives
 
@@ -200,3 +200,7 @@ A later synchronization preserves six sequential-study UI/check/style/documentat
 files through `c6faaed857c05c8a3f5248d4253f41dff72d8807`. The affected preparation-guide interaction suite and
 both typed builds pass on this final tree. All 49 runtime/license resources and
 161 active exports remain byte-identical. See `iteration-39-main-sync-final.json`.
+
+Validated source was adopted non-force on remote `main` at `ae23b362c59e070adc9e789d1663cab6082bdc5b`.
+A read-only query found zero Actions runs for this commit. See
+`iteration-39-main-adoption.json`; no tag, dispatch or online release was created.
