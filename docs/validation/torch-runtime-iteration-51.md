@@ -197,3 +197,7 @@ logs and all primary/legacy timing samples are retained in `iteration-51.json`,
 Broader core coverage, Multihead/Transformer modules, additional temporary-buffer
 work and optional persistent GPU execution remain active. No tag, workflow
 dispatch, release, PyPI upload or deployment is initiated by this work.
+
+## Main adoption
+
+Validated source `dc8dfe349be76be0f6fafae40f8e002949d99a94` was adopted on remote main by ordinary non-force push. The remote SHA was verified exactly; zero Actions runs were observed for this source SHA. All 55 source/license resources, 161 active export identities, 10,861 immutable payloads and seven canonical release-policy files were rechecked. The separate proof commit is verified outside the repository after its push. No tag,dispatch,release,PyPI upload or online deployment was initiated by this work.
