@@ -167,3 +167,7 @@ Evidence is in `packages/stridetorch/benchmarks/results/iteration-50.json`,
 exact sources/tests, official and compositional oracles, original failures,
 allocation-policy tests, training outputs, local command receipts and all timings.
 No tag, workflow dispatch, release, PyPI upload or deployment is initiated here.
+
+## Main adoption
+
+Validated source `6cb8b684b748b4695497ddc48ebafbc91977053a` was adopted on remote main by ordinary non-force push. The remote SHA was verified exactly; zero Actions runs were observed for this source SHA. All 55 source/license resources, 161 active export identities, 10,861 immutable payloads and seven canonical release-policy files were rechecked. The separate proof commit is verified outside the repository after its push. No tag,dispatch,release,PyPI upload or online deployment was initiated by this work.
