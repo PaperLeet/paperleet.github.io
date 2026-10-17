@@ -15,6 +15,8 @@ import { canonicalArxivUrl } from './communityPapers';
 import {affiliationRequired,canPublishCommunity} from './communityPublishing';
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import { communityCategories, communityCategoryHint } from './communityCategories';
+import {topicFromProblem} from './communityTopics';
+import {communityPostHref} from './communityNavigation';
 
 export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefresh}:{
   post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
@@ -76,7 +78,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       :t('修改草稿按账号和帖子保存在本标签页；保存修改后才会公开更新。','Edit drafts stay in this tab, separately for your account and post. Changes become public only when saved.')}</p>
     {needsReview&&<div className="publication-recovery" role="status">
       <p>{t('当前草稿基于较早版本。请对照最新帖子，将需要保留的内容合并到草稿。','This draft is based on an older version. Compare the latest post and merge anything you want to keep into your draft.')}</p>
-      <details open><summary>{t('最新帖子内容','Latest post content')}</summary><strong>{post.title}</strong>{post.interview&&<InterviewMeta details={post.interview}/>}<CommunityMarkdown body={post.body}/><PaperPreviewCard url={post.paper_url} paper={post.paper}/><p>{t('版块','Category')}: {currentCategory?t(currentCategory.zh,currentCategory.en):post.category}</p></details>
+      <details open><summary>{t('最新帖子内容','Latest post content')}</summary><strong>{post.title}</strong>{post.interview&&<InterviewMeta details={post.interview} topics={modules.map(topicFromProblem)} catalogLoading={!modules.length&&!catalogError} returnTo={communityPostHref(post.id)}/>}<CommunityMarkdown body={post.body}/><PaperPreviewCard url={post.paper_url} paper={post.paper}/><p>{t('版块','Category')}: {currentCategory?t(currentCategory.zh,currentCategory.en):post.category}</p></details>
       <button type="button" disabled={busy||disabled} onClick={()=>{edit({baseVersion:post.edit_version!});setError('');}}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>

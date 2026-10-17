@@ -1,4 +1,4 @@
-import {privateProfileReadingReturn} from './readingReturn';
+import {sourcePostReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
 import { resolveAffiliation } from './affiliationNames';
@@ -7,6 +7,7 @@ import {InlinePostBody} from './InlineCommentBody';
 import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
 import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
+import {withLibraryContext} from './libraryNavigation';
 import { PublishingRules } from './PublishingRules';
 import { affiliationRequired, canPublishCommunity } from './communityPublishing';
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
@@ -113,10 +114,11 @@ const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
 export const COMMUNITY_FEED_TIMEOUT = 20_000;
 type FeedFailure = {requestKey:string;kind:'timeout'}|{requestKey:string;kind:'request';message:string};
-function TopicContext({ topic, discussion = false, solutions=false }: {
+function TopicContext({ topic, discussion = false, solutions=false,practiceReturnTo }: {
   topic: ProblemTopic;
   discussion?: boolean;
   solutions?:boolean;
+  practiceReturnTo?:string;
 }) {
   const { t, locale } = useI18n();
   return (
@@ -133,7 +135,7 @@ function TopicContext({ topic, discussion = false, solutions=false }: {
         )}
         <a href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</a>
         {!topic.retired && (
-          <a className="button subtle" href={practiceHref(topic.id)}>
+          <a className="button subtle" href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
             <Code2 size={15} />{t("返回练习", "Back to practice")}
           </a>
         )}
@@ -533,7 +535,7 @@ type CommunityProps = {
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
   return postId ? (
-    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} />
+    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} topics={scope.topics} catalogLoading={scope.catalogLoading} catalogError={scope.catalogError} reloadCatalog={scope.reloadCatalog}/>
   ) : (
     <CommunityFeed key={`${scope.topicId || "all"}:${readCommunityFeed(route||"")?.state.solutions?"solutions":"posts"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
@@ -813,12 +815,12 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     </FeedRoot>
   );
 }
-function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string; returnTo?: string; replyTarget?:string }) {
+function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogLoading,catalogError,reloadCatalog }: { id: string; returnTo?: string; replyTarget?:string;topics?:ProblemTopic[];catalogLoading?:boolean;catalogError?:string;reloadCatalog?:()=>void }) {
   const { t,locale } = useI18n();
   const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const readingOwner=accountLoading?undefined:user?'account:'+user.id:'guest';
-  const returnTo=providedReturnTo||privateProfileReadingReturn(readingOwner,id,typeof location==='undefined'?'':location.hash);
+  const returnTo=providedReturnTo||sourcePostReadingReturn(readingOwner,id,typeof location==='undefined'?'':location.hash);
   useReadingOrigin(readingOwner,id,returnTo);
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
@@ -1024,7 +1026,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string
         <Loading />
       ) : post ? (
         <>
-          {post.problem && <TopicContext topic={post.problem} discussion solutions={post.solution}/>}
+          {post.problem && <TopicContext topic={post.problem} discussion solutions={post.solution} practiceReturnTo={postHref(id)}/>}
           {postEdited&&<p role="status">{t('帖子修改已保存。','Post changes saved.')}</p>}
           {editingPost&&canEditPost(post,owner)&&<PostEditor post={post} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={closePostEditing} onSaved={confirmed=>{
             setPost(previous=>previous&&previous.id===confirmed.id?{...confirmed,replies:previous.replies}:previous);
@@ -1050,7 +1052,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget }: { id: string
                 )}
               </div>
             </div>
-            {post.interview && <InterviewMeta details={post.interview} returnTo={providedReturnTo}/>}
+            {post.interview && <InterviewMeta details={post.interview} returnTo={postHref(id)} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <DiscussionReading body={post.body} postId={post.id} />
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">

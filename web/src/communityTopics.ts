@@ -19,7 +19,7 @@ export function topicIdFromRoute(route: string): string | undefined {
   return /^[a-z0-9_-]+\/[a-z0-9_-]+$/.test(id) ? id : undefined;
 }
 
-export function topicFromProblem(problem: Problem): ProblemTopic {
+export function topicFromProblem(problem: Pick<Problem,'id'|'number'|'title'|'translations'>): ProblemTopic {
   return { id: problem.id, number: problem.number, title: problem.title, title_en: problem.translations?.en?.title };
 }
 

@@ -87,10 +87,17 @@ export function favoriteHref(view:{query:string;state:string}):string {
   return '#/favorites'+(params.size?'?'+params:'');
 }
 
+/** Practice may return to one public post ID, without private or nested list context. */
+export function discussionPracticeReturn(route:string):string|undefined{
+  const path=route.replace(/^#\/?/,'');
+  return /^community\/[a-f0-9]{32}$/.test(path)?`#/${path}`:undefined;
+}
+
 export function libraryReturnHref(route: string): string | undefined {
   const value = parts(route);
   if (!value || !practicePath.test(value.path) || !only(value.params, ['from']) || !value.params.has('from')) return;
   const from=value.params.get('from')||'',interview=readInterviewRoute(from);
+  const discussion=discussionPracticeReturn(from);if(discussion)return discussion;
   const favorites=readFavoriteRoute(from);if(favorites)return favoriteHref(favorites);
   if(interview)return interviewHref(interview);
   const view = readLibraryRoute(from);
@@ -99,8 +106,8 @@ export function libraryReturnHref(route: string): string | undefined {
 
 export function withLibraryContext(path: string | number, returnTo?: string): string {
   if (!practicePath.test(String(path))) throw Error('Invalid practice destination');
-  const favorites=returnTo?readFavoriteRoute(returnTo):undefined;
-  if(favorites)return `#/${path}?${new URLSearchParams({from:favoriteHref(favorites).slice(2)})}`;
+  const favorites=returnTo?readFavoriteRoute(returnTo):undefined,local=returnTo?discussionPracticeReturn(returnTo)||(favorites?favoriteHref(favorites):undefined):undefined;
+  if(local)return `#/${path}?${new URLSearchParams({from:local.slice(2)})}`;
   const base = `#/${path}`, view = returnTo ? readLibraryRoute(returnTo) : undefined,interview=returnTo?readInterviewRoute(returnTo):undefined;
   if (!view&&!interview) return base;
   const href = interview?interviewHref(interview):libraryHref(view!.collectionId, view!.filters);

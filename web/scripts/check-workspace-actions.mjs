@@ -374,6 +374,23 @@ try {
   await click(find('[data-test-favorite-filters]'));assert.equal(location.hash,'#/favorites?q=LoRA&state=todo');assert.equal(find('[data-test-favorites]').getAttribute('data-test-favorites'),'favorites?q=LoRA&state=todo','Favorite filter changes must update the App route as well as browser history');reading.discardReadingReturn();
   await act(async()=>root.unmount());root=undefined;
   const libraryPaper={id:'attention',number:1,title:'Attention Is All You Need',short_title:'Transformer',authors:'Ashish Vaswani',venue:'NeurIPS',year:2017,url:'https://arxiv.org/abs/1706.03762',arxiv:'1706.03762',tags:[],category:'architecture',summary:'',summary_en:'',module_ids:[problem.id]};
+  // The real App labels public post origins and preserves the editor when only that origin changes.
+  for(const locale of ['en','zh']){
+    localStorage.setItem('paperleet.locale',locale);fixture.catalog={problems:[problem],papers:[libraryPaper],categories:[]};fixture.practice.ready=true;fixture.practice.loading=false;fixture.learning.ready=true;
+    const sourcePost='#/community/'+'a'.repeat(32),otherPost='#/community/'+'b'.repeat(32);
+    reading.rememberReadingReturn({owner:'account:fixture-user',href:origin,post:'a'.repeat(32),link:'title',top:240,focus:true});window.history.replaceState(null,'',libraryNav.withLibraryContext(problem.number,sourcePost));
+    await act(async()=>{root=createRoot(document.querySelector('#root'));root.render(React.createElement(App));});await settle(()=>find('#problem-editor-panel textarea')&&reading.currentReadingReturn()?.phase==='reading');
+    assert.equal(find('.workspace-toolbar .back-link').getAttribute('href'),sourcePost);assert.equal(find('.workspace-toolbar .back-link').textContent,locale==='en'?'Back to source post':'返回来源帖子');
+    assert.equal(find('.topbar nav>a').getAttribute('href'),'#','Papers navigation must not be redirected to the source post');
+    const retainedEditor=find('#problem-editor-panel textarea'),retainedCode=retainedEditor.value;retainedEditor.setSelectionRange(2,7,'backward');retainedEditor.scrollTop=23;retainedEditor.scrollLeft=9;
+    await act(async()=>{location.hash=libraryNav.withLibraryContext(problem.number,otherPost);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});await settle(()=>find('.workspace-toolbar .back-link')?.getAttribute('href')===otherPost);
+    assert(find('#problem-editor-panel textarea')===retainedEditor);assert.equal(retainedEditor.value,retainedCode);assert.deepEqual([retainedEditor.selectionStart,retainedEditor.selectionEnd,retainedEditor.selectionDirection,retainedEditor.scrollTop,retainedEditor.scrollLeft],[2,7,'backward',23,9]);assert.equal(reading.currentReadingReturn(),undefined);
+    await act(async()=>{location.hash=libraryNav.withLibraryContext(999,otherPost);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});await settle(()=>find('.route-not-found a'));
+    assert.equal(find('.route-not-found a').getAttribute('href'),otherPost);assert.equal(find('.route-not-found a').textContent,locale==='en'?'Back to source post':'返回来源帖子');
+    await act(async()=>{location.hash=libraryNav.withLibraryContext('papers/attention',otherPost);window.dispatchEvent(new window.HashChangeEvent('hashchange'));});await settle(()=>find('[data-test-paper-detail]'));assert.equal(find('[data-test-paper-detail]').getAttribute('data-return-to'),otherPost);
+    await act(async()=>root.unmount());root=undefined;reading.discardReadingReturn();
+  }
+  fixture.catalog=undefined;
   const acceptedLibraryReport={problem:problem.id,tests:[{id:'pass',layer:'T0',passed:true}],summary:{T0:[1,1]}};
   for(const locale of ['en','zh']) for(const scenario of ['empty','filtered-complete','all-complete','optional-only','loading']) {
     localStorage.setItem('paperleet.locale',locale);

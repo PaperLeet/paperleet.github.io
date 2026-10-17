@@ -58,6 +58,18 @@ try {
   assert.equal(samples[0].id, 'b', 'Sorting must not mutate catalog order');
   assert.equal(libraryHref(undefined, { ...emptyLibraryFilters(), owner: 'private', code: 'private source' }), '#');
   assert.equal(withLibraryContext(6, '#'), '#/6');
+  const sourcePost='#/community/'+'a'.repeat(32);
+  for(const path of ['22','architecture/attention','finetuning/lora','papers/attention']){
+    const href=withLibraryContext(path,sourcePost);assert.equal(libraryReturnHref(href),sourcePost);
+    assert.equal(libraryReturnHref(decodeProblemHash(href)),sourcePost);
+    assert.equal(accountReturnHref(decodeProblemHash(signInHref(href))),href);
+    assert.equal(libraryContinuation(decodeProblemHash(href)),href.slice(2));
+  }
+  for(const source of [sourcePost+'?from=u/alice',sourcePost+'?reply='+'b'.repeat(32),sourcePost+'?from=interviews','#/community/'+'A'.repeat(32),'#/community/'+'a'.repeat(31),'#/community/problem/architecture/attention','https://evil.test/community/'+'a'.repeat(32)]){
+    assert.equal(withLibraryContext(22,source),'#/22');
+    const raw='#/22?'+new URLSearchParams({from:source.replace(/^#\//,'')});assert.equal(libraryReturnHref(raw),undefined);assert.equal(signInHref(raw),'#/account');
+  }
+
   assert.equal(withLibraryContext('papers/ddpm'), '#/papers/ddpm');
   assert.equal(collectionIdFromRoute('collections/llm-basics?q=attention'), 'llm-basics');
   assert.equal(collectionIdFromRoute('lists/llm-basics?q=attention'), 'llm-basics');

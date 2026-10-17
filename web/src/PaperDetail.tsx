@@ -5,7 +5,7 @@ import { status } from "./types";
 import type { Paper, Problem, Saved } from "./types";
 import { paperModules, paperProgress } from "./libraryPractice";
 import { recommendPractice } from "./practice-recommendation";
-import { withLibraryContext } from "./libraryNavigation";
+import { discussionPracticeReturn,withLibraryContext } from "./libraryNavigation";
 import { getProblemStats, ProblemStatsSummary } from "./ProblemStats";
 import type { ProblemStatsMap } from "./ProblemStats";
 import { ModuleJudgeBadge } from "./JudgeCapability";
@@ -31,10 +31,10 @@ export function PaperDetail({ paper, problems, practiceProblems = problems, save
   const nextTitle = primary && (locale === "en" ? primary.translations?.en?.title || primary.title : primary.title);
   const authors = Array.isArray(paper.authors) ? paper.authors.join(", ") : paper.authors;
   return <main className="home paper-detail">
-    <a className="back-link paper-library-link" href={returnTo || '#'}><ArrowLeft size={15} />{returnTo && returnTo !== '#' ? t('返回题库结果','Back to library results') : t("全部论文", "All papers")}</a>
+    <a className="back-link paper-library-link" href={returnTo || '#'}><ArrowLeft size={15} />{discussionPracticeReturn(returnTo||'')?t('返回来源帖子','Back to source post'):returnTo && returnTo !== '#' ? t('返回题库结果','Back to library results') : t("全部论文", "All papers")}</a>
     <div className="paper-detail-header">
       <div><h1><span>{paper.number}.</span> {paper.short_title}</h1><p className="paper-full-title">{paper.title}</p><div className="paper-detail-meta">{paper.venue && <span>{paper.venue}</span>}{paper.year && !paper.venue?.includes(String(paper.year)) && <span>{paper.year}</span>}{paper.tags.map((tag) => <span className="paper-topic" key={tag}>{tag}</span>)}</div></div>
-      <div className="paper-detail-actions">{primary ? <div className="paper-primary-action"><a className="button" href={withLibraryContext(primary.number,continueWith ? '#' : returnTo)}><Code2 size={15} />{primaryLabel}<ArrowRight size={15} /></a><small className="paper-action-target">{continueWith && <>{t("其他论文", "Another paper")} · </>}{nextTitle}</small></div> : <small role="status">{progressReady ? t("当前题库筛选中没有匹配模块", "No modules match this library view") : t("正在加载学习进度…", "Loading progress…")}</small>}<a className="button subtle" href={paper.url} target="_blank" rel="noreferrer"><BookOpen size={15} />{paper.kind === "course" ? t("阅读参考资料", "Read references") : t("阅读论文", "Read paper")}<ExternalLink size={13} /></a></div>
+      <div className="paper-detail-actions">{primary ? <div className="paper-primary-action"><a className="button" href={withLibraryContext(primary.number,continueWith&&!discussionPracticeReturn(returnTo||'') ? '#' : returnTo)}><Code2 size={15} />{primaryLabel}<ArrowRight size={15} /></a><small className="paper-action-target">{continueWith && <>{t("其他论文", "Another paper")} · </>}{nextTitle}</small></div> : <small role="status">{progressReady ? t("当前题库筛选中没有匹配模块", "No modules match this library view") : t("正在加载学习进度…", "Loading progress…")}</small>}<a className="button subtle" href={paper.url} target="_blank" rel="noreferrer"><BookOpen size={15} />{paper.kind === "course" ? t("阅读参考资料", "Read references") : t("阅读论文", "Read paper")}<ExternalLink size={13} /></a></div>
     </div>
     <div className="paper-at-a-glance" aria-label={t("练习概览", "Practice at a glance")}><div><Code2 size={17}/><span>{t("核心模块","Core modules")}<b>{progress.total} {t("个",progress.total === 1 ? "module" : "modules")}</b></span></div><div><Clock3 size={17}/><span>{t("预计练习","Estimated practice")}<b>{estimatedMinutes} min</b></span></div><div><CheckCircle2 size={17}/><span>{t("学习进度","Your progress")}<b>{progressReady ? progress.completed : "—"} / {progress.total}</b></span></div></div>
     <div className="home-columns">

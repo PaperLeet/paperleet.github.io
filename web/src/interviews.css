@@ -71,9 +71,6 @@
 .interview-meta-tags > :is(a,span) { display:inline-flex; align-items:center; gap:5px; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:var(--surface2); font-size:var(--type-meta); color:var(--muted); }
 .interview-meta-tags > a { min-height:40px; font-size:var(--type-small); color:var(--accent); border-color:color-mix(in srgb,var(--accent) 20%,var(--line)); }
 .interview-meta-tags > .interview-outcome[data-outcome="offer"] { color:var(--green); }
-.interview-meta-questions { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:14px 0 20px; }
-.interview-meta-questions > b { font-size:var(--type-meta); color:var(--muted); font-weight:400; }
-.interview-meta-questions > a { display:inline-flex; align-items:center; gap:4px; min-height:40px; max-width:100%; padding:7px 9px; overflow-wrap:anywhere; border:1px solid var(--line); border-radius:5px; font-size:var(--type-small); color:var(--accent); }
 .interview-empty { display:flex; align-items:center; flex-direction:column; text-align:center; padding:44px 24px; margin-block:14px; border:1px dashed var(--line); border-radius:12px; background:var(--surface); }
 .interview-empty > svg { margin-bottom:10px; color:var(--accent); opacity:.65; }
 .interview-empty :is(h2,h3) { margin:7px 0; font-size:17px; font-weight:550; }
@@ -274,7 +271,7 @@
 .interview-report-practice-missing code{overflow-wrap:anywhere;font-size:inherit}
 .interview-report-practice-missing small{font-size:var(--type-caption)}
 .interview-report-practice-retry{flex-basis:100%;margin:3px 0 0;color:var(--muted);font-size:var(--type-meta);line-height:1.7}
-.interview-report-practice-retry button{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--accent);font:inherit;cursor:pointer}
+.interview-report-practice-retry button{min-height:40px;display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--accent);font:inherit;cursor:pointer}
 .interview-report-practice :is(button,.interview-report-practice-missing):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(pointer:coarse){.interview-report-practice-toggle,.interview-report-practice-retry button{min-height:44px}}
 
@@ -302,6 +299,12 @@
 .interview-selects select:focus-visible,.interview-field-grid :is(input,select):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 @media(pointer:coarse) {
  .interview-field-grid :is(input,select),.interview-selects select,.interview-results-heading select { min-height:44px; font-size:var(--type-body); }
- .interview-selected-questions > button,.interview-module-options > button,.interview-search > button,.interview-active-filters > button,.interview-meta-tags > a,.interview-meta-questions > a,.interview-pagination > button,.interview-company-actions > :is(a,button),.interview-company-checklist .text-button,.interview-resources-toggle,.interview-statistics-error button,.interview-progress-status button,.interview-report-actions > a,.interview-report-actions .post-bookmark-signin,.interview-unsaved-notice button,.interview-composer .editor-toggle > .text-button { min-height:44px; }
+ .interview-selected-questions > button,.interview-module-options > button,.interview-search > button,.interview-active-filters > button,.interview-meta-tags > a,.interview-pagination > button,.interview-company-actions > :is(a,button),.interview-company-checklist .text-button,.interview-resources-toggle,.interview-statistics-error button,.interview-progress-status button,.interview-report-actions > a,.interview-report-actions .post-bookmark-signin,.interview-unsaved-notice button,.interview-composer .editor-toggle > .text-button { min-height:44px; }
  .interview-search > button { width:44px; height:44px; }
 }
+
+.interview-meta:not(.compact) .interview-report-topics>b{font-size:var(--type-small)}
+.interview-meta:not(.compact) .interview-report-topics a{font-size:var(--type-control);line-height:1.6}
+.interview-meta:not(.compact) .interview-report-topics a>span{overflow:visible;white-space:normal;overflow-wrap:anywhere}
+.interview-meta:not(.compact) .interview-report-practice-missing{font-size:var(--type-small)}
+.interview-meta:not(.compact) .interview-report-practice-missing small{font-size:var(--type-meta)}

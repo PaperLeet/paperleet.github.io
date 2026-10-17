@@ -65,7 +65,7 @@ import { browserLearningView } from './browserLearning';
 import { submissionDestination } from './submissionNavigation';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
-import { readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
+import { discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
 const editorFontSizes = [13, 14, 15, 16, 17, 18, 20];
@@ -178,6 +178,7 @@ function Workspace() {
     selectReadingTab("lab");
   }
   const path = routePath(id), libraryReturn = libraryReturnHref(id), libraryView = readLibraryRoute(id);
+  const sourcePostReturn=discussionPracticeReturn(libraryReturn||''),backLabel=sourcePostReturn?t('返回来源帖子','Back to source post'):t('返回题库','Back to papers');
   const { stats: problemStats, totalSubmissions, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(path);
   const sourceProblem = problems.find(
     (p) => p.id === path || String(p.number) === path,
@@ -507,7 +508,7 @@ function Workspace() {
                   ? "active"
                   : ""
               }
-              href={libraryReturn?.startsWith('#/interviews') ? '#' : libraryReturn || '#'}
+              href={sourcePostReturn||libraryReturn?.startsWith('#/interviews') ? '#' : libraryReturn || '#'}
               aria-current={!problem && !submissionPage && !communityPage && !messagesPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
@@ -617,7 +618,7 @@ function Workspace() {
           {t("正在加载论文题库…", "Loading papers…")}
         </main>
       ) : !sourceProblem && !selectedPaper && !libraryView ? (
-        <main className="route-not-found"><BookOpen size={32} /><h1>{t("找不到这篇论文或模块", "Paper or module not found")}</h1><p>{t("链接可能已失效，或内容已经调整。可以返回题库搜索论文和模块。", "This link may be outdated or the content may have changed. Search the library to find a paper or module.")}</p><code>{path.slice(0,120)}</code><a className="button" href={libraryReturn || "#"}><ArrowLeft size={15} />{t("返回题库", "Back to papers")}</a></main>
+        <main className="route-not-found"><BookOpen size={32} /><h1>{t("找不到这篇论文或模块", "Paper or module not found")}</h1><p>{t("链接可能已失效，或内容已经调整。", "This link may be outdated or the content may have changed.")}</p><code>{path.slice(0,120)}</code><a className="button" href={libraryReturn || "#"}><ArrowLeft size={15} />{backLabel}</a></main>
       ) : sourceProblem && !problem ? (
         <main className={detailError === sourceProblem.detail_url ? "load-error" : "loading"}>
           {detailError === sourceProblem.detail_url ? <>
@@ -626,7 +627,7 @@ function Workspace() {
             <button className="button" onClick={() => setDetailRetry((value) => value + 1)}>{t("重试加载", "Retry loading")}</button>
             <button className="text-button" disabled={!!editorRecoveryReason} onClick={()=>{if(!editorRecoveryReason&&practice.owns(practice.owner))reloadApp();}}>{t('刷新并恢复草稿','Reload and restore draft')}</button>
             {editorRecoveryReason&&<small>{editorRecoveryReason}</small>}
-            <a className="text-button" href={libraryReturn || '#'}>{t("返回题库", "Back to papers")}</a>
+            <a className="text-button" href={libraryReturn || '#'}>{backLabel}</a>
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
       ) : !problem ? (
@@ -665,10 +666,10 @@ function Workspace() {
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={libraryReturn?.split('?')[0] === '#/favorites' || libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={sourcePostReturn||libraryReturn?.split('?')[0] === '#/favorites' || libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {libraryReturn?.split('?')[0] === '#/favorites' ? t('收藏题目','Saved problems') : libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
+              {sourcePostReturn ? backLabel : libraryReturn?.split('?')[0] === '#/favorites' ? t('收藏题目','Saved problems') : libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>

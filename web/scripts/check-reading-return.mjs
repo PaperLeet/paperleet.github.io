@@ -157,6 +157,23 @@ try{
   model.rememberReadingReturn({...practiceRecord,...patch});assert.equal(model.currentReadingReturn(),undefined);
  }
 
+ // Full thread -> practice -> canonical thread preserves its earlier list only in this owner/tab.
+ const sourcePost=nav.communityPostHref(id);
+ for(const source of [community,activeCommunity,interview]){
+  await depart(source);const record=model.currentReadingReturn();
+  for(const path of ['architecture/attention','1','papers/attention']){
+   await navigate(library.withLibraryContext(path,sourcePost));
+   assert.equal(model.currentReadingReturn()?.id,record.id);assert.equal(model.currentReadingReturn()?.phase,'reading');
+   if(!path.startsWith('papers/')){await render(Practice,{scope:sourcePost});assert.equal(model.currentReadingReturn()?.id,record.id);await stop();}
+   await navigate(sourcePost);assert.equal(model.sourcePostReadingReturn(owner,id,sourcePost),source);assert.equal(model.sourcePostReadingReturn('account:bob',id,sourcePost),undefined);
+   await render(Thread,{scope:source});assert.equal(model.currentReadingReturn()?.id,record.id);await stop();
+  }
+  scrolls=[];await navigate(source);await render(List,{scope:source});assert.equal(model.currentReadingReturn(),undefined);assert(document.activeElement===anchor());await stop();
+ }
+ await depart(community);await navigate(library.withLibraryContext(1,sourcePost));model.resumePracticeReadingOrigin(owner,{id:'rl/gae',number:2},sourcePost);assert.equal(model.currentReadingReturn(),undefined,'The actual catalog entry must match the source-post practice route');await stop();
+ await depart(community);await navigate(library.withLibraryContext(1,sourcePost));model.resumePracticeReadingOrigin('account:bob',{id:'architecture/attention',number:1},sourcePost);assert.equal(model.currentReadingReturn(),undefined,'Changing owners drops the old private list origin');await stop();
+ const sourceRecord=await depart(community);await navigate(library.withLibraryContext(1,sourcePost));const sourceRaw=sessionStorage.getItem(model.READING_RETURN_KEY);model.discardReadingReturn();sessionStorage.setItem(model.READING_RETURN_KEY,sourceRaw);
+ const sourceReload=await server.ssrLoadModule('/src/readingReturn.ts?fresh=source-post-practice');sourceReload.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},sourcePost);assert.equal(sourceReload.currentReadingReturn()?.id,sourceRecord.id);await navigate(sourcePost);assert.equal(sourceReload.sourcePostReadingReturn(owner,id,sourcePost),community);await navigate(community);assert.equal(sourceReload.currentReadingReturn()?.phase,'returning');sourceReload.discardReadingReturn();
  // Storage denial leaves an entirely local return available in the current tab.
  const storage=globalThis.sessionStorage;Object.defineProperty(globalThis,'sessionStorage',{configurable:true,value:{getItem(){throw Error('Blocked')},setItem(){throw Error('Blocked')},removeItem(){throw Error('Blocked')}}});
  await depart();scrolls=[];await returnLoading();await render(List);assert.equal(scrolls.length,1);await stop();Object.defineProperty(globalThis,'sessionStorage',{configurable:true,value:storage});

@@ -22,13 +22,16 @@ export function readingListHref(route:string){
  return interviews?.view==='reports'?interviewHref(interviews):undefined;
 }
 const moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]{1,100}$/;
+function practiceTargetPath(route:string,allowPaper=false){
+ try{
+  const path=decodeURIComponent(route.replace(/^#\/?/,'').split('?')[0]);
+  return moduleId.test(path)||/^[1-9]\d{0,7}$/.test(path)||allowPaper&&/^papers\/[a-z0-9_-]+$/.test(path)?path:undefined;
+ }catch{return;}
+}
 /** Only a module carrying the exact interview/favorite list scope extends its reading journey. */
 export function readingPracticeTarget(route:string,href:string){
  if((!readFavoriteRoute(href)&&readInterviewRoute(href)?.view!=='reports')||libraryReturnHref(route)!==href)return;
- try{
-  const path=decodeURIComponent(route.replace(/^#\/?/,'').split('?')[0]);
-  return moduleId.test(path)||/^[1-9]\d{0,7}$/.test(path)?path:undefined;
- }catch{return;}
+ return practiceTargetPath(route);
 }
 function valid(value:unknown):value is ReadingReturn{
  if(!value||typeof value!=='object'||Array.isArray(value))return false;
@@ -67,14 +70,24 @@ export function privateProfilePostRoute(route:string,post:string){
  if(!/^[a-f0-9]{32}$/.test(post))return false;
  return communityContinuation(route)===communityPostHref(post,undefined,communityReplyTarget(route,post)).slice(2);
 }
-const isPost=(route:string,row:ReadingReturn)=>!readFavoriteRoute(row.href)&&(communityPostReturn(route,row.post)===row.href||row.privateProfile===true&&privateProfilePostRoute(route,row.post));
+const isPost=(route:string,row:ReadingReturn)=>!readFavoriteRoute(row.href)&&(communityPostReturn(route,row.post)===row.href||(row.privateProfile===true||row.phase==='reading')&&privateProfilePostRoute(route,row.post));
 /** Private profile-to-anonymous-thread context never travels in the public URL. */
 export function privateProfileReadingReturn(owner:string|undefined,post:string,route:string){
  if(!owner?.startsWith('account:')||!privateProfilePostRoute(route,post))return;
  const row=currentReadingReturn();
  return row?.owner===owner&&row.privateProfile&&row.post===post?row.href:undefined;
 }
-const isDestination=(route:string,row:ReadingReturn)=>isPost(route,row)||!!readingPracticeTarget(route,row.href);
+/** Keep the earlier list private to this owner/tab when practice returns to a source-free post. */
+export function sourcePostReadingReturn(owner:string|undefined,post:string,route:string){
+ if(!owner||!privateProfilePostRoute(route,post))return;
+ const row=currentReadingReturn();
+ return row?.owner===owner&&row.post===post&&(row.phase==='reading'||row.privateProfile)?row.href:undefined;
+}
+function sourcePostPracticeTarget(route:string,post:string){
+ if(libraryReturnHref(route)!==communityPostHref(post))return;
+ return practiceTargetPath(route,true);
+}
+const isDestination=(route:string,row:ReadingReturn)=>isPost(route,row)||!!readingPracticeTarget(route,row.href)||!!sourcePostPracticeTarget(route,row.post);
 function navigation(event:HashChangeEvent){
  const row=currentReadingReturn();if(!row)return;
  try{
@@ -101,6 +114,7 @@ export function rememberReadingReturn(value:Omit<ReadingReturn,'version'|'id'|'a
 export function resumeReadingOrigin(owner:string|undefined,post:string,href:string|undefined){
  keepReadingOwner(owner);
  const row=currentReadingReturn();if(!owner||!row)return;
+ if(sourcePostPracticeTarget(location.hash,row.post))return;
  if(row.post!==post||row.href!==href||!isPost(location.hash,row)){discardReadingReturn(row.id);return;}
  if(row.phase!=='reading'){pending={...row,phase:'reading'};persist();notify();}
  watch();
@@ -110,9 +124,10 @@ export function resumePracticeReadingOrigin(owner:string|undefined,problem:{id:s
  keepReadingOwner(owner);
  const row=currentReadingReturn();if(!owner||!row||!problem||!href)return;
  // An outgoing workspace's passive effect must not erase a newer route or return.
- if(expectedRoute&&readingPracticeTarget(expectedRoute,href)!==readingPracticeTarget(location.hash,href))return;
- const target=readingPracticeTarget(location.hash,row.href);
- if(row.href!==href||!moduleId.test(problem.id)||target!==problem.id&&target!==String(problem.number)){discardReadingReturn(row.id);return;}
+ const sourcePost=href===communityPostHref(row.post),targetFor=(route:string)=>sourcePost?sourcePostPracticeTarget(route,row.post):readingPracticeTarget(route,href);
+ if(expectedRoute&&targetFor(expectedRoute)!==targetFor(location.hash))return;
+ const target=targetFor(location.hash);
+ if(!sourcePost&&row.href!==href||!moduleId.test(problem.id)||target!==problem.id&&target!==String(problem.number)){discardReadingReturn(row.id);return;}
  if(row.phase!=='reading'){pending={...row,phase:'reading'};persist();notify();}
  watch();
 }
