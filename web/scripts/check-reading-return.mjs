@@ -30,6 +30,7 @@ try{
  const library=await server.ssrLoadModule('/src/libraryNavigation.ts');
  const {usePracticeReadingOrigin}=await server.ssrLoadModule('/src/usePracticeReadingOrigin.ts');
  const interviews=await server.ssrLoadModule('/src/interviewNavigation.ts');
+ const reports='#/community/reports?state=reviewed&page=2';
  const owner='account:alice',id='a'.repeat(32),other='b'.repeat(32);
  const community=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,search:'mask & 梯度 😀',page:3});
  const activeCommunity=nav.communityFeedHref('architecture/attention',{category:'questions',following:false,saved:true,sort:'active',search:'mask & 梯度 😀',page:3});
@@ -62,7 +63,7 @@ try{
   await stop();await navigate(nav.communityPostHref(id,scope));await render(Thread,{scope});assert.equal(model.currentReadingReturn().phase,'reading');await stop();return record;
  }
  async function returnLoading(scope=community,props={}){await navigate(scope);base=1800;await render(List,{scope,ready:false,...props});assert.equal(scrolls.length,0,'A pending response cannot restore against missing or stale rows');}
- for(const scope of [community,activeCommunity,periodCommunity,interview,'#/u/alice?tab=solutions&page=2','#/u/alice?tab=interviews&page=2']){
+ for(const scope of [reports,community,activeCommunity,periodCommunity,interview,'#/u/alice?tab=solutions&page=2','#/u/alice?tab=interviews&page=2']){
   for(const link of ['title','read']){
    await depart(scope,{link});scrolls=[];await returnLoading(scope);assert.equal(model.currentReadingReturn().phase,'returning');
    await render(List,{scope,ready:true});assert.equal(scrolls.length,1);assert.equal(viewport,1592,'Measure after the status notice is committed, retaining the exact viewport offset');
@@ -176,7 +177,7 @@ try{
  const sourceRecord=await depart(community);await navigate(library.withLibraryContext(1,sourcePost));const sourceRaw=sessionStorage.getItem(model.READING_RETURN_KEY);model.discardReadingReturn();sessionStorage.setItem(model.READING_RETURN_KEY,sourceRaw);
  const sourceReload=await server.ssrLoadModule('/src/readingReturn.ts?fresh=source-post-practice');sourceReload.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},sourcePost);assert.equal(sourceReload.currentReadingReturn()?.id,sourceRecord.id);await navigate(sourcePost);assert.equal(sourceReload.sourcePostReadingReturn(owner,id,sourcePost),community);await navigate(community);assert.equal(sourceReload.currentReadingReturn()?.phase,'returning');sourceReload.discardReadingReturn();
  // A queued hashchange from an older document route must not erase a newly armed source-post journey.
- for(const scope of [community,activeCommunity,periodCommunity,interview,'#/u/alice?tab=solutions&page=2'])for(const phase of ['opening','reading']){
+ for(const scope of [reports,community,activeCommunity,periodCommunity,interview,'#/u/alice?tab=solutions&page=2'])for(const phase of ['opening','reading']){
   model.discardReadingReturn();window.history.replaceState(null,'',scope);model.rememberReadingReturn({owner,href:scope,post:id,link:'title',top:240,focus:true});
   const practice=library.withLibraryContext(1,nav.communityPostHref(id));window.history.replaceState(null,'',practice);
   if(phase==='reading')model.resumePracticeReadingOrigin(owner,{id:'architecture/attention',number:1},nav.communityPostHref(id),practice);
@@ -200,6 +201,7 @@ try{
  }
  sessionStorage.setItem(model.READING_RETURN_KEY,JSON.stringify({...persisted,phase:'reading',at:Date.now()-7*60*60*1000}));const expired=await server.ssrLoadModule('/src/readingReturn.ts?fresh=expired');assert.equal(expired.currentReadingReturn(),undefined);expired.discardReadingReturn();
  await navigate(community);await render(List);await activate(anchor(),{keyboard:true});const stored=JSON.parse(sessionStorage.getItem(model.READING_RETURN_KEY));assert.deepEqual(Object.keys(stored).sort(),['version','id','owner','href','post','link','top','focus','at','phase'].sort());await stop();model.discardReadingReturn();
+ model.discardReadingReturn();model.rememberReadingReturn({owner:'guest',href:reports,post:id,link:'title',top:240,focus:true});assert.equal(model.currentReadingReturn(),undefined,'Private history cannot be persisted for a guest');
  console.log('PASS reading returns: exact community/interview/search/saved/page context, pointer and keyboard actions, delayed data, notice-aware layout, manual recovery without stolen focus, missing/empty lists, account/filter isolation, modified/prevented navigation, reply routes, bounded reloadable metadata, superseded queued-hash rejection with current-navigation retirement, blocked storage and expired/corrupt data; direct practice, next-module/numeric traversal, exact chip/title fallback, private-code-free reload, real catalog binding and account/scope isolation');
 }finally{
  if(root)await act(async()=>root.unmount());model?.discardReadingReturn();await server.close();dom.window.close();for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}

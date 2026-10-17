@@ -5,6 +5,7 @@ import {useI18n} from './i18n';
 import {errorMessage,SocialError,socialApi,useAccount} from './social';
 import {signInHref} from './accountNavigation';
 import {confirmedReport,reportReasons,reportRequestId,type OwnReport,type ReportCommand,type ReportReason} from './communityReports';
+import {reportHistoryHref} from './reportHistoryNavigation';
 import './community-reports.css';
 
 export default function PostReport({postId,returnTo,own=false,disabled=false}:{postId:string;returnTo:string;own?:boolean;disabled?:boolean}){
@@ -14,7 +15,7 @@ export default function PostReport({postId,returnTo,own=false,disabled=false}:{p
  return <ReportForm key={`${user.id}:${postId}`} owner={user.id} postId={postId} disabled={disabled}/>;
 }
 function ReportForm({owner,postId,disabled}:{owner:string;postId:string;disabled:boolean}){
- const {t}=useI18n(),{refresh}=useAccount(),id=useId(),trigger=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLDialogElement>(null),mounted=useRef(true),sequence=useRef(0),generation=useRef(0),working=useRef(false);
+ const {t}=useI18n(),{refresh,capabilities}=useAccount(),id=useId(),trigger=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLDialogElement>(null),mounted=useRef(true),sequence=useRef(0),generation=useRef(0),working=useRef(false);
  const [open,setOpen]=useState(false),[known,setKnown]=useState<OwnReport>(),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[rejected,setRejected]=useState(false);
  const [reason,setReason]=useState<ReportReason>('spam'),[details,setDetails]=useState(''),[command,setCommand]=useState<ReportCommand>();
  const origin=useRef(''),confirmed=useRef(false),path=`community/posts/${encodeURIComponent(postId)}/report`;
@@ -39,7 +40,7 @@ function ReportForm({owner,postId,disabled}:{owner:string;postId:string;disabled
  {open&&createPortal(<dialog ref={dialog} className="post-report-dialog" aria-labelledby={id} onCancel={event=>{event.preventDefault();close();}} onKeyDown={event=>{if(event.key==='Escape'&&(event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey))event.preventDefault();}}>
   <header><h2 id={id}>{t('举报帖子','Report post')}</h2><button type="button" className="icon-button" aria-label={t('关闭举报','Close report')} onClick={close}><X size={18}/></button></header>
   <p>{t('举报仅对审核人员可见。同一账号对同一帖子只计一次，由管理员人工审核。','Reports are private to reviewers. Each account counts once per post. An administrator reviews the content.')}</p>
-  {known?.reported?<p role="status" className="report-confirmed">{t('举报已记录，感谢帮助维护社区。','Your report is recorded. Thank you for helping the community.')}</p>:<form onSubmit={event=>{event.preventDefault();void submit();}}>
+  {known?.reported?<><p role="status" className="report-confirmed">{t('举报已记录，感谢帮助维护社区。','Your report is recorded. Thank you for helping the community.')}</p>{capabilities?.community_report_history===true&&<a className="button subtle" href={reportHistoryHref()}>{t('查看我的举报','View my reports')}</a>}</>:<form onSubmit={event=>{event.preventDefault();void submit();}}>
    <label>{t('举报原因','Reason')}<select value={reason} onChange={event=>setReason(event.target.value as ReportReason)}>{reportReasons.map(([value,zh,en])=><option key={value} value={value}>{t(zh,en)}</option>)}</select></label>
    <label>{t('补充说明','Details')}<textarea rows={4} maxLength={1000} value={details} required={reason==='other'} onChange={event=>setDetails(event.target.value)} placeholder={t('说明具体问题，便于审核（其他原因必填）','Describe the issue for reviewers (required for Other)')}/></label>
    <button className="button" type="submit" disabled={disabled||loading||busy||!known||!!command||reason==='other'&&!details.trim()}>{busy?t('正在确认…','Confirming…'):t('提交举报','Submit report')}</button>

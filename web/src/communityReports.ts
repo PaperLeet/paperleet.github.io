@@ -2,6 +2,8 @@ import type {Post} from './communityDiscussion';
 export const reportReasons=[['spam','垃圾广告','Spam or advertising'],['harassment','骚扰或攻击','Harassment or abuse'],['privacy','泄露隐私','Private information'],['misinformation','误导或不实内容','Misleading content'],['copyright','侵权','Copyright'],['other','其他问题','Other']] as const;
 export type ReportReason=typeof reportReasons[number][0];
 export type OwnReport={owner_id:string;post_id:string;reported:boolean;report_id:string|null;request_id?:string};
+export type ReportHistoryItem={id:string;post_id:string;title:string;reason:ReportReason;details:string;created_at:string;status:'pending'|'reviewed';reviewed_at:string|null;post_available:boolean};
+export type ReportHistory={owner_id:string;state:'all'|'pending'|'reviewed';limit:number;offset:number;total:number;summary:{all:number;pending:number;reviewed:number};items:ReportHistoryItem[]};
 export type ReportCommand={expected_user_id:string;request_id:string;reason:ReportReason;details:string};
 export type ReviewCommand={expected_user_id:string;request_id:string;expected_revision:number;expected_content_version:string|null;action:'dismiss'|'remove';note:string};
 export type ReviewPost=Pick<Post,'id'|'title'|'body'|'category'|'anonymous'|'solution'|'problem_id'|'author'|'edit_version'|'updated_at'>;

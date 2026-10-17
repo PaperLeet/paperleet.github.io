@@ -91,6 +91,7 @@ import ReplyEditor from './ReplyEditor';
 import DiscussionLink from './DiscussionLink';
 import PostBookmark from './PostBookmark';
 import PostReport from './PostReport';
+import {readReportHistory} from './reportHistoryNavigation';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
 import Pagination from './CommunityPagination';
@@ -563,9 +564,11 @@ type CommunityProps = {
   practiceCode?:SolutionCodeSource;
 };
 const ModerationQueue=deferredFeature(()=>import('./ModerationQueue'),['举报审核','report review']);
+const ReportHistory=deferredFeature(()=>import('./ReportHistory'),['举报记录','report history']);
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
   if(route==='community/moderation')return <ModerationQueue/>;
+  if(route?.replace(/^#\/?/,'').split('?')[0]==='community/reports')return <ReportHistory route={route}/>;
   return postId ? (
     <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} topics={scope.topics} catalogLoading={scope.catalogLoading} catalogError={scope.catalogError} reloadCatalog={scope.reloadCatalog}/>
   ) : (
@@ -1077,7 +1080,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
     <main className="social-page discussion-page">
       <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
-        {returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? post.solution?t("返回本题题解","Back to module solutions"):t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
+        {returnTo&&readReportHistory(returnTo)?t('返回我的举报','Back to my reports'):returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? post.solution?t("返回本题题解","Back to module solutions"):t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>

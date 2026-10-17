@@ -16,7 +16,7 @@ function returnRoute(route: string): string | undefined {
   if(interviews)return interviewHref(interviews).slice(2);
   if (/^submit\?(?:proposal=[a-f0-9]{32}|view=pool)$/.test(route)) return route;
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
-  if (route === "community/moderation" || route === "" || route === "community" || route === "submit" || route === "achievements" || route === "favorites" || route === 'drafts') return route;
+  if (route === "community/reports" || route === "community/moderation" || route === "" || route === "community" || route === "submit" || route === "achievements" || route === "favorites" || route === 'drafts') return route;
   if (/^[1-9]\d*$/.test(route)) return route;
   if (/^community\/problem\/[a-z0-9_-]+\/[a-z0-9_-]+$/.test(route)) return route;
   if (/^community\/[a-f0-9]{32}$/.test(route)) return route;

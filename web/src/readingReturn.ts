@@ -2,6 +2,7 @@ import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import {communityFeedHref,communityPostHref,communityPostReturn,communityReplyTarget,communityContinuation,readCommunityFeed} from './communityNavigation';
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
 import {favoriteHref,readFavoriteRoute,libraryReturnHref} from './libraryNavigation';
+import {readReportHistory,reportHistoryHref} from './reportHistoryNavigation';
 
 export type ReadingReturn={version:1;id:number;owner:string;href:string;post:string;link:'title'|'read'|'practice';concept?:string;practice?:string;reply?:string;privateProfile?:true;top:number;focus:boolean;at:number;phase:'opening'|'reading'|'returning'};
 export const READING_RETURN_KEY='paperleet.reading.return.v1';
@@ -16,6 +17,7 @@ export function readingListHref(route:string){
  if(route.length>8192)return;
  const profile=readProfileRoute(route);if(profile&&['posts','solutions','interviews','replies','likes','reposts'].includes(profile.tab))return profileFeedHref(profile.username,profile);
  const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites);
+ const reports=readReportHistory(route);if(reports)return reportHistoryHref(reports.state,reports.page);
  const feed=readCommunityFeed(route);
  if(feed)return communityFeedHref(feed.topicId,feed.state);
  const interviews=readInterviewRoute(route);
@@ -48,6 +50,7 @@ function valid(value:unknown):value is ReadingReturn{
  return Object.keys(row).every(key=>['version','id','owner','href','post','link','concept','practice','reply','privateProfile','top','focus','at','phase'].includes(key))&&row.version===1
   &&Number.isSafeInteger(row.id)&&row.id>0&&typeof row.owner==='string'&&/^(?:guest|account:[a-zA-Z0-9_-]{1,160})$/.test(row.owner)
   &&typeof row.href==='string'&&readingListHref(row.href)===row.href&&itemValid
+  &&(!readReportHistory(row.href)||row.owner.startsWith('account:'))
   &&(readInterviewRoute(row.href)?.view==='questions'?!!readingSourceConcept(row.href,row.concept):!Object.hasOwn(row,'concept'))
   &&(readProfileRoute(row.href)?.tab==='replies'?typeof row.reply==='string'&&/^[a-f0-9]{32}$/.test(row.reply):!Object.hasOwn(row,'reply'))
   &&(!Object.hasOwn(row,'privateProfile')||row.privateProfile===true&&row.owner.startsWith('account:')&&!!readProfileRoute(row.href))
