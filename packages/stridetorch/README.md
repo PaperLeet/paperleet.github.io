@@ -559,6 +559,18 @@ Inferred complex32 storage is unavailable in NumPy and fails explicitly. Explici
 float32/64 or complex64/128 operands can still absorb a complex wrapped scalar;
 native `full` uses complex64 for complex fills with a float16 default.
 
+### Bounded integer ranges (0.57)
+
+`arange` avoids repeated generic scalar parsing for ordinary Python integer
+controls defining `0, 1, ..., n-1`, when `0 <= n <= 16,000,000`.
+All native positional/keyword overloads retain argument binding, dtype/device,
+option and gradient-leaf validation. Each call owns fresh contiguous storage.
+Float32/64 and integer unit indices need no floating error-mode context;
+float16 retains its scoped context for overflow-to-infinity storage.
+Other ranges, scalar subclasses, NumPy scalars and Tensor/forward-AD controls
+continue through the full existing conversion path. No value-dependent result
+or argument-object cache is added.
+
 ### Sequence factories (0.56)
 
 `arange`, `linspace` and `logspace` share bounded scalar parsing and preserve

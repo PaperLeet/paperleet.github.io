@@ -211,3 +211,44 @@ def test_browser_budget_and_unsupported_options_fail_before_large_allocations(na
         with pytest.raises(UnsupportedOperation):getattr(torch,name)(*args,**kw)
     for kw in [{'requires_grad':1},{'pin_memory':1},{'unknown_option':1}]:
         with pytest.raises(TypeError):getattr(torch,name)(*args,**kw)
+
+
+@pytest.mark.parametrize('dtype',[torch.float16,torch.float32,torch.float64,torch.int8,torch.uint8,torch.int16,torch.int32,torch.int64])
+@pytest.mark.parametrize('count',[0,1,17])
+def test_integer_control_ranges_have_owned_storage_for_all_overloads(dtype,count):
+    expected=np.asarray(list(range(count)),dtype=dtype)
+    calls=[lambda:torch.arange(count,dtype=dtype),lambda:torch.arange(0,count,dtype=dtype),
+           lambda:torch.arange(0,count,1,dtype=dtype),lambda:torch.arange(end=count,dtype=dtype),
+           lambda:torch.arange(start=0,end=count,step=1,dtype=dtype)]
+    values=[fn() for fn in calls]
+    for value in values:
+        np.testing.assert_array_equal(value.numpy(),expected)
+        assert value.dtype==dtype and value.stride()==(1,) and value.is_leaf
+    if count:
+        values[0][0]=7
+        for value in values[1:]:np.testing.assert_array_equal(value.numpy(),expected)
+
+
+@pytest.mark.parametrize('dtype',[torch.float16,torch.float32,torch.int8,torch.uint8])
+@pytest.mark.parametrize('mode',['ignore','warn','raise'])
+def test_large_unit_ranges_preserve_overflow_storage_and_callers_error_mode(dtype,mode):
+    # Integer wrapping and half overflow must not depend on global NumPy fenv.
+    with np.errstate(all='ignore'):expected=np.asarray(list(range(65521)),dtype='int64').astype(dtype)
+    previous=np.seterr(all=mode)
+    try:
+        import warnings
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            value=torch.arange(65521,dtype=dtype)
+        np.testing.assert_array_equal(value.numpy(),expected)
+        assert not caught and np.geterr()==dict.fromkeys(['divide','over','under','invalid'],mode)
+    finally:np.seterr(**previous)
+
+
+@pytest.mark.parametrize('dtype',[torch.float16,torch.float32,torch.float64])
+def test_integer_control_float_ranges_create_requested_leaves_inside_no_grad(dtype):
+    torch.arange(17,dtype=dtype)
+    with torch.no_grad():value=torch.arange(17,dtype=dtype,requires_grad=True)
+    assert value.is_leaf and value.requires_grad
+    value.square().sum().backward()
+    np.testing.assert_array_equal(value.grad.numpy(),np.asarray([2*i for i in range(17)],dtype=dtype))

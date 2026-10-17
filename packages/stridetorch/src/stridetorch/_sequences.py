@@ -84,6 +84,12 @@ def _result(value, requires_grad):
 
 
 def _arange_arguments(args, kwargs):
+    if not kwargs:
+        count=len(args)
+        if count==1:return 0,args[0],1
+        if count==2:return args[0],args[1],1
+        if count==3:return args
+        raise TypeError('arange expects end or start, end[, step]')
     if len(args)<=1 and not any(k!='end' for k in kwargs):
         if len(args)==1 and not kwargs:return 0,args[0],1
         if not args and 'end' in kwargs:return 0,kwargs['end'],1
@@ -98,6 +104,16 @@ def _arange_arguments(args, kwargs):
 def arange(*args,dtype=None,device=None,requires_grad=False,out=None,layout=None,pin_memory=False,**kwargs):
     _options(device,requires_grad,layout,pin_memory,out)
     arguments=_arange_arguments(args,kwargs)
+    start,end,step=arguments
+    if type(start) is int and type(end) is int and type(step) is int and start==0 and step==1 and 0<=end<=_LIMIT:
+        # These bounds prove all scalar conversions and the allocation size.
+        # Keep dtype/options/leaf validation and independently owned storage.
+        target=_REAL[-1] if dtype is None else _conversion.dtype(dtype)
+        if target not in _REAL:raise _errors.BrowserUnsupported(f'arange has no CPU/WASM kernel for {target}')
+        if target==_REAL[0]:
+            with np.errstate(all='ignore'):values=np.arange(end,dtype=target)
+        else:values=np.arange(end,dtype=target)
+        return _result(values,requires_grad)
     if any(isinstance(value,_tensor.Tensor) and value.requires_grad and not isinstance(value,_ops._autograd.ForwardTensor) for value in arguments):
         raise TypeError('arange scalar controls cannot be ordinary Tensors requiring gradients')
     parsed=[_ops._factory_number(value) for value in arguments]
