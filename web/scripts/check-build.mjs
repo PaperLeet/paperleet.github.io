@@ -52,6 +52,8 @@ assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('pr
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('preparation-concept-navigation')), 'Sequential study navigation must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.preparation-concept-navigation')), 'Sequential study navigation styles must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.preparation-concept-picker')), 'Study concept search styles must remain deferred');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.discussion-reading.is-compact')), 'Compact feed reading styles must remain deferred');
+assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.discussion-reading.is-compact'))), 'Deferred readers must include the shared compact outline layout');
 for (const marker of ['Where does DAPS apply measurement conditioning', 'Which two parameters does MoGe alignment fit']) assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Individual exercise handbook content must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.discussion-reply-search')), 'Reply search styles must remain deferred');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.has-live-preview')), 'Live writing layout must remain deferred');

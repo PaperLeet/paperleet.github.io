@@ -17,5 +17,8 @@
 .discussion-section-heading { scroll-margin-top:100px; }
 .discussion-section-heading:focus-visible { outline:2px solid var(--accent); outline-offset:5px; border-radius:3px; }
 @media (min-width:1200px) { .discussion-reading.has-outline { display:grid; grid-template-columns:minmax(0,1fr) 170px; gap:24px; align-items:start; } .discussion-reading.has-outline > .discussion-outline { grid-column:2; grid-row:1; position:sticky; top:88px; } .discussion-reading.has-outline > .discussion-reading-body { grid-column:1; grid-row:1; } .discussion-outline nav { max-height:min(420px,calc(100vh - 190px)); } }
+.discussion-reading.is-compact.has-outline { display:block; }
+.discussion-reading.is-compact.has-outline>.discussion-outline { position:static; margin:0 0 20px; }
+.discussion-reading.is-compact .discussion-outline nav { max-height:220px; }
 @media (pointer:coarse) { .discussion-outline li button { min-height:44px; } }
 @media (prefers-reduced-motion:reduce) { .discussion-outline > summary > svg:last-child { transition:none; } }

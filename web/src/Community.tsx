@@ -261,7 +261,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             </a>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact/>}
-          <InlinePostBody body={post.body} limit={190}/>
+          <InlinePostBody postId={post.id} body={post.body} limit={190}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
           <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}/>

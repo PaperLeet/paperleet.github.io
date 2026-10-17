@@ -20,7 +20,7 @@ export default function InterviewReportCard({post,owner,canSave,returnTo,savedVi
  return <article data-reading-post={post.id} data-reading-resumed={resumed||undefined} className="interview-report-card" aria-labelledby={titleId}>
   <div className="interview-report-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div>
   <InterviewMeta details={post.interview} compact/>
-  <a data-reading-link="title" id={titleId} className="interview-report-title" href={href}>{post.title}</a><InlinePostBody body={post.body}/>
+  <a data-reading-link="title" id={titleId} className="interview-report-title" href={href}>{post.title}</a><InlinePostBody postId={post.id} body={post.body}/>
   <InterviewReportPractice key={post.id} questions={post.interview.questions} revealPractice={resumedPractice} problems={problems} returnTo={returnTo} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>
   <CommunityCardActions post={post} returnTo={returnTo}>
    <div className="interview-report-actions">{canSave&&typeof bookmarked==='boolean'&&<PostBookmark postId={post.id} owner={owner} bookmarked={bookmarked} enabled={canSave} returnTo={href} disabled={false} onChange={setBookmarked} onBusyChange={setBusy} onAccountRefresh={onAccountRefresh}/>}<a data-reading-link="read" href={href}>{t('阅读复盘','Read experience')}<ArrowRight size={13}/></a></div>

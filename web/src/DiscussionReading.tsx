@@ -1,4 +1,4 @@
-import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ChevronDown,ListTree} from 'lucide-react';
 import CommunityMarkdown from './CommunityMarkdown';
 import {markdownOutline} from './markdownOutline';
@@ -6,9 +6,10 @@ import {readingScrollRoot,revealReadingSection} from './readingViewport';
 import {useI18n} from './i18n';
 import './discussion-reading.css';
 
-export default function DiscussionReading({body,postId,compact=false}:{body:string;postId:string;compact?:boolean}){
-  const {t}=useI18n(),root=useRef<HTMLDivElement>(null);
-  const scope=`reading-${postId}`,sections=useMemo(()=>markdownOutline(body,scope),[body,scope]);
+export default function DiscussionReading({body,postId,compact=false,instance=false}:{body:string;postId:string;compact?:boolean;instance?:boolean}){
+  const {t}=useI18n(),root=useRef<HTMLDivElement>(null),instanceId=useId();
+  const suffix=instance?'-instance-'+instanceId.split('').map(character=>character.charCodeAt(0).toString(16).padStart(4,'0')).join(''):'';
+  const scope=`reading-${postId}${suffix}`,sections=useMemo(()=>markdownOutline(body,scope),[body,scope]);
   const [open,setOpen]=useState(()=>!compact&&typeof window!=='undefined'&&!!window.matchMedia?.('(min-width: 1200px)').matches);
   const [active,setActive]=useState(''),[jump,setJump]=useState<{id:string;opener:Element|null;body:string;postId:string;href:string}>();
   const minimum=Math.min(...sections.map(section=>section.depth));
@@ -40,7 +41,7 @@ export default function DiscussionReading({body,postId,compact=false}:{body:stri
     if(!target||!root.current?.contains(target))return;
     target.focus({preventScroll:true});revealReadingSection(target);setActive(jump.id);
   },[jump,body,postId]);
-  return <div ref={root} className={`discussion-reading${sections.length>1?' has-outline':''}`}>
+  return <div ref={root} className={`discussion-reading${sections.length>1?' has-outline':''}${compact?' is-compact':''}`}>
     {sections.length>1&&<details className="discussion-outline" open={open} onToggle={event=>setOpen(event.currentTarget.open)}>
       <summary><ListTree size={16} aria-hidden="true"/><strong>{t('文章目录','On this page')}</strong><small aria-label={t(`${sections.length} 个小节`,`${sections.length} sections`)}>{sections.length}</small><ChevronDown size={14} aria-hidden="true"/></summary>
       {open&&<nav aria-label={t('文章目录','On this page')}><ol>{sections.map(section=><li key={section.id} style={{paddingInlineStart:Math.min(section.depth-minimum,3)*10}}>

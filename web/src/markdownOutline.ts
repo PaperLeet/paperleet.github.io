@@ -1,7 +1,7 @@
 import {parsePostMarkdown,type PostMarkdownNode} from './postExcerpt';
 export type MarkdownSection={id:string;label:string;depth:number};
 export function headingAnchor(scope:string,offset:number|undefined):string|undefined {
-  if(!/^reading-[a-f0-9]{32}$/.test(scope)||!Number.isSafeInteger(offset)||offset===undefined||offset<0)return;
+  if(!/^reading-[a-f0-9]{32}(?:-instance-(?:[a-f0-9]{4}){1,64})?$/.test(scope)||!Number.isSafeInteger(offset)||offset===undefined||offset<0)return;
   return `${scope}-${offset}`;
 }
 function label(root:PostMarkdownNode){

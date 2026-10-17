@@ -10,9 +10,6 @@
 .solution-reading-collapse,.solution-reading-page,.solution-reading-code { display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:7px 0; color:var(--accent); font-size:var(--type-small); }
 .solution-reading-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
 .solution-reading-card :is(summary,button,a):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
-.solution-reading-card .discussion-reading.has-outline { display:block; }
-.solution-reading-card .discussion-reading.has-outline>.discussion-outline { position:static; margin:0 0 20px; }
-.solution-reading-card .discussion-outline nav { max-height:220px; }
 .solution-reading-card .discussion-section-heading { scroll-margin-top:24px; }
 @media(pointer:coarse) { .solution-reading-collapse,.solution-reading-page,.solution-reading-code { min-height:44px; } }
 @media(prefers-reduced-motion:reduce) { .solution-reading-card>details>summary>svg { transition:none; } }
