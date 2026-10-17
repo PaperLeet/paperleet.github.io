@@ -429,16 +429,17 @@ def adaptive_avg_pool2d(input, output_size):
     return _apply(input, geometry, nonoverlap, partition)
 
 
-def _global_mean(input, *, spatial_dims=2):
+def _global_mean(input, *, spatial_dims=2, format_output=None):
     if isinstance(input, _autograd.ForwardTensor):
-        return _autograd.ForwardTensor(_global_mean(input._primal, spatial_dims=spatial_dims),
-                                       _global_mean(input._tangent, spatial_dims=spatial_dims))
+        return _autograd.ForwardTensor(_global_mean(input._primal, spatial_dims=spatial_dims, format_output=format_output),
+                                       _global_mean(input._tangent, spatial_dims=spatial_dims, format_output=format_output))
     shape = input.shape;count = math.prod(shape[-spatial_dims:]);dtype = input.dtype
     with np.errstate(all='ignore'):
         accumulator = _accumulator(dtype)
         value = input._data.sum(axis=tuple(range(-spatial_dims, 0)), keepdims=True, dtype=accumulator)
         np.divide(value, accumulator.type(count), out=value)
         value = value.astype(dtype, copy=False)
+        if format_output is not None: value = format_output(input._data, value)
         if not value.size: value = _layout.contiguous_empty(value)
     def backward(seed):
         if not count: return np.zeros(shape, dtype=seed.dtype)

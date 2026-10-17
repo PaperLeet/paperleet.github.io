@@ -334,3 +334,15 @@ harness preserves the measured 0.21 fast-path workload; its package imports
 were renamed to `stridetorch` after measurement. All initial
 regressions remain in the validation evidence; native Torch, application latency,
 cold start and peak memory are outside this measurement.
+
+## Volumetric average pooling (0.45)
+
+`bench_average_pooling_3d.py` compares direct 3D fixed/adaptive averages with the
+existing 2D+1D floating composition and a same-source composition control. It
+checks forward, strided input, backward, JVP and a complete Conv3d/SGD flow before
+timing. Pass `--baseline-source`, `--candidate-source` and `--output`; optional
+`--samples`, `--iterations` and `--reverse` retain every sample and source hash.
+The composition reassociates sums; no bitwise equivalence is claimed for
+exceptional or ill-conditioned values. See the
+[0.45 validation record](../../../docs/validation/torch-runtime-iteration-45.md)
+and `results/iteration-45*.json` plus the four raw harness archives.

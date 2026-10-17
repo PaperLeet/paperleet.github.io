@@ -199,6 +199,31 @@ outputs retain native-style input version guards. Zero-sized adaptive outputs
 are valid for forward evaluation and reject backward as native PyTorch does.
 Empty average-pooling outputs preserve conventional contiguous element strides.
 
+`nn.AvgPool3d`, `nn.AdaptiveAvgPool3d` and their functional entry points accept
+CDHW/NCDHW inputs with float32/float64 reverse AD, JVP and reverse-over-forward.
+Fixed 3D pooling implements stride, padding, ceil mode, padding inclusion and
+nonzero integer divisor overrides, including int64 inference. Adaptive 3D pooling
+also supports float16 inference and `None` output dimensions. Native CPU fixed
+3D pooling does not support float16; this backend reports that boundary explicitly.
+The input must be at least as large as the fixed kernel, even with padding.
+Empty batches are supported without constructing coordinate grids.
+
+Volumetric reductions preserve spatial accumulation order and divide adaptive
+regions by depth, height and width in sequence. Small non-overlapping blocks use
+strided additions; other regions use packing, tiling or ordered streaming under
+a 32 MiB packing estimate. Adjoints use block broadcasting or bounded ordered
+scatter, reading non-contiguous gradient seeds by blocks. This estimate excludes
+input/output storage and is not a total-process memory limit.
+Up to 32 small geometry plans cache readonly coordinates, divisors and optional
+flat gather indices/masks (at most 128 KiB of gather arrays per plan). Contiguous
+inputs gather directly into the accumulation buffer; the cache holds no input
+values or Tensor storage.
+The global 1×1×1 case follows mean, including empty-input NaNs and stateless
+backward, with conventional or channels-last output layout. NumPy and native CPU
+mean can differ on ill-conditioned cancellation inputs; bitwise equality is not
+promised. Singleton leaf-gradient strides can also differ while their indexed
+values and non-singleton strides agree.
+
 Geometry and inverse-region caches are bounded and hold no user tensors. Finite
 forward matrix paths check live values and require each plane to have no mixed
 signs. Adaptive adjoints gather contributions in native output order rather

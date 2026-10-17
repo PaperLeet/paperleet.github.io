@@ -55,6 +55,7 @@ def create_torch(name='torch', *, register=False):
         (_pooling,('MaxPool1d','MaxPool2d')),
         (_pooling3d,('MaxPool3d',)),
         (_average_pooling,('AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d')),
+        (_average_pooling3d,('AvgPool3d','AdaptiveAvgPool3d')),
         (_batchnorm,('BatchNorm1d','BatchNorm2d','BatchNorm3d')),
         (_activation,('GELU','Dropout')),
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
@@ -73,7 +74,7 @@ def create_torch(name='torch', *, register=False):
         'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'conv':('Conv1d','Conv2d','Conv3d'),
-        'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d'),
+        'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d','AvgPool3d','AdaptiveAvgPool3d'),
         'batchnorm':('BatchNorm1d','BatchNorm2d','BatchNorm3d'),
         'dropout':('Dropout',),
         'sparse':('Embedding',),
@@ -227,6 +228,7 @@ def create_torch(name='torch', *, register=False):
         'max_pool2d': _pooling.max_pool2d, 'max_pool2d_with_indices': _pooling.max_pool2d_with_indices,
         'avg_pool1d': _average_pooling.avg_pool1d,
         'adaptive_avg_pool1d': _average_pooling.adaptive_avg_pool1d,
+        'avg_pool3d': _average_pooling3d.avg_pool3d, 'adaptive_avg_pool3d': _average_pooling3d.adaptive_avg_pool3d,
         'avg_pool2d': _average_pooling.avg_pool2d,
         'adaptive_avg_pool2d': _nn.adaptive_avg_pool2d, 'interpolate': _nn.interpolate,
     }, reverse='analytic', forward=True)
@@ -262,4 +264,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _average_pooling, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor
+from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor

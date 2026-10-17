@@ -712,6 +712,19 @@ source-commit deployment was superseded and is not claimed as published.
   for measured benefits, regressions and controls. Broader APIs, bounded memory
   work and GPU/backend evaluation remain active toward an independent library.
 
+## 0.45: volumetric average pooling
+
+- Fixed/adaptive 3D module and functional APIs cover float32/float64 VJP, JVP,
+  reverse-over-forward, fixed int64 and adaptive half inference, native parameter
+  and empty/global boundaries, aliases, pickle and complete Conv3d training.
+- Ordered 3D sums, disjoint block kernels, bounded packing/streaming and adjoints;
+  readonly geometry/gather plans retain no user values, and strided gradient seeds
+  are read by block. Global mean canonicalizes native 3D output layout.
+- Native differential, minimum-wheel, Node/actual Chrome, exported 78-problem
+  catalog, frontend and four-process/runtime whole-flow evidence are retained.
+  Overlapping windows and some adaptive adjoints remain optimization targets.
+- See [the 0.45 validation record](../../docs/validation/torch-runtime-iteration-45.md).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
