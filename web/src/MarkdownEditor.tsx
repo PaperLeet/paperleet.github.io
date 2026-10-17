@@ -1,13 +1,16 @@
 import {useDeferredValue,useId,useLayoutEffect,useRef,useState} from 'react';
 import type {RefObject} from 'react';
-import {Bold,Italic,Code,SquareCode,List,Link,SquareFunction,Undo2,LoaderCircle} from 'lucide-react';
+import {Bold,Italic,Code,SquareCode,List,ListOrdered,Heading2,Quote,Link,SquareFunction,Undo2,LoaderCircle} from 'lucide-react';
 import CommunityMarkdown,{CommunityFormatHelp} from './CommunityMarkdown';
 import {useI18n} from './i18n';
 import {formatMarkdown,type MarkdownEdit,type MarkdownFormat} from './markdownFormatting';
 import './markdown-editor.css';
 
 const tools=[
+  ['heading',Heading2,'小标题','Section heading',''],
   ['bold',Bold,'加粗','Bold','B'],['italic',Italic,'斜体','Italic','I'],
+  ['quote',Quote,'引用','Block quote',''],
+  ['ordered',ListOrdered,'编号步骤','Numbered steps',''],
   ['code',Code,'行内代码','Inline code',''],['codeblock',SquareCode,'代码块','Code block',''],
   ['list',List,'无序列表','Bullet list',''],['link',Link,'插入链接','Insert link','K'],
   ['math',SquareFunction,'独立公式','Display math',''],

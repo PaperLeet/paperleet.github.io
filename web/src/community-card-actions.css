@@ -83,7 +83,8 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 
 .card-reply-form .compose-preview{min-height:110px}
 .card-reply-form .markdown-format-tools{gap:0;padding:2px 6px}
-.card-reply-form .markdown-format-tools button{min-height:32px;min-width:32px}
+.card-reply-form .markdown-format-tools button{min-height:40px;min-width:40px}
+@media(pointer:coarse){.card-reply-form .markdown-format-tools button{min-height:44px;min-width:44px}}
 .card-reply-form .markdown-editor-footer .community-format-help{font-size:var(--type-meta)}
 .card-reply-form .markdown-editor-footer{padding:8px 12px}
 

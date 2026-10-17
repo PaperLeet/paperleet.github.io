@@ -1,5 +1,37 @@
-export type MarkdownFormat = 'bold' | 'italic' | 'code' | 'codeblock' | 'list' | 'link' | 'math';
+export type MarkdownFormat = 'bold' | 'italic' | 'code' | 'codeblock' | 'list' | 'link' | 'math' | 'heading' | 'ordered' | 'quote';
 export type MarkdownEdit = {before:string;after:string;start:number;end:number};
+
+/** Whole-line blocks keep their original line endings and leave adjacent prose outside. */
+function structure(text:string,format:'heading'|'ordered'|'quote',start:number,end:number,english:boolean) {
+  const from=start===0?0:text.lastIndexOf('\n',start-1)+1;
+  const last=end>from&&text[end-1]==='\n'?end-1:end;
+  const newline=text.indexOf('\n',last);
+  let to=newline===-1?text.length:newline;
+  if(newline!==-1&&to>from&&text[to-1]==='\r')to--;
+  const original=text.slice(from,to);
+  const eol=original.match(/\r?\n/)?.[0]||text.match(/\r?\n/)?.[0]||'\n';
+  const placeholder=format==='heading'?(english?'Section title':'小节标题'):format==='ordered'?(english?'First step':'第一个步骤'):(english?'Quoted text':'引用内容');
+  const content=original.trim()?original:original+placeholder;
+  const parts=content.split(/(\r?\n)/);
+  const lines=parts.filter((_,index)=>index%2===0);
+  const marker=format==='heading'?/^([ \t]*)##(?:[ \t]+|$)/:format==='ordered'?/^([ \t]*)\d{1,9}[.)][ \t]+/:/^([ \t]*)> ?/;
+  const remove=lines.filter(line=>line.trim()).every(line=>marker.test(line));
+  let number=0;
+  const body=parts.map((line,index)=>{
+    if(index%2)return line;
+    if(remove)return line.replace(marker,'$1');
+    if(format==='quote')return line.replace(/^([ \t]*)(.*)$/,(_,indent:string,rest:string)=>indent+'>'+(rest?' '+rest:''));
+    if(!line.trim())return line;
+    if(format==='heading')return line.replace(/^([ \t]*)(?:#{1,6}(?:[ \t]+|$))?/,'$1## ');
+    number++;
+    return line.replace(/^([ \t]*)(?:(?:\d{1,9}[.)]|[-+*])[ \t]+)?/,(_,indent:string)=>indent+number+'. ');
+  }).join('');
+  const preceding=text.slice(0,from).replace(/\r?\n$/,'').split(/\r?\n/).at(-1);
+  const following=/^\r?\n([^\r\n]*)/.exec(text.slice(to))?.[1];
+  const before=from>0&&preceding?.trim()?eol:'';
+  const after=following?.trim()?eol:'';
+  return {from,to,replacement:before+body+after,selectionStart:before.length,selectionEnd:before.length+body.length};
+}
 
 /** UTF-16 offsets match textarea selection; never split an existing emoji. */
 function boundary(text:string,offset:number,direction:-1|1) {
@@ -17,6 +49,12 @@ export function formatMarkdown(text:string,format:MarkdownFormat,start:number,en
     replacement=prefix+content+suffix;selectionStart=prefix.length;selectionEnd=prefix.length+content.length;
   };
   switch(format){
+    case 'heading':
+    case 'ordered':
+    case 'quote':{
+      const block=structure(text,format,from,to,english);
+      ({from,to,replacement,selectionStart,selectionEnd}=block);break;
+    }
     case 'bold':wrap('**','**',english?'bold text':'加粗文字');break;
     case 'italic':wrap('*','*',english?'italic text':'斜体文字');break;
     case 'code':{

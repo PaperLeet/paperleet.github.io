@@ -30,6 +30,45 @@ try{
  assert.equal(formatMarkdown('a\nb\nc','list',0,4,99,true).after,'- a\n- b\nc');
  assert.equal(formatMarkdown('a\r\nb','list',0,4,99,true).after,'- a\r\n- b');
  assert.equal(formatMarkdown('text','bold',NaN,0,99),undefined);
+ const structured=[
+  ['heading','Alpha 😀\nBeta','## Alpha 😀\n## Beta'],
+  ['heading','# Alpha\n### Beta','## Alpha\n## Beta'],
+  ['heading','## Alpha\n## Beta','Alpha\nBeta'],
+  ['heading','Alpha\n\nBeta','## Alpha\n\n## Beta'],
+  ['ordered','- First\n4) Second','1. First\n2. Second'],
+  ['ordered','First\n\nSecond','1. First\n\n2. Second'],
+  ['ordered','1. First\n2. Second','First\nSecond'],
+  ['quote','Alpha\n\nBeta','> Alpha\n>\n> Beta'],
+  ['quote','> Alpha\n>\n> Beta','Alpha\n\nBeta'],
+  ['quote','>> Nested\n> Plain','> Nested\nPlain'],
+  ['quote','Alpha> ','> Alpha> '],
+ ];
+ for(const [kind,original,expected] of structured){
+  const edit=formatMarkdown(original,kind,0,original.length,20000,true);
+  assert.equal(edit.after,expected,kind+': '+JSON.stringify(original));assert.equal(edit.after.slice(edit.start,edit.end),expected);
+  assert.equal(formatMarkdown(original,kind,original.length,0,20000,true).after,expected,'Reverse selections use the same complete lines');
+ }
+ for(const english of [true,false])for(const kind of ['heading','ordered','quote']){
+  const empty=formatMarkdown('',kind,0,0,20000,english);assert(empty.after.slice(empty.start,empty.end));
+  assert.equal(formatMarkdown('Alpha',kind,0,5,5,english),undefined,'Structural edits obey the same publication length limit');
+  assert.equal(formatMarkdown('Alpha',kind,Infinity,5,99,english),undefined);
+  assert.equal(formatMarkdown('Alpha',kind,0,5,-1,english),undefined);
+  const isolated=formatMarkdown('Before\nAlpha\nAfter',kind,8,10,20000,english);
+  const originalNode=new JSDOM(renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Markdown,{body:isolated.after}))));
+  const paragraphs=[...originalNode.window.document.querySelector('.community-prose').children];assert.equal(paragraphs[0].outerHTML,'<p>Before</p>');assert.equal(paragraphs.at(-1).outerHTML,'<p>After</p>','Unselected paragraphs stay outside the new block');originalNode.window.close();
+ }
+ for(const eol of ['\n','\r\n'])for(const [kind,prefix] of [['heading','## '],['ordered','1. '],['quote','> ']]){
+  const original=['Before','Alpha 😀','Beta','After'].join(eol),start=original.indexOf('Alpha')+2,end=original.indexOf('After');
+  const edit=formatMarkdown(original,kind,start,end,20000,true),second=kind==='ordered'?'2. ':prefix;
+  assert.equal(edit.after,['Before','',prefix+'Alpha 😀',second+'Beta','','After'].join(eol));
+  assert.equal(edit.after.slice(edit.start,edit.end),[prefix+'Alpha 😀',second+'Beta'].join(eol),'Selection excludes separator lines');
+  const back=formatMarkdown(edit.after,kind,edit.start,edit.end,20000,true);
+  assert.equal(back.after,['Before','','Alpha 😀','Beta','','After'].join(eol),'A second click removes one block style without accumulating separators');
+ }
+ const heading=formatMarkdown('A clear approach','heading',4,8,999,true),steps=formatMarkdown('Read\nImplement\nCheck','ordered',0,20,999,true),quote=formatMarkdown('A source\n\nAnother paragraph','quote',0,29,999,true);
+ const structuredHtml=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Markdown,{body:[heading.after,steps.after,quote.after].join('\n\n'),headingScope:'reading-'+ 'd'.repeat(32)})));
+ const structuredDom=new JSDOM(structuredHtml);assert.equal(structuredDom.window.document.querySelector('h2').textContent,'A clear approach');assert.deepEqual([...structuredDom.window.document.querySelectorAll('ol>li')].map(node=>node.textContent),['Read','Implement','Check']);assert.equal(structuredDom.window.document.querySelectorAll('blockquote').length,1);assert.equal(structuredDom.window.document.querySelectorAll('blockquote>p').length,2);
+ const {markdownOutline}=await server.ssrLoadModule('/src/markdownOutline.ts');assert.equal(markdownOutline(heading.after,'reading-'+ 'd'.repeat(32))[0].id,structuredDom.window.document.querySelector('h2').id);structuredDom.window.close();
  const code=formatMarkdown('return ``` + `value`','codeblock',0,21,999,true);assert(code.after.startsWith('````python\n'));assert(code.after.includes('return ``` + `value`'));
  const codeHtml=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Markdown,{body:code.after})));
  assert(codeHtml.includes('<pre>')&&codeHtml.includes('return ``` + `value`'),'Inserted fences render as a single literal code block');
@@ -61,19 +100,20 @@ try{
  await render(Harness,{disabled:true});assert([...document.querySelectorAll('.markdown-editor button')].every(button=>button.disabled));await act(async()=>field.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'k',metaKey:true,bubbles:true,cancelable:true})));assert.equal(field.value,later);
  await render(Harness,{limit:field.value.length});await click(named('Display math'));assert.equal(field.value,later);assert(document.querySelector('.markdown-format-error'));
  await render(Harness);await act(async()=>setText('exact source'));field.focus();field.setSelectionRange(0,5);
- await act(async()=>{named('Bold').click();document.querySelector('#outside').focus();});assert.equal(document.activeElement,document.querySelector('#outside'));assert.equal(field.value,'**exact** source');await click(document.querySelector('#outside'));assert(document.body.textContent.includes('撤销格式'));await stop();localStorage.setItem('paperleet.locale','en');
+ await act(async()=>{named('Bold').click();document.querySelector('#outside').focus();});assert.equal(document.activeElement,document.querySelector('#outside'));assert.equal(field.value,'**exact** source');await click(document.querySelector('#outside'));assert(document.body.textContent.includes('撤销格式'));for(const name of ['小标题','编号步骤','引用'])assert(named(name));await stop();localStorage.setItem('paperleet.locale','en');
  const owner='alice',postId='a'.repeat(32),replyId='b'.repeat(32),version='c'.repeat(64);
  const user={can_publish_community:true,id:owner,username:owner,display_name:'Alice',avatar_color:'#48766b',affiliation:'student',institution:'Example'};
  const post={id:postId,title:'Actual discussion',body:'Existing post',category:'questions',problem:null,problem_id:null,created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',edit_version:version,author:user,counts:{likes:0,reposts:0,replies:0},viewer:{can_edit:true,can_delete:true},replies:[]};
  const reply={id:replyId,post_id:postId,parent_id:null,body:'Existing reply',author:user,can_edit:true,edit_version:version},mutations=[];
- globalThis.__formatFixture={account:{user,loading:false,capabilities:{community_bookmarks:true},refresh:async()=>{}},request:async(path,payload)=>{if(payload){mutations.push({path,payload});throw Error('No publication during formatting');}return path.includes('?')?{items:[],total:0}:post;}};
+ globalThis.__formatFixture={account:{user,loading:false,capabilities:{community_bookmarks:true,community_solutions:true},refresh:async()=>{}},request:async(path,payload)=>{if(payload){mutations.push({path,payload});throw Error('No publication during formatting');}return path.includes('?')?{items:[],total:0,solutions:true}:post;}};
  const {default:Community}=await server.ssrLoadModule('/src/Community.tsx'),{default:Interview}=await server.ssrLoadModule('/src/InterviewComposer.tsx');
  const {default:PostEditor}=await server.ssrLoadModule('/src/PostEditor.tsx'),{default:ReplyEditor}=await server.ssrLoadModule('/src/ReplyEditor.tsx');
  const {default:CardActions}=await server.ssrLoadModule('/src/CommunityCardActions.tsx');
  const drafts=await server.ssrLoadModule('/src/communityDrafts.ts'),replies=await server.ssrLoadModule('/src/replyDrafts.ts'),interviews=await server.ssrLoadModule('/src/interviewDrafts.ts'),postEdits=await server.ssrLoadModule('/src/communityEdits.ts'),replyEdits=await server.ssrLoadModule('/src/replyEdits.ts');
- for(const kind of ['post','reply','interview','edit-post','edit-reply','inline-reply']){
+ for(const kind of ['post','solution','reply','interview','edit-post','edit-reply','inline-reply']){
   sessionStorage.clear();
   if(kind==='post'){await render(Community,{route:'community?category=questions'});await click(named('New post'));}
+  if(kind==='solution'){await render(Community,{route:'community?solutions=1',topicId:'architecture/attention',topic:{id:'architecture/attention',number:1,title:'注意力',title_en:'Attention'}});await click(named('Share a solution'));}
   if(kind==='reply')await render(Community,{postId,route:'community/'+postId});
   if(kind==='interview')await render(Interview,{owner,company:'google',problems:[],onClose(){},onPublished(){}});
   if(kind==='edit-post')await render(PostEditor,{owner,post,disabled:false,onSaved(){},onClose(){},onRefresh:async()=>true});
@@ -81,13 +121,22 @@ try{
   if(kind==='inline-reply'){await render(CardActions,{post});await click(named('Write comment'));}
   field=document.querySelector('.markdown-editor textarea');assert(field,kind);assert.equal(field.getAttribute('aria-keyshortcuts'),'Control+Enter Meta+Enter',kind+' opts in to native validated shortcut submission');assert(field.getAttribute('aria-describedby').split(' ').some(id=>document.getElementById(id)?.classList.contains('markdown-submit-shortcut')));await input(field,'A concrete reflection 😀');field.focus();field.setSelectionRange(2,10);field.scrollTop=17;
   await click(named('Bold'));assert.equal(field.value,'A **concrete** reflection 😀');
-  const draft=kind==='post'?drafts.readPostDraft(sessionStorage,owner,'general'):['reply','inline-reply'].includes(kind)?replies.readReplyDraft(sessionStorage,owner,postId):kind==='interview'?interviews.readInterviewDraft(sessionStorage,owner):kind==='edit-post'?postEdits.readPostEdit(sessionStorage,owner,postId):replyEdits.readReplyEdit(sessionStorage,owner,replyId);
+  const readDraft=()=>kind==='post'?drafts.readPostDraft(sessionStorage,owner,'general'):kind==='solution'?drafts.readPostDraft(sessionStorage,owner,'architecture/attention:solutions'):['reply','inline-reply'].includes(kind)?replies.readReplyDraft(sessionStorage,owner,postId):kind==='interview'?interviews.readInterviewDraft(sessionStorage,owner):kind==='edit-post'?postEdits.readPostEdit(sessionStorage,owner,postId):replyEdits.readReplyEdit(sessionStorage,owner,replyId);
+  const draft=readDraft();
   assert.equal(draft.body,field.value,'Existing scoped draft path: '+kind);
   const beforeLive=JSON.stringify({...sessionStorage});field.scrollLeft=9;
   await click(named('Live preview'));assert.equal(document.querySelector('.markdown-editor textarea'),field);assert(!field.closest('label').hidden);assert(document.querySelector('.markdown-editor.has-live-preview .compose-preview').textContent.includes('concrete'));assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);assert.equal(field.scrollLeft,9);assert.equal(JSON.stringify({...sessionStorage}),beforeLive,'Changing the reading layout does not rewrite the '+kind+' draft');
   await click(named('Preview'));await click(named('Write'));assert.equal(document.querySelector('textarea'),field);assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);
   await click(named('Undo formatting'));assert.equal(field.value,'A concrete reflection 😀');assert.equal(mutations.length,0);
-  if(kind==='post'||kind==='interview')await input(document.querySelector(`input[maxlength="${kind==='post'?160:180}"]`),'A complete publishing title');
+  for(const [tool,prefix,selector] of [['Section heading','## ','h2'],['Numbered steps','1. ','ol>li'],['Block quote','> ','blockquote>p']]){
+   field.focus();field.setSelectionRange(2,10,'backward');field.scrollTop=17;field.scrollLeft=9;
+   named(tool).focus();await click(named(tool));assert.equal(document.querySelector('.markdown-editor textarea'),field);assert.equal(field.value,prefix+'A concrete reflection 😀');assert.equal(document.activeElement,field);assert.equal(field.scrollTop,17);assert.equal(field.scrollLeft,9);
+   const currentDraft=readDraft();
+   assert.equal(currentDraft.body,field.value,kind+' saves '+tool+' in its existing draft');
+   await click(named('Preview'));assert.equal(document.querySelector('.compose-preview '+selector).textContent,'A concrete reflection 😀');assert(field.closest('label').hidden);assert(document.querySelector('.markdown-format-tools').hidden);
+   await click(named('Write'));named('Undo formatting').focus();await click(named('Undo formatting'));assert.equal(field.value,'A concrete reflection 😀');assert.equal(document.activeElement,field);assert.equal(field.selectionStart,2);assert.equal(field.selectionEnd,10);assert.equal(field.selectionDirection,'backward');assert.equal(field.scrollTop,17);assert.equal(field.scrollLeft,9);assert.equal(mutations.length,0);
+  }
+  if(['post','solution','interview'].includes(kind))await input(document.querySelector(`input[maxlength="${kind==='interview'?180:160}"]`),'A complete publishing title');
   const form=field.closest('form'),publish=form.querySelector('button.button:not([type="button"])');
   assert(publish&&!publish.disabled,kind+' starts with an eligible publish control');
   user.can_publish_community=false;await render(lastComponent,lastProps);
@@ -104,7 +153,7 @@ try{
   assert(!document.querySelector('.publishing-affiliation-notice'));assert(!publish.disabled,kind+' resumes after account verification');
   await stop();
  }
- console.log('PASS Markdown editing: seven bilingual tools, exact source/Unicode/fence/length safety, shortcuts, mounted preview selection/scroll, guarded undo/focus, affiliation gates across six real authoring surfaces, direct/shortcut publish prevention, preserved editable drafts and verified-account recovery');
+ console.log('PASS Markdown editing: ten bilingual tools, whole-line heading/numbered-step/quote toggles with isolated prose and LF/CRLF, real rendered blocks/outline parity, exact source/Unicode/fence/length safety, shortcuts, mounted preview selection/both-scroll, backward-selection undo/focus and saved structural drafts across seven real authoring surfaces including linked solutions, affiliation/direct/shortcut publication gates and verified-account recovery');
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
  for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,{...descriptor});else delete globalThis[key];}
