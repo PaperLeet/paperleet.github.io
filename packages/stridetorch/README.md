@@ -1430,3 +1430,38 @@ The compositional JVP/mixed-AD tape does not gain that two-buffer bound. Indepen
 scalar math, weak-reference lifetime checks, dtype-metadata collection and cache
 warm-up tests validate the selective rules. The benchmark includes actual-library
 forward/reverse/JVP and complete encoder SGD flows, with and without dropout.
+
+### Multihead attention (development)
+
+`torch.nn.MultiheadAttention` and
+`torch.nn.functional.multi_head_attention_forward` support float32/float64
+CPU/Pyodide math execution, sequence-first and batch-first inputs, unbatched
+inputs, separate K/V dimensions, boolean/additive attention and padding masks,
+per-head or averaged weights, bias K/V tokens, zero-attention tokens and
+functional static K/V. Self-attention shares one packed Q/K/V projection;
+cross-attention with identical K/V shares their packed projection. Input and
+parameter gradients, JVPs and reverse-over-JVP use the existing tensor engine.
+Module state, hooks, dtype conversion and optimizer/checkpoint workflows apply.
+
+```python
+layer = torch.nn.MultiheadAttention(64, 4, batch_first=True, dropout=0.1)
+x = torch.randn(2, 16, 64, requires_grad=True)
+y, weights = layer(x, x, x, need_weights=False)  # weights is None
+y.square().mean().backward()
+```
+
+MHA boolean masks use `True` for blocked positions. Evaluation disables the
+module's attention dropout; training follows this library's reproducible stream,
+not native Torch's seeded dropout bits. `is_causal=True` requires an explicit
+mask, following native MHA's math fallback. With no padding mask and
+`need_weights=False`, the causal hint selects SDPA's causal mask; callers must
+supply a correct hint. With padding or returned weights, the explicit mask is
+used. Returning weights requires the final additive mask dtype to match the
+query; the SDPA path also accepts float32 masks for float64 queries.
+
+Fully blocked rows follow the native math path: `need_weights=True` propagates
+softmax NaNs; `need_weights=False` uses SDPA's zero attention result before the
+output projection, so a nonzero output bias remains. This does not emulate
+native fused inference kernels, nested tensors, GPU kernels or quantization.
+Positive non-boolean integer dimensions and finite dropout in `[0,1]` are
+validated eagerly, including during construction.

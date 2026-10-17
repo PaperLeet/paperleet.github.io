@@ -49,6 +49,7 @@ def create_torch(name='torch', *, register=False):
     }.items(): setattr(torch.nn, name, cls)
     for module, names in (
         (_normalization,('LayerNorm','RMSNorm')),
+        (_multihead,('MultiheadAttention',)),
         (_groupnorm,('GroupNorm',)),
         (_classification,('NLLLoss',)),
         (_convolution,('Conv1d','Conv2d','Conv3d')),
@@ -73,7 +74,7 @@ def create_torch(name='torch', *, register=False):
         'module':('Module',),
         'container':('Sequential','ModuleList','ModuleDict','ParameterList','ParameterDict'),
         'linear':('Linear','Identity'),
-        'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid'),
+        'activation':('ReLU','SiLU','Softplus','LogSigmoid','GELU','Tanh','Sigmoid','MultiheadAttention'),
         'normalization':('LayerNorm','RMSNorm','GroupNorm'),
         'conv':('Conv1d','Conv2d','Conv3d','ConvTranspose1d','ConvTranspose2d','ConvTranspose3d'),
         'pooling':('MaxPool1d','MaxPool2d','MaxPool3d','AvgPool1d','AdaptiveAvgPool1d','AvgPool2d','AdaptiveAvgPool2d','AvgPool3d','AdaptiveAvgPool3d'),
@@ -91,6 +92,7 @@ def create_torch(name='torch', *, register=False):
             setattr(child,name,getattr(torch.nn,name))
             setattr(torch.nn.modules,name,getattr(torch.nn,name))
     modules['torch.nn.modules.batchnorm']._BatchNorm = _batchnorm._BatchNorm
+    modules['torch.nn.modules.linear'].NonDynamicallyQuantizableLinear = _multihead.NonDynamicallyQuantizableLinear
     modules['torch.nn.modules.batchnorm']._NormBase = _batchnorm._NormBase
     modules['torch.nn.modules.instancenorm']._InstanceNorm = _instancenorm._InstanceNorm
     modules['torch.nn.modules.instancenorm']._NormBase = _batchnorm._NormBase
@@ -250,6 +252,7 @@ def create_torch(name='torch', *, register=False):
         'normalize': _nn.normalize, 'smooth_l1_loss': _nn.smooth_l1_loss,
     }, reverse='analytic')
     registry.add('torch.nn.functional.scaled_dot_product_attention', _nn.scaled_dot_product_attention_oracle, reverse='analytic', forward=True)
+    registry.add('torch.nn.functional.multi_head_attention_forward', _multihead.multi_head_attention_forward, reverse='analytic', forward=True)
     registry.group('torch.linalg', {
         'inv': _linalg.inv, 'norm': _linalg.linalg_norm, 'svd': _linalg.svd, 'eigh': _linalg.eigh,
         'qr': _linalg.qr, 'eigvalsh': _linalg.eigvalsh, 'det': _linalg.det,
@@ -278,4 +281,4 @@ def create_torch(name='torch', *, register=False):
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution
+from . import _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead

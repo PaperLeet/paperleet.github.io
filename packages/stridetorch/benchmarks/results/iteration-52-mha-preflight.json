@@ -1,0 +1,355 @@
+{
+  "status": "development_preflight_passed",
+  "iteration": 52,
+  "package_version": "0.51.0",
+  "scope": "MHA feature branch; release metadata and active browser exports have not been advanced",
+  "baseline_head": "ab8e930dd3de37a2f2412fe86c860bf5e771c4c6",
+  "source_hashes": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "57d571f348b282afb6cf193fbe1f416ea956e569097c85f92033250c06f4df12",
+    "_nn.py": "e8fe17ab683685e08e3e40e500cb4d66e8473b0c84e2bb40f76d4ce9cfe85b70",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_multihead.py": "0343c8a6237d52812f2087bccd21f1dc831723afd962d4014961032b966d9ee1",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "af8a96129bc01cdd8db06b598a5de951217e97077da6af74a82eb12d25feb047",
+    "_graph.py": "4a2954f1688db1ce33d20f8534001333df12fe60ac51b30558a69b55d057686a",
+    "_ops.py": "1125db9d9df9beed866738826bee0a5d5eb85d632428e3a95d3a310c46f6abfb",
+    "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "_attention.py": "0c49605fc4c50261af5cb5d90daeeb02779b1df2f58a9715a3b3079d9ee1b6b5",
+    "_api.py": "dbe9e858b5d3933b3d8c10e28c32d704824fc14154c1bd29537db1bfcfa2d5ca",
+    "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "d7fbefe43b9bab3c8067b76ed7cb448d28968bc8c86f61158c5a55bb052dfb4b",
+    "__init__.py": "cbd12fdf5c2544676536b1051f1ba451d950a831f8288058163069985447cb0d",
+    "_promotion.py": "c9a0031ce2e9c0fc1e332fdda29cd7795516f0b7952517b91a67ac1a7d341d64",
+    "_arithmetic.py": "37d1c1a2a8505c8a1a1503491c38f21c149f7e8e6aee89e08b9cabf52d255b34",
+    "_linalg.py": "f6d4d2f8d328f48a7bf8959ea68d7eff54ca3951404b173ccfc0a14c442d4f73",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "8849f97c1b2829303ad7dc2ea361aeb1b90a5f168bf12ef6876883aa5f4609a1",
+    "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "_registry.py": "da6fef0e6a38fdfebf3af54b73824ad018f0fa67d0a598a1624fe4be307f637f",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "2665e02dc947aa8e55f61673b08d6c4f8a1a52185be36d0348a3516b7e895033",
+    "_optim.py": "f114ee53f5a4b6c515679c60d0e9f8d35c83e1248e816b0986a3389695848344",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_state.py": "d2d8302d3e2071d72eef4fffa0ffc6cfd6c4643d35028873a30d2827f6415a67",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "aa867a03c04c132353ede7c30af725bcd4aa6a11554387d5c417a86f1ceb2afe",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "72ab6b2cd6599b3fb5e32bda350f50977d4aa396a6de37b7789ba3e1117e9fdd",
+    "_instancenorm.py": "2fdae32e7466f98655a1979599cf0b8f000ccd70d2c4a7c5b467653acd5e71b5",
+    "_layout.py": "6e79dc1cc89f647b2db17b255068eb29300ff66e0847c6431b98c96971c5fa70",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "0489a618cd197c7082fa1856d8f3b01ceeabacf40696a0fd323110bfa438a174",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "c189c1e5125a2750f76f414c7ebbd1db148395e0e1a0c04d2492080e8efbf304",
+    "_construction.py": "751ef54794ed90be7a8c4c846bf0e35c6e2fa9e6bc10a891c727dd5af0707b4f"
+  },
+  "test_hashes": {
+    "test_transpose_convolution.py": "4d18e3c6171926d1c9a4d3546fa830d2e157ad85cb9103b11f1d9a12a15d3b96",
+    "test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "test_convolution_padding.py": "35b1a8675f08ad04ca29d728bb5dd2dcdcfa709ff64de30dde78e82c6a6d85c4",
+    "test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+    "test_average_pooling.py": "580b03a8db0a3e3b3511cbefb3a91c810d7217d31aa24d3be032640c4de7d983",
+    "test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+    "test_feature_detection.py": "64720a88f93955b8e4c2dd77f715a0946a9d30944455e69d8eddd5b35f11452b",
+    "test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "test_pooling.py": "1e3084a7e1cbf621a7ae89fe6f3dc09fd2a8bed5fe2fc589cee6c19f8a448989",
+    "test_multihead_attention.py": "7c1f19b34350d82830173bf9396b6587526a80cb03379b0788151efe76735774",
+    "test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "test_attention_efficiency.py": "b8c0a688080daf0d44583a1ceb6ee8d667ce7c8c7902ebec5cbd900744b2876e",
+    "test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "test_convolution.py": "e12a4c53b40dd9676b2a97d24ed40c0250478d29ab2407e56e679c4564e1a787",
+    "test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+    "test_attention.py": "f4ed553499459a60c6498c70f93064dac30b2d472a21b727b4ee18cfa5cc2bac",
+    "test_pooling_1d.py": "4b1024f2980e68165f411cf79ff158c2e1ba962988e08d0ab168a9745c4d1307",
+    "test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+    "test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+    "test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "test_pooling_3d.py": "a44ac8c6d64af2312342a0969de66203be1a6766be4152ec3059e159752031eb",
+    "test_average_pooling_plans.py": "e3178c03b2737785f4efcd21573bd50437330b73ae12c9e3377b812e57a3350b",
+    "test_instancenorm.py": "c796b279cb74d953d2b9c96df73f595b7778fd4728c6ca94a5b5bfe3c861cd08",
+    "test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "test_average_pooling_1d.py": "87a7ef3de39c98a3dd3147d972719d9cdb7f7d85dcbf635ab6ab8cc3d8127792",
+    "test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "test_average_pooling_3d.py": "9ef4a808534c6b3ecf3733da524ed93700351e7e2a49399a629492b32ae29c43",
+    "test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e"
+  },
+  "new_tests": 218,
+  "cpu": {
+    "passed": 40031,
+    "skipped": 1,
+    "warnings": 35,
+    "duration_s": 231.82,
+    "observed_process_exit_code": 0
+  },
+  "native_comparison": {
+    "status": "passed",
+    "cases": 208,
+    "arrays": 4107,
+    "backend_scope": "Native Torch CPU MHA fastpath disabled; SDPA math backend",
+    "max_absolute_error": {
+      "output": 1.1920928955078125e-07,
+      "grad": 9.5367431640625e-07,
+      "primal": 1.1920928955078125e-07,
+      "tangent": 1.1920928955078125e-07,
+      "mixed": 9.5367431640625e-07,
+      "initialization": 5.960464477539063e-08
+    },
+    "failures": []
+  },
+  "node": {
+    "passed": 6402,
+    "pyodide": "0.29.4",
+    "numpy": "2.2.5"
+  },
+  "chrome": {
+    "passed": 6402,
+    "browser": "155.0.8059.82",
+    "pyodide": "0.29.4",
+    "numpy": "2.2.5"
+  },
+  "minimum_wheel": {
+    "passed": 6415,
+    "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+    "numpy": "1.26.4",
+    "native_torch": false
+  },
+  "independent_ownership": "success",
+  "performance": {
+    "cpu": {
+      "forward": {
+        "median_reduction_percent": 9.53231010021768,
+        "process_median_range_percent": [
+          8.251395078056223,
+          13.382867524053799
+        ],
+        "slower_rows_per_process": [
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reverse": {
+        "median_reduction_percent": 13.74926127131243,
+        "process_median_range_percent": [
+          9.164189441948356,
+          14.172924976042989
+        ],
+        "slower_rows_per_process": [
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "jvp": {
+        "median_reduction_percent": 12.282874983748854,
+        "process_median_range_percent": [
+          9.97821055011982,
+          13.76314299342995
+        ],
+        "slower_rows_per_process": [
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      "training4": {
+        "median_reduction_percent": 5.193012616198822,
+        "process_median_range_percent": [
+          4.507479497193123,
+          9.690377535220406
+        ],
+        "slower_rows_per_process": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "node": {
+      "forward": {
+        "median_reduction_percent": 7.1357034346759605,
+        "process_median_range_percent": [
+          5.171749546276889,
+          9.469134790097804
+        ],
+        "slower_rows_per_process": [
+          2,
+          0,
+          1,
+          0
+        ]
+      },
+      "reverse": {
+        "median_reduction_percent": 3.5232616495126656,
+        "process_median_range_percent": [
+          1.9460970096094432,
+          6.791477457416034
+        ],
+        "slower_rows_per_process": [
+          0,
+          2,
+          1,
+          2
+        ]
+      },
+      "jvp": {
+        "median_reduction_percent": 4.744760269020043,
+        "process_median_range_percent": [
+          2.2658517049910065,
+          6.547621100760132
+        ],
+        "slower_rows_per_process": [
+          1,
+          0,
+          0,
+          1
+        ]
+      },
+      "training4": {
+        "median_reduction_percent": 0.8672235536464123,
+        "process_median_range_percent": [
+          -1.2264568291390054,
+          1.5799786435682028
+        ],
+        "slower_rows_per_process": [
+          1,
+          1,
+          3,
+          3
+        ]
+      }
+    },
+    "chrome": {
+      "forward": {
+        "median_reduction_percent": 3.697391660199684,
+        "process_median_range_percent": [
+          2.1758942811619053,
+          5.8441558441585
+        ],
+        "slower_rows_per_process": [
+          0,
+          1,
+          0,
+          2
+        ]
+      },
+      "reverse": {
+        "median_reduction_percent": 3.4064728023391693,
+        "process_median_range_percent": [
+          3.063160748170912,
+          3.7585348220731785
+        ],
+        "slower_rows_per_process": [
+          2,
+          0,
+          0,
+          1
+        ]
+      },
+      "jvp": {
+        "median_reduction_percent": 4.205207158001503,
+        "process_median_range_percent": [
+          1.734039656409414,
+          5.467163168581779
+        ],
+        "slower_rows_per_process": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "training4": {
+        "median_reduction_percent": 1.9196899563355685,
+        "process_median_range_percent": [
+          1.4493497604370742,
+          2.422969187675017
+        ],
+        "slower_rows_per_process": [
+          1,
+          1,
+          0,
+          2
+        ]
+      }
+    }
+  },
+  "performance_scope": "Packed self-attention vs same-library three-projection control, not prior release or native Torch. Three shapes, both dtypes, 24 flows per runtime, four fresh processes, five samples, four calls (one four-SGD flow). Restore and result copies excluded from training timing; optimizer construction included. Shared host; no peak RSS or universal speed claim.",
+  "policies": {
+    ".github/workflows/ci.yml": "aee11cb79f3a906508b002aaf1129fec793a458c0b09edce38e4b85211fe1962",
+    ".github/workflows/pages.yml": "9fd2354a3e95e819e9e74ac17dc0eaa16228313562ef7f5ec0e666212186f43c",
+    "web/scripts/check-release-request.cjs": "15c2458b8bd6429226a2ba40d5a41b1d7644ee032ecf43c5a854c3c153487d6a",
+    "web/scripts/pages-release-gate.cjs": "cb57661501e723c30dc4540855ecd1f27c0ff7b1bb826bf0e0fe3fa86c3dfd14",
+    "web/scripts/check-pages-release.cjs": "98fd0331127d0fc3210230fc515cb5a64137388d913525edc87d2135ee78092f",
+    "web/scripts/check-pages-backfill.cjs": "6353d0e303defba12cc915133c1ffa7ecf4f3d040c3c94d27b74961c743909a8",
+    "docs/releasing.md": "209a00612c57e015659ae0bf4c4095fb713afdd9a89c19f3e96a5120928fec4d"
+  },
+  "no_remote_mutations": true,
+  "pending": [
+    "Advance version metadata after final integration validation",
+    "Regenerate and verify active exports while preserving published immutable payloads",
+    "Run full exported 78-problem WASM catalog and frontend/build gates",
+    "Check current remote and Actions before any ordinary main adoption"
+  ],
+  "harness_scripts": {
+    "probe-native.py": "f1a9767d1b7affef85fa401638129ab2bd027df3ccdba1a641053f0e41d43691",
+    "differential-mha.py": "7c3cc7509cea00ed73477afb232edfa380a434bd792bf494700aacfc7b666b90",
+    "run-mha-bench-final.py": "455021ceca727e5a8fe0b8bfac50dcb3e88c52049fc627605e97facf82dfcf0b",
+    "prepare-mha-bench.py": "ea2b2c2429ec985ae1b62c084c3a85a7eaf4aed26bbce3825f2c703c84bb2f0f",
+    "probe-details.py": "9ec3ea8c0dec2b47910d61e828049fc260e2988ccc9063c4f1ba40ffe75b13a7",
+    "prepare-mha-preflight.py": "e372cc009ec028c10f83a0980c890851e49d5e82eb3172df84e08aa3dc94a535",
+    "compare-mha.py": "70a58fcd5ed506dae25f03ffef74e004b4f422777591f2c635739678ca29b140",
+    "prepare-mha-packaging.py": "c6c145d5effd2a336e650a1aec1f0201a979ea681caea203377fee315a785e61",
+    "close-mha-preflight.py": "0cde67ced0afd2ef7eaaea9900d52ac0acee9a700f16513324f74eea918dcc76"
+  },
+  "archive": {
+    "path": "packages/stridetorch/benchmarks/results/iteration-52-mha-preflight-harness.tar.gz",
+    "sha256": "0e8f61d01775aa41dd115c41c004abc264b09f5249ee5c35db5e60a6b39203c4",
+    "files": 286,
+    "bytes": 5659752
+  }
+}
