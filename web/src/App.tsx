@@ -1,5 +1,7 @@
 import {deferredFeature} from './deferredFeature';
 import EditorToolsFallback from './EditorToolsFallback';
+import RetainedReadingPane from './RetainedReadingPane';
+import {useReadingTab} from './useReadingTab';
 import {editorFontSizes} from './editorPreferences';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
@@ -135,7 +137,7 @@ function Workspace() {
     [papers, setPapers] = useState<Paper[]>([]),
     [loadError, setLoadError] = useState(""),
     [id, setId] = useState(getId),
-    [tab, setTab] = useState("description"),
+    [tab, setTab] = useReadingTab(JSON.stringify([practice.owner,user?.id,accountLoading])),
     [rightTab, setRightTab] = useState("code"),
     [preparingRun, setPreparingRun] = useState(false),
     [toast, setToast] = useState(""),
@@ -165,7 +167,7 @@ function Workspace() {
     requestAnimationFrame(() => {
       if(!claim())return;
       if(focus)document.getElementById(`reading-tab-${nextTab}`)?.focus({preventScroll:true});
-      document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
+      if(nextTab!=="solution")document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
       if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
     });
   }
@@ -734,7 +736,7 @@ function Workspace() {
                         tabIndex={tab === key ? 0 : -1}
                         className={tab === key ? "selected" : ""}
                         aria-selected={tab === key}
-                        aria-controls={key === "result" ? "problem-results-panel" : "problem-reading-content"}
+                        aria-controls={key === "result" ? "problem-results-panel" : key === "solution" ? "problem-solutions-panel" : "problem-reading-content"}
                         onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                       >
                         {key === "description" ? (
@@ -757,9 +759,9 @@ function Workspace() {
                 </div>
                 <ReadingTabControls container={readingTabsContainer} viewport={readingTabsViewport} content={readingTabsContent} controlsId="problem-reading-tabs" selectedKey={tab}/>
               </div>
-              <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab === "result" ? "description" : tab}`} tabIndex={0} key={`${problem.id}:${tab}`} hidden={tab === "result"}>
+              <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab === "result" || tab === "solution" ? "description" : tab}`} tabIndex={0} key={`${problem.id}:${tab}`} hidden={tab === "result" || tab === "solution"}>
                 {learningNotice}
-                {tab === "lab" ? (
+                {tab === "solution" ? null : tab === "lab" ? (
                   <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} sourceState={reportSource} initialView={labView} />
                 ) : tab === "notes" ? (
                   !notesUnlocked ? (
@@ -794,8 +796,6 @@ function Workspace() {
                       onViz={() => openLab("concept")}
                     />
                   )
-                ) : tab === "solution" ? (
-                  <ProblemSolutionPanel key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>
                 ) : (
                   <>
                     <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={selectedPaper?.kind==='course'} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={openEditor}/>
@@ -835,6 +835,9 @@ function Workspace() {
                   </>
                 )}
               </div>
+              <RetainedReadingPane key={JSON.stringify([problem.id,practice.owner,user?.id,accountLoading])} active={tab==="solution"} id="problem-solutions-panel" labelledBy="reading-tab-solution">
+                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemSolutionPanel topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>}
+              </RetainedReadingPane>
               <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
                 <div className="workspace-result-heading" role="status">
                   <Terminal size={17} aria-hidden="true" /><h2>{t("结果", "Result")}</h2>

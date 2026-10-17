@@ -27,6 +27,7 @@ import PublishingIdentity from './PublishingIdentity';
 import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
 import {insertSolutionCode,ownsSolutionCode,type SolutionCodeSource,type SolutionCodeEdit} from './solutionCodeDraft';
 import './solution-code-draft.css';
+import './solution-publication.css';
 import './reply-quotes.css';
 import './profile-solutions.css';
 import MarkdownEditor from "./MarkdownEditor";
@@ -267,6 +268,7 @@ function Composer({
   onDraftChange,
   panelProps,
   onClose,
+  onBackgroundPublish,
 }: {
   category: string;
   topic?: ProblemTopic;
@@ -281,6 +283,7 @@ function Composer({
   panelProps?:WritingPanelProps;
   onDraftChange: (available: boolean) => void;
   onClose: () => void;
+  onBackgroundPublish?: (post:Post) => void;
 }) {
   const { t, locale } = useI18n();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
@@ -421,7 +424,10 @@ function Composer({
       if(solution&&(post.solution!==true||post.problem_id!==pending.receipt.payload.problem_id))throw Error(t("暂时无法确认题解的题目关联，草稿已保留，请重试。","Could not confirm the linked solution. Your draft is kept; please retry."));
       clearPublication(tabDraftStorage(),pending.receipt);
       if (samePublication(pending.receipt,postPublication(submitted,topic?.id,solution))) clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
-      if (mounted.current && location.hash === submittedRoute) location.hash = postHref(post.id, returnTo||submittedRoute);
+      if (mounted.current && location.hash === submittedRoute) {
+        if(onBackgroundPublish&&panelProps?.ref.current?.closest('[hidden],[aria-hidden="true"]'))onBackgroundPublish(post);
+        else location.hash = postHref(post.id, returnTo||submittedRoute);
+      }
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
       if (affiliationRequired(e)) void refreshAccount().catch(() => {});
@@ -572,6 +578,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const solutionAvailable=capabilities?.community_solutions===true;
   const solutionUnavailable=solutions&&!accountLoading&&!solutionAvailable;
   const [localFilters,setLocalFilters]=useState<CommunityFeedState>(()=>({...emptyCommunityFeed(),solutions:true}));
+  const [publishedSolution,setPublishedSolution]=useState<string>();
   const draftScope = (topicId || "general")+(solutions?":solutions":"");
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
   const filters = embedded?localFilters:readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
@@ -774,8 +781,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
           )}
           {writing.expanded && user && (
-            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} />
+            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedSolution(post.id);setRetry(value=>value+1);}:undefined}/>
           )}
+          {embedded&&publishedSolution&&<div className="notice solution-publication-notice" role="status"><span>{t('题解已发布。','Your solution was published.')}</span><a href={postHref(publishedSolution,returnTo)}>{t('查看已发布题解','View published solution')}<ArrowRight size={14} aria-hidden="true"/></a></div>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>

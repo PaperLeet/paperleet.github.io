@@ -30,5 +30,5 @@ export function useWritingDisclosure(scope:string){
   if(!opening.opener.isConnected||opening.opener.matches(':disabled')||!panel.current?.contains(document.activeElement))return;
   opening.opener.focus({preventScroll:true});revealReadingTarget(opening.opener,'nearest');
  }
- return {expanded,close,triggerProps:{onClick:open,'aria-expanded':expanded,'aria-controls':expanded?id:undefined},panelProps:{id,ref:panel} satisfies WritingPanelProps};
+ return {expanded,close,dismiss:()=>setOpening(undefined),triggerProps:{onClick:open,'aria-expanded':expanded,'aria-controls':expanded?id:undefined},panelProps:{id,ref:panel} satisfies WritingPanelProps};
 }

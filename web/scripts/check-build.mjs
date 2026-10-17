@@ -55,6 +55,10 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.description-scroll[hidden]')), 'Initial workspace styles must hide inactive retained reading panels');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your solution was published.')), 'Solution publication feedback must remain deferred with the community');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-publication-notice')), 'Solution publication styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-publication-notice'))), 'Deferred community views must include solution publication feedback styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Loading NumPy and test tools')), 'Detailed browser progress text must stay deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.browser-run-activity')), 'Detailed browser activity styles must stay deferred');
 assert((manifest['src/BrowserRunProgressDetails.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.browser-run-activity')), 'Deferred progress must include activity styles');

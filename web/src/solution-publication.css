@@ -1,0 +1,4 @@
+.solution-publication-notice { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; font-size:var(--type-body); line-height:1.7; }
+.solution-publication-notice a { display:inline-flex; align-items:center; gap:7px; min-height:40px; color:var(--accent); }
+.solution-publication-notice a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:5px; }
+@media(pointer:coarse) { .solution-publication-notice a { min-height:44px; } }
