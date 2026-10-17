@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import InboxListRefresh from './InboxListRefresh';
+import {inboxListUpdate} from './inboxListUpdate';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowLeft, ArrowRight, MessageCircle, Send } from 'lucide-react';
 import { Avatar, DateLabel, errorMessage, profileHref, SocialError, useAccount } from './social';
 import { useI18n } from './i18n';
@@ -31,25 +33,32 @@ function AccountMessages({owner, username, readAllAvailable}: {owner: string; us
   const {t} = useI18n();
   const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [more, setMore] = useState(false), [snapshotLoading, setSnapshotLoading] = useState(true);
   const alive = useRef(true), manual = useRef<AbortController | undefined>(undefined), revision = useRef(0);
+  const currentData=useRef(data),replacing=useRef(false);
+  const [changed,setChanged]=useState(false);
+  useLayoutEffect(()=>{currentData.current=data;},[data]);
   useEffect(() => { alive.current = true; return () => { alive.current = false; manual.current?.abort(); }; }, []);
-  async function refresh(signal: AbortSignal) {
+  async function refresh(signal: AbortSignal,replace=false) {
+    if(!replace&&replacing.current)return;
     const version = ++revision.current;
-    setSnapshotLoading(true);
+    if(!currentData.current||replace)setSnapshotLoading(true);
     try {
       const next = await inboxRequest<InboxSnapshot>(owner, 'inbox?limit=20', undefined, signal);
       if (signal.aborted || !alive.current || version !== revision.current) return;
-      setData(next); setError(''); setMore(false);
+      const current=currentData.current;
+      if(current&&!replace){const update=inboxListUpdate(current,next);setData(update.snapshot);setChanged(update.changed);}
+      else{setData(next);setChanged(false);}
+      setError('');
     } catch (e) { if (!signal.aborted && alive.current && version === revision.current) setError(errorMessage(e)); }
-    finally { if (!signal.aborted && alive.current && version === revision.current) setSnapshotLoading(false); }
+    finally { if(replace&&!signal?.aborted)replacing.current=false; if (!signal?.aborted && alive.current && version === revision.current) setSnapshotLoading(false); }
   }
   const readAll = useInboxReadAll({owner, snapshot: data, available: readAllAvailable, blocked: snapshotLoading || more, onRead: (counts, cutoff) => {
-    ++revision.current; manual.current?.abort(); setSnapshotLoading(false); setMore(false);
+    ++revision.current; replacing.current=false;manual.current?.abort(); setSnapshotLoading(false); setMore(false);
     setData(current => current ? applyInboxReadAll(current, counts, cutoff) : current);
   }});
-  useInboxPolling(owner, refresh, !readAll.busy);
-  const retry = () => { manual.current?.abort(); manual.current = new AbortController(); setMore(false); void refresh(manual.current.signal); };
+  useInboxPolling(owner, refresh, !readAll.busy && !more);
+  const retry = () => { manual.current?.abort(); manual.current = new AbortController(); setMore(false);replacing.current=true; void refresh(manual.current.signal,true); };
   async function loadMore() {
-    if (!data?.conversations_next_before || more || readAll.busy || snapshotLoading) return;
+    if (!data?.conversations_next_before || more || readAll.busy || snapshotLoading || replacing.current) return;
     manual.current?.abort(); const controller = new AbortController(); manual.current = controller;
     const version = ++revision.current;
     setMore(true);
@@ -66,10 +75,11 @@ function AccountMessages({owner, username, readAllAvailable}: {owner: string; us
     <div className="messages-layout">
       <aside className="messages-sidebar" aria-label={t('对话列表', 'Conversations')}>
         <header className="messages-sidebar-heading"><h2>{t('对话', 'Conversations')}</h2>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
+        {data&&<InboxListRefresh changed={changed} busy={snapshotLoading||more||readAll.busy} onRefresh={retry}/>}
         {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
         {!data && !error && <p className="inbox-empty" role="status">{t('正在加载…', 'Loading…')}</p>}
         {data && (data.conversations.length ? <ul className="inbox-items">{data.conversations.map(item => <li key={item.id}><ConversationLink conversation={item} owner={owner} selected={item.peer.username === username}/></li>)}</ul>
-          : <p className="inbox-empty">{t('还没有对话。前往对方的个人主页发起私信。', 'No conversations yet. Visit someone’s profile to send a message.')}</p>)}
+          : <p className="inbox-empty">{changed?t('当前列表没有对话，可查看最新消息。','No conversations in this list. Check the latest messages.'):t('还没有对话。前往对方的个人主页发起私信。', 'No conversations yet. Visit someone’s profile to send a message.')}</p>)}
         {data?.conversations_next_before && <button type="button" className="inbox-more" disabled={more || readAll.busy || snapshotLoading} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('更多对话', 'More conversations')}</button>}
       </aside>
       {username ? <ConversationThread key={username} owner={owner} username={username}/>

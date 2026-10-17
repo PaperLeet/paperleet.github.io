@@ -102,7 +102,8 @@ try {
   assert.equal(mark.body.through_event_id, 8);
   snapshot = {...snapshot, observed_event_id: 9, notifications: [{...notification, latest_event_id: 9}]};
   await act(async () => readRelease());
-  assert(document.querySelector('.inbox-row-dot'), 'A notification arriving after the displayed cutoff remains unread');
+  assert(snapshot.notification_unread_count===1&&button('Show latest'), 'A notification arriving after the displayed cutoff remains unread and waits behind an explicit refresh');
+  await click(button('Show latest'));assert(document.querySelector('.inbox-row-dot'));
   deferRead = false; await stop();
 
   account.capabilities.inbox_read_all = true;
@@ -134,6 +135,7 @@ try {
   await act(async () => inboxChanged('alice'));
   failReadAll = false; await click(document.querySelector('.inbox-read-all-feedback button'));
   assert.deepEqual(calls.findLast(call => call.path === 'inbox/read-all').body, failedCutoff, 'A retry keeps both original cutoffs despite later arrivals');
+  await click(button('Show latest'));
   await click(button('Mark all as read'));
   assert.equal(snapshot.unread_count, 0);
   assert(button('Mark all as read').disabled, 'An empty inbox keeps a visible disabled all-read action');
