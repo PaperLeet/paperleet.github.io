@@ -12,7 +12,7 @@
 .solution-reading-toolbar { position:sticky; top:0; z-index:6; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 12px; margin-bottom:16px; padding:6px 0; border-bottom:1px solid var(--line); background:var(--surface); }
 .solution-reading-toolbar>button { min-width:0; max-width:100%; overflow-wrap:anywhere; }
 .solution-reading-toolbar>.solution-reading-code { padding-inline:10px; border:1px solid var(--line); border-radius:7px; background:var(--surface2); font-size:var(--type-control); }
-.problem-solutions .feed-items { overflow:visible; }
+.problem-community .feed-items { overflow:visible; }
 .solution-reading-card :is(summary,button,a):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
 .solution-reading-card .discussion-section-heading { scroll-margin-top:24px; }
 @media(max-width:850px) {

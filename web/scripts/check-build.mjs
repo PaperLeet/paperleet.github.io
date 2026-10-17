@@ -56,6 +56,9 @@ const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`di
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
 assert([...css].some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.description-scroll[hidden]')), 'Initial workspace styles must hide inactive retained reading panels');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Discussions for this problem')), 'In-place problem discussions must remain deferred with community reading');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.problem-discussion-header')), 'In-place discussion header styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.problem-discussion-header'))), 'Deferred community views must include in-place discussion styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your solution was published.')), 'Solution publication feedback must remain deferred with the community');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-publication-notice')), 'Solution publication styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-publication-notice'))), 'Deferred community views must include solution publication feedback styles');

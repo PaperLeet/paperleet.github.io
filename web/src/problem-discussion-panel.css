@@ -1,0 +1,7 @@
+.problem-discussion-panel { min-width:0; }
+.problem-discussion-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+.problem-discussion-header p { display:flex; align-items:flex-start; gap:8px; min-width:0; margin:0; color:var(--muted); font-size:var(--type-body); line-height:1.7; overflow-wrap:anywhere; }
+.problem-discussion-header p svg { flex:none; margin-top:5px; }
+.problem-discussion-header button { flex:none; }
+.problem-discussion-panel .problem-discussions { margin-top:0; border-top:0; padding-top:0; }
+.community-feed-toolbar:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:7px; }

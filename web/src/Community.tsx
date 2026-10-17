@@ -28,6 +28,7 @@ import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuo
 import {insertSolutionCode,ownsSolutionCode,type SolutionCodeSource,type SolutionCodeEdit} from './solutionCodeDraft';
 import './solution-code-draft.css';
 import './solution-publication.css';
+import './problem-discussion-panel.css';
 import './reply-quotes.css';
 import './profile-solutions.css';
 import MarkdownEditor from "./MarkdownEditor";
@@ -228,7 +229,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             <DateLabel value={post.created_at} />
             <Category value={post.solution ? "solutions" : post.category} />
           </div>
-          {readInPlace&&post.solution ? <SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery}/> : <><a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
+          {readInPlace ? <><SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
             <PostSearchMatch text={post.title} query={searchQuery}/>
           </a>
           {post.problem && (
@@ -571,14 +572,21 @@ export default function Community({ postId, route, ...scope }: CommunityProps) {
 export function ProblemSolutions({topic,onCode,practiceCode}:{topic:ProblemTopic;onCode?:()=>void;practiceCode?:SolutionCodeSource}) {
   return <Community embedded onCode={onCode} practiceCode={practiceCode} topic={topic} topicId={topic.id} route={solutionsHref(topic.id)}/>;
 }
+export function ProblemDiscussions({topic,onCode}:{topic:ProblemTopic;onCode:()=>void}){
+  const {t,locale}=useI18n();
+  return <section className="problem-discussion-panel" aria-label={t('本题讨论','Discussions for this problem')}>
+    <div className="problem-discussion-header"><p><Code2 size={16} aria-hidden="true"/><span>{topicTitle(topic,locale==='en')}</span></p><button type="button" className="button subtle" onClick={onCode}><Code2 size={15} aria-hidden="true"/>{t('返回代码','Back to code')}</button></div>
+    <Community embedded onCode={onCode} topic={topic} topicId={topic.id} route={topicHref(topic.id)}/>
+  </section>;
+}
 function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false, onCode,practiceCode }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
   const { user, capabilities, loading: accountLoading } = useAccount();
-  const solutions=embedded||readCommunityFeed(route||"")?.state.solutions===true;
+  const solutions=readCommunityFeed(route||"")?.state.solutions===true;
   const solutionAvailable=capabilities?.community_solutions===true;
   const solutionUnavailable=solutions&&!accountLoading&&!solutionAvailable;
-  const [localFilters,setLocalFilters]=useState<CommunityFeedState>(()=>({...emptyCommunityFeed(),solutions:true}));
-  const [publishedSolution,setPublishedSolution]=useState<string>();
+  const [localFilters,setLocalFilters]=useState<CommunityFeedState>(()=>({...emptyCommunityFeed(),...(solutions?{solutions:true}:{})}));
+  const [publishedPost,setPublishedPost]=useState<string>();
   const draftScope = (topicId || "general")+(solutions?":solutions":"");
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
   const filters = embedded?localFilters:readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
@@ -607,7 +615,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     : failure.message : '';
   const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
-    const next={...filters,page:1,...change,...(embedded?{solutions:true}:{})};
+    const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
     if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
   }
   useEffect(() => {
@@ -661,6 +669,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       .then((data) => {
         if (!live) return;
         if(days&&data?.days!==days)throw Error(t('暂时无法确认发布时间筛选，请重试。','Could not confirm the publication period. Please retry.'));
+        if(embedded&&!solutions&&data&&Array.isArray(data.items)&&((topicId&&data.items.some(post=>post.problem_id!==topicId))||(data.solutions!==undefined&&data.solutions!==false)))throw Error(t('暂时无法确认本题讨论的范围，请重试。','Could not confirm the discussion scope for this problem. Please retry.'));
         if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort) || (solutions && (data.solutions!==true || data.items.some(post=>post.solution!==true || !post.problem_id || (topicId && post.problem_id!==topicId))))) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
         const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
         if (page > lastPage) {
@@ -685,7 +694,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded, days, periodUnavailable]);
   const FeedRoot=embedded?"section":"main";
   return (
-    <FeedRoot ref={reading.container} className={embedded?"problem-solutions community-page":"social-page community-page"}>
+    <FeedRoot ref={reading.container} className={embedded?`problem-community ${solutions?'problem-solutions':'problem-discussions'} community-page`:"social-page community-page"}>
       {!embedded&&topicId && (
         <a className="social-back" href={solutions?solutionsHref():"#/community"}>
           <ArrowLeft size={14} />{solutions?t("所有社区题解","All community solutions"):t("所有社区讨论", "All community discussions")}
@@ -734,7 +743,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           ) : null}
         </aside>}
         <section className="community-feed">
-          {embedded&&<div className="problem-solutions-heading"><div><h2>{t("社区题解","Community solutions")}</h2><p>{t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own.")}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||!solutionAvailable} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):t("发布题解","Share a solution")}</button>:<a className="button" href={signInHref(returnTo)}>{t("登录写题解","Sign in to contribute")}</a>}<a href={returnTo}>{t("全部题解","All solutions")}<ArrowRight size={14}/></a></div></div>}
+          {embedded&&<div className={`problem-community-heading ${solutions?'problem-solutions-heading':'problem-discussions-heading'}`}><div><h2>{solutions?t("社区题解","Community solutions"):t('题目讨论','Problem discussions')}</h2><p>{solutions?t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own."):t('交流本题的疑问、实现思路与测试结果。','Discuss questions, implementation choices and test results for this problem.')}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||(solutions&&!solutionAvailable)} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):solutions?t("发布题解","Share a solution"):t('发起讨论','Start a discussion')}</button>:<a className="button" href={signInHref(returnTo)}>{solutions?t("登录写题解","Sign in to contribute"):t('登录参与讨论','Sign in to discuss')}</a>}<a href={returnTo}>{solutions?t("全部题解","All solutions"):t('全部讨论','All discussions')}<ArrowRight size={14}/></a></div></div>}
           <div ref={toolbar} className="community-feed-toolbar" role="group" tabIndex={-1} aria-label={solutions?t('题解浏览控制','Solution browsing controls'):t('讨论浏览控制','Discussion browsing controls')}>
             <div className="social-tabs compact">
               <button
@@ -781,9 +790,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
           )}
           {writing.expanded && user && (
-            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedSolution(post.id);setRetry(value=>value+1);}:undefined}/>
+            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
           )}
-          {embedded&&publishedSolution&&<div className="notice solution-publication-notice" role="status"><span>{t('题解已发布。','Your solution was published.')}</span><a href={postHref(publishedSolution,returnTo)}>{t('查看已发布题解','View published solution')}<ArrowRight size={14} aria-hidden="true"/></a></div>}
+          {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><a href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></a></div>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
@@ -792,7 +801,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 <SocialNotice error={error} />
                 <button
                   className="button subtle"
-                  onClick={() => setRetry((v) => v + 1)}
+                  onClick={event => {if(document.activeElement===event.currentTarget)toolbar.current?.focus({preventScroll:true});setRetry((v) => v + 1);}}
                 >
                   {t("重试", "Retry")}
                 </button>

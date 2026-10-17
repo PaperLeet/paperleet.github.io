@@ -44,6 +44,7 @@ export const PreparationGuide = deferredFeature(() => import('./PreparationGuide
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
 export const DraftCenter = deferredFeature(() => import('./DraftCenter'), ['创作草稿','writing drafts']);
 export const ProblemSolutions = deferredFeature<Parameters<typeof import('./Community').ProblemSolutions>[0]>(() => import('./Community').then(module=>({default:module.ProblemSolutions})), ['社区题解','community solutions']);
+export const ProblemDiscussions = deferredFeature<Parameters<typeof import('./Community').ProblemDiscussions>[0]>(() => import('./Community').then(module=>({default:module.ProblemDiscussions})), ['本题讨论','problem discussions']);
 export const ProblemSolutionPanel = deferredFeature(() => import('./ProblemSolutionPanel'), ['本题题解','problem solutions']);
 export const UserProfile = deferredFeature<Parameters<typeof import('./Community').UserProfile>[0]>(() => import('./Community').then(module => ({ default: module.UserProfile })), ['个人主页', 'profile']);
 export const Account = deferredFeature(() => import('./Account'), ['账号页面', 'account page']);

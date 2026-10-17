@@ -5,7 +5,7 @@ import {useReadingTab} from './useReadingTab';
 import {editorFontSizes} from './editorPreferences';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
-import {DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls} from './deferredPages';
+import {DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls,ProblemDiscussions} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
@@ -57,7 +57,7 @@ import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason } from "./browserMessages";
 import { browserBudget } from './browserBudgets';
-import { topicHref, topicIdFromRoute, topicFromProblem } from "./communityTopics";
+import { topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
 import { publicSite, hostedAppHref, hostedAppAvailable } from "./deployment";
 import { type ExperimentView } from "./experimentResults";
@@ -167,7 +167,7 @@ function Workspace() {
     requestAnimationFrame(() => {
       if(!claim())return;
       if(focus)document.getElementById(`reading-tab-${nextTab}`)?.focus({preventScroll:true});
-      if(nextTab!=="solution")document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
+      if(nextTab!=="solution"&&nextTab!=="discussion")document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
       if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
     });
   }
@@ -198,6 +198,7 @@ function Workspace() {
     locale === "en" && p.translations?.en ? { ...p, ...p.translations.en } : p;
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
+  const communityPaneScope=JSON.stringify([problem?.id,practice.owner,user?.id,accountLoading]);
   const submissionPage = path === "submit";
   const submissionResultId = /^submission\/([a-f0-9]{32})$/.exec(path)?.[1];
   const communityPath = id.split('?')[0];
@@ -479,6 +480,7 @@ function Workspace() {
     ["lab", t("实验", "Lab")],
     ["notes", t("坑点", "Notes")],
     ["solution", t("题解", "Solutions")],
+    ...(hostedAppAvailable?[["discussion",t("讨论","Discuss")]]:[]),
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
@@ -736,7 +738,7 @@ function Workspace() {
                         tabIndex={tab === key ? 0 : -1}
                         className={tab === key ? "selected" : ""}
                         aria-selected={tab === key}
-                        aria-controls={key === "result" ? "problem-results-panel" : key === "solution" ? "problem-solutions-panel" : "problem-reading-content"}
+                        aria-controls={key === "result" ? "problem-results-panel" : key === "solution" ? "problem-solutions-panel" : key === "discussion" ? "problem-discussion-panel" : "problem-reading-content"}
                         onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                       >
                         {key === "description" ? (
@@ -745,6 +747,8 @@ function Workspace() {
                           <Terminal size={14} />
                         ) : key === "lab" ? (
                           <FlaskConical size={14} />
+                        ) : key === "discussion" ? (
+                          <MessageCircle size={14} />
                         ) : key === "notes" &&
                           !notesUnlocked ? (
                           <LockKeyhole size={12} />
@@ -752,16 +756,13 @@ function Workspace() {
                         {label}
                       </button>
                     ))}
-                    {hostedAppAvailable && <a className="module-discussion-tab" href={topicHref(problem.id)}>
-                      <MessageCircle size={14} />{t("讨论", "Discuss")}
-                    </a>}
                   </div>
                 </div>
                 <ReadingTabControls container={readingTabsContainer} viewport={readingTabsViewport} content={readingTabsContent} controlsId="problem-reading-tabs" selectedKey={tab}/>
               </div>
-              <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab === "result" || tab === "solution" ? "description" : tab}`} tabIndex={0} key={`${problem.id}:${tab}`} hidden={tab === "result" || tab === "solution"}>
+              <div className="description-scroll" id="problem-reading-content" role="tabpanel" aria-labelledby={`reading-tab-${tab === "result" || tab === "solution" || tab === "discussion" ? "description" : tab}`} tabIndex={0} key={`${problem.id}:${tab}`} hidden={tab === "result" || tab === "solution" || tab === "discussion"}>
                 {learningNotice}
-                {tab === "solution" ? null : tab === "lab" ? (
+                {tab === "solution" || tab === "discussion" ? null : tab === "lab" ? (
                   <Visuals key={`${problem.id}:${labView}`} problem={problem} report={report} sourceState={reportSource} initialView={labView} />
                 ) : tab === "notes" ? (
                   !notesUnlocked ? (
@@ -835,9 +836,12 @@ function Workspace() {
                   </>
                 )}
               </div>
-              <RetainedReadingPane key={JSON.stringify([problem.id,practice.owner,user?.id,accountLoading])} active={tab==="solution"} id="problem-solutions-panel" labelledBy="reading-tab-solution">
+              <RetainedReadingPane key={communityPaneScope+':solutions'} active={tab==="solution"} id="problem-solutions-panel" labelledBy="reading-tab-solution">
                 {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemSolutionPanel topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>}
               </RetainedReadingPane>
+              {hostedAppAvailable&&<RetainedReadingPane key={communityPaneScope+':discussion'} active={tab==="discussion"} id="problem-discussion-panel" labelledBy="reading-tab-discussion">
+                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemDiscussions topic={topicFromProblem(problem)} onCode={openEditor}/>}
+              </RetainedReadingPane>}
               <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
                 <div className="workspace-result-heading" role="status">
                   <Terminal size={17} aria-hidden="true" /><h2>{t("结果", "Result")}</h2>

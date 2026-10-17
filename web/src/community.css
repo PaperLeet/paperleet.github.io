@@ -1551,19 +1551,19 @@
 .post-card-counts { flex-wrap:wrap; }
 .post-card-counts .post-card-activity { margin-inline-start:auto; font-size:var(--type-meta); }
 
-/* Solutions share the community feed, within the existing reading pane. */
-.problem-solutions { margin-top:28px; border-top:1px solid var(--line); padding-top:24px; min-width:0; }
-.problem-solutions .community-layout { display:block; }
-.problem-solutions .community-feed-toolbar { flex-wrap:wrap; }
-.problem-solutions .community-feed-controls { flex:1 1 100%; }
-.problem-solutions .community-post-card { padding:20px 0; }
-.problem-solutions .feed-items { border:0; background:transparent; }
-.problem-solutions .post-card-layout { gap:12px; }
-.problem-solutions-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
-.problem-solutions-heading h2 { margin:0; font-size:var(--type-title); }
-.problem-solutions-heading p { margin:8px 0 0; font-size:var(--type-small); line-height:1.7; color:var(--muted); }
-.problem-solutions-heading>div:last-child { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
-.problem-solutions-heading a { display:inline-flex; align-items:center; gap:5px; min-height:40px; font-size:var(--type-small); color:var(--accent); }
-.problem-solutions :is(button,select,input,a):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-.problem-solutions .community-composer { padding:18px; margin:0 0 20px; }
-@media(pointer:coarse) { .problem-solutions-heading :is(button,a) { min-height:44px; } }
+/* Topic discussions and solutions share the community feed inside a reading pane. */
+.problem-community { margin-top:28px; border-top:1px solid var(--line); padding-top:24px; min-width:0; }
+.problem-community .community-layout { display:block; }
+.problem-community .community-feed-toolbar { flex-wrap:wrap; }
+.problem-community .community-feed-controls { flex:1 1 100%; }
+.problem-community .community-post-card { padding:20px 0; }
+.problem-community .feed-items { border:0; background:transparent; }
+.problem-community .post-card-layout { gap:12px; }
+.problem-community-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+.problem-community-heading h2 { margin:0; font-size:var(--type-title); }
+.problem-community-heading p { margin:8px 0 0; font-size:var(--type-small); line-height:1.7; color:var(--muted); }
+.problem-community-heading>div:last-child { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.problem-community-heading a { display:inline-flex; align-items:center; gap:5px; min-height:40px; font-size:var(--type-small); color:var(--accent); }
+.problem-community :is(button,select,input,a):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.problem-community .community-composer { padding:18px; margin:0 0 20px; }
+@media(pointer:coarse) { .problem-community-heading :is(button,a) { min-height:44px; } }
