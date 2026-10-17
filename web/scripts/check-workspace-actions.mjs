@@ -69,6 +69,10 @@ const mocks = {
   './PaperViews': `export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
   './ReportView': `import React from 'react';import Report from '/src/ReportView.tsx?fixture_actual=1';globalThis.__paperleetWorkspaceActionTest.calls.detailsLoads++;export default function FixtureReport(props){if(globalThis.__paperleetWorkspaceActionTest.failDetails)throw Error('Fixture detail failure');return React.createElement(Report,props);}`,
   './deferredPages': `import React,{useEffect} from 'react';
+    import {deferredFeature} from '/src/deferredFeature.tsx';
+    import {ProblemOverviewFallback} from '/src/ProblemOverviewFallback.tsx';
+    import Overview from '/src/ProblemOverview.tsx';
+    export const ProblemOverview=deferredFeature(()=>new Promise((resolve,reject)=>{const f=globalThis.__paperleetWorkspaceActionTest;f.resolveOverview=()=>resolve({default:Overview});f.rejectOverview=()=>reject(Error('Synthetic optional details failure'));}),['',''],{loading:p=>React.createElement(ProblemOverviewFallback,p),failure:(p,retry)=>React.createElement(ProblemOverviewFallback,{...p,retry})});
     export const PaperDetail=props=>React.createElement('section',{'data-test-paper-detail':true,'data-practice-ids':props.practiceProblems?.map(p=>p.id).join(','),'data-return-to':props.returnTo,'data-reload-blocked':String(!!props.recovery?.blocked)});
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
@@ -88,7 +92,7 @@ mocks['/src/ReportView.tsx']=mocks['./ReportView'];
 const server = await createServer({
   server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},
   define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('hosted'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('0'),'import.meta.env.VITE_HOSTED_APP_AVAILABLE':JSON.stringify('1')},
-  plugins:[{name:'workspace-action-fixtures',enforce:'pre',resolveId(source,importer){if(importer?.endsWith('/src/WorkspaceTestResults.tsx')&&source==='./ReportView')return '\0workspace-actions:'+source;if(importer?.endsWith('/src/App.tsx')&&source in mocks)return '\0workspace-actions:'+source;},load(id){if(id.startsWith('\0workspace-actions:'))return mocks[id.slice('\0workspace-actions:'.length)];}}],
+  plugins:[{name:'workspace-action-fixtures',enforce:'pre',resolveId(source,importer){if(importer?.endsWith('/src/ProblemOverview.tsx')&&source==='./deferredPages')return '\0overview-tags';if(importer?.endsWith('/src/WorkspaceTestResults.tsx')&&source==='./ReportView')return '\0workspace-actions:'+source;if(importer?.endsWith('/src/App.tsx')&&source in mocks)return '\0workspace-actions:'+source;},load(id){if(id==='\0overview-tags')return 'export const ProblemCompanyTags=()=>null;';if(id.startsWith('\0workspace-actions:'))return mocks[id.slice('\0workspace-actions:'.length)];}}],
 });
 let root;
 try {
@@ -141,6 +145,16 @@ try {
   await act(async()=>layoutTrigger.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
   assert.equal(find('.app').dataset.focusMode,undefined,'The next Escape retains the workspace exit-focus shortcut');assertInline('Local layout shortcuts preserve the problem route and mounted editor');
   assert.equal(editor.value,source);assert.equal(editor.selectionStart,4);assert.equal(editor.selectionEnd,13);assert.equal(editor.scrollTop,41);
+  assert(find('#problem-reading-content article').textContent.includes('Return the attention output.'),'The real App renders its statement while optional overview loading is unresolved');
+  assert(find('.problem-heading h1').textContent.includes('Attention'),'Problem identity remains visible while details load');
+  await act(async()=>fixture.rejectOverview());
+  await settle(()=>[...document.querySelectorAll('button')].some(b=>b.textContent==='Retry problem details'));
+  assert(editor===find('#problem-editor-panel textarea')&&editor.value===source&&editor.selectionStart===4&&editor.scrollTop===41,'An optional details failure preserves the current editor and draft');
+  assert(find('#problem-reading-content article').textContent.includes('Return the attention output.'),'Details failure leaves the statement available');
+  await click([...document.querySelectorAll('button')].find(b=>b.textContent==='Retry problem details'));
+  await act(async()=>fixture.resolveOverview());await settle(()=>find('.module-scope-card'));
+  assert(editor===find('#problem-editor-panel textarea')&&editor.value===source&&editor.selectionStart===4&&editor.scrollTop===41,'Details retry does not remount or overwrite code');
+
   await click(action('Run tests'));
   assert.deepEqual(calls.runs,[{id:problem.id,source}]);
   assert(resultSelected(),'Starting tests selects Result beside Description');

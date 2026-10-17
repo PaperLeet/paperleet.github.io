@@ -6,7 +6,7 @@ import {loadCatalogIndex} from './catalogIndex';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
-import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemCompanyTags, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
+import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemOverview, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, ResetCodeButton, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -19,7 +19,6 @@ import {
   Minimize2,
   Code2,
   Copy,
-  ExternalLink,
   FileCode2,
   FlaskConical,
   LockKeyhole,
@@ -44,7 +43,7 @@ import RepositoryLink from "./RepositoryLink";
 import { OnlinePresence } from "./deferredPages";
 import CommunitySubmissions from "./CommunitySubmissions";
 import { BilingualText } from "./BilingualText";
-import { getProblemStats, ProblemStats, useProblemStats } from "./ProblemStats";
+import { getProblemStats, useProblemStats } from "./ProblemStats";
 import { ResizableSplit } from "./deferredPages";
 import { recommendPractice, nextPractice } from "./practice-recommendation";
 import { useQueuedJudge } from "./useQueuedJudge";
@@ -801,88 +800,7 @@ function Workspace() {
                   <ProblemSolutionPanel key={`${problem.id}:${practice.owner}`} topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>
                 ) : (
                   <>
-                    <div className="problem-heading">
-                      <div className="heading-kicker">
-                        <FileCode2 size={18} />
-                        <span>
-                          {t("模块", "MODULE")} {problem.number}
-                        </span>
-                        {notesUnlocked && (
-                          <span className="accepted">
-                            <CheckCircle2 size={14} />
-                            {t("已通过", "Solved")}
-                          </span>
-                        )}
-                      </div>
-                      <h1>
-                        {problem.number}. {problem.title}
-                      </h1>
-                    <ProblemCompanyTags problemId={problem.id} number={problem.number} onCode={openEditor}/>
-                      <div className="heading-tags">
-                        <span className={`difficulty ${problem.difficulty}`}>
-                          {({ E: t("简单", "Easy"), M: t("中等", "Medium"), H: t("困难", "Hard") } as Record<string,string>)[problem.difficulty] || problem.difficulty}
-                        </span>
-                        <span>PyTorch</span>
-                        <span>{problem.estimated_minutes || 25} min</span>
-                        {problem.parent && (
-                          <a
-                            href={problems.find(p => p.id === problem.parent) ? withLibraryContext(problems.find(p => p.id === problem.parent)!.number,libraryReturn) : `#/${problem.parent}`}
-                          >
-                            {t("前置题", "Prerequisite")}:{" "}
-                            {problems.find((p) => p.id === problem.parent)
-                              ?.number || "—"}
-                          </a>
-                        )}
-                      </div>
-                      <ProblemStats stats={getProblemStats(problemStats, problem.id)} loading={statsLoading} />
-                    </div>
-                    <a
-                      className="paper-card"
-                      href={
-                        problem.paper?.url ||
-                        `https://arxiv.org/abs/${problem.paper?.arxiv}`
-                      }
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <BookOpen size={19} />
-                      <div>
-                        <small>
-                          {selectedPaper?.kind === "course" ? t("参考资料", "REFERENCES") : t("阅读论文", "READ THE PAPER")}{" "}
-                          <span>{problem.paper?.venue}</span>
-                        </small>
-                        <strong>{problem.paper?.title}</strong>
-                        <p>
-                          {Array.isArray(problem.paper?.authors)
-                            ? problem.paper.authors.join(", ")
-                            : problem.paper?.authors}
-                        </p>
-                      </div>
-                      <ExternalLink size={14} />
-                    </a>
-                    {problem.module && (
-                      <section className="module-scope-card">
-                        <h3>{t("本模块的目标", "Your implementation goal")}</h3>
-                        <p>{t(problem.module.goal, problem.module.goal_en)}</p>
-                        <p className="module-scope-detail">
-                          {t(problem.module.scope, problem.module.scope_en)}
-                        </p>
-                        <div className="module-functions">
-                          <span>{t("需要实现", "Implement")}</span>
-                          {problem.module.required_functions.map((name) => (
-                            <code key={name}>{name}</code>
-                          ))}
-                        </div>
-                        {!!problem.module.provided_functions.length && (
-                          <div className="module-functions provided-functions">
-                            <span>{t("已提供", "Provided")}</span>
-                            {problem.module.provided_functions.map((name) => (
-                              <code key={name}>{name}</code>
-                            ))}
-                          </div>
-                        )}
-                      </section>
-                    )}
+                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={selectedPaper?.kind==='course'} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={openEditor}/>
                     {tab === "description" && <PreparationGuide key={problem.id} problemId={problem.id} onNotes={()=>selectReadingTab("notes")} notesUnlocked={notesUnlocked&&progressReady} onLab={()=>openLab("concept")}/>}
                     {tab === "explanation" && (
                       <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />

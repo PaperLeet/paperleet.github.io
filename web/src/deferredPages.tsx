@@ -1,3 +1,4 @@
+import {ProblemOverviewFallback} from './ProblemOverviewFallback';
 import { deferredFeature, FeatureFailure } from './deferredFeature';
 import { EditorFailure, EditorLoading, type EditorRecovery } from './EditorFallback';
 import { PaperDetailFailure } from './PaperDetailFallback';
@@ -33,6 +34,7 @@ export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDeta
 });
 
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
+export const ProblemOverview = deferredFeature(() => import('./ProblemOverview'), ['题目信息','problem details'], {loading:props=><ProblemOverviewFallback problem={props.problem}/>,failure:(props,retry)=><ProblemOverviewFallback problem={props.problem} retry={retry}/>});
 export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), ['',''], {loading:()=>null,failure:()=>null});
 export const PreparationGuide = deferredFeature(() => import('./PreparationGuide'), ['面试自测提纲','study prompts'], {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试自测提纲','Retry study prompts']}/>});
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
