@@ -213,3 +213,13 @@ a follow-up; default-policy warnings and both probes are retained.
 Existing half/complex AD, unsupported API and prior numerical limits
 remain in force. GPU routing and independent-library quality remain part of the
 active broader goal. This local milestone does not mark that goal complete.
+
+## Main adoption
+
+Validated source `9526e0379f576df49ed6e0a1e52aabc666b47d9c` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 61 source/license resources, 161 active exports, 12,757 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
