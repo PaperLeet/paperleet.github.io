@@ -1,7 +1,7 @@
 import {useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ArrowDown,ArrowRight,ArrowUp,BookOpen,CheckCircle2,Layers3,X} from 'lucide-react';
 import {useI18n} from './i18n';
-import {interviewHref,type InterviewFilters} from './interviewNavigation';
+import {interviewHref,interviewBatchView,type InterviewFilters} from './interviewNavigation';
 import {withLibraryContext} from './libraryNavigation';
 import {status,type Problem,type Saved} from './types';
 import './interview-practice-group.css';
@@ -10,7 +10,7 @@ export const PRACTICE_GROUP_LIMIT=6;
 type Source='reports'|'curated';
 type Change={kind:'add'|'remove'|'move'|'clear'|'fill';number?:number;position?:number;count?:number};
 type Selection={scope:string;source:Source;numbers:number[];change?:Change};
-type Focus={scope:string;source:Source;href:string;opener:HTMLElement;number?:number;action?:'up'|'down'|'remove'};
+type Focus={scope:string;source:Source;href:string;opener:HTMLElement;number?:number;action?:'up'|'down'|'remove'|'catalog'};
 function capturedGroup(queue:string){
  if(!queue)return [];
  const values=queue.split(',');
@@ -20,8 +20,8 @@ function capturedGroup(queue:string){
 }
 
 /** Selection changes are local; only starting practice captures the ordered public IDs in its URL. */
-export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean}){
- const scope=interviewHref(filters),initial=capturedGroup(filters.queue);
+export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready,selectionScope,pendingReason='progress'}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean;selectionScope?:string;pendingReason?:'progress'|'catalog'|'sources'}){
+ const scope=selectionScope??interviewHref(filters),initial=capturedGroup(filters.queue);
  const [selection,setSelection]=useState<Selection>(()=>({scope,source,numbers:initial||[]}));
  const current=selection.scope===scope&&selection.source===source?selection:{scope,source,numbers:initial||[]};
  const numbers=current.numbers;
@@ -57,22 +57,29 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
   focus.current={scope,source,href:location.href,opener};
   update(()=>({numbers:[],change:{kind:'clear'}}));
  }
+ function retryCatalog(opener:HTMLElement,retry:()=>void){
+  const number=numbers.find(value=>!byNumber.has(value));
+  if(number!==undefined)focus.current={scope,source,href:location.href,opener,number,action:'catalog'};
+  retry();
+ }
  useLayoutEffect(()=>{
-  const intent=focus.current;if(!intent)return;focus.current=undefined;
-  if(intent.scope!==scope||intent.source!==source||intent.href!==location.href)return;
-  if(document.activeElement!==intent.opener&&!(document.activeElement===document.body&&(!intent.opener.isConnected||intent.opener.matches(':disabled'))))return;
+  const intent=focus.current;if(!intent)return;
+  if(intent.scope!==scope||intent.source!==source||intent.href!==location.href){focus.current=undefined;return;}
+  if(document.activeElement!==intent.opener&&!(document.activeElement===document.body&&(!intent.opener.isConnected||intent.opener.matches(':disabled')))){focus.current=undefined;return;}
+  if(intent.action==='catalog'&&intent.number!==undefined&&!byNumber.has(intent.number))return;
+  focus.current=undefined;
   const control=(action:string)=>root.current?.querySelector<HTMLButtonElement>(`[data-group-number="${intent.number}"][data-group-action="${action}"]`);
-  const target=intent.number?control(intent.action!)||undefined:undefined;
+  const target=intent.action==='catalog'?root.current?.querySelector<HTMLAnchorElement>(`[data-selected-problem="${intent.number}"] .practice-group-title a`):intent.number?control(intent.action!)||undefined:undefined;
   const alternate=intent.action==='up'?control('down'):intent.action==='down'?control('up'):undefined;
-  (target&&!target.disabled?target:alternate&&!alternate.disabled?alternate:heading.current)?.focus({preventScroll:true});
- },[selection,scope,source]);
+  (target&&!('disabled' in target&&target.disabled)?target:alternate&&!alternate.disabled?alternate:heading.current)?.focus({preventScroll:true});
+ },[selection,scope,source,missing,byNumber]);
  function href(problem:Problem){
   if(!numbers.length||missing||!numbers.includes(problem.number))return;
-  return withLibraryContext(problem.number,interviewHref({...filters,view:'questions',queue:numbers.join(',')}));
+  return withLibraryContext(problem.number,interviewHref({...filters,view:interviewBatchView(filters)?filters.view:'questions',queue:numbers.join(',')}));
  }
  const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
  const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
- return {root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,candidateCount:candidateNumbers.length,remove,move,clear,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
+ return {root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
 }
 export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
 
@@ -93,7 +100,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
  return <section ref={group.root} className="interview-practice-group" aria-labelledby={headingId}>
   <header><div><h3 ref={group.heading} id={headingId} tabIndex={-1}><Layers3 size={16}/>{t('自选练习组','Your practice batch')}</h3><p>{t('最多选 6 道，按自己的顺序连续练习。','Pick up to 6 concepts and practice in your own order.')}</p></div>{group.numbers.length>0&&<button type="button" className="text-button" onClick={event=>group.clear(event.currentTarget)}>{t('清空','Clear')}</button>}</header>
   <p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{feedback&&<span> · {feedback}</span>}</p>
-  <div className="practice-group-fill"><button type="button" className="button subtle" aria-disabled={!group.fillCount} aria-describedby={fillHintId} onClick={group.fill}>{group.fillCount?group.numbers.length?t(`再加入 ${group.fillCount} 道`,`Add ${group.fillCount} more`):t(`加入前 ${group.fillCount} 道`,`Add the first ${group.fillCount}`):group.numbers.length>=PRACTICE_GROUP_LIMIT?t('练习组已满','Batch full'):group.filterPending?t('需先读取学习进度','Progress required'):group.candidateCount?t('当前列表已加入','Current list added'):t('当前筛选暂无练习','No concepts in this view')}</button><small id={fillHintId}>{group.filterPending?t('学习进度就绪后，才能按所选状态组题；仍可逐题加入。','Learning progress is needed for this state filter. You can still add individual concepts.'):t('按当前筛选与排序补齐，保留已选题目和顺序。','Fill from the current filters and order, keeping your existing choices.')}</small></div>
+  <div className="practice-group-fill"><button type="button" className="button subtle" aria-disabled={!group.fillCount} aria-describedby={fillHintId} onClick={group.fill}>{group.fillCount?group.numbers.length?t(`再加入 ${group.fillCount} 道`,`Add ${group.fillCount} more`):t(`加入前 ${group.fillCount} 道`,`Add the first ${group.fillCount}`):group.numbers.length>=PRACTICE_GROUP_LIMIT?t('练习组已满','Batch full'):group.filterPending?group.pendingReason==='catalog'?t('需先加载题库','Catalog required'):group.pendingReason==='sources'?t('需先读取来源','Sources required'):t('需先读取学习进度','Progress required'):group.candidateCount?t('当前列表已加入','Current list added'):t('当前筛选暂无练习','No concepts in this view')}</button><small id={fillHintId}>{group.filterPending?group.pendingReason==='catalog'?t('题库加载后可按完整对比列表组题；也可以先逐题加入已加载的练习。','Load the catalog to fill from the complete comparison. You can still add loaded concepts individually.'):group.pendingReason==='sources'?t('来源统计就绪后，可从当前对比范围组题。','Current source counts are needed to fill a comparison batch.'):t('学习进度就绪后，才能按所选状态组题；仍可逐题加入。','Learning progress is needed for this state filter. You can still add individual concepts.'):t('按当前筛选与排序补齐，保留已选题目和顺序。','Fill from the current filters and order, keeping your existing choices.')}</small></div>
   {group.uneditable&&<p className="practice-group-unavailable">{t('当前链接的练习组无法在此编辑，可以重新选择最多 6 道题。','This linked batch cannot be edited here. Choose up to 6 concepts to make a new batch.')}</p>}
   {group.numbers.length>0&&<>
    <ol>{group.numbers.map((number,index)=>{const problem=group.byNumber.get(number),name=title(number),href=problem?group.href(problem):undefined,state=problem?group.state(problem):undefined;
@@ -102,7 +109,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
     <span className="practice-group-order" aria-hidden="true">{index+1}</span><span className="practice-group-title">{href?<a href={href}><span>{name}</span>{meta}</a>:<>{name}{meta}</>}</span>
     <div className="practice-group-controls"><button type="button" data-group-number={number} data-group-action="up" disabled={index===0} aria-label={t(`上移${name}`,`Move ${name} up`)} onClick={event=>group.move(number,-1,event.currentTarget)}><ArrowUp size={13}/></button><button type="button" data-group-number={number} data-group-action="down" disabled={index===group.numbers.length-1} aria-label={t(`下移${name}`,`Move ${name} down`)} onClick={event=>group.move(number,1,event.currentTarget)}><ArrowDown size={13}/></button><button type="button" data-group-number={number} data-group-action="remove" aria-label={t(`从练习组移除${name}`,`Remove ${name} from this batch`)} onClick={event=>group.remove(number,event.currentTarget)}><X size={13}/></button></div>
    </li>;})}</ol>
-   {group.missing>0&&<p className="practice-group-unavailable" role="status">{t('部分练习尚不可用，请重试加载题库或先移除这些题目。','Some practice modules are unavailable. Retry the catalog or remove those concepts first.')}{onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</p>}
+   {group.missing>0&&<p className="practice-group-unavailable" role="status">{t('部分练习尚不可用，请重试加载题库或先移除这些题目。','Some practice modules are unavailable. Retry the catalog or remove those concepts first.')}{onRetryCatalog&&<button type="button" className="text-button" onClick={event=>group.retryCatalog(event.currentTarget,onRetryCatalog)}>{t('重试题库','Retry catalog')}</button>}</p>}
    <footer><small>{group.completed!==undefined?t(`${group.completed} 道已通过 · ${group.numbers.length-group.completed} 道待练习`,`${group.completed} passed · ${group.numbers.length-group.completed} remaining`):t('沿用当前工作区，进度就绪后显示完成情况。','Uses your workspace; completion appears when progress is ready.')}{estimate!==undefined&&<> · {t(`整组约 ${estimate} 分钟`,`About ${estimate} min for the whole batch`)}</>}</small>{group.startHref?<a className="button" href={group.startHref}>{allDone?t('复习这组','Review this batch'):group.continuing?t('继续这组练习','Resume this batch'):group.ready?t('开始这组练习','Start this batch'):t('打开这组练习','Open this batch')}<ArrowRight size={13}/></a>:<button type="button" className="button" disabled>{t('练习组暂不可用','Batch unavailable')}</button>}</footer>
   </>}
  </section>;

@@ -1,4 +1,4 @@
-import {interviewHref,readInterviewRoute,type InterviewFilters} from './interviewNavigation';
+import {interviewHref,readInterviewRoute,interviewBatchView,type InterviewFilters} from './interviewNavigation';
 import {withLibraryContext} from './libraryNavigation';
 import {status,type Problem,type Saved} from './types';
 
@@ -9,13 +9,13 @@ export function interviewPracticeHref(current:Problem,filters:InterviewFilters,c
  const index=ordered.findIndex(problem=>problem.id===current.id);
  const start=Math.floor(Math.max(0,index)/6)*6;
  const batch=index<0?[current]:ordered.slice(start,start+6);
- return withLibraryContext(current.number,interviewHref({...filters,view:'questions',queue:batch.map(problem=>problem.number).join(',')}));
+ return withLibraryContext(current.number,interviewHref({...filters,view:interviewBatchView(filters)?filters.view:'questions',queue:batch.map(problem=>problem.number).join(',')}));
 }
 
 /** The snapshot selects navigation only; real workspace evidence owns all grades. */
 export function interviewPracticeBatch(returnTo:string|undefined,problems:Problem[],saved:Record<string,Saved>,current:Problem){
  const filters=returnTo?readInterviewRoute(returnTo):undefined;
- if(!filters?.queue||filters.view!=='questions')return;
+ if(!filters?.queue||!interviewBatchView(filters))return;
  const numbers=filters.queue.split(',').map(Number),byNumber=new Map(problems.map(problem=>[problem.number,problem]));
  const modules=numbers.flatMap(number=>byNumber.has(number)?[byNumber.get(number)!]:[]);
  const currentIncluded=modules.some(problem=>problem.id===current.id);

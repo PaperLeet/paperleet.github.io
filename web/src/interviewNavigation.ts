@@ -33,9 +33,12 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
 }
 export function interviewHref(filters:InterviewFilters=emptyInterviewFilters()){
   const defaults=emptyInterviewFilters(),params=new URLSearchParams();
-  for(const key of Object.keys(defaults) as (keyof InterviewFilters)[])if(filters[key]!==defaults[key]&&(!['study','queue'].includes(key)||filters.view==='questions')&&(key!=='company_order'||filters.view==='companies'))params.set(key,key==='saved'?'1':String(filters[key]));
+  for(const key of Object.keys(defaults) as (keyof InterviewFilters)[])if(filters[key]!==defaults[key]&&(key!=='study'||filters.view==='questions')&&(key!=='queue'||interviewBatchView(filters))&&(key!=='company_order'||filters.view==='companies'))params.set(key,key==='saved'?'1':String(filters[key]));
   if(filters.compare&&filters.view==='companies'&&!filters.company){params.set('compare',filters.compare);if(filters.comparison&&filters.comparison!=='shared')params.set('comparison',filters.comparison);}
   const href='#/interviews'+(params.size?'?'+params:'');
   if(!readInterviewRoute(href))throw Error('Invalid interview filters');
   return href;
 }
+
+/** Captured practice groups may return to a ranked list or an applied company comparison. */
+export function interviewBatchView(filters:InterviewFilters){return filters.view==='questions'||filters.view==='companies'&&!!filters.compare&&!filters.company;}

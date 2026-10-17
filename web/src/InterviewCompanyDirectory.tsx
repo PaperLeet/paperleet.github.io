@@ -1,5 +1,5 @@
 import InterviewCompanyComparison from './InterviewCompanyComparison';
-import type {Problem} from './types';
+import type {Problem,Saved} from './types';
 import {useId} from 'react';
 import {ArrowRight,Flame,MessageCircle} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -10,7 +10,7 @@ import {companyResources} from './interviewPreparation';
 import {matchesInterviewCompany} from './interviewSearch';
 import './interview-company-directory.css';
 
-export default function InterviewCompanyDirectory({filters,summary,loading,error,onOrder,onClearSearch,problems,catalogError,owner='guest',onCompare}:{filters:InterviewFilters;summary?:InterviewSummary;loading:boolean;error?:string;onOrder:(order:InterviewCompanyOrder)=>void;onClearSearch:()=>void;problems?:Problem[];catalogError?:string;owner?:string;onCompare:(update:Partial<InterviewFilters>)=>void}){
+export default function InterviewCompanyDirectory({filters,summary,loading,error,onOrder,onClearSearch,problems,catalogError,owner='guest',onCompare,saved,progressReady,progressError,onRetryProgress,onRetryCatalog}:{filters:InterviewFilters;summary?:InterviewSummary;loading:boolean;error?:string;onOrder:(order:InterviewCompanyOrder)=>void;onClearSearch:()=>void;problems?:Problem[];catalogError?:string;owner?:string;onCompare:(update:Partial<InterviewFilters>)=>void;saved?:Record<string,Saved>;progressReady?:boolean;progressError?:string;onRetryProgress?:()=>void;onRetryCatalog?:()=>void}){
  const {t,locale}=useI18n(),hint=useId(),hasCounts=!!summary;
  const name=(company:typeof interviewCatalog.companies[number])=>locale==='en'?company.name_en:company.name;
  const rows=interviewCatalog.companies.filter(company=>matchesInterviewCompany(company,filters.q)).map((company,index)=>({company,index,evidence:summary?.companies.find(row=>row.company===company.id)}));
@@ -23,7 +23,7 @@ export default function InterviewCompanyDirectory({filters,summary,loading,error
  return <section className="interview-company-directory" aria-label={t('公司准备索引','Company preparation directory')}>
   <div className="company-directory-toolbar"><p role="status">{t(`共 ${rows.length} 家公司`,`${rows.length} ${rows.length===1?'company':'companies'}`)}</p><label><span>{t('排序','Order')}</span><select aria-label={t('公司索引排序','Company directory order')} aria-describedby={hint} value={requested} onChange={event=>onOrder(event.target.value as InterviewCompanyOrder)}><option value="catalog">{t('默认顺序','Default order')}</option><option value="contributors" disabled={!hasCounts}>{t('分享者最多','Most contributors')}</option><option value="reports" disabled={!hasCounts}>{t('面经最多','Most experiences')}</option><option value="name">{t('公司名称','Company name')}</option></select></label></div>
   <p id={hint} className="company-directory-hint">{waiting?loading?t('正在等待面经统计，暂按默认顺序展示；已保留所选排序。','Waiting for report counts. Showing the default order until your chosen order is ready.'):t('面经统计暂不可用，暂按默认顺序展示；已保留所选排序。','Report counts are unavailable. Showing the default order and keeping your chosen order.'):t('分享统计沿用当前筛选；分享者与面经数量都相同时，沿用默认顺序。','Counts follow the current filters. Ties in both counts keep the default order.')}{!waiting&&error&&<> {t('统计暂不可用，仍可浏览公司与准备资料。','Counts are unavailable. Company preparation remains available.')}</>}</p>
-  <InterviewCompanyComparison key={owner} filters={filters} summary={summary} loading={loading} error={error} problems={problems} catalogError={catalogError} onChange={onCompare}/>
+  <InterviewCompanyComparison key={owner} filters={filters} summary={summary} loading={loading} error={error} problems={problems} catalogError={catalogError} onChange={onCompare} saved={saved} progressReady={progressReady} progressError={progressError} onRetryProgress={onRetryProgress} onRetryCatalog={onRetryCatalog}/>
   {rows.length?<div className="interview-company-grid">{rows.map(({company,evidence})=>{
    const title=name(company),resources=companyResources(company.id),concepts=summary?new Set(summary.questions.filter(row=>row.companies.some(source=>source.company===company.id&&source.reports>0&&source.contributors>0)).map(row=>row.problem_id)).size:undefined;
    const href=(view:InterviewFilters['view'])=>interviewHref({...filters,company:company.id,view,q:'',page:1,saved:false});
