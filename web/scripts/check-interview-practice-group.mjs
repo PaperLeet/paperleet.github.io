@@ -63,11 +63,62 @@ try{
  await render(Ranking,{filters:{...filters,queue:'5,2'},ready:false});assert(!group().textContent.includes('passed ·'));assert(start().textContent.includes('Open this batch'));assert(start().getAttribute('href').startsWith('#/5?'));await render(Ranking,{filters:{...filters,queue:'5,2'},error:'unavailable'});assert(start().getAttribute('href').startsWith('#/5?'));
  await render(Ranking,{filters:{...filters,queue:'5,2'},saved:complete});assert(start().textContent.includes('Review this batch'));assert(start().getAttribute('href').startsWith('#/5?'));
  await render(Ranking,{filters:{...filters,study:'todo',queue:'5'},saved:complete});await click(clear());assert(group());assert.equal(document.activeElement,group().querySelector('h3'),'Clearing the last unavailable filtered choice leaves a stable focus target');
+ // One action fills only the available slots, in the current filtered ranking order.
+ const fill=()=>group().querySelector('.practice-group-fill button');
+ const row=number=>group().querySelector(`[data-selected-problem="${number}"]`);
+ await render(Ranking,{filters:{...filters,queue:'5,2'}});
+ assert.equal(fill().textContent,'Add 4 more');assert(document.getElementById(fill().getAttribute('aria-describedby')).textContent.includes('keeping your existing choices'));const fillOpener=fill();
+ await act(async()=>{fillOpener.focus();fillOpener.click();fillOpener.click();});
+ assert.deepEqual(selected(),[5,2,1,3,4,6]);assert(document.activeElement===fillOpener);
+ assert.equal(fill().getAttribute('aria-disabled'),'true');assert.equal(fill().disabled,false);
+ assert.equal(fill().textContent,'Batch full');await click(fill());assert.deepEqual(selected(),[5,2,1,3,4,6]);
+ assert(row(5).querySelector('[data-state=done]').textContent==='Passed');
+ assert(row(2).querySelector('[data-state=started]').textContent==='In progress');
+ assert(row(1).querySelector('[data-state=todo]').textContent==='Not started');
+ assert(row(5).querySelector('.practice-group-module-meta').textContent.includes('About 24 min'));
+ for(const number of selected()){
+  const href=row(number).querySelector('.practice-group-title>a').getAttribute('href');
+  assert.equal(href.split('?')[0],'#/'+number);
+  assert.equal(readInterviewRoute(libraryReturnHref(href)).queue,'5,2,1,3,4,6');
+  assert.equal(accountReturnHref(decodeProblemHash(signInHref(href))),href);
+ }
+ await click(control(1,'remove'));await click(fill());assert.deepEqual(selected(),[5,2,3,4,6,1]);
+ await render(Ranking,{filters:{...filters,study:'todo'}});await click(fill());
+ assert.deepEqual(selected(),[1,3,4,6,7,8],'Use the complete filtered ranking, including rows not yet revealed');
+ await render(Ranking,{filters:{...filters,q:'Concept 7',queue:'2'}});
+ assert.equal(fill().textContent,'Add 1 more');await click(fill());assert.deepEqual(selected(),[2,7]);
+ assert.equal(fill().textContent,'Current list added');assert.equal(fill().getAttribute('aria-disabled'),'true');
+ await render(Ranking,{filters:{...filters,q:'no matching concept',queue:'2'}});
+ assert.equal(fill().textContent,'No concepts in this view');await click(fill());assert.deepEqual(selected(),[2]);
+ await render(Ranking,{filters:{...filters,queue:'2,99999'}});await click(fill());
+ assert.deepEqual(selected(),[2,99999,1,3,4,5]);assert(!start());
+ assert(!row(2).querySelector('.practice-group-title>a'),'An incomplete captured batch cannot produce a partial navigation snapshot');
+ await render(Ranking,{filters:{...filters,queue:'5,2'},ready:false});await click(fill());
+ assert.deepEqual(selected(),[5,2,1,3,4,6]);assert(start().getAttribute('href').startsWith('#/5?'));
+ assert.equal(group().querySelectorAll('[data-state=unknown]').length,6);assert(!group().querySelector('[data-state=done]'));
+ await render(Ranking,{filters:{...filters,queue:'5,2'}});
+ assert.deepEqual(selected(),[5,2,1,3,4,6]);assert.equal(group().querySelectorAll('[data-state=done]').length,1);
+ // A retained state filter cannot assemble all rows while its progress is unresolved.
+ for(const pending of [{ready:false},{error:'Progress unavailable'}]){
+  await render(Ranking,{filters:{...filters,study:'todo',queue:'2'},...pending});
+  assert.equal(fill().textContent,'Progress required');assert.equal(fill().getAttribute('aria-disabled'),'true');
+  assert(document.getElementById(fill().getAttribute('aria-describedby')).textContent.includes('still add individual concepts'));
+  await click(fill());assert.deepEqual(selected(),[2]);assert(document.activeElement===fill());
+ }
+ await render(Ranking,{filters:{...filters,study:'todo',queue:'2'}});
+ assert.equal(fill().textContent,'Add 5 more');await click(fill());assert.deepEqual(selected(),[2,1,3,4,6,7]);
+ // Curated preparation uses its own curriculum order without inventing report counts.
+ const {interviewCatalog}=await server.ssrLoadModule('/src/interviewModels.ts');
+ const curated=interviewCatalog.paths[0].modules.slice(0,3).map((id,index)=>({...problems[index],id,number:101+index}));
+ await render(Ranking,{filters:{...filters,company:'',role:''},questions:[],problems:curated,saved:{},ready:false});
+ assert.equal(fill().textContent,'Add the first 3');await click(fill());assert.deepEqual(selected(),[101,102,103]);
+ assert.equal(requests,0);assert.equal(writes,0);assert.equal(JSON.stringify({...sessionStorage}),storage);
+ assert.equal(JSON.stringify(questions),originalEvidence);assert.equal(location.href,scope);
  // Removing/clearing does not take focus after a newer user action or navigation.
  await render(Ranking,{filters:{...filters,queue:'2,3'}});await act(async()=>{control(2,'remove').focus();control(2,'remove').click();toggle(4).focus();});assert.equal(document.activeElement,toggle(4));await act(async()=>{clear().focus();clear().click();location.hash='#/settings';});assert.notEqual(document.activeElement,group().querySelector('h3'));location.hash=scope.split('#')[1];await stop();
  // A source/route or account change resets only local choices; real progress remains owner-scoped.
  await render(Ranking);await click(toggle(2));await render(Ranking,{filters:{...filters,company:'microsoft'}});assert.deepEqual(selected(),[]);await render(Ranking,{questions:[],filters:{...filters,queue:'2'}});assert.deepEqual(selected(),[2]);assert(document.body.textContent.includes('Curated practice'));assert.equal(JSON.stringify(questions),originalEvidence);await stop();
  await render(Hub,{route:interviewHref(filters),progressReady:true});for(let i=0;i<100&&!document.querySelector('.interview-group-toggle');i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(document.querySelector('.interview-group-toggle'));await click(document.querySelector('.interview-group-toggle'));assert.equal(selected().length,1);account.user={...account.user,id:'bob',username:'bob'};await render(Hub,{route:interviewHref(filters),progressReady:false,saved:{}});assert.deepEqual(selected(),[]);assert(!group().textContent.includes('passed ·'));assert.equal(writes,0);await stop();
- localStorage.setItem('paperleet.locale','zh');await render(Ranking,{filters:{...filters,queue:'2,3'}});assert(group().textContent.includes('自选练习组'));await click(control(3,'up'));assert(group().querySelector('[role=status]').textContent.includes('移到第 1 位'));assert.equal(document.activeElement,control(3,'down'));assert.equal(writes,0);await stop();
- console.log('PASS custom interview batches: ordered six-module selection without route jumps/storage/writes, reorder/remove/clear focus, limits, exact source/auth/return context, real picker and next steps, missing/long snapshots, unresolved and accepted progress, source/account isolation, bilingual controls and unchanged contributor evidence');
+ localStorage.setItem('paperleet.locale','zh');await render(Ranking,{filters:{...filters,queue:'2,3'}});assert(group().textContent.includes('自选练习组'));await click(control(3,'up'));assert(group().querySelector('[role=status]').textContent.includes('移到第 1 位'));assert.equal(document.activeElement,control(3,'down'));await click(fill());assert.deepEqual(selected(),[3,2,1,4,5,6]);assert.equal(fill().textContent,'练习组已满');assert(group().querySelector('[role=status]').textContent.includes('按当前列表顺序加入 4 道'));assert.equal(group().querySelector('[data-state=done]').textContent,'已通过');assert(document.activeElement===fill());assert.equal(writes,0);await stop();
+ console.log('PASS custom interview batches: filtered one-action fill with queued-click bounds, individual exact-batch links and real per-module progress, curated/unknown/missing/empty recovery, ordered six-module selection without route jumps/storage/writes, reorder/remove/clear focus, limits, exact source/auth/return context, real picker and next steps, missing/long snapshots, unresolved and accepted progress, source/account isolation, bilingual controls and unchanged contributor evidence');
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,value] of previous){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}

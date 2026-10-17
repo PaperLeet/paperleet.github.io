@@ -8,7 +8,7 @@ import './interview-practice-group.css';
 
 export const PRACTICE_GROUP_LIMIT=6;
 type Source='reports'|'curated';
-type Change={kind:'add'|'remove'|'move'|'clear';number?:number;position?:number};
+type Change={kind:'add'|'remove'|'move'|'clear'|'fill';number?:number;position?:number;count?:number};
 type Selection={scope:string;source:Source;numbers:number[];change?:Change};
 type Focus={scope:string;source:Source;href:string;opener:HTMLElement;number?:number;action?:'up'|'down'|'remove'};
 function capturedGroup(queue:string){
@@ -20,7 +20,7 @@ function capturedGroup(queue:string){
 }
 
 /** Selection changes are local; only starting practice captures the ordered public IDs in its URL. */
-export function useInterviewPracticeGroup({filters,source,problems,saved,ready}:{filters:InterviewFilters;source:Source;problems:Problem[];saved:Record<string,Saved>;ready:boolean}){
+export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean}){
  const scope=interviewHref(filters),initial=capturedGroup(filters.queue);
  const [selection,setSelection]=useState<Selection>(()=>({scope,source,numbers:initial||[]}));
  const current=selection.scope===scope&&selection.source===source?selection:{scope,source,numbers:initial||[]};
@@ -28,6 +28,9 @@ export function useInterviewPracticeGroup({filters,source,problems,saved,ready}:
  const byNumber=useMemo(()=>new Map(problems.map(problem=>[problem.number,problem])),[problems]);
  const modules=numbers.flatMap(number=>{const problem=byNumber.get(number);return problem?[problem]:[];});
  const missing=numbers.length-modules.length;
+ const candidateNumbers=filterPending?[]:[...new Set(candidates.map(problem=>problem.number))].filter(number=>byNumber.has(number));
+ const additions=(values:number[])=>candidateNumbers.filter(number=>!values.includes(number)).slice(0,Math.max(0,PRACTICE_GROUP_LIMIT-values.length));
+ const fillCount=additions(numbers).length;
  const root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),focus=useRef<Focus|undefined>(undefined);
  function update(transform:(numbers:number[])=>{numbers:number[];change:Change}|undefined){
   setSelection(previous=>{const next=transform(previous.scope===scope&&previous.source===source?previous.numbers:initial||[]);return next?{...next,scope,source}:previous;});
@@ -35,6 +38,9 @@ export function useInterviewPracticeGroup({filters,source,problems,saved,ready}:
  function toggle(number:number){
   if(!byNumber.has(number))return;
   update(values=>values.includes(number)?{numbers:values.filter(value=>value!==number),change:{kind:'remove',number}}:values.length<PRACTICE_GROUP_LIMIT?{numbers:[...values,number],change:{kind:'add',number}}:undefined);
+ }
+ function fill(){
+  update(values=>{const next=additions(values);return next.length?{numbers:[...values,...next],change:{kind:'fill',count:next.length}}:undefined;});
  }
  function remove(number:number,opener:HTMLElement){
   const index=numbers.indexOf(number);if(index<0)return;
@@ -66,7 +72,7 @@ export function useInterviewPracticeGroup({filters,source,problems,saved,ready}:
  }
  const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
  const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
- return {root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,remove,move,clear,href,first,startHref:first?href(first):undefined,completed,ready,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
+ return {root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,candidateCount:candidateNumbers.length,remove,move,clear,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
 }
 export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
 
@@ -77,20 +83,23 @@ export function InterviewGroupToggle({problem,name,group}:{problem:Problem;name:
 }
 
 export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:InterviewPracticeGroupState;onRetryCatalog?:()=>void}){
- const {t,locale}=useI18n(),headingId=useId();
+ const {t,locale}=useI18n(),headingId=useId(),fillHintId=useId();
  const title=(number:number)=>{const problem=group.byNumber.get(number);return problem?(locale==='en'?problem.translations?.en?.title||problem.title:problem.title):t(`第 ${number} 题`, `Problem ${number}`);};
  const change=group.change;
- const feedback=change?.kind==='move'?t(`已将${title(change.number!)}移到第 ${change.position} 位`,`Moved ${title(change.number!)} to position ${change.position}`):change?.kind==='clear'?t('已清空练习组。','Practice batch cleared.'):change?.kind==='add'?t(`已加入${title(change.number!)}。`,`Added ${title(change.number!)}.`):change?.kind==='remove'?t(`已移除${title(change.number!)}。`,`Removed ${title(change.number!)}.`):'';
+ const feedback=change?.kind==='fill'?t(`已按当前列表顺序加入 ${change.count} 道练习。`,`Added ${change.count} ${change.count===1?'concept':'concepts'} in the current list order.`):change?.kind==='move'?t(`已将${title(change.number!)}移到第 ${change.position} 位`,`Moved ${title(change.number!)} to position ${change.position}`):change?.kind==='clear'?t('已清空练习组。','Practice batch cleared.'):change?.kind==='add'?t(`已加入${title(change.number!)}。`,`Added ${title(change.number!)}.`):change?.kind==='remove'?t(`已移除${title(change.number!)}。`,`Removed ${title(change.number!)}.`):'';
  const allDone=group.completed!==undefined&&group.completed===group.numbers.length;
  const minutes=group.numbers.map(number=>group.byNumber.get(number)?.estimated_minutes);
  const estimate=minutes.length&&minutes.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)?minutes.reduce<number>((total,value)=>total+value!,0):undefined;
  return <section ref={group.root} className="interview-practice-group" aria-labelledby={headingId}>
   <header><div><h3 ref={group.heading} id={headingId} tabIndex={-1}><Layers3 size={16}/>{t('自选练习组','Your practice batch')}</h3><p>{t('最多选 6 道，按自己的顺序连续练习。','Pick up to 6 concepts and practice in your own order.')}</p></div>{group.numbers.length>0&&<button type="button" className="text-button" onClick={event=>group.clear(event.currentTarget)}>{t('清空','Clear')}</button>}</header>
   <p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{feedback&&<span> · {feedback}</span>}</p>
+  <div className="practice-group-fill"><button type="button" className="button subtle" aria-disabled={!group.fillCount} aria-describedby={fillHintId} onClick={group.fill}>{group.fillCount?group.numbers.length?t(`再加入 ${group.fillCount} 道`,`Add ${group.fillCount} more`):t(`加入前 ${group.fillCount} 道`,`Add the first ${group.fillCount}`):group.numbers.length>=PRACTICE_GROUP_LIMIT?t('练习组已满','Batch full'):group.filterPending?t('需先读取学习进度','Progress required'):group.candidateCount?t('当前列表已加入','Current list added'):t('当前筛选暂无练习','No concepts in this view')}</button><small id={fillHintId}>{group.filterPending?t('学习进度就绪后，才能按所选状态组题；仍可逐题加入。','Learning progress is needed for this state filter. You can still add individual concepts.'):t('按当前筛选与排序补齐，保留已选题目和顺序。','Fill from the current filters and order, keeping your existing choices.')}</small></div>
   {group.uneditable&&<p className="practice-group-unavailable">{t('当前链接的练习组无法在此编辑，可以重新选择最多 6 道题。','This linked batch cannot be edited here. Choose up to 6 concepts to make a new batch.')}</p>}
   {group.numbers.length>0&&<>
-   <ol>{group.numbers.map((number,index)=>{const problem=group.byNumber.get(number),name=title(number);return <li key={number} data-selected-problem={number}>
-    <span className="practice-group-order" aria-hidden="true">{index+1}</span><span className="practice-group-title">{name}{!problem&&<small>{t('练习暂不可用','Practice unavailable')}</small>}</span>
+   <ol>{group.numbers.map((number,index)=>{const problem=group.byNumber.get(number),name=title(number),href=problem?group.href(problem):undefined,state=problem?group.state(problem):undefined;
+    const meta=<small className="practice-group-module-meta">{problem?<><span data-state={state||'unknown'}>{state==='done'?t('已通过','Passed'):state==='started'?t('进行中','In progress'):state==='todo'?t('未开始','Not started'):t('进度待同步','Progress pending')}</span>{typeof problem.estimated_minutes==='number'&&Number.isFinite(problem.estimated_minutes)&&problem.estimated_minutes>0&&<> · {t(`约 ${problem.estimated_minutes} 分钟`,`About ${problem.estimated_minutes} min`)}</>}</>:t('练习暂不可用','Practice unavailable')}</small>;
+    return <li key={number} data-selected-problem={number}>
+    <span className="practice-group-order" aria-hidden="true">{index+1}</span><span className="practice-group-title">{href?<a href={href}><span>{name}</span>{meta}</a>:<>{name}{meta}</>}</span>
     <div className="practice-group-controls"><button type="button" data-group-number={number} data-group-action="up" disabled={index===0} aria-label={t(`上移${name}`,`Move ${name} up`)} onClick={event=>group.move(number,-1,event.currentTarget)}><ArrowUp size={13}/></button><button type="button" data-group-number={number} data-group-action="down" disabled={index===group.numbers.length-1} aria-label={t(`下移${name}`,`Move ${name} down`)} onClick={event=>group.move(number,1,event.currentTarget)}><ArrowDown size={13}/></button><button type="button" data-group-number={number} data-group-action="remove" aria-label={t(`从练习组移除${name}`,`Remove ${name} from this batch`)} onClick={event=>group.remove(number,event.currentTarget)}><X size={13}/></button></div>
    </li>;})}</ol>
    {group.missing>0&&<p className="practice-group-unavailable" role="status">{t('部分练习尚不可用，请重试加载题库或先移除这些题目。','Some practice modules are unavailable. Retry the catalog or remove those concepts first.')}{onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</p>}
