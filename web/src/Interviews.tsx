@@ -1,4 +1,4 @@
-import {useEffect,useId,useRef,useState} from 'react';
+import {useId,useRef,useState} from 'react';
 import {ArrowRight,BookOpen,Building2,ChevronLeft,ChevronRight,Flame,Bookmark,MessageCircle,Plus,RefreshCw,Users,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
@@ -25,6 +25,7 @@ import InterviewStudyPaths from './InterviewStudyPaths';
 import PreparationHandbook from './PreparationHandbook';
 import InterviewViewLink from './InterviewViewLink';
 import CommunitySearch from './CommunitySearch';
+import {useWritingDisclosure} from './useWritingDisclosure';
 import type {Problem,Saved} from './types';
 import './interviews.css';
 
@@ -33,8 +34,8 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
  const parsed=readInterviewRoute(route),filters=parsed||emptyInterviewFilters();
  const validRoute=!!parsed&&(['company','role','stage'] as const).every(field=>!filters[field]||interviewCatalog[({company:'companies',role:'roles',stage:'stages'} as const)[field]].some(row=>row.id===filters[field]));
  const searchInput=useRef<HTMLInputElement>(null),searchHelp=useId();
- const [compose,setCompose]=useState(false),[retry,setRetry]=useState(0);
- useEffect(()=>{setCompose(false);},[route]);
+ const [retry,setRetry]=useState(0);
+ const writing=useWritingDisclosure(JSON.stringify([user?.id,route]));
  const [statisticsRetry,setStatisticsRetry]=useState(0);
  const params=new URLSearchParams({days:filters.days,sort:filters.sort,limit:'20',offset:String((filters.page-1)*20)});
  for(const key of ['company','role','stage','q'] as const)if(filters[key])params.set(key,filters[key]);
@@ -54,12 +55,11 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
  const summaryError=statistics.error||(statistics.data&&!summary?t('统计数据暂时无法读取，请重试。','The statistics could not be read. Try again.'):undefined);
  const reading=useReadingPosition(accountLoading?undefined:user?'account:'+user.id:'guest',interviewHref(filters),hostedEdition&&validRoute&&filters.view==='reports'&&savedReady&&!accountLoading&&!feed.loading&&!!validFeed&&!ownerMismatch&&!feedError);
  function change(update:Partial<InterviewFilters>){location.hash=interviewHref({...filters,queue:'',page:1,...update}).slice(1);}
- function write(){if(user)setCompose(true);}
  function clearSearch(){change({q:''});searchInput.current?.focus({preventScroll:true});}
  const moduleTitle=(problem:Problem)=>en?problem.translations?.en?.title||problem.title:problem.title;
  const selected=filters.company||filters.role||filters.stage||filters.q||filters.concept||filters.days!=='365'||filters.view==='questions'&&filters.study!=='all';
  const retryButton=<button className="button subtle" type="button" onClick={()=>{setRetry(value=>value+1);setStatisticsRetry(value=>value+1);}}><RefreshCw size={14}/>{t('重试加载','Retry loading')}</button>;
- const publishAction=user?<button className="button" type="button" onClick={write}><Plus size={15}/>{t('分享面经','Share experience')}</button>:hostedAppAvailable?<a className="button" href={hostedAppHref(signInHref(interviewHref(filters)))}><Plus size={15}/>{t('登录后分享','Sign in to share')}</a>:null;
+ const publishAction=user?<button className="button writing-disclosure-trigger" type="button" {...writing.triggerProps}><Plus size={15}/>{t('分享面经','Share experience')}</button>:hostedAppAvailable?<a className="button" href={hostedAppHref(signInHref(interviewHref(filters)))}><Plus size={15}/>{t('登录后分享','Sign in to share')}</a>:null;
  if(!validRoute)return <main className="interview-hub"><div className="interview-load-error" role="alert"><h1>{t('面经筛选链接无效','Invalid interview filters')}</h1><p>{t('筛选条件可能已失效，请返回面经首页重新选择。','These filters may be out of date. Open the interview hub to choose again.')}</p><a className="button" href="#/interviews">{t('返回面经','Open interview hub')}</a></div></main>;
  return <main ref={reading.container} className="interview-hub">
   <header className="interview-hero"><div><h1>{t('面经','Interviews & careers')}</h1><div className="interview-hero-actions">{publishAction}{(!filters.concept||hasPreparationGuide(filters.concept))&&<button type="button" className="text-button" onClick={openPreparationHandbook}><BookOpen size={14}/>{t('面试自测','Study handbook')}</button>}<InterviewViewLink filters={filters} owner={user?.id||'guest'}/><a className="text-button" href="#">{t('回到论文题库','Explore the paper library')}<ArrowRight size={13}/></a></div></div><div className="interview-hero-stats"><span><MessageCircle size={17}/><b>{summary?summary.reports:'—'}</b><small>{t('公开面经','shared experiences')}</small></span><span><Users size={17}/><b>{summary?summary.contributors:'—'}</b><small>{t('分享者','contributors')}</small></span><span><Flame size={17}/><b>{summary?summary.questions.length:'—'}</b><small>{t('关联知识点','linked concepts')}</small></span></div></header>
@@ -79,7 +79,7 @@ export default function Interviews({route,problems,catalogError,onRetryCatalog,s
    <InterviewConceptContext filters={filters} problems={problems} saved={saved} ready={progressReady} error={progressError} catalogError={catalogError} onRetryCatalog={onRetryCatalog} onRetryProgress={onRetryProgress}/>
    {filters.company&&(filters.view!=='companies'||companies.length>0)&&<InterviewCompanyOverview filters={filters} summary={summary}/>}
 
-   {compose&&user&&<InterviewComposer key={user.id} owner={user.id} company={filters.company} problems={problems} onClose={()=>setCompose(false)} onPublished={post=>{location.hash=communityPostHref(post.id,interviewHref(filters)).slice(1);}}/>}
+   {writing.expanded&&user&&<InterviewComposer key={user.id} owner={user.id} company={filters.company} problems={problems} panelProps={writing.panelProps} onClose={writing.close} onPublished={post=>{location.hash=communityPostHref(post.id,interviewHref(filters)).slice(1);}}/>}
    {!hostedEdition&&<div className="interview-notice">{t('当前版本提供准备路径与官方资料。社区面经与提及统计在账号应用中更新。','Preparation paths and official resources are available here. The account app provides community reports and mention statistics.')}{hostedAppAvailable&&<a href={hostedAppHref(interviewHref(filters))}>{t('进入面经社区','Open interview community')}<ArrowRight size={13}/></a>}</div>}
    {filters.view==='reports'?<>
     <div className="interview-feed-scope" role="group" aria-label={t('面经阅读列表','Experience reading list')}><button type="button" aria-pressed={!filters.saved} onClick={()=>change({saved:false})}>{t('全部面经','All experiences')}</button><button type="button" aria-pressed={filters.saved} onClick={()=>change({saved:true})}><Bookmark size={14}/>{t('我的收藏','Saved experiences')}</button></div>

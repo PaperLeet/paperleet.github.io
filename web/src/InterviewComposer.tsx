@@ -19,6 +19,7 @@ import {defaultInterviewOutline,hasInterviewDraftContent,insertInterviewOutline,
 import './interview-writing.css';
 import PublishingIdentity from './PublishingIdentity';
 import {ownsCommunityPost} from './communityIdentity';
+import type {WritingPanelProps} from './useWritingDisclosure';
 
 const WritingGuide=deferredFeature(()=>import('./InterviewWritingGuide'),['写作提纲','writing prompts'],{
  failure:(props,retry)=><WritingGuideFailure onRetry={()=>{props.onRestoreFocus();retry();}}/>,
@@ -28,7 +29,7 @@ function WritingGuideFailure({onRetry}:{onRetry:()=>void}){
  return <div className="interview-writing-failure"><p role="alert">{t('写作提示暂时无法加载，正文仍可继续编辑。','Writing prompts could not load. You can keep editing your report.')}</p><button type="button" onClick={onRetry}>{t('重试写作提示','Retry writing prompts')}</button></div>;
 }
 
-export default function InterviewComposer({owner,company,problems,onClose,onPublished}:{owner:string;company:string;problems:InterviewModule[];onClose:()=>void;onPublished:(post:InterviewPost)=>void}){
+export default function InterviewComposer({owner,company,problems,panelProps,onClose,onPublished}:{owner:string;company:string;problems:InterviewModule[];panelProps?:WritingPanelProps;onClose:()=>void;onPublished:(post:InterviewPost)=>void}){
  const {t,locale}=useI18n(),{user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
  const [draft,setDraft]=useState<InterviewDraft>(()=>readInterviewDraft(tabDraftStorage(),owner)||{title:'',body:'',interview:{company:company||'other',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]}});
@@ -86,7 +87,7 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
    }catch(error){if(active.current&&currentOwner.current===owner)setError(errorMessage(error));if(affiliationRequired(error))void refreshAccount().catch(()=>{});}
    finally{inflight.current=false;if(active.current){setBusy(false);}}
  }
- return <section className="interview-composer social-panel" aria-labelledby="interview-compose-heading">
+ return <section {...panelProps} className="interview-composer social-panel" aria-labelledby="interview-compose-heading">
   <div className="interview-compose-heading"><div><h2 id="interview-compose-heading">{t('分享面经','Share an interview experience')}</h2></div><button className="icon-button" type="button" disabled={busy} aria-label={t('关闭，保留草稿','Close and keep draft')} onClick={onClose}><X size={18}/></button></div>
   <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。可选择昵称或匿名发布，所属机构仍展示。','Company, role and linked concepts are public. Outcome and location are optional. Choose named or anonymous posting; affiliation remains visible.')}</p>
   {!durable&&<p role="alert" className="interview-notice">{t('草稿暂时无法保存到此标签页，请保持页面打开或复制内容。','This tab cannot save the draft. Keep this page open or copy your text.')}</p>}
@@ -97,7 +98,7 @@ export default function InterviewComposer({owner,company,problems,onClose,onPubl
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
    <PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
-   <label>{t('面经标题','Title')}<input autoFocus required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
+   <label>{t('面经标题','Title')}<input data-writing-title="" required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
    {writingError&&<p className="interview-writing-hint" role="status">{writingError}</p>}
    <MarkdownEditor scopeKey={JSON.stringify(['interview',owner])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}

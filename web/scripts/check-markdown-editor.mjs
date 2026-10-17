@@ -4,6 +4,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/#/community',pretendToBeVisual:true});
+dom.window.HTMLElement.prototype.scrollIntoView=function(){};
 const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__formatFixture:undefined};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});

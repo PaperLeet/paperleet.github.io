@@ -3,6 +3,7 @@ import React,{act,useState} from 'react';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
+dom.window.HTMLElement.prototype.scrollIntoView=function(){};
 const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__interviewFixture:undefined};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
@@ -87,7 +88,9 @@ try {
   assert.deepEqual(drafts.readInterviewDraft(dom.window.sessionStorage,'share-alice'),beforeDraft);assert.equal(document.activeElement,share);
   await click(share);const oldCopy=copyPending.shift();account('share-bob');await hub(view);
   await act(async()=>oldCopy());assert.equal(document.querySelector('.interview-view-link [role="status"]').textContent,'','The real hub passes account ownership to isolate a late copy result');
-  assert.notEqual(field('Process, approach and reflection').value,workingBody,'The existing authoring surface still isolates private drafts');
+  assert.equal(document.querySelector('.interview-composer')===null,true,'Switching accounts retires the old owner’s authoring surface');
+  await click(button('Share experience'));assert.notEqual(field('Process, approach and reflection').value,workingBody,'Only explicit reopening shows the new owner’s isolated draft');
+  assert.deepEqual(drafts.readInterviewDraft(dom.window.sessionStorage,'share-alice'),beforeDraft,'Retiring the old owner keeps their exact private draft');
  }finally{if(clipboardDescriptor)Object.defineProperty(navigator,'clipboard',clipboardDescriptor);else delete navigator.clipboard;}
  await stop();console.log('PASS applied interview sharing: actual hub/composer, applied versus unsent search, exact route/account scoping, duplicate protection, no API/navigation/publication and retained private draft/editor/selection/both scrolls');
  await stop();account('ui-alice');let published=[];const compose=()=>render(React.createElement(Composer,{owner:'ui-alice',company:'amazon',problems:modules,onClose(){},onPublished:post=>published.push(post)}));

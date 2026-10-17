@@ -17,6 +17,7 @@ import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
 import SolutionReadingCard from './SolutionReadingCard';
 import CommunityFeedFilters from './CommunityFeedFilters';
+import {useWritingDisclosure,type WritingPanelProps} from './useWritingDisclosure';
 import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
@@ -289,6 +290,7 @@ function Composer({
   topics=[],
   returnTo,
   onDraftChange,
+  panelProps,
   onClose,
 }: {
   category: string;
@@ -299,6 +301,7 @@ function Composer({
   solution?:boolean;
   topics?:ProblemTopic[];
   returnTo?:string;
+  panelProps?:WritingPanelProps;
   onDraftChange: (available: boolean) => void;
   onClose: () => void;
 }) {
@@ -420,12 +423,13 @@ function Composer({
     }
   }
   return (
-    <section className="social-panel community-composer">
+    <section {...panelProps} className="social-panel community-composer">
       <div className="panel-title">
         <h2>{solution?t("发布题解","Share a solution"):board === 'papers' ? t('发起论文讨论', 'Discuss a paper') : t("发布帖子", "Start a discussion")}</h2>
         <button
           className="icon-button"
           aria-label={t("关闭发帖", "Close composer")}
+          title={t("关闭，保留草稿", "Close and keep draft")}
           onClick={onClose}
           disabled={busy}
         >
@@ -487,6 +491,7 @@ function Composer({
         <label>
           {t("标题", "Title")}
           <input
+            data-writing-title=""
             required
             maxLength={160}
             minLength={3}
@@ -568,8 +573,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState<FeedFailure>(),
-    [compose, setCompose] = useState(false),
     [retry, setRetry] = useState(0);
+  const writing=useWritingDisclosure(JSON.stringify([user?.id,draftScope]));
   const pending = loading || data.requestKey !== requestKey;
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
@@ -688,7 +693,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             </section>
           </div>
           {user && (!topicId || topic) ? (
-            <button className="button community-compose-button" onClick={() => setCompose(true)}>
+            <button className="button community-compose-button writing-disclosure-trigger" {...writing.triggerProps}>
               <Plus size={16} />
               {draftAvailable ? t("继续草稿", "Resume draft") : solutions?t("发布题解","Share a solution"):category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
             </button>
@@ -700,7 +705,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           ) : null}
         </aside>}
         <section className="community-feed">
-          {embedded&&<div className="problem-solutions-heading"><div><h2>{t("社区题解","Community solutions")}</h2><p>{t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own.")}</p></div><div>{user?<button type="button" className="button" disabled={accountLoading||!solutionAvailable} onClick={()=>setCompose(true)}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):t("发布题解","Share a solution")}</button>:<a className="button" href={signInHref(returnTo)}>{t("登录写题解","Sign in to contribute")}</a>}<a href={returnTo}>{t("全部题解","All solutions")}<ArrowRight size={14}/></a></div></div>}
+          {embedded&&<div className="problem-solutions-heading"><div><h2>{t("社区题解","Community solutions")}</h2><p>{t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own.")}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||!solutionAvailable} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):t("发布题解","Share a solution")}</button>:<a className="button" href={signInHref(returnTo)}>{t("登录写题解","Sign in to contribute")}</a>}<a href={returnTo}>{t("全部题解","All solutions")}<ArrowRight size={14}/></a></div></div>}
           <div ref={toolbar} className="community-feed-toolbar" role="group" tabIndex={-1} aria-label={solutions?t('题解浏览控制','Solution browsing controls'):t('讨论浏览控制','Discussion browsing controls')}>
             <div className="social-tabs compact">
               <button
@@ -745,8 +750,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </div>
             ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
           )}
-          {compose && user && (
-            <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} onClose={() => setCompose(false)} />
+          {writing.expanded && user && (
+            <Composer key={draftScope} returnTo={returnTo} solution={solutions} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} />
           )}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           <div className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
