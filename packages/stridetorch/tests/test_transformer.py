@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 import pytest
 
-from stridetorch import as_torch, torch
+from stridetorch import as_torch, create_torch, torch
 
 
 KINDS=['encoder_layer','decoder_layer','encoder','decoder','full']
@@ -192,6 +192,56 @@ def test_activation_state_pickle_deepcopy_and_dtype_conversion(kind,activation):
         np.testing.assert_array_equal(call_model(clone,kind,inputs).numpy(),want)
         assert all(a is not b for a,b in zip(m.parameters(),clone.parameters()))
     assert all(p.dtype==torch.float32 for p in copy.deepcopy(m).float().parameters())
+
+
+@pytest.mark.parametrize('kind',KINDS)
+@pytest.mark.parametrize('name',['sin','relu','tanh','sigmoid','nn.functional.silu','nn.functional.softplus'])
+@pytest.mark.parametrize('protocol',[2,pickle.HIGHEST_PROTOCOL])
+def test_registered_activation_pickle_keeps_values_and_derivatives(kind,name,protocol):
+    activation=torch
+    for part in name.split('.'):
+        activation=getattr(activation,part)
+    _,model,inputs,_,_=fixture(kind,'batch',True,activation)
+    def evaluate(module):
+        def function(*xs):return call_model(module,kind,xs)
+        directions=tuple(torch.ones_like(x)*.13 for x in inputs)
+        primal,tangent=torch.func.jvp(function,tuple(inputs),directions)
+        active=inputs+list(module.parameters())
+        first=torch.autograd.grad(primal.square().sum(),active,retain_graph=True)
+        mixed=torch.autograd.grad(tangent.square().sum(),active,allow_unused=True)
+        mixed=[torch.zeros_like(x) if g is None else g for x,g in zip(active,mixed)]
+        return [primal,tangent,*first,*mixed]
+    want=evaluate(model)
+    shallow=copy.copy(model)
+    assert all(a is b for a,b in zip(model.parameters(),shallow.parameters()))
+    for actual,expected in zip(evaluate(shallow),want):
+        np.testing.assert_array_equal(actual.numpy(),expected.numpy())
+    for clone in [copy.deepcopy(model),pickle.loads(pickle.dumps(model,protocol=protocol))]:
+        for actual,expected in zip(evaluate(clone),want):
+            np.testing.assert_array_equal(actual.numpy(),expected.numpy())
+        assert all(a is not b for a,b in zip(model.parameters(),clone.parameters()))
+        for layer in clone.modules():
+            if isinstance(layer,(torch.nn.TransformerEncoderLayer,torch.nn.TransformerDecoderLayer)):
+                assert layer.activation is activation
+    # Serialization must not replace the live callable with a proxy.
+    for layer in model.modules():
+        if isinstance(layer,(torch.nn.TransformerEncoderLayer,torch.nn.TransformerDecoderLayer)):
+            assert layer.activation is activation
+
+
+def test_registered_activation_from_unregistered_namespace_and_alias_scope():
+    import sys
+    alternative=create_torch(name='isolated_test_namespace')
+    model=alternative.nn.TransformerEncoderLayer(4,2,8,dropout=0,activation=alternative.sin)
+    original=sys.modules.get('torch')
+    data=pickle.dumps(model)
+    assert copy.deepcopy(model).activation is alternative.sin
+    with as_torch():
+        restored=pickle.loads(data)
+        assert restored.activation is torch.sin
+        assert restored.activation is not sys.modules['torch'].sin
+    assert sys.modules.get('torch') is original
+    np.testing.assert_array_equal(restored(torch.ones(3,1,4)).numpy(),model(torch.ones(3,1,4)).numpy())
 
 
 def test_clone_independence_registration_and_causal_hint_detection():

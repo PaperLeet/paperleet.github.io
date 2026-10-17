@@ -5,7 +5,7 @@ import numbers
 import warnings
 import numpy as np
 
-from . import _activation, _autograd, _device, _multihead, _nn, _normalization, _random, _tensor
+from . import _activation, _autograd, _device, _multihead, _nn, _normalization, _random, _registry, _tensor
 from ._containers import ModuleList
 from ._module import Module
 
@@ -112,7 +112,16 @@ class _DenseLayer(Module):
         y = self.linear2(self.dropout(self.activation(self.linear1(x))))
         return getattr(self, self._feedforward_dropout)(y)
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if 'activation' in state:
+            state['activation'] = _registry.pickle_operator(state['activation'])
+        return state
+
     def __setstate__(self, state):
+        # copy.copy passes state directly, without pickling its contents.
+        if isinstance(state.get('activation'), _registry._OperatorReference):
+            state = {**state, 'activation': state['activation'].function}
         self.__dict__.update(state)
         if not hasattr(self, 'activation'):
             self.activation = _activation.relu

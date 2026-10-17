@@ -1,10 +1,40 @@
 """NumPy-backed registry implementation; extracted from PaperLeet."""
 import functools
 import inspect
+import types
+import weakref
 from collections import namedtuple
 
 
 OperatorCapability = namedtuple('OperatorCapability', 'reverse forward unsupported_keywords signature')
+_operator_names = weakref.WeakKeyDictionary()
+
+
+def _restore_operator(name):
+    # Resolve inside this distribution, including PaperLeet's private copy.
+    # Never import torch: it may refer to a native installation in the host.
+    from . import torch
+    value = torch
+    for part in name.split('.')[1:]:
+        value = getattr(value, part)
+    return value
+
+
+class _OperatorReference:
+    """A pickle-only reference; live models keep their original callable."""
+    def __init__(self, function, name):
+        self.function, self.name = function, name
+
+    def __reduce__(self):
+        return _restore_operator, (self.name,)
+
+    def __deepcopy__(self, memo):
+        return self.function
+
+
+def pickle_operator(function):
+    name = _operator_names.get(function) if isinstance(function, types.FunctionType) else None
+    return _OperatorReference(function, name) if name is not None else function
 
 
 def contains_tensor(value, predicate, seen=None):
@@ -59,6 +89,7 @@ class OperatorRegistry:
                 raise _errors.BrowserUnsupported(f'{name} has no validated reverse-mode rule; use the server')
             return function(*args, **kwargs)
 
+        _operator_names[call] = name
         setattr(self.modules[prefix], attribute, call)
 
     def group(self, prefix, functions, **capabilities):

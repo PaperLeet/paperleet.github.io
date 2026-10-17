@@ -1492,6 +1492,16 @@ checkpoint continuation are verified. `Linear.reset_parameters()` is available;
 Linear and LayerNorm constructors now perform genuine initialization writes.
 Outputs and parameters retain their requested public dtype.
 
+As of 0.54, Transformer layers also preserve directly supplied registered
+operators, such as `torch.sin`, `torch.relu` and `torch.nn.functional.silu`,
+through Python pickle and deepcopy. Pickle resolves these operators within
+the owning distribution, without importing or replacing the host's `torch`.
+Live execution keeps the original callable and its capability guards; deepcopy
+keeps callable identity while independently cloning parameters. This applies
+to direct operator activations, not arbitrary closures or nested callable
+objects. Full-model Python pickle requires trusted input; it is separate from
+the weights-only `torch.load` interface.
+
 Float32 LayerNorm statistics accumulate in float64 before rounding back. For
 finite inputs/results with finite epsilon at least float32 machine epsilon,
 LayerNorm tangents and their reverse tape also use float64 intermediates before
