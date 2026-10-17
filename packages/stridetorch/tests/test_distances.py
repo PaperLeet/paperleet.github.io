@@ -120,8 +120,9 @@ def test_pdist_empty_geometry_has_independent_zero_gradient_contract(shape,p,wor
 
 
 @pytest.mark.parametrize('kind',['cdist','pdist'])
-def test_distance_saved_arrays_release_with_the_graph_and_do_not_keep_nonleaf_tensor(kind):
-    a=torch.tensor([[.2,1.3],[2.,-.4],[.7,.9]],dtype=torch.float64,requires_grad=True)
+@pytest.mark.parametrize('rows',[3,32])
+def test_distance_saved_arrays_release_with_the_graph_and_do_not_keep_nonleaf_tensor(kind,rows):
+    a=torch.tensor(np.sin(np.arange(rows*2)+.2).reshape(rows,2),dtype=torch.float64,requires_grad=True)
     b=torch.tensor([[.3,-.1],[1.4,.6]],dtype=torch.float64,requires_grad=True)
     x=a*2;y=b*3;owner=weakref.ref(x);storage=weakref.ref(x._data)
     value=torch.cdist(x,y,p=1.5) if kind=='cdist' else torch.pdist(x,p=1.5)
@@ -184,3 +185,21 @@ def test_zero_distance_vjp_is_zero_even_for_nonfinite_upstream(kind,p,seed):
     x=torch.ones(2,3,dtype=torch.float64,requires_grad=True)
     value=torch.cdist(x[:1],x[1:],p=p,compute_mode='donot_use_mm_for_euclid_dist') if kind=='cdist' else torch.pdist(x,p=p)
     value.backward(torch.full_like(value,seed));np.testing.assert_array_equal(x.grad.numpy(),0.)
+
+
+@pytest.mark.parametrize('dtype',[torch.float32,torch.float64])
+@pytest.mark.parametrize('p',_ORDERS)
+def test_condensed_medium_pdist_values_and_gradients_match_scalar_pair_loops(dtype,p,workspace):
+    data=np.cos(np.arange(17*3)*.19+.2).reshape(17,3).astype(dtype)
+    seed=np.sin(np.arange(17*16//2)+.3).astype(dtype)
+    expected=[];gradient=np.zeros(data.shape,dtype='float64');index=0
+    for i in range(17):
+        for j in range(i+1,17):
+            expected.append(scalar_distance(data[i],data[j],p))
+            direction=np.asarray(scalar_direction(data[i],data[j],p))*float(seed[index])
+            gradient[i]+=direction;gradient[j]-=direction;index+=1
+    x=torch.tensor(data,requires_grad=True);value=torch.pdist(x,p=p)
+    (value*torch.tensor(seed)).sum().backward()
+    tolerance=(3e-5,8e-6) if dtype==torch.float32 else (3e-12,3e-12)
+    np.testing.assert_allclose(value.numpy(),expected,rtol=tolerance[0],atol=tolerance[1])
+    np.testing.assert_allclose(x.grad.numpy(),gradient,rtol=tolerance[0],atol=tolerance[1])

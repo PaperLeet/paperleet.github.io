@@ -559,6 +559,14 @@ Inferred complex32 storage is unavailable in NumPy and fails explicitly. Explici
 float32/64 or complex64/128 operands can still absorb a complex wrapped scalar;
 native `full` uses complex64 for complex fills with a float16 default.
 
+### Condensed distance forward scheduling (0.59)
+
+Medium `pdist` inputs calculate only the packed upper-triangle pairs when all
+forward work fits the existing 8 MiB workspace model. Backward still uses bounded
+block reductions, avoiding scatter accumulation over every packed pair. Larger
+requests retain the tiled path. Pair indices and differences are temporary;
+saved state and mutation guards follow the same contract as 0.58.
+
 ### Direct pairwise distances (0.58)
 
 `torch.cdist`, `torch.pdist` and `torch.nn.functional.pdist` support nonnegative

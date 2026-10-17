@@ -171,12 +171,19 @@ def _run(x1,x2,p,*,triangular=False):
     sources=(x1._data,x2._data);shapes=(x1.shape,x2.shape)
     views=tuple(np.broadcast_to(data,(*batch_shape,*data.shape[-2:])) for data in sources)
     shape=(pairs,) if triangular else (*batch_shape,rows,columns)
-    output=np.zeros(shape,dtype=dtype)
+    packed=triangular and features>0 and pairs*(8*features*dtype.itemsize+64)<=_WORKSPACE_BYTES
+    output=None if packed else np.zeros(shape,dtype=dtype)
     flat=output if triangular else output.reshape(batch,rows,columns)
     plan=_plan(batch,rows,columns,features,dtype,triangular)
     with np.errstate(all='ignore'):
         kernel_p=np.asarray(p,dtype=dtype).item()
-        if features:
+        if packed:
+            # Only valid upper-triangle pairs enter the forward calculation.
+            # Backward retains the efficient block reductions below.
+            ii,jj=np.triu_indices(rows,k=1)
+            output=_finish(_norm_chunk(sources[0][ii]-sources[0][jj],kernel_p,triangular=True),kernel_p)
+            flat=output
+        elif features:
             for b,i,j in _blocks(batch,rows,columns,plan,triangular):
                 coords=_coordinates(b,batch_shape);value=np.zeros((b.stop-b.start,i.stop-i.start,j.stop-j.start),dtype=dtype)
                 for f in range(0,features,plan[-1]):
