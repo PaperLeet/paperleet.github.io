@@ -82,7 +82,13 @@ assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.e
 assert((manifest['src/EditorTools.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.editor-copy-manual')), 'Deferred editor controls must include recovery styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-share')), 'Batch sharing styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-share'))), 'Interview batches must include sharing styles');
-if (onlineAccounts) assert(manifest['src/InterviewBatchSave.tsx']?.isDynamicEntry&&!initial.has('src/InterviewBatchSave.tsx'), 'Private batch saving must load only after an explicit visit');
+if (onlineAccounts) {
+  assert(manifest['src/InterviewBatchSave.tsx']?.isDynamicEntry&&!initial.has('src/InterviewBatchSave.tsx'), 'Private batch saving must load only after an explicit visit');
+  const dependencies=new Set();
+  function visitBatch(key){if(dependencies.has(key))return;dependencies.add(key);for(const dependency of manifest[key].imports||[])visitBatch(dependency);}
+  visitBatch('src/InterviewBatchSave.tsx');
+  assert([...dependencies].every(key=>!['Interviews','InterviewComposer','Community'].includes(manifest[key].name)), 'Private batch saving must not import its parent page or public publishing interfaces');
+}
 else assert(!manifest['src/InterviewBatchSave.tsx'], 'Unavailable private batch editing must be removed from offline editions');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Save these ')), 'Private batch editing must stay out of the initial library shell');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-batch-save-confirmed')), 'Private batch saving styles must remain deferred');

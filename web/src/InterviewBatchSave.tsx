@@ -5,25 +5,24 @@ import {useStudyLists} from './useStudyLists';
 import {StudyListFeedback} from './StudyListControls';
 import {newStudyListId,STUDY_LIST_ITEM_LIMIT,STUDY_LIST_LIMIT,type StudyListOperation} from './studyListStore';
 import {favoriteHref} from './libraryNavigation';
-import {captureInterviewStudyList,interviewStudyListTitle} from './interviewStudyList';
 import type {Problem} from './types';
 import './study-lists.css';
 import './interview-batch-save.css';
 
 type Attempt={request:string;list:string;destination:string;title:string};
-export default function InterviewBatchSave({href,modules}:{href:string;modules:Problem[]}){
- const {t,locale}=useI18n(),capture=captureInterviewStudyList(location.href,href,modules),{user,loading,capabilities,state,store}=useStudyLists(!!capture),root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),openedAt=useRef(location.href);
- const [destination,setDestination]=useState('new'),[title,setTitle]=useState(()=>interviewStudyListTitle(href,locale==='en')),[attempt,setAttempt]=useState<Attempt>(),[confirmed,setConfirmed]=useState<string>();
- const target=state.snapshot?.lists.find(list=>list.id===destination),missing=capture?.ids.filter(id=>!target?.items.some(item=>item.problem_id===id))||[];
+export default function InterviewBatchSave({capture,modules,initialTitle}:{capture:{ids:readonly string[]};modules:Problem[];initialTitle:string}){
+ const {t,locale}=useI18n(),{user,loading,capabilities,state,store}=useStudyLists(),root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),openedAt=useRef(location.href);
+ const [destination,setDestination]=useState('new'),[title,setTitle]=useState(initialTitle),[attempt,setAttempt]=useState<Attempt>(),[confirmed,setConfirmed]=useState<string>();
+ const target=state.snapshot?.lists.find(list=>list.id===destination),missing=capture.ids.filter(id=>!target?.items.some(item=>item.problem_id===id));
  const matches=!!attempt&&(confirmed===attempt.request||state.confirmation?.request_id===attempt.request&&state.confirmation.list_id===attempt.list);
  useEffect(()=>{if(attempt&&state.confirmation?.request_id===attempt.request&&state.confirmation.list_id===attempt.list)setConfirmed(attempt.request);},[attempt,state.confirmation]);
- const saved=matches?state.snapshot?.lists.find(list=>list.id===attempt!.list):undefined,complete=!!saved&&!!capture&&capture.ids.every(id=>saved.items.some(item=>item.problem_id===id));
+ const saved=matches?state.snapshot?.lists.find(list=>list.id===attempt!.list):undefined,complete=!!saved&&capture.ids.every(id=>saved.items.some(item=>item.problem_id===id));
  const sameIntent=complete&&matches&&attempt?.destination===destination&&(destination!=='new'||attempt.title===title.trim());
  const capacity=destination==='new'?!!state.snapshot&&state.snapshot.lists.length>=STUDY_LIST_LIMIT:!!target&&target.items.length+missing.length>STUDY_LIST_ITEM_LIMIT;
- const blocked=loading||capabilities?.study_lists!==true||!user||!capture||!!state.pending||state.loading||!!state.error||!state.snapshot||capacity||sameIntent||destination!=='new'&&(!target||!missing.length)||destination==='new'&&(!title.trim()||Array.from(title.trim()).length>60);
+ const blocked=loading||capabilities?.study_lists!==true||!user||!!state.pending||state.loading||!!state.error||!state.snapshot||capacity||sameIntent||destination!=='new'&&(!target||!missing.length)||destination==='new'&&(!title.trim()||Array.from(title.trim()).length>60);
  function here(){return !!root.current?.isConnected&&location.href===openedAt.current;}
  function save(){
-  if(blocked||!store||!capture||!here())return;
+  if(blocked||!store||!here())return;
   const op:StudyListOperation=destination==='new'?{action:'create',list_id:newStudyListId(),title:title.trim(),problem_ids:[...capture.ids]}:{action:'add',list_id:destination,problem_ids:[...missing]};
   const before=store.getSnapshot().pending,result=store.mutate(op),pending=store.getSnapshot().pending;
   if(pending&&pending!==before&&pending.command.list_id===op.list_id){
@@ -33,7 +32,6 @@ export default function InterviewBatchSave({href,modules}:{href:string;modules:P
    void result.then(ok=>{if(ok)setConfirmed(request);});
   }
  }
- if(!capture)return <p role="status">{t('练习组尚不完整，请重新选择或重试题库。','The batch is incomplete. Choose again or retry the catalog.')}</p>;
  return <section ref={root} className="interview-batch-save" aria-label={t('保存练习组到私人题单','Save this batch to a private study list')}>
   <h4 ref={heading} tabIndex={-1}><FolderPlus size={16} aria-hidden="true"/>{t(`保存这 ${capture.ids.length} 道练习`,`Save these ${capture.ids.length} exercises`)}</h4>
   <p>{t('仅保存题目与顺序。题单仅自己可见，代码和学习记录不会复制。','Saves problems and their order to your private account list. Code and practice records are not copied.')}</p>

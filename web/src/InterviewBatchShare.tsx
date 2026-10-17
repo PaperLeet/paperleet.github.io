@@ -4,7 +4,7 @@ import {useI18n} from './i18n';
 import {useAccount} from './social';
 import {useClipboardCopy} from './useClipboardCopy';
 import {interviewBatchChecklist,interviewBatchShareUrl} from './interviewBatchSharing';
-import {captureInterviewStudyList} from './interviewStudyList';
+import {captureInterviewStudyList,interviewStudyListTitle} from './interviewStudyList';
 import {deferredFeature} from './deferredFeature';
 import {signInHref} from './accountNavigation';
 import {hostedAppAvailable,hostedAppHref} from './deployment';
@@ -41,6 +41,6 @@ function BatchShare({href,modules}:{href:string;modules:Problem[]}){
     {status==='failed'&&(value?<label className="interview-batch-share-manual"><span>{t('请选择并复制以下内容。','Select and copy the content below.')}</span>{kind==='link'?<input aria-label={t('手动复制练习组链接','Copy batch link manually')} readOnly value={value} onFocus={event=>event.currentTarget.select()}/>:<textarea aria-label={t('手动复制准备清单','Copy study checklist manually')} readOnly spellCheck={false} rows={8} wrap="off" value={value} onFocus={event=>event.currentTarget.select()}/>}</label>:<p className="interview-batch-share-feedback" role="alert">{t('暂时无法生成分享内容，请检查地址和练习组是否完整。','Could not prepare sharing content. Check the address and whether the batch is complete.')}</p>)}
     {saveAvailable&&<section ref={savePanel} id={saveId} hidden={!saveOpen} className="interview-batch-save-panel" onKeyDown={event=>{
       if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||(event.target as HTMLElement).tagName==='SELECT')return;event.preventDefault();event.stopPropagation();closeSave();
-    }}>{saveVisited&&<SaveBatch href={href} modules={modules}/>}</section>}
+    }}>{saveVisited&&capture&&<SaveBatch capture={capture} modules={modules} initialTitle={interviewStudyListTitle(href,locale==='en')}/>}</section>}
   </div>;
 }
