@@ -2,6 +2,7 @@
 import math
 import numbers
 from functools import lru_cache
+from collections import namedtuple
 import numpy as np
 from . import _autograd, _errors, _pooling, _state, _tensor
 from ._module import Module
@@ -110,6 +111,75 @@ def _matrix_safe(data, count):
 
 
 def _accumulator(dtype): return _FLOATS[1] if dtype == _FLOATS[0] else dtype
+
+
+
+_PackingPlan = namedtuple('_PackingPlan', 'rows columns flat invalid height width taps output plane_bytes index_bytes')
+_PLAN_CACHE_BYTES = 64 * 1024
+_CACHE_PLANS = True
+
+
+@lru_cache(maxsize=64)
+def _cached_pack_plan(h, w, oh, ow, dtype_name, inverse):
+    if min(h, w, oh, ow) <= 0 or (h + w if inverse else oh + ow) > 2048:
+        return None
+    geometry = (_cached_adjoint_geometry(h, w, oh, ow) if inverse
+                else _cached_geometry(h, w, oh, ow))
+    sy, ey, sx, ex = geometry[:4]
+    height, width = ey - sy, ex - sx
+    kh, kw = int(height.max()), int(width.max()); taps = kh * kw
+    masked = not (bool(np.all(height == kh)) and bool(np.all(width == kw)))
+    dtype = np.dtype(dtype_name); accumulator = _accumulator(dtype)
+    coordinates = (len(sy) * kh + len(sx) * kw) * 8
+    mask_bytes = len(sy) * len(sx) * taps if masked else 0
+    divisor_bytes = 0 if inverse else (len(sy) + len(sx)) * accumulator.itemsize
+    if coordinates + mask_bytes + divisor_bytes > _PLAN_CACHE_BYTES:
+        return None
+    source_h, source_w = (oh, ow) if inverse else (h, w)
+    iy = sy[:, None] + np.arange(kh); ix = sx[:, None] + np.arange(kw)
+    invalid = ((iy >= ey[:, None])[:, None, :, None] |
+               (ix >= ex[:, None])[None, :, None, :]) if masked else None
+    rows = np.minimum(iy, source_h - 1); columns = np.minimum(ix, source_w - 1)
+    rows.setflags(write=False); columns.setflags(write=False)
+    rows = rows[:, None, :, None]; columns = columns[None, :, None, :]
+    if invalid is not None:
+        invalid.setflags(write=False); invalid = invalid.reshape(len(sy), len(sx), taps)
+    flat = None
+    flat_bytes = len(sy) * len(sx) * taps * np.dtype(np.intp).itemsize
+    if (coordinates + mask_bytes + divisor_bytes + flat_bytes <= _PLAN_CACHE_BYTES
+            and source_h * source_w - 1 <= np.iinfo(np.intp).max):
+        indices = (rows * source_w + columns).astype(np.intp, copy=False)
+        indices.setflags(write=False); flat = indices.reshape(-1)
+    if inverse: height = width = None
+    else:
+        height = height.astype(accumulator); width = width.astype(accumulator)
+        height.setflags(write=False); width.setflags(write=False); height = height[:, None]
+    plane_bytes = len(sy) * len(sx) * taps * (dtype.itemsize + accumulator.itemsize + 2)
+    index_bytes = (len(sy) + len(sx)) * taps * 16
+    return _PackingPlan(rows, columns, flat, invalid, height, width, taps,
+                        (len(sy), len(sx)), plane_bytes, index_bytes)
+
+
+def _pack_plan(shape, geometry, dtype, *, inverse=False):
+    if not _CACHE_PLANS or not geometry[-1]: return None
+    return _cached_pack_plan(*shape[-2:], len(geometry[0]), len(geometry[2]), dtype.str, inverse)
+
+
+def _packed_from_plan(data, plan):
+    # Both gathers own new storage. Request C order only when necessary;
+    # accumulation must never write into the user's input.
+    if plan.flat is not None and data.flags.c_contiguous:
+        gathered = np.take(data.reshape(*data.shape[:-2], -1), plan.flat, axis=-1, mode='clip')
+    else: gathered = data[..., plan.rows, plan.columns]
+    packed = np.asarray(gathered, dtype=_accumulator(data.dtype), order='C')
+    packed = packed.reshape(*data.shape[:-2], *plan.output, plan.taps)
+    if plan.invalid is not None: np.copyto(packed, 0, where=plan.invalid)
+    np.add.accumulate(packed, axis=-1, out=packed)
+    # Copy the final values: do not retain all prefixes, and keep native +0.
+    value = np.add(packed[..., -1], 0)
+    if plan.height is not None:
+        np.divide(value, plan.height, out=value); np.divide(value, plan.width, out=value)
+    return value.astype(data.dtype, copy=False)
 
 
 def _partition_forward(data, geometry, partition):
@@ -237,8 +307,12 @@ def _forward(data, geometry, partition=None):
                 value = (rows @ data) @ columns.T if len(sy) * data.shape[-1] <= data.shape[-2] * len(sx) else rows @ (data @ columns.T)
                 np.divide(value, height, out=value);np.divide(value, width, out=value)
                 return value.astype(data.dtype, copy=False)
-        if _ALGORITHM != 'scan' and _packing_bytes(data, geometry) <= _WORKSPACE_BYTES:
-            return _packed(data, geometry)
+        if _ALGORITHM != 'scan':
+            plan = _pack_plan(data.shape, geometry, data.dtype)
+            estimate = (math.prod(data.shape[:-2]) * plan.plane_bytes + plan.index_bytes
+                        if plan is not None else _packing_bytes(data, geometry))
+            if estimate <= _WORKSPACE_BYTES:
+                return _packed_from_plan(data, plan) if plan is not None else _packed(data, geometry)
         if _ALGORITHM != 'scan' and _WORKSPACE_BYTES >= 256:return _tiled_packed(data, geometry)
         return _scan(data, geometry)
 
@@ -276,21 +350,28 @@ def _backward(seed, shape, geometry, nonoverlap, partition=None):
         view = result.reshape(*shape[:-2], len(sy), kh, len(sx), kw)
         np.add(delta[..., :, None, :, None], 0, out=view)
         return result
-    delta = np.array(seed, copy=True, order='C');_divide(delta, geometry)
+    if adaptive and (len(sy), len(sx)) == shape[-2:]:return np.add(seed, 0)
+    plan = _pack_plan(shape, geometry, seed.dtype)
+    delta = np.array(seed, copy=True, order='C')
+    if plan is None:_divide(delta, geometry)
+    else:
+        np.divide(delta, plan.height, out=delta);np.divide(delta, plan.width, out=delta)
     points = len(sy) * len(sx);planes = math.prod(shape[:-2])
     if not planes: return np.zeros(shape, dtype=seed.dtype)
-    kh, kw = int((ey - sy).max()), int((ex - sx).max());taps = kh * kw
-    if adaptive and (len(sy), len(sx)) == shape[-2:]:
-        return np.add(delta, 0)
+
     # Even one contribution per input must fit before inverse-index allocation.
     # Account separately for the arange/searchsorted construction peak.
     if (adaptive and _BACKWARD_ALGORITHM in ('auto', 'packed')
             and max(planes * shape[-2] * shape[-1] * (seed.itemsize * 2 + 2) + sum(shape[-2:]) * 16,
                     sum(shape[-2:]) * 24) <= _WORKSPACE_BYTES):
+        inverse_plan = _pack_plan(shape, geometry, seed.dtype, inverse=True)
+        if inverse_plan is not None and planes * inverse_plan.plane_bytes + inverse_plan.index_bytes <= _WORKSPACE_BYTES:
+            return _packed_from_plan(delta, inverse_plan)
         inverse = (_cached_adjoint_geometry(*shape[-2:], len(sy), len(sx))
                    if sum(shape[-2:]) <= 2048 else _inverse_geometry(shape, geometry))
         if _packing_bytes(delta, inverse) <= _WORKSPACE_BYTES:
             return _packed(delta, inverse)
+    kh, kw = int((ey - sy).max()), int((ex - sx).max());taps = kh * kw
     result = np.zeros(shape, dtype=seed.dtype)
     if (_BACKWARD_ALGORITHM == 'loop' or _BACKWARD_ALGORITHM == 'auto' and points <= 16
             or taps * 64 > _WORKSPACE_BYTES):

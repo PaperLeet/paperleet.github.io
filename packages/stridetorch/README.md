@@ -158,6 +158,14 @@ and total process memory. Correct IEEE behavior adds overhead to some small
 pooling calls; identity resizing, upsampling and complete CNN flows have their
 own measured results in the [0.39 validation record](../../docs/validation/torch-runtime-iteration-39.md).
 
+Version 0.40 additionally caches readonly packed indices, masks and typed
+divisors: at most 64 plans, each holding at most 64 KiB of array data. Contiguous
+inputs can use flat-index gathering; other layouts retain coordinate gathering
+without copying the entire input into contiguous storage. Both paths preserve
+ordered accumulation and return independent output storage. Oversized plans
+keep the existing bounded fallbacks. See the
+[0.40 validation record](../../docs/validation/torch-runtime-iteration-40.md).
+
 ## Linear systems
 
 `torch.linalg.solve(A, B, *, left=True)` handles dense batched/broadcast systems,

@@ -628,6 +628,24 @@ source-commit deployment was superseded and is not claimed as published.
   it requires independent contracts, runtime checks and complete-flow timing
   before integration. See the [validation record](../../docs/validation/torch-runtime-iteration-39.md).
 
+## 0.40: cached ordered pooling geometry
+
+- Cache readonly packed indices, masks and typed divisors with explicit plan
+  count/byte limits. Use flat spatial gathering for contiguous inputs while
+  retaining coordinate gathering and bounded fallbacks for other cases.
+- Preserve 0.39 cancellation, IEEE classes, zero signs, native division order,
+  live NumPy aliases and storage-version semantics. Never cache user arrays.
+- Full Python suite: 34,976 passes; actual Node/Chrome: 2,243 each;
+  isolated wheel: 2,256. Native and actual exported WASM catalogs pass all
+  78 problems with the existing budgets.
+- Final paired measurements against 0.39 improve irregular forward/backward
+  flows by about 19–36% / 13–27%, and upsampling forward/backward by about
+  38–54% / 26–39%. Keep per-case regressions and sampling diagnostics visible;
+  these are not uniform speedup or cross-runtime throughput claims.
+- Warm tracked allocation samples improve while the huge-adjoint bound is
+  retained; the separately bounded plan metadata is a memory/latency tradeoff.
+  See the [validation record](../../docs/validation/torch-runtime-iteration-40.md).
+
 ## Next implementation areas
 
 1. Remaining model lifecycle: backward/global hooks, broader checkpoint object
