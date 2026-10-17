@@ -2,7 +2,7 @@ import {useId,useState} from 'react';
 import {BookOpen,Code2,Users} from 'lucide-react';
 import {useI18n} from './i18n';
 import {ProblemSolutions} from './deferredPages';
-import {Highlight} from './SyntaxHighlight';
+import ReferenceSolution from './ReferenceSolution';
 import {navigateTabs} from './tabNavigation';
 import type {ProblemTopic} from './communityTopics';
 import './problem-solution-panel.css';
@@ -19,7 +19,6 @@ function SolutionPanel({topic,solution,communityAvailable,onCode,practiceCode}:P
   const {t}=useI18n(),id=useId();
   const [view,setView]=useState<'community'|'reference'>(communityAvailable?'community':'reference');
   const active=communityAvailable?view:'reference';
-  const [revealed,setRevealed]=useState(false);
   return <section className="solution-panel problem-solution-panel" aria-label={t('本题题解','Solutions for this problem')}>
     <div className="problem-solution-toolbar">
       <div className="problem-solution-tabs" role="tablist" aria-label={t('题解来源','Solution source')} onKeyDown={event=>{
@@ -37,10 +36,7 @@ function SolutionPanel({topic,solution,communityAvailable,onCode,practiceCode}:P
     <div id={`${id}-reference`} className="reference-solution" role="tabpanel" aria-labelledby={`${id}-reference-tab`} tabIndex={0} hidden={active!=='reference'}>
       <h2>{t('参考实现','Reference implementation')}</h2>
       <p>{t('建议先独立尝试，用测试结果定位问题，再对照参考实现。','Try your own approach and use test results to locate issues before checking the reference.')}</p>
-      <details open={revealed} onToggle={event=>setRevealed(event.currentTarget.open)}>
-        <summary><BookOpen size={16} aria-hidden="true"/>{t('展开参考解（包含答案）','Reveal reference solution (spoilers)')}</summary>
-        {revealed&&(solution?<Highlight code={solution}/>:<div className="notice">{t('参考实现尚未提供。','No reference implementation is available yet.')}</div>)}
-      </details>
+      <ReferenceSolution solution={solution} onCode={onCode}/>
     </div>
   </section>;
 }

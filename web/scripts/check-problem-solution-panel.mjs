@@ -18,7 +18,7 @@ const server=await createServer({cacheDir:cache,server:{middlewareMode:true,hmr:
  name:'problem-solutions-fixture',enforce:'pre',resolveId(source,importer){
   if(source==='./social')return '\0problem-solutions-social';
   if(source==='./deferredPages'&&importer?.endsWith('/ProblemSolutionPanel.tsx'))return '\0problem-solutions-feed';
-  if(source==='./SyntaxHighlight'&&importer?.endsWith('/ProblemSolutionPanel.tsx'))return '\0problem-solutions-highlight';
+  if(source==='./SyntaxHighlight'&&importer?.endsWith('/CommunityCodeBlock.tsx'))return '\0problem-solutions-highlight';
  },load(name){
   if(name==='\0problem-solutions-feed')return `export {ProblemSolutions} from '/src/Community.tsx';`;
   if(name==='\0problem-solutions-highlight')return `import React from 'react';export function Highlight({code}){globalThis.__problemSolutions.highlights.push(code);return React.createElement('pre',{'data-reference-code':''},code);}`;

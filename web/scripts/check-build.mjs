@@ -44,10 +44,13 @@ assert(manifest['src/MarkdownSectionNav.tsx']?.isDynamicEntry&&!initial.has('src
 assert(manifest['src/ProblemSolutionPanel.tsx']?.isDynamicEntry&&!initial.has('src/ProblemSolutionPanel.tsx'), 'Per-problem solution navigation must remain deferred');
 assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichText|SolutionHistory)-/.test(file)), 'Optional runtime dependencies must not be pulled back into the shell');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your implementation goal')), 'Problem overview and statistics rendering must stay deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Reference reading actions')), 'Reference reading controls must remain deferred with problem solutions');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.reference-reader')), 'Reference reading styles must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.reference-reading-actions'))), 'Problem solutions must include reference reading styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.problem-interview-panel')), 'Practice experience preview styles must stay deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.problem-interview-panel'))), 'Practice company evidence must include its preview styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.markdown-section-nav')), 'Writing section navigation styles must stay deferred');
