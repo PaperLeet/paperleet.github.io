@@ -5,7 +5,7 @@ import {interviewCatalog,interviewLabel} from './interviewModels';
 import {emptyInterviewFilters,type InterviewFilters} from './interviewNavigation';
 import type {Problem} from './types';
 
-export default function InterviewActiveFilters({filters,problems,onChange}:{filters:InterviewFilters;problems:Problem[];onChange:(change:Partial<InterviewFilters>)=>void}){
+export default function InterviewActiveFilters({filters,problems,onChange,readOnly=false}:{filters:InterviewFilters;problems:Problem[];onChange:(change:Partial<InterviewFilters>)=>void;readOnly?:boolean}){
  const {t,locale}=useI18n(),en=locale==='en';
  const chips:{key:string;label:string;change:Partial<InterviewFilters>}[]=[];
  for(const key of ['company','role','stage'] as const)if(filters[key])chips.push({key,label:interviewLabel(({company:'companies',role:'roles',stage:'stages'} as const)[key],filters[key],en),change:{[key]:''}});
@@ -22,7 +22,7 @@ export default function InterviewActiveFilters({filters,problems,onChange}:{filt
  const path=interviewCatalog.paths.find(path=>path.id===filters.track);
  if(path)chips.push({key:'track',label:t(`准备路径：${path.name}`,`Path: ${path.name_en}`),change:{track:''}});
  if(!chips.length)return null;
- return <div className="interview-active-filters" role="group" aria-label={t('已选筛选条件','Active filters')}>
+ return <div className="interview-active-filters" role="group" aria-label={readOnly?t('准备筛选与已保留的面经条件','Practice filters and retained report filters'):t('已选筛选条件','Active filters')}>
   {chips.map(chip=><button type="button" key={chip.key} title={chip.label} aria-label={t(`移除筛选：${chip.label}`,`Remove filter: ${chip.label}`)} onClick={()=>onChange(chip.change)}>{chip.key==='company'&&<OrganizationLogo id={filters.company} size={14}/>}<span>{chip.label}</span><X size={12} aria-hidden="true"/></button>)}
   <button type="button" className="text-button" onClick={()=>onChange({...emptyInterviewFilters(),view:filters.view,saved:filters.saved})}>{t('清除筛选','Clear filters')}</button>
  </div>;

@@ -72,6 +72,7 @@ for (const marker of ['Daily limit reached (', 'cannot be changed again until'])
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('createImageBitmap')), 'Avatar image editing must stay deferred with account settings, independently of public avatar URL validation');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Snapshot for this company and report publication period')), 'Company row evidence and actions must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('My linked practice')), 'Company preparation progress must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Some filters are unavailable')), 'Interview filter support UI must remain deferred');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
@@ -253,5 +254,10 @@ assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFil
 
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.company-preparation-progress')), 'Company preparation progress must not add initial styles');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.company-preparation-progress'))), 'Deferred company preparation must include its progress styles');
+
+for(const marker of ['.interview-filter-support','.interview-readonly-notice']){
+ assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(marker)), 'Interview state styles must stay deferred');
+ assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes(marker))), 'Deferred interview views must include state styles');
+}
 
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);

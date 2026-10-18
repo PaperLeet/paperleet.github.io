@@ -330,3 +330,12 @@
 .interview-meta:not(.compact) .interview-report-practice-missing small{font-size:var(--type-meta)}
 
 .interview-meta-tags .interview-event-location{max-width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal}
+
+.interview-filter-support{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;padding:16px 18px;margin:18px 0 22px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
+.interview-filter-support>svg,.interview-filter-support>.spinner{flex:none;color:var(--accent)}.interview-filter-support>div{flex:1;min-width:220px}.interview-filter-support strong{display:block;font-size:var(--type-body);font-weight:600;line-height:1.6}.interview-filter-support p{margin:4px 0 0;color:var(--muted);font-size:var(--type-small);line-height:1.8}.interview-filter-support>.button{min-height:40px;gap:7px;font-size:var(--type-small)}
+.interview-filter-support :is(a,button):focus-visible,.interview-readonly-notice :is(a,button):focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:5px}
+.interview-notice.interview-readonly-notice{display:flex;align-items:flex-start;gap:12px;margin:18px 0 22px;padding:18px;background:var(--surface2);border:1px solid var(--line);border-radius:10px}.interview-readonly-notice>svg{flex:none;color:var(--accent);margin-top:3px}.interview-readonly-notice>div{min-width:0}.interview-readonly-notice b{color:var(--text);font-size:var(--type-body);font-weight:600}.interview-readonly-notice p{margin:5px 0 10px;font-size:var(--type-small);line-height:1.8}.interview-readonly-notice :is(a,button){display:inline-flex;align-items:center;gap:6px;min-height:36px;font-size:var(--type-small);color:var(--accent)}
+@media(max-width:600px){.interview-filter-support{align-items:flex-start;padding:14px}.interview-filter-support>div{min-width:0;flex-basis:calc(100% - 40px)}.interview-filter-support>.button{margin-left:30px}.interview-notice.interview-readonly-notice{padding:15px}}
+@media(pointer:coarse){.interview-filter-support>.button,.interview-readonly-notice :is(a,button){min-height:44px}}
+
+.interview-readonly-notice:focus-visible{outline:2px solid var(--accent);outline-offset:4px}

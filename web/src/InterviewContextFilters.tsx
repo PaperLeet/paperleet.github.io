@@ -5,7 +5,7 @@ import {emptyInterviewContext,hasInterviewContext,interviewContextError,type Int
 import './interview-context-filters.css';
 
 type State={scope:string;values:InterviewContext;open:boolean;error?:ReturnType<typeof interviewContextError>};
-export default function InterviewContextFilters({context,available,loading,onApply}:{context:InterviewContext;available:boolean;loading:boolean;onApply:(value:InterviewContext)=>void}){
+export default function InterviewContextFilters({context,available,loading,onApply,availabilityNotice=true}:{context:InterviewContext;available:boolean;loading:boolean;onApply:(value:InterviewContext)=>void;availabilityNotice?:boolean}){
  const {t}=useI18n(),id=useId(),composing=useRef(false),applied={location:context.location,month_from:context.month_from,month_to:context.month_to},scope=JSON.stringify(applied);
  const [state,setState]=useState<State>(()=>({scope,values:applied,open:hasInterviewContext(applied)}));
  let current=state;
@@ -22,7 +22,7 @@ export default function InterviewContextFilters({context,available,loading,onApp
     <label htmlFor={id+'-to'}>{t('结束月份','Through month')}<input id={id+'-to'} type="month" min="1900-01" max="2099-12" value={draft.month_to} aria-describedby={id+'-help'} onChange={event=>update('month_to',event.target.value)}/></label></div>
    {error&&<p className="interview-context-error" role="alert">{error}</p>}
    <div className="interview-context-actions"><button type="submit" className="button subtle" disabled={!available||loading}>{t('应用地点与月份','Apply location and months')}</button>{changed&&<button type="button" className="text-button" onClick={()=>setState(previous=>({...previous,values:applied,error:undefined}))}>{t('恢复当前条件','Restore applied values')}</button>}{hasInterviewContext(applied)&&<button type="button" className="text-button" onClick={()=>{setState(previous=>({...previous,values:emptyInterviewContext(),error:undefined}));onApply(emptyInterviewContext());}}>{t('清除地点与月份','Clear location and months')}</button>}</div>
-   <p className="interview-context-status" role="status">{loading?t('正在确认筛选支持，已保留输入。','Checking filter support; your input is kept.'):!available?t('当前服务暂不支持地点与月份筛选，可以继续使用其他条件。','This service does not support location and month filters yet. Other filters remain available.'):changed?t('这些输入尚未应用；点击应用后更新列表与统计。','These edits are not applied yet. Apply to update the list and counts.'):hasInterviewContext(applied)?t('列表与统计使用上方已应用的条件。','The list and counts use the applied values above.'):t('留空表示不限地点或月份。','Leave a field empty for any location or month.')}</p>
+   {(availabilityNotice||!loading&&available)&&<p className="interview-context-status" role="status">{loading?t('正在确认筛选支持，已保留输入。','Checking filter support; your input is kept.'):!available?t('当前服务暂不支持地点与月份筛选，可以继续使用其他条件。','This service does not support location and month filters yet. Other filters remain available.'):changed?t('这些输入尚未应用；点击应用后更新列表与统计。','These edits are not applied yet. Apply to update the list and counts.'):hasInterviewContext(applied)?t('列表与统计使用上方已应用的条件。','The list and counts use the applied values above.'):t('留空表示不限地点或月份。','Leave a field empty for any location or month.')}</p>}
   </form>
  </details>;
 }
