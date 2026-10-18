@@ -1,5 +1,5 @@
 import {useRef,useState} from 'react';
-import {ChevronDown,Search,Tags,X} from 'lucide-react';
+import {ChevronDown,Search,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import {matchingCommunityTags} from './communityTagBrowsing';
@@ -12,7 +12,7 @@ export default function CommunityTagBrowser({value,onChange}:{value?:string;onCh
  function close(){if(details.current)details.current.open=false;summary.current?.focus({preventScroll:true});}
  function clearSearch(){setQuery('');search.current?.focus({preventScroll:true});}
  return <details className="community-tag-browser" ref={details}>
-  <summary ref={summary}><Tags size={16} aria-hidden="true"/><span>{selected?'#'+t(selected.zh,selected.en):value?'#'+value:t('浏览标签','Browse tags')}</span>{!value&&<small>{available}</small>}<ChevronDown size={15} aria-hidden="true"/></summary>
+  <summary ref={summary}><span className="community-tag-mark" aria-hidden="true">#</span><span>{selected?'#'+t(selected.zh,selected.en):value?'#'+value:t('浏览标签','Browse tags')}</span>{!value&&<small>{available}</small>}<ChevronDown size={15} aria-hidden="true"/></summary>
   <div className="community-tag-browser-panel">
    <header><div><strong>{t('按标签发现讨论与题解','Discover discussions and solutions by tag')}</strong><p>{t('与当前版位、搜索和排序组合筛选。','Combine a tag with your current board, search and order.')}</p></div><button type="button" className="text-button" onClick={close}>{t('收起','Collapse')}</button></header>
    <div className="community-tag-browser-search"><Search size={16} aria-hidden="true"/><input ref={search} type="search" maxLength={100} value={query} aria-label={t('搜索浏览标签','Search tags to browse')} placeholder={t('名称、标识或说明…','Name, identifier or description…')} onChange={event=>setQuery(event.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={event=>{if(event.key!=='Escape'||composing.current||event.nativeEvent.isComposing||event.keyCode===229)return;event.preventDefault();event.stopPropagation();if(query)clearSearch();else close();}}/>{query&&<button type="button" aria-label={t('清空标签搜索','Clear tag search')} onClick={clearSearch}><X size={15} aria-hidden="true"/></button>}</div>
@@ -31,6 +31,6 @@ export function CommunityTagContext({value,onClear}:{value?:string;onClear:()=>v
  const selected=taxonomy.data.tags.find(tag=>tag.id===value);
  if(selected&&!selected.description&&selected.enabled)return null;
  return <aside className="community-tag-context" aria-label={t('当前标签说明','Current tag details')}>
-  <Tags size={18} aria-hidden="true"/><div><strong>#{selected?t(selected.zh,selected.en):value}</strong>{selected?.description&&<p>{selected.description}</p>}{selected&&!selected.enabled&&<p>{t('这个标签已停用，历史帖子仍可阅读；新帖请选择其他开放标签。','This tag is paused. Historical posts remain readable; choose an active tag for a new post.')}</p>}{!selected&&<><p role="status">{!taxonomy.ready||taxonomy.error?t('暂时无法确认此标签的配置，筛选已保留。','The tag settings could not be confirmed. Your filter is kept.'):t('未找到这个标签。可以更新标签配置，或移除此筛选继续浏览。','This tag was not found. Refresh its settings or remove this filter to keep browsing.')}</p><div><button type="button" className="text-button" disabled={taxonomy.loading} onClick={()=>void taxonomy.refresh()}>{t('更新标签配置','Refresh tag settings')}</button><button type="button" className="text-button" onClick={onClear}>{t('移除此标签筛选','Remove this tag filter')}</button></div></>}</div>
+  <span className="community-tag-mark" aria-hidden="true">#</span><div><strong>#{selected?t(selected.zh,selected.en):value}</strong>{selected?.description&&<p>{selected.description}</p>}{selected&&!selected.enabled&&<p>{t('这个标签已停用，历史帖子仍可阅读；新帖请选择其他开放标签。','This tag is paused. Historical posts remain readable; choose an active tag for a new post.')}</p>}{!selected&&<><p role="status">{!taxonomy.ready||taxonomy.error?t('暂时无法确认此标签的配置，筛选已保留。','The tag settings could not be confirmed. Your filter is kept.'):t('未找到这个标签。可以更新标签配置，或移除此筛选继续浏览。','This tag was not found. Refresh its settings or remove this filter to keep browsing.')}</p><div><button type="button" className="text-button" disabled={taxonomy.loading} onClick={()=>void taxonomy.refresh()}>{t('更新标签配置','Refresh tag settings')}</button><button type="button" className="text-button" onClick={onClear}>{t('移除此标签筛选','Remove this tag filter')}</button></div></>}</div>
  </aside>;
 }
