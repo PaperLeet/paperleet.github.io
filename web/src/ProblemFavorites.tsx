@@ -1,3 +1,5 @@
+import {appLocation, publicHref} from './appLocation';
+import AppLink from './AppLink';
 import {useEffect,useMemo,useRef,useState,useSyncExternalStore} from 'react';
 import {ArrowLeft,ArrowRight,Bookmark,CheckCircle2,RefreshCw,Search} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -74,7 +76,7 @@ function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:But
   }
   async function retryLoad(){setRecovering(true);try{await store?.refresh();}finally{setRecovering(false);}}
   if(!loading&&capabilities&&!capabilities.problem_bookmarks)return null;
-  if(!loading&&!user)return <a className="problem-favorite-button" href={hostedAppHref(signInHref(returnTo))} aria-label={t('登录后收藏题目','Sign in to save this problem')} title={t('登录后收藏题目','Sign in to save this problem')}><Bookmark size={16}/>{label&&<span>{label}</span>}</a>;
+  if(!loading&&!user)return <AppLink className="problem-favorite-button" href={hostedAppHref(signInHref(returnTo))} aria-label={t('登录后收藏题目','Sign in to save this problem')} title={t('登录后收藏题目','Sign in to save this problem')}><Bookmark size={16}/>{label&&<span>{label}</span>}</AppLink>;
   const reloading=!!state.error||recovering,unavailable=!reloading&&!canSave&&!active&&!pending;
   const action=reloading?t('重试收藏加载','Retry saved problems'):unavailable?t('已移除，题目暂不可用','Removed; this problem is currently unavailable'):pending?.error?pending.active?t('重试收藏题目','Retry saving problem'):t('重试取消收藏','Retry removing saved problem'):active?t('取消收藏题目','Remove saved problem'):t('收藏题目','Save problem');
   return <div className="problem-favorite-control">
@@ -85,7 +87,7 @@ function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:But
     </button>
     {pending?.error&&!label&&<span className="sr-only" role="status">{t('收藏操作未确认，请重试。','Bookmark unconfirmed. Please retry.')}</span>}
     {pending?.error&&label&&<span className="favorite-feedback" role="status">{t('收藏操作未确认，请重试。','Bookmark unconfirmed. Please retry.')}
-      {pending.accountError&&<><button type="button" data-favorite-control={problemId} className="text-button" disabled={checking} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><a href={hostedAppHref(signInHref(returnTo))}>{t('重新登录','Sign in again')}</a>{authError}</>}
+      {pending.accountError&&<><button type="button" data-favorite-control={problemId} className="text-button" disabled={checking} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><AppLink href={hostedAppHref(signInHref(returnTo))}>{t('重新登录','Sign in again')}</AppLink>{authError}</>}
     </span>}
     <StudyListButton problemId={problemId} canSave={canSave}/>
   </div>;
@@ -97,7 +99,7 @@ function FavoriteProblemRow({id,problem,isSaved,returnTo,saved,progressReady,cat
   return <article className="favorite-problem-row" data-reading-post={id} data-reading-resumed={resumed||undefined} data-removed={!isSaved||undefined}>
     <div className="favorite-problem-main">
       {problem?<>
-        <a data-reading-link="practice" data-reading-practice={id} href={withLibraryContext(problem.id,returnTo)}><span className="favorite-problem-number">{problem.number}.</span><strong>{locale==='en'?problem.translations?.en?.title||problem.title:problem.title}</strong><ArrowRight size={15}/></a>
+        <AppLink data-reading-link="practice" data-reading-practice={id} href={withLibraryContext(problem.id,returnTo)}><span className="favorite-problem-number">{problem.number}.</span><strong>{locale==='en'?problem.translations?.en?.title||problem.title:problem.title}</strong><ArrowRight size={15}/></AppLink>
         <div className="favorite-problem-meta"><span className={'difficulty '+problem.difficulty}>{problem.difficulty==='E'?t('简单','Easy'):problem.difficulty==='H'?t('困难','Hard'):t('中等','Medium')}</span><span>{id}</span>{progressReady&&status(problem,saved)==='done'&&<span className="favorite-solved"><CheckCircle2 size={13}/>{t('已通过','Solved')}</span>}</div>
       </>:<><strong>{id}</strong><small>{catalogError?t('题目详情暂时不可用，可重试加载。','Problem details unavailable. Retry the catalog.'):t('题目已不在当前题库，仍可取消收藏。','This problem has left the catalog. You can still remove it.')}</small></>}
       {!isSaved&&<small className="favorite-removed-note" role="status">{problem?t('已取消收藏，可再次收藏。','Removed. Save again to undo.'):t('已取消收藏。题目暂不可用，无法重新收藏。','Removed. This unavailable problem cannot currently be saved again.')}</small>}
@@ -108,7 +110,7 @@ function FavoriteProblemRow({id,problem,isSaved,returnTo,saved,progressReady,cat
 type PageProps={route?:string;onFilters?:(href:string)=>void;problems:Problem[];saved:Record<string,Saved>;progressReady:boolean;catalogReady:boolean;catalogError?:string;onRetryCatalog:()=>void};
 export function ProblemFavoritesPage(props:PageProps){
   const {t}=useI18n();
-  if(!hostedAppAvailable)return <main className="problem-favorites-page"><a className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</a><div className="favorites-empty"><Bookmark size={30}/><h1>{t('当前版本暂无题目收藏','Saved problems are unavailable here')}</h1><p>{t('可返回题库继续练习。','Return to papers to keep practicing.')}</p></div></main>;
+  if(!hostedAppAvailable)return <main className="problem-favorites-page"><AppLink className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</AppLink><div className="favorites-empty"><Bookmark size={30}/><h1>{t('当前版本暂无题目收藏','Saved problems are unavailable here')}</h1><p>{t('可返回题库继续练习。','Return to papers to keep practicing.')}</p></div></main>;
   if(readFavoriteRoute(props.route||'favorites')?.list)return <StudyLists route={props.route} onFilters={props.onFilters} problems={props.problems} catalogReady={props.catalogReady} catalogError={props.catalogError} onRetryCatalog={props.onRetryCatalog}/>;
   return <AccountProblemFavoritesPage {...props}/>;
 }
@@ -129,8 +131,8 @@ function AccountProblemFavoritesPage({route='favorites',onFilters,problems,saved
   function changeView(next:{query:string;state:string},opener?:HTMLElement){
     setQuery(next.query);setFilter(next.state);
     const href=favoriteHref(next);
-    if(onFilters)onFilters(href);else try{window.history.replaceState(window.history.state,'',href);}catch{/* Explicit links retain the selected filters. */}
-    if(opener)window.requestAnimationFrame(()=>{const current=readFavoriteRoute(location.hash);if(current&&favoriteHref(current)===href&&(document.activeElement===opener||document.activeElement===document.body&&!opener.isConnected))filterControl.current?.focus({preventScroll:true});});
+    if(onFilters)onFilters(href);else try{window.history.replaceState(window.history.state,'',publicHref(href));}catch{/* Explicit links retain the selected filters. */}
+    if(opener)window.requestAnimationFrame(()=>{const current=readFavoriteRoute(appLocation.hash);if(current&&favoriteHref(current)===href&&(document.activeElement===opener||document.activeElement===document.body&&!opener.isConnected))filterControl.current?.focus({preventScroll:true});});
   }
   const [rows,setRows]=useState<{owner:string;ids:string[]}>({owner:'',ids:[]});
   // Keep removed rows in place so undo never jumps under the pointer or keyboard.
@@ -152,21 +154,21 @@ function AccountProblemFavoritesPage({route='favorites',onFilters,problems,saved
     actionFocus.current=undefined;
     if(!intent.opener.isConnected&&document.activeElement===document.body)target.focus({preventScroll:true});
   },[loading,state.loading,state.snapshot,state.pending,rows,user?.id]);
-  if(!view)return <main className="problem-favorites-page"><SocialNotice error={t('收藏筛选链接无效。','This saved-problem filter is invalid.')}/><a className="button subtle" href="#/favorites">{t('查看全部收藏','View all saved problems')}</a></main>;
+  if(!view)return <main className="problem-favorites-page"><SocialNotice error={t('收藏筛选链接无效。','This saved-problem filter is invalid.')}/><AppLink className="button subtle" href="#/favorites">{t('查看全部收藏','View all saved problems')}</AppLink></main>;
   return <main className="problem-favorites-page" ref={reading.container} onClickCapture={event=>{
     const action=event.target instanceof window.Element?event.target.closest<HTMLElement>('[data-favorite-control],[data-favorite-retry]'):null;
     if(action&&user)actionFocus.current={owner:user.id,href:location.href,id:action.dataset.favoriteControl,opener:action};
   }}>
-    <a className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</a>
+    <AppLink className="back-link" href="#"><ArrowLeft size={15}/>{t('返回题库','Back to papers')}</AppLink>
     <header className="favorites-heading"><div><span className="favorites-eyebrow"><Bookmark size={15}/>{t('我的学习清单','My study list')}</span><h1>{t('收藏题目','Saved problems')}</h1><p>{t('把想练习和回顾的题留在这里，随时继续。','Keep problems to practice or revisit, then pick up where you left off.')}</p></div>{user&&<span className="favorites-private">{t('仅自己可见 · 同步到账号','Private · Synced to your account')}</span>}</header>
     <ReadingReturnNotice kind="problem" notice={reading.notice} onRestore={reading.restore}/>
-    {loading?<p role="status">{t('正在确认账号…','Checking your account…')}</p>:!user?<div className="favorites-empty"><Bookmark size={30}/><h2>{t('登录后保存你的练习清单','Sign in to keep your practice list')}</h2><p>{t('收藏会同步到账号，可在不同设备上继续练习。','Your saved problems sync across devices.')}</p><a className="button" href={hostedAppHref(signInHref(returnTo))}>{t('登录账号','Sign in')}</a></div>:!capabilities?.problem_bookmarks?<SocialNotice error={t('题目收藏暂未开放，请稍后重试。','Saved problems are currently unavailable. Please try again later.')}/>:<>
+    {loading?<p role="status">{t('正在确认账号…','Checking your account…')}</p>:!user?<div className="favorites-empty"><Bookmark size={30}/><h2>{t('登录后保存你的练习清单','Sign in to keep your practice list')}</h2><p>{t('收藏会同步到账号，可在不同设备上继续练习。','Your saved problems sync across devices.')}</p><AppLink className="button" href={hostedAppHref(signInHref(returnTo))}>{t('登录账号','Sign in')}</AppLink></div>:!capabilities?.problem_bookmarks?<SocialNotice error={t('题目收藏暂未开放，请稍后重试。','Saved problems are currently unavailable. Please try again later.')}/>:<>
       {capabilities.study_lists===true&&<StudyLists compact route={route} onFilters={onFilters} problems={problems} catalogReady={catalogReady} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>}
       {state.error&&<div className="favorites-error"><SocialNotice error={state.error}/><button type="button" className="button subtle" data-favorite-retry="" disabled={state.loading} onClick={()=>void store?.refresh()}>{t('重试加载','Retry loading')}</button></div>}
       {catalogError&&<div className="favorites-error"><SocialNotice error={catalogError}/><button type="button" className="button subtle" onClick={onRetryCatalog}>{t('重试题库加载','Retry catalog')}</button></div>}
       {!state.snapshot?<p role="status">{state.loading?t('正在加载收藏…','Loading saved problems…'):t('尚未读取收藏。','Saved problems have not loaded.')}</p>:<>
         <div className="favorites-toolbar"><label><Search size={16}/><span className="sr-only">{t('搜索收藏题目','Search saved problems')}</span><input type="search" value={query} maxLength={200} onChange={event=>changeView({query:event.target.value,state:filter})} placeholder={t('搜索题目名称或编号','Search problems or IDs')}/></label><select ref={filterControl} aria-label={t('学习状态','Practice status')} value={filter} onChange={event=>changeView({query,state:event.target.value})}><option value="all">{t('全部状态','All statuses')}</option><option value="todo" disabled={!progressReady}>{t('未开始','Not started')}</option><option value="started" disabled={!progressReady}>{t('练习中','In progress')}</option><option value="done" disabled={!progressReady}>{t('已通过','Solved')}</option></select><span role="status">{active.size} {t('道收藏题目',active.size===1?'saved problem':'saved problems')}</span><button type="button" className="icon-button" data-favorite-refresh="" aria-label={t('刷新收藏','Refresh saved problems')} disabled={state.loading} onClick={()=>{setRows({owner:user.id,ids:state.snapshot!.items.map(item=>item.problem_id)});void store?.refresh();}}><RefreshCw size={15}/></button></div>
-        {filter!=='all'&&!progressReady?<div className="favorites-empty"><p role="status">{t('学习进度尚不可用，可以先查看全部收藏。','Practice status is not available yet. You can view all saved problems.')}</p><button className="button subtle" onClick={event=>changeView({query,state:'all'},event.currentTarget)}>{t('查看全部状态','View all statuses')}</button></div>:!catalogReady&&!catalogError?<p role="status">{t('正在加载题目详情…','Loading problem details…')}</p>:<div className="favorites-list" data-reading-list="" tabIndex={-1} role="region" aria-label={t('收藏题目','Saved problems')}>{shown.map(id=><FavoriteProblemRow key={id} id={id} problem={entries.get(id)} isSaved={active.has(id)} returnTo={returnTo} saved={saved[id]} progressReady={progressReady} catalogError={catalogError} resumed={reading.resumedPost===id}/>)}{!shown.length&&<div className="favorites-empty"><Bookmark size={30}/><h2>{ids.length?t('没有匹配的题目','No matching problems'):t('从一道想练的题开始','Save your next problem')}</h2><p>{ids.length?t('试试其他关键词或学习状态。','Try another search or practice status.'):t('在题目页点击收藏图标，就能在这里继续练习。','Use the bookmark on a problem to keep it here for your next practice session.')}</p><a className="button subtle" href="#">{t('浏览题库','Explore papers')}<ArrowRight size={14}/></a></div>}</div>}
+        {filter!=='all'&&!progressReady?<div className="favorites-empty"><p role="status">{t('学习进度尚不可用，可以先查看全部收藏。','Practice status is not available yet. You can view all saved problems.')}</p><button className="button subtle" onClick={event=>changeView({query,state:'all'},event.currentTarget)}>{t('查看全部状态','View all statuses')}</button></div>:!catalogReady&&!catalogError?<p role="status">{t('正在加载题目详情…','Loading problem details…')}</p>:<div className="favorites-list" data-reading-list="" tabIndex={-1} role="region" aria-label={t('收藏题目','Saved problems')}>{shown.map(id=><FavoriteProblemRow key={id} id={id} problem={entries.get(id)} isSaved={active.has(id)} returnTo={returnTo} saved={saved[id]} progressReady={progressReady} catalogError={catalogError} resumed={reading.resumedPost===id}/>)}{!shown.length&&<div className="favorites-empty"><Bookmark size={30}/><h2>{ids.length?t('没有匹配的题目','No matching problems'):t('从一道想练的题开始','Save your next problem')}</h2><p>{ids.length?t('试试其他关键词或学习状态。','Try another search or practice status.'):t('在题目页点击收藏图标，就能在这里继续练习。','Use the bookmark on a problem to keep it here for your next practice session.')}</p><AppLink className="button subtle" href="#">{t('浏览题库','Explore papers')}<ArrowRight size={14}/></AppLink></div>}</div>}
       </>}
     </>}
   </main>;

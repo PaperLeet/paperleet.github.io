@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronDown, Clock3, Code2, FlaskConical, FolderCheck, LoaderCircle, RefreshCw, TriangleAlert, X } from 'lucide-react';
 import { apiFetch } from './apiClient';
@@ -43,7 +44,7 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
     if (state.status === 'ready') heading.current?.focus({ preventScroll: true });
   }, [scope, state.status]);
 
-  const returnLink = <a className="submission-result-back" href={libraryHref}><ArrowLeft size={16} />{t('返回题库', 'Back to papers')}</a>;
+  const returnLink = <AppLink className="submission-result-back" href={libraryHref}><ArrowLeft size={16} />{t('返回题库', 'Back to papers')}</AppLink>;
   const loading = accountLoading || (!!user && state.status === 'loading');
   const needsAuth = !accountLoading && (!user || state.status === 'auth');
   if (loading || needsAuth || state.status !== 'ready') {
@@ -55,7 +56,7 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
         <div className="submission-result-empty-icon" aria-hidden="true">{loading ? <LoaderCircle size={32} className="submission-result-spinner" /> : <FlaskConical size={32} />}</div>
         <h1>{loading ? t('正在读取提交结果', 'Loading your result') : needsAuth ? t('登录后查看提交结果', 'Sign in to view your result') : missing ? t('找不到这次提交', 'Submission not found') : identity ? t('账号已切换', 'Your account has changed') : t('结果暂时无法加载', 'Your result could not load')}</h1>
         <p role={loading ? 'status' : undefined}>{loading ? t('正在从你的账号读取这次提交记录…', 'Retrieving this submission from your account…') : needsAuth ? t('提交的代码和判题结果仅你本人可见。', 'Your submitted code and judge results are private to your account.') : missing ? t('这条记录可能不存在，或属于另一个账号。', 'This record may not exist or may belong to another account.') : identity ? t('请刷新账号信息，再查看这次提交。', 'Refresh your account before viewing this submission.') : t('这不会重新提交代码。请重试读取已有记录。', 'Retry to read the saved record. Your code will not be submitted again.')}</p>
-        {needsAuth ? <a className="button" href={signInHref(`#/submission/${runId}`)}>{t('登录', 'Sign in')}<ArrowRight size={16} /></a> : !loading && !missing && <button className="button" type="button" onClick={() => {
+        {needsAuth ? <AppLink className="button" href={signInHref(`#/submission/${runId}`)}>{t('登录', 'Sign in')}<ArrowRight size={16} /></AppLink> : !loading && !missing && <button className="button" type="button" onClick={() => {
           if (identity) void refreshAccount();
           setRetry(value => value + 1);
         }}><RefreshCw size={16} />{t('重试', 'Retry')}</button>}
@@ -100,11 +101,11 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
         <div className="submission-result-saved"><FolderCheck size={15} />{t('已保存到账号', 'Saved to your account')}</div>
       </div>
 
-      <a className="submission-result-problem" href={problemHref}>
+      <AppLink className="submission-result-problem" href={problemHref}>
         <span className="submission-result-problem-icon"><Code2 size={21} /></span>
         <span><small>{t('本次题目', 'This problem')}</small><strong>{problem ? `${problem.number}. ` : ''}{title}</strong></span>
         <ArrowRight size={18} />
-      </a>
+      </AppLink>
 
       <dl className="submission-result-metrics">
         <div><dt><CheckCircle2 size={15} />{t('测试通过', 'Tests passed')}</dt><dd>{passed}<span> / {total}</span></dd></div>
@@ -120,8 +121,8 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
       </div>}
 
       <div className="submission-result-actions">
-        {run.accepted && next ? <a className="button submission-result-primary" href={withLibraryContext(next.number, libraryHref)}>{t('下一道题', 'Next problem')}<ArrowRight size={17} /></a> : <a className="button submission-result-primary" href={problemHref}><Code2 size={17} />{t('返回代码', 'Back to code')}</a>}
-        {run.accepted && next ? <a className="button subtle" href={problemHref}><Code2 size={16} />{t('返回代码', 'Back to code')}</a> : <a className="button subtle" href={libraryHref}>{t('浏览题库', 'Browse papers')}<ArrowRight size={16} /></a>}
+        {run.accepted && next ? <AppLink className="button submission-result-primary" href={withLibraryContext(next.number, libraryHref)}>{t('下一道题', 'Next problem')}<ArrowRight size={17} /></AppLink> : <AppLink className="button submission-result-primary" href={problemHref}><Code2 size={17} />{t('返回代码', 'Back to code')}</AppLink>}
+        {run.accepted && next ? <AppLink className="button subtle" href={problemHref}><Code2 size={16} />{t('返回代码', 'Back to code')}</AppLink> : <AppLink className="button subtle" href={libraryHref}>{t('浏览题库', 'Browse papers')}<ArrowRight size={16} /></AppLink>}
       </div>
     </section>
 

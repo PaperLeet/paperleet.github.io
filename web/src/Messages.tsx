@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import InboxListRefresh from './InboxListRefresh';
 import {inboxListUpdate} from './inboxListUpdate';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -15,13 +16,13 @@ export default function Messages({username}: {username?: string}) {
   if (loading) return <main className="messages-page"><p role="status">{t('正在检查账号…', 'Checking account…')}</p></main>;
   if (error) return <main className="messages-page"><div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={() => void refresh()}>{t('重试', 'Retry')}</button></div></main>;
   if (!user) return <main className="messages-page">
-    <a className="social-back messages-welcome-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</a>
+    <AppLink className="social-back messages-welcome-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</AppLink>
     <section className="messages-welcome" aria-labelledby="messages-welcome-title">
       <div className="messages-welcome-icon" aria-hidden="true"><MessageCircle size={34}/></div>
       <span className="messages-welcome-eyebrow">{t('社区交流', 'Community conversations')}</span>
       <h1 id="messages-welcome-title">{t('私信', 'Messages')}</h1>
       <p>{t('与社区成员讨论论文和实现。', 'Discuss papers and implementations with the community.')}</p>
-      <a className="button primary" href={signInHref(messagesHref(username))}>{t('登录', 'Sign in')}<ArrowRight size={15} aria-hidden="true"/></a>
+      <AppLink className="button primary" href={signInHref(messagesHref(username))}>{t('登录', 'Sign in')}<ArrowRight size={15} aria-hidden="true"/></AppLink>
       <small>{username ? t('登录后回到当前对话。', 'Return to this conversation after signing in.') : t('登录后回到消息页。', 'Return here after signing in.')}</small>
     </section>
   </main>;
@@ -71,7 +72,7 @@ function AccountMessages({owner, username, readAllAvailable}: {owner: string; us
     finally { if (alive.current && version === revision.current) setMore(false); }
   }
   return <main className={`messages-page${username ? ' has-conversation' : ''}`}>
-    <div className="messages-page-heading"><a className="social-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</a><h1>{t('私信', 'Messages')}</h1></div>
+    <div className="messages-page-heading"><AppLink className="social-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</AppLink><h1>{t('私信', 'Messages')}</h1></div>
     <div className="messages-layout">
       <aside className="messages-sidebar" aria-label={t('对话列表', 'Conversations')}>
         <header className="messages-sidebar-heading"><h2>{t('对话', 'Conversations')}</h2>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
@@ -90,10 +91,10 @@ function AccountMessages({owner, username, readAllAvailable}: {owner: string; us
 
 function ConversationLink({conversation: item, owner, selected}: {conversation: Conversation; owner: string; selected: boolean}) {
   const {t} = useI18n();
-  return <a className={`inbox-item${item.unread_count ? ' unread' : ''}`} href={messagesHref(item.peer.username)} aria-current={selected ? 'page' : undefined}>
+  return <AppLink className={`inbox-item${item.unread_count ? ' unread' : ''}`} href={messagesHref(item.peer.username)} aria-current={selected ? 'page' : undefined}>
     <Avatar user={item.peer} size={38}/><span className="inbox-item-copy"><b>{item.peer.display_name}</b><span className="inbox-message-preview">{item.last_message.sender_id === owner ? t('你：', 'You: ') : ''}{item.last_message.body}</span><DateLabel value={item.last_message.created_at}/></span>
     {item.unread_count > 0 && <span className="inbox-count" aria-label={t(`${item.unread_count} 条未读`, `${item.unread_count} unread`)}>{item.unread_count}</span>}
-  </a>;
+  </AppLink>;
 }
 
 export function mergeMessages(previous: DirectMessage[], next: DirectMessage[]) {
@@ -200,8 +201,8 @@ function ConversationThread({owner, username}: {owner: string; username: string}
   }
   const length = Array.from(draft).length;
   return <section className="message-thread" aria-label={t('私信对话', 'Private conversation')}>
-    <header className="message-thread-heading"><a className="messages-back" href={messagesHref()} aria-label={t('返回对话列表', 'Back to conversations')}><ArrowLeft size={18}/></a>
-      {thread ? <a className="message-peer" href={profileHref(thread.peer)}><Avatar user={thread.peer} size={36}/><span><b>{thread.peer.display_name}</b><small>@{thread.peer.username}</small></span></a> : <h2>@{username}</h2>}
+    <header className="message-thread-heading"><AppLink className="messages-back" href={messagesHref()} aria-label={t('返回对话列表', 'Back to conversations')}><ArrowLeft size={18}/></AppLink>
+      {thread ? <AppLink className="message-peer" href={profileHref(thread.peer)}><Avatar user={thread.peer} size={36}/><span><b>{thread.peer.display_name}</b><small>@{thread.peer.username}</small></span></AppLink> : <h2>@{username}</h2>}
     </header>
     {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
     {readError && <div className="inbox-error" role="alert"><p>{t('未能标为已读。', 'Could not mark messages as read.')}</p><button type="button" onClick={() => thread && void readVisible(thread)}>{t('重试', 'Retry')}</button></div>}

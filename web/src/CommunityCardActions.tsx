@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
 import {ChevronDown,ChevronUp,Heart,MessageCircle,PenLine,Quote,Repeat2,X} from 'lucide-react';
@@ -154,7 +156,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   }
   function writeComment(){
     if(replyEdit)return;
-    if(!owner){location.hash=signInHref(returnTo||'community');return;}
+    if(!owner){appLocation.hash=signInHref(returnTo||'community');return;}
     if(!open)expand();
     setWriting(true);setPreview(false);focusReply();
   }
@@ -197,7 +199,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   }
   async function like(active:boolean){
     if(replyEdit||working.current||accountLoading||loading||accountRecovery)return;
-    if(!owner){location.hash=signInHref(returnTo||'community');return;}
+    if(!owner){appLocation.hash=signInHref(returnTo||'community');return;}
     working.current=true;setBusy('like');setError('');
     try{
       const value=await socialApi<Post>(`${path}/like`,{active,expected_user_id:owner},AbortSignal.timeout(20_000));
@@ -245,14 +247,14 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
       {children&&<div className="card-actions-extras">{children}</div>}
     </div>
-    {error&&<div className="card-action-error"><SocialNotice error={error}/>{accountRecovery&&<div className="card-account-recovery"><p>{t('账号状态尚未确认，草稿已保留。确认账号后可重试原操作。','Your account is unconfirmed. Your draft is kept. Confirm your account before retrying.')}</p><button type="button" className="text-button" disabled={!!busy} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><a href={signInHref(returnTo||'community')}>{t('重新登录','Sign in again')}</a></div>}{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
+    {error&&<div className="card-action-error"><SocialNotice error={error}/>{accountRecovery&&<div className="card-account-recovery"><p>{t('账号状态尚未确认，草稿已保留。确认账号后可重试原操作。','Your account is unconfirmed. Your draft is kept. Confirm your account before retrying.')}</p><button type="button" className="text-button" disabled={!!busy} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><AppLink href={signInHref(returnTo||'community')}>{t('重新登录','Sign in again')}</AppLink></div>}{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
     {open&&<section id={regionId} ref={replies.root} tabIndex={-1} className="card-comments" aria-label={t('评论预览','Comment preview')} aria-keyshortcuts="Escape" onKeyDown={event=>{
       if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
       const active=document.activeElement;
       if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('.card-reply-form,input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
       event.preventDefault();event.stopPropagation();dismissComments(active);
     }}>
-      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><a href={href}>{t('完整讨论','Full discussion')}</a></header>
+      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
       {loading&&<p role="status">{t('正在加载评论…','Loading comments…')}</p>}
       {loadError&&<div><SocialNotice error={loadError}/><button type="button" className="text-button" disabled={!!busy} onClick={()=>void load()}>{t('重试加载评论','Retry loading comments')}</button></div>}
@@ -261,7 +263,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
           <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/>{row.updated_at&&row.updated_at!==row.created_at&&<span className="card-comment-edited">{t('已编辑','Edited')} <DateLabel value={row.updated_at}/></span>}</div>
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading||!!replyEdit} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
           <InlineCommentBody body={row.body}/>
-          <div className="card-comment-links"><a href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</a>
+          <div className="card-comment-links"><AppLink href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</AppLink>
             {owner&&<button type="button" disabled={!!replyEdit||!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}{owner&&<button type="button" disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} aria-label={t(`引用${row.author.anonymous?'匿名用户':row.author.display_name||'用户'}的评论`,`Quote comment from ${row.author.anonymous?'Anonymous':row.author.display_name||'user'}`)} onClick={()=>quoteComment(row)}><Quote size={12} aria-hidden="true"/>{t('引用','Quote')}</button>}
             {canEditReply(row,owner)&&<button type="button" data-card-edit-reply={row.id} aria-controls={fieldId+'-edit'} aria-expanded={replyEdit?.id===row.id&&open} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} onClick={event=>startReplyEdit(row,event.currentTarget)}><PenLine size={12} aria-hidden="true"/>{t('编辑评论','Edit comment')}</button>}
             <ReplyReadingReturn list={replies} replyId={row.id}/>
@@ -282,7 +284,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={!!busy||loading||accountRecovery} disabled={!canPublish} onRetry={()=>void publish(publication?.receipt)}/>
         <PublishingRules action="reply"/>
         <footer><div className="card-reply-feedback"><small role="status">{!saved?t('草稿未能保存，离开前请复制内容。','Draft could not be saved. Copy it before leaving.'):notice|| (hasReplyDraft(draft)?t('草稿已保存，可在完整讨论中继续编辑。','Draft saved. Continue editing in the full discussion.'):t('折叠评论不会丢失草稿。','Collapsing keeps your draft.'))}</small>{postedId&&replies.byId.has(postedId)&&<button type="button" className="text-button card-posted-reply" disabled={loading||accountLoading||!!loadError} onClick={event=>revealComment(postedId,event.currentTarget)}>{t('查看刚发布的评论','View your posted comment')}</button>}</div><button className="button" disabled={!!busy||!canPublish||accountRecovery||loading||!detail||!!loadError||!draft.body.trim()||missingTarget}>{busy==='reply'?t('发布中…','Posting…'):publication?samePublication(publication.receipt,replyPublication(draft))?t('重试发布','Retry publication'):t('作为新内容发布','Publish as new content'):t('发布评论','Post comment')}</button></footer>
-      </form></>:<a className="card-comment-signin" href={signInHref(returnTo||'community')}>{t('登录后参与评论','Sign in to comment')}</a>}
+      </form></>:<AppLink className="card-comment-signin" href={signInHref(returnTo||'community')}>{t('登录后参与评论','Sign in to comment')}</AppLink>}
       <button type="button" className="card-collapse-comments" aria-keyshortcuts="Escape" title={t('收起评论（Esc）','Collapse comments (Esc)')} onClick={event=>dismissComments(event.currentTarget)}><ChevronUp size={14} aria-hidden="true"/>{t('收起评论','Collapse comments')}</button>
     </section>}
     {replyEdit&&<div id={fieldId+'-edit'} className="card-comment-editor" hidden={!open}>

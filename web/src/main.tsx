@@ -11,14 +11,18 @@ import "./library-workbench.css";
 import { startPublicNavigation } from "./deployment";
 import { AppErrorBoundary } from "./AppErrorBoundary";
 import { finishAppStartup } from "./appRecovery";
+import {pathRouting} from './appLocation';
 
 function StartupReady() {
   React.useEffect(finishAppStartup, []);
   return null;
 }
-if (startPublicNavigation()) ReactDOM.createRoot(document.getElementById("root")!).render(
+function mount() { if (startPublicNavigation()) ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <StartupReady />
     <AppErrorBoundary><App /></AppErrorBoundary>
   </React.StrictMode>,
 );
+}
+if (pathRouting()) void import('./pathNavigation').then(({startPathNavigation})=>{startPathNavigation();mount();});
+else mount();

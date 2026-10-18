@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {useEffect,useRef,useState} from 'react';
 import {ArrowRight,CheckCircle2,FolderPlus} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -43,8 +44,8 @@ export default function InterviewBatchSave({capture,modules,initialTitle}:{captu
    {destination!=='new'&&<p>{t('原题单已有题目的位置不变；缺少的题目按上方顺序追加。','Existing problems keep their positions. Missing problems are appended in the order above.')}</p>}
    {capacity&&<p role="status">{destination==='new'?t('已达到 30 个题单上限，可加入已有题单。','You have reached the 30-list limit. Add to an existing list.'):t('此题单容量不足，请选择其他题单或新建。','This list has insufficient room. Choose another list or create one.')}</p>}
    <button type="submit" className="button subtle" disabled={blocked}><FolderPlus size={15} aria-hidden="true"/>{sameIntent?t('保存已确认','Save confirmed'):destination==='new'?t('保存为新题单','Save as a new list'):!missing.length&&target?t('这组题已在题单中','All problems are already in this list'):t(`追加 ${missing.length} 道题`,`Append ${missing.length} problems`)}</button>
-   {destination!=='new'&&target&&!missing.length&&<a className="text-button" href={favoriteHref({query:'',state:'all',list:target.id})}>{t('打开题单','Open list')}<ArrowRight size={14} aria-hidden="true"/></a>}
+   {destination!=='new'&&target&&!missing.length&&<AppLink className="text-button" href={favoriteHref({query:'',state:'all',list:target.id})}>{t('打开题单','Open list')}<ArrowRight size={14} aria-hidden="true"/></AppLink>}
   </form>}
-  {matches&&<div className="interview-batch-save-confirmed" role="status"><CheckCircle2 size={16} aria-hidden="true"/><span>{complete?t(`已保存到“${saved!.title}”。`,`Saved to “${saved!.title}”.`):t('保存已确认；题单内容后来有变化。','The save is confirmed; the list has since changed.')}</span>{saved&&<a href={favoriteHref({query:'',state:'all',list:saved.id})}>{t('查看题单','View study list')}<ArrowRight size={14} aria-hidden="true"/></a>}</div>}
+  {matches&&<div className="interview-batch-save-confirmed" role="status"><CheckCircle2 size={16} aria-hidden="true"/><span>{complete?t(`已保存到“${saved!.title}”。`,`Saved to “${saved!.title}”.`):t('保存已确认；题单内容后来有变化。','The save is confirmed; the list has since changed.')}</span>{saved&&<AppLink href={favoriteHref({query:'',state:'all',list:saved.id})}>{t('查看题单','View study list')}<ArrowRight size={14} aria-hidden="true"/></AppLink>}</div>}
  </section>;
 }

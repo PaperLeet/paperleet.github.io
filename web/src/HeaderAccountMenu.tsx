@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Award, Bookmark, Flag, ChevronRight, Download, FilePenLine, Globe2, Moon, Settings, ShieldCheck, Sun, UserRound } from 'lucide-react';
 import { Avatar, profileHref, useAccount, type AccountUser } from './social';
@@ -58,24 +59,24 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
   const {locale,setLocale,t}=useI18n();
   const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好和游客草稿自动保存在当前浏览器','Preferences and guest drafts save in this browser')}</small></span>{user&&<ChevronRight size={16}/>}</>;
   return <>
-    {user?<a className="account-menu-identity" href={hostedAppHref(profileHref(user))} onClick={onClose}>{identity}</a>:<div className="account-menu-identity">{identity}</div>}
-    {!user&&hostedAppAvailable&&<a className="account-menu-signin button" href={hostedAppHref(signInHref(returnTo))} onClick={onClose}>{loading?t('正在检查登录状态…','Checking sign-in…'):t('登录账号','Sign in')}<ChevronRight size={14}/></a>}
+    {user?<AppLink className="account-menu-identity" href={hostedAppHref(profileHref(user))} onClick={onClose}>{identity}</AppLink>:<div className="account-menu-identity">{identity}</div>}
+    {!user&&hostedAppAvailable&&<AppLink className="account-menu-signin button" href={hostedAppHref(signInHref(returnTo))} onClick={onClose}>{loading?t('正在检查登录状态…','Checking sign-in…'):t('登录账号','Sign in')}<ChevronRight size={14}/></AppLink>}
     <div className="account-menu-shortcuts">
-      {user?<a href={hostedAppHref(profileHref(user))} onClick={onClose}><UserRound size={21}/><span>{t('个人主页','My profile')}</span></a>:<button type="button" disabled={!backupReady||!onBackup} onClick={()=>{onClose();onBackup?.();}}><Download size={21}/><span>{t('代码备份','Code backups')}</span></button>}
-      <a href="#/achievements" onClick={onClose}><Award size={22}/><span>{t('学习勋章','Achievements')}</span></a>
-      <a href="#/settings" onClick={onClose}><Settings size={21}/><span>{t('设置','Settings')}</span></a>
+      {user?<AppLink href={hostedAppHref(profileHref(user))} onClick={onClose}><UserRound size={21}/><span>{t('个人主页','My profile')}</span></AppLink>:<button type="button" disabled={!backupReady||!onBackup} onClick={()=>{onClose();onBackup?.();}}><Download size={21}/><span>{t('代码备份','Code backups')}</span></button>}
+      <AppLink href="#/achievements" onClick={onClose}><Award size={22}/><span>{t('学习勋章','Achievements')}</span></AppLink>
+      <AppLink href="#/settings" onClick={onClose}><Settings size={21}/><span>{t('设置','Settings')}</span></AppLink>
     </div>
     <div className="account-menu-preferences">
       <div className="account-menu-preference"><span><Globe2 size={16}/>{t('语言','Language')}</span><div className="account-menu-segment" role="group" aria-label={t('界面语言','Interface language')}><button type="button" lang="zh-CN" aria-pressed={locale==='zh'} onClick={()=>setLocale('zh')}>中文</button><button type="button" lang="en" aria-pressed={locale==='en'} onClick={()=>setLocale('en')}>EN</button></div></div>
       <div className="account-menu-preference"><span><Sun size={16}/>{t('外观','Appearance')}</span><div className="account-menu-segment" role="group" aria-label={t('外观','Appearance')}><button type="button" aria-pressed={theme==='light'} disabled={!onTheme} onClick={()=>onTheme?.('light')}><Sun size={14}/>{t('浅色','Light')}</button><button type="button" aria-pressed={theme==='dark'} disabled={!onTheme} onClick={()=>onTheme?.('dark')}><Moon size={14}/>{t('深色','Dark')}</button></div></div>
     </div>
     <div className="account-menu-links">
-      {user&&reportsAvailable&&<a className="account-menu-row" href={hostedAppHref('#/community/reports')} onClick={onClose}><Flag size={16}/><span>{t('我的举报','My reports')}</span><ChevronRight size={14}/></a>}
-      {!loading&&user?.role==='admin'&&(!user.status||user.status==='active')&&(moderationAvailable||adminAvailable)&&<a className="account-menu-row" href={hostedAppHref(adminAvailable?'#/community/admin':'#/community/moderation')} onClick={onClose}><Flag size={16}/><span>{adminAvailable?t('管理员工作台','Administration'):t('社区举报审核','Community reports')}</span><ChevronRight size={14}/></a>}
-      {user&&<a className="account-menu-row" href={hostedAppHref('#/drafts')} onClick={onClose}><FilePenLine size={16}/><span>{t('创作草稿','Writing drafts')}</span><ChevronRight size={14}/></a>}
-      {hostedAppAvailable&&<a className="account-menu-row" href="#/favorites" onClick={onClose}><Bookmark size={16}/><span>{t("收藏与题单","Saved problems & lists")}</span><ChevronRight size={14}/></a>}
-      {user&&savedAvailable&&<a className="account-menu-row" href={hostedAppHref('#/interviews?saved=1&days=all')} onClick={onClose}><Bookmark size={16}/><span>{t('收藏面经','Saved interviews')}</span><ChevronRight size={14}/></a>}
-      {user&&<a className="account-menu-row" href={hostedAppHref('#/account')} onClick={onClose}><ShieldCheck size={16}/><span>{t('账号与隐私','Account & privacy')}</span><ChevronRight size={14}/></a>}
+      {user&&reportsAvailable&&<AppLink className="account-menu-row" href={hostedAppHref('#/community/reports')} onClick={onClose}><Flag size={16}/><span>{t('我的举报','My reports')}</span><ChevronRight size={14}/></AppLink>}
+      {!loading&&user?.role==='admin'&&(!user.status||user.status==='active')&&(moderationAvailable||adminAvailable)&&<AppLink className="account-menu-row" href={hostedAppHref(adminAvailable?'#/community/admin':'#/community/moderation')} onClick={onClose}><Flag size={16}/><span>{adminAvailable?t('管理员工作台','Administration'):t('社区举报审核','Community reports')}</span><ChevronRight size={14}/></AppLink>}
+      {user&&<AppLink className="account-menu-row" href={hostedAppHref('#/drafts')} onClick={onClose}><FilePenLine size={16}/><span>{t('创作草稿','Writing drafts')}</span><ChevronRight size={14}/></AppLink>}
+      {hostedAppAvailable&&<AppLink className="account-menu-row" href="#/favorites" onClick={onClose}><Bookmark size={16}/><span>{t("收藏与题单","Saved problems & lists")}</span><ChevronRight size={14}/></AppLink>}
+      {user&&savedAvailable&&<AppLink className="account-menu-row" href={hostedAppHref('#/interviews?saved=1&days=all')} onClick={onClose}><Bookmark size={16}/><span>{t('收藏面经','Saved interviews')}</span><ChevronRight size={14}/></AppLink>}
+      {user&&<AppLink className="account-menu-row" href={hostedAppHref('#/account')} onClick={onClose}><ShieldCheck size={16}/><span>{t('账号与隐私','Account & privacy')}</span><ChevronRight size={14}/></AppLink>}
       {user&&onBackup&&<button type="button" className="account-menu-row" disabled={!backupReady} onClick={()=>{onClose();onBackup();}}><Download size={16}/><span>{t('代码备份','Code backups')}</span><ChevronRight size={14}/></button>}
     </div>
     {user?<AccountLogout/>:<p className="account-menu-footnote">{t('开始练习无需登录','You can practice without signing in')}</p>}

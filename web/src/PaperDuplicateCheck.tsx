@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {useEffect,useState} from 'react';
 import {ArrowUpRight} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -6,7 +7,7 @@ import type {PoolDuplicate} from './paperPoolTypes';
 
 export function PaperDuplicateNotice({duplicate}:{duplicate:PoolDuplicate}){
   const {t,locale}=useI18n();
-  return <div className="pool-feedback" role="status"><strong>{duplicate.kind==='proposal'?t('这篇论文已有投稿','This paper already has a proposal'):t('这篇论文已收录','This paper is already published')}</strong>{duplicate.kind==='proposal'?<a href={poolHref(duplicate.proposal.id)}>{t('查看已有投稿','View existing proposal')}<ArrowUpRight size={14}/></a>:duplicate.problems.map(problem=><a key={problem.id} href={`#/${problem.id}`}>{locale==='en'?problem.title_en||problem.title:problem.title}<ArrowUpRight size={14}/></a>)}<small>{t('重复投稿不会消耗每日额度。','Duplicates do not use your daily proposal quota.')}</small></div>;
+  return <div className="pool-feedback" role="status"><strong>{duplicate.kind==='proposal'?t('这篇论文已有投稿','This paper already has a proposal'):t('这篇论文已收录','This paper is already published')}</strong>{duplicate.kind==='proposal'?<AppLink href={poolHref(duplicate.proposal.id)}>{t('查看已有投稿','View existing proposal')}<ArrowUpRight size={14}/></AppLink>:duplicate.problems.map(problem=><AppLink key={problem.id} href={`#/${problem.id}`}>{locale==='en'?problem.title_en||problem.title:problem.title}<ArrowUpRight size={14}/></AppLink>)}<small>{t('重复投稿不会消耗每日额度。','Duplicates do not use your daily proposal quota.')}</small></div>;
 }
 
 /** Draft changes cancel old lookups; the POST always checks again before accepting. */

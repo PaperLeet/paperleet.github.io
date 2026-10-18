@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {BookOpen, CheckCircle2, ExternalLink, FileCode2} from 'lucide-react';
 import type {Problem} from './types';
 import type {ProblemStatistics} from './ProblemStats';
@@ -45,17 +46,17 @@ export default function ProblemOverview({problem,prerequisite,returnTo,course,no
         <span>PyTorch</span>
         <span>{problem.estimated_minutes || 25} min</span>
         {problem.parent && (
-          <a
+          <AppLink
             href={prerequisite ? withLibraryContext(prerequisite.number,returnTo) : `#/${problem.parent}`}
           >
             {t("前置题", "Prerequisite")}:{" "}
             {prerequisite?.number || "—"}
-          </a>
+          </AppLink>
         )}
       </div>
       <ProblemStats stats={stats} loading={statsLoading} />
     </div>
-    <a
+    <AppLink
       className="paper-card"
       href={
         problem.paper?.url ||
@@ -78,7 +79,7 @@ export default function ProblemOverview({problem,prerequisite,returnTo,course,no
         </p>
       </div>
       <ExternalLink size={14} />
-    </a>
+    </AppLink>
     {problem.module && (
       <section className="module-scope-card">
         <h3>{t("本模块的目标", "Your implementation goal")}</h3>

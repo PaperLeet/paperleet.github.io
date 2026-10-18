@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import InboxListRefresh from './InboxListRefresh';
 import {inboxListUpdate} from './inboxListUpdate';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
@@ -81,7 +82,7 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
     finally { if (alive.current && version === revision.current) setMore(false); }
   }
   return <>
-    <header className="inbox-panel-heading"><div className="inbox-panel-title"><h2>{t('收件箱', 'Inbox')}</h2>{messages && <a href={messagesHref()}>{t('打开私信', 'Open messages')}</a>}</div>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
+    <header className="inbox-panel-heading"><div className="inbox-panel-title"><h2>{t('收件箱', 'Inbox')}</h2>{messages && <AppLink href={messagesHref()}>{t('打开私信', 'Open messages')}</AppLink>}</div>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
     <div className="inbox-tabs" role="tablist" aria-label={t('消息类型', 'Inbox sections')} onKeyDown={event => {
       if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;
       navigateTabs(event);
@@ -99,10 +100,10 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
         {!readAllAvailable && <button type="button" className="inbox-mark-read" disabled={busy || snapshotLoading || !data.notification_unread_count} onClick={() => void read()}><CheckCheck size={14}/>{busy ? t('正在标记…', 'Marking…') : t('将通知标为已读', 'Mark notifications as read')}</button>}
         {data.notifications.length ? <ul className="inbox-items">{data.notifications.map(item => <li key={item.id}><NotificationRow notification={item} onRead={() => { if (item.unread) void read(item); }} onMarkRead={()=>void read(item)} disabled={busy||readAll.busy||snapshotLoading||more} marking={readingId===item.id}/></li>)}</ul>
           : <div className="inbox-empty"><Bell size={26}/><p>{changed?t('当前列表没有通知','No notifications in this list'):t('还没有通知', 'No notifications yet')}</p><small>{t('回复、点赞和新关注会显示在这里。', 'Replies, likes and new followers will appear here.')}</small></div>}
-      </> : data.conversations.length ? <ul className="inbox-items">{data.conversations.map(item => <li key={item.id}><a className={`inbox-item${item.unread_count ? ' unread' : ''}`} href={messagesHref(item.peer.username)}>
+      </> : data.conversations.length ? <ul className="inbox-items">{data.conversations.map(item => <li key={item.id}><AppLink className={`inbox-item${item.unread_count ? ' unread' : ''}`} href={messagesHref(item.peer.username)}>
         <Avatar user={item.peer} size={36}/><span className="inbox-item-copy"><b>{item.peer.display_name}</b><span className="inbox-message-preview">{item.last_message.sender_id === owner ? t('你：', 'You: ') : ''}{item.last_message.body}</span><DateLabel value={item.last_message.created_at}/></span>
         {item.unread_count > 0 && <span className="inbox-count" aria-label={t(`${item.unread_count} 条未读`, `${item.unread_count} unread`)}>{item.unread_count}</span>}
-      </a></li>)}</ul> : <div className="inbox-empty"><MessageCircle size={26}/><p>{changed?t('当前列表没有私信','No messages in this list'):t('还没有私信', 'No messages yet')}</p><small>{t('可以从对方的个人主页发起私信。', 'Start a conversation from someone’s profile.')}</small></div>}
+      </AppLink></li>)}</ul> : <div className="inbox-empty"><MessageCircle size={26}/><p>{changed?t('当前列表没有私信','No messages in this list'):t('还没有私信', 'No messages yet')}</p><small>{t('可以从对方的个人主页发起私信。', 'Start a conversation from someone’s profile.')}</small></div>}
       {(tab === 'notifications' ? data.notifications_next_before : data.conversations_next_before) && <button type="button" className="inbox-more" disabled={more || busy || readAll.busy || snapshotLoading} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('加载更多', 'Load more')}</button>}
     </div>}
   </>;
@@ -116,9 +117,9 @@ export function NotificationRow({notification: item, onRead,onMarkRead,disabled=
   const action = item.kind === 'like' ? t('赞了你的帖子', 'liked your post') : item.kind === 'follow' ? t('关注了你', 'followed you') : item.kind === 'repost' ? t('转发了你的帖子', 'reposted your post') : t('回复了你', 'replied to you');
   const Icon = item.kind === 'like' ? Heart : item.kind === 'follow' ? UserPlus : item.kind === 'repost' ? Repeat2 : MessageCircle;
   const href = item.post ? communityPostHref(item.post.id, undefined, item.reply_id || undefined) : actor && !actor.anonymous ? profileHref(actor) : '#/community';
-  return <div className="inbox-notification-row"><a id={rowId} href={href} className={`inbox-item${item.unread ? ' unread' : ''}`} onClick={onRead}>
+  return <div className="inbox-notification-row"><AppLink id={rowId} href={href} className={`inbox-item${item.unread ? ' unread' : ''}`} onClick={onRead}>
     <span className={`inbox-event-icon inbox-event-${item.kind}`}><Icon size={18}/></span>
     <span className="inbox-item-copy"><span><b>{people}</b>{' '}{action}</span>{item.post && <strong className="inbox-post-title">{item.post.title}</strong>}{item.preview && item.kind === 'reply' && <span className="inbox-message-preview">{item.preview}</span>}<DateLabel value={item.created_at}/></span>
     {item.unread && <span className="inbox-row-dot" aria-label={t('未读', 'Unread')}/>}
-  </a>{onMarkRead&&<button type="button" className="inbox-row-read" aria-describedby={rowId} aria-disabled={disabled||!item.unread} aria-busy={marking} aria-label={marking?t('正在标记通知已读…','Marking notification read…'):item.unread?t('将此通知标为已读','Mark this notification as read'):t('此通知已读','This notification is read')} title={marking?t('正在标记…','Marking…'):item.unread?t('标为已读','Mark as read'):t('已读','Read')} onClick={()=>{if(!disabled&&item.unread)onMarkRead();}}><span aria-hidden="true">{marking?<span className="spinner"/>:<CheckCheck size={16}/>}</span></button>}</div>;
+  </AppLink>{onMarkRead&&<button type="button" className="inbox-row-read" aria-describedby={rowId} aria-disabled={disabled||!item.unread} aria-busy={marking} aria-label={marking?t('正在标记通知已读…','Marking notification read…'):item.unread?t('将此通知标为已读','Mark this notification as read'):t('此通知已读','This notification is read')} title={marking?t('正在标记…','Marking…'):item.unread?t('标为已读','Mark as read'):t('已读','Read')} onClick={()=>{if(!disabled&&item.unread)onMarkRead();}}><span aria-hidden="true">{marking?<span className="spinner"/>:<CheckCheck size={16}/>}</span></button>}</div>;
 }

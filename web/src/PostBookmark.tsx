@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useEffect, useRef, useState } from 'react';
 import { Bookmark } from 'lucide-react';
 import { useI18n } from './i18n';
@@ -58,7 +59,7 @@ export default function PostBookmark({postId,owner,bookmarked,enabled,returnTo,d
     }
   }
   if(hidden||!enabled||typeof bookmarked!=='boolean')return null;
-  if(!owner)return <a className="post-bookmark-signin" href={signInHref(returnTo)}><Bookmark size={16}/>{t('登录收藏','Sign in to save')}</a>;
+  if(!owner)return <AppLink className="post-bookmark-signin" href={signInHref(returnTo)}><Bookmark size={16}/>{t('登录收藏','Sign in to save')}</AppLink>;
   return <div className="post-bookmark" aria-busy={busy} ref={root} onBlur={event=>{
     if(event.relatedTarget&&!event.currentTarget.contains(event.relatedTarget as Node))focusRetained.current=false;
   }}>

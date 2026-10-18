@@ -1,3 +1,4 @@
+import {appLocation, routeHash} from './appLocation';
 import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import {communityFeedHref,communityPostHref,communityPostReturn,communityReplyTarget,communityContinuation,readCommunityFeed} from './communityNavigation';
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
@@ -100,9 +101,9 @@ const isDestination=(route:string,row:ReadingReturn)=>isPost(route,row)||!!readi
 function navigation(event:HashChangeEvent){
  const row=currentReadingReturn();if(!row)return;
  try{
-  const before=new URL(event.oldURL).hash,after=new URL(event.newURL).hash;
+  const before=routeHash(event.oldURL),after=routeHash(event.newURL);
   // A queued hashchange can arrive after a newer navigation or history replacement.
-  if(after!==location.hash)return;
+  if(after!==appLocation.hash)return;
   if(isDestination(after,row))pending={...row,phase:'reading'};
   else if(row.phase==='reading'&&isDestination(before,row)&&readingListHref(after)===row.href)pending={...row,phase:'returning'};
   else{discardReadingReturn(row.id);return;}
@@ -125,8 +126,8 @@ export function rememberReadingReturn(value:Omit<ReadingReturn,'version'|'id'|'a
 export function resumeReadingOrigin(owner:string|undefined,post:string,href:string|undefined){
  keepReadingOwner(owner);
  const row=currentReadingReturn();if(!owner||!row)return;
- if(sourcePostPracticeTarget(location.hash,row.post))return;
- if(row.post!==post||row.href!==href||!isPost(location.hash,row)){discardReadingReturn(row.id);return;}
+ if(sourcePostPracticeTarget(appLocation.hash,row.post))return;
+ if(row.post!==post||row.href!==href||!isPost(appLocation.hash,row)){discardReadingReturn(row.id);return;}
  if(row.phase!=='reading'){pending={...row,phase:'reading'};persist();notify();}
  watch();
 }
@@ -136,8 +137,8 @@ export function resumePracticeReadingOrigin(owner:string|undefined,problem:{id:s
  const row=currentReadingReturn();if(!owner||!row||!problem||!href)return;
  // An outgoing workspace's passive effect must not erase a newer route or return.
  const sourcePost=href===communityPostHref(row.post),targetFor=(route:string)=>sourcePost?sourcePostPracticeTarget(route,row.post):readingPracticeTarget(route,href);
- if(expectedRoute&&(!targetFor(expectedRoute)||targetFor(expectedRoute)!==targetFor(location.hash)))return;
- const target=targetFor(location.hash);
+ if(expectedRoute&&(!targetFor(expectedRoute)||targetFor(expectedRoute)!==targetFor(appLocation.hash)))return;
+ const target=targetFor(appLocation.hash);
  if(!sourcePost&&row.href!==href||!moduleId.test(problem.id)||target!==problem.id&&target!==String(problem.number)){discardReadingReturn(row.id);return;}
  if(row.phase!=='reading'){pending={...row,phase:'reading'};persist();notify();}
  watch();
@@ -149,7 +150,7 @@ export function replayPracticeReadingOrigin(owner:string,href:string,expected:st
  let captured:unknown;try{captured=JSON.parse(snapshot);}catch{return;}
  if(!valid(captured)||JSON.stringify(row)!==JSON.stringify(captured))return;
  const source=href===communityPostHref(row.post),target=(route:string)=>source?sourcePostPracticeTarget(route,row.post):readingPracticeTarget(route,href);
- if(!source&&row.href!==href||!target(origin)||target(expected)!==target(origin)||events.at(-1)?.after!==location.hash)return;
+ if(!source&&row.href!==href||!target(origin)||target(expected)!==target(origin)||events.at(-1)?.after!==appLocation.hash)return;
  let previous=origin,phase:ReadingReturn['phase']='reading',retired=false;
  for(const event of events){
   if(typeof event.before!=='string'||typeof event.after!=='string'||event.before.length>8192||event.after.length>8192||event.before!==previous)return;

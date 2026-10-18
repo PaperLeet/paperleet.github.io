@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useI18n } from './i18n';
 import type { AdmissionWait } from './queueAdmission';
 import type { ReactNode } from 'react';
@@ -13,7 +14,7 @@ export function QueueAdmissionFallback({waiting,changed,href,onStop,onDownload,c
     <div className="queue-admission-actions">
       <button type="button" disabled={waiting.attempting} onClick={onStop}>{t('停止等待','Stop waiting')}</button>
       <button type="button" onClick={onDownload}>{t('下载本次提交代码','Download captured code')}</button>
-      {href&&<a href={href}>{t('查看等待中的题目','View waiting module')}</a>}
+      {href&&<AppLink href={href}>{t('查看等待中的题目','View waiting module')}</AppLink>}
     </div>
   </section>;
 }

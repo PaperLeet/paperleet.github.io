@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Award, LockKeyhole, Pin } from 'lucide-react';
 import { useI18n } from './i18n';
@@ -44,7 +45,7 @@ export function ProfileAchievementShowcase({data,error,isSelf,isPublic,onRetry}:
     return badge && award ? [{...badge,...award,unlocked:true}] : [];
   }) : [];
   return <section className="social-panel profile-achievements" aria-labelledby="profile-achievements-title" aria-busy={!data && !error}>
-    <header><div><h2 id="profile-achievements-title"><Award size={18} aria-hidden="true" />{t('学习勋章','Achievements')}{data?.visible && <span>{earned.length}</span>}</h2></div>{isSelf && <a href="#/achievements?from=profile">{t('管理置顶','Manage featured')}<ArrowRight size={13} aria-hidden="true" /></a>}</header>
+    <header><div><h2 id="profile-achievements-title"><Award size={18} aria-hidden="true" />{t('学习勋章','Achievements')}{data?.visible && <span>{earned.length}</span>}</h2></div>{isSelf && <AppLink href="#/achievements?from=profile">{t('管理置顶','Manage featured')}<ArrowRight size={13} aria-hidden="true" /></AppLink>}</header>
     {error ? <p className="profile-achievement-empty" role="alert">{t('暂时无法加载勋章。','Could not load achievements.')} <button type="button" className="text-button" onClick={onRetry}>{t('重试','Retry')}</button></p> : !data ? <p className="profile-achievement-empty" role="status">{t('正在同步勋章…','Syncing achievements…')}</p> : !data.visible ? <p className="profile-achievement-empty"><LockKeyhole size={15} aria-hidden="true" />{t('学习勋章仅本人可见。','Learning achievements are private.')}</p> : <>
       {isSelf && !isPublic && <p className="profile-achievement-private"><LockKeyhole size={12} aria-hidden="true" />{t('仅自己可见 · 跟随学习进度隐私设置','Only visible to you · follows learning progress privacy')}</p>}
       {pinned.length ? <ol className="profile-featured-medals" aria-label={t('置顶勋章','Featured achievements')}>{pinned.map(badge => <li key={badge.id} data-tier={badge.tier}><AchievementMedal badge={badge}/><div><span><Pin size={10} aria-hidden="true" />{t('置顶勋章','FEATURED')}</span><h3>{t(...badge.title)}</h3><p>{t(...badge.description)}</p><small>{t('解锁于','Unlocked')} <DateLabel value={badge.earned_at}/></small></div></li>)}</ol> : <p className="profile-achievement-empty">{earned.length ? (isSelf ? t('还没有置顶勋章，挑几枚代表你的研究旅程。','Choose a few achievements to represent your research journey.') : t('尚未设置置顶勋章。','No featured achievements yet.')) : (isSelf ? t('每一次完整通过，都会让第一枚勋章更近一点。','Every complete pass brings your first achievement closer.') : t('新的研究旅程，正等待第一枚勋章。','A new research journey awaits its first achievement.'))}</p>}

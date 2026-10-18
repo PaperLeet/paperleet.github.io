@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import AffiliationVerification from "./AffiliationVerification";
 import AffiliationBadge from "./AffiliationBadge";
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
@@ -36,11 +38,11 @@ export default function Account({ returnTo }: { returnTo?: string }) {
   const { user, loading, capabilities, error, refresh } = useAccount();
   const { t } = useI18n();
   useEffect(() => {
-    if (user && !loading && returnTo) location.hash = returnTo;
+    if (user && !loading && returnTo) appLocation.hash = returnTo;
   }, [user?.id, loading, returnTo]);
   return (
     <main className="social-page account-page">
-      <a
+      <AppLink
         className="social-back"
         href={returnTo || (user ? profileHref(user) : "#/community")}
       >
@@ -48,7 +50,7 @@ export default function Account({ returnTo }: { returnTo?: string }) {
         {returnTo ? t("返回刚才的页面", "Back to where you left off") : user
           ? t("返回个人主页", "Back to profile")
           : t("返回社区", "Back to community")}
-      </a>
+      </AppLink>
       {returnTo && !user && <p className="social-description">{t("登录成功后将返回刚才的页面。", "After signing in, you will return to where you left off.")}</p>}
       {loading ? (
         <div className="social-loading">
@@ -69,7 +71,7 @@ export default function Account({ returnTo }: { returnTo?: string }) {
       ) : capabilities?.auth_mode === "oauth" ? (
         <OrganizationSignIn providers={capabilities.oauth_providers || []} returnTo={returnTo}
           emailLoginAvailable={capabilities.email_login_available}
-          loginError={typeof location === "undefined" ? undefined : organizationLoginError(decodeProblemHash(location.hash))} />
+          loginError={typeof location === "undefined" ? undefined : organizationLoginError(decodeProblemHash(appLocation.hash))} />
       ) : (
         <SignIn enabled={capabilities?.auth_available === true} workEmailRegistration={capabilities?.work_email_registration === true} />
       )}
@@ -691,7 +693,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       if (!active.current) return;
       if (data.user.id !== user.id) throw new Error(t("账号已发生变化，请重新打开设置后再保存。", "Your account changed. Reopen settings before saving."));
       setUser(data.user);
-      location.hash = profileHref(data.user);
+      appLocation.hash = profileHref(data.user);
     } catch (e) {
       if (!active.current) return;
       if (e instanceof SocialError && e.profileEditPolicy) setPolicy(e.profileEditPolicy);
@@ -717,13 +719,13 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
       <div className="social-page-heading">
         <div>
           <h1>{t("个人资料与隐私", "Profile & privacy")}</h1>
-          <div className="profile-workspace-links"><a className="text-button profile-workspace-settings" href="#/settings">{t('工作区设置与代码备份', 'Workspace settings & code backup')}<ArrowRight size={14} aria-hidden="true" /></a>
-          <a className="text-button profile-workspace-settings" href="#/achievements">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></a></div>
+          <div className="profile-workspace-links"><AppLink className="text-button profile-workspace-settings" href="#/settings">{t('工作区设置与代码备份', 'Workspace settings & code backup')}<ArrowRight size={14} aria-hidden="true" /></AppLink>
+          <AppLink className="text-button profile-workspace-settings" href="#/achievements">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></AppLink></div>
         </div>
-        <a className="button subtle" href={profileHref(user)}>
+        <AppLink className="button subtle" href={profileHref(user)}>
           {t("查看公开主页", "View public profile")}
           <ArrowRight size={14} />
-        </a>
+        </AppLink>
       </div>
       <div className="account-grid">
         <form

@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {createContext,useContext,useLayoutEffect,useMemo,useState,type ReactNode} from 'react';
 import {unified} from 'unified';
 import remarkParse from 'remark-parse';
@@ -28,7 +29,7 @@ export default function PracticeMentions({topics=[],papers=[],body,returnTo,chil
  useLayoutEffect(()=>{if(fromReturn)setView({expanded:true,revealed:revealKey});},[fromReturn,revealKey]);
  const context=useMemo(()=>({index,returnTo}),[index,returnTo]);
  return <Context.Provider value={context}>{children}{matches.length>0&&<div className="practice-mentions" aria-label={t('文中识别到的题目','Exercises mentioned in this article')}>
-   <span>{t('文中题目','Mentioned exercises')}</span>{(expanded?matches:matches.slice(0,5)).map(topic=><a key={topic.id} href={withLibraryContext(topic.id,returnTo)} data-reading-link="practice" data-reading-practice={topic.id}>{topic.number?`#${topic.number} `:''}{locale==='en'?topic.title_en||topic.title:topic.title}</a>)}
+   <span>{t('文中题目','Mentioned exercises')}</span>{(expanded?matches:matches.slice(0,5)).map(topic=><AppLink key={topic.id} href={withLibraryContext(topic.id,returnTo)} data-reading-link="practice" data-reading-practice={topic.id}>{topic.number?`#${topic.number} `:''}{locale==='en'?topic.title_en||topic.title:topic.title}</AppLink>)}
    {matches.length>5&&<button type="button" className="text-button" aria-expanded={expanded} onClick={()=>setView({expanded:!expanded,revealed:revealKey||view.revealed})}>{expanded?t('收起','Show less'):t(`展开其余 ${matches.length-5} 道`,`Show ${matches.length-5} more`)}</button>}
  </div>}</Context.Provider>;
 }

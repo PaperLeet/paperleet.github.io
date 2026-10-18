@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CommunityMarkdown from './CommunityMarkdown';
 import MarkdownEditor from './MarkdownEditor';
@@ -72,7 +74,7 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
     <div className="panel-title">{compact?<h3>{t('编辑评论','Edit comment')}</h3>:<h2>{t('编辑回复','Edit reply')}</h2>}<button type="button" disabled={busy} onClick={onClose}>{t('关闭编辑','Close editor')}</button></div>
     {error&&<SocialNotice error={error}/>}
     {notice&&<p role="status">{notice}</p>}
-    {accountUnconfirmed&&<p role="status">{t('账号尚未确认，修改草稿已保留。','Your account is unconfirmed. Your edit draft is kept.')} <button type="button" className="text-button" disabled={busy||accountLoading} onClick={()=>{void refreshAccount().then(()=>{if(mounted.current)setAccountUnconfirmed(false);}).catch(()=>{});}}>{t('刷新账号','Refresh account')}</button><a href={signInHref(typeof location==='undefined'?'community':location.hash)}>{t('重新登录','Sign in again')}</a></p>}
+    {accountUnconfirmed&&<p role="status">{t('账号尚未确认，修改草稿已保留。','Your account is unconfirmed. Your edit draft is kept.')} <button type="button" className="text-button" disabled={busy||accountLoading} onClick={()=>{void refreshAccount().then(()=>{if(mounted.current)setAccountUnconfirmed(false);}).catch(()=>{});}}>{t('刷新账号','Refresh account')}</button><AppLink href={signInHref(typeof location==='undefined'?'community':appLocation.hash)}>{t('重新登录','Sign in again')}</AppLink></p>}
     <PublishingAffiliationNotice/>
     <p className="community-draft-status" role="status">{saved===false
       ?t('此标签页无法保存修改草稿，关闭或离开前请复制内容。','This tab cannot save your edit draft. Copy the text before closing or leaving.')

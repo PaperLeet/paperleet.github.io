@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {useId} from 'react';
 import {ChevronDown} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -16,7 +17,7 @@ export default function InterviewCompanySources({companies,problemId,name,filter
  const links=(rows:CompanySource[])=>rows.map(company=>{
   const label=interviewLabel('companies',company.company,locale==='en');
   const title=t(`${company.reports} 篇公开面经关联此知识点，来自 ${company.contributors} 位分享者`,`${company.reports} public ${company.reports===1?'report links':'reports link'} this concept, from ${company.contributors} ${company.contributors===1?'contributor':'contributors'}`);
-  return <a key={company.company} className="interview-company-source" href={interviewHref({...filters,view:'reports',company:company.company,concept:problemId,q:'',page:1,saved:false})} title={title} aria-label={t(`阅读${label}关于${name||'此知识点'}的 ${company.reports} 篇来源面经，来自 ${company.contributors} 位分享者`,`Read ${company.reports} ${label} source ${company.reports===1?'report':'reports'} about ${name||'this concept'}, from ${company.contributors} ${company.contributors===1?'contributor':'contributors'}`)}><OrganizationLogo id={company.company} size={16}/><span>{label}</span><small>{company.reports}</small></a>;
+  return <AppLink key={company.company} className="interview-company-source" href={interviewHref({...filters,view:'reports',company:company.company,concept:problemId,q:'',page:1,saved:false})} title={title} aria-label={t(`阅读${label}关于${name||'此知识点'}的 ${company.reports} 篇来源面经，来自 ${company.contributors} 位分享者`,`Read ${company.reports} ${label} source ${company.reports===1?'report':'reports'} about ${name||'this concept'}, from ${company.contributors} ${company.contributors===1?'contributor':'contributors'}`)}><OrganizationLogo id={company.company} size={16}/><span>{label}</span><small>{company.reports}</small></AppLink>;
  });
  return <div className="interview-company-tags company-source-list" role="group" aria-label={name?t(`${name}的公司来源`,`Company sources for ${name}`):t('此知识点的公司来源','Company sources for this concept')}>
   {links(sources.slice(0,3))}

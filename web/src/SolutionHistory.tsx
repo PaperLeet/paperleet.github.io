@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "./apiClient";
 import { useI18n } from "./i18n";
@@ -77,7 +78,7 @@ function HistoryEntry({run,scope}:{run:SolutionRun;scope:string}) {
     {opened&&<div className="solution-history-source">
       {run.report.error&&<p className="solution-history-run-error">{run.report.error}</p>}
       <SubmittedSource scope={JSON.stringify([scope,run.id])} code={run.code}>
-        {/^[a-f0-9]{32}$/.test(run.id)&&<a href={`#/submission/${run.id}`}>{t('查看结果','View result')}</a>}
+        {/^[a-f0-9]{32}$/.test(run.id)&&<AppLink href={`#/submission/${run.id}`}>{t('查看结果','View result')}</AppLink>}
       </SubmittedSource>
     </div>}
   </details></li>;

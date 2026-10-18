@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import type { ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -40,9 +41,9 @@ export function Prose({
       );
     if (href && /^https?:/.test(href))
       return (
-        <a href={href} target="_blank" rel="noreferrer">
+        <AppLink href={href} target="_blank" rel="noreferrer">
           {children}
-        </a>
+        </AppLink>
       );
     if (href?.includes("README.md") && problemId) {
       const resolved = new URL(
@@ -52,9 +53,9 @@ export function Prose({
       const match = /\/problems\/([a-z_]+)\/([^/]+)\/README(?:\.en)?\.md$/.exec(
         resolved,
       );
-      if (match) return <a href={`#/${match[1]}/${match[2]}`}>{children}</a>;
+      if (match) return <AppLink href={`#/${match[1]}/${match[2]}`}>{children}</AppLink>;
     }
-    return <a href={href}>{children}</a>;
+    return <AppLink href={href}>{children}</AppLink>;
   }
   return (
     <div className="prose" onClick={event => {

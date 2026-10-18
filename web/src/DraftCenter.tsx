@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import {useLayoutEffect,useRef,useState} from 'react';
 import {ArrowRight,BookOpen,Code2,FilePenLine,RefreshCw,Trash2} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -20,9 +22,9 @@ const tabStorage=()=>{try{return window.sessionStorage as InventoryStorage;}catc
 type Props={route:string;topics:ProblemTopic[];catalogLoading?:boolean;catalogError?:string;onRetryCatalog?:()=>void};
 export default function DraftCenter(props:Props){
  const {user,loading}=useAccount(),{t}=useI18n();
- if(props.route!=='drafts')return <main className="social-page draft-center"><h1>{t('草稿链接无效','Invalid draft link')}</h1><a className="button" href="#/drafts">{t('打开创作草稿','Open writing drafts')}</a></main>;
+ if(props.route!=='drafts')return <main className="social-page draft-center"><h1>{t('草稿链接无效','Invalid draft link')}</h1><AppLink className="button" href="#/drafts">{t('打开创作草稿','Open writing drafts')}</AppLink></main>;
  if(loading)return <main className="social-page draft-center"><p role="status">{t('正在确认账号…','Checking your account…')}</p></main>;
- if(!user)return <main className="social-page draft-center"><FilePenLine size={30} aria-hidden="true"/><h1>{t('登录后继续创作','Sign in to keep writing')}</h1><p>{t('帖子、题解和面经草稿按账号保存在当前标签页。','Post, solution and interview drafts stay in this tab, separately for each account.')}</p><a className="button" href={hostedAppHref(signInHref('drafts'))}>{t('登录查看草稿','Sign in to view drafts')}</a></main>;
+ if(!user)return <main className="social-page draft-center"><FilePenLine size={30} aria-hidden="true"/><h1>{t('登录后继续创作','Sign in to keep writing')}</h1><p>{t('帖子、题解和面经草稿按账号保存在当前标签页。','Post, solution and interview drafts stay in this tab, separately for each account.')}</p><AppLink className="button" href={hostedAppHref(signInHref('drafts'))}>{t('登录查看草稿','Sign in to view drafts')}</AppLink></main>;
  return <OwnedDrafts key={user.id} {...props} owner={user.id}/>;
 }
 
@@ -33,7 +35,7 @@ function OwnedDrafts({owner,topics,catalogLoading,catalogError,onRetryCatalog}:P
  const [editing,setEditing]=useState<DraftEntry>(),[confirm,setConfirm]=useState<DraftEntry>(),[notice,setNotice]=useState('');
  const writing=useWritingDisclosure(owner+':draft-center');
  const focus=useRef<{href:string;opener:HTMLElement;target?:string;cancel?:boolean;discard?:boolean}>(undefined),confirmCancel=useRef<HTMLButtonElement>(null);
- const here=()=>!loading&&actor.current===owner&&!!root.current?.isConnected&&location.hash==='#/drafts';
+ const here=()=>!loading&&actor.current===owner&&!!root.current?.isConnected&&appLocation.hash==='#/drafts';
  const refresh=()=>{if(here()){setInventory(readDraftInventory(tabStorage(),owner));setLimit(20);}};
  const label=(value:DraftKind)=>value==='solution'?t('题解','Solution'):value==='interview'?t('面经','Interview'):t('帖子','Post');
  const searched=inventory.rows.filter(row=>matchesInventoryDraft(row,query));
@@ -81,7 +83,7 @@ function OwnedDrafts({owner,topics,catalogLoading,catalogError,onRetryCatalog}:P
   {notice&&<p className="draft-center-notice" role="status">{notice}</p>}
   {editing&&writing.expanded&&<div className="draft-center-editor">
    {incompleteTopic&&<p className="draft-center-warning" role="status">{catalogLoading?t('正在加载题目信息，草稿仍可编辑。','Loading module details. You can keep editing the draft.'):t('题目信息暂不可用，草稿仍可编辑；恢复题库后可发布新内容。','Module details are unavailable. Keep editing; new publication is available when the catalog recovers.')} {catalogError&&onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</p>}
-   {editing.kind==='interview'?<InterviewComposer key={owner+':'+editing.id} owner={owner} company={editing.interview?.interview.company||''} problems={topics.filter(topic=>!topic.retired&&!!topic.number).map(topic=>({id:topic.id,number:topic.number!,title:topic.title,...(topic.title_en?{translations:{en:{title:topic.title_en,readme:'',notes:''}}}:{})}))} panelProps={writing.panelProps} onClose={closeEditor} onPublished={post=>{if(here())location.hash=communityPostHref(post.id);}}/>:<DraftPostComposer key={owner+':'+editing.id} owner={owner} scope={editing.scope} topic={editingTopic} topics={topics} category={editing.post?.category||String(editing.pending?.receipt.payload.category||'papers')} solution={editing.kind==='solution'} papersAvailable={capabilities?.community_papers===true} publicationBlocked={incompleteTopic} returnTo={editing.kind==='solution'?'#/community?solutions=1':'#/community'} panelProps={writing.panelProps} onClose={closeEditor} onDraftChange={()=>{}}/>}
+   {editing.kind==='interview'?<InterviewComposer key={owner+':'+editing.id} owner={owner} company={editing.interview?.interview.company||''} problems={topics.filter(topic=>!topic.retired&&!!topic.number).map(topic=>({id:topic.id,number:topic.number!,title:topic.title,...(topic.title_en?{translations:{en:{title:topic.title_en,readme:'',notes:''}}}:{})}))} panelProps={writing.panelProps} onClose={closeEditor} onPublished={post=>{if(here())appLocation.hash=communityPostHref(post.id);}}/>:<DraftPostComposer key={owner+':'+editing.id} owner={owner} scope={editing.scope} topic={editingTopic} topics={topics} category={editing.post?.category||String(editing.pending?.receipt.payload.category||'papers')} solution={editing.kind==='solution'} papersAvailable={capabilities?.community_papers===true} publicationBlocked={incompleteTopic} returnTo={editing.kind==='solution'?'#/community?solutions=1':'#/community'} panelProps={writing.panelProps} onClose={closeEditor} onDraftChange={()=>{}}/>}
   </div>}
   <div className="draft-center-list">
    {shown.map(row=><article key={row.id} className="draft-center-card" data-draft-id={row.id}>
@@ -91,7 +93,7 @@ function OwnedDrafts({owner,topics,catalogLoading,catalogError,onRetryCatalog}:P
     {confirm?.id===row.id&&<div className="draft-center-confirm" role="alertdialog" aria-label={t('确认丢弃草稿','Confirm discarding draft')}><p>{t('丢弃这份未发布的草稿？这会移除当前标签页保存的内容。','Discard this unpublished draft? This removes the copy saved in this tab.')}</p><button type="button" className="button subtle" onClick={event=>remove(confirm,event.currentTarget)}>{t('确认丢弃','Discard draft')}</button><button ref={confirmCancel} type="button" className="text-button" onClick={event=>{focus.current={opener:event.currentTarget,href:location.href,target:row.id,discard:true};setConfirm(undefined);}}>{t('保留草稿','Keep draft')}</button></div>}
    </article>)}
   </div>
-  {!shown.length&&!inventory.failed&&<section className="draft-center-empty"><FilePenLine size={30} aria-hidden="true"/><h2>{query||kind!=='all'?t('没有匹配的草稿','No matching drafts'):t('从一个想法开始','Start with an idea')}</h2><p>{query||kind!=='all'?t('试试其他关键词，或显示全部类型。','Try another search or show all writing types.'):t('在社区写帖子、分享题解或记录面经，未发布的内容可以在这里继续。','Start a community post, solution or interview. Return here to continue unpublished work.')}</p>{query||kind!=='all'?<button type="button" className="button subtle" onClick={()=>{controls.current?.focus({preventScroll:true});setQuery('');setKind('all');setLimit(20);}}>{t('显示全部草稿','Show all drafts')}</button>:<div><a className="button subtle" href="#/community">{t('去社区写一篇','Write in the community')}</a><a className="button subtle" href="#/interviews">{t('分享面经','Share an interview')}</a></div>}</section>}
+  {!shown.length&&!inventory.failed&&<section className="draft-center-empty"><FilePenLine size={30} aria-hidden="true"/><h2>{query||kind!=='all'?t('没有匹配的草稿','No matching drafts'):t('从一个想法开始','Start with an idea')}</h2><p>{query||kind!=='all'?t('试试其他关键词，或显示全部类型。','Try another search or show all writing types.'):t('在社区写帖子、分享题解或记录面经，未发布的内容可以在这里继续。','Start a community post, solution or interview. Return here to continue unpublished work.')}</p>{query||kind!=='all'?<button type="button" className="button subtle" onClick={()=>{controls.current?.focus({preventScroll:true});setQuery('');setKind('all');setLimit(20);}}>{t('显示全部草稿','Show all drafts')}</button>:<div><AppLink className="button subtle" href="#/community">{t('去社区写一篇','Write in the community')}</AppLink><AppLink className="button subtle" href="#/interviews">{t('分享面经','Share an interview')}</AppLink></div>}</section>}
   {filtered.length>shown.length&&<button type="button" className="button subtle draft-center-more" onClick={event=>{focus.current={opener:event.currentTarget,href:location.href,target:filtered[shown.length].id};setLimit(value=>value+20);}}>{t('再显示 20 份','Show 20 more')}</button>}
  </main>;
 }

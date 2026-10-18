@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, BookOpen, CheckCircle2, Code2, FlaskConical, LoaderCircle, MessageSquare, Play, RefreshCw, Send, ThumbsUp } from 'lucide-react';
 import { useI18n } from './i18n';
@@ -29,7 +31,7 @@ export default function PaperPool() {
 
 function PoolWorkspace({owner}: {owner?: string}) {
   const {t, locale} = useI18n();
-  const [route, setRoute] = useState(() => poolRoute(location.hash));
+  const [route, setRoute] = useState(() => poolRoute(appLocation.hash));
   const [data, setData] = useState<PoolList>();
   const [error, setError] = useState('');
   const [revision, setRevision] = useState(0);
@@ -37,7 +39,7 @@ function PoolWorkspace({owner}: {owner?: string}) {
   const [page, setPage] = useState(0), [loadedPage, setLoadedPage] = useState(0);
   const listWorking = useRef(false);
   useEffect(() => {
-    const navigate = () => setRoute(poolRoute(location.hash));
+    const navigate = () => setRoute(poolRoute(appLocation.hash));
     window.addEventListener('hashchange', navigate);
     return () => window.removeEventListener('hashchange', navigate);
   }, []);
@@ -59,9 +61,9 @@ function PoolWorkspace({owner}: {owner?: string}) {
     <header className="pool-page-header">
       <h1>{route.id || route.pool ? t('候选题', 'Problem pool') : t('提交论文', 'Submit paper')}</h1>
       <nav className="pool-tabs" aria-label={t('论文投稿导航', 'Paper submission navigation')}>
-        <a href="#/paper-registry"><BookOpen size={15}/>{t('论文库','Paper registry')}</a>
-        <a href="#/submit" aria-current={!route.id && !route.pool ? 'page' : undefined}><Send size={15} />{t('提交论文', 'Submit paper')}</a>
-        <a href={poolHref()} aria-current={route.id || route.pool ? 'page' : undefined}><FlaskConical size={16} />{t('候选题', 'Problem pool')}</a>
+        <AppLink href="#/paper-registry"><BookOpen size={15}/>{t('论文库','Paper registry')}</AppLink>
+        <AppLink href="#/submit" aria-current={!route.id && !route.pool ? 'page' : undefined}><Send size={15} />{t('提交论文', 'Submit paper')}</AppLink>
+        <AppLink href={poolHref()} aria-current={route.id || route.pool ? 'page' : undefined}><FlaskConical size={16} />{t('候选题', 'Problem pool')}</AppLink>
       </nav>
     </header>
     {route.id ? <PoolDetail key={route.id} id={route.id} owner={owner} capabilities={data?.capabilities} onChanged={refresh} /> : <>
@@ -70,11 +72,11 @@ function PoolWorkspace({owner}: {owner?: string}) {
       <section className="pool-list-section" aria-labelledby="pool-list-title">
         <div className="pool-section-heading"><h2 id="pool-list-title">{route.pool ? t('公开投稿与试做', 'Public proposals & trials') : t('最近的候选题', 'Recent candidates')}</h2>
           <button className="icon-button" type="button" onClick={refresh} disabled={loading} aria-label={t('刷新候选题', 'Refresh pool')}><RefreshCw size={16} /></button></div>
-        {loading && (!data || loadedPage !== page) ? <div className="social-loading" role="status"><span className="spinner" />{t('加载中…', 'Loading…')}</div> : !items.length && !error ? <div className="pool-empty"><BookOpen size={25} /><p>{t('暂时没有候选题。', 'No candidates yet.')}</p></div> : <div className="pool-card-list">{items.map(item => <a className="pool-card" href={poolHref(item.id)} key={item.id}>
+        {loading && (!data || loadedPage !== page) ? <div className="social-loading" role="status"><span className="spinner" />{t('加载中…', 'Loading…')}</div> : !items.length && !error ? <div className="pool-empty"><BookOpen size={25} /><p>{t('暂时没有候选题。', 'No candidates yet.')}</p></div> : <div className="pool-card-list">{items.map(item => <AppLink className="pool-card" href={poolHref(item.id)} key={item.id}>
           <div className="pool-card-main"><PoolStatus status={item.status} /><h3>{item.problem ? locale === 'en' ? item.problem.title_en || item.problem.title : item.problem.title : `arXiv:${item.arxiv_id}`}</h3>
             <div className="pool-card-meta"><span>arXiv:{item.arxiv_id}</span>{item.version && <span>v{item.version}</span>}{item.author && <span>{item.author.display_name}</span>}</div></div>
           <div className="pool-card-votes"><span><ThumbsUp size={14} />{item.review_summary.approve}</span><span><MessageSquare size={14} />{item.review_summary.needs_changes}</span><ArrowUpRight size={17} /></div>
-        </a>)}</div>}
+        </AppLink>)}</div>}
         {(total > 20 || page > 0) && <nav className="pool-pagination" aria-label={t('候选题分页', 'Candidate pages')}><button className="button subtle" disabled={loading || page === 0} onClick={() => changePage(page - 1)}>{t('上一页', 'Previous page')}</button><span aria-live="polite">{loadedPage === page && items.length > 0 ? `${page * 20 + 1}–${page * 20 + items.length} / ${total}` : t(`第 ${page + 1} 页`, `Page ${page + 1}`)}</span><button className="button subtle" disabled={loading || (page + 1) * 20 >= total} onClick={() => changePage(page + 1)}>{t('下一页', 'Next page')}</button></nav>}
       </section>
     </>}
@@ -128,8 +130,8 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
       <small className="pool-muted">{t('论文链接与出题方向会公开展示，请勿填写私人信息。', 'Paper links and learning preferences are public. Do not include private information.')}</small>
       {error && <p className="pool-error" role="alert">{error}</p>}
       {duplicate && <PaperDuplicateNotice duplicate={duplicate}/>}
-      {saved && <div className="pool-feedback" role="status"><strong>{t('论文已提交', 'Paper submitted')}</strong><a href={poolHref(saved.id)}>{t('查看处理进度', 'View progress')}<ArrowUpRight size={14} /></a></div>}
-      {!owner ? <a className="button" href={signInHref('submit')}>{t('登录后投稿', 'Sign in to submit')}</a> : <button className="button" type="submit" disabled={busy || !capabilities?.can_submit}>{busy ? <LoaderCircle size={15} className="spin" /> : <Send size={15} />}{busy ? t('正在提交…', 'Submitting…') : t('提交论文', 'Submit paper')}</button>}
+      {saved && <div className="pool-feedback" role="status"><strong>{t('论文已提交', 'Paper submitted')}</strong><AppLink href={poolHref(saved.id)}>{t('查看处理进度', 'View progress')}<ArrowUpRight size={14} /></AppLink></div>}
+      {!owner ? <AppLink className="button" href={signInHref('submit')}>{t('登录后投稿', 'Sign in to submit')}</AppLink> : <button className="button" type="submit" disabled={busy || !capabilities?.can_submit}>{busy ? <LoaderCircle size={15} className="spin" /> : <Send size={15} />}{busy ? t('正在提交…', 'Submitting…') : t('提交论文', 'Submit paper')}</button>}
       {owner && capabilities && !capabilities.can_submit && <p className="pool-muted">{capabilities.reason || t('请先验证学校或公司的邮箱。', 'Verify your school or company email to submit.')}</p>}
       {owner && !!(draft.paperUrl || draft.focus) && <small role="status" className="pool-muted">{stored ? t('草稿已保存在此浏览器标签页。', 'Draft saved in this browser tab.') : t('草稿暂时无法保存，请保留此页。', 'Draft storage is unavailable. Keep this page open.')}</small>}
       <PublishingRules action="paper" />
@@ -188,12 +190,12 @@ function PoolDetail({id, owner, capabilities, onChanged}: {id: string; owner?: s
   const title = proposal?.problem ? locale === 'en' ? proposal.problem.title_en || proposal.problem.title : proposal.problem.title : proposal ? `arXiv:${proposal.arxiv_id}` : t('候选题', 'Candidate');
   const paperUrl = proposal && arxivPaperUrl(proposal.arxiv_url);
   return <section className="pool-detail">
-    <div className="pool-detail-top"><a className="social-back" href={poolHref()}><ArrowLeft size={14} />{t('返回候选题', 'Back to pool')}</a><button className="icon-button" onClick={() => setRevision(value => value + 1)} disabled={loading} aria-label={t('刷新当前候选题', 'Refresh candidate')}><RefreshCw size={15} /></button></div>
+    <div className="pool-detail-top"><AppLink className="social-back" href={poolHref()}><ArrowLeft size={14} />{t('返回候选题', 'Back to pool')}</AppLink><button className="icon-button" onClick={() => setRevision(value => value + 1)} disabled={loading} aria-label={t('刷新当前候选题', 'Refresh candidate')}><RefreshCw size={15} /></button></div>
     {error && <p className="pool-error" role="alert">{error}</p>}
     {!proposal && loading && <div className="social-loading" role="status"><span className="spinner" />{t('加载中…', 'Loading…')}</div>}
     {proposal && <>
-      <header className="pool-detail-heading"><div><PoolStatus status={proposal.status} /><h2>{title}</h2><div className="pool-card-meta">{paperUrl && <a href={paperUrl} target="_blank" rel="noreferrer">arXiv:{proposal.arxiv_id}<ArrowUpRight size={13} /></a>}{proposal.version && <span>{t('版本', 'Version')} {proposal.version}</span>}</div></div>
-        {proposal.author && <div className="pool-author"><a href={profileHref(proposal.author)}><Avatar user={proposal.author} size={30} /><span>{proposal.author.display_name}</span></a><AffiliationBadge affiliation={proposal.author.affiliation} institution={proposal.author.institution} /></div>}
+      <header className="pool-detail-heading"><div><PoolStatus status={proposal.status} /><h2>{title}</h2><div className="pool-card-meta">{paperUrl && <AppLink href={paperUrl} target="_blank" rel="noreferrer">arXiv:{proposal.arxiv_id}<ArrowUpRight size={13} /></AppLink>}{proposal.version && <span>{t('版本', 'Version')} {proposal.version}</span>}</div></div>
+        {proposal.author && <div className="pool-author"><AppLink href={profileHref(proposal.author)}><Avatar user={proposal.author} size={30} /><span>{proposal.author.display_name}</span></AppLink><AffiliationBadge affiliation={proposal.author.affiliation} institution={proposal.author.institution} /></div>}
       </header>
       {proposal.status==='pending_review'&&<p className="pool-service-notice" role="status">{t('投稿已保留，等待管理员初审；通过后进入生成流程。','Your submission is awaiting intake review. Approval starts the generation process.')}</p>}
       {proposal.maintainer_review&&proposal.version&&<p className="pool-muted">{t('当前候选版本审核：','Current candidate review: ')}{proposal.maintainer_review.approved?t('已通过管理员审核','Approved by a maintainer'):t('等待管理员审核','Awaiting maintainer review')}</p>}
@@ -210,7 +212,7 @@ function PoolDetail({id, owner, capabilities, onChanged}: {id: string; owner?: s
 
 function PoolModeration(_props: {proposal: PoolProposal; owner: string; onChanged: (proposal: PoolProposal) => void}) {
   const {t}=useI18n();
-  return <section className="pool-moderation"><h3>{t('维护者审核','Maintainer review')}</h3><p>{t('在管理员工作台核对当前版本、填写反馈并提交审核决定。','Review the current version and submit reasoned feedback in the administrator workspace.')}</p><a className="button subtle" href="#/community/admin/papers">{t('打开论文审核','Open paper review')}</a></section>;
+  return <section className="pool-moderation"><h3>{t('维护者审核','Maintainer review')}</h3><p>{t('在管理员工作台核对当前版本、填写反馈并提交审核决定。','Review the current version and submit reasoned feedback in the administrator workspace.')}</p><AppLink className="button subtle" href="#/community/admin/papers">{t('打开论文审核','Open paper review')}</AppLink></section>;
 }
 
 function CandidateTrial({proposal, owner, capabilities, onChanged}: {proposal: PoolProposal; owner?: string; capabilities?: PaperPoolCapabilities; onChanged: (proposal: PoolProposal) => void}) {
@@ -311,7 +313,7 @@ function CandidateTrial({proposal, owner, capabilities, onChanged}: {proposal: P
       <section className="social-panel pool-code-panel" aria-label={t('试做候选题', 'Try candidate')}><div className="pool-code-toolbar"><span><Code2 size={16} />Python</span><button className="button" onClick={() => void runTrial()} disabled={!!busy || !!pendingAttempt || !owner || !reviewable(proposal.status) || capabilities?.attempts?.ready !== true}>{busy === 'trial' || pendingAttempt ? <LoaderCircle size={14} className="spin" /> : <Play size={14} />}{pendingAttempt ? attempt.status === 'queued' ? t('排队中…', 'Queued…') : t('测试中…', 'Testing…') : busy === 'trial' ? t('提交试做…', 'Starting trial…') : t('运行试做测试', 'Run trial tests')}</button></div>
         <div className="pool-code-editor"><TrialEditor value={code} readOnly={false} font={13} theme={theme} onChange={editCode} label={t('试做代码', 'Trial code')} /></div>
         <div className="pool-code-note"><span>{t('候选题测试在隔离环境运行，不计入正式题库成绩。', 'Candidate tests run in an isolated environment and do not count toward catalog progress.')}</span>{!draftStored && <span role="status">{t('草稿暂时无法保存，请保留此页。', 'Draft storage is unavailable. Keep this page open.')}</span>}</div>
-        {!owner && <p className="pool-muted"><a href={signInHref(`submit?proposal=${proposal.id}`)}>{t('登录后运行试做测试', 'Sign in to run trial tests')}</a></p>}
+        {!owner && <p className="pool-muted"><AppLink href={signInHref(`submit?proposal=${proposal.id}`)}>{t('登录后运行试做测试', 'Sign in to run trial tests')}</AppLink></p>}
         {owner && capabilities?.attempts?.ready !== true && <p className="pool-service-notice">{capabilities?.attempts?.reason || t('试做服务尚未就绪，暂时不能运行测试。', 'The trial service is not ready. Tests are unavailable for now.')}</p>}
         {pollError && <div className="pool-service-notice" role="alert">{pollError}<button className="text-button" onClick={() => setPollRevision(value => value + 1)}>{t('重试获取试做状态', 'Retry trial status')}</button></div>}
         {attempt?.status === 'failed' && <p className="pool-service-notice" role="alert">{attempt.error || t('试做服务未能完成测试，请稍后重试。', 'The trial service could not complete the tests. Please try again.')}</p>}
@@ -328,7 +330,7 @@ function CandidateTrial({proposal, owner, capabilities, onChanged}: {proposal: P
         <button className="button" type="submit" disabled={!proposal.viewer.can_review || !!busy}>{busy === 'vote' && <LoaderCircle size={14} className="spin" />}{currentVote ? t('更新评审', 'Update review') : t('提交评审', 'Submit review')}</button>
       </form>
       {!!proposal.reviews?.length && <div className="pool-public-reviews">{proposal.reviews.map(review => <article key={review.author.id}>
-        <header><a href={profileHref(review.author)}><Avatar user={review.author} size={26} />{review.author.display_name}</a><span>{review.vote === 'approve' ? t('建议入库', 'Recommends inclusion') : t('需要修改', 'Requests changes')}</span></header>
+        <header><AppLink href={profileHref(review.author)}><Avatar user={review.author} size={26} />{review.author.display_name}</AppLink><span>{review.vote === 'approve' ? t('建议入库', 'Recommends inclusion') : t('需要修改', 'Requests changes')}</span></header>
         <AffiliationBadge affiliation={review.author.affiliation} institution={review.author.institution} />
         {review.reason && <p>{review.reason}</p>}
       </article>)}</div>}

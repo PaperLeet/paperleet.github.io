@@ -1,3 +1,4 @@
+import {appLocation, routeHash} from './appLocation';
 import {communityPostHref,communityContinuation} from './communityNavigation';
 import {libraryReturnHref} from './libraryNavigation';
 import {replySearchQuery} from './replySearch';
@@ -40,7 +41,7 @@ function watch(){if(!watching&&typeof window!=='undefined'){window.addEventListe
 function navigation(event:HashChangeEvent){
  const row=currentDiscussionReturn();if(!row)return;
  try{
-  const before=new URL(event.oldURL).hash,after=new URL(event.newURL).hash;if(after!==location.hash)return;
+  const before=routeHash(event.oldURL),after=routeHash(event.newURL);if(after!==appLocation.hash)return;
   const target=discussionPracticeTarget(after,row.post);
   if(target&&(row.phase!=='opening'||discussionThreadHere(before,row.post)))pending={...row,practice:target,phase:'practice'};
   else if(row.phase==='practice'&&discussionPracticeTarget(before,row.post)&&discussionThreadHere(after,row.post))pending={...row,phase:'returning'};
@@ -56,7 +57,7 @@ export function rememberDiscussionReturn(value:Omit<DiscussionReturn,'version'|'
 /** A real catalog entry must confirm the current workspace after a reload. */
 export function confirmDiscussionPractice(owner:string|undefined,problem:{id:string;number:number}|undefined,href:string|undefined,expected:string){
  keepDiscussionOwner(owner);const row=currentDiscussionReturn();if(!owner||!row||row.owner!==owner||!problem||!href||href!==communityPostHref(row.post)||!moduleId.test(problem.id))return;
- const target=discussionPracticeTarget(expected,row.post);if(!target||target!==discussionPracticeTarget(location.hash,row.post)||target!==problem.id&&target!==String(problem.number))return;
+ const target=discussionPracticeTarget(expected,row.post);if(!target||target!==discussionPracticeTarget(appLocation.hash,row.post)||target!==problem.id&&target!==String(problem.number))return;
  if(row.phase==='returning')return;
  const original=discussionPracticeTarget(row.anchor.href,row.post);
  pending={...row,practice:problem.id,phase:'practice',anchor:!row.anchor.module&&(original===problem.id||original===String(problem.number))?{...row.anchor,module:problem.id}:row.anchor};persist();watch();notify();

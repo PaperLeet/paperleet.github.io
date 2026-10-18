@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {Plus,Undo2} from 'lucide-react';
 import {useI18n} from './i18n';
 import type {CommunityOutline,CommunityOutlineId} from './communityWriting';
@@ -53,7 +54,7 @@ export default function CommunityWritingGuide({category,outline,hasBody,hasConte
  return <div className="community-writing-panel">
   <p>{t('这些提示帮助组织内容。只有标题会插入正文，下面的问题不会自动发布，也不会改写已有文字。','These prompts help organize your post. Only headings are inserted; the questions below are never posted automatically and your writing stays intact.')}</p>
   <ol>{outline.sections.map((section,index)=><li key={section.en}><b><span aria-hidden="true">{index+1}.</span> {section[language]}</b><p>{prompts[category][index][language]}</p></li>)}</ol>
-  {category==='career'&&<p>{t('分享具体工作或实习面试经历时，可以在面经区关联公司和题目。','For a specific job or internship interview experience, use the interview section to link companies and exercises.')} <a href="#/interviews">{t('前往面经区','Go to interviews')}</a></p>}
+  {category==='career'&&<p>{t('分享具体工作或实习面试经历时，可以在面经区关联公司和题目。','For a specific job or internship interview experience, use the interview section to link companies and exercises.')} <AppLink href="#/interviews">{t('前往面经区','Go to interviews')}</AppLink></p>}
   <div className="community-writing-actions"><button type="button" className="button subtle" disabled={busy} onClick={event=>{event.currentTarget.focus({preventScroll:true});onInsert(category,event.currentTarget);}}><Plus size={14}/>{hasContent?t('在光标处插入提纲','Insert outline at cursor'):hasBody?t('更换空提纲','Replace empty outline'):t('插入写作提纲','Insert outline')}</button><button type="button" className="text-button" disabled={busy||!canUndo} onClick={event=>{event.currentTarget.focus({preventScroll:true});onUndo(event.currentTarget);}}><Undo2 size={14}/>{t('撤销提纲','Undo outline')}</button></div>
   {editedAfterInsert&&<small role="status">{t('正文已继续修改，撤销提纲暂不可用，以保留你的新内容。','You edited the post after inserting an outline. Undo is unavailable to keep your new writing.')}</small>}
  </div>;

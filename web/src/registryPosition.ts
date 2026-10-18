@@ -1,3 +1,4 @@
+import {appLocation, routeHash, sameAppUrl} from './appLocation';
 import {libraryReturnHref,paperRegistryHref,readPaperRegistryRoute} from './libraryNavigation';
 
 /** Public directory positions only: no account, code, grades or server requests. */
@@ -42,13 +43,13 @@ export function watchRegistryPosition(root:HTMLElement,href:string,restore:boole
  let anchor:RegistryPosition|undefined=origin,kind:RegistryPositionNotice['kind']|undefined;
  let pending:{request?:number;kind:'restore'|'dismiss';run:FrameRequestCallback}|undefined;
  const mounted=()=>active&&root.isConnected&&root.dataset.registryView===href;
- const current=()=>mounted()&&canonical(location.hash)===href;
- const registryHere=()=>mounted()&&!!canonical(location.hash);
+ const current=()=>mounted()&&canonical(appLocation.hash)===href;
+ const registryHere=()=>mounted()&&!!canonical(appLocation.hash);
  const rows=()=>Array.from(root.querySelectorAll<HTMLElement>('[data-paper-registry-id]'));
  const card=(paper:string)=>rows().find(row=>row.dataset.paperRegistryId===paper);
  function target(value:RegistryPosition){
   const row=card(value.paper);if(!row)return;
-  const link=value.link&&Array.from(row.querySelectorAll<HTMLAnchorElement>('a[href]')).find(node=>node.getAttribute('href')===value.link);
+  const link=value.link&&Array.from(row.querySelectorAll<HTMLAnchorElement>('a[href]')).find(node=>routeHash(node.href)===value.link);
   return {row,node:link||(value.link?row.querySelector<HTMLElement>('h2 a')||row:row),focus:link||row.querySelector<HTMLElement>('h2 a')||row};
  }
  function inset(){
@@ -67,10 +68,10 @@ export function watchRegistryPosition(root:HTMLElement,href:string,restore:boole
   const preferred=link?.closest<HTMLElement>('[data-paper-registry-id]');
   const retained=anchor&&target(anchor),row=preferred&&root.contains(preferred)?preferred:retained&&visible(retained.node)?retained.row:rows().find(visible);
   if(!row)return;
-  const retainedLink=retained?.row===row&&anchor?.link?Array.from(row.querySelectorAll<HTMLAnchorElement>('a[href]')).find(node=>node.getAttribute('href')===anchor!.link&&visible(node)):undefined;
+  const retainedLink=retained?.row===row&&anchor?.link?Array.from(row.querySelectorAll<HTMLAnchorElement>('a[href]')).find(node=>routeHash(node.href)===anchor!.link&&visible(node)):undefined;
   const selected=link||retainedLink,node=selected||row,bounds=node.getBoundingClientRect();
   if(!visible(node))return;
-  const hash=selected?new URL(selected.href,location.href).hash:undefined;
+  const hash=selected?routeHash(selected.href):undefined;
   const value:RegistryPosition={paper:row.dataset.paperRegistryId!,top:bounds.top,keyboard:!!selected&&(link?keyboard:!!anchor?.keyboard&&document.activeElement===selected),at:Date.now(),...(hash&&libraryReturnHref(hash)===href?{link:hash}:{})};
   rememberRegistryPosition(href,value);anchor=value;
  }
@@ -110,7 +111,7 @@ export function watchRegistryPosition(root:HTMLElement,href:string,restore:boole
   if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||!(event.target instanceof window.Element))return;
   const link=event.target.closest<HTMLAnchorElement>('a[href]');if(!link||!root.contains(link)||link.target&&link.target!=='_self'||link.hasAttribute('download'))return;
   const destination=new URL(link.href,location.href);
-  if(destination.origin!==location.origin||destination.pathname!==location.pathname||destination.search!==location.search||libraryReturnHref(destination.hash)!==href)return;
+  if(!sameAppUrl(destination)||libraryReturnHref(routeHash(destination))!==href)return;
   capture(link,event.detail===0&&document.activeElement===link);
  };
  for(const name of ['wheel','touchmove','pointerdown','keydown','focusin'])window.addEventListener(name,intent,{passive:true});

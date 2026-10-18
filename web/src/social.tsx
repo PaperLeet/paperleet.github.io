@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useI18n } from "./i18n";
@@ -281,7 +283,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       {user?.status === 'waitlisted' ? <Suspense fallback={null}><AccountAccessGate user={user} refreshFailed={Boolean(error)} onRefresh={refresh} onSignOut={async () => {
         await socialApi('account/logout', {});
         setUser(null);
-        location.hash = '#/account';
+        appLocation.hash = '#/account';
       }}>{children}</AccountAccessGate></Suspense> : children}
     </AccountContext.Provider>
   );
@@ -330,11 +332,11 @@ export function PersonLink({
   compact?: boolean;
 }) {
   return (
-    <a className="person-link" href={profileHref(user)}>
+    <AppLink className="person-link" href={profileHref(user)}>
       <Avatar user={user} size={compact ? 24 : 34} />
       <span>{user.display_name}</span>
       <TestAccountBadge isTestUser={user.is_test_user} />
-    </a>
+    </AppLink>
   );
 }
 export function TestAccountBadge({ isTestUser }: { isTestUser?: boolean }) {

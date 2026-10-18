@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { PublishingRules } from './PublishingRules';
 import { currentQuotaMessage } from './publicationQuota';
 import { apiFetch } from "./apiClient";
@@ -412,10 +413,10 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
     <main className="submissions-page">
       <div className="submission-heading">
         <div>
-          <a className="back-link" href="#">
+          <AppLink className="back-link" href="#">
             <ArrowLeft size={15} />
             {t("返回题库", "Back to problems")}
-          </a>
+          </AppLink>
           <h1>{t("提交论文", "Submit paper")}</h1>
         </div>
         <button
@@ -568,7 +569,7 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                   {loading ? (
                     t("正在检查提交权限…", "Checking submission access…")
                   ) : (
-                    <a className="button subtle" href={signInHref("submit")}>
+                    <AppLink className="button subtle" href={signInHref("submit")}>
                       {accountCapabilities?.auth_mode === "test"
                         ? t(
                             "内测账号登录后可提交提案",
@@ -578,7 +579,7 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                             "受邀用户登录后可提交提案",
                             "Sign in with an invited account to submit",
                           )}
-                    </a>
+                    </AppLink>
                   )}
                 </p>
               )}
@@ -703,7 +704,7 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                   </span>
                 </div>
                 <div className="submission-sources">
-                  <a
+                  <AppLink
                     href={safeUrl(selected.paper_url)}
                     target="_blank"
                     rel="noreferrer"
@@ -711,9 +712,9 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                     <BookOpen size={14} />
                     {t("论文", "Paper")}
                     <ExternalLink size={12} />
-                  </a>
+                  </AppLink>
                   {selected.code_url && (
-                    <a
+                    <AppLink
                       href={safeUrl(selected.code_url)}
                       target="_blank"
                       rel="noreferrer"
@@ -721,7 +722,7 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                       <Code2 size={14} />
                       {t("官方代码", "Official code")}
                       <ExternalLink size={12} />
-                    </a>
+                    </AppLink>
                   )}
                 </div>
                 {selected.focus && (
@@ -734,7 +735,7 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                 )}
                 {selected.status === "published" &&
                 selected.published_problem ? (
-                  <a
+                  <AppLink
                     className="button"
                     href={`#/${selected.published_problem.number}`}
                   >
@@ -742,7 +743,7 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                     {t("打开题目", "Open problem")}{" "}
                     {selected.published_problem.number}
                     <ArrowRight size={15} />
-                  </a>
+                  </AppLink>
                 ) : (
                   <div className="submission-actions">
                     {canGenerate && selected.status !== "rejected" && (
@@ -895,14 +896,14 @@ function SubmissionWorkspace({onPublished, draftOwner}: {onPublished: () => void
                         <article key={i}>
                           <b>{source.claim}</b>
                           <p>{source.locator}</p>
-                          <a
+                          <AppLink
                             href={safeUrl(source.source_url)}
                             target="_blank"
                             rel="noreferrer"
                           >
                             {source.source_url}
                             <ExternalLink size={12} />
-                          </a>
+                          </AppLink>
                         </article>
                       ))}
                       {!candidate.evidence.length && (

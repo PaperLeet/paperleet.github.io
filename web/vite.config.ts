@@ -1,4 +1,4 @@
-import { defineConfig, type ViteDevServer } from "vite";
+import { defineConfig, loadEnv, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { execFile } from "node:child_process";
 import { resolve } from "node:path";
@@ -30,16 +30,21 @@ function watchBrowserWorker(server: ViteDevServer) {
     }));
   });
 }
-export default defineConfig({
+export default defineConfig(({mode}) => {
+  const pathRouting = {...loadEnv(mode, process.cwd(), ''), ...process.env}.VITE_PATH_ROUTING === '1';
+  return {
   plugins: [react(), {
     name: "browser-judge-public-assets",
+    transformIndexHtml(html) {
+      return pathRouting ? html.replace('<html lang="en">', '<html lang="en" data-routing="path">') : html;
+    },
     configResolved(config) {
       if (config.command === "build") validateDeploymentEnvironment(config.env);
     },
     configureServer(server) { publicBrowserAssets(server); watchBrowserWorker(server); },
     configurePreviewServer: publicBrowserAssets,
   }],
-  base: "./",
+  base: pathRouting ? '/' : './',
   server: { proxy: { "/api": "http://127.0.0.1:8765" } },
   build: {
     manifest: true,
@@ -62,4 +67,4 @@ export default defineConfig({
       },
     },
   },
-});
+}; });

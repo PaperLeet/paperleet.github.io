@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {ArrowUpRight,FileCheck,Flag,Layers} from 'lucide-react';
 import {DateLabel} from './social';
 import {useI18n} from './i18n';
@@ -22,12 +23,12 @@ export default function AdminReviewInbox({owner,epoch}:{owner:string;epoch:numbe
     <header><Icon size={19} aria-hidden="true"/><h3>{title}</h3><span className="admin-inbox-total">{group.total}</span></header><p className="admin-inbox-hint">{hint}</p>
     {!group.items.length?<p className="admin-inbox-empty">{t('这一组已处理完毕','Nothing awaiting review')}</p>:<ul>{key==='reports'?result.data!.reports.items.map(row=>{
      const content=<><b>{row.title}</b><span className="admin-inbox-meta"><span>{t(`${row.pending_reports} 人待审 · 累计 ${row.total_reports} 人举报`,`${row.pending_reports} pending · ${row.total_reports} total reporters`)}</span><DateLabel value={row.last_report_at}/></span>{!row.post_available&&<small>{t('原帖已不存在，举报快照仍可审核','Post unavailable; report snapshots remain available')}</small>}</>;
-     return <li key={row.post_id}>{fresh?<a href={adminHref({section:'reports',page:1,item:row.post_id})}>{content}<ArrowUpRight size={16} aria-hidden="true"/></a>:<div className="admin-inbox-row">{content}</div>}</li>;
+     return <li key={row.post_id}>{fresh?<AppLink href={adminHref({section:'reports',page:1,item:row.post_id})}>{content}<ArrowUpRight size={16} aria-hidden="true"/></AppLink>:<div className="admin-inbox-row">{content}</div>}</li>;
     }):result.data![key].items.map(row=>{
      const content=<><b>arXiv: {row.arxiv_id}</b><span className="admin-inbox-meta"><span>{key==='intake'?t('等待初审','Awaiting intake review'):t(`候选版本 v${row.version}`,`Candidate v${row.version}`)}</span><DateLabel value={row.created_at}/></span></>;
-     return <li key={row.id}>{fresh?<a href={adminHref({section:'papers',page:1,status:'all',item:row.id})}>{content}<ArrowUpRight size={16} aria-hidden="true"/></a>:<div className="admin-inbox-row">{content}</div>}</li>;
+     return <li key={row.id}>{fresh?<AppLink href={adminHref({section:'papers',page:1,status:'all',item:row.id})}>{content}<ArrowUpRight size={16} aria-hidden="true"/></AppLink>:<div className="admin-inbox-row">{content}</div>}</li>;
     })}</ul>}
-    {fresh&&<a className="admin-inbox-all" href={href}>{t('查看完整队列','View full queue')}<ArrowUpRight size={15} aria-hidden="true"/></a>}
+    {fresh&&<AppLink className="admin-inbox-all" href={href}>{t('查看完整队列','View full queue')}<ArrowUpRight size={15} aria-hidden="true"/></AppLink>}
    </section>;
   })}</div>}
  </section>;

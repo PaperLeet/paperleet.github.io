@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
 import PostTags from './PostTags';
@@ -154,13 +156,13 @@ function TopicContext({ topic, discussion = false, solutions=false,practiceRetur
       </div>
       <div className="problem-discussion-links">
         {discussion && (
-          <a href={solutions?solutionsHref(topic.id):topicHref(topic.id)}>{solutions?t("查看本题题解","All module solutions"):t("查看题目讨论", "All module discussions")}</a>
+          <AppLink href={solutions?solutionsHref(topic.id):topicHref(topic.id)}>{solutions?t("查看本题题解","All module solutions"):t("查看题目讨论", "All module discussions")}</AppLink>
         )}
-        <a href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</a>
+        <AppLink href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</AppLink>
         {!topic.retired && (
-          <a className="button subtle" data-reading-link={practiceReturnTo?"practice":undefined} data-reading-practice={practiceReturnTo?topic.id:undefined} href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
+          <AppLink className="button subtle" data-reading-link={practiceReturnTo?"practice":undefined} data-reading-practice={practiceReturnTo?topic.id:undefined} href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
             <Code2 size={15} />{t("返回练习", "Back to practice")}
-          </a>
+          </AppLink>
         )}
       </div>
     </div>
@@ -217,12 +219,12 @@ function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
               "Join the conversation with a verified institutional email.",
             )}
       </p>
-      <a className="button" href={signInHref(returnTo)}>
+      <AppLink className="button" href={signInHref(returnTo)}>
         {testAuth
           ? t("内测账号登录", "Test account sign-in")
           : t("登录 / 注册", "Sign in / Join")}
         <ArrowRight size={14} />
-      </a>
+      </AppLink>
     </div>
   );
 }
@@ -244,13 +246,13 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             <DateLabel value={post.created_at} />
             <Category value={post.solution ? "solutions" : post.category} />
           </div>
-          {readInPlace ? <><SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><a data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
+          {readInPlace ? <><SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><AppLink data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
             <PostSearchMatch text={post.title} query={searchQuery}/>
-          </a>
+          </AppLink>
           {post.problem && (
-            <a className="post-problem-link" href={post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id)}>
+            <AppLink className="post-problem-link" href={post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id)}>
               <Code2 size={13} />{topicTitle(post.problem, locale === "en")}
-            </a>
+            </AppLink>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}
           <InlinePostBody postId={post.id} body={post.body} limit={190} query={searchQuery}/>
@@ -431,7 +433,7 @@ function Composer({
       setError(t('请添加有效的 arXiv 论文链接。', 'Add a valid arXiv paper link.'));
       return;
     }
-    const submittedRoute = location.hash;
+    const submittedRoute = appLocation.hash;
     if((previous?previous.payload.anonymous===true:submitted.anonymous)&&!anonymousAvailable){setError(t('匿名发布暂不可用，草稿已保留。','Anonymous posting is unavailable. Your draft is kept.'));return;}
     setBusy(true);
     publishing.current = true;
@@ -447,9 +449,9 @@ function Composer({
       if(solution&&(post.solution!==true||post.problem_id!==pending.receipt.payload.problem_id))throw Error(t("暂时无法确认题解的题目关联，草稿已保留，请重试。","Could not confirm the linked solution. Your draft is kept; please retry."));
       clearPublication(tabDraftStorage(),pending.receipt);
       if (samePublication(pending.receipt,postPublication(submitted,topic?.id,solution))) clearPublishedDraft(tabDraftStorage(), owner, scope, submitted);
-      if (mounted.current && location.hash === submittedRoute) {
+      if (mounted.current && appLocation.hash === submittedRoute) {
         if(onBackgroundPublish&&panelProps?.ref.current?.closest('[hidden],[aria-hidden="true"]'))onBackgroundPublish(post);
-        else location.hash = postHref(post.id, returnTo||submittedRoute);
+        else appLocation.hash = postHref(post.id, returnTo||submittedRoute);
       }
     } catch (e) {
       if (mounted.current) setError(errorMessage(e));
@@ -475,9 +477,9 @@ function Composer({
       </div>
       {error && <SocialNotice error={error} />}
       {topic && (
-        <a className="post-problem-link composer-problem" href={practiceHref(topic.id)}>
+        <AppLink className="post-problem-link composer-problem" href={practiceHref(topic.id)}>
           <Code2 size={13} />{topicTitle(topic, locale === "en")}
-        </a>
+        </AppLink>
       )}
       <div className="community-draft-status" role="status">
         <span>{draftMessage}</span>
@@ -651,7 +653,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
-    if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
+    if(embedded)setLocalFilters(next);else appLocation.hash = communityFeedHref(topicId,next);
   }
   const solutionReading=useSolutionReadingNavigation({enabled:embedded&&solutions&&!!onCode&&solutionAvailable&&!accountLoading,scope:JSON.stringify([user?.id||'guest',topicId,{...filters,page:undefined}]),page,generation:data.generation,ready:!pending&&!error&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,failed:!!error,total:data.total,items:data.items,root:feedList,toolbar,onPage:page=>choose({page})});
   useEffect(() => {
@@ -735,9 +737,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   return (
     <FeedRoot ref={reading.container} className={embedded?`problem-community ${solutions?'problem-solutions':'problem-discussions'} community-page`:"social-page community-page"}>
       {!embedded&&topicId && (
-        <a className="social-back" href={solutions?solutionsHref():"#/community"}>
+        <AppLink className="social-back" href={solutions?solutionsHref():"#/community"}>
           <ArrowLeft size={14} />{solutions?t("所有社区题解","All community solutions"):t("所有社区讨论", "All community discussions")}
-        </a>
+        </AppLink>
       )}
       <div className="community-layout">
         {!embedded&&<aside className="community-sidebar">
@@ -775,14 +777,14 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               {draftAvailable ? t("继续草稿", "Resume draft") : solutions?t("发布题解","Share a solution"):category === 'papers' ? t('讨论论文', 'Discuss a paper') : t("发布帖子", "New post")}
             </button>
           ) : !user ? (
-            <a className="button community-compose-button" href={signInHref(returnTo)}>
+            <AppLink className="button community-compose-button" href={signInHref(returnTo)}>
               <Plus size={16} />
               {t("登录发帖", "Sign in to post")}
-            </a>
+            </AppLink>
           ) : null}
         </aside>}
         <section className="community-feed">
-          {embedded&&<div className={`problem-community-heading ${solutions?'problem-solutions-heading':'problem-discussions-heading'}`}><div><h2>{solutions?t("社区题解","Community solutions"):t('题目讨论','Problem discussions')}</h2><p>{solutions?t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own."):t('交流本题的疑问、实现思路与测试结果。','Discuss questions, implementation choices and test results for this problem.')}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||(solutions&&!solutionAvailable)} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):solutions?t("发布题解","Share a solution"):t('发起讨论','Start a discussion')}</button>:<a className="button" href={signInHref(returnTo)}>{solutions?t("登录写题解","Sign in to contribute"):t('登录参与讨论','Sign in to discuss')}</a>}<a href={returnTo}>{solutions?t("全部题解","All solutions"):t('全部讨论','All discussions')}<ArrowRight size={14}/></a></div></div>}
+          {embedded&&<div className={`problem-community-heading ${solutions?'problem-solutions-heading':'problem-discussions-heading'}`}><div><h2>{solutions?t("社区题解","Community solutions"):t('题目讨论','Problem discussions')}</h2><p>{solutions?t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own."):t('交流本题的疑问、实现思路与测试结果。','Discuss questions, implementation choices and test results for this problem.')}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||(solutions&&!solutionAvailable)} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):solutions?t("发布题解","Share a solution"):t('发起讨论','Start a discussion')}</button>:<AppLink className="button" href={signInHref(returnTo)}>{solutions?t("登录写题解","Sign in to contribute"):t('登录参与讨论','Sign in to discuss')}</AppLink>}<AppLink href={returnTo}>{solutions?t("全部题解","All solutions"):t('全部讨论','All discussions')}<ArrowRight size={14}/></AppLink></div></div>}
           <div ref={toolbar} className="community-feed-toolbar" role="group" tabIndex={-1} aria-label={solutions?t('题解浏览控制','Solution browsing controls'):t('讨论浏览控制','Discussion browsing controls')}>
             <div className="social-tabs compact">
               <button
@@ -833,7 +835,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           {writing.expanded && user && (
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} initialTag={tagsAvailable&&taxonomy.ready?initialCommunityTag(taxonomy.data.tags,tag):undefined} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
           )}
-          {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><a href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></a></div>}
+          {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><AppLink href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></AppLink></div>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           <SolutionReadingNotice navigation={solutionReading}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
@@ -912,7 +914,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
   const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const readingOwner=accountLoading?undefined:user?'account:'+user.id:'guest';
-  const returnTo=providedReturnTo||sourcePostReadingReturn(readingOwner,id,typeof location==='undefined'?'':location.hash);
+  const returnTo=providedReturnTo||sourcePostReadingReturn(readingOwner,id,typeof location==='undefined'?'':appLocation.hash);
   useReadingOrigin(readingOwner,id,returnTo);
   const [editingPost,setEditingPost]=useState(false), [postEdited,setPostEdited]=useState(false);
   const postEditButton=useRef<HTMLButtonElement>(null);
@@ -1027,7 +1029,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
   async function react(kind: "like" | "repost") {
     if (loading || busy) return;
     if (!user) {
-      location.hash = signInHref(postHref(id, providedReturnTo, replyTarget));
+      appLocation.hash = signInHref(postHref(id, providedReturnTo, replyTarget));
       return;
     }
     if (!post) return;
@@ -1048,7 +1050,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
   async function reply(previous?:PublicationReceipt) {
     if (!user || !canPublish || busy || publishing.current || loading || !previous && (!currentDraft.current.body.trim() || missingTarget)) return;
     const submitted = { ...currentDraft.current };
-    const submittedRoute = location.hash;
+    const submittedRoute = appLocation.hash;
     setBusy(true);
     publishing.current = true;
     setError("");
@@ -1064,7 +1066,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
       clearPublication(tabDraftStorage(),pending.receipt);
       const sendsCurrent=samePublication(pending.receipt,replyPublication(submitted));
       if(sendsCurrent)clearPublishedReplyDraft(tabDraftStorage(), owner, id, submitted);
-      if (!mounted.current || location.hash !== submittedRoute) return;
+      if (!mounted.current || appLocation.hash !== submittedRoute) return;
       setPublication(current=>current?.receipt.requestId===pending.receipt.requestId?undefined:current);
       setPost(previous => withConfirmedReply(previous,published));
       setPostedReplyId(published.id);
@@ -1091,7 +1093,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
   }
   async function remove() {
     if (!deleteTarget || busy || loading) return;
-    const submittedRoute = location.hash;
+    const submittedRoute = appLocation.hash;
     setBusy(true);
     setError("");
     try {
@@ -1102,8 +1104,8 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
         { expected_user_id: user?.id },
       );
       if (deleteTarget === "post") {
-        if (mounted.current && location.hash === submittedRoute)
-          location.hash = returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : '#/community');
+        if (mounted.current && appLocation.hash === submittedRoute)
+          appLocation.hash = returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : '#/community');
       }
       else await refresh();
       setDeleteTarget(undefined);
@@ -1115,10 +1117,10 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
   }
   return (
     <main ref={practiceReading.root} data-discussion-post={id} tabIndex={-1} className="social-page discussion-page">
-      <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
+      <div className="discussion-navigation"><AppLink className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
         {returnTo&&readReportHistory(returnTo)?t('返回我的举报','Back to my reports'):returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? post.solution?t("返回本题题解","Back to module solutions"):t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
-      </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
+      </AppLink><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>
       <DiscussionPracticeReturnNotice notice={practiceReading.notice} disabled={!post||loading||busy||!!editingReply||editingPost||accountLoading||!!error||!!catalogLoading} canReveal={!!practiceReading.notice?.row.anchor.reply&&replyList.byId.has(practiceReading.notice.row.anchor.reply)} onRestore={practiceReading.restore} onDismiss={practiceReading.dismiss} onReveal={practiceReading.revealOriginal}/>
@@ -1189,11 +1191,11 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 disabled={busy||loading||accountLoading||editingPost||!!editingReply} hidden={accountLoading} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
               <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复','replies')}</button>
-              {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
+              {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<AppLink className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</AppLink>}
             </div>
           </article>
           <PracticeMentions papers={papers} topics={topics} body="" returnTo={postHref(id)} showSummary={false}><section ref={replyList.root} tabIndex={-1} aria-labelledby="discussion-replies-heading" className="social-panel discussion-replies">
-            {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,providedReturnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
+            {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <AppLink href={postHref(id,providedReturnTo)}>{t('查看完整讨论','View full discussion')}</AppLink></p>}
             <div className="panel-title">
               <h2 id="discussion-replies-heading" tabIndex={-1}>
                 {t("回复", "Replies")} <span>{post.counts.replies}</span>
@@ -1419,7 +1421,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
   const tab=unavailableSolutions?'posts':view.tab,page=unavailableSolutions?1:view.page,offset=(page-1)*PAGE_SIZE;
   const returnTo=profileFeedHref(username,{tab,page}),activityKey=JSON.stringify([username,tab,offset,user?.id]);
   function currentProfileHref(){
-    const actual=readProfileRoute(location.hash);
+    const actual=readProfileRoute(appLocation.hash);
     return actual?.username===username?profileFeedHref(username,actual):undefined;
   }
   const activityPending=waitingForInterviews||!unavailableInterviews&&(activityLoading||loadedActivityKey!==activityKey||waitingForSolutions);
@@ -1510,7 +1512,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
   }, [username, tab, offset, user?.id, revision,waitingForSolutions,waitingForInterviews,unavailableInterviews]);
   async function follow(target: string, active: boolean) {
     if (!user) {
-      location.hash = signInHref(returnTo);
+      appLocation.hash = signInHref(returnTo);
       return;
     }
     setBusy(true);
@@ -1542,7 +1544,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
     if (value !== tab || offset !== 0) setActivityLoading(true);
     const href=profileFeedHref(username,{tab:value,page:1});
     revealIntent.current=reveal?{href,active:document.activeElement,top:window.scrollY}:undefined;
-    if(href!==returnTo)location.hash=href;
+    if(href!==returnTo)appLocation.hash=href;
     if (reveal) setActivityReveal((value) => value + 1);
   };
   useLayoutEffect(() => {
@@ -1557,10 +1559,10 @@ function UserProfileContents({ username,route }: { username: string;route:string
   }, [activityReveal,returnTo]);
   return (
     <main ref={reading.container} className="social-page profile-page">
-      <a className="social-back" href="#/community">
+      <AppLink className="social-back" href="#/community">
         <ArrowLeft size={14} />
         {t("社区", "Community")}
-      </a>
+      </AppLink>
       {error && <SocialNotice error={error} />}
       {loading && !profile ? (
         <Loading />
@@ -1597,10 +1599,10 @@ function UserProfileContents({ username,route }: { username: string;route:string
                 {profile.bio && <p className="profile-bio">{profile.bio}</p>}
               </div>
               {profile.viewer.is_self ? (
-                <a className="button subtle profile-edit" href="#/account">
+                <AppLink className="button subtle profile-edit" href="#/account">
                   <Settings2 size={14} />
                   {t("编辑资料", "Edit profile")}
-                </a>
+                </AppLink>
               ) : (
                 <button
                   className={`button ${profile.viewer.following ? "subtle" : ""} profile-edit`}
@@ -1624,9 +1626,9 @@ function UserProfileContents({ username,route }: { username: string;route:string
                     : t("关注", "Follow")}
                 </button>
               )}
-              {!profile.viewer.is_self && capabilities?.direct_messages && <a className="button subtle profile-edit" href={user ? `#/messages/${encodeURIComponent(profile.username)}` : signInHref(`#/messages/${encodeURIComponent(profile.username)}`)}>
+              {!profile.viewer.is_self && capabilities?.direct_messages && <AppLink className="button subtle profile-edit" href={user ? `#/messages/${encodeURIComponent(profile.username)}` : signInHref(`#/messages/${encodeURIComponent(profile.username)}`)}>
                 <MessageCircle size={14} />{t('私信', 'Message')}
-              </a>}
+              </AppLink>}
             </div>
             <div className="profile-stats">
               <button type="button" aria-controls="profile-community-panel" onClick={() => chooseTab("following", true)}>
@@ -1638,7 +1640,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                 {t("粉丝", "Followers")}
               </button>
             </div>
-            {profile.viewer.is_self && <a className="text-button profile-workspace-settings" href="#/achievements?from=profile">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></a>}
+            {profile.viewer.is_self && <AppLink className="text-button profile-workspace-settings" href="#/achievements?from=profile">{t('我的学习勋章', 'My learning achievements')}<ArrowRight size={14} aria-hidden="true" /></AppLink>}
           </section>
           <section className="social-panel profile-community-summary">
             <h2>{t("社区贡献", "Community")}</h2>
@@ -1650,7 +1652,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
               {profileSolutionsAvailable&&<div className="profile-solution-contribution"><dt><Code2 size={16}/>{t("题解","Solutions")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看题解","View solutions")} onClick={()=>chooseTab("solutions",true)}>{solutionCount??"—"}</button></dd></div>}
               {profileInterviewsAvailable&&<div className="profile-interview-contribution"><dt><BriefcaseBusiness size={16}/>{t("面经","Experiences")}</dt><dd><button type="button" aria-controls="profile-community-panel" aria-label={t("查看面经","View interview experiences")} onClick={()=>chooseTab("interviews",true)}>{interviewCount??"—"}</button></dd></div>}
             </dl>
-            {profile.viewer.is_self && <a href="#/community">{t("加入讨论", "Join a discussion")}<ArrowRight size={14} /></a>}
+            {profile.viewer.is_self && <AppLink href="#/community">{t("加入讨论", "Join a discussion")}<ArrowRight size={14} /></AppLink>}
           </section>
           </aside>
           <div className="profile-main">
@@ -1708,14 +1710,14 @@ function UserProfileContents({ username,route }: { username: string;route:string
               connections.items.length ? (
                 connections.items.map((member) => (
                   <div className="connection-card" key={member.id}>
-                    <a href={profileHref(member)}>
+                    <AppLink href={profileHref(member)}>
                       <Avatar user={member} size={45} />
-                    </a>
+                    </AppLink>
                     <div>
-                      <a href={profileHref(member)}>
+                      <AppLink href={profileHref(member)}>
                         <b>{member.display_name}</b>
                         <span>@{member.username}</span>
-                      </a>
+                      </AppLink>
                       <TestAccountBadge isTestUser={member.is_test_user} />
                       <AffiliationBadge affiliation={member.affiliation} institution={member.institution} />
                       {member.bio && <p>{member.bio}</p>}
@@ -1760,7 +1762,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                       <div className="activity-label">
                         <MessageCircle size={13} />
                         {t("回复了", "Replied to")}
-                        <a data-reading-link="title" href={postHref(item.post.id,profile.viewer.is_self&&item.post.anonymous===true?undefined:returnTo,item.reply.id)}>{item.post.title}</a>
+                        <AppLink data-reading-link="title" href={postHref(item.post.id,profile.viewer.is_self&&item.post.anonymous===true?undefined:returnTo,item.reply.id)}>{item.post.title}</AppLink>
                         <DateLabel value={item.created_at} />
                       </div>
                       <CommunityMarkdown body={item.reply.body} />
@@ -1794,13 +1796,13 @@ function UserProfileContents({ username,route }: { username: string;route:string
             ) : (
               <Empty title={tab==="solutions"?t("还没有题解","No solutions yet"):tab==="interviews"?t("还没有面经","No interview experiences yet"):t("还没有相关动态", "No activity here yet")}>
                 <p>{tab==="solutions"?t("发布的题解会按题目关联展示在这里。","Published solutions appear here with their practice modules."):tab==="interviews"?t("发布的面试复盘会汇总在这里，方便继续阅读与交流。","Published interview reflections appear here to revisit and discuss."):t("发布、回复或互动后，记录会显示在这里。","Posts and interactions will appear here as they happen.")}</p>
-                {tab==="solutions"&&profile.viewer.is_self&&<a className="button subtle" href={solutionsHref()}>{t("去写一篇题解","Share a solution")}</a>}
-                {tab==="interviews"&&privateProfileOwner&&<a className="button subtle" href="#/interviews">{t("前往面经广场","Explore experiences")}</a>}
+                {tab==="solutions"&&profile.viewer.is_self&&<AppLink className="button subtle" href={solutionsHref()}>{t("去写一篇题解","Share a solution")}</AppLink>}
+                {tab==="interviews"&&privateProfileOwner&&<AppLink className="button subtle" href="#/interviews">{t("前往面经广场","Explore experiences")}</AppLink>}
               </Empty>
             )}
           </section>
           {!unavailableInterviews&&!activityPending&&!displayActivityError&&<Pagination key={activityKey} offset={offset} total={connectionTab?connections.total:activity.total} count={connectionTab?connections.items.length:activity.items.length} label={t('个人主页列表分页','Profile list pages')}
-            onChange={next=>{if(next===offset)return;revealIntent.current=undefined;const target=document.getElementById('profile-community-panel');if(target){target.focus({preventScroll:true});revealReadingTarget(target);}setActivityLoading(true);location.hash=profileFeedHref(username,{tab,page:next/PAGE_SIZE+1});}}/>}
+            onChange={next=>{if(next===offset)return;revealIntent.current=undefined;const target=document.getElementById('profile-community-panel');if(target){target.focus({preventScroll:true});revealReadingTarget(target);}setActivityLoading(true);appLocation.hash=profileFeedHref(username,{tab,page:next/PAGE_SIZE+1});}}/>}
           </section>
           </div>
         </div>

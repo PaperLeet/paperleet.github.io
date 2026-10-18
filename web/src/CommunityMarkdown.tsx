@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { Children, createElement, isValidElement, memo, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import Markdown from 'react-markdown';
@@ -26,8 +27,8 @@ export function CommunityFormatHelp() {
 
 const components = {
   a: ({ href, children,className }: { href?: string; children?: ReactNode;className?:string }) => className==='practice-mention-link'
-    ? <a href={href} className={className} data-reading-link="practice">{children}</a>
-    : <a href={href} target="_blank" rel="noopener noreferrer nofollow">{children}</a>,
+    ? <AppLink href={href} className={className} data-reading-link="practice">{children}</AppLink>
+    : <AppLink href={href} target="_blank" rel="noopener noreferrer nofollow">{children}</AppLink>,
   img: ({ alt }: { alt?: string }) => <span className="community-image-alt">{alt ? `[${alt}]` : '[image]'}</span>,
   pre: ({ children }: { children?: ReactNode }) => {
     const child = Children.toArray(children)[0];

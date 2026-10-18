@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {useContext,useRef,useState,useSyncExternalStore} from 'react';
 import {Search,X} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -38,7 +39,7 @@ export default function AdminTaxonomy({owner,view,epoch,run,blocked,onChange}:Ad
    <p>{t(`已启用 ${active} · 已停用 ${rows.length-active}`,`${active} active · ${rows.length-active} paused`)}{changed&&<button type="button" className="text-button" onClick={()=>clear(true)}>{t('清除筛选','Clear filters')}</button>}</p>
    <small>{t('已展开、已编辑、链接打开或与新建标识相同的项目会保留显示；筛选不会更改配置。','Items you opened, edited, linked to or matched by a new identifier stay visible. Filters do not change settings.')}</small>
   </div>}
-  {result.data&&view.item&&!rows.some(row=>row.id===view.item)&&<p role="status">{t('此配置项已不存在，其他草稿仍保留。','This setting is unavailable. Other drafts are kept.')} <a href={adminHref(adminListView(view))}>{t('返回完整列表','Back to the full list')}</a></p>}
+  {result.data&&view.item&&!rows.some(row=>row.id===view.item)&&<p role="status">{t('此配置项已不存在，其他草稿仍保留。','This setting is unavailable. Other drafts are kept.')} <AppLink href={adminHref(adminListView(view))}>{t('返回完整列表','Back to the full list')}</AppLink></p>}
   {result.data&&!matches.length&&<div className="admin-taxonomy-empty" role="status"><p>{changed?retained.size?t('没有匹配的配置项。保留的核对项仍显示在下面。','No settings match. Items kept for review remain below.'):t('没有匹配的配置项。试试其他关键词或清除筛选。','No settings match. Try other keywords or clear the filters.'):t('这里还没有配置项，可以先新建一个。','There are no settings here yet. Create the first item.')}</p>{changed&&<button type="button" className="text-button" onClick={()=>clear(true)}>{t('清除搜索与状态筛选','Clear search and state filters')}</button>}</div>}
   <div className="admin-items admin-taxonomy-items">{rows.map(row=><AdminDraftRow className="admin-card" key={row.id} draftKey={kind+':'+row.id} forceOpen={row.id===view.item} hidden={!shown.has(row.id)&&!retained.has(row.id)} onOpenChange={()=>disclosures(value=>value+1)}>
    <summary data-admin-term={row.id}>

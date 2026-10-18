@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
 import { ArrowRight, Check, CheckCheck, Flame, LockKeyhole, RefreshCw } from "lucide-react";
@@ -161,8 +162,8 @@ export default function ProfileProgress({ username, isSelf }: { username: string
       <ProgressSummary data={data} />
       <PracticeCalendar key={`${data.year}:${data.timezone}`} data={data} year={year} setYear={setYear} />
       <section className="social-panel practice-recent" aria-labelledby="practice-recent-title">
-        <div className="practice-section-heading"><h2 id="practice-recent-title"><CheckCheck size={19} />{t("最近通过", "Recent accepted")}</h2>{isSelf && <a href="#/">{t("继续做题", "Explore problems")}<ArrowRight size={14} /></a>}</div>
-        {data.recent_accepted.length ? <ol>{data.recent_accepted.map((problem) => <li key={problem.problem_id}><a href={`#/${problem.number}`}><span className="practice-ac-check"><Check size={15} /></span><span className="practice-recent-title"><span className="practice-problem-number">{problem.number}.</span> {locale === "en" ? problem.title_en || problem.title : problem.title}</span><span className={`practice-recent-difficulty difficulty-${problem.difficulty}`}>{difficultyLabel(problem.difficulty, t)}</span><DateLabel value={problem.accepted_at} /><ArrowRight className="practice-recent-arrow" size={14} /></a></li>)}</ol> : <div className="practice-recent-empty"><CheckCheck size={25} /><p>{t("还没有通过的题目", "No accepted problems yet")}</p>{isSelf && <a href="#/">{t("去做第一道题", "Solve your first problem")}<ArrowRight size={14} /></a>}</div>}
+        <div className="practice-section-heading"><h2 id="practice-recent-title"><CheckCheck size={19} />{t("最近通过", "Recent accepted")}</h2>{isSelf && <AppLink href="#/">{t("继续做题", "Explore problems")}<ArrowRight size={14} /></AppLink>}</div>
+        {data.recent_accepted.length ? <ol>{data.recent_accepted.map((problem) => <li key={problem.problem_id}><AppLink href={`#/${problem.number}`}><span className="practice-ac-check"><Check size={15} /></span><span className="practice-recent-title"><span className="practice-problem-number">{problem.number}.</span> {locale === "en" ? problem.title_en || problem.title : problem.title}</span><span className={`practice-recent-difficulty difficulty-${problem.difficulty}`}>{difficultyLabel(problem.difficulty, t)}</span><DateLabel value={problem.accepted_at} /><ArrowRight className="practice-recent-arrow" size={14} /></AppLink></li>)}</ol> : <div className="practice-recent-empty"><CheckCheck size={25} /><p>{t("还没有通过的题目", "No accepted problems yet")}</p>{isSelf && <AppLink href="#/">{t("去做第一道题", "Solve your first problem")}<ArrowRight size={14} /></AppLink>}</div>}
       </section>
     </div>
   );

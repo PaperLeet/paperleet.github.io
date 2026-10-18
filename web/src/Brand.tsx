@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import { useI18n } from "./i18n";
 
 /** A smiling black-cat emoji with closed eyes and warm cheeks. */
@@ -15,8 +16,8 @@ export function BrandMark() {
 
 export default function Brand() {
   const { t } = useI18n();
-  return <a href="#" className="brand" aria-label={t("PaperLeet 首页", "PaperLeet home")}>
+  return <AppLink href="#" className="brand" aria-label={t("PaperLeet 首页", "PaperLeet home")}>
     <BrandMark />
     <span className="brand-wordmark">Paper<span>Leet</span></span>
-  </a>;
+  </AppLink>;
 }

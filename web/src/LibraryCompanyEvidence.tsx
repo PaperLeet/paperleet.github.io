@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {useEffect} from 'react';
 import {Building2,ArrowUpRight,X} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -56,6 +57,6 @@ export function LibraryCompanyStatus({company,days,scope,data,retry,reload,retur
  return <section className="library-company-status" aria-label={t('公司练习依据','Company practice evidence')} data-phase={phase}>
   <div><b tabIndex={-1}><Building2 size={16} aria-hidden="true"/>{label}</b><p role="status">{phase==='loading'?t('正在确认公司练习范围…','Confirming company practice scope…'):phase==='unavailable'?t('此版本无法读取公司面经范围。请打开在线版，或清除公司筛选。','Company evidence is unavailable in this edition. Open the hosted app or clear this filter.'):phase==='error'?current?.missing?t(`${current.missing} 道关联题目尚未载入，范围暂未确认。`,`${current.missing} linked exercises are unavailable; the scope is unconfirmed.`):t('公司练习范围暂时无法确认，请重试。','The company practice scope could not be confirmed. Try again.'):t(`${current!.ids.size} 道关联题 · ${current!.summary!.contributors} 位分享者 · ${current!.summary!.reports} 篇面经`,`${current!.ids.size} linked exercises · ${current!.summary!.contributors} contributors · ${current!.summary!.reports} reports`)}</p><small>{t('依据公开面经的发布时间筛选，按分享者数排序；提及次数不代表真实面试频率。','Filtered by public report publication date and ranked by contributors. Mentions do not establish interview frequency.')}</small></div>
   {phase==='error'&&<button type="button" className="button subtle" onClick={event=>{event.currentTarget.closest('section')?.querySelector<HTMLElement>('b')?.focus({preventScroll:true});current?.missing?reload():retry();}}>{current?.missing?t('重新加载题库','Reload catalog'):t('重试公司范围','Retry company scope')}</button>}
-  {phase==='unavailable'?hostedAppAvailable&&<a href={hostedAppHref(returnTo)}>{t('打开在线版','Open hosted app')}<ArrowUpRight size={14}/></a>:<a href={hostedAppHref(hub)} target="_blank" rel="noreferrer">{t('查看面经依据','Explore source reports')}<ArrowUpRight size={14}/></a>}
+  {phase==='unavailable'?hostedAppAvailable&&<AppLink href={hostedAppHref(returnTo)}>{t('打开在线版','Open hosted app')}<ArrowUpRight size={14}/></AppLink>:<AppLink href={hostedAppHref(hub)} target="_blank" rel="noreferrer">{t('查看面经依据','Explore source reports')}<ArrowUpRight size={14}/></AppLink>}
  </section>;
 }

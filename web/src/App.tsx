@@ -1,3 +1,5 @@
+import {appLocation, publicHref, registerCatalogRoutes} from './appLocation';
+import AppLink from './AppLink';
 import {deferredFeature} from './deferredFeature';
 import EditorToolsFallback from './EditorToolsFallback';
 import RetainedReadingPane from './RetainedReadingPane';
@@ -103,7 +105,7 @@ function initialEditorFontSize() {
   return 16;
 }
 function getId() {
-  return decodeProblemHash(location.hash);
+  return decodeProblemHash(appLocation.hash);
 }
 function download(name: string, content: string) {
   const url = URL.createObjectURL(
@@ -192,7 +194,7 @@ function Workspace() {
   }
   function changeCatalogView(href:string){
     if(!readLibraryRoute(href)&&!readPaperRegistryRoute(href))return;
-    try{history.replaceState(history.state,'',href);}catch{/* Explicit return links work when history writes are blocked. */}
+    try{history.replaceState(history.state,'',publicHref(href));}catch{/* Explicit return links work when history writes are blocked. */}
     setId(decodeProblemHash(href));
   }
   const path = routePath(id), libraryReturn = libraryReturnHref(id), libraryView = readLibraryRoute(id);
@@ -222,7 +224,7 @@ function Workspace() {
   const settingsReturn = useRef("#");
   const achievementsReturn = id === "achievements?from=profile" && user ? profileHref(user) : settingsReturn.current;
   useEffect(() => {
-    if (!settingsPage && !achievementsPage) settingsReturn.current = location.hash || "#";
+    if (!settingsPage && !achievementsPage) settingsReturn.current = appLocation.hash || "#";
   }, [id, settingsPage, achievementsPage]);
   const profileUsername = readProfileRoute(id)?.username || "";
   const current = problem ? saved[problem.id] || {} : {};
@@ -342,10 +344,13 @@ function Workspace() {
   function loadCatalog() {
     return loadCatalogIndex(import.meta.env.BASE_URL)
       .then((data) => {
+        registerCatalogRoutes(data.problems);
+        setId(getId());
         setProblems(Array.isArray(data) ? data : data.problems);
         const loadedPapers: Paper[] = Array.isArray(data.papers) ? [...data.papers] : [];
         loadedPapers.sort((a, b) => a.number - b.number);
         setPapers(loadedPapers);
+        document.dispatchEvent(new window.CustomEvent('paperleet:catalog',{detail:{papers:loadedPapers,problems:data.problems}}));
         setCategories(Array.isArray(data.categories) ? data.categories : []);
         setLoadError("");
       })
@@ -513,7 +518,7 @@ function Workspace() {
         <div className="nav-inner">
           <Brand />
           <nav aria-label={t("主导航", "Main navigation")}>
-            <a
+            <AppLink
               className={
                 !problem &&
                 !submissionPage &&
@@ -531,32 +536,32 @@ function Workspace() {
               aria-current={!problem && !submissionPage && !communityPage && !messagesPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
-            </a>
+            </AppLink>
             <button
               className={`continue-link ${problem ? "active" : ""}`}
               aria-current={problem ? 'page' : undefined}
               title={problem ? t("当前练习工作区", "Current practice workspace") : progressReady && problems.length > 0 && !resumeProblem ? idlePracticeLabel : resumeProblem && status(resumeProblem, learningSaved[resumeProblem.id]) === "started" ? t("继续练习", "Continue practice") : t("开始练习", "Start practice")}
               disabled={!problem && !resumeProblem}
               onClick={() => {
-                if (!problem && resumeProblem) location.hash = withLibraryContext(resumeProblem.number, practiceReturn).slice(1);
+                if (!problem && resumeProblem) appLocation.hash = withLibraryContext(resumeProblem.number, practiceReturn).slice(1);
               }}
             >
               <BilingualText zh="工作区" en="Workspace" />
             </button>
-            {(!publicSite || hostedAppAvailable) && <a className={submissionPage ? "active" : ""} aria-current={submissionPage ? 'page' : undefined} href={hostedAppHref("#/submit")}>
+            {(!publicSite || hostedAppAvailable) && <AppLink className={submissionPage ? "active" : ""} aria-current={submissionPage ? 'page' : undefined} href={hostedAppHref("#/submit")}>
               <BilingualText zh="提交论文" en="Submit paper" />
-            </a>}
-            {hostedAppAvailable && <a
+            </AppLink>}
+            {hostedAppAvailable && <AppLink
               className={communityPage || profileUsername || messagesPage ? "active" : ""}
               aria-current={communityPage ? 'page' : undefined}
               href={hostedAppHref("#/community")}
             >
               <BilingualText zh="社区" en="Community" />
-            </a>}
-            <a className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></a>
+            </AppLink>}
+            <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
           </nav>
           <div className="nav-actions">
-            <a className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</a>
+            <AppLink className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</AppLink>
             <RepositoryLink />
             <OnlinePresence />
             <CommunitySubmissions count={totalSubmissions} />
@@ -586,7 +591,7 @@ function Workspace() {
       ) : path === 'favorites' ? (
         <ProblemFavoritesPage key={user?.id||'guest'} route={id} onFilters={href=>{
           if(!readFavoriteRoute(href))return;
-          try{window.history.replaceState(window.history.state,'',href);}catch{/* Explicit links keep the selected filters when history writes are unavailable. */}
+          try{window.history.replaceState(window.history.state,'',publicHref(href));}catch{/* Explicit links keep the selected filters when history writes are unavailable. */}
           setId(decodeProblemHash(href));
         }} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
@@ -643,7 +648,7 @@ function Workspace() {
           {t("正在加载论文题库…", "Loading papers…")}
         </main>
       ) : !sourceProblem && !selectedPaper && !libraryView ? (
-        <main className="route-not-found"><BookOpen size={32} /><h1>{t("找不到这篇论文或模块", "Paper or module not found")}</h1><p>{t("链接可能已失效，或内容已经调整。", "This link may be outdated or the content may have changed.")}</p><code>{path.slice(0,120)}</code><a className="button" href={libraryReturn || "#"}><ArrowLeft size={15} />{backLabel}</a></main>
+        <main className="route-not-found"><BookOpen size={32} /><h1>{t("找不到这篇论文或模块", "Paper or module not found")}</h1><p>{t("链接可能已失效，或内容已经调整。", "This link may be outdated or the content may have changed.")}</p><code>{path.slice(0,120)}</code><AppLink className="button" href={libraryReturn || "#"}><ArrowLeft size={15} />{backLabel}</AppLink></main>
       ) : sourceProblem && !problem ? (
         <main className={detailError === sourceProblem.detail_url ? "load-error" : "loading"}>
           {detailError === sourceProblem.detail_url ? <>
@@ -652,7 +657,7 @@ function Workspace() {
             <button className="button" onClick={() => setDetailRetry((value) => value + 1)}>{t("重试加载", "Retry loading")}</button>
             <button className="text-button" disabled={!!editorRecoveryReason} onClick={()=>{if(!editorRecoveryReason&&practice.owns(practice.owner))reloadApp();}}>{t('刷新并恢复草稿','Reload and restore draft')}</button>
             {editorRecoveryReason&&<small>{editorRecoveryReason}</small>}
-            <a className="text-button" href={libraryReturn || '#'}>{backLabel}</a>
+            <AppLink className="text-button" href={libraryReturn || '#'}>{backLabel}</AppLink>
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
       ) : !problem ? (
@@ -688,7 +693,7 @@ function Workspace() {
         <>
           {company&&<CompanyStatus company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>}
           <div className="workspace-toolbar">
-            <a
+            <AppLink
               className="back-link"
               href={company?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
@@ -696,7 +701,7 @@ function Workspace() {
               {company?t("公司练习","Company practice"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
-            </a>
+            </AppLink>
             <span className="toolbar-divider" />
             <b title={locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}>
               {problem.number}. {locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}
@@ -885,7 +890,7 @@ function Workspace() {
                   {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
                     <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
                       {t("可以继续编辑；本次判题使用提交时的代码。刷新后可继续查看任务。", "You can keep editing. This run uses the submitted code; refresh to reconnect.")}</span>
-                    {!queuedHere && <a href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</a>}
+                    {!queuedHere && <AppLink href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</AppLink>}
                     {judge.job?.status === "queued" && <button onClick={() => void judge.cancel()}>{t("取消排队", "Leave queue")}</button>}
                   </div>}
                   {judgeError && <div className="practice-notice" role="alert">
@@ -964,9 +969,9 @@ function Workspace() {
                                   "Verify your school or company email and sign in to use online judging.",
                                 )}
                           </span>
-                          <a href={signInHref(id)}>
+                          <AppLink href={signInHref(id)}>
                             {t("登录以运行", "Sign in to run")}
-                          </a>
+                          </AppLink>
                         </>
                       ) : (
                         <>

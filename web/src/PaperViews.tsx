@@ -1,3 +1,5 @@
+import {appLocation} from './appLocation';
+import AppLink from './AppLink';
 import { matchingPaperModules, paperProgress, selectLibraryPractice } from './libraryPractice';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -100,7 +102,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   function randomProblem() {
     if (!progressReady || !companyReady) return;
     const next = pickRandomUnattemptedProblem(filteredModules, saved);
-    if (next) location.hash = withLibraryContext(next.number,viewHref).slice(1);
+    if (next) appLocation.hash = withLibraryContext(next.number,viewHref).slice(1);
   }
   function clear() { change({...emptyLibraryFilters(), sort,company:undefined,company_days:undefined}); }
   const hasFilters = !!company || !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
@@ -108,10 +110,10 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const nextState = nextInCollection && status(nextInCollection, saved[nextInCollection.id]);
   return <main className={`home paper-library${selectedCollection ? " collection-page" : ""}`}>
     {selectedCollection ? <header className="collection-page-header">
-      <a className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</a>
+      <AppLink className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</AppLink>
       <div className="collection-page-title-row">
         <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
-        {nextInCollection && <a className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></a>}
+        {nextInCollection && <AppLink className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></AppLink>}
       </div>
     </header> : <>
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
@@ -126,14 +128,14 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const count = memberIds.size;
           const completed = problems.filter(problem => memberIds.has(problem.id) && status(problem,saved[problem.id]) === "done").length;
           const label = t(collection.name, collection.name_en);
-          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${collection.kind === "course" ? t("课程", "Course") : `${members.length} ${t("篇论文", "papers")}`} · ${count} ${t("道题", "problems")}`}>
+          return <AppLink key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${collection.kind === "course" ? t("课程", "Course") : `${members.length} ${t("篇论文", "papers")}`} · ${count} ${t("道题", "problems")}`}>
             <div className="collection-copy">
               <h3>{label}</h3>
             </div>
             <div className="collection-learning-progress" aria-hidden="true"><span>{progressReady ? `${completed}/${count} ${t("已通过", "solved")}` : t("正在加载进度…", "Loading progress…")}</span></div>
             <CollectionArtwork kind={collection.id} />
             <span className="collection-open" aria-hidden="true"><ArrowRight size={20} /></span>
-          </a>;
+          </AppLink>;
         })}
       </nav>
     </section>
@@ -142,8 +144,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
       <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
-      <a className="text-button" href="#/paper-registry">{t("论文库","Paper registry")}</a>
-      <a className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</a>
+      <AppLink className="text-button" href="#/paper-registry">{t("论文库","Paper registry")}</AppLink>
+      <AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>
     </header>
     {!course && <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
@@ -185,24 +187,24 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{moduleView ? t("练习", "Module") : t("论文", "Paper")}</span><span className="paper-year">{moduleView ? t("用时", "Time") : t("年份", "Year")}</span><span>{moduleView ? t("难度", "Difficulty") : t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
       <div className="problem-rows">
         {!waitingForStatus && (moduleView ? filteredModules.slice(0, visibleCount).map(module => <div className="paper-result-group" key={module.id}>
-          <a className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
+          <AppLink className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
             <StateIcon state={status(module,saved[module.id])} />
             <div className="problem-info paper-info"><strong><span>{module.number}.</span>{locale === "en" ? module.translations?.en?.title || module.title : module.title}</strong><small>{t(module.module.goal,module.module.goal_en)}</small></div>
             <span className="paper-year">{module.estimated_minutes || 25} min</span>
             <span className={`difficulty ${module.difficulty}`}>{({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[module.difficulty]}</span>
             <ChevronRight size={16} aria-hidden="true" />
-          </a>
+          </AppLink>
         </div>) : filtered.slice(0, visibleCount).map((paper) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
-          return <div className="paper-result-group" key={paper.id}><a className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
+          return <div className="paper-result-group" key={paper.id}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
             <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span>{paper.short_title}</strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
-          </a>{showMatches && <div className="matching-modules"><span>{t("匹配模块", "Matching modules")}</span>{matching.map(module=><a key={module.id} href={withLibraryContext(module.number,viewHref)}><Code2 size={13} aria-hidden="true" />{module.number}. {locale === "en" ? module.translations?.en?.title || module.title : module.title}<ArrowRight size={12} aria-hidden="true" /></a>)}</div>}</div>;
+          </AppLink>{showMatches && <div className="matching-modules"><span>{t("匹配模块", "Matching modules")}</span>{matching.map(module=><AppLink key={module.id} href={withLibraryContext(module.number,viewHref)}><Code2 size={13} aria-hidden="true" />{module.number}. {locale === "en" ? module.translations?.en?.title || module.title : module.title}<ArrowRight size={12} aria-hidden="true" /></AppLink>)}</div>}</div>;
         }))}
       </div>
       {!waitingForStatus && visibleCount < rowIds.length && <button className="library-load-more text-button" onClick={() => reveal(Math.min(rowIds.length, visibleCount + 20))}>{t("加载更多", "Load more")}<ChevronDown size={14} aria-hidden="true" /></button>}

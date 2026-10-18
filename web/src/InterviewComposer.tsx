@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import CommunityTagPicker from './CommunityTagPicker';
 import {unavailableCommunityTags} from './communityTagSelection';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
@@ -99,7 +100,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
   <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。可选择昵称或匿名发布，所属机构仍展示。','Company, role and linked concepts are public. Outcome and location are optional. Choose named or anonymous posting; affiliation remains visible.')}</p>
   {!durable&&<p role="alert" className="interview-notice">{t('草稿暂时无法保存到此标签页，请保持页面打开或复制内容。','This tab cannot save the draft. Keep this page open or copy your text.')}</p>}
   {error&&<p role="alert" className="interview-error">{error}</p>}
-  {confirmedPost&&<p role="status" className="interview-notice">{t('面经已发布；当前草稿仍保留。','Your report was published; the current draft is preserved.')} <a href={communityPostHref(confirmedPost.id,interviewHref({...emptyInterviewFilters(),company:confirmedPost.interview.company}))}>{t('查看已发布面经','View published report')}</a></p>}
+  {confirmedPost&&<p role="status" className="interview-notice">{t('面经已发布；当前草稿仍保留。','Your report was published; the current draft is preserved.')} <AppLink href={communityPostHref(confirmedPost.id,interviewHref({...emptyInterviewFilters(),company:confirmedPost.interview.company}))}>{t('查看已发布面经','View published report')}</AppLink></p>}
   <PublishingAffiliationNotice/>
   {!confirmedPost&&<PublicationRecovery pending={pending} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>

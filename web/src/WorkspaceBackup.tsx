@@ -1,3 +1,4 @@
+import {appLocation} from './appLocation';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from './i18n';
 import { draftSnapshotMatches, type DraftExpectation } from './practiceRecords';
@@ -99,7 +100,7 @@ export default function WorkspaceBackup({ owner, problems, saved, backups, confl
         return;
       }
       close();
-      location.hash = `/${problem.number}`;
+      appLocation.hash = `/${problem.number}`;
     } catch {
       setError(t('未能完成载入，请检查备份下载和工作区保存状态。', 'Loading could not finish. Check the backup download and workspace save status.'));
     }

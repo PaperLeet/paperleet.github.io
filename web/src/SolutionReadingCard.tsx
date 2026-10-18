@@ -1,3 +1,4 @@
+import AppLink from './AppLink';
 import {useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ArrowUp,ArrowUpRight,ChevronDown,Code2} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -55,6 +56,6 @@ export default function SolutionReadingCard({id,title,body,returnTo,onCode,query
       </div>
     </details>
     {!open&&<PostPreviewContent summary={preview} inlinePost query={query}/>}
-    <a data-reading-link="read" className="solution-reading-page" href={communityPostHref(id,returnTo)}>{t('在独立页面打开','Open full page')}<ArrowUpRight size={14} aria-hidden="true"/></a>
+    <AppLink data-reading-link="read" className="solution-reading-page" href={communityPostHref(id,returnTo)}>{t('在独立页面打开','Open full page')}<ArrowUpRight size={14} aria-hidden="true"/></AppLink>
   </div>;
 }

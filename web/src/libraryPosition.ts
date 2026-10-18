@@ -1,3 +1,4 @@
+import {appLocation} from './appLocation';
 import { libraryHref, readLibraryRoute } from './libraryNavigation';
 
 type Position = { y: number; count?: number; anchor?: { id: string; top: number } };
@@ -46,7 +47,7 @@ export function readLibraryPosition(href: string): Position | undefined {
 export function watchLibraryPosition(href: string, restore: boolean, windowed?: {ids: string[]; reveal: (count: number) => void}) {
   let stopped = false, frame: number | undefined, observer: IntersectionObserver | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const here = () => canonical(location.hash) === href;
+  const here = () => canonical(appLocation.hash) === href;
   const rows = () => Array.from(document.querySelectorAll<HTMLElement>('[data-paper-id],[data-module-id]'));
   const rowId = (element?: HTMLElement) => element?.dataset.paperId || element?.dataset.moduleId;
   const position = restore && readLibraryPosition(href);

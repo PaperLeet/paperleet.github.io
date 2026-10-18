@@ -1,3 +1,4 @@
+import {appLocation, routeHash, sameAppUrl} from './appLocation';
 import {useEffect,useLayoutEffect,useRef,useState,useSyncExternalStore} from 'react';
 import type {useDiscussionReplies} from './useDiscussionReplies';
 import {captureReadingAnchor,restoreReadingAnchor,keepReadingTriggerVisible,revealReadingTarget,readingScrollRoot,type ReadingAnchor} from './readingViewport';
@@ -11,14 +12,14 @@ export function useDiscussionPracticeReturn({owner,post,list,ready,linkedReply}:
  const interactions=useRef(0),attempted=useRef<number|undefined>(undefined),requests=useRef(0),pending=useRef<Pending|undefined>(undefined),frame=useRef<number|undefined>(undefined);
  const dismissing=useRef<{href:string;before:number;opener:HTMLElement;target?:HTMLElement;anchor?:ReadingAnchor}|undefined>(undefined);
  const [notice,setNotice]=useState<DiscussionReturnNotice>(),[visibility,setVisibility]=useState(0),revision=useSyncExternalStore(subscribeDiscussionReturn,discussionReturnRevision,()=>0);
- const here=()=>!!owner&&live.current.owner===owner&&live.current.post===post&&!!root.current?.isConnected&&root.current.dataset.discussionPost===post&&discussionThreadHere(location.hash,post);
+ const here=()=>!!owner&&live.current.owner===owner&&live.current.post===post&&!!root.current?.isConnected&&root.current.dataset.discussionPost===post&&discussionThreadHere(appLocation.hash,post);
  const allowed=(before:number,opener?:HTMLElement)=>interactions.current===before&&(opener?document.activeElement===opener||document.activeElement===document.body&&!opener.isConnected:interactions.current===0&&(document.activeElement===document.body||!document.activeElement?.isConnected));
  function zone(anchor:Pick<DiscussionReturn['anchor'],'place'|'reply'>){
   if(anchor.place==='reply')return root.current?.querySelector<HTMLElement>(`[data-discussion-reply="${anchor.reply}"]`);
   const selector={topic:'.problem-discussion-context',practice:'.discussion-post .interview-report-practice',next:'.discussion-post .interview-report-practice',mentions:'.discussion-post .practice-mentions',article:'.discussion-post .discussion-reading-body',other:''}[anchor.place];
   return selector?root.current?.querySelector<HTMLElement>(selector):root.current;
  }
- function links(host:HTMLElement,href:string,place:DiscussionReturn['anchor']['place']){return [...host.querySelectorAll<HTMLAnchorElement>('a[href]')].filter(node=>!node.closest('[hidden]')&&new URL(node.href,location.href).hash===href&&(place!=='next'||node.classList.contains('interview-report-practice-next'))&&(place!=='practice'||!node.classList.contains('interview-report-practice-next')));}
+ function links(host:HTMLElement,href:string,place:DiscussionReturn['anchor']['place']){return [...host.querySelectorAll<HTMLAnchorElement>('a[href]')].filter(node=>!node.closest('[hidden]')&&routeHash(node.href)===href&&(place!=='next'||node.classList.contains('interview-report-practice-next'))&&(place!=='practice'||!node.classList.contains('interview-report-practice-next')));}
  function find(row:DiscussionReturn){
   const host=zone(row.anchor);if(!host)return;
   const found=links(host,row.anchor.href,row.anchor.place),link=found[row.anchor.index];
@@ -40,15 +41,15 @@ export function useDiscussionPracticeReturn({owner,post,list,ready,linkedReply}:
   const capture=(event:MouseEvent)=>{
    if(!here()||!live.current.ready||live.current.list.disabled||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.altKey||event.shiftKey||!(event.target instanceof window.Element))return;
    const link=event.target.closest<HTMLAnchorElement>('a[href]');if(!link||!root.current?.contains(link)||link.target&&link.target!=='_self'||link.hasAttribute('download')||link.closest('[hidden]')||readingScrollRoot(link))return;
-   const target=new URL(link.href,location.href),practice=discussionPracticeTarget(target.hash,post);
-   if(target.origin!==location.origin||target.pathname!==location.pathname||target.search!==location.search||!practice)return;
+   const target=new URL(link.href,location.href),practice=discussionPracticeTarget(routeHash(target),post);
+   if(!sameAppUrl(target)||!practice)return;
    const reply=link.closest<HTMLElement>('[data-discussion-reply]')?.dataset.discussionReply,current=live.current.list;
    const opened=[...root.current.querySelectorAll<HTMLButtonElement>('.reply-search-full[aria-expanded=true]')].flatMap(button=>{const id=button.closest<HTMLElement>('[data-discussion-reply]')?.dataset.discussionReply,row=id?current.byId.get(id):undefined;return row?.edit_version&&/^[a-f0-9]{64}$/.test(row.edit_version)?[{reply:row.id,revision:row.edit_version}]:[];});
    const expanded=[...opened.filter(row=>row.reply===reply),...opened.filter(row=>row.reply!==reply)].slice(0,100);
    const module=link.dataset.readingPractice||practice;
    const place:DiscussionReturn['anchor']['place']=reply?'reply':link.closest('.problem-discussion-context')?'topic':link.classList.contains('interview-report-practice-next')?'next':link.closest('.interview-report-practice')?'practice':link.closest('.practice-mentions')?'mentions':link.closest('.discussion-reading-body')?'article':'other';
-   const host=zone({place,reply});if(!host)return;const index=links(host,target.hash,place).indexOf(link);if(index<0)return;
-   rememberDiscussionReturn({owner:owner!,post,practice,view:current.snapshotView(),expanded,anchor:{href:target.hash,place,index,...(reply?{reply}:{}),...(!/^\d+$/.test(module)?{module}:{}),top:link.getBoundingClientRect().top,keyboard:event.detail===0&&document.activeElement===link}});
+   const host=zone({place,reply});if(!host)return;const index=links(host,routeHash(target),place).indexOf(link);if(index<0)return;
+   rememberDiscussionReturn({owner:owner!,post,practice,view:current.snapshotView(),expanded,anchor:{href:routeHash(target),place,index,...(reply?{reply}:{}),...(!/^\d+$/.test(module)?{module}:{}),top:link.getBoundingClientRect().top,keyboard:event.detail===0&&document.activeElement===link}});
   };
   document.addEventListener('click',capture);
   return()=>{for(const name of ['pointerdown','keydown','wheel','touchmove','focusin'])window.removeEventListener(name,intent);window.removeEventListener('scroll',scroll);document.removeEventListener('visibilitychange',visible);document.removeEventListener('click',capture);pending.current=undefined;if(frame.current!==undefined)window.cancelAnimationFrame(frame.current);};
