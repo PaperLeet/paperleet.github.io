@@ -6,6 +6,7 @@ import { createServer } from 'vite';
 const server = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom', optimizeDeps: {noDiscovery: true, include: []} });
 try {
   const { publicationQuotaMessage } = await server.ssrLoadModule('/src/publicationQuota.ts');
+  const { socialApi, SocialError } = await server.ssrLoadModule('/src/social.tsx');
   const { PublishingRules, DAILY_PUBLICATION_LIMITS } = await server.ssrLoadModule('/src/PublishingRules.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const { canPublishCommunity } = await server.ssrLoadModule('/src/communityPublishing.ts');
@@ -27,7 +28,7 @@ try {
   assert(canPublishCommunity({id:'dev',is_test_user:true},{auth_mode:'test'}));
   assert(!canPublishCommunity({id:'dev',is_test_user:true,can_publish_community:true},{auth_mode:'oauth'}), 'Test markers only bypass verification in explicit test mode');
   assert(!canPublishCommunity({id:'dev',is_test_user:true,can_publish_community:false},{auth_mode:'test'}));
-  const original = globalThis.localStorage;
+  const original = globalThis.localStorage, originalFetch = globalThis.fetch;
   try {
     for (const english of [false, true]) {
       globalThis.localStorage = { getItem: () => english ? 'en' : 'zh' };
@@ -35,13 +36,25 @@ try {
         const response = { code: 'daily_quota_exceeded', quota: { action, limit, reset_at: '2026-10-15T00:00:00+00:00' } };
         const message = publicationQuotaMessage(response, english);
         assert(message.includes(String(limit)) && message.includes(english ? 'Your draft is kept' : '草稿已保留'));
+        globalThis.fetch = async () => Response.json({...response,error:'Server quota rejection'},{status:429});
+        await assert.rejects(socialApi('community/posts',{title:'Retained draft'}),error=>error instanceof SocialError && error.status===429 && error.code===response.code && error.message===message,'Deferred wording preserves the typed API rejection and current locale');
         const html = renderToString(React.createElement(LocaleProvider, null, React.createElement(PublishingRules, { action })));
         assert(html.includes('UTC') && html.includes(english ? 'Deletion does not restore quota' : '删除内容不返还额度'));
         assert(html.includes(english ? 'human review' : '人工评审'));
         assert(html.includes(english ? 'Code submissions have separate limits' : '做题代码提交单独计算'));
       }
+      const profileLimit={code:'profile_edit_limit',field:'display_name',next_change_at:'2030-10-21T00:00:00Z',error:'Profile limit'};
+      globalThis.fetch=async()=>Response.json(profileLimit,{status:429});
+      await assert.rejects(socialApi('account/profile',{display_name:'Retained name'}),error=>error instanceof SocialError && error.profileEditField==='display_name' && error.nextChangeAt===profileLimit.next_change_at && error.message.includes(english?'Your edits are kept':'当前编辑内容仍保留'),'Deferred profile errors keep recovery fields and draft guidance');
     }
+    for(const code of ['daily_quota_exceeded','profile_edit_limit','account_changed']){
+      globalThis.fetch=async()=>Response.json({code,error:'Original server rejection'},{status:409});
+      await assert.rejects(socialApi('account/profile',{}),error=>error instanceof SocialError && error.status===409 && error.code===code && error.message==='Original server rejection','Unrecognized or incomplete detail uses the server message');
+    }
+    globalThis.fetch=async()=>Response.json({user_id:'current-owner'});
+    assert.deepEqual(await socialApi('account/me'),{user_id:'current-owner'});
   } finally {
+    globalThis.fetch=originalFetch;
     if (original === undefined) delete globalThis.localStorage;
     else globalThis.localStorage = original;
   }

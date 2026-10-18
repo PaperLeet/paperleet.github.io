@@ -100,6 +100,12 @@ async function denied(edit,pattern) {const f=fixture();edit(f);await assert.reje
   assert(!/^  pull_request:/m.test(ci)&&!/^    branches:/m.test(ci));assert.match(ci,/tags: \['v\*'\]/);
   assert.equal((ci.match(/run: node web\/scripts\/check-release-request.cjs/g)||[]).length,3);
   assert.match(ci,/run: paperleet ci --budget 600/);assert.match(ci,/run: python -m pytest tests packages\/stridetorch\/tests -q/);assert.match(ci,/npm run check:browser-wasm/);
+  const productionBuild=ci.split('      - name: Build production Pages edition\n')[1]?.split('\n      - ')[0];
+  assert(productionBuild,'The quality gate must check the production Pages edition before publication');
+  const pagesBuild=workflow.split('      - name: Build public site\n')[1].split('\n      - ')[0];
+  const buildEnv=step=>step.split('        env:\n')[1].split('        run:')[0].trim();
+  assert.equal(buildEnv(productionBuild),buildEnv(pagesBuild),'Quality and publication builds must use the same deployment variables');
+  assert.match(productionBuild,/working-directory: web/);assert.match(productionBuild,/run: npm run build/);
   const pilot=ci.split('  pilot:\n')[1];assert.match(pilot,/needs: \[native, infrastructure, browser-wasm\]/);
   const shell=pilot.split('        run: |\n')[1].replace(/^ {10}/gm,'');
   const success={NATIVE_RESULT:'success',INFRASTRUCTURE_RESULT:'success',WASM_RESULT:'success'};

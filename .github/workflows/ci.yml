@@ -48,6 +48,16 @@ jobs:
           npm ci
           npm run check
           npm run build
+      - name: Build production Pages edition
+        working-directory: web
+        env:
+          PAPERLEET_MAIN_SITE_ENABLED: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED }}
+          VITE_PUBLIC_SITE: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && '0' || '1' }}
+          VITE_APP_EDITION: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'hosted' || 'local' }}
+          VITE_API_ORIGIN: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'https://app.paperleet.com' || '' }}
+          VITE_HOSTED_APP_AVAILABLE: '1'
+          VITE_HOSTED_APP_URL: https://app.paperleet.com
+        run: npm run build
       - uses: actions/upload-artifact@v4
         if: always()
         with:
