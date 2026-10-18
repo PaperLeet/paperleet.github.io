@@ -2,7 +2,7 @@ import {X} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
 import {interviewCatalog,interviewLabel} from './interviewModels';
-import {emptyInterviewFilters,type InterviewFilters} from './interviewNavigation';
+import {emptyInterviewFilters,interviewBatchView,type InterviewFilters} from './interviewNavigation';
 import type {Problem} from './types';
 
 export default function InterviewActiveFilters({filters,problems,onChange,readOnly=false}:{filters:InterviewFilters;problems:Problem[];onChange:(change:Partial<InterviewFilters>)=>void;readOnly?:boolean}){
@@ -13,7 +13,7 @@ export default function InterviewActiveFilters({filters,problems,onChange,readOn
  if(filters.q)chips.push({key:'q',label:`“${filters.q}”`,change:{q:''}});
  if(filters.days!=='365')chips.push({key:'days',label:filters.days==='all'?t('全部时间','All time'):t(`近 ${filters.days} 天`,`Past ${filters.days} days`),change:{days:'365'}});
  if(filters.concept){const problem=problems.find(problem=>problem.id===filters.concept);chips.push({key:'concept',label:problem?(en?problem.translations?.en?.title||problem.title:problem.title):filters.concept,change:{concept:''}});}
- if(filters.view==='questions'&&filters.study!=='all')chips.push({key:'study',label:({todo:t('未开始','Not started'),started:t('进行中','In progress'),done:t('已通过','Passed')})[filters.study],change:{study:'all'}});
+ if(interviewBatchView(filters)&&filters.study!=='all')chips.push({key:'study',label:({todo:t('未开始','Not started'),started:t('进行中','In progress'),done:t('已通过','Passed')})[filters.study],change:{study:'all'}});
  if(filters.view==='questions'&&filters.difficulty)chips.push({key:'difficulty',label:t('难度：','Difficulty: ')+({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')})[filters.difficulty],change:{difficulty:''}});
  if(filters.view==='questions'&&filters.max_minutes)chips.push({key:'max_minutes',label:t(`单题 ≤ ${filters.max_minutes} 分钟`,`Up to ${filters.max_minutes} min per exercise`),change:{max_minutes:''}});
  if(filters.location)chips.push({key:'location',label:t(`地点包含：${filters.location}`,`Location contains: ${filters.location}`),change:{location:''}});

@@ -117,3 +117,29 @@ editing. Failed-add notices and captured intent stay in memory for the current
 account/provider lifetime; they are not cross-device drafts. `check-company-target-recovery.mjs` checks the real hub, capacity races, late/pre-rejection reads, explicit
 recovery, locale and account transitions in React/JSDOM; it also supports a disposable
 real HTTP/SQLite bridge. It does not prove native browser geometry or device focus.
+
+## Personal learning states in company comparison
+
+An applied comparison can show All learning states, Not started, In progress or
+Passed, using the viewer's actual workspace evidence. Public company/contributor
+counts and source order are independent of this personal filter. Missing exercise
+details never count as unstarted; the page states how many source concepts are
+unavailable and the All state keeps their source links. Completion is summarized
+only when the full current comparison has loaded metadata and confirmed progress.
+
+Row actions open practice directly with an ordered, filtered six-concept snapshot.
+Practice, sign-in, the module navigator and return keep the pair, public scope,
+learning filter and captured queue. Later grades do not rewrite that queue. Changing
+only the learning filter retains an existing selected batch and its order, including
+items outside the new list; unapplied company-search text also stays intact.
+
+Study filters are canonical only in concept views or applied company comparisons.
+A shared view uses the opener's own progress; shared captured batches clear the
+sender's learning-state filter. The URL contains public identifiers and filter enums,
+never grades, counts, code or report drafts. Progress/catalog errors keep the applied
+filter, show a recovery action and allow an explicit return to All.
+
+`check-comparison-learning.mjs` checks the actual hub, filters, row practice, navigator,
+next-step, owner/locale transitions and exact returns in React/JSDOM, with an optional
+disposable real HTTP/SQLite public-summary bridge. It does not establish native
+browser geometry, physical focus, IME, clipboard or live-provider behavior.

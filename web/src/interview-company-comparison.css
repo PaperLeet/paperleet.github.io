@@ -36,3 +36,16 @@
 .company-comparison-practice > p { margin:8px 0; color:var(--muted); font-size:var(--type-small); line-height:1.8; }
 .company-comparison-practice .interview-practice-group { margin-top:12px; }
 .company-comparison-table .interview-group-toggle { display:flex; width:fit-content; margin-top:8px; }
+
+.company-comparison-learning{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);min-width:0}
+.company-comparison-learning-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;font-size:var(--type-body)}
+.company-comparison-learning-heading>span{display:flex;align-items:center;gap:10px;font-size:var(--type-small);font-variant-numeric:tabular-nums;color:var(--muted)}
+.company-comparison-learning progress{width:90px;max-width:100%;height:6px;accent-color:var(--accent)}
+.company-comparison-learning p{margin:8px 0;font-size:var(--type-small);line-height:1.75;color:var(--muted);overflow-wrap:anywhere}.company-comparison-learning p>button{margin-inline-start:10px}
+.company-comparison-learning-filters{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.company-comparison-learning-filters>button{display:flex;align-items:center;gap:8px;min-height:40px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--muted);font-size:var(--type-control)}
+.company-comparison-learning-filters>button[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}.company-comparison-learning-filters small{font-variant-numeric:tabular-nums}
+.company-comparison-row-practice{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-top:8px;font-size:var(--type-small)}
+.company-comparison-row-practice>.interview-group-toggle{margin-top:0}.company-comparison-state{color:var(--muted);font-weight:400}.company-comparison-state.done{color:var(--green)}.company-comparison-state.started{color:var(--accent)}
+.company-comparison-row-practice>a{display:inline-flex;align-items:center;min-height:32px}.company-comparison-learning p>.text-button{min-height:32px}
+@media(pointer:coarse){.company-comparison-learning-filters>button,.company-comparison-row-practice>a,.company-comparison-learning p>.text-button{min-height:44px}}

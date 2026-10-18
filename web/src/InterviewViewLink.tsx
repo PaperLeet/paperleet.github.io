@@ -1,6 +1,6 @@
 import {Check,Copy} from 'lucide-react';
 import {useI18n} from './i18n';
-import {interviewHref,readInterviewRoute,type InterviewFilters} from './interviewNavigation';
+import {interviewHref,readInterviewRoute,interviewBatchView,type InterviewFilters} from './interviewNavigation';
 import {useClipboardCopy} from './useClipboardCopy';
 
 /** A shareable view contains applied filters, not the page's query or previous hash. */
@@ -12,7 +12,7 @@ export function interviewViewShareUrl(pageUrl:string,href:string):string {
 
 export default function InterviewViewLink({filters,owner='guest'}:{filters:InterviewFilters;owner?:string}) {
   const href=interviewHref(filters);
-  return <ScopedViewLink key={JSON.stringify([owner,href])} href={href} personal={filters.saved||filters.view==='questions'&&filters.study!=='all'}/>;
+  return <ScopedViewLink key={JSON.stringify([owner,href])} href={href} personal={filters.saved||interviewBatchView(filters)&&filters.study!=='all'}/>;
 }
 
 function ScopedViewLink({href,personal}:{href:string;personal:boolean}) {

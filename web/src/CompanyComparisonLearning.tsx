@@ -1,0 +1,17 @@
+import {useId} from 'react';
+import {useI18n} from './i18n';
+import type {InterviewStudyState} from './interviewNavigation';
+import type {CompanyComparisonLearningState} from './companyComparisonLearningModel';
+
+export default function CompanyComparisonLearning({value,selected,ready,error,catalogError,onChoose,onRetryProgress,onRetryCatalog}:{value:CompanyComparisonLearningState;selected:InterviewStudyState;ready:boolean;error?:string;catalogError?:string;onChoose:(study:InterviewStudyState)=>void;onRetryProgress?:()=>void;onRetryCatalog?:()=>void}){
+ const {t}=useI18n(),id=useId();
+ const labels={all:t('全部状态','All learning states'),todo:t('未开始','Not started'),started:t('进行中','In progress'),done:t('已通过','Passed')};
+ return <section className="company-comparison-learning" aria-label={t('公司对比学习状态','Company comparison learning states')}>
+  <div className="company-comparison-learning-heading"><b>{t('我的准备进度','My preparation')}</b>{ready&&value.loaded>0&&!value.unavailable&&<span>{t(`已通过 ${value.counts.done} / ${value.loaded}`,`Passed ${value.counts.done} / ${value.loaded}`)}<progress value={value.counts.done} max={value.loaded} aria-label={t('当前对比知识点的通过进度','Passed progress for these comparison concepts')}/></span>}</div>
+  <p id={id}>{t('按自己的学习状态缩小列表，来源面经的数量与顺序保持不变。已选练习组保留题目与顺序。','Narrow the list by your learning state. Public source counts and order stay the same. Your selected batch keeps its concepts and order.')}</p>
+  <div className="company-comparison-learning-filters" role="group" aria-label={t('筛选对比题目的学习状态','Filter comparison learning states')} aria-describedby={id}>{(['all','todo','started','done'] as const).map(study=><button key={study} type="button" aria-pressed={selected===study} disabled={study!=='all'&&!ready} onClick={()=>onChoose(study)}><span>{labels[study]}</span><small>{study==='all'||ready?value.counts[study]:'—'}</small></button>)}</div>
+  {!ready&&<p role="status">{catalogError?t('题目信息暂不可用，学习状态筛选已保留；仍可按知识点标识查看来源面经。','Exercise details are unavailable. Your learning-state filter is kept. Concept identifiers still link to source reports.'):error?t('个人进度暂不可用，学习状态筛选已保留。','Personal progress is unavailable. Your learning-state filter is kept.'):t('正在等待个人进度，学习状态筛选已保留。','Waiting for personal progress. Your learning-state filter is kept.')}{catalogError?onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>:error&&onRetryProgress&&<button type="button" className="text-button" onClick={onRetryProgress}>{t('重试进度','Retry progress')}</button>}</p>}
+  {value.unavailable>0&&<p role="status">{t(`${value.unavailable} 个来源知识点暂未载入练习信息，不计入未开始、进行中或已通过。切回全部状态仍可查看它们的来源。`,`${value.unavailable} source concepts have no loaded exercise details and are excluded from Not started, In progress and Passed. All learning states still shows their sources.`)}{!catalogError&&onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</p>}
+  {selected!=='all'&&<p className="company-comparison-learning-result" role="status">{value.pending?t('等待确认学习状态后显示匹配题目。','Matching exercises appear after learning states are confirmed.'):t(`匹配 ${value.matching.length} 个已载入的知识点`,`Matching ${value.matching.length} loaded concepts`)}<button type="button" className="text-button" onClick={()=>onChoose('all')}>{t('显示全部状态','Show all learning states')}</button></p>}
+ </section>;
+}
