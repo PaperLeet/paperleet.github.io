@@ -61,14 +61,15 @@ def view_result(data, parent, backward):
     return value
 
 
-def joint_result(data, inputs, backward, *, saved=(), versioned=None):
+def joint_result(data, inputs, backward, *, saved=(), versioned=None, prune_inputs=False):
     """Internal multi-input VJP, evaluated once per backward traversal.
 
     ``backward(seed, needs)`` returns one entry per input, using None only for
     frozen inputs. Needs are captured at graph construction, not recomputed
     from mutable leaf flags. Normal guards cover all operands unless the caller
     supplies an explicit, validated ``versioned`` selection.
-    No gradients or seeds are cached across traversals.
+    Validated rules may opt into traversal-specific input pruning; other rules
+    continue receiving construction-time needs. No gradients or seeds are cached.
     """
     inputs = tuple(inputs)
     if any(isinstance(node, ForwardTensor) for node in (*inputs, *saved)):
@@ -88,7 +89,7 @@ def joint_result(data, inputs, backward, *, saved=(), versioned=None):
     value._requires_grad = True
     value._grad_node = _graph.Node(value, parents, saved=True,
         versions=tuple((counter, counter.version) for counter in counters),
-        joint=(backward, needs))
+        joint=(backward, needs, True) if prune_inputs else (backward, needs))
     return value
 
 

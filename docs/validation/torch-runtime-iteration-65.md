@@ -233,7 +233,13 @@ that candidate is not implemented or measured in this version.
 The 24 prior determinant/log allocation diagnostics retain separate warm and
 cold-first results. Sixteen additional CPU tracemalloc rows record warm inverse
 forward retained/peak bytes and a separately traced weighted-backward peak.
-Inputs/directions/weights predate tracing; C inputs need no direction copy.
+Inputs/directions/weights predate tracing. A later stride audit found that the
+`broadcast_to(...).astype(...)` direction used in the batched allocation probe
+has element strides `(1, 128, 4)`, while its C-contiguous primal has
+`(1024, 32, 1)`. Native-compatible forward AD therefore copies that direction.
+The 2D probe uses matching `(64, 1)` strides and needs no direction copy. This
+corrects the original scope description; the archived measurements are unchanged.
+The latency benchmark constructs its directions differently and is unaffected.
 These are incremental tracked allocations, not total tape bytes, process RSS,
 LAPACK workspace or WASM heap. New native layout and saved-value semantics differ
 from the old composition, so time and allocation results must be assessed together.

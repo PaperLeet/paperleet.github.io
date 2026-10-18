@@ -255,6 +255,24 @@ case repeats a matmul with the same resident inputs; it does not model a neural
 network computation chain. GPU validation errors fail the run, and all buffers
 and the device are released. No adapter is a reported unsupported result.
 
+`webgpu_bridge.mjs` exports `probeWebGpuBridge(py)` for an already initialized
+Pyodide instance. Run it inside the intended Worker and sandbox, rather than
+inferring backend support from a top-level page:
+
+```js
+const {probeWebGpuBridge} = await import('./webgpu_bridge.mjs');
+console.log(await probeWebGpuBridge(py));
+```
+
+It records secure-context/WebGPU/JSPI availability, tests an actually pending
+Promise through both Python entry points and, when an adapter exists, checks a
+scalar WGSL result through Python, GPU dispatch and asynchronous readback.
+Temporary Python names, buffers and the device are released. Missing WebGPU is
+a capability observation; the synchronous entry's inability to suspend is
+recorded alongside the asynchronous result. No timing or tensor-backend support
+is inferred. See the [sandbox feasibility record](../../../docs/validation/torch-webgpu-bridge-feasibility.md)
+for the measured PaperLeet constraints.
+
 `bench_batchnorm.py` compares the joint NumPy BN kernel with a first-order Tensor
 composition in this same library. It validates values/gradients before timing
 tiny/MLP/vision training backward, eval backward, frozen-input affine/bias cases

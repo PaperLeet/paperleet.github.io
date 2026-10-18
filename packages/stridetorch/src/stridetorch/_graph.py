@@ -156,16 +156,24 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
                 parent_key = id(parent)
                 pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
         else:
-            backward, active = node.joint
-            # The public rule receives construction-time active inputs. The
-            # engine can discard unrelated branches after the joint evaluation.
-            values = backward(gradient, active)
+            backward, active = node.joint[:2]
+            needs = active
+            if len(node.joint) == 3 and needed is not None and not execute_target:
+                requested = iter(id(parent) in needed for parent, _, _ in parents)
+                needs = tuple(next(requested) if flag else False for flag in active)
+            # Existing rules receive construction-time needs. Only validated
+            # selective rules may skip inputs outside this traversal's targets.
+            values = backward(gradient, needs)
             if not isinstance(values, (tuple, list)) or len(values) != len(active):
                 raise RuntimeError('A joint VJP must return one gradient per input')
-            if any(flag and value is None for flag, value in zip(active, values)):
-                raise RuntimeError('A joint VJP omitted a required input gradient')
-            values = (value for flag, value in zip(active, values) if flag)
-            for (parent, _, dtype), value in zip(parents, values):
+            parent_index = 0
+            for index, value in enumerate(values):
+                if needs[index] and value is None:
+                    raise RuntimeError('A joint VJP omitted a required input gradient')
+                if not active[index]:
+                    continue
+                parent, _, dtype = parents[parent_index]
+                parent_index += 1
                 if needed is not None and id(parent) not in needed:
                     continue
                 incoming = np.asarray(value, dtype=dtype)

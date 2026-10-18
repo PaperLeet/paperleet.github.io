@@ -1729,3 +1729,16 @@ elementwise tolerances; both backends are additionally checked against an exact-
 input float64 oracle with max error normalized by max(1, oracle max magnitude)
 at most 1e-5. Float64 mixed AD remains checked elementwise. This is numerical
 compatibility with documented floating-point bounds, not bitwise equivalence.
+
+Version 0.66 shares one upstream-gradient matrix product between inverse JVP
+reverse branches on Pyodide/WASM when matrix cores are at least 32×32 and both
+inputs require gradients. CPU and smaller/one-input cases keep the independent
+reverse rules. Targeted gradient requests can prune unused shared branches;
+repeated requests never reuse a cached upstream gradient. Saved-value mutation
+guards remain in force even when a reverse branch is pruned.
+
+Empty inverse-JVP directions keep the original direction's version guard,
+including interleaved empty batches: native empty tangent canonicalization does
+not create an independent saved copy. Joint reverse rules validate and route
+returned gradients in one pass. Existing rules retain construction-time needs;
+only explicitly validated rules opt into target-dependent pruning.

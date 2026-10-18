@@ -1,0 +1,140 @@
+{
+  "status": "capabilities_observed_not_backend_qualification",
+  "observed_utc": "2026-10-18T00:32:14.440Z",
+  "browser": "155.0.8059.82",
+  "launch": {
+    "headless": true,
+    "extra_flags": []
+  },
+  "runtime_asset_cors": "Wildcard CORS supplied by local fixture for public assets; opaque-origin requests recorded.",
+  "source_sha256": "2ef317dc4f69a813b4d9e3447ef7da2238e82b82a20a2bc1472bab14012303a9",
+  "probe_module_sha256": "d1be85dfcfe2348ba1635fff9636da8edd3fb264e28b7e6fa66ad1ed5006f340",
+  "pyodide_module_sha256": "8fdfed5eaf81bde14bcdeaeea11f2672675b2362248f8537446b6fda5e4a4751",
+  "production_judge_sha256": "60f9c01cc7b070ef5b00baa22117ef1291a1d8aa77ba957059932555f910ec56",
+  "results": [
+    {
+      "opaque_origin_sandbox": false,
+      "secure_context": true,
+      "origin": "http://127.0.0.1:59614",
+      "cross_origin_isolated": false,
+      "pyodide": "0.29.4",
+      "jspi": {
+        "suspending": "function",
+        "promising": "function"
+      },
+      "gpu_exposed": true,
+      "entry_tests": [
+        {
+          "entry": "runPython",
+          "passed": false,
+          "error": "PythonError: Traceback (most recent call last):\n  File \"/lib/python313.zip/_pyodide/_base.py\", line 523, in eval_code\n    .run(globals, locals)\n     ~~~^^^^^^^^^^^^^^^^^\n  File \"/lib/python313.zip/_pyodide/_base.py\", line 357, in run\n    coroutine = eval(self.code, globals, locals)\n  File \"<exec>\", line 1, in <module>\nRuntimeError: Cannot stack switch because the Python entrypoint was a synchronous function. Use pyFunc.callPromising() to fix.\n"
+        },
+        {
+          "entry": "runPythonAsync",
+          "passed": true,
+          "value": 37
+        }
+      ],
+      "adapter_available": true,
+      "adapter_info": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": "",
+        "fallback": false
+      },
+      "gpu_python_roundtrip": {
+        "passed": true,
+        "value": 42
+      },
+      "repeated_probe_consistent": true,
+      "status": "observed"
+    },
+    {
+      "opaque_origin_sandbox": true,
+      "secure_context": false,
+      "origin": "null",
+      "cross_origin_isolated": false,
+      "pyodide": "0.29.4",
+      "jspi": {
+        "suspending": "function",
+        "promising": "function"
+      },
+      "gpu_exposed": false,
+      "entry_tests": [
+        {
+          "entry": "runPython",
+          "passed": false,
+          "error": "PythonError: Traceback (most recent call last):\n  File \"/lib/python313.zip/_pyodide/_base.py\", line 523, in eval_code\n    .run(globals, locals)\n     ~~~^^^^^^^^^^^^^^^^^\n  File \"/lib/python313.zip/_pyodide/_base.py\", line 357, in run\n    coroutine = eval(self.code, globals, locals)\n  File \"<exec>\", line 1, in <module>\nRuntimeError: Cannot stack switch because the Python entrypoint was a synchronous function. Use pyFunc.callPromising() to fix.\n"
+        },
+        {
+          "entry": "runPythonAsync",
+          "passed": true,
+          "value": 37
+        }
+      ],
+      "repeated_probe_consistent": true,
+      "status": "observed"
+    }
+  ],
+  "requests": [
+    {
+      "path": "/",
+      "origin": null
+    },
+    {
+      "path": "/favicon.ico",
+      "origin": null
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide.mjs",
+      "origin": "http://127.0.0.1:59614"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/stride-webgpu-bridge.mjs",
+      "origin": "http://127.0.0.1:59614"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide-lock.json",
+      "origin": null
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/python_stdlib.zip",
+      "origin": null
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide.asm.wasm",
+      "origin": null
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide.asm.js",
+      "origin": null
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide.mjs",
+      "origin": "null"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/stride-webgpu-bridge.mjs",
+      "origin": "null"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide-lock.json",
+      "origin": "null"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/python_stdlib.zip",
+      "origin": "null"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide.asm.wasm",
+      "origin": "null"
+    },
+    {
+      "path": "/browser-runtime/pyodide-0.29.4/pyodide.asm.js",
+      "origin": null
+    }
+  ],
+  "production_backend_changed": false,
+  "scope": "Pending JS promise and scalar GPU readback only; no tensor, gradient, training or performance qualification."
+}

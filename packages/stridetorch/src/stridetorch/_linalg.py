@@ -1,5 +1,6 @@
 """NumPy-backed linalg implementation; extracted from PaperLeet."""
 from collections import namedtuple
+import sys as _sys
 import numpy as np
 
 
@@ -13,6 +14,7 @@ def _numpy_error_flags_work():
 
 
 _NUMPY_ERRORS_RAISE = _numpy_error_flags_work()
+_INVERSE_JVP_SHARED = _sys.platform == 'emscripten'
 
 
 def _check_singular(a):
@@ -309,21 +311,34 @@ def _inverse_jvp(input):
     value=output._data;transpose=value.swapaxes(-1,-2);e=direction._data
     # Native forward AD copies a tangent whose feature strides differ. Its
     # backward then reads that copy, allowing mutation of the original seed.
-    copied=output.requires_grad and e.strides!=primal._data.strides
+    # Empty native tangents preserve their original version counter.
+    copied=bool(e.size) and output.requires_grad and e.strides!=primal._data.strides
     if copied:e=e.copy(order='K')
     with np.errstate(all='ignore'):
         left=value @ e;tangent=(-(transpose @ left.swapaxes(-1,-2))).swapaxes(-1,-2)
     if not tangent.size:tangent=_layout.contiguous_empty(tangent)
     column_direction=primal.ndim==2 and primal._data.flags.f_contiguous
-    def value_backward(g):
-        negative=-g
-        return _layout.contiguous_empty((negative @ transpose) @ e.swapaxes(-1,-2)+left.swapaxes(-1,-2) @ negative)
-    def direction_backward(g):
-        result=transpose @ ((-g) @ transpose)
-        if not result.size:return _layout.contiguous_empty(result)
-        return np.asfortranarray(result) if column_direction else np.ascontiguousarray(result)
     versions=(output,direction) if output.requires_grad and not copied else (output,)
-    tangent=_autograd.result(tangent,(output,value_backward),(direction,direction_backward),versioned=versions)
+    # A size scan found shared routing worthwhile for WASM cores >=32. Smaller
+    # cores and native CPU retain the cheaper independent-edge dispatch.
+    if _INVERSE_JVP_SHARED and value.shape[-1]>=32 and output.requires_grad and direction.requires_grad:
+        def backward(g,needs):
+            negative=-g;shared=negative @ transpose
+            gp=_layout.contiguous_empty(shared @ e.swapaxes(-1,-2)+left.swapaxes(-1,-2) @ negative) if needs[0] else None
+            ge=transpose @ shared if needs[1] else None
+            if ge is not None:
+                ge=_layout.contiguous_empty(ge) if not ge.size else np.asfortranarray(ge) if column_direction else np.ascontiguousarray(ge)
+            return gp,ge
+        tangent=_autograd.joint_result(tangent,(output,direction),backward,versioned=versions,prune_inputs=True)
+    else:
+        def value_backward(g):
+            negative=-g
+            return _layout.contiguous_empty((negative @ transpose) @ e.swapaxes(-1,-2)+left.swapaxes(-1,-2) @ negative)
+        def direction_backward(g):
+            result=transpose @ ((-g) @ transpose)
+            if not result.size:return _layout.contiguous_empty(result)
+            return np.asfortranarray(result) if column_direction else np.ascontiguousarray(result)
+        tangent=_autograd.result(tangent,(output,value_backward),(direction,direction_backward),versioned=versions)
     exposed=_autograd.view_result(output._data,output,lambda g:g)
     return _autograd.ForwardTensor(exposed,tangent)
 

@@ -763,6 +763,13 @@ source-commit deployment was superseded and is not claimed as published.
    policy, and validate analytical gradients. Establish an end-to-end benefit
    before enabling it for PaperLeet. A WGSL matmul probe is not an implemented
    torch GPU backend; Python/JS transfer and graph execution remain required work.
+   The [sandbox bridge experiment](../../docs/validation/torch-webgpu-bridge-feasibility.md)
+   found no WebGPU exposure in the current opaque-origin Worker on the measured
+   Chrome build, although its ordinary secure Worker completed a Python/GPU
+   scalar roundtrip. The synchronous Python entry also could not suspend.
+   Evaluate a bounded host-side GPU service and an asynchronous Python entry
+   while preserving learner isolation, before attempting resident tensor storage
+   and analytical-gradient/transfer/performance qualification.
 
 ## Stable integration and independent release gates
 
