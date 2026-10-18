@@ -127,3 +127,7 @@ GPU dispatch. No CI workflow, tag, package publication or deployment was initiat
 by these checks. The library remains named StrideTorch pending a naming decision.
 
 The evidence container was losslessly recompressed from gzip to XZ for transfer. The TAR stream SHA256 is `8e8a50c6160ede856971ae5257aec83e65be051b110d303eadb9303e206d4f24`. All 4,276 logical payloads and their mode/ownership metadata were checked; runtime sources, tests and qualification results are unchanged. The original gzip SHA256 is `945aeba437c7c9a7f0abd31d770cc9cf60ccc279d00f7934f8f98882a5639c10`.
+
+## Main adoption
+
+Version 0.71.0 was adopted on main at `f13fd86c73fb6debc722a777621de90a72e905b1`. The guarded ordinary push passed with no active release chain. The remote ref and 2309 tested Git blobs were verified, together with generated Worker derivatives and all 14,257 prior immutable asset tree entries. The adopted SHA had zero Actions runs at verification. No workflow dispatch, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/stridetorch/benchmarks/results/iteration-71-main-adoption.json).
