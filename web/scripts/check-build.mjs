@@ -233,4 +233,8 @@ for (const marker of ['pdf_url','paper-registry-toolbar','paperleet.registry.pos
   assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Paper metadata and registry browsing must stay deferred');
   assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes(marker)), 'Deferred paper readers must retain metadata and registry browsing');
 }
+
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-budget-planner')), 'Interview time planning must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-budget-planner'))), 'Deferred interview preparation must include time planning styles');
+
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);

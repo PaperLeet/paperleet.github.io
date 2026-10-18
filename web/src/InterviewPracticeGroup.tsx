@@ -7,10 +7,12 @@ import {status,type Problem,type Saved} from './types';
 import './interview-practice-group.css';
 import InterviewBatchShare from './InterviewBatchShare';
 import {PRACTICE_GROUP_LIMIT,interviewBatchShareHref} from './interviewBatchSharing';
+import InterviewBudgetPlanner from './InterviewBudgetPlanner';
+import {interviewBudgetPlan,type BudgetInput,type BudgetMode,type BudgetPlan} from './interviewBudgetPlan';
 
 export {PRACTICE_GROUP_LIMIT} from './interviewBatchSharing';
 type Source='reports'|'curated';
-type Change={kind:'add'|'remove'|'move'|'clear'|'fill';number?:number;position?:number;count?:number};
+type Change={kind:'add'|'remove'|'move'|'clear'|'fill'|'budget';number?:number;position?:number;count?:number;minutes?:number;budget?:number};
 type Selection={scope:string;source:Source;numbers:number[];change?:Change};
 type Focus={scope:string;source:Source;href:string;opener:HTMLElement;number?:number;action?:'up'|'down'|'remove'|'catalog'};
 function capturedGroup(queue:string){
@@ -22,8 +24,8 @@ function capturedGroup(queue:string){
 }
 
 /** Selection changes are local; only starting practice captures the ordered public IDs in its URL. */
-export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready,selectionScope,pendingReason='progress'}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean;selectionScope?:string;pendingReason?:'progress'|'catalog'|'sources'}){
- const scope=selectionScope??interviewHref(filters),initial=capturedGroup(filters.queue);
+export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready,selectionScope,pendingReason='progress',owner='guest'}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean;selectionScope?:string;pendingReason?:'progress'|'catalog'|'sources';owner?:string}){
+ const scope=JSON.stringify([owner,selectionScope??interviewHref(filters)]),initial=capturedGroup(filters.queue);
  const [selection,setSelection]=useState<Selection>(()=>({scope,source,numbers:initial||[]}));
  const current=selection.scope===scope&&selection.source===source?selection:{scope,source,numbers:initial||[]};
  const numbers=current.numbers;
@@ -34,6 +36,27 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  const additions=(values:number[])=>candidateNumbers.filter(number=>!values.includes(number)).slice(0,Math.max(0,PRACTICE_GROUP_LIMIT-values.length));
  const fillCount=additions(numbers).length;
  const root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),focus=useRef<Focus|undefined>(undefined);
+ const planningScope=JSON.stringify([scope,source,owner]),alive=useRef(true);
+ useLayoutEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+ const latest=useRef({scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready});
+ latest.current={scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready};
+ function plan(budget:number|undefined,mode:BudgetMode,selected=latest.current.numbers){
+  const value=latest.current;
+  const input:BudgetInput={scope:JSON.stringify([value.scope,value.source]),owner:value.owner,selected,candidates:value.candidateNumbers,ready:value.ready,pending:value.filterPending,items:value.problems.map(problem=>({id:problem.id,number:problem.number,minutes:problem.estimated_minutes,state:value.ready?status(problem,value.saved[problem.id]):'unknown'}))};
+  return interviewBudgetPlan(input,budget,mode);
+ }
+ function applyPlan(proposal:BudgetPlan){
+  if(!alive.current)return;
+  setSelection(previous=>{
+   if(!alive.current)return previous;
+   const value=latest.current,selected=previous.scope===value.scope&&previous.source===value.source?previous.numbers:value.initial||[];
+   const current=plan(proposal.budget,proposal.mode,selected);
+   // Recompute current metadata and progress, including queued selection edits.
+   if(current.fingerprint!==proposal.fingerprint||current.reason||!current.additions.length)return previous;
+   return {scope:value.scope,source:value.source,numbers:[...selected,...current.additions.map(item=>item.number)],change:{kind:'budget',count:current.additions.length,minutes:current.minutes,budget:current.budget}};
+  });
+ }
+
  function update(transform:(numbers:number[])=>{numbers:number[];change:Change}|undefined){
   setSelection(previous=>{const next=transform(previous.scope===scope&&previous.source===source?previous.numbers:initial||[]);return next?{...next,scope,source}:previous;});
  }
@@ -82,7 +105,7 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
  const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
  const shareHref=numbers.length&&!missing?interviewBatchShareHref(filters,modules):undefined;
- return {shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started'};
+ return {shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started',planningScope,planningDefault:filters.study==='done'?'all' as const:'remaining' as const,plan,applyPlan};
 }
 export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
 
@@ -96,7 +119,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
  const {t,locale}=useI18n(),headingId=useId(),fillHintId=useId();
  const title=(number:number)=>{const problem=group.byNumber.get(number);return problem?(locale==='en'?problem.translations?.en?.title||problem.title:problem.title):t(`第 ${number} 题`, `Problem ${number}`);};
  const change=group.change;
- const feedback=change?.kind==='fill'?t(`已按当前列表顺序加入 ${change.count} 道练习。`,`Added ${change.count} ${change.count===1?'concept':'concepts'} in the current list order.`):change?.kind==='move'?t(`已将${title(change.number!)}移到第 ${change.position} 位`,`Moved ${title(change.number!)} to position ${change.position}`):change?.kind==='clear'?t('已清空练习组。','Practice batch cleared.'):change?.kind==='add'?t(`已加入${title(change.number!)}。`,`Added ${title(change.number!)}.`):change?.kind==='remove'?t(`已移除${title(change.number!)}。`,`Removed ${title(change.number!)}.`):'';
+ const feedback=change?.kind==='budget'?t(`已加入 ${change.count} 道练习，整组约 ${change.minutes} / ${change.budget} 分钟。`,`Added ${change.count} exercises; about ${change.minutes} of ${change.budget} min for the batch.`):change?.kind==='fill'?t(`已按当前列表顺序加入 ${change.count} 道练习。`,`Added ${change.count} ${change.count===1?'concept':'concepts'} in the current list order.`):change?.kind==='move'?t(`已将${title(change.number!)}移到第 ${change.position} 位`,`Moved ${title(change.number!)} to position ${change.position}`):change?.kind==='clear'?t('已清空练习组。','Practice batch cleared.'):change?.kind==='add'?t(`已加入${title(change.number!)}。`,`Added ${title(change.number!)}.`):change?.kind==='remove'?t(`已移除${title(change.number!)}。`,`Removed ${title(change.number!)}.`):'';
  const allDone=group.completed!==undefined&&group.completed===group.numbers.length;
  const minutes=group.numbers.map(number=>group.byNumber.get(number)?.estimated_minutes);
  const estimate=minutes.length&&minutes.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)?minutes.reduce<number>((total,value)=>total+value!,0):undefined;
@@ -104,6 +127,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
   <header><div><h3 ref={group.heading} id={headingId} tabIndex={-1}><Layers3 size={16}/>{t('自选练习组','Your practice batch')}</h3><p>{t('最多选 6 道，按自己的顺序连续练习。','Pick up to 6 concepts and practice in your own order.')}</p></div>{group.numbers.length>0&&<button type="button" className="text-button" onClick={event=>group.clear(event.currentTarget)}>{t('清空','Clear')}</button>}</header>
   <p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{feedback&&<span> · {feedback}</span>}</p>
   <div className="practice-group-fill"><button type="button" className="button subtle" aria-disabled={!group.fillCount} aria-describedby={fillHintId} onClick={group.fill}>{group.fillCount?group.numbers.length?t(`再加入 ${group.fillCount} 道`,`Add ${group.fillCount} more`):t(`加入前 ${group.fillCount} 道`,`Add the first ${group.fillCount}`):group.numbers.length>=PRACTICE_GROUP_LIMIT?t('练习组已满','Batch full'):group.filterPending?group.pendingReason==='catalog'?t('需先加载题库','Catalog required'):group.pendingReason==='sources'?t('需先读取来源','Sources required'):t('需先读取学习进度','Progress required'):group.candidateCount?t('当前列表已加入','Current list added'):t('当前筛选暂无练习','No concepts in this view')}</button><small id={fillHintId}>{group.filterPending?group.pendingReason==='catalog'?t('题库加载后可按完整对比列表组题；也可以先逐题加入已加载的练习。','Load the catalog to fill from the complete comparison. You can still add loaded concepts individually.'):group.pendingReason==='sources'?t('来源统计就绪后，可从当前对比范围组题。','Current source counts are needed to fill a comparison batch.'):t('学习进度就绪后，才能按所选状态组题；仍可逐题加入。','Learning progress is needed for this state filter. You can still add individual concepts.'):t('按当前筛选与排序补齐，保留已选题目和顺序。','Fill from the current filters and order, keeping your existing choices.')}</small></div>
+  <InterviewBudgetPlanner key={group.planningScope} group={group}/>
   {group.uneditable&&<p className="practice-group-unavailable">{t('当前链接的练习组无法在此编辑，可以重新选择最多 6 道题。','This linked batch cannot be edited here. Choose up to 6 concepts to make a new batch.')}</p>}
   {group.numbers.length>0&&<>
    <ol>{group.numbers.map((number,index)=>{const problem=group.byNumber.get(number),name=title(number),href=problem?group.href(problem):undefined,state=problem?group.state(problem):undefined;

@@ -85,7 +85,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  },[selection.limit,shown.length,active,source]);
  const resume=ready&&active!=='done'?(matching.filter(row=>row.state==='started').sort((a,b)=>(saved[b.problem!.id]?.updated||'').localeCompare(saved[a.problem!.id]?.updated||''))[0]||matching.find(row=>row.state==='todo'))?.problem:undefined;
  const candidates=matching.flatMap(row=>row.problem?[row.problem]:[]);
- const group=useInterviewPracticeGroup({filters:{...filters,study:selected},source,problems,candidates,filterPending:selected!=='all'&&!ready,saved,ready});
+ const group=useInterviewPracticeGroup({filters:{...filters,study:selected},source,problems,candidates,filterPending:selected!=='all'&&!ready,saved,ready,owner});
  const practice=(problem:Problem)=>group.href(problem)||interviewPracticeHref(problem,{...filters,study:selected},candidates);
  const stateLabel=(state:typeof rows[number]['state'])=>state==='done'?t('已通过','Passed'):state==='started'?t('进行中','In progress'):state==='todo'?t('未开始','Not started'):t('进度未就绪','Progress not ready');
  return <div ref={list} className="interview-question-workbench">

@@ -9,12 +9,12 @@ import type {Problem,Saved} from './types';
 import InterviewPracticeGroup,{InterviewGroupToggle,useInterviewPracticeGroup} from './InterviewPracticeGroup';
 import './interview-company-comparison.css';
 
-type Props={filters:InterviewFilters;summary?:InterviewSummary;loading:boolean;error?:string;problems?:Problem[];catalogError?:string;onRetryCatalog?:()=>void;saved?:Record<string,Saved>;progressReady?:boolean;progressError?:string;onRetryProgress?:()=>void;onChange:(update:Partial<InterviewFilters>)=>void};
+type Props={owner?:string;filters:InterviewFilters;summary?:InterviewSummary;loading:boolean;error?:string;problems?:Problem[];catalogError?:string;onRetryCatalog?:()=>void;saved?:Record<string,Saved>;progressReady?:boolean;progressError?:string;onRetryProgress?:()=>void;onChange:(update:Partial<InterviewFilters>)=>void};
 const EMPTY_PROBLEMS:Problem[]=[],EMPTY_SAVED:Record<string,Saved>={};
 const PAGE_SIZE=12;
 
 /** Compare the same public summary; the URL restores choices without extra requests or storage. */
-export default function InterviewCompanyComparison({filters,summary,loading,error,problems=EMPTY_PROBLEMS,catalogError,onRetryCatalog,saved=EMPTY_SAVED,progressReady=false,progressError,onRetryProgress,onChange}:Props){
+export default function InterviewCompanyComparison({owner='guest',filters,summary,loading,error,problems=EMPTY_PROBLEMS,catalogError,onRetryCatalog,saved=EMPTY_SAVED,progressReady=false,progressError,onRetryProgress,onChange}:Props){
  const {t,locale}=useI18n(),id=useId(),heading=useRef<HTMLElement>(null),leftInput=useRef<HTMLSelectElement>(null);
  // Keep an applied local choice mounted until the hash router observes its URL.
  // A later back/shared route then owns the choice, rather than reviving the prior pair.
@@ -35,7 +35,7 @@ export default function InterviewCompanyComparison({filters,summary,loading,erro
  const rows=compare?comparisonRows(compare.rows,view):[],limit=shown.scope===scope?shown.limit:PAGE_SIZE;
  const applied=filters.compare===`${pair.left},${pair.right}`;
  const candidates=rows.flatMap(row=>{const problem=byId.get(row.id);return problem?[problem]:[];});
- const group=useInterviewPracticeGroup({filters,source:'reports',selectionScope:JSON.stringify([scope,filters.queue]),problems,candidates,filterPending:!compare||!applied||!problems.length||!!catalogError,pendingReason:!compare||!applied?'sources':'catalog',saved,ready:progressReady&&!progressError});
+ const group=useInterviewPracticeGroup({filters,source:'reports',selectionScope:JSON.stringify([scope,filters.queue]),problems,candidates,filterPending:!compare||!applied||!problems.length||!!catalogError,pendingReason:!compare||!applied?'sources':'catalog',saved,ready:progressReady&&!progressError,owner});
  const sourceHref=(company:string,concept=filters.concept)=>interviewHref({...filters,company,concept,view:'reports',q:'',saved:false,queue:'',page:1});
  function choose(side:'left'|'right',value:string){
   if(value&&(!interviewCatalog.companies.some(row=>row.id===value)||value===pair[side==='left'?'right':'left']))return;
