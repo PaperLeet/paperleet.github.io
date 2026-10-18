@@ -38,7 +38,7 @@ function Applied({view,onChange,toolbar}:{view:AdminView;onChange:(view:AdminVie
  if(view.kind&&view.kind!=='all')chips.push({key:'kind',label:kindName(view.kind,t),change:{kind:'all'}});
  if(!chips.length)return null;
  function change(value:Partial<AdminView>){toolbar.current?.focus({preventScroll:true});onChange({...view,...value,page:1,item:undefined});}
- return <div className="admin-applied" role="group" aria-label={t('当前管理筛选','Applied administrator filters')}>{chips.map(chip=><button type="button" key={chip.key} className="admin-filter-chip" aria-label={t('移除筛选：','Remove filter: ')+chip.label} onClick={()=>change(chip.change)}>{chip.label}<X size={14}/></button>)}<button type="button" className="text-button" onClick={()=>change({q:'',status:'all',review:'all',kind:'all'})}>{t('清除筛选','Clear filters')}</button></div>;
+ return <div className="admin-applied" role="group" aria-label={t('当前管理筛选','Applied administrator filters')}>{chips.map(chip=><button type="button" key={chip.key} className="admin-filter-chip" aria-label={t('移除筛选：','Remove filter: ')+chip.label} onClick={()=>change(chip.change)}>{chip.label}<X size={14}/></button>)}<button type="button" className="text-button" onClick={()=>change(view.section==='users'?{q:'',status:'all'}:view.section==='papers'?{status:'all',review:'all'}:{kind:'all'})}>{t('清除筛选','Clear filters')}</button></div>;
 }
 function PageResult({total,view,onChange}:{total:number;view:AdminView;onChange:(view:AdminView)=>void}){
  const {t}=useI18n(),last=Math.max(1,Math.min(501,Math.ceil(total/20)));
