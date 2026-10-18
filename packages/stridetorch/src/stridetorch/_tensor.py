@@ -585,6 +585,10 @@ class Tensor:
                             lambda g,a,b: g * np.exp(-np.logaddexp(0, b-a)),
                             lambda g,a,b: g * np.exp(-np.logaddexp(0, a-b)))
 
+    def mm(self, mat2):
+        return _ops.mm(self, mat2)
+    def bmm(self, mat2):
+        return _ops.bmm(self, mat2)
     def __matmul__(self, other):
         other = _ops.wrap(other)
         a, b = self._data, other._data

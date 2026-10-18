@@ -1976,3 +1976,25 @@ Limits queries use canonical scalar types. A first call with a NumPy dtype
 carrying arbitrary metadata previously allowed NumPy's global `finfo` cache
 to retain that metadata after all tensors were released. Cold-cache lifetime
 regressions cover both the existing 2D route and the new batched route.
+
+
+### Strict matrix products (0.76)
+
+`torch.mm(input, mat2)` and `input.mm(mat2)` accept exactly two matrices.
+`torch.bmm(input, mat2)` and `input.bmm(mat2)` accept exactly two rank-three
+batches with equal batch counts; they do not broadcast batch dimensions.
+Both use the existing CPU/NumPy and qualified WASM matmul paths, including
+float32/float64 reverse AD, JVP and functional HVP. Normal numeric dispatch
+requires matching dtypes. Empty `bmm` follows the tested native Torch 2.6
+result-dtype behavior, including its mixed-dtype empty path and original
+saved-storage checks; `mm` still requires matching dtypes when empty.
+Empty `bmm` reads shape/dtype metadata only: it does not cast either input,
+including a nonempty operand paired with a zero output dimension.
+
+Float16, supported integer and complex inputs retain the existing inference
+boundaries. Nonempty bool and uint16/uint32/uint64 products are rejected, as
+in the native CPU controls. `out=None` is accepted by top-level calls; a real
+output buffer remains an explicit unsupported operation. Tensor methods do
+not accept `out`. Existing torch aliases and Module operator serialization
+also expose these names. See the [0.76 validation](../../docs/validation/torch-runtime-iteration-78.md)
+for native, minimum-wheel and real WASM qualification.

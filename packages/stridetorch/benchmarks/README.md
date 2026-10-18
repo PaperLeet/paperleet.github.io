@@ -464,3 +464,10 @@ safe to use alongside functional gates. Timed runs use five alternating common
 batches of at least 20 ms; run them serially on an idle machine and preserve
 all samples, source hashes and fixture hashes. The fixture functions come from
 `bench_groupnorm.py` and `bench_classification.py` alongside the script.
+
+
+The strict `mm`/`bmm` entry points added in 0.76 reuse the measured 0.75
+matmul engine. This change adds API/AD coverage; it makes no additional
+speedup claim. [Iteration 78](../../../docs/validation/torch-runtime-iteration-78.md)
+records native/full-array, strict-argument, empty-dtype and saved-storage
+controls, plus the separate experimental WebGPU error-lifecycle checks.

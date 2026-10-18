@@ -1,40 +1,11 @@
+import {fixture} from './gpu-fixture.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
-import {createGpuEngine,servePort,LIMITS} from './gpu-service.mjs';
+import {servePort,LIMITS} from './gpu-service.mjs';
 import {MatrixRpc} from './rpc-client.mjs';
 const rows=[];
 function request({retain=true,read=true}={}){return {id:1,op:'program',inputs:[{rows:2,cols:2,data:new Float32Array([1,2,3,4]).buffer},{rows:2,cols:2,data:new Float32Array([1,0,0,1]).buffer}],nodes:[{a:0,b:1,transposeA:false,transposeB:false}],outputs:[{ref:2,read,retain}]};}
-function fakeGpu(){
-  const controls={point:null,allocation:0,trace:[],live:new Set(),held:null,failDrain:false,triggered:false};
-  const hit=name=>{controls.trace.push(name);if(controls.point===name){controls.triggered=true;controls.point=null;throw new Error('Injected '+name);}};
-  let lostResolve;const lost=new Promise(resolve=>lostResolve=resolve);
-  const device={lost,
-    pushErrorScope(){hit('push');},async popErrorScope(){hit('pop');if(controls.point==='validation'){controls.point=null;controls.triggered=true;return {message:'Injected validation'};}return null;},
-    createShaderModule(){return {};},async createComputePipelineAsync(){return {getBindGroupLayout:()=>({})};},createBindGroup(){hit('bind');return {};},
-    createBuffer({size}){hit('allocate:'+ ++controls.allocation);const buffer={memory:new ArrayBuffer(size),destroyed:false,
-      destroy(){if(!buffer.destroyed){buffer.destroyed=true;controls.live.delete(buffer);controls.trace.push('destroy');}},
-      async mapAsync(){hit('map');if(controls.held)await controls.held.promise;},
-      getMappedRange(){hit('range');return buffer.memory;},unmap(){hit('unmap');}};controls.live.add(buffer);return buffer;},
-    createCommandEncoder(){hit('encode');return {beginComputePass(){hit('pass');return {setPipeline(){},setBindGroup(){},dispatchWorkgroups(){hit('dispatch');},end(){}};},copyBufferToBuffer(){hit('copy');},finish(){hit('finish');return {};}};},
-    queue:{writeBuffer(buffer,offset,data){hit('write');new Uint8Array(buffer.memory).set(new Uint8Array(data.buffer||data,data.byteOffset||0,data.byteLength),offset);},
-      submit(){hit('submit');},async onSubmittedWorkDone(){hit('fence');if(controls.failDrain)throw new Error('Injected fence failure');if(controls.held)await controls.held.promise;}},
-    destroy(){for(const buffer of [...controls.live])buffer.destroy();controls.held?.reject(new Error('Destroyed'));lostResolve({reason:'destroyed'});}};
-  return {device,controls,gpu:{requestAdapter:async()=>({info:{vendor:'fake'},requestDevice:async()=>device})}};
-}
-async function fixture(test,{changes={}}={}){
-  const fake=fakeGpu(),names=['navigator','GPUBufferUsage','GPUMapMode','isSecureContext'];
-  const old=Object.fromEntries(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
-  const globals={navigator:{gpu:fake.gpu},GPUBufferUsage:{STORAGE:1,COPY_SRC:2,COPY_DST:4,UNIFORM:8,MAP_READ:16},GPUMapMode:{READ:1},isSecureContext:true};
-  for(const name of names)Object.defineProperty(globalThis,name,{value:globals[name],configurable:true});
-  let engine;
-  try{
-    engine=await createGpuEngine({...LIMITS,...changes});
-    const existing=await engine.execute({id:0,op:'upload',rows:2,cols:2,data:new Float32Array([7,8,9,10]).buffer});
-    fake.controls.trace=[];fake.controls.allocation=0;
-    await test({engine,existing,...fake});
-  }finally{engine?.close();assert.equal(fake.controls.live.size,0);for(const name of names)old[name]?Object.defineProperty(globalThis,name,old[name]):delete globalThis[name];}
-}
 async function check(name,test,options){await fixture(test,options);rows.push({name,passed:true});}
 for(const point of ['allocate:1','allocate:2','allocate:3','allocate:4','allocate:5','write','encode','bind','pass','dispatch','copy','finish','submit','map','range','unmap','validation','pop']){
   await check('rollback on '+point,async({engine,controls})=>{
@@ -96,6 +67,6 @@ await check('cancelled real-engine result discards every retained output',async(
   assert.equal((await client.cancel(ticket.id)).cancelled,true);controls.held=null;held.resolve();await rejected;
   assert.equal(engine.stats().resident_handles,1);assert.equal(engine.stats().total_bytes,16);await service.close('done');client.fail(new Error('done'));
 });
-const source_sha256=Object.fromEntries(['gpu-service.mjs','plan-program.mjs','rpc-client.mjs','check-program.mjs'].map(name=>[name,createHash('sha256').update(fs.readFileSync(new URL('./'+name,import.meta.url))).digest('hex')]));
+const source_sha256=Object.fromEntries(['gpu-service.mjs','plan-program.mjs','rpc-client.mjs','check-program.mjs','gpu-fixture.mjs'].map(name=>[name,createHash('sha256').update(fs.readFileSync(new URL('./'+name,import.meta.url))).digest('hex')]));
 const report={status:'passed',cases:rows.length,rows,source_sha256,scope:'Actual planner/engine and RPC code with an injected WebGPU surface, to validate preflight/allocation/fence/error/retained-handle lifecycle. No shader execution or numerical GPU claim.'};
 if(process.env.GPU_PROGRAM_RESULT)fs.writeFileSync(process.env.GPU_PROGRAM_RESULT,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,cases:report.cases}));

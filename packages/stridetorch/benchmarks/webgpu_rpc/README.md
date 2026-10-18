@@ -105,3 +105,29 @@ quota/cancellation checks and sequential-versus-program measurements. The initia
 short-batch measurements are retained. The longer measurement host raises only
 its trusted request counter quota to support longer sampling; the default
 4096-request limit, memory/work/handle limits and production runtime are unchanged.
+
+
+### Primitive failure and cancellation recovery
+
+Upload, matmul and readback failures now wait for possibly issued queue work
+before destroying temporary buffers or reclaiming their tracked byte quota.
+A failed drain closes the device and invalidates all resident handles. An
+acknowledged cancellation takes precedence over a later execution error
+while the session remains open; the execution queue advances after rollback.
+Normal program transactions keep the same planner, shader and default limits.
+
+Portable checks share the injected surface in `gpu-fixture.mjs`:
+
+```sh
+node packages/stridetorch/benchmarks/webgpu_rpc/check-primitive.mjs
+node packages/stridetorch/benchmarks/webgpu_rpc/check-cancel-drain.mjs
+node packages/stridetorch/benchmarks/webgpu_rpc/check-program.mjs
+node packages/stridetorch/benchmarks/webgpu_rpc/check-protocol.mjs
+```
+
+The first two cover 39 primitive lifecycle cases and four acknowledged
+cancellation/failure races. Set `GPU_PRIMITIVE_RESULT` or
+`GPU_CANCEL_DRAIN_RESULT` to save JSON results. Real Chrome GPU queue,
+numerical-recovery and device-destruction evidence is recorded in
+[iteration 78](../../../../docs/validation/torch-runtime-iteration-78.md).
+This remains an explicit experiment and does not add a Torch GPU device.

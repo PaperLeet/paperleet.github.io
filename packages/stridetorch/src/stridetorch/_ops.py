@@ -24,6 +24,55 @@ _BOOL_DTYPE = np.dtype('bool')
 _BYTE_DTYPE = np.dtype('uint8')
 
 
+def _empty_bmm(input, mat2):
+    if isinstance(input, _autograd.ForwardTensor) or isinstance(mat2, _autograd.ForwardTensor):
+        a, da = _autograd.forward_parts(input)
+        b, db = _autograd.forward_parts(mat2)
+        return _autograd.ForwardTensor(_empty_bmm(a, b), _empty_bmm(da, b) + _empty_bmm(a, db))
+    shape_a, shape_b = tuple(input.shape), tuple(mat2.shape)
+    dtype_a, dtype_b = input.dtype, mat2.dtype
+    value = np.zeros((shape_a[0], shape_a[1], shape_b[2]), dtype=dtype_b)
+    if dtype_b.kind not in 'fc':
+        return _tensor.Tensor(value, _metadata_owned=True)
+    saved = []
+    if input.requires_grad:saved.append(mat2)
+    if mat2.requires_grad:saved.append(input)
+    return _autograd.result(value,
+        (input, lambda gradient: np.zeros(shape_a, dtype=dtype_a)),
+        (mat2, lambda gradient: np.zeros(shape_b, dtype=dtype_b)), versioned=saved)
+
+
+def _matrix_product(input, mat2, rank):
+    name = 'mm' if rank == 2 else 'bmm'
+    if not isinstance(input, _tensor.Tensor) or not isinstance(mat2, _tensor.Tensor):
+        raise TypeError(f'{name} operands must be Tensors')
+    if input.ndim != rank or mat2.ndim != rank:
+        raise RuntimeError(f'{name} operands must have {rank} dimensions')
+    if input.shape[-1] != mat2.shape[-2] or rank == 3 and input.shape[0] != mat2.shape[0]:
+        raise RuntimeError(f'{name} operand dimensions do not match')
+    # Empty bmm needs metadata only. Avoid casting a potentially large
+    # nonempty operand when the result is empty, including complex inputs.
+    if rank == 3 and (not input.numel() or not mat2.numel()):
+        return _empty_bmm(input, mat2)
+    if input.dtype != mat2.dtype:
+        raise RuntimeError(f'{name} operands must have the same dtype')
+    if input.numel() and mat2.numel() and (input.dtype.kind == 'b' or input.dtype.kind == 'u' and input.dtype.itemsize > 1):
+        raise RuntimeError(f'{name} is not implemented for this dtype')
+    return input @ mat2
+
+
+def mm(input, mat2, *, out=None):
+    if out is not None:
+        raise _errors.BrowserUnsupported('Matrix output buffers require the server')
+    return _matrix_product(input, mat2, 2)
+
+
+def bmm(input, mat2, *, out=None):
+    if out is not None:
+        raise _errors.BrowserUnsupported('Matrix output buffers require the server')
+    return _matrix_product(input, mat2, 3)
+
+
 def unbroadcast(value, shape):
     while value.ndim > len(shape):
         value = value.sum(axis=0)

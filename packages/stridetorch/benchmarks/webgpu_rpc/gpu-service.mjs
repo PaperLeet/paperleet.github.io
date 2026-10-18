@@ -63,6 +63,12 @@ export async function createGpuEngine(limits=LIMITS){
   function find(id){requireValue(integer(id,1,0x7fffffff)&&handles.has(id),'Handle','Unknown or released handle');return handles.get(id);}
   function publish(value){requireValue(!closed,'Closed','Service closed');const handle=nextHandle++;handles.set(handle,value);return {handle,rows:value.rows,cols:value.cols};}
   async function complete(){submitted++;await device.queue.onSubmittedWorkDone();completed++;requireValue(!closed,'Closed','Service closed');}
+  async function drainFailed(workIssued,enqueued,finished){
+    if(workIssued&&!finished&&!closed){
+      try{await device.queue.onSubmittedWorkDone();if(enqueued)completed++;}
+      catch{engine.close();}
+    }
+  }
   async function scoped(work){
     device.pushErrorScope('validation');
     let value,failed;
@@ -114,10 +120,7 @@ export async function createGpuEngine(limits=LIMITS){
           }
           return result;
         }catch(error){
-          if(workIssued&&!finished&&!closed){
-            try{await device.queue.onSubmittedWorkDone();if(enqueued)completed++;}
-            catch{engine.close();}
-          }
+          await drainFailed(workIssued,enqueued,finished);
           for(const handle of published)handles.delete(handle);kept.clear();throw error;
         }
         finally{for(const item of created)if(!kept.has(item))drop(item);}
@@ -128,8 +131,9 @@ export async function createGpuEngine(limits=LIMITS){
         requireValue(integer(request.rows,1,limits.dimension)&&integer(request.cols,1,limits.dimension),'Shape','Positive bounded 2D shapes required');
         requireValue(request.data.byteLength===request.rows*request.cols*4,'Shape','Buffer byte length does not match shape');
         const value=matrix(request.rows,request.cols);
-        try{await scoped(async()=>{device.queue.writeBuffer(value.item.gpu,0,request.data);await complete();});return publish(value);}
-        catch(error){drop(value.item);throw error;}
+        let workIssued=false,enqueued=false,finished=false;
+        try{await scoped(async()=>{workIssued=true;device.queue.writeBuffer(value.item.gpu,0,request.data);enqueued=true;await complete();finished=true;});return publish(value);}
+        catch(error){await drainFailed(workIssued,enqueued,finished);drop(value.item);throw error;}
       }
       if(request.op==='matmul'){
         keys(request,['id','op','a','b','transposeA','transposeB']);
@@ -138,30 +142,31 @@ export async function createGpuEngine(limits=LIMITS){
         const m=ta?a.cols:a.rows,k=ta?a.rows:a.cols,n=tb?b.rows:b.cols;
         requireValue(k===(tb?b.cols:b.rows),'Shape','Matrix inner dimensions differ');
         requireValue(m*n*k<=limits.macs,'Capacity','Matrix multiplication work limit exceeded');
-        const value=matrix(m,n);let uniform;
+        const value=matrix(m,n);let uniform,workIssued=false,enqueued=false,finished=false;
         try{
           uniform=alloc(32,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
           await scoped(async()=>{
-            device.queue.writeBuffer(uniform.gpu,0,new Uint32Array([m,n,k,a.cols,b.cols,+ta,+tb,0]));
+            workIssued=true;device.queue.writeBuffer(uniform.gpu,0,new Uint32Array([m,n,k,a.cols,b.cols,+ta,+tb,0]));
             const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[a.item,b.item,value.item,uniform].map((item,binding)=>({binding,resource:{buffer:item.gpu}}))});
             const encoder=device.createCommandEncoder(),pass=encoder.beginComputePass();
             pass.setPipeline(pipeline);pass.setBindGroup(0,group);pass.dispatchWorkgroups(Math.ceil(n/8),Math.ceil(m/8));pass.end();
-            device.queue.submit([encoder.finish()]);await complete();
+            device.queue.submit([encoder.finish()]);enqueued=true;await complete();finished=true;
           });
           return publish(value);
-        }catch(error){drop(value.item);throw error;}finally{drop(uniform);}
+        }catch(error){await drainFailed(workIssued,enqueued,finished);drop(value.item);throw error;}finally{drop(uniform);}
       }
       if(request.op==='read'){
         keys(request,['id','op','handle']);const value=find(request.handle);
         const stage=alloc(value.item.bytes,GPUBufferUsage.MAP_READ|GPUBufferUsage.COPY_DST);
+        let workIssued=false,enqueued=false,finished=false;
         try{return await scoped(async()=>{
           const encoder=device.createCommandEncoder();encoder.copyBufferToBuffer(value.item.gpu,0,stage.gpu,0,value.item.bytes);
-          device.queue.submit([encoder.finish()]);submitted++;
-          await stage.gpu.mapAsync(GPUMapMode.READ);completed++;
+          workIssued=true;device.queue.submit([encoder.finish()]);enqueued=true;submitted++;
+          await stage.gpu.mapAsync(GPUMapMode.READ);completed++;finished=true;
           requireValue(!closed,'Closed','Service closed');
           const data=stage.gpu.getMappedRange().slice(0);stage.gpu.unmap();
           return {rows:value.rows,cols:value.cols,data};
-        });}finally{drop(stage);}
+        });}catch(error){await drainFailed(workIssued,enqueued,finished);throw error;}finally{drop(stage);}
       }
       if(request.op==='release'){
         keys(request,['id','op','handle']);const value=find(request.handle);handles.delete(request.handle);drop(value.item);return {released:true};
@@ -200,7 +205,7 @@ export function servePort(port,engine,{limits=LIMITS,onClosed=()=>{}}={}){
         if(ticket.cancelled){engine.discard(result);throw fault('Cancelled','Completed result discarded after cancellation');}
         const transfer=[result?.data,...(Array.isArray(result?.outputs)?result.outputs.map(output=>output.data):[])].filter(value=>value instanceof ArrayBuffer);
         if(!closing)send({id:ticket.request.id,ok:true,result},[...new Set(transfer)]);
-      }catch(error){if(!closing)answer(ticket.request.id,false,error);}
+      }catch(error){if(!closing)answer(ticket.request.id,false,ticket.cancelled?fault('Cancelled','Request cancelled during execution'):error);}
       finally{tickets.delete(ticket.request.id);ticket.request=null;}
     }
   }
