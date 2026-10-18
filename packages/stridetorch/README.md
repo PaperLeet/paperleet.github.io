@@ -1753,3 +1753,8 @@ avoid unnecessary Python work. Shared inverse-JVP reverse rules accumulate a
 private matrix temporary in place instead of allocating a second sum buffer.
 These changes preserve public APIs, target selection, hooks, repeated parents,
 dtype/shape checks, storage guards and retained-backward behavior.
+
+Version 0.68 clears traversal-local references to consumed joint cotangent arrays
+before predecessor work. Retained callbacks and saved-tensor version checks keep
+their existing lifetime rules; gradient values, hooks and target selection are
+unchanged. This removes temporary retention without caching gradient results.

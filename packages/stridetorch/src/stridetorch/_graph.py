@@ -197,7 +197,8 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
                         raise RuntimeError('A joint VJP gradient shape must match its input')
                     parent_key = id(parent)
                     pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
-            del backward
+            del backward, values
+            value = incoming = None
         if not retain_graph and node.saved:
             node.release()
     return order, derivatives
