@@ -220,7 +220,7 @@ assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-selected-tags'))), 'Deferred composers must include selected tag styles');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.admin-taxonomy-toolbar')), 'Administrator browsing styles must stay deferred');
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.admin-taxonomy-toolbar'))), 'The administrator workspace must include its browsing layout');
-for (const marker of ['pdf_url','paper-registry-toolbar']) {
+for (const marker of ['pdf_url','paper-registry-toolbar','paperleet.registry.positions.v1']) {
   assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Paper metadata and registry browsing must stay deferred');
   assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes(marker)), 'Deferred paper readers must retain metadata and registry browsing');
 }
