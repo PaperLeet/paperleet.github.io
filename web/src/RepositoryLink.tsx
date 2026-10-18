@@ -1,6 +1,10 @@
 import AppLink from './AppLink';
-import { Github } from "lucide-react";
+import { deferredFeature } from './deferredFeature';
 import { useI18n } from "./i18n";
+
+const StarCount = deferredFeature(() => import('./RepositoryStarCount'), ['', ''], {
+  loading: () => '—', failure: () => '—',
+});
 
 export default function RepositoryLink() {
   const { t } = useI18n();
@@ -8,7 +12,8 @@ export default function RepositoryLink() {
   return (
     <AppLink className="repository-link" href="https://github.com/Hongyang-Du/PaperLeet"
       target="_blank" rel="noopener noreferrer" title={label} aria-label={label}>
-      <Github size={18} aria-hidden="true" />
+      <span className="repository-icon" aria-hidden="true" />
+      <span className="repository-stars"><span className="repository-star" aria-hidden="true">★</span><span className="repository-star-count"><StarCount /></span></span>
     </AppLink>
   );
 }
