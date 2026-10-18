@@ -18,8 +18,10 @@
 
 对一个头的矩阵 $G_h=U_h\operatorname{diag}(s_h)V_h^\top$，返回
 
-$$P_h=U_h\operatorname{diag}(\mathbf 1[s_h>\tau_h])V_h^\top,
-\qquad \tau_h=\max(d_h,d_{in})\,\epsilon_{dtype}\,\max(s_h).$$
+$$
+P_h=U_h\operatorname{diag}(\mathbf 1[s_h>\tau_h])V_h^\top,
+\qquad \tau_h=\max(d_h,d_{in})\,\epsilon_{dtype}\,\max(s_h).
+$$
 
 使用 reduced SVD。全零头返回全零；秩亏矩阵只保留非零奇异方向，不能凭空在零空间里产生更新。正比例放大某个满秩头，不改变其输出。宽的满行秩矩阵满足 $P_hP_h^\top=I$；高的满列秩矩阵满足 $P_h^\top P_h=I$。
 

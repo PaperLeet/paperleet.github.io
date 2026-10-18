@@ -32,9 +32,11 @@ $$\mu_j=\frac1N\sum_n z_{nj},\qquad \sigma_j=\sqrt{\frac1N\sum_n(z_{nj}-\mu_j)^2
 
 计算
 
-$$L_{scale}=\operatorname{mean}_j(\sigma_j-1)^2,\quad
+$$
+L_{scale}=\operatorname{mean}_j(\sigma_j-1)^2,\quad
 \widetilde z=\frac{z-\mu}{\operatorname{sg}(\sigma)+\epsilon},\quad
-L_{center}=\operatorname{mean}_j\mu_j^2.$$
+L_{center}=\operatorname{mean}_j\mu_j^2.
+$$
 
 先把每个投影列归一化为单位向量，再投影 `z_tilde`，沿 **N 个样本的维度，对每个方向分别排序**。第 `i=1,...,N` 个标准高斯分位点为 `q_i=Phi_inverse(i/(N+1))`：
 

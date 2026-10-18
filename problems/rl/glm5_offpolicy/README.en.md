@@ -20,8 +20,10 @@ Return one scalar floating Tensor `loss`, shape `()`, normalized by the number o
 
 Implement `masked_is_weights` and `offpolicy_loss`. Current and recorded rollout log-probabilities and the binary valid-token mask have shape `[B,L]`; per-response advantages have shape `[B]`. Each advantage is broadcast over its response's tokens.
 
-$$r_{it}=\exp(\log\pi_{it}-\log\pi_{rollout,it}), \quad
-w_{it}=\operatorname{sg}\!\left[r_{it}\mathbf1(1-\epsilon_l<r_{it}<1+\epsilon_h)\right],$$
+$$
+r_{it}=\exp(\log\pi_{it}-\log\pi_{rollout,it}), \quad
+w_{it}=\operatorname{sg}\!\left[r_{it}\mathbf1(1-\epsilon_l<r_{it}<1+\epsilon_h)\right],
+$$
 $$L=-\frac{\sum_{it}m_{it}w_{it}\operatorname{sg}(A_i)\log\pi_{it}}{\max(1,\sum_{it}m_{it})}.$$
 
 Here `sg` means stop-gradient. Return zero weights for padding and for **both endpoints**, not clamped endpoint values. The loss denominator counts **all original valid tokens**, including tokens rejected by the ratio test. Empty masks return a differentiable zero.

@@ -20,9 +20,11 @@ Return `(mixed, weights)` as a Python tuple of floating tensors. `mixed[B,T,D]` 
 
 For sources $v_i$, learned query $w$, and learned RMSNorm scale $\gamma$:
 
-$$k_i=\frac{v_i}{\sqrt{\operatorname{mean}(v_i^2)+\epsilon}}\odot\gamma,
+$$
+k_i=\frac{v_i}{\sqrt{\operatorname{mean}(v_i^2)+\epsilon}}\odot\gamma,
 \qquad a_i=\operatorname{softmax}_{i}(w^\top k_i),
-\qquad h=\sum_i a_i v_i.$$
+\qquad h=\sum_i a_i v_i.
+$$
 
 Normalize keys only. Values preserve their original scale. There is **no** Transformer-style division of logits by $\sqrt D$.
 

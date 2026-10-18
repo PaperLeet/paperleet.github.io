@@ -20,8 +20,10 @@ Return the attention output Tensor [B, H, 2L, Dv], matching value: B is batch si
 
 For a sequence of length `L`, let `b(i)=floor(i/block_size)` be its local block index. Appendix B.6 defines the `2L × 2L` allowed-position mask:
 
-$$M=\begin{bmatrix}M_{BD}&M_{OBC}\\0&M_{BC}\end{bmatrix},\quad
-M_{BD}[i,j]=[b(i)=b(j)],\quad M_{OBC}[i,j]=[b(j)<b(i)],\quad M_{BC}[i,j]=[b(j)\le b(i)].$$
+$$
+M=\begin{bmatrix}M_{BD}&M_{OBC}\\0&M_{BC}\end{bmatrix},\quad
+M_{BD}[i,j]=[b(i)=b(j)],\quad M_{OBC}[i,j]=[b(j)<b(i)],\quad M_{BC}[i,j]=[b(j)\le b(i)].
+$$
 
 Rows are queries; columns are keys. A noisy query sees its **entire noisy block** and **strictly earlier clean blocks**. A clean query sees its own and earlier clean blocks, and never sees noisy tokens. Allowing the current clean block into a noisy query leaks its training target.
 

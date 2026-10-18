@@ -20,8 +20,10 @@
 
 序列长度为 `L`，局部块编号为 `b(i)=floor(i/block_size)`。附录 B.6 给出的 `2L × 2L` 允许位置矩阵为：
 
-$$M=\begin{bmatrix}M_{BD}&M_{OBC}\\0&M_{BC}\end{bmatrix},\quad
-M_{BD}[i,j]=[b(i)=b(j)],\quad M_{OBC}[i,j]=[b(j)<b(i)],\quad M_{BC}[i,j]=[b(j)\le b(i)].$$
+$$
+M=\begin{bmatrix}M_{BD}&M_{OBC}\\0&M_{BC}\end{bmatrix},\quad
+M_{BD}[i,j]=[b(i)=b(j)],\quad M_{OBC}[i,j]=[b(j)<b(i)],\quad M_{BC}[i,j]=[b(j)\le b(i)].
+$$
 
 行是 query，列是 key。噪声 query 可见**自己整个噪声块**和**严格更早的干净块**。干净 query 可见自己与之前的干净块，始终不能看到噪声 token。如果噪声 query 看到自己的干净块，就泄漏了训练目标。
 
