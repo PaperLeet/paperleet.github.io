@@ -278,3 +278,6 @@ assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.i
 
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('inbox-review-notification')), 'Review notification content must remain deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.inbox-review-feedback')), 'Review feedback styles must remain deferred');
+
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('moderation-user-message-field')), 'User-facing moderation explanations must stay deferred');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.review-user-message')), 'Moderation explanation styles must remain deferred');

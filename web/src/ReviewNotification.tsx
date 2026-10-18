@@ -1,3 +1,4 @@
+import ReviewUserMessage from './ReviewUserMessage';
 import {useId} from 'react';
 import {CheckCheck,FileCheck,Flag,ShieldCheck} from 'lucide-react';
 import AppLink from './AppLink';
@@ -19,6 +20,7 @@ export default function ReviewNotification({notification:item,onRead,onMarkRead,
  const content=<><span className="inbox-event-icon inbox-event-review"><Icon size={18} aria-hidden="true"/></span><span className="inbox-item-copy"><span className="inbox-review-sender">{t('PaperLeet 审核通知','PaperLeet review')}</span><b>{title}</b>{notice?.title&&<strong className="inbox-post-title">{notice.title}</strong>}<span className="inbox-review-description">{text}</span><DateLabel value={item.created_at}/></span>{item.unread&&<span className="inbox-row-dot" aria-label={t('未读','Unread')}/>}</>;
  return <div className="inbox-notification-row inbox-review-notification">{href?<AppLink id={id} href={href} onClick={onRead} className={`inbox-item${item.unread?' unread':''}`}>{content}</AppLink>:<div id={id} className={`inbox-item${item.unread?' unread':''}`}>{content}</div>}
   {notice?.feedback&&<details className="inbox-review-feedback"><summary>{t('查看审核意见','Read review feedback')}</summary><p>{notice.feedback}</p></details>}
+  {!paper&&<ReviewUserMessage message={notice?.user_message}/>}
   {onMarkRead&&<button type="button" className="inbox-row-read" aria-describedby={id} aria-disabled={disabled||!item.unread} aria-busy={marking} aria-label={item.unread?t('将此审核通知标为已读','Mark this review notification as read'):t('此审核通知已读','This review notification is read')} onClick={()=>{if(!disabled&&item.unread)onMarkRead();}}><CheckCheck size={16} aria-hidden="true"/></button>}
  </div>;
 }

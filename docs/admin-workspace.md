@@ -52,3 +52,23 @@ Opening the inbox or expanding feedback does not acknowledge unseen notification
 Individual reads and mark-all capture observed event cutoffs; newer decisions remain
 unread. Older clients retain their original notification view and cannot mark hidden
 review notices. See `validation/review-notifications.md` for the compatibility contract.
+
+## Explanations intended for users
+
+Compatible moderation services offer a separate **Message to users** field, limited
+to 500 Unicode characters. New clients require an explanation for removal, with a
+recipient preview and renewed confirmation after the text changes. Internal review
+notes remain administrator-only and are never copied into this field or a notice.
+The explanation reaches this batch's pending reporters and, for removal of an
+existing post, its author. A missing source post only has the pending-reporter audience.
+
+The pending-operation panel shows the captured decision, audience and explanation.
+Retries keep that original payload even if later form edits differ. Later edits
+remain visibly unsent, including after a successful decision. Text remains a draft
+only for the current selected case visit; leaving/reloading does not promise backup.
+
+Recipients can expand the explanation in their inbox. Reporters can also read it in
+**My reports**, bound to the first review of their own report. Later reporters and
+later review batches cannot replace an earlier report's explanation. Old clients
+continue to send the original command without the optional field; old review records
+are not backfilled with internal notes. See `validation/moderation-user-messages.md`.

@@ -58,6 +58,7 @@ export type AccountCapabilities = {
   community_taxonomy?: boolean;
   community_open_publishing?: boolean;
   community_reports?: boolean;
+  moderation_user_messages?: boolean;
   community_report_history?: boolean;
   inbox_notifications?: boolean;
   inbox_read_all?: boolean;
