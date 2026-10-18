@@ -127,6 +127,8 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Pick 
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.draft-center')), 'Writing draft styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.draft-center-card'))), 'The deferred writing draft center must include its styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Insert current code')), 'Practice code insertion controls must stay deferred with solution writing');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-reading-steps')), 'Solution reading navigation must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-reading-steps'))), 'Deferred solution readers must include adjacent-reading controls');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-code-draft')), 'Solution code import styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.solution-code-draft'))), 'Deferred solution writers must include code insertion styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Practice progress for this experience')), 'Experience progress UI must remain deferred with report reading');

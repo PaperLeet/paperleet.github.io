@@ -7,6 +7,7 @@ import {unavailableCommunityTags} from './communityTagSelection';
 import './community-taxonomy.css';
 import PostSearchMatch from './PostSearchMatch';
 import ReplySearchContext from './ReplySearchContext';
+import {useSolutionReadingNavigation,SolutionReadingScope,SolutionReadingNotice} from './SolutionReadingNavigation';
 import {sourcePostReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
@@ -652,6 +653,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
     if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
   }
+  const solutionReading=useSolutionReadingNavigation({enabled:embedded&&solutions&&!!onCode&&solutionAvailable&&!accountLoading,scope:JSON.stringify([user?.id||'guest',topicId,{...filters,page:undefined}]),page,generation:data.generation,ready:!pending&&!error&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,failed:!!error,total:data.total,items:data.items,root:feedList,toolbar,onPage:page=>choose({page})});
   useEffect(() => {
     const board = boards.current;
     if (!board) return;
@@ -833,6 +835,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           )}
           {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><a href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></a></div>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
+          <SolutionReadingNotice navigation={solutionReading}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
             {tagUnavailable ? <Empty title={t('标签筛选暂不可用','Tag filtering is unavailable')}><p>{t('当前服务尚未提供标签筛选。移除此标签后，可以保留其他条件继续浏览。','This service does not support tag filtering yet. Remove this tag to browse with your other filters.')}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({tag:undefined});}}>{t('移除此标签筛选','Remove this tag filter')}</button></Empty> : solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : periodUnavailable ? <Empty title={t("发布时间筛选暂不可用","Publication periods are unavailable")}><p>{t("当前服务尚未提供此筛选。可以切回不限时间，保留其他筛选继续浏览。","This service does not support publication periods yet. Browse all time with your other filters.")}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t("查看不限时间","Browse all time")}</button></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
@@ -840,7 +843,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 <SocialNotice error={error} />
                 <button
                   className="button subtle"
-                  onClick={event => {if(document.activeElement===event.currentTarget)toolbar.current?.focus({preventScroll:true});setRetry((v) => v + 1);}}
+                  onClick={event => {if(document.activeElement===event.currentTarget)toolbar.current?.focus({preventScroll:true});solutionReading.retry(toolbar.current||event.currentTarget);setRetry((v) => v + 1);}}
                 >
                   {t("重试", "Retry")}
                 </button>
@@ -892,7 +895,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {days&&<button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t('查看不限时间','Browse all time')}</button>}
               </Empty>
             ) : (
-              data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)
+              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
             )}
           </div>
           {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && (

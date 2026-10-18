@@ -9,6 +9,7 @@ import {communityPostHref} from './communityNavigation';
 import {keepReadingTriggerVisible} from './readingViewport';
 import './solution-reading-card.css';
 import PostSearchMatch from './PostSearchMatch';
+import {useSolutionReadingTarget,SolutionReadingSteps} from './SolutionReadingNavigation';
 
 /** Local disclosure leaves both the practice editor and card replies mounted. */
 export default function SolutionReadingCard({id,title,body,returnTo,onCode,query,discussion=false}:{id:string;title:string;body:string;returnTo?:string;onCode?:()=>void;query?:string;discussion?:boolean}) {
@@ -16,6 +17,7 @@ export default function SolutionReadingCard({id,title,body,returnTo,onCode,query
   const [expandedBody,setExpandedBody]=useState<string>();
   const open=expandedBody===body;
   const summary=useRef<HTMLElement>(null);
+  const reading=useSolutionReadingTarget(id,body,summary,setExpandedBody);
   const intent=useRef<{opener:HTMLElement;href:string;body:string}|undefined>(undefined);
   const preview=useMemo(()=>postPreview(body,170,locale==='en'?'[formula]':'[公式]',query),[body,locale,query]);
   const collapseLabel=discussion?t('收起帖子','Collapse post'):t('收起题解','Collapse solution');
@@ -42,6 +44,7 @@ export default function SolutionReadingCard({id,title,body,returnTo,onCode,query
         {open&&<>
           {onCode&&<div className="solution-reading-toolbar" role="group" aria-label={discussion?t('帖子阅读操作','Post reading actions'):t('题解阅读操作','Solution reading actions')}>
             <button type="button" className="solution-reading-collapse" onClick={event=>collapse(event.currentTarget)}><ArrowUp size={15} aria-hidden="true"/>{collapseLabel}</button>
+            <SolutionReadingSteps reading={discussion?undefined:reading}/>
             <button type="button" className="solution-reading-code" onClick={onCode}><Code2 size={15} aria-hidden="true"/>{t('返回代码','Back to code')}</button>
           </div>}
           <FeatureBoundary fallback={<><p role="status">{discussion?t('格式暂时无法显示，以下是原始帖子。收起后可重新展开。','Formatting is unavailable. The original post is below; collapse and reopen to retry.'):t('格式暂时无法显示，以下是原始题解。收起后可重新展开。','Formatting is unavailable. The original solution is below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{body}</pre></>}>
