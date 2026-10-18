@@ -283,6 +283,7 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.func.jvp', _autograd.jvp, reverse='control')
     registry.add('torch.autograd.functional.vjp', _autograd.functional_vjp, reverse='control')
     registry.add('torch.autograd.functional.jacobian', _autograd.functional_jacobian, reverse='control')
+    registry.add('torch.autograd.functional.jvp', _autograd.functional_jvp, reverse='control')
     registry.add('torch.autograd.functional.hvp', _autograd.functional_hvp, reverse='control')
     torch._browser_capabilities = types.MappingProxyType(registry.capabilities)
     def missing_root(key):

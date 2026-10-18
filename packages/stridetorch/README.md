@@ -1877,3 +1877,51 @@ boundary convention.
 The generic absolute-value JVP retains an explicit zero reverse derivative
 for a differentiable primal; it is distinct from an unused input returning
 `None` from `autograd.grad(..., allow_unused=True)`.
+
+
+## Functional Jacobian-vector products
+
+Version 0.72 adds `torch.autograd.functional.jvp(func, inputs, v=None,
+create_graph=False, strict=False)` for the supported real float32/float64
+operators. Inputs and outputs may be a Tensor or a flat tuple of Tensors.
+Vectors match their corresponding input shapes and are converted to the input
+dtypes. An omitted vector requires one input containing one element.
+
+```python
+x = torch.tensor([2., 3.], requires_grad=True)
+value, direction = torch.autograd.functional.jvp(
+    lambda a: a.pow(3), x, torch.ones_like(x), create_graph=True)
+assert value.tolist() == [8., 27.]
+assert direction.tolist() == [12., 27.]
+curvature = torch.autograd.grad(direction.sum(), x)[0]
+assert curvature.tolist() == [12., 18.]
+```
+
+Default mode returns detached values and directions. `create_graph=True`
+allows ordinary reverse queries on the returned graphs. The callback runs
+once, repeated inputs become distinct callback objects, and original gradient
+flags, existing gradient buffers and hooks remain isolated from internal work.
+Captured originals remain separate from the processed arguments. Reverse-based
+functional JVP respects `no_grad()`, `detach()` and `numpy(force=True)` boundaries;
+ordinary `torch.func.jvp` retains its forward-mode behavior.
+
+Strict mode checks dependencies for every input and output, including zero
+derivatives. With `create_graph=True`, a constant Jacobian must still have a
+natural differentiable dependency; private vector leaves cannot satisfy that
+check. Differentiable captured weights are valid dependencies. Empty sums and
+empty determinants preserve their different native strict/graph behavior.
+
+Normalization and matrix-factor graphs remain differentiable when graph mode
+needs them. Default normalization JVP avoids building those higher-order graphs.
+Training BatchNorm may update its own buffers once. Singular determinant JVPs
+use cofactor directions, retaining polynomial curvature rather than adopting
+native saved-LU zeros or SVD-tape NaNs. The validation record distinguishes
+direct native comparisons from independently checked mathematical derivatives
+for the documented small determinant and fused-normalization fixtures.
+
+This API does not enable general `autograd.grad(create_graph=True)` support,
+arbitrary higher-order reverse graphs, complex differentiation, nested forward
+transforms or unvalidated operator JVP rules. Registering gradient hooks inside
+the callback is explicitly unsupported: such hooks can change the reverse-based
+JVP and cannot be silently evaluated as an ordinary forward direction.
+The registered functional JVP operator survives model copy and pickle.

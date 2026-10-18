@@ -22,3 +22,7 @@ _functional_ad_active = False
 
 # HVP needs full curvature, unlike native-compatible saved-factor JVP tapes.
 _hvp_active = False
+
+_functional_jvp_active = False
+
+_full_forward_graph_active = False

@@ -118,7 +118,7 @@ def _sign_result(value,input,logabs):
 
 
 def _directional(primal,direction,negative=None):
-    if _state._hvp_active:
+    if _state._full_forward_graph_active:
         solved=_linalg.solve(primal,direction)
         value=solved.diagonal(dim1=-2,dim2=-1).sum(-1)
         return _ops.where(_tensor.Tensor(negative),0.,value) if negative is not None else value
@@ -188,16 +188,27 @@ def _det_hvp_factors(primal, direction, determinant, singular):
 
 def det_jvp(input):
     primal=input._primal;direction=input._tangent;output=_linalg.det(primal)
-    if _state._hvp_active:
+    if _state._full_forward_graph_active or _state._functional_jvp_active:
         size=primal.shape[-1]
         if not primal.numel():
             # Native det's empty backward is a constant zero, including on its
             # higher-order tape. Keep that independence in strict HVP mode.
-            return _autograd.ForwardTensor(output.detach(),_tensor.Tensor(np.zeros_like(output._data)))
+            if _state._hvp_active:
+                exposed=output.detach()
+            else:
+                # Empty det retains grad metadata but its backward returns
+                # no gradient, unlike differentiable reductions over empties.
+                exposed=_autograd.result(output._data,(primal,lambda g:None),versioned=())
+            return _autograd.ForwardTensor(exposed,_tensor.Tensor(np.zeros_like(output._data)))
         if size>=2:
             singular=np.abs(output._data)<100*np.finfo(primal.dtype).eps
             if np.any(singular):return _det_hvp_factors(primal,direction,output._data,singular)
-        if size==1:tangent=direction[...,0,0]
+        if size==1:
+            tangent=direction[...,0,0]
+            if _state._functional_jvp_active:
+                # Native determinant backward retains a symbolic zero edge
+                # to A even for 1x1 matrices. Its derivative is exactly zero.
+                tangent=tangent+primal[...,0,0]*0.
         elif size==2:
             # Outside the saved-adjugate region, this polynomial avoids a
             # factorization while preserving the full 2x2 curvature.

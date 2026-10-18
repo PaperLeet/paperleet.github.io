@@ -106,7 +106,7 @@ def solve(A, B, *, left=True, out=None):
         # make its matrix interpretation explicit for the tangent solve.
         # Native JVP reuses a factorization whose reverse tape is constant.
         # Keep differentiation through X/residual, not through that factor.
-        factor = a if _state._hvp_active else a.detach()
+        factor = a if _state._full_forward_graph_active else a.detach()
         tangent = solve(factor,residual.unsqueeze(-1),left=True).squeeze(-1) if vector else solve(factor,residual,left=left)
         return _autograd.ForwardTensor(value,_layout.matching_tangent(tangent,value))
     a_shape,b_shape = a_data.shape,b_data.shape

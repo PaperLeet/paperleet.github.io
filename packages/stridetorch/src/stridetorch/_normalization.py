@@ -70,7 +70,7 @@ def _forward(kind, input, shape, weight, bias, eps):
         tangent = _autograd.result(np.empty_like(x._data),*edges)
         return _autograd.ForwardTensor(primal,tangent)
     axes = tuple(range(x.ndim-len(shape),x.ndim))
-    if kind=='layer' and _autograd._state._hvp_active:
+    if kind=='layer' and _autograd._state._full_forward_graph_active:
         # Functional HVP differentiates the full statistics. Ordinary native
         # JVP below deliberately retains its saved-statistic reverse tape.
         high = x.to(dtype=np.float64) if x.dtype==np.dtype('float32') else x

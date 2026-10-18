@@ -173,7 +173,7 @@ def batch_norm(input, running_mean, running_var, weight=None, bias=None, trainin
     # would produce a different reverse-over-forward gradient.
     centered = _autograd.result(centered_values, (x, lambda g: g), saves_tensors=False)
     inverse = _tensor.Tensor(inverse_values)
-    if _state._hvp_active and training:
+    if _state._full_forward_graph_active and training:
         high = x.to(dtype=np.float64) if x.dtype==np.dtype('float32') else x
         centered = high-high.mean(axes,True)
         inverse = (centered.square().mean(axes,True)+eps).rsqrt()
@@ -244,7 +244,7 @@ class _BatchNorm(_NormBase):
         factor = 0. if self.momentum is None else self.momentum
         if self.training and self.track_running_stats and self.num_batches_tracked is not None:
             if _state._jvp_active:
-                if not _state._hvp_active:
+                if not (_state._hvp_active or _state._functional_jvp_active):
                     raise _errors.BrowserUnsupported('BatchNorm JVP cannot mutate a captured batch counter; use untracked or evaluation mode')
                 _state._jvp_active=False
                 try:self.num_batches_tracked.add_(1)

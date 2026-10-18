@@ -111,6 +111,10 @@ class ForwardTensor(_tensor.Tensor):
     def __init__(self, primal, tangent):
         if primal.dtype not in (np.dtype('float32'), np.dtype('float64')) or tangent.shape != primal.shape:
             raise _errors.BrowserUnsupported('Forward mode requires matching real floating tensors')
+        # Functional JVP follows reverse-AD no_grad disconnection, unlike
+        # torch.func.jvp, which propagates tangents through no_grad regions.
+        if _state._functional_jvp_active and (not primal.requires_grad or primal._no_grad_view):
+            tangent = _tensor.Tensor(np.zeros_like(primal._data))
         self.__dict__ = primal.__dict__.copy()
         self._primal_value = primal
         self._tangent_value = tangent.to(dtype=primal.dtype) if tangent.dtype != primal.dtype else tangent
@@ -224,7 +228,14 @@ class ForwardTensor(_tensor.Tensor):
             curvature = probability * (probability - 1)
         derivative = result(slope,(primal,lambda g:g*curvature))
         return ForwardTensor(value,self._tangent*derivative)
-    def relu(self): return ForwardTensor(self._primal.relu(), _ops.where(self._primal <= 0, 0., self._tangent))
+    def relu(self):
+        primal=self._primal
+        tangent=_ops.where(primal <= 0, 0., self._tangent)
+        # Threshold backward retains a zero reverse edge to the primal.
+        if not _state._hvp_active:
+            tangent=result(tangent._data,(tangent,lambda g:g),
+                           (primal,lambda g,shape=primal.shape,dtype=primal.dtype:np.zeros(shape,dtype=dtype)),saves_tensors=False)
+        return ForwardTensor(primal.relu(),tangent)
     def abs(self):
         primal = self._primal
         slope=np.sign(primal._data)
@@ -446,6 +457,126 @@ def functional_vjp(func, inputs, v=None, create_graph=False, strict=False):
                 gradients if inputs_tuple else gradients[0])
 
 
+def functional_jvp(func, inputs, v=None, create_graph=False, strict=False):
+    """Functional JVP with isolated arguments and optional differentiable results."""
+    if _state._jvp_active:
+        raise _errors.BrowserUnsupported('Functional JVP inside forward AD is unsupported')
+
+    def tensors(value, name):
+        was_tuple = isinstance(value, tuple)
+        values = value if was_tuple else (value,)
+        if any(not isinstance(item, _tensor.Tensor) for item in values):
+            raise TypeError(name + ' must be a Tensor or a tuple of Tensors')
+        return values, was_tuple
+
+    def prepare(item, need_graph):
+        if create_graph and item.requires_grad:
+            return item.view_as(item)
+        return item.detach().requires_grad_(need_graph)
+
+    with enable_grad():
+        original, _ = tensors(inputs, 'inputs')
+        if any(isinstance(item, ForwardTensor) or item.dtype not in (np.dtype('float32'), np.dtype('float64'))
+               for item in original):
+            raise _errors.BrowserUnsupported('Functional JVP requires real float32/float64 inputs')
+        arguments = tuple(prepare(item, True) for item in original)
+        if v is None:
+            if len(arguments) != 1 or arguments[0].numel() != 1:
+                raise RuntimeError('Implicit JVP vectors require one input with one element')
+            seeds = (_tensor.Tensor(np.ones_like(arguments[0]._data)),)
+        else:
+            vectors, _ = tensors(v, 'v')
+            if len(vectors) != len(arguments) or any(a.shape != b.shape for a, b in zip(arguments, vectors)):
+                raise RuntimeError('JVP vector shapes must match the inputs')
+            if any(isinstance(item, ForwardTensor) or item.dtype.kind == 'c' for item in vectors):
+                raise _errors.BrowserUnsupported('Complex or forward-AD JVP vectors are unsupported')
+            seeds = tuple(prepare(item, False).to(dtype=argument.dtype)
+                          for item, argument in zip(vectors, arguments))
+        # Strict reverse-based JVP checks whether every input and output
+        # participates in the Jacobian, even when a derivative is zero. Trace
+        # that dependency with private vector leaves, without changing caller
+        # flags or confusing those leaves with a differentiable Jacobian.
+        private_seeds = set()
+        if strict:
+            prepared = []
+            for seed in seeds:
+                if not seed.requires_grad:
+                    seed = seed.detach().requires_grad_(True)
+                    private_seeds.add(id(seed))
+                prepared.append(seed)
+            seeds = tuple(prepared)
+        def evaluate(*values):
+            returned = func(*values)
+            outputs, _ = tensors(returned, 'outputs')
+            if not outputs:
+                if strict:
+                    raise RuntimeError('A functional JVP input is independent of all outputs in strict mode')
+                raise IndexError('Empty functional JVP output tuple')
+            return returned
+
+        previous = _state._functional_ad_active
+        previous_jvp = _state._functional_jvp_active
+        previous_full = _state._full_forward_graph_active
+        _state._functional_ad_active = True
+        _state._functional_jvp_active = True
+        _state._full_forward_graph_active = bool(create_graph)
+        try:
+            if arguments:
+                output, tangent = jvp(evaluate, arguments, seeds)
+            else:
+                output = func()
+                values, was_tuple = tensors(output, 'outputs')
+                if any(item.requires_grad for item in values):
+                    # Match the production Torch 2.6 empty-input boundary.
+                    raise ValueError('Functional JVP requires nonempty differentiation inputs')
+                zeros = tuple(_tensor.Tensor(np.zeros_like(item._data)) for item in values)
+                tangent = zeros if was_tuple else zeros[0]
+        finally:
+            _state._functional_ad_active = previous
+            _state._functional_jvp_active = previous_jvp
+            _state._full_forward_graph_active = previous_full
+        outputs, output_tuple = tensors(output, 'outputs')
+        tangents, _ = tensors(tangent, 'JVP outputs')
+        if not outputs:
+            raise IndexError('Empty functional JVP output tuple')
+        if any(item._no_grad_view and item.requires_grad for item in outputs):
+            raise RuntimeError('A no_grad view has no differentiable grad_fn for functional JVP')
+        if strict:
+            if any(not item.requires_grad for item in outputs):
+                raise RuntimeError('A functional JVP output does not require gradients in strict mode')
+            gradients = autograd_grad(outputs, arguments,
+                                      tuple(_tensor.Tensor(np.ones_like(item._data)) for item in outputs),
+                                      retain_graph=True, allow_unused=True)
+            if any(item is None for item in gradients):
+                raise RuntimeError('A functional JVP input is independent of all outputs in strict mode')
+            seed_nodes = {id(_graph.node_for(item)) for item in seeds}
+            used_seeds = set()
+            for item in tangents:
+                seen, stack, natural_leaf = set(), [_graph.node_for(item)], False
+                while stack:
+                    node = stack.pop()
+                    identity = id(node)
+                    if identity in seen:
+                        continue
+                    seen.add(identity)
+                    if not node._parents:
+                        natural_leaf |= (getattr(node, 'requires_grad', False)
+                                         and identity not in private_seeds)
+                    stack.extend(parent for parent, _, _ in node._parents)
+                connected = seen & seed_nodes
+                if not connected:
+                    raise RuntimeError('A functional JVP output is independent of its input vectors in strict mode')
+                used_seeds.update(connected)
+                if create_graph and not natural_leaf:
+                    raise RuntimeError('A functional JVP derivative is constant in strict graph mode')
+            if used_seeds != seed_nodes:
+                raise RuntimeError('A functional JVP input is independent of all outputs in strict mode')
+        if not create_graph:
+            outputs = tuple(item.detach() for item in outputs)
+            tangents = tuple(item.detach() for item in tangents)
+        return (outputs if output_tuple else outputs[0], tangents if output_tuple else tangents[0])
+
+
 def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
     """Detached Hessian-vector products by reverse-over-forward AD."""
     if create_graph:
@@ -478,13 +609,16 @@ def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
             seeds = tuple(item.detach().to(dtype=argument.dtype) for item, argument in zip(vectors, arguments))
         previous = _state._functional_ad_active
         previous_hvp = _state._hvp_active
+        previous_full = _state._full_forward_graph_active
         _state._functional_ad_active = True
         _state._hvp_active = True
+        _state._full_forward_graph_active = True
         try:
             output, tangent = jvp(func, arguments, seeds)
         finally:
             _state._functional_ad_active = previous
             _state._hvp_active = previous_hvp
+            _state._full_forward_graph_active = previous_full
         if not isinstance(output, _tensor.Tensor) or output.numel() != 1:
             raise RuntimeError('Functional HVP requires a Tensor output with one element')
         if output.requires_grad and tangent.requires_grad:

@@ -133,7 +133,7 @@ def _instance_norm(input, running_mean, running_var, weight, bias, use_input_sta
     # reverse-over-forward tapes; centering retains an identity derivative.
     center = _autograd.result(centers, (x, lambda g: g), saves_tensors=False)
     inverse = _tensor.Tensor(inverses)
-    if _state._hvp_active and use_input_stats:
+    if _state._full_forward_graph_active and use_input_stats:
         high = x.to(dtype=np.float64) if x.dtype==np.dtype('float32') else x
         center = high-high.mean(axes,True)
         inverse = (center.square().mean(axes,True)+eps).rsqrt()
