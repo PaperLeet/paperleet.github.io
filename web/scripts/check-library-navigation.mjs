@@ -175,8 +175,9 @@ try {
         const todo=selectLibraryPractice(catalog.papers,catalog.problems,saved,readLibraryRoute(`collections/${collection.id}?state=todo`)).problems;
         assert.equal(todo.length,modules.length-1);
         assert.equal(recommendPractice(modules,saved,true).id,modules[1].id);
-        const boundary = members[0].module_ids.length-1;
-        assert.equal(nextPractice(modules[boundary],modules.map(p=>p.id),modules,{}).id,modules[boundary+1].id,'Next crosses source-paper boundaries inside the course');
+        for (let index = 0; index < modules.length-1; index++) {
+          assert.equal(nextPractice(modules[index],modules.map(p=>p.id),modules,{}).id,modules[index+1].id,'Next follows the declared course order');
+        }
         const donePage=JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute}));
         assert.equal(donePage.querySelectorAll('[data-module-id]').length,1);
         const waitingPage=JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute,progressReady:false}));
@@ -217,7 +218,7 @@ try {
     const reviewed = detailPage({saved:{[position.id]:{report:acceptedFor(position)}}});
     assert(primary(reviewed).textContent.includes(en ? 'Review implementation' : '回顾实现'), 'Review follows the selected module, even when the rest of its paper is unfinished');
     assert.equal(reviewed.querySelector('[data-next]'), null, 'A solved filtered module must not be marked as unfinished Up next');
-    const mediumView = libraryHref('llm-basics', {...emptyLibraryFilters(),query:'Vaswani',difficulty:'M'});
+    const mediumView = libraryHref('llm-frontier', {...emptyLibraryFilters(),query:'Vaswani',difficulty:'M'});
     const mediumScope = selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute(mediumView)).problems;
     const medium = detailPage({returnTo:mediumView,practiceProblems:mediumScope});
     assert.equal(primary(medium).getAttribute('href'), withLibraryContext(27,mediumView), 'Collection and difficulty bounds also govern the detail recommendation');

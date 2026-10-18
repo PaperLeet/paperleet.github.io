@@ -1,4 +1,5 @@
-import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
+import CommunityTagPicker from './CommunityTagPicker';
+import {unavailableCommunityTags} from './communityTagSelection';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import {useEffect,useId,useRef,useState} from 'react';
 import {BookOpen,Check,ChevronDown,ChevronRight,X} from 'lucide-react';
@@ -75,6 +76,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
    const submitted=receipt?{...(Array.isArray(receipt.payload.tag_ids)?{tagIds:receipt.payload.tag_ids}:{}),anonymous:receipt.payload.anonymous===true,title:receipt.payload.title as string,body:receipt.payload.body as string,interview:JSON.parse(receipt.payload.interview as string)} as InterviewDraft:latest.current;
    if(!receipt&&submitted.tagIds?.length&&!taxonomy.supported){setError(t('标签服务暂不可用，草稿已保留。','Tags are unavailable. Your draft is kept.'));return;}
    if(!receipt&&taxonomy.supported&&(!taxonomy.ready||!taxonomy.data.boards.some(row=>row.id==='career'&&row.enabled))){setError(t('求职版位暂未开放，草稿已保留。','The career board is unavailable. Your draft is kept.'));return;}
+   if(!receipt&&taxonomy.supported&&unavailableCommunityTags(taxonomy.data.tags,submitted.tagIds||[]).length){setError(t('所选标签含停用或不可用项，请在标签区移除后发布。草稿已保留。','Some selected tags are paused or unavailable. Remove them in the tag section before publishing. Your draft is kept.'));return;}
    if(!submitted.title.trim()||!submitted.body.trim()||!receipt&&!hasInterviewDraftContent(submitted.body))return;
    if(submitted.anonymous&&capabilities?.community_anonymous_posts!==true){setError(t('匿名发布暂不可用，草稿已保留。','Anonymous posting is unavailable. Your draft is kept.'));return;}
    inflight.current=true;setBusy(true);setError('');
@@ -101,7 +103,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
   <PublishingAffiliationNotice/>
   {!confirmedPost&&<PublicationRecovery pending={pending} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
-   <TaxonomyStatus/><CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
+   <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
    <label>{t('面经标题','Title')}<input data-writing-title="" required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>

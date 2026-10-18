@@ -15,13 +15,13 @@ export const paperCollections: PaperCollection[] = [
     kind: "course",
     name: "LLM 基础",
     name_en: "LLM Basics",
-    paperIds: ["llm-training-generation", "transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora"],
+    paperIds: ["llm-training-generation"],
   },
   {
     id: "llm-frontier",
     name: "LLM 前沿",
     name_en: "LLM Frontier",
-    paperIds: ["kimi-k3", "glm-5"],
+    paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora", "kimi-k3", "glm-5"],
   },
   {
     id: "retrieval",

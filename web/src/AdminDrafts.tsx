@@ -11,9 +11,9 @@ export function useAdminDraft<T extends object>(key:string,initial:T,label:strin
  const value=(entry?.value as T|undefined)||initial;
  return {value,entry,intent:()=>store.intent(key),change:(update:Partial<T>)=>store.update(key,{...(store.read(key)?.value||latest.current),...update},label,view),discard:(intent:AdminDraftIntent)=>store.discard(intent)};
 }
-export function AdminDraftRow({draftKey,forceOpen=false,children,...props}:{draftKey:string;forceOpen?:boolean;children:ReactNode;className?:string}){
+export function AdminDraftRow({draftKey,forceOpen=false,onOpenChange,children,...props}:{draftKey:string;forceOpen?:boolean;onOpenChange?:(open:boolean)=>void;children:ReactNode;className?:string;hidden?:boolean}){
  const context=useContext(AdminDraftContext)!,[initialOpen]=useState(()=>context.store.isOpen(draftKey)??!!context.store.read(draftKey));
- return <details {...props} open={forceOpen||initialOpen} onToggle={event=>{if(event.currentTarget.isConnected)context.store.setOpen(draftKey,event.currentTarget.open);}}>{children}</details>;
+ return <details {...props} open={forceOpen||initialOpen} onToggle={event=>{if(event.currentTarget.isConnected){context.store.setOpen(draftKey,event.currentTarget.open);onOpenChange?.(event.currentTarget.open);}}}>{children}</details>;
 }
 export function AdminDraftActions({draft,disabled,onReset}:{draft:ReturnType<typeof useAdminDraft>;disabled:boolean;onReset?:()=>void}){
  const {t}=useI18n(),[confirmation,setConfirmation]=useState<AdminDraftIntent>(),[changed,setChanged]=useState(false);

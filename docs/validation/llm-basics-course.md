@@ -1,10 +1,12 @@
 # LLM Basics as one course
 
-LLM Basics opens its 18 existing exercises directly at `#/collections/llm-basics`. It no longer lists the training/generation course as a nested entry. Source papers, module identifiers, saved code and accepted progress remain unchanged; other collections still list papers.
+LLM Basics opens its seven standalone training and generation exercises directly at `#/collections/llm-basics`: next-token loss, SFT response masks, multi-turn SFT masks, Top-k, Top-p, gradient accumulation and gradient clipping. It does not nest another course or require studying a particular paper.
 
-The course keeps its declared exercise order, resumes unfinished drafts, filters status per exercise, and retains search/difficulty/topic filters in practice return links. The workspace returns directly to LLM Basics and offers all 18 modules in its picker, including transitions between source papers. Scroll restoration accepts module anchors as well as paper anchors. Legacy `lists/llm-basics` links remain supported.
+Transformer, RMSNorm, RoFormer/RoPE, GQA, AdamW, FlashAttention and LoRA now appear in LLM Frontier alongside Kimi K3 and GLM-5. Source papers, module identifiers, saved code and accepted progress remain unchanged.
 
-Validation:
+The course keeps its declared exercise order, resumes unfinished drafts, filters status per exercise, and retains search/difficulty/topic filters in practice return links. The workspace returns directly to LLM Basics and offers its seven modules in the picker. Scroll restoration accepts module anchors as well as paper anchors. Legacy `lists/llm-basics` links remain supported.
+
+Validation of the original 18-exercise course implementation, before the collection split:
 
 - Bilingual navigation checks cover direct exercise links, exact course order, partial-paper progress filtering, pending progress, ordered recommendations and cross-paper continuation.
 - Local and production-hosted TypeScript/Vite builds pass the unchanged startup budgets. Hosted initial JavaScript: 408,368 bytes raw / 132,188 bytes gzip.
