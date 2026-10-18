@@ -9,6 +9,9 @@ import CommunityCodeBlock from './CommunityCodeBlock';
 export {default as CommunityCodeBlock} from './CommunityCodeBlock';
 import { useI18n } from './i18n';
 import {headingAnchor} from './markdownOutline';
+import {usePracticeMentions} from './PracticeMentions';
+import {transformPracticeMentions} from './practiceMentionMatcher';
+import {withLibraryContext} from './libraryNavigation';
 import 'katex/dist/katex.min.css';
 
 export function CommunityFormatHelp() {
@@ -22,7 +25,9 @@ export function CommunityFormatHelp() {
 }
 
 const components = {
-  a: ({ href, children }: { href?: string; children?: ReactNode }) => <a href={href} target="_blank" rel="noopener noreferrer nofollow">{children}</a>,
+  a: ({ href, children,className }: { href?: string; children?: ReactNode;className?:string }) => className==='practice-mention-link'
+    ? <a href={href} className={className} data-reading-link="practice">{children}</a>
+    : <a href={href} target="_blank" rel="noopener noreferrer nofollow">{children}</a>,
   img: ({ alt }: { alt?: string }) => <span className="community-image-alt">{alt ? `[${alt}]` : '[image]'}</span>,
   pre: ({ children }: { children?: ReactNode }) => {
     const child = Children.toArray(children)[0];
@@ -36,6 +41,8 @@ const remarkPlugins = [remarkGfm, remarkMath];
 const katexOptions = { trust: false, strict: 'ignore' as const, maxExpand: 100, maxSize: 20 };
 
 const CommunityMarkdown = memo(function CommunityMarkdown({ body,headingScope }: { body: string;headingScope?:string }) {
+  const mentions=usePracticeMentions();
+  const plugins=useMemo(()=>mentions?[...remarkPlugins,()=> (tree:Parameters<typeof transformPracticeMentions>[0])=>{transformPracticeMentions(tree,mentions.index,topic=>withLibraryContext(topic.id,mentions.returnTo));}]:remarkPlugins,[mentions]);
   const readingComponents=useMemo<Components>(()=>{
     if(!headingScope)return components;
     const result:Components={...components};
@@ -43,7 +50,7 @@ const CommunityMarkdown = memo(function CommunityMarkdown({ body,headingScope }:
     return result;
   },[headingScope]);
   return <div className="prose community-prose">
-    <Markdown remarkPlugins={remarkPlugins} rehypePlugins={[[rehypeKatex, katexOptions]]} components={readingComponents}>{body}</Markdown>
+    <Markdown remarkPlugins={plugins} rehypePlugins={[[rehypeKatex, katexOptions]]} components={readingComponents}>{body}</Markdown>
   </div>;
 });
 export default CommunityMarkdown;

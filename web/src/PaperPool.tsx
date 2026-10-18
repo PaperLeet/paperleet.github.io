@@ -13,6 +13,7 @@ import { EditorFailure, EditorLoading } from './EditorFallback';
 import { arxivPaperUrl, poolApi, poolHref, poolRoute } from './paperPoolApi';
 import type { PaperPoolCapabilities, PaperPoolVote, PoolAttempt, PoolAttemptResponse, PoolDuplicate, PoolList, PoolProposal, PoolSubmission } from './paperPoolTypes';
 import './paper-pool.css';
+import PaperDuplicateCheck, {PaperDuplicateNotice} from './PaperDuplicateCheck';
 
 const TrialEditor = deferredFeature(() => import('./PythonEditor'), ['试做编辑器', 'trial editor'], {
   loading: props => <EditorLoading {...props} />,
@@ -58,6 +59,7 @@ function PoolWorkspace({owner}: {owner?: string}) {
     <header className="pool-page-header">
       <h1>{route.id || route.pool ? t('候选题', 'Problem pool') : t('提交论文', 'Submit paper')}</h1>
       <nav className="pool-tabs" aria-label={t('论文投稿导航', 'Paper submission navigation')}>
+        <a href="#/paper-registry"><BookOpen size={15}/>{t('论文库','Paper registry')}</a>
         <a href="#/submit" aria-current={!route.id && !route.pool ? 'page' : undefined}><Send size={15} />{t('提交论文', 'Submit paper')}</a>
         <a href={poolHref()} aria-current={route.id || route.pool ? 'page' : undefined}><FlaskConical size={16} />{t('候选题', 'Problem pool')}</a>
       </nav>
@@ -80,7 +82,7 @@ function PoolWorkspace({owner}: {owner?: string}) {
 }
 
 function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; capabilities?: PaperPoolCapabilities; onSaved: () => void}) {
-  const {t, locale} = useI18n();
+  const {t} = useI18n();
   const draftOwner = owner ? `account:${owner}` : undefined;
   const [loaded] = useState(() => readProposalDraft(tabDraftStorage(), draftOwner));
   const [draft, setDraft] = useState(() => loaded.record?.draft || emptyProposalDraft());
@@ -121,10 +123,11 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
   return <section className="pool-submit-grid">
     <form className="social-panel social-form pool-submission-form" onSubmit={event => {event.preventDefault(); void submit();}}>
       <label>{t('arXiv 链接', 'arXiv link')}<input type="url" required maxLength={512} placeholder="https://arxiv.org/abs/…" autoComplete="off" value={draft.paperUrl} onChange={event => edit({paperUrl: event.target.value})} disabled={!owner} /></label>
+      {!duplicate && <PaperDuplicateCheck value={draft.paperUrl}/>}
       <label>{t('出题方向（可选）', 'Guidance for the exercise (optional)')}<textarea rows={4} maxLength={4000} value={draft.focus} disabled={!owner} onChange={event => edit({focus: event.target.value})} placeholder={t('例如：围绕核心损失函数出一道 NumPy 练习，重点测试数值稳定性。', 'For example: a NumPy exercise on the core loss, with tests for numerical stability.')} /></label>
       <small className="pool-muted">{t('论文链接与出题方向会公开展示，请勿填写私人信息。', 'Paper links and learning preferences are public. Do not include private information.')}</small>
       {error && <p className="pool-error" role="alert">{error}</p>}
-      {duplicate && <div className="pool-feedback" role="status"><strong>{t('这篇论文已经有了', 'This paper is already here')}</strong>{duplicate.kind === 'proposal' ? <a href={poolHref(duplicate.proposal.id)}>{t('查看已有投稿', 'View existing proposal')}<ArrowUpRight size={14} /></a> : duplicate.problems.map(problem => <a key={problem.id} href={`#/${problem.id}`}>{locale === 'en' ? problem.title_en || problem.title : problem.title}<ArrowUpRight size={14} /></a>)}<small>{t('重复投稿不会消耗每日额度。', 'Duplicates do not use your daily proposal quota.')}</small></div>}
+      {duplicate && <PaperDuplicateNotice duplicate={duplicate}/>}
       {saved && <div className="pool-feedback" role="status"><strong>{t('论文已提交', 'Paper submitted')}</strong><a href={poolHref(saved.id)}>{t('查看处理进度', 'View progress')}<ArrowUpRight size={14} /></a></div>}
       {!owner ? <a className="button" href={signInHref('submit')}>{t('登录后投稿', 'Sign in to submit')}</a> : <button className="button" type="submit" disabled={busy || !capabilities?.can_submit}>{busy ? <LoaderCircle size={15} className="spin" /> : <Send size={15} />}{busy ? t('正在提交…', 'Submitting…') : t('提交论文', 'Submit paper')}</button>}
       {owner && capabilities && !capabilities.can_submit && <p className="pool-muted">{capabilities.reason || t('请先验证学校或公司的邮箱。', 'Verify your school or company email to submit.')}</p>}

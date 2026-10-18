@@ -5,7 +5,7 @@ import {useReadingTab} from './useReadingTab';
 import {editorFontSizes} from './editorPreferences';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {readProfileRoute,sameProfilePage} from './profileNavigation';
-import {DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls,ProblemDiscussions,StudyListPracticeNavigation} from './deferredPages';
+import {PaperRegistry,DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,InboxBell,Messages,ReadingTabControls,ProblemDiscussions,StudyListPracticeNavigation} from './deferredPages';
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
@@ -585,7 +585,9 @@ function Workspace() {
           accountHref={user ? hostedAppHref('#/account') : undefined}
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
       ) : interviewPage ? (
-        <Interviews route={id} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
+        <Interviews route={id} papers={papers} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
+      ) : path === 'paper-registry' ? (
+        <PaperRegistry papers={papers} problems={problems} error={loadError} onRetry={()=>void loadCatalog()}/>
       ) : path === 'drafts' ? (
         <DraftCenter route={id} topics={problems.map(topicFromProblem)} catalogLoading={!problems.length&&!loadError} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : messagesPage ? (
@@ -593,6 +595,7 @@ function Workspace() {
       ) : communityPage ? (
         <Community
           route={id}
+          papers={papers}
           topics={problems.map(topicFromProblem)}
           topicId={communityTopicId}
           topic={communityProblem ? topicFromProblem(communityProblem) : undefined}

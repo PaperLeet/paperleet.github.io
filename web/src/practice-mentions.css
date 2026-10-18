@@ -1,0 +1,4 @@
+.practice-mentions{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px 14px;margin:12px 0;font-size:12px;line-height:1.6}
+.practice-mentions>span{color:var(--muted);font-weight:600}.practice-mentions>a{color:var(--accent);text-decoration:none}.practice-mentions>a:hover{text-decoration:underline}
+.community-prose a.practice-mention-link{text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;color:var(--accent)}
+.community-prose a.practice-mention-link:hover{text-decoration-style:solid}

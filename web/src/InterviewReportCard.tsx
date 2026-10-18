@@ -11,9 +11,11 @@ import CommunityCardActions from './CommunityCardActions';
 import type {InterviewPost} from './interviewModels';
 import type {Problem} from './types';
 import InterviewReportPractice from './InterviewReportPractice';
+import PracticeMentions from './PracticeMentions';
+import {topicFromProblem} from './communityTopics';
 
 /** The feed keys cards by account and request, so confirmations cannot cross either boundary. */
-export default function InterviewReportCard({post,owner,canSave,returnTo,savedView,resumed,resumedPractice,problems,catalogError,onRetryCatalog,onReload,onAccountRefresh}:{post:InterviewPost;owner:string;canSave:boolean;returnTo:string;savedView:boolean;resumed?:boolean;resumedPractice?:string;problems?:Problem[];catalogError?:string;onRetryCatalog?:()=>void;onReload:()=>void;onAccountRefresh?:()=>Promise<void>}){
+export default function InterviewReportCard({post,owner,canSave,returnTo,savedView,resumed,resumedPractice,problems,papers,catalogError,onRetryCatalog,onReload,onAccountRefresh}:{post:InterviewPost;owner:string;canSave:boolean;returnTo:string;savedView:boolean;resumed?:boolean;resumedPractice?:string;problems?:Problem[];papers?:import('./types').Paper[];catalogError?:string;onRetryCatalog?:()=>void;onReload:()=>void;onAccountRefresh?:()=>Promise<void>}){
  const {t}=useI18n(),titleId=useId();
  const {loading:accountLoading}=useAccount();
  const [bookmarked,setBookmarked]=useState(post.viewer?.bookmarked),[busy,setBusy]=useState(false);
@@ -21,7 +23,7 @@ export default function InterviewReportCard({post,owner,canSave,returnTo,savedVi
  return <article data-reading-post={post.id} data-reading-resumed={resumed||undefined} className="interview-report-card" aria-labelledby={titleId}>
   <div className="interview-report-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div>
   <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>
-  <a data-reading-link="title" id={titleId} className="interview-report-title" href={href}>{post.title}</a><InlinePostBody postId={post.id} body={post.body}/>
+  <a data-reading-link="title" id={titleId} className="interview-report-title" href={href}>{post.title}</a><PracticeMentions papers={papers} topics={problems?.map(topicFromProblem)} body={post.body} returnTo={communityPostHref(post.id)}><InlinePostBody postId={post.id} body={post.body}/></PracticeMentions>
   <InterviewReportPractice key={post.id} questions={post.interview.questions} revealPractice={resumedPractice} problems={problems} returnTo={returnTo} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>
   <CommunityCardActions post={post} returnTo={returnTo}>
    <div className="interview-report-actions">{canSave&&typeof bookmarked==='boolean'&&<PostBookmark postId={post.id} owner={owner} bookmarked={bookmarked} enabled={canSave} returnTo={href} disabled={accountLoading} hidden={accountLoading} onChange={setBookmarked} onBusyChange={setBusy} onAccountRefresh={onAccountRefresh}/>}<a data-reading-link="read" href={href}>{t('阅读复盘','Read experience')}<ArrowRight size={13}/></a></div>

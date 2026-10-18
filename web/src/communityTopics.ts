@@ -6,6 +6,8 @@ export type ProblemTopic = {
   title: string;
   title_en?: string | null;
   retired?: boolean;
+  paper?: Problem['paper'];
+  paper_short_title?: string;
 };
 
 export const topicHref = (id: string) => `#/community/problem/${encodeURIComponent(id)}`;
@@ -19,8 +21,8 @@ export function topicIdFromRoute(route: string): string | undefined {
   return /^[a-z0-9_-]+\/[a-z0-9_-]+$/.test(id) ? id : undefined;
 }
 
-export function topicFromProblem(problem: Pick<Problem,'id'|'number'|'title'|'translations'>): ProblemTopic {
-  return { id: problem.id, number: problem.number, title: problem.title, title_en: problem.translations?.en?.title };
+export function topicFromProblem(problem: Pick<Problem,'id'|'number'|'title'|'translations'> & Partial<Pick<Problem,'paper'>>): ProblemTopic {
+  return { id: problem.id, number: problem.number, title: problem.title, title_en: problem.translations?.en?.title, ...(problem.paper?{paper:problem.paper}:{}) };
 }
 
 export function topicTitle(topic: ProblemTopic, english: boolean): string {

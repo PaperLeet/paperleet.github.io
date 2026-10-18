@@ -1,0 +1,68 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {createServer} from 'vite';
+import {JSDOM} from 'jsdom';
+
+const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+const originalStorage=globalThis.localStorage;
+try{
+ const catalog=JSON.parse(fs.readFileSync('public/data/index.json','utf8'));
+ const {paperIdentity,searchPaperRegistry}=await server.ssrLoadModule('/src/paperRegistrySearch.ts');
+ const {practiceMentionIndex,findPracticeMentions}=await server.ssrLoadModule('/src/practiceMentionMatcher.ts');
+ const {topicFromProblem}=await server.ssrLoadModule('/src/communityTopics.ts');
+ const {libraryReturnHref}=await server.ssrLoadModule('/src/libraryNavigation.ts');
+ const {default:Registry}=await server.ssrLoadModule('/src/PaperRegistry.tsx');
+ const {default:Mentions}=await server.ssrLoadModule('/src/PracticeMentions.tsx');
+ const {default:Markdown}=await server.ssrLoadModule('/src/CommunityMarkdown.tsx');
+ const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
+ globalThis.localStorage={getItem:()=> 'en'};
+ const topics=catalog.problems.map(p=>({...topicFromProblem(p),paper:catalog.papers.find(paper=>paper.module_ids.includes(p.id)),paper_short_title:catalog.papers.find(paper=>paper.module_ids.includes(p.id))?.short_title})),index=practiceMentionIndex(topics);
+ const ids=text=>findPracticeMentions(text,index).map(match=>match.topic.id);
+ assert.deepEqual(ids('实现Top-P和DPO，GraphSAGE, FlashAttention, RoPE'),['foundations/top_p_sampling','rl/dpo','representation/graphsage_mean','architecture/flash_attention','architecture/rope']);
+ assert.deepEqual(ids('Dr. GRPO and GRPO; QLoRA / LoRA'),['rl/dr_grpo','rl/grpo','finetuning/qlora','finetuning/lora']);
+ assert.deepEqual(ids('XPPO DPO_loss clip gradients var = 1; jit compiler; dropout; SuperGraphSAGE'),[]);
+ assert.deepEqual(ids('TOP–P 核采样'),['foundations/top_p_sampling','foundations/top_p_sampling']);
+ assert.deepEqual(ids('Inductive Representation Learning on Large Graphs'),['representation/graphsage_mean']);
+ assert.deepEqual(ids('CLIP DDPM DDIM'),['representation/clip','diffusion/schedules','diffusion/ddim']);
+ assert.equal(practiceMentionIndex([]),undefined);
+ const retired=practiceMentionIndex(topics.map(topic=>({...topic,retired:topic.id==='rl/dpo'})));
+ assert.equal(findPracticeMentions('DPO',retired).length,0);
+ const source='#/community/'+'a'.repeat(32);
+ const body='## Preparation\n\nImplement **Top-p**, DPO and GraphSAGE. DPO again.\n\n`PPO` and $\\text{LoRA}$. [ResNet](https://example.org)\n\n```python\nBatchNorm = 1\n```\n\n<script>VAE</script>';
+ const render=()=>renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Mentions,{topics:catalog.problems.map(topicFromProblem),papers:catalog.papers,body,returnTo:source},React.createElement(Markdown,{body,headingScope:'reading-'+'a'.repeat(32)}))));
+ const dom=new JSDOM(render()),document=dom.window.document;
+ const linked=[...document.querySelectorAll('a.practice-mention-link')];
+ assert.deepEqual(linked.map(node=>node.textContent),['Top-p','DPO','GraphSAGE','DPO']);
+ for(const link of linked){assert.equal(link.target,'');assert.equal(libraryReturnHref(link.getAttribute('href')),source);assert(!link.querySelector('a'));}
+ assert.equal(document.querySelectorAll('.practice-mentions>a').length,3,'The summary deduplicates repeated mentions');
+ assert.equal(document.querySelector('a[href="https://example.org"]').textContent,'ResNet');
+ assert.equal(document.querySelector('a[href="https://example.org"]').target,'_blank');
+ assert(document.querySelector('code').textContent.includes('PPO'));
+ assert(document.querySelector('.katex'));
+ assert.equal(document.querySelectorAll('script').length,0);
+ assert.equal(document.querySelector('h2').id,'reading-'+'a'.repeat(32)+'-0','Heading offsets survive inserted links');
+ for(const input of ['1706.02216','arXiv:1706.02216v4','https://arxiv.org/pdf/1706.02216v4.pdf','https://arxiv.org/abs/1706.02216']){
+   assert.equal(paperIdentity(input),'arxiv:1706.02216');
+   assert.deepEqual(searchPaperRegistry(catalog.papers,catalog.problems,input).map(p=>p.id),['graphsage']);
+ }
+ assert(searchPaperRegistry(catalog.papers,catalog.problems,'Jure Leskovec').some(p=>p.id==='graphsage'));
+ assert.equal(searchPaperRegistry(catalog.papers,catalog.problems,'not-a-real-paper-foobar').length,0);
+ const paperBody='Inductive Representation Learning on Large Graphs';
+ const paperMarkup=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Mentions,{topics:catalog.problems.map(topicFromProblem),papers:catalog.papers,body:paperBody,returnTo:source},React.createElement(Markdown,{body:paperBody}))));
+ assert(new JSDOM(paperMarkup).window.document.querySelector('a.practice-mention-link').getAttribute('href').startsWith('#/representation/graphsage_mean?'));
+ const citation='[Read the paper](https://arxiv.org/pdf/1706.02216v4.pdf)';
+ const citationMarkup=renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Mentions,{topics:catalog.problems.map(topicFromProblem),papers:catalog.papers,body:citation,returnTo:source},React.createElement(Markdown,{body:citation}))));
+ const citationDocument=new JSDOM(citationMarkup).window.document;
+ assert.equal(citationDocument.querySelector('.practice-mentions>a').textContent.startsWith('#100'),true);
+ assert.equal(citationDocument.querySelector('a[href="https://arxiv.org/pdf/1706.02216v4.pdf"]').textContent,'Read the paper');
+ assert.equal(citationDocument.querySelectorAll('a.practice-mention-link').length,0);
+ const registry=new JSDOM(renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Registry,{...catalog,onRetry(){}})))).window.document;
+ assert.equal(registry.querySelectorAll('.paper-registry-list>li').length,catalog.papers.filter(p=>p.kind!=='course').length);
+ assert(registry.querySelector('a[href="#/100"]'));
+ assert(registry.querySelector('a[href="#/paper-registry"]')===null);
+ assert(fs.readFileSync('src/App.tsx','utf8').includes("path === 'paper-registry'"));
+ assert(fs.readFileSync('src/PaperPool.tsx','utf8').includes('<PaperDuplicateCheck value={draft.paperUrl}'));
+ console.log('PASS paper registry and interview mentions: version-aware source search, all published papers, exact algorithm/paper names, safe Markdown, deduplicated exercises and return-to-article links');
+}finally{globalThis.localStorage=originalStorage;await server.close();}

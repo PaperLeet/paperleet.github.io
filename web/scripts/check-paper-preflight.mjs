@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+
+const dom=new JSDOM('<div id="root"></div>',{url:'http://localhost/#/submit'});
+const globals={window:dom.window,document:dom.window.document,location:dom.window.location,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,IS_REACT_ACT_ENVIRONMENT:true};
+const previous=new Map([...Object.keys(globals),'fetch'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','en');
+const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+const requests=[];
+globalThis.fetch=(url,options={})=>new Promise((resolve,reject)=>requests.push({url:String(url),options,resolve,reject}));
+let root;
+const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {default:Check}=await server.ssrLoadModule('/src/PaperDuplicateCheck.tsx');
+ const render=async value=>{await act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Check,{value})));});};
+ const wait=()=>act(async()=>delay(350));
+ const reply=(request,data)=>act(async()=>request.resolve(new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}})));
+ await render('');await wait();assert.equal(requests.length,0);
+ await render('https://arxiv.org/abs/2305.18290');await wait();assert.equal(requests.length,1);
+ const first=requests[0];assert(first.url.includes('/api/paper-pool/check?'));assert.equal(first.options.method,undefined);
+ await render('https://arxiv.org/abs/1706.02216');assert(first.options.signal.aborted);await wait();
+ const second=requests[1];await reply(second,{duplicate:null});assert(document.body.textContent.includes('No duplicate found'));
+ await reply(first,{duplicate:{kind:'catalog',problems:[{id:'rl/dpo',title:'DPO'}]}});assert(!document.querySelector('a'),'An old response cannot link an unrelated draft');
+ await render('https://arxiv.org/pdf/2305.18290v2.pdf');await wait();
+ await reply(requests[2],{duplicate:{kind:'catalog',problems:[{id:'rl/dpo',title:'DPO'}]}});
+ assert.equal(document.querySelector('a').getAttribute('href'),'#/rl/dpo');assert(document.body.textContent.includes('already published'));
+ await render('https://arxiv.org/abs/2601.99999');await wait();await act(async()=>requests[3].reject(Error('offline')));
+ assert(document.body.textContent.includes('Submission will still check'));
+ await act(async()=>document.querySelector('button').click());await wait();
+ await reply(requests[4],{duplicate:{kind:'proposal',proposal:{id:'a'.repeat(32)}}});
+ assert.equal(document.querySelector('a').getAttribute('href'),'#/submit?proposal='+'a'.repeat(32));
+ await render('invalid');assert(!document.querySelector('a'));
+ await render('https://arxiv.org/abs/2601.99998');const count=requests.length;
+ await act(async()=>root.unmount());root=undefined;await wait();assert.equal(requests.length,count);
+ console.log('PASS preflight: read-only debounced lookup, canonical URLs, published/proposal links, stale-response rejection, retry and unmount cancellation');
+}finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,value]of previous){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}

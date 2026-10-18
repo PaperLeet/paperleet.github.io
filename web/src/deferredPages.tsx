@@ -114,3 +114,5 @@ export const ProblemFavoritesPage = deferredFeature<Parameters<typeof import('./
 export const StudyListPracticeNavigation = deferredFeature<Parameters<typeof import('./StudyLists').StudyListPracticeNavigation>[0]>(()=>import('./StudyLists').then(module=>({default:module.StudyListPracticeNavigation})),['题单导航','study-list navigation']);
 
 export const SubmissionCompletionNotice=deferredFeature(()=>import('./SubmissionCompletionNotice'),customRecoveryLabel,{loading:()=>null,failure:props=><SubmissionCompletionFallback {...props}/>});
+
+export const PaperRegistry = deferredFeature(() => import('./PaperRegistry'), ['论文库', 'paper registry']);

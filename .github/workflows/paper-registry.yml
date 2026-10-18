@@ -1,0 +1,32 @@
+name: Paper registry identity
+on:
+  pull_request:
+    paths:
+      - 'papers.yaml'
+      - 'problems/**/problem.yaml'
+      - 'paperleet/catalog.py'
+      - 'paperleet/paper_catalog.py'
+      - '.github/workflows/paper-registry.yml'
+permissions:
+  contents: read
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'PyYAML>=6,<7'
+      - name: Check unique paper sources and stable-number uniqueness
+        run: |
+          python - <<'PY'
+          from paperleet.catalog import problems
+          from paperleet.paper_catalog import paper_catalog
+          modules = problems()
+          papers, membership = paper_catalog(modules)
+          print(f'PASS: {len(papers)} catalog entries, {len(modules)} exercises, unique source identities and numbers')
+          print(f'Next available module number: {max(p["number"] for p in modules) + 1}')
+          print(f'Next available paper number: {max(p["number"] for p in papers) + 1}')
+          PY

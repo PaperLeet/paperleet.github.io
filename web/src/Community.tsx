@@ -23,6 +23,7 @@ import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import CommunityMarkdown from "./CommunityMarkdown";
 import DiscussionReading from './DiscussionReading';
+import PracticeMentions from './PracticeMentions';
 import SolutionReadingCard from './SolutionReadingCard';
 import CommunityFeedFilters from './CommunityFeedFilters';
 import CommunityFeedPeriod from './CommunityFeedPeriod';
@@ -567,6 +568,7 @@ function Composer({
 }
 export {Composer as DraftPostComposer};
 type CommunityProps = {
+  papers?: import('./types').Paper[];
   route?: string;
   postId?: string;
   topicId?: string;
@@ -588,7 +590,7 @@ export default function Community({ postId, route, ...scope }: CommunityProps) {
   if(route==='community/moderation')return <ModerationQueue/>;
   if(route?.replace(/^#\/?/,'').split('?')[0]==='community/reports')return <ReportHistory route={route}/>;
   return postId ? (
-    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} topics={scope.topics} catalogLoading={scope.catalogLoading} catalogError={scope.catalogError} reloadCatalog={scope.reloadCatalog}/>
+    <Discussion key={`${postId}:${user?.id || "guest"}`} id={postId} returnTo={communityPostReturn(route || '', postId)} replyTarget={communityReplyTarget(route || '', postId)} papers={scope.papers} topics={scope.topics} catalogLoading={scope.catalogLoading} catalogError={scope.catalogError} reloadCatalog={scope.reloadCatalog}/>
   ) : (
     <CommunityFeed key={`${scope.topicId || "all"}:${readCommunityFeed(route||"")?.state.solutions?"solutions":"posts"}:${user?.id || "guest"}`} route={route} {...scope} />
   );
@@ -897,7 +899,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     </FeedRoot>
   );
 }
-function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogLoading,catalogError,reloadCatalog }: { id: string; returnTo?: string; replyTarget?:string;topics?:ProblemTopic[];catalogLoading?:boolean;catalogError?:string;reloadCatalog?:()=>void }) {
+function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,catalogLoading,catalogError,reloadCatalog }: { papers?:import('./types').Paper[]; id: string; returnTo?: string; replyTarget?:string;topics?:ProblemTopic[];catalogLoading?:boolean;catalogError?:string;reloadCatalog?:()=>void }) {
   const { t,locale } = useI18n();
   const { user, capabilities, refresh: refreshAccount, loading:accountLoading } = useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
@@ -1143,7 +1145,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
             </div>
             {post.interview && <InterviewMeta details={post.interview} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <PostTags post={post} returnTo={returnTo}/>
-            <DiscussionReading body={post.body} postId={post.id} />
+            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} returnTo={postHref(post.id)}><DiscussionReading body={post.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} postId={post.id} />}
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
               <PostReport postId={post.id} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>

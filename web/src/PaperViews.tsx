@@ -167,6 +167,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
       <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
+      <a className="text-button" href="#/paper-registry">{t("论文库","Paper registry")}</a>
       <a className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</a>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{solvedModules} / {listedModules.length}</b></div>
     </header>
