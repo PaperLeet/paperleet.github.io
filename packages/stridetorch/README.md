@@ -1925,3 +1925,13 @@ transforms or unvalidated operator JVP rules. Registering gradient hooks inside
 the callback is explicitly unsupported: such hooks can change the reverse-based
 JVP and cannot be silently evaluated as an ordinary forward direction.
 The registered functional JVP operator survives model copy and pickle.
+
+
+Version 0.73 preserves the functional-JVP API while sharing its validation
+helpers and dtype descriptors across calls. Single-Tensor validation avoids a
+temporary generator, and non-strict calls avoid allocating strict-mode tracking
+sets. Private base-Tensor leaves receive their final gradient metadata at
+construction; Tensor subclasses retain their `detach`/`requires_grad_` dispatch.
+The existing strict checks, caller isolation, cast behavior and returned reverse
+graphs remain covered by the SDK and numeric inventories. Performance results
+are scoped to the workflows and runtimes recorded in the validation report.
