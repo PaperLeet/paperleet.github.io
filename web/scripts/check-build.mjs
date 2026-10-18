@@ -13,8 +13,9 @@ function visit(key) {
 }
 visit('index.html');
 for (const key of ['src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
-  // Rollup gives a shared static/dynamic community chunk a generated manifest key.
-  const candidates=manifest[key]?[[key,manifest[key]]]:key==='src/Community.tsx'?Object.entries(manifest).filter(([,entry])=>entry.name==='Community'&&entry.isDynamicEntry):[];
+  // Rollup can use generated keys when deferred pages also share static imports.
+  const sharedPage=key==='src/Community.tsx'?'Community':key==='src/DraftCenter.tsx'?'DraftCenter':undefined;
+  const candidates=manifest[key]?[[key,manifest[key]]]:sharedPage?Object.entries(manifest).filter(([,entry])=>entry.name===sharedPage&&entry.isDynamicEntry):[];
   assert(candidates.length===1&&candidates[0][1].isDynamicEntry, `${key} must remain a unique deferred entry`);
   assert(!initial.has(candidates[0][0]), `${key} must not load with the paper library`);
 }
