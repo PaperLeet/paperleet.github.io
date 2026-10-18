@@ -138,7 +138,7 @@ def create_torch(name='torch', *, register=False):
                      reverse='factory', forward=True)
     registry.group('torch', {
         'where': _ops.where, 'cat': _ops.cat, 'concat': _ops.cat, 'concatenate': _ops.cat, 'stack': _ops.stack,
-        'matmul': lambda input,other: _ops.wrap(input) @ other, 'pow': _ops.power,
+        'pow': _ops.power,
         'cosine_similarity': _nn.cosine_similarity,
     }, reverse='analytic', forward=True)
     registry.group('torch', {
@@ -154,18 +154,14 @@ def create_torch(name='torch', *, register=False):
         'scatter': lambda input,dim,index,src,*,reduce=None: input.scatter(dim,index,src,reduce=reduce),
         'cov': _ops.cov, 'pdist': _ops.pdist, 'cdist': _ops.cdist,
     }, reverse='analytic')
-    registry.group('torch', {'mm': _ops.mm, 'bmm': _ops.bmm},
+    registry.group('torch', {'mm': _ops.mm, 'bmm': _ops.bmm, 'matmul': _ops.matmul, 'dot': _ops.dot, 'mv': _ops.mv},
                    reverse='analytic', forward=True, unsupported_keywords=('out',))
     registry.add('torch.nn.functional.pdist', _ops.pdist, reverse='analytic')
     registry.add('torch.nan_to_num', _ops.nan_to_num, reverse='analytic', unsupported_keywords=('out',))
     def outer(input, other):
         if input.ndim != 1 or other.ndim != 1: raise RuntimeError('outer expects vectors')
         return input.unsqueeze(-1) * other.unsqueeze(0)
-    def dot(input, other):
-        if input.ndim != 1 or other.ndim != 1 or input.dtype != other.dtype:
-            raise RuntimeError('dot expects vectors with matching dtypes')
-        return input @ other
-    registry.group('torch', {'outer': outer, 'dot': dot}, reverse='analytic')
+    registry.group('torch', {'outer': outer}, reverse='analytic')
     registry.group('torch', {
         'reciprocal': _arithmetic.reciprocal,
         'add': _arithmetic.add, 'sub': _arithmetic.sub, 'subtract': _arithmetic.sub,

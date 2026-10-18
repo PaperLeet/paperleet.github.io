@@ -589,10 +589,30 @@ class Tensor:
         return _ops.mm(self, mat2)
     def bmm(self, mat2):
         return _ops.bmm(self, mat2)
+    def matmul(self, other):
+        return _ops.matmul(self, other)
+    def dot(self, tensor):
+        return _ops.dot(self, tensor)
+    def mv(self, vec):
+        return _ops.mv(self, vec)
     def __matmul__(self, other):
-        other = _ops.wrap(other)
+        if not isinstance(self, Tensor):raise TypeError('matmul receiver must be a Tensor')
+        if not isinstance(other, Tensor):return NotImplemented
         a, b = self._data, other._data
-        if a.dtype != b.dtype: raise RuntimeError('matmul operands must have the same dtype')
+        dtype = a.dtype
+        needs_grad = _state._grad_enabled and (self.requires_grad or other.requires_grad)
+        unsupported_dtype = dtype.kind in 'bu' and dtype != _ops._BYTE_DTYPE
+        if (dtype != b.dtype or unsupported_dtype
+                or needs_grad and (a.ndim > 2 or b.ndim > 2) and (not a.size or not b.size)):
+            special = _ops._matmul_special(self, other)
+            if special is not None:return _ops._empty_product(self, other, *special)
+        try:value = _matmul.product(a, b) if _WASM_MATMUL and a.size >= 4096 else a @ b
+        except ValueError as error:raise RuntimeError(str(error)) from None
+        if not value.size:value = _layout.contiguous_empty(value)
+        # The ordinary inference route needs no pullback closures or saved
+        # factors. Subclasses keep result()'s forward-transform safeguards.
+        if not needs_grad and type(self) is Tensor and type(other) is Tensor:
+            return Tensor(value, _metadata_owned=True)
         # Promote vectors to matrices before calculating batched VJPs.
         aa, bb = a[None, :] if a.ndim == 1 else a, b[:, None] if b.ndim == 1 else b
         def promote(g):
@@ -627,9 +647,7 @@ class Tensor:
             else:
                 grad = _ops.unbroadcast(np.swapaxes(current, -1, -2) @ promote(g), bb.shape)
             return grad.reshape(b.shape)
-        output=_autograd.result(
-            _matmul.product(a, b) if _WASM_MATMUL and a.size >= 4096 else a @ b,
-            (self, left), (other, right), versioned=())
+        output=_autograd.result(value, (self, left), (other, right), versioned=())
         if output.requires_grad:
             # Each derivative saves only its opposite operand. The result is
             # never read by either pullback, so its mutation is harmless.
@@ -638,7 +656,18 @@ class Tensor:
             if other.requires_grad:counters.add(self._storage)
             output._grad_node.versions=tuple((counter,counter.version) for counter in counters)
         return output
-    def __rmatmul__(self, other): return _ops.wrap(other) @ self
+    def __rmatmul__(self, other):
+        if not isinstance(self, Tensor):raise TypeError('matmul receiver must be a Tensor')
+        return other @ self if isinstance(other, Tensor) else NotImplemented
+
+    def __array_wrap__(self, array, context=None, return_scalar=False):
+        # NumPy matmul inference follows Python's NotImplemented fallback.
+        # __array__ keeps the existing guard against implicit graph escapes.
+        if context is not None and context[0] is np.matmul:
+            if _state._grad_enabled and self.requires_grad:
+                raise RuntimeError('NumPy matmul requires detached tensors')
+            return Tensor(array, _metadata_owned=True)
+        return array[()] if return_scalar else array
 
     def reshape(self, *shape):
         original_data = self._data

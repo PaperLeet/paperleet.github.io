@@ -180,9 +180,17 @@ class ForwardTensor(_tensor.Tensor):
         p = self._primal.__rpow__(base)
         return ForwardTensor(p, self._tangent * p * math.log(base))
     def __matmul__(self, other):
+        if not isinstance(other, _tensor.Tensor):return NotImplemented
+        if self.dtype != other.dtype or self.dtype.kind in 'bu' or not self.numel() or not other.numel():
+            special = _ops._matmul_special(self, other)
+            if special is not None:return _ops._empty_product(self, other, *special)
         p, t = forward_parts(other)
         return ForwardTensor(self._primal @ p, self._tangent @ p + self._primal @ t)
     def __rmatmul__(self, other):
+        if not isinstance(other, _tensor.Tensor):return NotImplemented
+        if self.dtype != other.dtype or self.dtype.kind in 'bu' or not self.numel() or not other.numel():
+            special = _ops._matmul_special(other, self)
+            if special is not None:return _ops._empty_product(other, self, *special)
         p, t = forward_parts(other)
         return ForwardTensor(p @ self._primal, t @ self._primal + p @ self._tangent)
     def __getitem__(self, index): return ForwardTensor(self._primal[index], self._tangent[index])

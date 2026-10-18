@@ -1998,3 +1998,38 @@ output buffer remains an explicit unsupported operation. Tensor methods do
 not accept `out`. Existing torch aliases and Module operator serialization
 also expose these names. See the [0.76 validation](../../docs/validation/torch-runtime-iteration-78.md)
 for native, minimum-wheel and real WASM qualification.
+
+### Vector and general matrix products (0.77)
+
+`torch.dot(input, tensor)`, `torch.mv(input, vec)` and
+`torch.matmul(input, other)` are available with corresponding Tensor methods.
+`dot` takes two vectors; `mv` takes a matrix and a vector; `matmul` supports
+vector promotion and broadcast matrix batches. Public functions require Tensor
+operands and use native keyword names. Top-level `out=None` is accepted;
+actual output buffers raise `UnsupportedOperation`. Tensor methods do not
+accept `out`.
+
+```python
+x = torch.tensor([1., 2., 3.], requires_grad=True)
+matrix = torch.arange(6, dtype=torch.float32).reshape(2, 3)
+matrix.mv(x).sum().backward()
+assert x.grad.tolist() == [3., 5., 7.]
+assert torch.dot(input=x, tensor=x).item() == 14.
+```
+
+The real float32/float64 paths support reverse gradients, JVP and functional
+HVP. Empty products follow the native Torch 2.6 shape, dtype and gradient
+boundary for vector, folded and broadcast dispatch. These rules account for
+layout and gradient flags. Mixed-dtype empty operations compute their zero
+results and derivatives from metadata, avoiding operand casts and physical
+broadcast expansion. Saved-storage checks account for whether the native
+intermediate would share input storage. Empty outputs have contiguous element
+strides. An integer or boolean result cannot silently discard an active
+floating gradient.
+
+Boolean and uint16/uint32/uint64 vector dots are rejected even when empty;
+nonempty matrix products also reject those native CPU kernel dtypes. Existing
+complex-autograd and nonleaf in-place mutation boundaries remain explicit.
+Python `@` reflection returns `NotImplemented` for foreign operand types.
+NumPy's reflected matmul inference can return a Tensor; it requires detached
+inputs when gradients are enabled.

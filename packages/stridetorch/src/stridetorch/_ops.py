@@ -1,6 +1,7 @@
 """NumPy-backed ops implementation; extracted from PaperLeet."""
 import numpy as np
 import warnings
+import math
 from functools import reduce
 from operator import or_
 import operator
@@ -24,22 +25,129 @@ _BOOL_DTYPE = np.dtype('bool')
 _BYTE_DTYPE = np.dtype('uint8')
 
 
-def _empty_bmm(input, mat2):
+def _empty_product(input, mat2, shape, dtype, aliases=(True, True)):
     if isinstance(input, _autograd.ForwardTensor) or isinstance(mat2, _autograd.ForwardTensor):
         a, da = _autograd.forward_parts(input)
         b, db = _autograd.forward_parts(mat2)
-        return _autograd.ForwardTensor(_empty_bmm(a, b), _empty_bmm(da, b) + _empty_bmm(a, db))
+        return _autograd.ForwardTensor(_empty_product(a, b, shape, dtype, aliases),
+            _empty_product(da, b, shape, dtype, aliases) + _empty_product(a, db, shape, dtype, aliases))
     shape_a, shape_b = tuple(input.shape), tuple(mat2.shape)
     dtype_a, dtype_b = input.dtype, mat2.dtype
-    value = np.zeros((shape_a[0], shape_a[1], shape_b[2]), dtype=dtype_b)
-    if dtype_b.kind not in 'fc':
+    if np.dtype(dtype).kind not in 'fc' and _state._grad_enabled and (input.requires_grad or mat2.requires_grad):
+        raise RuntimeError('An integer or boolean matrix result cannot carry gradients')
+    value = np.zeros(shape, dtype=dtype)
+    if not value.size:value = _layout.contiguous_empty(value)
+    if np.dtype(dtype).kind not in 'fc':
         return _tensor.Tensor(value, _metadata_owned=True)
     saved = []
-    if input.requires_grad:saved.append(mat2)
-    if mat2.requires_grad:saved.append(input)
+    if input.requires_grad and aliases[1]:saved.append(mat2)
+    if mat2.requires_grad and aliases[0]:saved.append(input)
     return _autograd.result(value,
         (input, lambda gradient: np.zeros(shape_a, dtype=dtype_a)),
         (mat2, lambda gradient: np.zeros(shape_b, dtype=dtype_b)), versioned=saved)
+
+
+def _empty_bmm(input, mat2):
+    return _empty_product(input, mat2, (input.shape[0], input.shape[1], mat2.shape[2]), mat2.dtype)
+
+
+def _matmul_reverse_grad(value):
+    # torch.func.jvp hides reverse flags from its callback, while functional
+    # reverse-based JVP and HVP evaluate differentiable private leaves.
+    return value.requires_grad and (not isinstance(value, _autograd.ForwardTensor)
+        or _state._functional_jvp_active or _state._hvp_active)
+
+
+def _matmul_fold(input, other):
+    large, small = (input, other) if input.ndim >= other.ndim else (other, input)
+    if large.ndim < 3 or small.ndim > 2:return False
+    if _matmul_reverse_grad(small):return True
+    if input.ndim == 2:return False
+    if not large.numel():return True
+    shape, strides = tuple(large.shape), tuple(large.stride())
+    if other.ndim > input.ndim:
+        shape = (*shape[:-2], shape[-1], shape[-2])
+        strides = (*strides[:-2], strides[-1], strides[-2])
+    return all(strides[i] == strides[i+1] * shape[i+1] for i in range(large.ndim - 2))
+
+
+def _matmul_mode(input, other):
+    if input.ndim == other.ndim == 1:return 'dot'
+    if input.ndim == 2 and other.ndim == 1:return 'mv'
+    if max(input.ndim, other.ndim) <= 2:return 'mm'
+    if _matmul_fold(input, other):return 'mv' if min(input.ndim, other.ndim) == 1 else 'mm'
+    if input.ndim == other.ndim == 3 and input.shape[0] != other.shape[0]:
+        if input.shape[0] == 1 and (_matmul_reverse_grad(input) or isinstance(input, _autograd.ForwardTensor)):
+            return _matmul_mode(input.squeeze(0), other)
+        if other.shape[0] == 1 and (_matmul_reverse_grad(other) or isinstance(other, _autograd.ForwardTensor)):
+            return _matmul_mode(input, other.squeeze(0))
+    return 'bmm'
+
+
+def _reshape_alias(shape, strides, target):
+    try:_layout.view_strides(tuple(shape), tuple(strides), tuple(target))
+    except RuntimeError:return False
+    return True
+
+
+def _matmul_aliases(input, other, batch):
+    if max(input.ndim, other.ndim) <= 2:return True, True
+    if _matmul_fold(input, other):
+        large = input if input.ndim >= other.ndim else other
+        shape, strides = tuple(large.shape), tuple(large.stride())
+        if other.ndim > input.ndim:
+            shape = (*shape[:-2], shape[-1], shape[-2])
+            strides = (*strides[:-2], strides[-1], strides[-2])
+        alias = _reshape_alias(shape, strides, (math.prod(shape[:-1]), shape[-1]))
+        return (alias, True) if input.ndim >= other.ndim else (True, alias)
+    if input.ndim == other.ndim == 3 and input.shape[0] != other.shape[0]:
+        if input.shape[0] == 1 and (_matmul_reverse_grad(input) or isinstance(input, _autograd.ForwardTensor)):
+            return _matmul_aliases(input.squeeze(0), other, batch)
+        if other.shape[0] == 1 and (_matmul_reverse_grad(other) or isinstance(other, _autograd.ForwardTensor)):
+            return _matmul_aliases(input, other.squeeze(0), batch)
+    aliases = []
+    for value, right in [(input, False), (other, True)]:
+        shape = tuple(batch) + (tuple(value.shape[-2:]) if value.ndim > 1 else ((value.shape[0],) if right else (1, value.shape[0])))
+        padding = len(shape) - value.ndim
+        source = (1,) * padding + tuple(value.shape)
+        strides = (0,) * padding + tuple(value.stride())
+        strides = tuple(0 if x != y else step for x, y, step in zip(source, shape, strides))
+        target = (math.prod(batch),) + shape[len(batch):]
+        aliases.append(_reshape_alias(shape, strides, target))
+    return tuple(aliases)
+
+
+def _matmul_special(input, other):
+    # Native 2.6 routes matrix-vector, folded and batched products differently.
+    # This boundary uses geometry only; no operand cast/copy or numerical work.
+    a, b = input.shape, other.shape
+    if not a or not b:raise RuntimeError('matmul requires at least 1D operands')
+    if a[-1] != (b[-2] if len(b) > 1 else b[0]):
+        raise RuntimeError('matmul contraction dimensions do not match')
+    aa, bb = a[:-2] if len(a) > 1 else (), b[:-2] if len(b) > 1 else ()
+    size = max(len(aa), len(bb));aa = (1,) * (size-len(aa)) + tuple(aa);bb = (1,) * (size-len(bb)) + tuple(bb)
+    batch = []
+    for x, y in zip(aa, bb):
+        if x == y:batch.append(x)
+        elif x == 1:batch.append(y)
+        elif y == 1:batch.append(x)
+        else:raise RuntimeError('matmul batch dimensions do not match')
+    mode = _matmul_mode(input, other)
+    empty = not input.numel() or not other.numel()
+    if mode in ('dot', 'mm') or not empty:
+        if input.dtype != other.dtype:raise RuntimeError('matmul operands must have the same dtype')
+        if (input.dtype.kind == 'b' or input.dtype.kind == 'u' and input.dtype.itemsize > 1) and (mode == 'dot' or not empty):
+            raise RuntimeError('matmul is not implemented for this dtype')
+        dtype = input.dtype
+    else:
+        dtype = (input.dtype if other.ndim > input.ndim else other.dtype) if mode == 'mv' else other.dtype
+    if empty:
+        shape = tuple(batch) + (tuple(a[-2:-1]) if len(a) > 1 else ()) + (tuple(b[-1:]) if len(b) > 1 else ())
+        records_graph = _state._grad_enabled and (input.requires_grad or other.requires_grad)
+        forward = isinstance(input, _autograd.ForwardTensor) or isinstance(other, _autograd.ForwardTensor)
+        aliases = _matmul_aliases(input, other, batch) if records_graph or forward else (True, True)
+        return shape, dtype, aliases
+    return None
 
 
 def _matrix_product(input, mat2, rank):
@@ -71,6 +179,32 @@ def bmm(input, mat2, *, out=None):
     if out is not None:
         raise _errors.BrowserUnsupported('Matrix output buffers require the server')
     return _matrix_product(input, mat2, 3)
+
+
+def _product_tensors(input, other, name):
+    if not isinstance(input, _tensor.Tensor) or not isinstance(other, _tensor.Tensor):
+        raise TypeError(f'{name} operands must be Tensors')
+
+
+def matmul(input, other, *, out=None):
+    if out is not None:raise _errors.BrowserUnsupported('Matrix output buffers require the server')
+    _product_tensors(input, other, 'matmul')
+    return input @ other
+
+
+def dot(input, tensor, *, out=None):
+    if out is not None:raise _errors.BrowserUnsupported('Vector output buffers require the server')
+    _product_tensors(input, tensor, 'dot')
+    if input.ndim != 1 or tensor.ndim != 1:raise RuntimeError('dot requires two vectors')
+    return input @ tensor
+
+
+def mv(input, vec, *, out=None):
+    if out is not None:raise _errors.BrowserUnsupported('Vector output buffers require the server')
+    _product_tensors(input, vec, 'mv')
+    if input.ndim == 0:raise IndexError('mv input has no dimensions')
+    if input.ndim != 2 or vec.ndim != 1:raise RuntimeError('mv requires a matrix and a vector')
+    return input @ vec
 
 
 def unbroadcast(value, shape):

@@ -90,14 +90,20 @@ def view(data,*args):
         strides=raw_strides,writeable=data.flags.writeable)
 
 
+@lru_cache(maxsize=32)
+def _empty_strides(shape, itemsize):
+    # ndarray geometry supplies plain integer keys; cache no arrays or dtypes.
+    step=itemsize;values=[]
+    for size in reversed(shape):values.append(step);step*=max(size,1)
+    return tuple(reversed(values))
+
+
 def contiguous_empty(data):
     if data.size:return data
     # A fresh empty factory has conventional C strides; imported empty arrays
     # retain their original metadata instead.
-    step=1;values=[]
-    for size in reversed(data.shape):values.append(step);step*=max(size,1)
-    return np.lib.stride_tricks.as_strided(data,shape=data.shape,
-        strides=tuple(v*data.itemsize for v in reversed(values)),writeable=data.flags.writeable)
+    return np.ndarray(data.shape,dtype=data.dtype,buffer=data,
+        strides=_empty_strides(data.shape,data.itemsize))
 
 
 def gradient_copy(gradient, parameter=None):
