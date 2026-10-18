@@ -1,0 +1,13 @@
+.library-company-row-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 14px;padding:0 16px 10px 64px;min-height:34px;color:var(--muted);font-size:var(--type-small)}
+.library-company-row-counts,.library-company-row-actions{display:inline-flex;align-items:center;gap:7px}.library-company-row-counts{font-variant-numeric:tabular-nums;line-height:1.7}
+.library-company-row-actions{margin-left:auto;gap:8px}.library-company-row-actions>.text-button{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:4px 7px;border-radius:6px;font-size:var(--type-small)}
+.library-company-row-actions .problem-favorite-button{min-height:34px;min-width:34px}.library-company-row-actions .problem-favorite-control{display:inline-flex;align-items:center;gap:4px}
+.library-company-row-toolbar :is(button,a):hover{background:var(--surface2);color:var(--accent)}.library-company-row-toolbar :is(button,a):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.paper-library .paper-result-group:has(>.library-company-row-tools)>.problem-row{min-height:48px;padding-top:12px;padding-bottom:4px}
+.paper-library .paper-result-group:has(>.library-company-row-tools)>.problem-row .paper-info small{display:none}
+.library-main[data-density="compact"] .paper-result-group:has(>.library-company-row-tools)>.problem-row{min-height:42px;padding-top:8px;padding-bottom:2px}
+.library-company-row-preview{margin:0 16px 14px 64px;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
+.library-company-row-preview[hidden]{display:none}.library-company-row-preview>footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding-top:14px;margin-top:14px;border-top:1px solid var(--line);font-size:var(--type-small)}
+.library-company-row-preview>footer>a{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}.library-company-tools-error{padding:8px 16px;font-size:var(--type-small);color:var(--muted);line-height:1.7}
+@media(max-width:650px){.library-company-row-toolbar{padding-left:40px;gap:3px 8px}.library-company-row-preview{margin-left:12px;margin-right:12px;padding:12px}.library-company-row-counts{font-size:var(--type-meta)}}
+@media(pointer:coarse){.library-company-row-actions>.text-button,.library-company-row-actions .problem-favorite-button{min-height:44px}}

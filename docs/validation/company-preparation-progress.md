@@ -1,0 +1,15 @@
+# Personal progress in company preparation
+
+Selected-company preparation and experience views now show progress for the exercises actually associated with the current public report cohort. The existing concept workbench keeps its own detailed progress and selection controls; it does not receive a duplicate panel.
+
+The panel distinguishes passed, started and not-started exercises using the existing workspace grade rules. It prioritizes the latest edited unfinished exercise, then the first unstarted exercise, and offers review when the associated exercises are all passed. Native practice links capture the existing six-exercise navigation batch and preserve company, publication period, role, stage, outcome, location and interview-month context. Text search and saved reports only select the experience feed; the panel explains that these do not change its linked-exercise scope. Curated paths are not counted as evidence-backed company practice.
+
+Unconfirmed statistics, mismatched company/period/outcome/context, malformed associations, incomplete catalog and pending/unavailable personal progress do not produce zero backlog or all-passed states. A real empty association cohort has its own message. The panel does not fetch or write private grades; its parent provides the current owner's existing workspace snapshot and readiness. Account revalidation retires action links until the current state is confirmed.
+
+The statistics refresh control remains mounted across loading, failure and success. Busy clicks do not issue another read. Explicit catalog/progress retries can return focus to the restored practice action, through the existing bounded workspace-intent helper. A newer focus, input, route, account, visibility or pointer intent cancels that focus transfer. The feature, model and styles remain in the deferred interview graph, under unchanged initial JavaScript limits.
+
+The component and model have distinct base names (`CompanyPreparationProgress.tsx` and `companyPreparationModel.ts`) to avoid case-insensitive extension resolution selecting the model in place of the React component on macOS.
+
+Verification uses actual React interview-hub controls, pure cohort/grade contracts and the existing native practice URL/batch helpers. Tests cover accepted reports surviving later failed attempts, trusted historical browser markers, recent-draft ordering, complete/empty/incomplete/unavailable states, exact scoped returns, locale/native DOM/caret continuity, explicit retry recovery, account retirement, old-request aborts, mismatch retry and stable refresh controls. With `PAPERLEET_COMPANY_RESUME_HTTP`, the actual hub reads disposable JudgeHandler/InterviewService/SQLite summaries for recent and older publication periods using real catalog IDs; owner grades are explicitly synthetic local props, not claimed as a new account synchronization test. The fixture performs only two public summary reads and no writes.
+
+Limits: controlled React/JSDOM, source review and disposable HTTP/SQLite. No browser rendering, physical IME/native focus trapping, clipboard, live providers or deployment claims.

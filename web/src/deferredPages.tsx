@@ -1,6 +1,6 @@
 import {SubmissionCompletionFallback} from './SubmissionCompletionFallback';
 import {ProblemOverviewFallback} from './ProblemOverviewFallback';
-import { deferredFeature, FeatureFailure } from './deferredFeature';
+import { deferredFeature, FeatureFailure, FeatureRetry as RuntimeDetailsFailure } from './deferredFeature';
 import { EditorFailure, EditorLoading, type EditorRecovery } from './EditorFallback';
 import { PaperDetailFailure } from './PaperDetailFallback';
 import { WorkspaceBackupFailure } from './WorkspaceBackupFallback';
@@ -55,11 +55,7 @@ export const SettingsPage = deferredFeature(() => import('./Settings'), ['设置
 export const Achievements = deferredFeature(() => import('./Achievements'), ['学习勋章', 'achievements']);
 export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), customRecoveryLabel, {loading: () => null, failure: () => null});
 export const WorkspaceLayoutMenu = deferredFeature(() => import('./WorkspaceLayoutMenu'), customRecoveryLabel, {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试布局选项','Retry layout options']}/>});
-export const JudgeRuntimeDetails = deferredFeature(() => import('./JudgeRuntimeDetails'), customRecoveryLabel, {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry}/>});
-function RuntimeDetailsFailure({retry,label=['重试加载运行说明','Retry run details']}:{retry:()=>void;label?:[string,string]}) {
-  const {t}=useI18n();
-  return <button type="button" className="text-button" onClick={retry}>{t(...label)}</button>;
-}
+export const JudgeRuntimeDetails = deferredFeature(() => import('./JudgeRuntimeDetails'), customRecoveryLabel, {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试加载运行说明','Retry run details']}/>});
 export const BrowserResultActions = deferredFeature<Parameters<typeof import('./BrowserResultActions').BrowserResultActions>[0]>(() => import('./BrowserResultActions').then(module => ({default:module.BrowserResultActions})), ['账号成绩确认', 'account verification'], {failure: (_props,retry) => <VerificationFailure retry={retry} />});
 function VerificationFailure({retry}: {retry:()=>void}) {
   const {t} = useI18n();
