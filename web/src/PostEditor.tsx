@@ -13,7 +13,7 @@ import {loadInterviewModules} from './interviewApi';
 import InterviewMeta from './InterviewMeta';
 import PaperLinkField from './PaperLinkField';
 import PaperPreviewCard from './PaperPreviewCard';
-import { canonicalArxivUrl } from './communityPapers';
+import { canonicalArxivUrl } from './arxivLinks';
 import {affiliationRequired,canPublishCommunity} from './communityPublishing';
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import { communityCategoryHint } from './communityCategories';

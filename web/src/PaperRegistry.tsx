@@ -1,25 +1,49 @@
-import {useMemo,useState} from 'react';
-import {ArrowLeft,ArrowUpRight,BookOpen,Search} from 'lucide-react';
+import {useMemo,useRef,useState} from 'react';
+import {ArrowLeft,ArrowUpRight,BookOpen,Search,X} from 'lucide-react';
 import {useI18n} from './i18n';
-import type {Paper,Problem} from './types';
+import type {Category,Paper,Problem} from './types';
 import {searchPaperRegistry} from './paperRegistrySearch';
+import {readPaperRegistryRoute,paperRegistryHref,sortLibraryPapers,withLibraryContext,type PaperRegistryView} from './libraryNavigation';
 import './paper-registry.css';
 
-export default function PaperRegistry({papers,problems,error,onRetry}:{papers:Paper[];problems:Problem[];error?:string;onRetry:()=>void}){
-  const {t,locale}=useI18n(),[query,setQuery]=useState('');
-  const entries=useMemo(()=>searchPaperRegistry(papers,problems,query),[papers,problems,query]);
-  const total=papers.filter(paper=>paper.kind!=='course').length,byId=new Map(problems.map(problem=>[problem.id,problem]));
-  return <main className="social-page paper-registry-page">
-    <a className="text-button" href="#"><ArrowLeft size={16}/>{t('返回题库','Back to practice')}</a>
-    <header className="paper-registry-heading"><div><h1>{t('论文库','Paper registry')}</h1><p>{t('查看已收录的论文及对应题目，投稿前先查一下。','Browse published papers and their exercises before submitting a paper.')}</p></div><a className="button subtle" href="#/submit">{t('提交论文','Submit paper')}<ArrowUpRight size={16}/></a></header>
-    <form role="search" className="paper-registry-search" onSubmit={event=>event.preventDefault()}><Search size={18}/><input type="search" value={query} maxLength={300} onChange={event=>setQuery(event.target.value)} aria-label={t('搜索已收录论文','Search published papers')} placeholder={t('论文名、算法、作者或 arXiv 链接…','Paper, algorithm, author or arXiv link…')}/></form>
-    {error?<p role="alert">{t('论文库暂时不可用。','The paper registry is unavailable.')} <button className="text-button" onClick={onRetry}>{t('重试','Retry')}</button></p>:!papers.length?<p role="status">{t('正在加载论文库…','Loading papers…')}</p>:<>
-      <p className="paper-registry-count" role="status">{query?t(`${entries.length} / ${total} 篇论文`,`${entries.length} of ${total} papers`):t(`${total} 篇已收录论文`,`${total} published papers`)}</p>
-      {!entries.length?<div className="paper-registry-empty"><BookOpen size={24}/><p>{t('没有找到匹配的已收录论文。提交时还会检查候选题中的重复投稿。','No published paper matches. Submission also checks existing proposals.')}</p><a href="#/submit">{t('去提交论文','Submit a paper')}</a></div>:<ol className="paper-registry-list">{entries.map(paper=><li key={paper.id}>
-        <div className="paper-registry-meta"><span>#{paper.number} · {paper.short_title}</span><span>{[paper.year,paper.venue].filter(Boolean).join(' · ')}</span></div>
-        <h2><a href={`#/papers/${paper.id}`}>{paper.title}</a></h2><p className="paper-registry-authors">{Array.isArray(paper.authors)?paper.authors.join(', '):paper.authors}</p>
-        <div className="paper-registry-links"><a href={paper.url} target="_blank" rel="noopener noreferrer">{paper.arxiv?`arXiv:${paper.arxiv}`:t('原文','Source')}<ArrowUpRight size={13}/></a>{paper.module_ids.flatMap(id=>{const p=byId.get(id);return p?[<a key={id} href={`#/${p.number}`}>#{p.number} {locale==='en'?p.translations?.en?.title||p.title:p.title}</a>]:[];})}</div>
-      </li>)}</ol>}
-    </>}
-  </main>;
+export const registryPageSize=20;
+export default function PaperRegistry({papers,problems,categories=[],route='paper-registry',error,onRetry,onFilters}:{papers:Paper[];problems:Problem[];categories?:Category[];route?:string;error?:string;onRetry:()=>void;onFilters?:(href:string)=>void}){
+ const {t,locale}=useI18n(),search=useRef<HTMLInputElement>(null),results=useRef<HTMLDivElement>(null),composing=useRef(false),[notice,setNotice]=useState<{view:string;text:string}>();
+ const view=readPaperRegistryRoute(route),query=view?.query||'',category=view?.category||'all',sort=view?.sort||'default',page=view?.page||1;
+ const entries=useMemo(()=>sortLibraryPapers(searchPaperRegistry(papers,problems,query).filter(paper=>category==='all'||paper.category===category),sort),[papers,problems,query,category,sort]);
+ const published=useMemo(()=>papers.filter(paper=>paper.kind!=='course'),[papers]),byId=useMemo(()=>new Map(problems.map(problem=>[problem.id,problem])),[problems]);
+ const groups=useMemo(()=>[...new Set(published.map(paper=>paper.category))].map(id=>({id,count:published.filter(paper=>paper.category===id).length,category:categories.find(row=>row.id===id)})),[published,categories]);
+ const label=(id:string)=>{const item=categories.find(row=>row.id===id);return item?t(item.name,item.name_en):id;};
+ const href=view?paperRegistryHref(view):'#/paper-registry',last=Math.max(1,Math.ceil(entries.length/registryPageSize)),offset=(page-1)*registryPageSize,visible=entries.slice(offset,offset+registryPageSize),changed=!!query||category!=='all'||sort!=='default';
+ function change(patch:Partial<PaperRegistryView>){if(!view)return;try{const next=paperRegistryHref({...view,...patch});setNotice(undefined);onFilters?.(next);}catch{setNotice({view:href,text:t('搜索最多 200 个字符，请移除控制字符后重试。','Use up to 200 characters without control characters.')});}}
+ function clear(patch:Partial<PaperRegistryView>={query:'',category:'all',sort:'default',page:1}){search.current?.focus({preventScroll:true});change(patch);}
+ function turn(next:number){results.current?.focus({preventScroll:true});results.current?.scrollIntoView({block:'start'});change({page:next});}
+ return <main className="social-page paper-registry-page">
+  <a className="text-button" href="#"><ArrowLeft size={16}/>{t('返回题库','Back to practice')}</a>
+  <header className="paper-registry-heading"><div><span className="paper-registry-eyebrow">{t('PaperLeet · 论文目录','PaperLeet · Paper directory')}</span><h1>{t('论文库','Paper registry')}</h1><p>{t('按来源查找已收录论文，了解练习覆盖范围，投稿前先查重。','Find published papers and their exercises before proposing something new.')}</p></div><a className="button subtle" href="#/submit">{t('提交论文','Submit paper')}<ArrowUpRight size={16}/></a></header>
+  {!view?<div className="paper-registry-empty" role="alert"><p>{t('这份论文库筛选链接无效。','This paper registry filter link is invalid.')}</p><a className="button subtle" href="#/paper-registry">{t('查看完整论文库','Open the full paper registry')}</a></div>:<>
+   <div className="paper-registry-toolbar">
+    <form role="search" className="paper-registry-search" onSubmit={event=>event.preventDefault()}><Search size={19} aria-hidden="true"/><input ref={search} type="search" value={query} maxLength={200} onChange={event=>change({query:event.target.value,page:1})} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={event=>{if(event.key==='Escape'&&query&&!composing.current&&!event.nativeEvent.isComposing&&event.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();event.stopPropagation();clear({query:'',page:1});}}} aria-label={t('搜索已收录论文','Search published papers')} placeholder={t('论文、作者、题号或 arXiv 链接…','Paper, author, exercise number or arXiv link…')}/>{query&&<button type="button" aria-label={t('清空论文搜索','Clear paper search')} onClick={()=>clear({query:'',page:1})}><X size={17} aria-hidden="true"/></button>}</form>
+    <label>{t('论文分类','Paper category')}<select value={category} onChange={event=>change({category:event.target.value,page:1})}><option value="all">{t(`全部分类 · ${published.length}`,`All categories · ${published.length}`)}</option>{groups.map(group=><option key={group.id} value={group.id}>{label(group.id)} · {group.count}</option>)}{category!=='all'&&!groups.some(group=>group.id===category)&&<option value={category}>{t('暂不可用：','Unavailable: ')+label(category)}</option>}</select></label>
+    <label>{t('排序','Sort')}<select value={sort} onChange={event=>change({sort:event.target.value as PaperRegistryView['sort'],page:1})}><option value="default">{t('收录编号','Catalog number')}</option><option value="newest">{t('最新发表','Newest first')}</option><option value="oldest">{t('最早发表','Oldest first')}</option><option value="title">{t('简称 A–Z','Short name A–Z')}</option></select></label>
+   </div>
+   {notice?.view===href&&<p className="paper-registry-notice" role="alert">{notice.text}</p>}
+   {changed&&<div className="paper-registry-applied" role="group" aria-label={t('论文库筛选条件','Paper registry filters')}>
+    {query&&<button type="button" aria-label={t('移除论文搜索：','Remove paper search: ')+query} onClick={()=>clear({query:'',page:1})}><span>{query}</span><X size={14} aria-hidden="true"/></button>}
+    {category!=='all'&&<button type="button" aria-label={t('移除论文分类：','Remove paper category: ')+label(category)} onClick={()=>clear({category:'all',page:1})}><span>{label(category)}</span><X size={14} aria-hidden="true"/></button>}
+    {sort!=='default'&&<button type="button" onClick={()=>clear({sort:'default',page:1})}><span>{t('已更改排序','Custom order')}</span><X size={14} aria-hidden="true"/></button>}
+    <button type="button" className="text-button" onClick={()=>clear()}>{t('重置筛选','Reset filters')}</button>
+   </div>}
+   {error?<div className="paper-registry-empty" role="alert"><p>{t('论文库暂时不可用，当前筛选已保留。','The paper registry is unavailable. Your filters are kept.')}</p><button className="button subtle" type="button" onClick={()=>{search.current?.focus({preventScroll:true});onRetry();}}>{t('重试','Retry')}</button></div>:!papers.length?<p role="status">{t('正在加载论文库…','Loading papers…')}</p>:<>
+    <div className="paper-registry-count" ref={results} tabIndex={-1} role="group" aria-label={t('论文库结果','Paper registry results')}><span role="status">{t(`${entries.length} / ${published.length} 篇论文`,`${entries.length} of ${published.length} papers`)}{visible.length>0&&t(` · 第 ${offset+1}–${offset+visible.length} 项`,` · ${offset+1}–${offset+visible.length} shown`)}</span><span>{t(`第 ${page} / ${last} 页`,`Page ${page} of ${last}`)}</span></div>
+    {!entries.length?<div className="paper-registry-empty"><BookOpen size={28} aria-hidden="true"/><h2>{t('没有匹配的已收录论文','No published papers match')}</h2><p>{t('试试论文简称、作者或题号，也可以清除筛选。投稿时仍会检查现有候选题中的重复论文。','Try a short name, author or exercise number, or clear the filters. Submission also checks existing proposals.')}</p>{changed&&<button type="button" className="button subtle" onClick={()=>clear()}>{t('清除筛选','Clear filters')}</button>}<a href="#/submit">{t('去提交论文','Submit a paper')}</a></div>:!visible.length?<div className="paper-registry-empty" role="status"><p>{t('当前页已无内容，筛选条件仍保留。','This page is now empty. Your filters are kept.')}</p><button className="button subtle" type="button" onClick={()=>turn(Math.min(501,last))}>{t('返回最后一页','Go to the last page')}</button></div>:<ol className="paper-registry-list" start={offset+1}>{visible.map(paper=><li key={paper.id} data-paper-registry-id={paper.id}>
+     <div className="paper-registry-meta"><span>#{paper.number} · {paper.short_title}</span><span>{[paper.year,paper.venue].filter(Boolean).join(' · ')}</span></div>
+     <h2><a href={withLibraryContext(`papers/${paper.id}`,href)}>{paper.title}</a></h2><p className="paper-registry-authors">{Array.isArray(paper.authors)?paper.authors.join(', '):paper.authors}</p>
+     {(paper.summary||paper.summary_en)&&<p className="paper-registry-summary">{locale==='en'?paper.summary_en||paper.summary:paper.summary||paper.summary_en}</p>}
+     <div className="paper-registry-links"><a className="paper-registry-source" href={paper.url} target="_blank" rel="noopener noreferrer">{paper.arxiv?`arXiv:${paper.arxiv}`:t('原文','Source')}<ArrowUpRight size={15} aria-hidden="true"/></a>{paper.module_ids.flatMap(id=>{const problem=byId.get(id);return problem?[<a key={id} href={withLibraryContext(problem.number,href)}>#{problem.number} {locale==='en'?problem.translations?.en?.title||problem.title:problem.title}</a>]:[];})}{!paper.module_ids.some(id=>byId.has(id))&&<span className="paper-registry-missing">{t('练习信息暂不可用','Exercise information is unavailable')}</span>}</div>
+    </li>)}</ol>}
+    {entries.length>registryPageSize&&<nav className="paper-registry-pager" aria-label={t('论文库翻页','Paper registry pages')}><button type="button" disabled={page<=1} onClick={()=>turn(page-1)}>{t('上一页','Previous')}</button><span>{t(`第 ${page} / ${last} 页`,`Page ${page} of ${last}`)}</span><button type="button" disabled={page>=last||page>=501} onClick={()=>turn(page+1)}>{t('下一页','Next')}</button></nav>}
+   </>}
+  </>}
+ </main>;
 }

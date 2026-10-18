@@ -136,7 +136,7 @@ export function resumePracticeReadingOrigin(owner:string|undefined,problem:{id:s
  const row=currentReadingReturn();if(!owner||!row||!problem||!href)return;
  // An outgoing workspace's passive effect must not erase a newer route or return.
  const sourcePost=href===communityPostHref(row.post),targetFor=(route:string)=>sourcePost?sourcePostPracticeTarget(route,row.post):readingPracticeTarget(route,href);
- if(expectedRoute&&targetFor(expectedRoute)!==targetFor(location.hash))return;
+ if(expectedRoute&&(!targetFor(expectedRoute)||targetFor(expectedRoute)!==targetFor(location.hash)))return;
  const target=targetFor(location.hash);
  if(!sourcePost&&row.href!==href||!moduleId.test(problem.id)||target!==problem.id&&target!==String(problem.number)){discardReadingReturn(row.id);return;}
  if(row.phase!=='reading'){pending={...row,phase:'reading'};persist();notify();}

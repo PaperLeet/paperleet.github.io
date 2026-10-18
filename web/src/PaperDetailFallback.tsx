@@ -9,7 +9,7 @@ export function PaperDetailFailure({returnTo,recovery}:{returnTo?:string;recover
       <p>{t('重新加载会保留当前论文和题库筛选。','Reloading keeps this paper and your library filters.')}</p>
       <div className="feature-recovery-actions">
         <button className="button subtle" type="button" disabled={recovery.blocked} onClick={()=>{if(!recovery.blocked)recovery.reload();}}>{t('重新加载论文','Reload paper')}</button>
-        <a className="text-button" href={returnTo||'#'}>{t('返回题库结果','Back to library results')}</a>
+        <a className="text-button" href={returnTo||'#'}>{returnTo?.startsWith('#/paper-registry')?t('返回论文库','Back to paper registry'):t('返回题库结果','Back to library results')}</a>
       </div>
       {recovery.reason&&<p role="status">{recovery.reason}</p>}
     </section>

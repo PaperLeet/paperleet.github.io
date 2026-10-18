@@ -55,7 +55,7 @@ function Workspace({owner,view,detailsAvailable}:{owner:string;view:AdminView;de
    <AdminDraftTray detailsAvailable={detailsAvailable}/>
    {notice&&<p className="admin-notice" role="status">{notice}</p>}{error&&<div className="admin-error" role="alert"><p>{error}</p></div>}
    {command&&<section className="admin-pending" aria-label={t('待确认的管理操作','Unconfirmed administrator operation')}><b>{command.label} · {command.resource}</b><p>{t('这次操作的内容已固定。网络结果不明确时，重试会使用同一个请求编号。','This operation is captured. Retrying an uncertain result uses the same request ID.')}</p><p>{String(command.payload.reason)}</p>{!rejected?<button type="button" className="button" disabled={busy} onClick={()=>void send(command)}>{busy?t('正在确认…','Confirming…'):t('重试原操作','Retry original operation')}</button>:<button type="button" className="button subtle" disabled={busy} onClick={()=>{clearAdminCommand(command);held.current=undefined;setCommand(undefined);setError('');setEpoch(value=>value+1);}}>{t('载入最新状态，重新核对','Load latest state and review again')}</button>}</section>}
-   {view.section===''?<Overview {...props}/>:view.section==='reports'?<Reports embedded/>:view.section==='boards'||view.section==='tags'?<Taxonomy key={view.section} {...props}/>:view.section==='users'?<Members {...props}/>:view.section==='papers'?<Papers {...props}/>:<AuditLog {...props}/>}
+   {view.section===''?<Overview {...props}/>:view.section==='reports'?<Reports embedded refreshKey={epoch}/>:view.section==='boards'||view.section==='tags'?<Taxonomy key={view.section} {...props}/>:view.section==='users'?<Members {...props}/>:view.section==='papers'?<Papers {...props}/>:<AuditLog {...props}/>}
   </div>
  </main></AdminDraftContext.Provider>;
 }

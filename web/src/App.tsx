@@ -70,7 +70,7 @@ import {submissionCompletion,resultPanelVisible,type SubmissionCompletion} from 
 import {SubmissionCompletionNotice} from './deferredPages';
 import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
-import { discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
+import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
@@ -187,8 +187,13 @@ function Workspace() {
     setLabView(view);
     selectReadingTab("lab");
   }
+  function changeCatalogView(href:string){
+    if(!readLibraryRoute(href)&&!readPaperRegistryRoute(href))return;
+    try{history.replaceState(history.state,'',href);}catch{/* Explicit return links work when history writes are blocked. */}
+    setId(decodeProblemHash(href));
+  }
   const path = routePath(id), libraryReturn = libraryReturnHref(id), libraryView = readLibraryRoute(id);
-  const sourcePostReturn=discussionPracticeReturn(libraryReturn||''),backLabel=sourcePostReturn?t('返回来源帖子','Back to source post'):t('返回题库','Back to papers');
+  const sourcePostReturn=discussionPracticeReturn(libraryReturn||''),registryReturn=libraryReturn?.startsWith('#/paper-registry'),interviewReturn=libraryReturn?.startsWith('#/interviews'),favoriteReturn=libraryReturn?.split('?')[0]==='#/favorites',backLabel=sourcePostReturn?t('返回来源帖子','Back to source post'):registryReturn?t('返回论文库','Back to paper registry'):t('返回题库','Back to papers');
   const { stats: problemStats, totalSubmissions, refresh: refreshProblemStats, loading: statsLoading } = useProblemStats(path);
   const sourceProblem = problems.find(
     (p) => p.id === path || String(p.number) === path,
@@ -514,7 +519,7 @@ function Workspace() {
                   ? "active"
                   : ""
               }
-              href={sourcePostReturn||libraryReturn?.startsWith('#/interviews') ? '#' : libraryReturn || '#'}
+              href={sourcePostReturn||interviewReturn||registryReturn ? '#' : libraryReturn || '#'}
               aria-current={!problem && !submissionPage && !communityPage && !messagesPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
@@ -587,7 +592,7 @@ function Workspace() {
       ) : interviewPage ? (
         <Interviews route={id} papers={papers} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
       ) : path === 'paper-registry' ? (
-        <PaperRegistry papers={papers} problems={problems} error={loadError} onRetry={()=>void loadCatalog()}/>
+        <PaperRegistry route={id} categories={categories} papers={papers} problems={problems} error={loadError} onFilters={changeCatalogView} onRetry={()=>void loadCatalog()}/>
       ) : path === 'drafts' ? (
         <DraftCenter route={id} topics={problems.map(topicFromProblem)} catalogLoading={!problems.length&&!loadError} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : messagesPage ? (
@@ -661,11 +666,7 @@ function Workspace() {
             key={collectionIdFromRoute(id) || "all-papers"}
             collectionId={collectionIdFromRoute(id)}
             route={id}
-            onFilters={href => {
-              if (!readLibraryRoute(href)) return;
-              try { history.replaceState(history.state,'',href); } catch { /* Filtering and explicit return links remain usable if history writes are blocked. */ }
-              setId(decodeProblemHash(href));
-            }}
+            onFilters={changeCatalogView}
             progressReady={progressReady}
             categories={categories}
             papers={papers}
@@ -678,10 +679,10 @@ function Workspace() {
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={courseCollection ? libraryReturn : sourcePostReturn||libraryReturn?.split('?')[0] === '#/favorites' || libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn ? backLabel : libraryReturn?.split('?')[0] === '#/favorites' ? t('收藏题目','Saved problems') : libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
+              {courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>

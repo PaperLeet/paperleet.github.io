@@ -110,7 +110,7 @@ import { canEditReply,type ReplyEditOrigin } from './replyEdits';
 import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
 import PaperPreviewCard from './PaperPreviewCard';
-import { canonicalArxivUrl } from './communityPapers';
+import { canonicalArxivUrl } from './arxivLinks';
 const CommunityWritingGuide=deferredFeature(()=>import('./CommunityWritingGuide'),['写作提示','writing prompts'],{
   failure:(props,retry)=><CommunityWritingFailure onRetry={()=>{props.onRestoreFocus();retry();}}/>,
 });

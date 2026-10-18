@@ -1,7 +1,7 @@
 import type { DraftStorage, PostDraft } from './communityDrafts';
 import type { ReplyDraft } from './replyDrafts';
 import {readInterviewDetails} from './interviewModels';
-import {canonicalArxivUrl} from './communityPapers';
+import {canonicalArxivUrl} from './arxivLinks';
 import { isCommunityCategory, validCommunityTags } from './communityCategories';
 
 export type PublicationKind = 'post' | 'reply' | 'interview';

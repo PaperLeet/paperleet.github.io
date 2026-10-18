@@ -59,8 +59,9 @@ try{
  assert.equal(citationDocument.querySelector('a[href="https://arxiv.org/pdf/1706.02216v4.pdf"]').textContent,'Read the paper');
  assert.equal(citationDocument.querySelectorAll('a.practice-mention-link').length,0);
  const registry=new JSDOM(renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Registry,{...catalog,onRetry(){}})))).window.document;
- assert.equal(registry.querySelectorAll('.paper-registry-list>li').length,catalog.papers.filter(p=>p.kind!=='course').length);
- assert(registry.querySelector('a[href="#/100"]'));
+ const published=catalog.papers.filter(p=>p.kind!=='course');assert.equal(registry.querySelectorAll('.paper-registry-list>li').length,Math.min(20,published.length));
+ const seen=[];for(let page=1;page<=Math.ceil(published.length/20);page++){const current=new JSDOM(renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Registry,{...catalog,route:'paper-registry?page='+page,onRetry(){}})))).window.document;seen.push(...[...current.querySelectorAll('[data-paper-registry-id]')].map(node=>node.dataset.paperRegistryId));}assert.deepEqual(seen,published.sort((a,b)=>a.number-b.number).map(p=>p.id));
+ const filtered=new JSDOM(renderToStaticMarkup(React.createElement(LocaleProvider,null,React.createElement(Registry,{...catalog,route:'paper-registry?q=GraphSAGE',onRetry(){}})))).window.document;const exercise=filtered.querySelector('a[href^="#/100?"]');assert(exercise);assert.equal(libraryReturnHref(exercise.getAttribute('href')),'#/paper-registry?q=GraphSAGE');
  assert(registry.querySelector('a[href="#/paper-registry"]')===null);
  assert(fs.readFileSync('src/App.tsx','utf8').includes("path === 'paper-registry'"));
  assert(fs.readFileSync('src/PaperPool.tsx','utf8').includes('<PaperDuplicateCheck value={draft.paperUrl}'));

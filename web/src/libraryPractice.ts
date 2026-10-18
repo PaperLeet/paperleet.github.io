@@ -2,7 +2,7 @@ import { status } from './types';
 import type { Paper, Problem, Saved } from './types';
 import { paperCollections, papersInCollection } from './paperCollections';
 import { normalizeLibraryFilters, sameLibraryTag, type LibraryFilters } from './libraryNavigation';
-import { parseArxivUrl } from './communityPapers';
+import { parseArxivUrl } from './arxivLinks';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export function paperModules(paper: Paper, problems: Problem[]) {

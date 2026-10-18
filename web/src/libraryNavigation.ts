@@ -3,6 +3,7 @@ import type { Paper } from './types';
 import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
 export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title';
+export type PaperRegistryView={query:string;category:string;sort:LibrarySort;page:number};
 export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort };
 export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
 export const routePath = (route: string) => route.split('?')[0];
@@ -59,6 +60,24 @@ export function libraryHref(collectionId: string | undefined, filters: LibraryFi
   return href;
 }
 
+export function readPaperRegistryRoute(route:string):PaperRegistryView|undefined{
+  const value=parts(route),index=route.indexOf('?'),query=index<0?'':route.slice(index+1);
+  if(!value||value.path!=='paper-registry'||!only(value.params,['q','category','sort','page'])||!/^[a-z0-9%_=&+.,~-]*$/i.test(query))return;
+  try{decodeURIComponent(query);}catch{return;}
+  const page=value.params.get('page')??'1';
+  if(!/^[1-9]\d{0,2}$/.test(page)||+page>501)return;
+  value.params.delete('page');
+  const view=readLibraryRoute('?'+value.params);
+  return view?{query:view.filters.query,category:view.filters.category,sort:view.filters.sort||'default',page:+page}:undefined;
+}
+export function paperRegistryHref(view:PaperRegistryView):string{
+  const params=new URLSearchParams(libraryHref(undefined,{...emptyLibraryFilters(),query:view.query,category:view.category,sort:view.sort}).split('?')[1]);
+  if(view.page!==1)params.set('page',String(view.page));
+  const href='#/paper-registry'+(params.size?'?'+params:'');
+  if(!readPaperRegistryRoute(href))throw Error('Invalid paper registry view');
+  return href;
+}
+
 /** Preserve the catalog's discovery order until the learner chooses a sort. */
 export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'): Paper[] {
   if (sort === 'default') return papers;
@@ -100,6 +119,7 @@ export function libraryReturnHref(route: string): string | undefined {
   const value = parts(route);
   if (!value || !practicePath.test(value.path) || !only(value.params, ['from']) || !value.params.has('from')) return;
   const from=value.params.get('from')||'',interview=readInterviewRoute(from);
+  const registry=readPaperRegistryRoute(from);if(registry)return paperRegistryHref(registry);
   const discussion=discussionPracticeReturn(from);if(discussion)return discussion;
   const favorites=readFavoriteRoute(from);if(favorites)return favoriteHref(favorites);
   if(interview)return interviewHref(interview);
@@ -109,7 +129,7 @@ export function libraryReturnHref(route: string): string | undefined {
 
 export function withLibraryContext(path: string | number, returnTo?: string): string {
   if (!practicePath.test(String(path))) throw Error('Invalid practice destination');
-  const favorites=returnTo?readFavoriteRoute(returnTo):undefined,local=returnTo?discussionPracticeReturn(returnTo)||(favorites?favoriteHref(favorites):undefined):undefined;
+  const registry=returnTo?readPaperRegistryRoute(returnTo):undefined,favorites=returnTo?readFavoriteRoute(returnTo):undefined,local=returnTo?discussionPracticeReturn(returnTo)||(favorites?favoriteHref(favorites):undefined)||(registry?paperRegistryHref(registry):undefined):undefined;
   if(local)return `#/${path}?${new URLSearchParams({from:local.slice(2)})}`;
   const base = `#/${path}`, view = returnTo ? readLibraryRoute(returnTo) : undefined,interview=returnTo?readInterviewRoute(returnTo):undefined;
   if (!view&&!interview) return base;
@@ -119,6 +139,7 @@ export function withLibraryContext(path: string | number, returnTo?: string): st
 
 /** Account return targets may carry only a library view, never another continuation. */
 export function libraryContinuation(route: string): string | undefined {
+  const registry=readPaperRegistryRoute(route);if(registry)return paperRegistryHref(registry).slice(2);
   const view = readLibraryRoute(route);
   if (view) return libraryHref(view.collectionId, view.filters).replace(/^#\/?/, '');
   const back = libraryReturnHref(route), value = parts(route);
