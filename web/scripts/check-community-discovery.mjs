@@ -34,7 +34,7 @@ try{
  }};
  const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),React.createElement(Community,{route:location.hash})));});
  const navigate=async href=>{location.href='http://paperleet.test/'+href;await render();};
- const select=()=>document.querySelector('#community-feed-sort');
+ const select=()=>document.querySelector('.community-sort select');
  const choose=async value=>{await act(async()=>{select().value=value;select().dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await render();};
  const click=async node=>{assert(node);await act(async()=>node.click());await render();};
  const tab=text=>[...document.querySelectorAll('.community-feed-toolbar button')].find(node=>node.textContent===text);

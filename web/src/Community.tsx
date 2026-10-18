@@ -590,6 +590,7 @@ export function ProblemDiscussions({topic,onCode}:{topic:ProblemTopic;onCode:()=
 }
 function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false, onCode,practiceCode }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
+  const sortId=useId();
   const taxonomy=useCommunityTaxonomy();
   const configuredBoards=taxonomy.data.boards.map(row=>({...row,icon:CATEGORIES.find(item=>item.id===row.id)?.icon||MessagesSquare}));
   const { user, capabilities, loading: accountLoading } = useAccount();
@@ -786,7 +787,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               <TaxonomyStatus/><CommunityTagBrowser value={tag} onChange={tag=>choose({tag})}/>
               <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
-              {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
+              {sortingAvailable && <label className="community-sort" htmlFor={sortId}><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id={sortId} aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
                 <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
               </select></label>}
             </div>

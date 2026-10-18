@@ -15,7 +15,9 @@ export default function CommunityJoinPrompt({returnTo='community'}:{returnTo?:st
   :t('登录后返回当前页面，继续浏览或参与讨论。','Return here after signing in to keep browsing or join the conversation.');
  return <section className="join-prompt" aria-labelledby={id}>
   <span className="community-join-icon" aria-hidden="true"><MessageCircle size={22}/></span>
-  <div className="community-join-copy"><strong id={id}>{testAuth?t('加入内测讨论','Join the beta discussion'):t('登录，继续探索与交流','Sign in to keep exploring')}</strong><p role={loading?'status':undefined}>{message}</p></div>
-  <AppLink className="button" href={signInHref(returnTo)}>{testAuth?t('内测账号登录','Test account sign-in'):t('登录 / 注册','Sign in / Join')}<ArrowRight size={15} aria-hidden="true"/></AppLink>
+  <div className="community-join-content">
+   <div className="community-join-copy"><strong id={id}>{testAuth?t('加入内测讨论','Join the beta discussion'):t('登录，继续探索与交流','Sign in to keep exploring')}</strong><p role={loading?'status':undefined}>{message}</p></div>
+   <AppLink className="button" href={signInHref(returnTo)}>{testAuth?t('内测账号登录','Test account sign-in'):t('登录 / 注册','Sign in / Join')}<ArrowRight size={15} aria-hidden="true"/></AppLink>
+  </div>
  </section>;
 }

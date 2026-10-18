@@ -1,3 +1,4 @@
+.community-card-interaction{min-width:0;container:post-interaction / inline-size}
 .post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:12px;color:var(--text-secondary);font-size:var(--type-body)}
 .card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:6px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s;scroll-margin-top:100px;scroll-margin-bottom:16px}
 .card-actions>button:hover,.card-actions>button[aria-expanded=true]{background:var(--surface2);color:var(--text)}
@@ -117,6 +118,15 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-order:disabled{cursor:default;opacity:.6}
 @media(pointer:coarse),(max-width:600px){.card-comment-order{min-height:44px}}
 @media(pointer:coarse){.card-actions>button,.card-comment-links button,.card-more-comments,.card-collapse-comments{min-height:44px}}
+@container post-interaction (max-width:520px){
+ .card-comments{padding:12px;margin-inline:-8px}
+ .card-actions>button,.card-comment-links button,.card-more-comments,.card-collapse-comments,.card-comment-order,.card-reply-heading>button{min-height:44px}
+ .card-reply-form>footer{align-items:flex-start;flex-direction:column}
+ .card-reply-form>footer .button{align-self:flex-end;min-height:44px;max-width:100%;white-space:normal}
+ .card-actions-extras{flex-basis:100%;margin:0}
+ .card-actions-extras>.interview-report-actions{justify-content:flex-start}
+ .card-actions-extras>.interview-report-actions .post-bookmark>button,.card-account-recovery>button,.card-account-recovery>a{min-height:44px;display:inline-flex;align-items:center}
+}
 
 .card-comment-editor { margin-top:12px; }
 .card-comment-editor .reply-editor { margin:0; padding:16px; border-color:color-mix(in srgb,var(--accent) 30%,var(--line)); }

@@ -267,3 +267,8 @@ assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFil
 
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.community-join-copy')), 'Community join presentation must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.community-join-copy'))), 'Deferred community must include its join presentation');
+
+for(const name of ['solution-pane','community-pane','post-interaction']){
+ assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('@container '+name)), 'Pane adaptation must stay out of initial styles');
+ assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('@container '+name))), 'Deferred readers must include their pane adaptation');
+}

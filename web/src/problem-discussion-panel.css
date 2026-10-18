@@ -5,3 +5,15 @@
 .problem-discussion-header button { flex:none; }
 .problem-discussion-panel .problem-discussions { margin-top:0; border-top:0; padding-top:0; }
 .community-feed-toolbar:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:7px; }
+
+/* Follow the reading pane rather than the window while its split is resized. */
+.problem-community { container:community-pane / inline-size; }
+.problem-community .community-feed-toolbar>.social-tabs { min-width:0; max-width:100%; flex:0 1 auto; }
+@container community-pane (max-width:520px) {
+  .problem-community .community-feed-controls { gap:10px; }
+  .problem-community .community-search { flex-basis:100%; }
+  .problem-community .community-sort>svg,.problem-community .community-sort>span { display:none; }
+  .problem-community .social-tabs { gap:16px; }
+  .problem-community .community-composer { padding:14px; }
+  .problem-community .community-empty { min-height:220px; padding:24px 12px; }
+}
