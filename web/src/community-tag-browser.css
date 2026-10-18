@@ -39,3 +39,6 @@
 .community-tag-draft-context { margin:0; padding:10px 12px; border-radius:7px; background:var(--surface2); color:var(--muted); font-size:var(--type-small); line-height:1.8; }
 
 .community-tag-mark { flex:none; width:18px; text-align:center; font-size:18px; font-weight:600; line-height:1.3; color:var(--accent); }
+
+.community-feed-toolbar:has(.community-tag-browser[open]) { flex-wrap:wrap; align-items:flex-start; }
+.community-feed-controls:has(.community-tag-browser[open]) { flex-basis:100%; margin-inline-start:0; }

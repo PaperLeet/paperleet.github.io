@@ -1,6 +1,6 @@
 # Community tag discovery and writing continuity
 
-The existing managed community tags now have a searchable native disclosure instead of a bare select. The browser searches public Chinese/English names, stable identifiers and descriptions, with case-insensitive NFKC matching. It shows active tags and the currently selected paused tag; counts refer to available tag definitions, never post popularity or company frequency.
+The existing managed community tags now have a searchable native disclosure instead of a bare select. The expanded directory takes its own row, keeping the feed tabs aligned above it. The browser searches public Chinese/English names, stable identifiers and descriptions, with case-insensitive NFKC matching. It shows active tags and the currently selected paused tag; counts refer to available tag definitions, never post popularity or company frequency.
 
 Choosing a tag keeps the current module, board, solution/discussion view, search, saved/following scope, publication period and order, and starts at page one. The problem page keeps this state locally without navigating away from the learner's code. Selecting the current tag or searching tag metadata does not issue another feed request or any mutation. Escape clears a local tag search first, then closes the disclosure; composition guards preserve ongoing IME input. Locale changes and background reads do not move focus.
 
