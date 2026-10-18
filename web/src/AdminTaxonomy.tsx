@@ -11,10 +11,11 @@ export default function AdminTaxonomy({owner,view,epoch,run,blocked,onChange}:Ad
  const {t,locale}=useI18n(),kind=view.section as 'boards'|'tags',{store}=useContext(AdminDraftContext)!;
  const [browse,setBrowse]=useState(()=>taxonomyBrowse(store.readTaxonomyBrowse(kind))),current=useRef(browse),search=useRef<HTMLInputElement>(null),more=useRef<HTMLButtonElement>(null),results=useRef<HTMLDivElement>(null),composing=useRef(false);
  const [,disclosures]=useState(0);
- useSyncExternalStore(listener=>store.subscribe('*',listener),()=>store.taxonomyDraftKeys(kind),()=> '');
+ useSyncExternalStore(listener=>store.subscribe('*',listener),()=>store.taxonomyRetentionSnapshot(kind),()=>store.taxonomyRetentionSnapshot(kind));
  current.current=browse;
  const result=useAdminRead<{boards:Term[];tags:Term[]}>('admin/taxonomy',owner,epoch,validAdminTaxonomy),rows=result.data?.[kind]||[],matches=matchingAdminTerms(rows,browse),shown=new Set(matches.slice(0,browse.limit).map(row=>row.id));
- const retained=new Set(rows.filter(row=>!shown.has(row.id)&&(row.id===view.item||store.read(kind+':'+row.id)||store.isOpen(kind+':'+row.id))).map(row=>row.id));
+ const newIdentifier=store.newTaxonomyIdentifier(kind);
+ const retained=new Set(rows.filter(row=>!shown.has(row.id)&&(row.id===view.item||row.id===newIdentifier||store.read(kind+':'+row.id)||store.isOpen(kind+':'+row.id))).map(row=>row.id));
  const active=rows.filter(row=>row.enabled).length,changed=!!browse.query||browse.status!=='all',remaining=Math.max(0,matches.length-browse.limit);
  function change(next:Partial<TaxonomyBrowse>){const value=taxonomyBrowse({...current.current,...next});current.current=value;store.setTaxonomyBrowse(kind,value);setBrowse(value);}
  function clear(all=false){search.current?.focus({preventScroll:true});change({query:'',limit:20,...(all?{status:'all'}as const:{})});}
@@ -35,14 +36,14 @@ export default function AdminTaxonomy({owner,view,epoch,run,blocked,onChange}:Ad
   {result.data&&<div ref={results} tabIndex={-1} className="admin-taxonomy-results" role="group" aria-label={t('配置浏览结果','Settings browsing results')}>
    <p role="status">{t(`匹配 ${matches.length} / ${rows.length} 项 · 已显示 ${shown.size} 项`,`${matches.length} of ${rows.length} match · ${shown.size} shown`)}{retained.size>0&&<span>{t(` · 另保留 ${retained.size} 项核对`,` · ${retained.size} more kept for review`)}</span>}</p>
    <p>{t(`已启用 ${active} · 已停用 ${rows.length-active}`,`${active} active · ${rows.length-active} paused`)}{changed&&<button type="button" className="text-button" onClick={()=>clear(true)}>{t('清除筛选','Clear filters')}</button>}</p>
-   <small>{t('已展开、已编辑或从链接打开的项目会保留显示；搜索和筛选不会更改配置。','Expanded, edited or linked items remain visible. Searching and filtering do not change settings.')}</small>
+   <small>{t('已展开、已编辑、链接打开或与新建标识相同的项目会保留显示；筛选不会更改配置。','Items you opened, edited, linked to or matched by a new identifier stay visible. Filters do not change settings.')}</small>
   </div>}
   {result.data&&view.item&&!rows.some(row=>row.id===view.item)&&<p role="status">{t('此配置项已不存在，其他草稿仍保留。','This setting is unavailable. Other drafts are kept.')} <a href={adminHref(adminListView(view))}>{t('返回完整列表','Back to the full list')}</a></p>}
   {result.data&&!matches.length&&<div className="admin-taxonomy-empty" role="status"><p>{changed?retained.size?t('没有匹配的配置项。保留的核对项仍显示在下面。','No settings match. Items kept for review remain below.'):t('没有匹配的配置项。试试其他关键词或清除筛选。','No settings match. Try other keywords or clear the filters.'):t('这里还没有配置项，可以先新建一个。','There are no settings here yet. Create the first item.')}</p>{changed&&<button type="button" className="text-button" onClick={()=>clear(true)}>{t('清除搜索与状态筛选','Clear search and state filters')}</button>}</div>}
   <div className="admin-items admin-taxonomy-items">{rows.map(row=><AdminDraftRow className="admin-card" key={row.id} draftKey={kind+':'+row.id} forceOpen={row.id===view.item} hidden={!shown.has(row.id)&&!retained.has(row.id)} onOpenChange={()=>disclosures(value=>value+1)}>
    <summary data-admin-term={row.id}>
     <span className="admin-taxonomy-identity"><b>{t(row.zh,row.en)}</b>{row.zh!==row.en&&<small>{locale==='en'?row.zh:row.en}</small>}<code>{row.id}</code>{row.description&&<small className="admin-taxonomy-description">{row.description}</small>}</span>
-    <span className="admin-taxonomy-meta"><span className="admin-taxonomy-badge" data-state={row.enabled?'active':'paused'}>{row.enabled?t('已启用','Active'):t('已停用','Paused')}</span><span>{t(`排序 ${row.position}`,`Position ${row.position}`)} · {row.posts} {t('篇帖子','posts')}</span>{retained.has(row.id)&&<small className="admin-taxonomy-retained">{row.id===view.item?t('链接打开项','Opened from link'):t('保留核对项','Kept for review')}</small>}</span>
+    <span className="admin-taxonomy-meta"><span className="admin-taxonomy-badge" data-state={row.enabled?'active':'paused'}>{row.enabled?t('已启用','Active'):t('已停用','Paused')}</span><span>{t(`排序 ${row.position}`,`Position ${row.position}`)} · {row.posts} {t('篇帖子','posts')}</span>{retained.has(row.id)&&<small className="admin-taxonomy-retained">{row.id===view.item?t('链接打开项','Opened from link'):row.id===newIdentifier?t('与新建标识相同','Matches new identifier'):t('保留核对项','Kept for review')}</small>}</span>
    </summary>
    <TermForm row={row} kind={kind} run={run} blocked={blocked||result.loading||!!result.error}/>
   </AdminDraftRow>)}</div>
