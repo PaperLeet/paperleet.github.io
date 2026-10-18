@@ -1,6 +1,8 @@
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
 import PostTags from './PostTags';
+import CommunityTagBrowser,{CommunityTagContext} from './CommunityTagBrowser';
+import {initialCommunityTag} from './communityTagBrowsing';
 import './community-taxonomy.css';
 import PostSearchMatch from './PostSearchMatch';
 import {sourcePostReadingReturn} from './readingReturn';
@@ -265,6 +267,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
 }
 function Composer({
   category,
+  initialTag,
   topic,
   owner,
   scope,
@@ -280,6 +283,7 @@ function Composer({
   onBackgroundPublish,
 }: {
   category: string;
+  initialTag?:string;
   topic?: ProblemTopic;
   owner: string;
   scope: string;
@@ -300,7 +304,7 @@ function Composer({
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading&&(!solution||capabilities?.community_solutions===true);
   const anonymousAvailable=capabilities?.community_anonymous_posts===true;
   const initialCategory = solution ? "implementation" : category || (topic ? "questions" : "papers");
-  const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory });
+  const [draft, setDraft] = useState<PostDraft>(() => readPostDraft(tabDraftStorage(), owner, scope) || { title: "", body: "", category: initialCategory,...(initialTag?{tagIds:[initialTag]}:{}) });
   const currentDraft = useRef(draft);
   const currentActor=useRef(user?.id);currentActor.current=user?.id;
   const writingRoute=location.href;
@@ -515,6 +519,7 @@ function Composer({
           {categoryHint && <small id={categoryHintId}>{t(...categoryHint)}</small>}
         </label>
         <TaxonomyStatus/><CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/>
+        {initialTag&&hasDraft(draft)&&!draft.tagIds?.includes(initialTag)&&<p className="community-tag-draft-context" role="status">{t("当前列表筛选没有更改此草稿的标签，可在这里手动调整。","Your list filter has not changed this draft’s tags. Adjust them here if needed.")}</p>}
         {board === 'papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl => edit({ paperUrl })} owner={owner} available={papersAvailable} required={papersAvailable} disabled={busy} onUseTitle={paperTitle => edit({ title: paperTitle.slice(0, 160) })} />}
         <label>
           {t("标题", "Title")}
@@ -615,6 +620,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const saved = filters.saved === true;
   const sortingAvailable = capabilities?.community_feed_sorting === true;
   const sortingUnavailable = !!sort && !accountLoading && !sortingAvailable;
+  const tagsAvailable=taxonomy.supported,tagUnavailable=!!tag&&!accountLoading&&!tagsAvailable;
   const periodAvailable=capabilities?.community_feed_period===true;
   const periodUnavailable=!!days&&!accountLoading&&!periodAvailable;
   const savedAvailable = capabilities?.community_bookmarks === true;
@@ -623,7 +629,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const feedAccessReady = (!following || !!user) && (!saved || !!user && savedAvailable && !accountLoading);
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
-  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
+  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, tag?tagsAvailable:undefined, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
   const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
@@ -634,7 +640,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
-  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable);
+  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable);
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
     if(embedded)setLocalFilters(next);else location.hash = communityFeedHref(topicId,next);
@@ -673,7 +679,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       limit: String(PAGE_SIZE),
       ...(topicId ? { problem_id: topicId } : {}),
     });
-    if (waitingForSavedAccount || (sort && accountLoading) || (solutions && accountLoading) || (days && accountLoading)) return;
+    if ((tag && accountLoading) || waitingForSavedAccount || (sort && accountLoading) || (solutions && accountLoading) || (days && accountLoading)) return;
+    if(tagUnavailable){setData({items:[],total:0,requestKey});setLoading(false);return;}
     if(solutionUnavailable){setData({items:[],total:0,requestKey});setLoading(false);return;}
     if (sortingUnavailable) { setData({items:[],total:0,requestKey});setLoading(false);return; }
     if (periodUnavailable) { setData({items:[],total:0,requestKey});setLoading(false);return; }
@@ -714,7 +721,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     return () => {
       live = false; clearTimeout(timer); controller.abort();
     };
-  }, [category, tag, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded, days, periodUnavailable]);
+  }, [category, tag, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded, days, periodUnavailable, tagUnavailable]);
   const FeedRoot=embedded?"section":"main";
   return (
     <FeedRoot ref={reading.container} className={embedded?`problem-community ${solutions?'problem-solutions':'problem-discussions'} community-page`:"social-page community-page"}>
@@ -790,7 +797,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>}
             </div>
             <div className="community-feed-controls">
-              <TaxonomyStatus/>{(taxonomy.data.tags.length>0||tag)&&<label>{t("标签","Tag")}<select aria-label={t("按标签筛选","Filter by tag")} value={tag||""} onChange={e=>choose({tag:e.target.value||undefined})}><option value="">{t("全部标签","All tags")}</option>{tag&&!taxonomy.data.tags.some(row=>row.id===tag)&&<option value={tag}>{tag}</option>}{taxonomy.data.tags.filter(row=>row.enabled||row.id===tag).map(row=><option key={row.id} value={row.id}>{t(row.zh,row.en)}</option>)}</select></label>}
+              <TaxonomyStatus/><CommunityTagBrowser value={tag} onChange={tag=>choose({tag})}/>
               <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
               {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
@@ -803,6 +810,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             // Synchronous intent cannot override a later route/account/editor action.
             toolbar.current?.focus({preventScroll:true});choose(change);
           }}/>
+          <CommunityTagContext value={tag} onClear={()=>{toolbar.current?.focus({preventScroll:true});choose({tag:undefined});}}/>
           {!embedded&&topicId && (
             catalogLoading ? <Loading /> : catalogError ? (
               <div className="feed-error">
@@ -814,13 +822,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
           )}
           {writing.expanded && user && (
-            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
+            <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} initialTag={tagsAvailable&&taxonomy.ready?initialCommunityTag(taxonomy.data.tags,tag):undefined} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
           )}
           {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><a href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></a></div>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
-            {solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : periodUnavailable ? <Empty title={t("发布时间筛选暂不可用","Publication periods are unavailable")}><p>{t("当前服务尚未提供此筛选。可以切回不限时间，保留其他筛选继续浏览。","This service does not support publication periods yet. Browse all time with your other filters.")}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t("查看不限时间","Browse all time")}</button></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
+            {tagUnavailable ? <Empty title={t('标签筛选暂不可用','Tag filtering is unavailable')}><p>{t('当前服务尚未提供标签筛选。移除此标签后，可以保留其他条件继续浏览。','This service does not support tag filtering yet. Remove this tag to browse with your other filters.')}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({tag:undefined});}}>{t('移除此标签筛选','Remove this tag filter')}</button></Empty> : solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : periodUnavailable ? <Empty title={t("发布时间筛选暂不可用","Publication periods are unavailable")}><p>{t("当前服务尚未提供此筛选。可以切回不限时间，保留其他筛选继续浏览。","This service does not support publication periods yet. Browse all time with your other filters.")}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t("查看不限时间","Browse all time")}</button></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
                 <button
