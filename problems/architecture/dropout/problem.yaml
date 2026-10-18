@@ -1,0 +1,87 @@
+id: architecture/dropout
+number: 103
+title: Dropout：保留掩码与期望保持
+title_en: 'Inverted Dropout: Explicit Masks and Expected Activations'
+paper_id: dropout
+paper:
+  title: 'Dropout: A Simple Way to Prevent Neural Networks from Overfitting'
+  authors: Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, Ruslan Salakhutdinov
+  venue: JMLR 2014
+  url: https://jmlr.org/papers/v15/srivastava14a.html
+  anchors:
+  - 'Section 4; Section 10, page 1951: inverted Bernoulli scaling and its mean/variance'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: inverted_dropout
+  signature: 'inverted_dropout(x: torch.Tensor, p: float, mask: torch.Tensor | None = None, training: bool = True)
+    -> torch.Tensor'
+module:
+  goal: 实现显式保留掩码的反向缩放 Dropout，区分训练、推理和两个概率端点。
+  goal_en: Implement explicitly masked inverted dropout, distinguishing training, inference and both probability
+    endpoints.
+  scope: 补全一个逐元素函数；提供实际掩码训练、Monte Carlo 均值与方差实验，不证明泛化收益或复现图像基准。
+  scope_en: Complete one element-wise function; actual masked training and Monte Carlo moments are supplied, without
+    a generalization claim or image benchmark reproduction.
+  required_functions:
+  - inverted_dropout
+  provided_functions: []
+  optional: false
+conventions:
+  contract: See the complete bilingual statement and starter for exact shapes, dtypes, reductions and boundary behavior.
+tests:
+  T0: 1
+  T1: 1
+  T2: 7
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 20
+tags:
+- Regularization
+- Dropout
+- Bernoulli Masks
+- Gradients
+viz:
+- toy_experiment
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf
+toy:
+  kind: teaching_adaptation
+  source: https://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf
+  anchor: 'Section 4; Section 10, page 1951: inverted Bernoulli scaling and its mean/variance'
+  adaptation: The harness supplies 64×4 Gaussian features, a fixed linear target and trainable linear weights. Your
+    dropout transforms training inputs at p=0.25 for 100 Adam updates (lr=0.06, seed=193, float64); the chart evaluates
+    MSE without dropout. Another 8192 realized masks measure mean/variance errors against the analytic moments.
+    Acceptance requires MSE<20% of initial, maximum mean error<0.06 and variance error<0.08. This demonstrates behavior,
+    without claiming dropout always improves generalization.
+mutants:
+- id: m1_no_scaling
+  bug: Omit reciprocal keep-probability scaling
+- id: m2_wrong_probability
+  bug: Divide by drop rather than keep probability
+- id: m3_reversed_mask
+  bug: Interpret True as dropped
+- id: m4_scaled_inference
+  bug: Scale inference activations again
+- id: m5_detached_output
+  bug: Detach masked activations
+- id: m6_drop_all_identity
+  bug: Retain values at training p=1
+browser:
+  backend: numpy-autograd-wasm
+calibration:
+  status: measured
+  checked_at: '2026-10-17'
+  device: CPU
+  threads: 2
+  machine: arm64
+  torch_version: 2.14.1
+  repeats: 3
+  reference_metrics:
+    initial_mse: 2.1840331583160255
+    final_mse: 0.20185594978616062
+    mc_mean_max_error: 0.011067708333333481
+    mc_variance_max_error: 0.014634450276692634

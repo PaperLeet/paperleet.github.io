@@ -83,9 +83,9 @@ export function paperRegistryHref(view:PaperRegistryView):string{
   return href;
 }
 
-/** Preserve the catalog's discovery order until the learner chooses a sort. */
+/** Use stable paper numbers by default, with optional bibliography sorting. */
 export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'): Paper[] {
-  if (sort === 'default') return papers;
+  if (sort === 'default') return [...papers].sort((a, b) => a.number - b.number);
   return [...papers].sort((a, b) => {
     if (sort === 'title') return a.short_title.localeCompare(b.short_title, 'en', { numeric: true }) || a.number - b.number;
     if (!a.year || !b.year) return a.year ? -1 : b.year ? 1 : a.number - b.number;

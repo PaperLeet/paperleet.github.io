@@ -3918,3 +3918,8 @@ html { scrollbar-gutter: stable; }
 .editor-tools-recovery { display:inline-flex; align-items:center; flex-wrap:wrap; gap:4px 8px; color:var(--muted); font-size:var(--type-small); line-height:1.5; }
 .editor-tools-recovery .text-button { min-height:40px; padding-inline:6px; color:var(--accent); }
 @media(pointer:coarse) { .editor-tools-recovery .text-button { min-height:44px; } }
+
+.paper-title-line { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; min-width:0; }
+.paper-title-tags { display:flex; flex-wrap:wrap; gap:4px; }
+.paper-title-tags > span { border:1px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--muted); font-size:11px; line-height:1.5; }
+.library-load-more { display:flex; justify-content:center; align-items:center; gap:6px; width:100%; padding:18px; }

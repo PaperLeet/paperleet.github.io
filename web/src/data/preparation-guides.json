@@ -3684,6 +3684,134 @@
           }
         }
       ]
+    },
+    {
+      "id": "foundations/bert_mlm",
+      "source": "problems/foundations/bert_mlm/README.md",
+      "functions": [
+        "make_mlm_inputs",
+        "masked_lm_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "80/10/10 为什么不等于 80% 的词都被替换？标签来自哪里？",
+            "en": "Why does 80/10/10 not mean that 80% of all tokens are masked, and where do labels come from?"
+          },
+          "hint": {
+            "zh": "它条件于调用方选中的位置；即使随机替换或保留，监督仍是同位置原词。",
+            "en": "The proportions apply after selection; replacement never changes the same-position original target."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样实现 0.8、0.9 边界，并避免把 MLM 写成 next-token loss？",
+            "en": "How do you implement the .8/.9 boundaries without turning MLM into next-token loss?"
+          },
+          "hint": {
+            "zh": "用不重叠的半开区间，并单独保留原词标签；MLM 没有因果错位。",
+            "en": "Use disjoint half-open intervals and original labels without a causal target shift."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "全忽略、空序列和极端 logits 的损失与梯度应该是什么？",
+            "en": "What should loss and gradients do for ignored/empty targets and extreme logits?"
+          },
+          "hint": {
+            "zh": "按有效标签数归约；无标签时为连接图的零，log-softmax 保持数值稳定。",
+            "en": "Reduce by selected targets; keep connected zero without targets and use stable log-softmax."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/gan",
+      "source": "problems/representation/gan/README.md",
+      "functions": [
+        "discriminator_loss",
+        "generator_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "判别器和非饱和生成器分别希望哪些 logits 变大或变小？",
+            "en": "Which logits should D and the non-saturating G increase or decrease?"
+          },
+          "hint": {
+            "zh": "D 提高真实、降低生成；G 提高生成 logit。非饱和目标与 minimax 不同。",
+            "en": "D raises real and lowers fake logits; G raises fake logits. Distinguish non-saturating and minimax objectives."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么 real/fake 数量不同时仍要各自求均值？哪里可以 detach？",
+            "en": "Why average real and fake separately for unequal batch sizes, and where may you detach?"
+          },
+          "hint": {
+            "zh": "两个独立期望相加。D 步 detach 生成样本；不要在损失里 detach 判别器 logits。",
+            "en": "Add independent expectations. Detach generated samples during D updates, not discriminator logits inside losses."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何在 confidently fake 的样本上检查稳定性和生成器梯度？",
+            "en": "How do you check numerical stability and generator gradients on confidently fake samples?"
+          },
+          "hint": {
+            "zh": "用 -1000 等 logit 检查非饱和梯度；对照解析导数和有限差分，不要求两种损失单调下降。",
+            "en": "Check a logit such as -1000 against analytic derivatives and finite differences; adversarial losses need not decrease monotonically."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/dropout",
+      "source": "problems/architecture/dropout/README.md",
+      "functions": [
+        "inverted_dropout"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "p 表示丢弃还是保留概率？为什么训练缩放能保持激活期望？",
+            "en": "Does p denote drop or keep probability, and why does training rescaling preserve expectation?"
+          },
+          "hint": {
+            "zh": "本题 p 是丢弃概率，保留概率 q=1-p；保留 mask 的期望是 q。",
+            "en": "Here p drops units and q=1-p keeps them; the keep-mask expectation is q."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "推理与 p=0、p=1 如何处理？mask 能广播吗？",
+            "en": "What happens during inference and at p=0/p=1, and may the mask broadcast?"
+          },
+          "hint": {
+            "zh": "推理恒等；训练 p=1 是连接图的零；随机训练必须逐元素同形 bool mask。",
+            "en": "Inference is identity; training p=1 returns connected zero. Stochastic training needs an exact-shape Boolean keep mask."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "固定 mask 的梯度和重复采样的均值、方差应怎样验证？",
+            "en": "How do you verify fixed-mask gradients and repeated-sampling moments?"
+          },
+          "hint": {
+            "zh": "Jacobian 对角项为 M/q；采样后对照均值 x、方差 x²p/q，不把它当成泛化证明。",
+            "en": "The Jacobian diagonal is M/q; compare sampled mean x and variance x²p/q without claiming generalization."
+          }
+        }
+      ]
     }
   ]
 }

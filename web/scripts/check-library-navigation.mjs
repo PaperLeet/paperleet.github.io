@@ -52,7 +52,7 @@ try {
     { id: 'a', number: 1, short_title: 'Alpha', year: 2025 },
     { id: 'old', number: 2, short_title: 'Model 2', year: 2017 },
   ];
-  assert.equal(sortLibraryPapers(samples), samples, 'Discovery order must remain stable');
+  assert.deepEqual(sortLibraryPapers(samples).map(p => p.number), [1,2,3,4], 'Default order follows stable numbers');
   assert.deepEqual(sortLibraryPapers(samples, 'newest').map(p => p.id), ['a', 'b', 'old', 'missing']);
   assert.deepEqual(sortLibraryPapers(samples, 'oldest').map(p => p.id), ['old', 'a', 'b', 'missing']);
   assert.deepEqual(sortLibraryPapers(samples, 'title').map(p => p.id), ['a', 'b', 'missing', 'old']);
@@ -183,11 +183,11 @@ try {
         const waitingPage=JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute,progressReady:false}));
         assert.equal(waitingPage.querySelectorAll('[data-module-id]').length,0);
         assert(!waitingPage.textContent.includes(en?'No matching modules':'没有符合条件的练习'));
-      } else assert.equal((page.match(/data-paper-id=/g) || []).length, members.length, 'Other collections keep their paper lists');
+      } else assert.equal((page.match(/data-paper-id=/g) || []).length, Math.min(20,members.length), 'Collections start with the first batch of papers');
       assert(page.includes('class="back-link" href="#"') && page.includes('class="button collection-practice"'), 'Each collection has home and practice navigation');
     }
     const legacyServer = render(PaperLibrary,{...catalog,saved:{},route:'?runtime=server'});
-    assert.equal((legacyServer.match(/data-paper-id=/g)||[]).length,catalog.papers.length,'A saved server filter must not empty an all-browser catalog');
+    assert.equal((legacyServer.match(/data-paper-id=/g)||[]).length,20,'A saved server filter must not empty an all-browser catalog');
     const waiting = render(PaperLibrary, { ...catalog, saved: {}, progressReady: false, route: libraryHref(undefined, { ...emptyLibraryFilters(), state: 'done' }) });
     assert(waiting.includes(en ? 'Checking your learning progress' : '正在核对学习进度'));
     assert(!waiting.includes(en ? 'No matching papers' : '没有符合条件的论文') && !waiting.includes('data-paper-id='), 'Pending account progress must not fabricate empty or unstarted status-filter results');

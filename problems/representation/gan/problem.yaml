@@ -1,0 +1,92 @@
+id: representation/gan
+number: 102
+title: GAN：稳定对抗损失与非饱和生成目标
+title_en: 'GAN: Stable Adversarial and Non-saturating Losses'
+paper_id: gan
+paper:
+  title: Generative Adversarial Nets
+  authors: Ian J. Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron
+    Courville, Yoshua Bengio
+  venue: NeurIPS 2014
+  arxiv: '1406.2661'
+  anchors:
+  - Section 3, Equation (1), Algorithm 1 and the non-saturating generator paragraph
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: discriminator_loss
+  signature: 'discriminator_loss(real_logits: torch.Tensor, fake_logits: torch.Tensor) -> torch.Tensor'
+- name: generator_loss
+  signature: 'generator_loss(fake_logits: torch.Tensor) -> torch.Tensor'
+module:
+  goal: 实现判别器的两个独立期望，以及稳定、可微的非饱和生成器目标。
+  goal_en: Implement the discriminator's two independently averaged expectations and the stable differentiable non-saturating
+    generator objective.
+  scope: 补全 logits 损失；提供一维高斯位置的真实交替训练，不实现图像 GAN、完整网络或稳定收敛保证。
+  scope_en: Complete logit losses; a supplied one-dimensional Gaussian location game performs actual alternating
+    training. Image GANs, complete networks and convergence guarantees are outside scope.
+  required_functions:
+  - discriminator_loss
+  - generator_loss
+  provided_functions: []
+  optional: false
+conventions:
+  contract: See the complete bilingual statement and starter for exact shapes, dtypes, reductions and boundary behavior.
+tests:
+  T0: 1
+  T1: 1
+  T2: 7
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 25
+tags:
+- Adversarial Learning
+- Generative Models
+- Non-saturating Loss
+- Gradients
+viz:
+- toy_experiment
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/html/1406.2661v1#S3
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/html/1406.2661v1#S3
+  anchor: Section 3, Equation (1), Algorithm 1 and the non-saturating generator paragraph
+  adaptation: Real data are Gaussian with mean 2 and variance 1. The generator is `G(z)=z+shift`, and D is an affine
+    logit. The harness runs 240 actual D/G update pairs, batch 64, Adam lr=0.03 for both, seed=179, float64. Your
+    losses drive backward passes with G detached during D steps and D parameters frozen during G steps. Charts show
+    the learned location and both losses. Acceptance requires final location error<0.5. This does not reproduce
+    image quality, FID or general GAN convergence.
+mutants:
+- id: m1_generator_sign
+  bug: Push fake logits downward during G training
+- id: m2_minimax_generator
+  bug: Use the legitimate minimax alternative instead of the specified non-saturating objective
+- id: m3_real_label
+  bug: Assign real samples the fake target
+- id: m4_fake_label
+  bug: Assign fake discriminator samples the real target
+- id: m5_extra_half
+  bug: Average the two expectations again
+- id: m6_detached_generator
+  bug: Detach generator loss from its logits
+- id: m7_detached_fake_d
+  bug: Detach fake discriminator logits inside the loss
+browser:
+  backend: numpy-autograd-wasm
+calibration:
+  status: measured
+  checked_at: '2026-10-17'
+  device: CPU
+  threads: 2
+  machine: arm64
+  torch_version: 2.14.1
+  repeats: 3
+  reference_metrics:
+    initial_location_error: 2.0
+    final_location_error: 0.023908727656655415
+    final_generator_location: 2.0239087276566554
+    final_d_loss: 1.3851652049705834

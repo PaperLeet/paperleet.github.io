@@ -2,7 +2,7 @@ import { matchingPaperModules, paperProgress, selectLibraryPractice } from './li
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronDown,
-  ChevronRight, Code2, Search, Library, Shuffle, SlidersHorizontal, ArrowDownWideNarrow, List, Rows3, X,
+  ChevronRight, Code2, Search, Library, Shuffle, SlidersHorizontal, X,
 } from "lucide-react";
 import { useI18n } from "./i18n";
 import { BilingualText } from "./BilingualText";
@@ -14,7 +14,7 @@ import { recommendPractice } from "./practice-recommendation";
 import { deferredFeature } from './deferredFeature';
 import "./practice-journey.css";
 import { StateIcon } from "./PaperState";
-import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters, type LibrarySort } from './libraryNavigation';
+import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters } from './libraryNavigation';
 
 import type {LibraryCompanyScope,LibraryCompanyStatusProps,LibraryCompanyControlsProps} from './libraryCompanyScope';
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
@@ -23,6 +23,7 @@ export { paperModules, matchingPaperModules, paperProgress } from './libraryPrac
 // Decorative diagrams should not delay search or the first usable list.
 const CollectionArtwork = deferredFeature(() => import('./CollectionArtwork'), ['合集插图', 'collection artwork'], { loading: () => null, failure: () => null });
 const CollectionControls=deferredFeature<{rail:import('react').RefObject<HTMLElement|null>}>(()=>import('./CollectionArtwork').then(module=>({default:module.CollectionControls})),['合集导航','collection navigation'],{loading:()=>null,failure:()=>null});
+const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(()=>import('./LibraryResultControls'), ['列表显示','list display'], {loading:()=>null});
 const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练习概览','practice overview'], {loading:()=>null});
 
 const CompanyControls=deferredFeature<LibraryCompanyControlsProps>(()=>import('./LibraryCompanyEvidence').then(module=>({default:module.LibraryCompanyControls})),['公司筛选','company filters'],{loading:()=>null});
@@ -68,16 +69,6 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     editedHref.current = href;
     onFilters?.(href);
   }
-  useEffect(() => {
-    if (waitingForStatus) return;
-    let disposed = false, stop: (() => void) | undefined;
-    const restore = editedHref.current !== viewHref;
-    editedHref.current = undefined;
-    void import('./libraryPosition').then(({watchLibraryPosition}) => {
-      if (!disposed) stop = watchLibraryPosition(viewHref,restore);
-    }).catch(() => { /* Return links and URL filters also work without scroll recovery. */ });
-    return () => { disposed = true; stop?.(); };
-  },[viewHref,waitingForStatus]);
   const collectionRail = useRef<HTMLElement>(null);
   const listedModuleIds = new Set(listedPapers.flatMap((paper) => paper.module_ids));
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
@@ -90,6 +81,21 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const selection = selectLibraryPractice(papers, problems, saved, { collectionId: selectedCollection?.id, filters },companyReady?companyData?.ids:undefined);
   const filtered = sortLibraryPapers(selection.papers, sort);
   const filteredModules = company&&sort==='default'?selection.problems:filtered.flatMap(paper => selection.problems.filter(problem => paper.module_ids.includes(problem.id)));
+  const [windowed, setWindowed] = useState({href: viewHref, count: 20});
+  const visibleCount = windowed.href === viewHref ? windowed.count : 20;
+  const rowIds = (moduleView ? filteredModules : filtered).map(row => row.id);
+  const rowKey = rowIds.join(',');
+  const reveal = (count: number) => setWindowed({href: viewHref, count});
+  useEffect(() => {
+    if (waitingForStatus) return;
+    let disposed = false, stop: (() => void) | undefined;
+    const restore = editedHref.current !== viewHref;
+    editedHref.current = undefined;
+    void import('./libraryPosition').then(({watchLibraryPosition}) => {
+      if (!disposed) stop = watchLibraryPosition(viewHref, restore, {ids: rowIds, reveal});
+    }).catch(() => { /* The load-more button works without automatic scrolling. */ });
+    return () => { disposed = true; stop?.(); };
+  }, [viewHref, waitingForStatus, rowKey]);
   const unattempted = eligibleUnattemptedProblems(filteredModules, saved);
   function randomProblem() {
     if (!progressReady || !companyReady) return;
@@ -166,7 +172,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       </div>
       <CompanyControls company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
       {company&&companyScope&&<CompanyStatus company={company} days={companyDays} returnTo={viewHref} {...companyScope}/>}
-      <div className="library-results"><span role="status">{waitingForStatus ? !companyReady?t('公司练习范围尚未确认…','Company practice scope is unconfirmed…'):t('正在核对学习进度…','Checking your learning progress…') : <>{!moduleView && <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · </>}{filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span><div className="library-result-actions">{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}<label className="library-sort"><ArrowDownWideNarrow size={14} aria-hidden="true" /><select aria-label={moduleView ? t("按来源排序", "Sort by source") : t("论文排序", "Sort papers")} value={sort} onChange={event => change({sort:event.target.value as LibrarySort})}><option value="default">{t(company?"按分享者数":"默认排序", company?"Contributors":course ? "Course order" : "Discovery order")}</option><option value="newest">{t("最新发表", "Newest first")}</option><option value="oldest">{t("最早发表", "Oldest first")}</option><option value="title">{t("名称 A–Z", "Title A–Z")}</option></select></label><div className="library-density" role="group" aria-label={t('列表密度', 'List density')}><button aria-label={t('舒适列表', 'Comfortable list')} title={t('舒适列表', 'Comfortable list')} aria-pressed={density === 'comfortable'} onClick={() => changeDensity('comfortable')}><Rows3 size={15} /></button><button aria-label={t('紧凑列表', 'Compact list')} title={t('紧凑列表', 'Compact list')} aria-pressed={density === 'compact'} onClick={() => changeDensity('compact')}><List size={15} /></button></div></div></div>
+      <div className="library-results"><span role="status">{waitingForStatus ? !companyReady?t('公司练习范围尚未确认…','Company practice scope is unconfirmed…'):t('正在核对学习进度…','Checking your learning progress…') : <>{!moduleView && <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · </>}{filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span><ResultControls hasFilters={hasFilters} moduleView={moduleView} company={company} course={course} sort={sort} density={density} onClear={clear} onSort={sort=>change({sort})} onDensity={changeDensity}/></div>
       {hasFilters && <div className="active-filters" aria-label={t("当前筛选条件", "Active filters")}>
         {[
           { id:"query", value:!!query, label:`“${query}”`, patch:{query:""} },
@@ -178,7 +184,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       </div>}
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{moduleView ? t("练习", "Module") : t("论文", "Paper")}</span><span className="paper-year">{moduleView ? t("用时", "Time") : t("年份", "Year")}</span><span>{moduleView ? t("难度", "Difficulty") : t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
       <div className="problem-rows">
-        {!waitingForStatus && (moduleView ? filteredModules.map(module => <div className="paper-result-group" key={module.id}>
+        {!waitingForStatus && (moduleView ? filteredModules.slice(0, visibleCount).map(module => <div className="paper-result-group" key={module.id}>
           <a className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
             <StateIcon state={status(module,saved[module.id])} />
             <div className="problem-info paper-info"><strong><span>{module.number}.</span>{locale === "en" ? module.translations?.en?.title || module.title : module.title}</strong><small>{t(module.module.goal,module.module.goal_en)}</small></div>
@@ -186,19 +192,20 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <span className={`difficulty ${module.difficulty}`}>{({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[module.difficulty]}</span>
             <ChevronRight size={16} aria-hidden="true" />
           </a>
-        </div>) : filtered.map((paper) => {
+        </div>) : filtered.slice(0, visibleCount).map((paper) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
           return <div className="paper-result-group" key={paper.id}><a className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
-            <div className="problem-info paper-info"><strong><span>{paper.number}.</span>{paper.short_title}</strong><small title={paper.title}>{paper.title}</small></div>
+            <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span>{paper.short_title}</strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
           </a>{showMatches && <div className="matching-modules"><span>{t("匹配模块", "Matching modules")}</span>{matching.map(module=><a key={module.id} href={withLibraryContext(module.number,viewHref)}><Code2 size={13} aria-hidden="true" />{module.number}. {locale === "en" ? module.translations?.en?.title || module.title : module.title}<ArrowRight size={12} aria-hidden="true" /></a>)}</div>}</div>;
         }))}
       </div>
+      {!waitingForStatus && visibleCount < rowIds.length && <button className="library-load-more text-button" onClick={() => reveal(Math.min(rowIds.length, visibleCount + 20))}>{t("加载更多", "Load more")}<ChevronDown size={14} aria-hidden="true" /></button>}
       {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{moduleView ? t("没有符合条件的练习", "No matching modules") : t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
     </section>
     </div>

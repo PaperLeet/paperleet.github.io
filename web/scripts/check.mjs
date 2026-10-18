@@ -230,8 +230,8 @@ try {
       {...libraryProps, saved: completed, collectionId: list.id}));
     assert(/class="random-problem"[^>]*disabled/.test(completedHtml),
       `${list.id}: do not fall back to unsolved modules outside a fully completed collection`);
-    assert.deepEqual(rowIds(html), list.kind === "course" ? [] : list.paperIds,
-      `${list.id}: the library must show exactly the selected papers in curated order`);
+    assert.deepEqual(rowIds(html), list.kind === "course" ? [] : [...members].sort((a,b)=>a.number-b.number).slice(0,20).map(p=>p.id),
+      `${list.id}: the library must show the first batch of selected papers in number order`);
     for (const match of html.matchAll(/href="(#\/papers\/[^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), `#/collections/${list.id}`,
       'Every collection paper must retain its library return context');
     const collectionHeading = headingText(html, 'collection-page-header');
@@ -239,15 +239,15 @@ try {
       `${list.id}: the dedicated heading must name its collection and count its own papers/modules`);
     assert(headingText(html).includes(`已通过模块 1 / ${moduleIds.size}`),
       `${list.id}: an accepted module outside this collection must not affect its progress`);
-    assert.deepEqual(rowIds(allHtml), catalog.papers.map((paper) => paper.id),
-      "All papers must retain the complete catalog order");
+    assert.deepEqual(rowIds(allHtml), [...catalog.papers].sort((a,b)=>a.number-b.number).slice(0,20).map((paper) => paper.id),
+      "The homepage begins with twenty papers in stable number order");
     assert(headingText(allHtml).includes(`已通过模块 2 / ${catalog.problems.length}`),
       "All papers must include progress from both modules");
   }
   const unknownListHtml = renderToString(React.createElement(PaperLibrary, {
     ...libraryProps, saved: {}, collectionId: "not-a-maintained-list",
   }));
-  assert.deepEqual(rowIds(unknownListHtml), catalog.papers.map((paper) => paper.id),
+  assert.deepEqual(rowIds(unknownListHtml), [...catalog.papers].sort((a,b)=>a.number-b.number).slice(0,20).map((paper) => paper.id),
     "An unknown collection URL should still expose the paper library");
   const loadingHtml = renderToString(React.createElement(PaperLibrary,
     {...libraryProps, saved: {}, progressReady: false}));

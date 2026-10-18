@@ -1,0 +1,8 @@
+import {ArrowDownWideNarrow,List,Rows3} from 'lucide-react';
+import {useI18n} from './i18n';
+import type {LibrarySort} from './libraryNavigation';
+export type Props = {hasFilters:boolean; moduleView:boolean; company:string; course?:boolean; sort:LibrarySort; density:'comfortable'|'compact'; onClear:()=>void; onSort:(sort:LibrarySort)=>void; onDensity:(density:'comfortable'|'compact')=>void};
+export default function LibraryResultControls({hasFilters,moduleView,company,course,sort,density,onClear,onSort,onDensity}:Props){
+ const {t}=useI18n();
+ return <div className="library-result-actions">{hasFilters && <button className="text-button" onClick={onClear}>{t("重置筛选", "Reset filters")}</button>}<label className="library-sort"><ArrowDownWideNarrow size={14} aria-hidden="true" /><select aria-label={moduleView ? t("按来源排序", "Sort by source") : t("论文排序", "Sort papers")} value={sort} onChange={event => onSort(event.target.value as LibrarySort)}><option value="default">{t(company?"按分享者数":course?"课程顺序":"编号顺序", company?"Contributors":course ? "Course order" : "Number order")}</option><option value="newest">{t("最新发表", "Newest first")}</option><option value="oldest">{t("最早发表", "Oldest first")}</option><option value="title">{t("名称 A–Z", "Title A–Z")}</option></select></label><div className="library-density" role="group" aria-label={t('列表密度', 'List density')}><button aria-label={t('舒适列表', 'Comfortable list')} title={t('舒适列表', 'Comfortable list')} aria-pressed={density === 'comfortable'} onClick={() => onDensity('comfortable')}><Rows3 size={15} /></button><button aria-label={t('紧凑列表', 'Compact list')} title={t('紧凑列表', 'Compact list')} aria-pressed={density === 'compact'} onClick={() => onDensity('compact')}><List size={15} /></button></div></div>;
+}

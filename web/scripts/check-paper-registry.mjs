@@ -22,10 +22,13 @@ try{
  const ids=text=>findPracticeMentions(text,index).map(match=>match.topic.id);
  assert.deepEqual(ids('实现Top-P和DPO，GraphSAGE, FlashAttention, RoPE'),['foundations/top_p_sampling','rl/dpo','representation/graphsage_mean','architecture/flash_attention','architecture/rope']);
  assert.deepEqual(ids('Dr. GRPO and GRPO; QLoRA / LoRA'),['rl/dr_grpo','rl/grpo','finetuning/qlora','finetuning/lora']);
- assert.deepEqual(ids('XPPO DPO_loss clip gradients var = 1; jit compiler; dropout; SuperGraphSAGE'),[]);
+ assert.deepEqual(ids('XPPO DPO_loss clip gradients var = 1; jit compiler; SuperDropout; SuperGraphSAGE'),[]);
  assert.deepEqual(ids('TOP–P 核采样'),['foundations/top_p_sampling','foundations/top_p_sampling']);
  assert.deepEqual(ids('Inductive Representation Learning on Large Graphs'),['representation/graphsage_mean']);
  assert.deepEqual(ids('CLIP DDPM DDIM'),['representation/clip','diffusion/schedules','diffusion/ddim']);
+ assert.deepEqual(ids('BERT / GAN / Dropout'),['foundations/bert_mlm','representation/gan','architecture/dropout']);
+ assert.deepEqual(ids('ColBERT'),['retrieval/late_interaction'],'BERT must not shadow ColBERT');
+ assert.deepEqual(searchPaperRegistry(catalog.papers,catalog.problems,'https://jmlr.org/papers/v15/srivastava14a.html').map(p=>p.id),['dropout']);
  assert.equal(practiceMentionIndex([]),undefined);
  const retired=practiceMentionIndex(topics.map(topic=>({...topic,retired:topic.id==='rl/dpo'})));
  assert.equal(findPracticeMentions('DPO',retired).length,0);
