@@ -9,10 +9,8 @@ export type { DeploymentHealth } from './deploymentHealth';
 
 const HeaderAccountMenu = deferredFeature(() => import('./HeaderAccountMenu'), ['个人菜单','personal menu'], {loading:()=> <AccountMenuFallback/>,failure:(_props,retry)=><AccountMenuFallback retry={retry}/>});
 import { apiUrl } from "./apiClient";
-import { currentQuotaMessage } from "./publicationQuota";
-import { currentProfileEditLimitMessage, readProfileEditPolicy } from "./profileEditPolicy";
-import type { ProfileEditPolicy } from "./profileEditPolicy";
-import { safeAvatarPath } from "./profileAvatar";
+import { readProfileEditPolicy, type ProfileEditPolicy } from "./profileEditPolicyModel";
+import { safeAvatarPath } from "./profileAvatarPath";
 const AccountAccessGate = lazy(() => import('./Waitlist').then(module => ({ default: module.AccountAccessGate })));
 
 
@@ -129,13 +127,17 @@ export async function socialApi<T>(path: string, body?: unknown, signal?: AbortS
       response.status,
     );
   }
-  if (!response.ok)
-    throw new SocialError(
-      currentProfileEditLimitMessage(data) || currentQuotaMessage(data) || data.error || "Request failed",
-      response.status,
-      data.code,
-      data,
-    );
+  if (!response.ok) {
+    let message: string | undefined;
+    try {
+      // Localized publication/profile limits are only needed after their API rejection.
+      if (data.code === "profile_edit_limit")
+        message = (await import("./profileEditPolicy")).currentProfileEditLimitMessage(data);
+      else if (data.code === "daily_quota_exceeded")
+        message = (await import("./publicationQuota")).currentQuotaMessage(data);
+    } catch { /* Preserve the API rejection if its optional wording cannot load. */ }
+    throw new SocialError(message || data.error || "Request failed", response.status, data.code, data);
+  }
   return data as T;
 }
 type AccountContextValue = {

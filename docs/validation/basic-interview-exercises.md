@@ -56,3 +56,11 @@ StrideTorch checks passed with 41,600 tests and one skipped test. The hosted
 production build and dependency-graph check passed. Backend protocol checks also
 ran each new reference through the real worker subprocess and validated its full
 T0–T3 report; the hosted-judge/deployment suites passed 85 tests (86 opt-in skips).
+
+Production release validation also builds the exact Pages edition and checks that
+its deployment variables match the publication workflow. Node 22.23.3 confirmed
+that the hosted initial shell is 406,806 raw / 132,118 gzip bytes, within the
+unchanged 400/130 KiB limits. Avatar URL validation is separate from deferred image
+editing; localized quota/profile-limit wording loads on the relevant API rejection.
+Seven existing account/avatar/API/deferred-feature checks passed, including typed
+rejection recovery fields, bilingual wording and incomplete-detail fallbacks.
