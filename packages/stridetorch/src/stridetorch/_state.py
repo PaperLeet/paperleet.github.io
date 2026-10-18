@@ -19,3 +19,6 @@ _where_uint8_warning_emitted = False
 
 # Functional reverse transforms reject implicit NumPy graph escapes.
 _functional_ad_active = False
+
+# HVP needs full curvature, unlike native-compatible saved-factor JVP tapes.
+_hvp_active = False

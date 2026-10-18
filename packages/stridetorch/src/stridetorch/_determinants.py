@@ -118,6 +118,10 @@ def _sign_result(value,input,logabs):
 
 
 def _directional(primal,direction,negative=None):
+    if _state._hvp_active:
+        solved=_linalg.solve(primal,direction)
+        value=solved.diagonal(dim1=-2,dim2=-1).sum(-1)
+        return _ops.where(_tensor.Tensor(negative),0.,value) if negative is not None else value
     # Native 2.14.1 JVP differentiates the RHS of its saved-factor solve. Keep
     # an immutable factor snapshot and no reverse edge to the original matrix.
     source=primal._data.copy(order='K');rhs=direction._data;transposed=primal._data.flags.c_contiguous
@@ -130,8 +134,79 @@ def _directional(primal,direction,negative=None):
     return _autograd.result(_component(value),(direction,backward),versioned=())
 
 
+def _cofactor_direction(source, direction):
+    """Adjugate and its directional derivative without a dense Hessian.
+
+    Products excluding one/two singular values remain defined at zero pivots.
+    The rotated off-diagonal derivative simplifies to -prod(except i,j)*M[j,i],
+    avoiding divisions by squared singular-value gaps. This polynomial
+    derivative stays defined even when an SVD basis itself is not unique.
+    """
+    u,s,vh=np.linalg.svd(source,full_matrices=False)
+    n=s.shape[-1];ones=np.ones(s.shape[:-1]+(1,),dtype=s.dtype)
+    prefix=np.concatenate((ones,np.cumprod(s,axis=-1)),axis=-1)
+    suffix=np.concatenate((np.flip(np.cumprod(np.flip(s,axis=-1),axis=-1),axis=-1),ones),axis=-1)
+    cofactors=prefix[...,:-1]*suffix[...,1:]
+    pairs=np.zeros(s.shape+(n,),dtype=s.dtype);axis=np.arange(n)
+    for i in range(n):
+        mask=axis!=i;other=s[...,mask]
+        before=np.concatenate((ones,np.cumprod(other,axis=-1)),axis=-1)
+        after=np.concatenate((np.flip(np.cumprod(np.flip(other,axis=-1),axis=-1),axis=-1),ones),axis=-1)
+        pairs[...,i,mask]=before[...,:-1]*after[...,1:]
+    rotated=np.swapaxes(u,-1,-2)@direction@np.swapaxes(vh,-1,-2)
+    core=-pairs*np.swapaxes(rotated,-1,-2)
+    core[...,axis,axis]=np.sum(pairs*np.diagonal(rotated,axis1=-2,axis2=-1)[...,None,:],axis=-1)
+    orientation=np.linalg.det(u)*np.linalg.det(vh)
+    cofactor=orientation[...,None,None]*((u*cofactors[...,None,:])@vh)
+    curvature=orientation[...,None,None]*(u@core@vh)
+    return cofactor,curvature
+
+
+def _det_hvp_factors(primal, direction, determinant, singular):
+    n=primal.shape[-1]
+    source=primal._data.reshape((-1,n,n));vector=direction._data.reshape((-1,n,n))
+    mask=singular.reshape(-1);value=determinant.reshape(-1)
+    cofactors=np.empty_like(source);curvature=np.empty_like(source)
+    with np.errstate(all='ignore'):
+        if np.any(mask):cofactors[mask],curvature[mask]=_cofactor_direction(source[mask],vector[mask])
+        if np.any(~mask):
+            a=source[~mask];e=vector[~mask]
+            inverse=np.linalg.solve(a,np.broadcast_to(np.eye(n,dtype=a.dtype),a.shape))
+            transposed=np.swapaxes(inverse,-1,-2)
+            c=value[~mask,None,None]*transposed
+            cofactors[~mask]=c
+            trace=np.trace(inverse@e,axis1=-2,axis2=-1)
+            curvature[~mask]=trace[...,None,None]*c-(transposed@np.swapaxes(e,-1,-2))@c
+        cofactors=cofactors.reshape(primal.shape);curvature=curvature.reshape(primal.shape)
+        tangent_value=np.sum(cofactors*direction._data,axis=(-2,-1))
+    def scale(g,value):return np.asarray(g)[...,None,None]*value
+    output=_autograd.result(determinant,(primal,lambda g:scale(g,cofactors)),versioned=(primal,))
+    tangent=_autograd.result(_component(tangent_value),(primal,lambda g:scale(g,curvature)),
+        (direction,lambda g:scale(g,cofactors)),versioned=(primal,direction))
+    return _autograd.ForwardTensor(output,tangent)
+
+
 def det_jvp(input):
     primal=input._primal;direction=input._tangent;output=_linalg.det(primal)
+    if _state._hvp_active:
+        size=primal.shape[-1]
+        if not primal.numel():
+            # Native det's empty backward is a constant zero, including on its
+            # higher-order tape. Keep that independence in strict HVP mode.
+            return _autograd.ForwardTensor(output.detach(),_tensor.Tensor(np.zeros_like(output._data)))
+        if size>=2:
+            singular=np.abs(output._data)<100*np.finfo(primal.dtype).eps
+            if np.any(singular):return _det_hvp_factors(primal,direction,output._data,singular)
+        if size==1:tangent=direction[...,0,0]
+        elif size==2:
+            # Outside the saved-adjugate region, this polynomial avoids a
+            # factorization while preserving the full 2x2 curvature.
+            tangent=(direction[...,0,0]*primal[...,1,1]+primal[...,0,0]*direction[...,1,1]
+                     -direction[...,0,1]*primal[...,1,0]-primal[...,0,1]*direction[...,1,0])
+        else:
+            solved=_linalg.solve(primal,direction)
+            tangent=output*solved.diagonal(dim1=-2,dim2=-1).sum(-1)
+        return _autograd.ForwardTensor(output,tangent)
     layout=primal._data;needs_a=_state._grad_enabled and primal.requires_grad
     needs_e=_state._grad_enabled and direction.requires_grad
     source=layout.copy(order='K') if needs_a or needs_e else layout

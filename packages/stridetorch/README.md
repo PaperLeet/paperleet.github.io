@@ -1828,3 +1828,52 @@ directly. Their inherent output size still scales with output elements times
 input elements. Higher-order graphs, complex inputs, vectorized/forward-mode
 Jacobians and nesting in forward AD remain explicitly unsupported. This API
 does not add `torch.func.jacrev`, `torch.func.jacfwd` or a GPU backend.
+
+
+## Functional Hessian-vector products
+
+Version 0.71 adds `torch.autograd.functional.hvp(func, inputs, v=None,
+create_graph=False, strict=False)` for the supported real float32/float64
+operators. The callback returns one Tensor with one element. The function
+returns its detached value and a detached Hessian-vector product with the
+input shapes and dtypes, preserving Tensor/tuple input structure. It executes
+the callback once, isolates repeated arguments and captured originals, and
+preserves caller gradient flags, existing gradient buffers and original hooks.
+Vectors are detached and converted to their corresponding input dtypes.
+An omitted vector is allowed only for one input Tensor containing one element.
+
+```python
+x = torch.tensor([2., 3.])
+value, product = torch.autograd.functional.hvp(
+    lambda a: a.pow(3).sum(), x, torch.ones_like(x))
+assert value.item() == 35.
+assert product.tolist() == [12., 18.]
+```
+
+The implementation combines a forward direction with a reverse pass, without
+constructing a dense Hessian. Normalization statistics and matrix factors stay
+differentiable on this HVP path; the existing native-compatible JVP rules keep
+their saved-statistic/factor behavior. Training BatchNorm may update its own
+buffers once. Determinants use an adjugate path near singularity and compute
+its polynomial directional derivative without singular-value-gap divisions.
+This deliberately returns finite mathematical curvature at repeated singular
+values where native SVD-based higher-order tapes can return backend-dependent
+NaNs. Empty determinant
+backwards remain independent in strict mode.
+
+Default mode returns zero products for unused or constant derivatives;
+`strict=True` raises when a required derivative is independent. Implicit NumPy
+exports reject, while `detach()`, `no_grad()` and `numpy(force=True)` deliberately
+disconnect the graph. Higher-order output graphs, complex/other floating
+inputs, nested forward transforms and unvalidated forward rules remain
+explicitly unsupported. This API does not add a general Hessian API or a GPU
+backend. Registered HVP operator attributes survive model copy and pickle.
+
+
+Scalar clamp gradients and forward directions preserve the production Torch 2.6
+inclusive-boundary contract, including `clamp_min` and `clamp_max`. This is checked
+against an isolated native Torch 2.6.0 installation; native 2.14.1 uses a different
+boundary convention.
+The generic absolute-value JVP retains an explicit zero reverse derivative
+for a differentiable primal; it is distinct from an unused input returning
+`None` from `autograd.grad(..., allow_unused=True)`.

@@ -183,7 +183,12 @@ class ForwardTensor(_tensor.Tensor):
         return ForwardTensor(p @ self._primal, t @ self._primal + p @ self._tangent)
     def __getitem__(self, index): return ForwardTensor(self._primal[index], self._tangent[index])
     def detach(self): return self._primal.detach()
-    def numpy(self): raise _errors.BrowserUnsupported('NumPy escape during JVP requires the server')
+    def numpy(self, *, force=False):
+        if force is not False and force is not True:
+            raise TypeError('numpy force must be bool')
+        if _state._functional_ad_active and (force or not _state._grad_enabled):
+            return self._primal.numpy(force=force)
+        raise _errors.BrowserUnsupported('NumPy escape during JVP requires the server')
     def __array__(self, *args, **kwargs): return self.numpy()
     def requires_grad_(self, *args): raise _errors.BrowserUnsupported('Changing gradient flags inside JVP requires the server')
     def backward(self, *args, **kwargs): raise _errors.BrowserUnsupported('Backward inside JVP requires the server')
@@ -220,6 +225,21 @@ class ForwardTensor(_tensor.Tensor):
         derivative = result(slope,(primal,lambda g:g*curvature))
         return ForwardTensor(value,self._tangent*derivative)
     def relu(self): return ForwardTensor(self._primal.relu(), _ops.where(self._primal <= 0, 0., self._tangent))
+    def abs(self):
+        primal = self._primal
+        slope=np.sign(primal._data)
+        if _state._hvp_active:slope=_tensor.Tensor(slope)
+        else:
+            # Native JVP retains the sign operation's zero reverse edge. HVP
+            # strictness instead follows its constant second derivative.
+            slope=result(slope,(primal,lambda g,shape=primal.shape,dtype=primal.dtype:np.zeros(shape,dtype=dtype)),saves_tensors=False)
+        return ForwardTensor(primal.abs(), self._tangent * slope)
+    def clamp(self, min=None, max=None):
+        primal = self._primal.clamp(min=min, max=max)
+        mask = np.ones(self.shape, dtype=bool)
+        if min is not None: mask &= self._data >= min
+        if max is not None: mask &= self._data <= max
+        return ForwardTensor(primal, _ops.where(_tensor.Tensor(mask), self._tangent, 0.))
     def var(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
             keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
         from . import _statistics
@@ -424,6 +444,58 @@ def functional_vjp(func, inputs, v=None, create_graph=False, strict=False):
         outputs = tuple(output.detach() for output in outputs)
         return (outputs if outputs_tuple else outputs[0],
                 gradients if inputs_tuple else gradients[0])
+
+
+def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
+    """Detached Hessian-vector products by reverse-over-forward AD."""
+    if create_graph:
+        raise _errors.BrowserUnsupported('Differentiable HVP results require the server')
+    if _state._jvp_active:
+        raise _errors.BrowserUnsupported('Functional HVP inside forward AD requires the server')
+
+    def tensors(value, name):
+        was_tuple = isinstance(value, tuple)
+        values = value if was_tuple else (value,)
+        if any(not isinstance(item, _tensor.Tensor) for item in values):
+            raise TypeError(name + ' must be a Tensor or a tuple of Tensors')
+        return values, was_tuple
+
+    with enable_grad():
+        original, inputs_tuple = tensors(inputs, 'inputs')
+        if any(isinstance(item, ForwardTensor) or item.dtype not in (np.dtype('float32'), np.dtype('float64')) for item in original):
+            raise _errors.BrowserUnsupported('Functional HVP requires real float32/float64 inputs')
+        arguments = tuple(item.detach().requires_grad_(True) for item in original)
+        if v is None:
+            if len(arguments) != 1 or arguments[0].numel() != 1:
+                raise RuntimeError('Implicit HVP vectors require one input with one element')
+            seeds = (_tensor.Tensor(np.ones_like(arguments[0]._data)),)
+        else:
+            vectors, _ = tensors(v, 'v')
+            if len(vectors) != len(arguments) or any(a.shape != b.shape for a, b in zip(arguments, vectors)):
+                raise RuntimeError('HVP vector shapes must match the inputs')
+            if any(isinstance(item, ForwardTensor) or item.dtype.kind == 'c' for item in vectors):
+                raise _errors.BrowserUnsupported('Complex or forward-AD HVP vectors require the server')
+            seeds = tuple(item.detach().to(dtype=argument.dtype) for item, argument in zip(vectors, arguments))
+        previous = _state._functional_ad_active
+        previous_hvp = _state._hvp_active
+        _state._functional_ad_active = True
+        _state._hvp_active = True
+        try:
+            output, tangent = jvp(func, arguments, seeds)
+        finally:
+            _state._functional_ad_active = previous
+            _state._hvp_active = previous_hvp
+        if not isinstance(output, _tensor.Tensor) or output.numel() != 1:
+            raise RuntimeError('Functional HVP requires a Tensor output with one element')
+        if output.requires_grad and tangent.requires_grad:
+            gradients = autograd_grad(tangent, arguments, allow_unused=True)
+        else:
+            gradients = (None,) * len(arguments)
+        if strict and any(item is None for item in gradients):
+            raise RuntimeError('An HVP Jacobian is independent of an input in strict mode')
+        values = tuple(_tensor.Tensor(np.zeros_like(argument._data)) if value is None else value.detach()
+                       for argument, value in zip(arguments, gradients))
+        return output.detach(), values if inputs_tuple else values[0]
 
 
 def functional_jacobian(func, inputs, create_graph=False, strict=False,
