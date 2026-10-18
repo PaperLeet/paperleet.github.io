@@ -604,8 +604,8 @@
   "deployed": false,
   "raw_archive": {
     "path": "iteration-78-raw.tar.gz",
-    "bytes": 7562242,
-    "sha256": "c77b48dbb8c1fb03cc8b4f7655f04b5da00a22395406f1f7b373b4916f371bd6"
+    "bytes": 7835131,
+    "sha256": "3d4320960c219dace85493cbdbe2d27cbd528d6f1fb3098ae698402c38eb2d28"
   },
   "ui_requalification": {
     "status": "passed",
@@ -1643,6 +1643,137 @@
     "published": false,
     "deployed": false
   },
-  "latest_integration_base": "891f620921791775082e2e290ff5caf8e06e5b72",
-  "core_numerical_execution_provenance_preserved": true
+  "latest_integration_base": "a16a0e54605fba6cea4d06603814ae664b12e4da",
+  "core_numerical_execution_provenance_preserved": true,
+  "recovery_ui_requalification": {
+    "status": "passed",
+    "execution_head": "830b1318afbb942f9ce7ba9021ceead6b9bf8b8e",
+    "integration_base": "a16a0e54605fba6cea4d06603814ae664b12e4da",
+    "original_numeric_execution_base": "0ed2aa3a95d9e7febf683874b5dafd1284af5f1f",
+    "receipts": [
+      {
+        "label": "full-frontend-check",
+        "exit_code": 0,
+        "seconds": 208.08040904201334,
+        "command": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+        "log_sha256": "de5fa7058e8074d89bbdfc7f165b6eabf30d4d260b583ba6846bada032aa581f",
+        "summary": [
+          "PASS path navigation: real hrefs, legacy bookmarks, deep links, context, metadata, click order, history, document anchors and dynamic-route compatibility"
+        ]
+      },
+      {
+        "label": "pages-policy",
+        "exit_code": 0,
+        "seconds": 0.07037858301191591,
+        "command": [
+          "/Users/david/.npm/_npx/d18f28baf1132559/node_modules/node/bin/node",
+          "web/scripts/check-pages-release.cjs"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+        "log_sha256": "2d1b13db615e47c7d3de6f8509ee0e6f4ecc0fa0c89da9d79b836e0609b1eac5",
+        "summary": [
+          "PASS explicit release gates: manual/tag-only, exact current main, annotated/moved tags, complete quality, provenance, duplicate publication and stale/rerun rejection"
+        ]
+      },
+      {
+        "label": "build",
+        "exit_code": 0,
+        "seconds": 18.357382207992487,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+        "log_sha256": "1d6b5d09d48fd181b4a32feeedcb31d1737dceb88b21c254a3b708c3ac2d30e6",
+        "summary": [
+          "Static search checks: not a path-routing edition"
+        ]
+      },
+      {
+        "label": "pages-profile-build",
+        "exit_code": 0,
+        "seconds": 14.360898417013232,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+        "log_sha256": "074a9d2de47583290699f5e936637e4b8e4a073f96d927c388e0fb50469b6c98",
+        "summary": [
+          "PASS 166 static HTTP 200 routes, distinct metadata, no-JS content, root assets, sitemap, sharing image, escaping and real missing-page 404s"
+        ]
+      },
+      {
+        "label": "pages-assets",
+        "exit_code": 0,
+        "seconds": 0.11154499999247491,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-69/integration-dev-env/bin/python",
+          "-B",
+          "web/scripts/check-pages-assets.py"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+        "log_sha256": "2897090830b29d4549ccdc6917a6116cef91c23f90721ba9266906865aa80804",
+        "summary": [
+          "Pages assets: 1 current, 1 retained, 2 generations; grace period 7 days."
+        ]
+      },
+      {
+        "label": "retain-production-assets-check",
+        "exit_code": 0,
+        "seconds": 0.08779874999891035,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-69/integration-dev-env/bin/python",
+          "-B",
+          "web/scripts/retain-pages-assets.py",
+          "web/dist",
+          "--check"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+        "log_sha256": "bf67952a05167de3a8a938ff1dfe850dd5b8361e44e8643ea5439303997d4763",
+        "summary": [
+          "Validated 253 current Pages assets"
+        ]
+      },
+      {
+        "label": "generated-worker",
+        "exit_code": 0,
+        "seconds": 0.04220950001035817,
+        "command": [
+          "/Users/david/.npm/_npx/d18f28baf1132559/node_modules/node/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-78/recovery-ui/verify-generated-worker.mjs"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+        "log_sha256": "e8680d4bfbb46ef5b0230ddfad23c317c1baaa8538a56c82afed5d4b4e450bd9",
+        "summary": [
+          "{\"status\":\"verified\",\"source_files\":6,\"asset_digest\":\"071d0be1ab04968ff0674ea5b1ecc58acb129018dd554a9935999c84e89edad8\"}"
+        ]
+      }
+    ],
+    "application_inputs_unchanged": 1426,
+    "external_paths_preserved": 19,
+    "combined_owned_paths": 390,
+    "worker_inputs_unchanged": true,
+    "no_numeric_rerun_claimed": true,
+    "ci_triggered": false,
+    "published": false,
+    "deployed": false,
+    "frontend_input_count": 668,
+    "evidence_directory": "recovery-ui",
+    "nested_browser_wasm": {
+      "status": "passed",
+      "feedback": "Tests passed\n7 / 7 tests passed",
+      "record_sha256": "a453e8247c68946e3fc75ba3b94d45437283b7f4b5d52f5b8e6080992093436f",
+      "harness_sha256": "4b3f31209c679eeb08bd266784bb72d78f153ea46415e4f227a08818482158b0",
+      "served_identities": 115,
+      "scope": "Fresh real Chrome loads the actual prerendered nested problem page, enters the canonical attention solution plus explicit mm/bmm/empty-dtype assertions through the editor, and runs actual local Pyodide/NumPy WASM tests. Only health/anonymous-account responses are supplied by trusted configuration fixtures; numerical execution and static assets are real. All other external requests are blocked, including writes. No server submission or account mutation."
+    }
+  }
 }

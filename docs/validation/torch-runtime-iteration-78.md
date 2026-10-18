@@ -40,7 +40,7 @@ One early CPU attempt ended with exit 120 while local disk space was nearly exha
 
 Release policies are unchanged. No CI, tag, package publication or deployment was initiated. [Machine record](../../packages/stridetorch/benchmarks/results/iteration-78.json).
 
-[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 7,562,242 bytes; SHA-256 `c77b48dbb8c1fb03cc8b4f7655f04b5da00a22395406f1f7b373b4916f371bd6`.
+[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 7,835,131 bytes; SHA-256 `3d4320960c219dace85493cbdbe2d27cbd528d6f1fb3098ae698402c38eb2d28`.
 
 ## Rebased UI validation
 
@@ -55,3 +55,9 @@ A further 106 upstream paths were reconciled at `3f56fa6863b38db12ea0b2153ce396b
 A fresh real Chrome session opened `/problems/architecture/attention/`, edited the canonical solution through CodeMirror, and executed the real judge Worker with Pyodide/NumPy WASM. All 7/7 Attention tests passed, together with explicit `mm` gradient, nonempty `bmm`, and mixed-dtype empty `bmm` assertions. The hosted health and anonymous-account responses were trusted test fixtures; all other external requests, including writes, were blocked. This verifies the local browser execution flow, without claiming live backend/API integration. The first harness attempt stopped at the expected read-only health precondition and is retained separately.
 
 Upstream then added a three-file static-asset retention fix at `891f620921791775082e2e290ff5caf8e06e5b72`. It normalizes root-relative asset references and adds local validation; the exact workflow delta only adds two validation commands. The resulting local tree `4042315876503fbaaf3fe2e6f5f793feb3b7d829` preserves all other tested frontend/build and numerical inputs. Twenty asset-retention tests, a read-only validation of the actual 253-asset production build, release-gate checks and backfill checks passed. Prior browser-served build payloads were rechecked byte-for-byte. No CI, tag, publication or deployment was initiated.
+
+## Concurrent UI recovery
+
+An ordinary guarded push after the existing release chain ended failed with a transport broken pipe; no adoption is inferred from that attempt. Main independently advanced to `a16a0e54605fba6cea4d06603814ae664b12e4da` by two UI commits (19 paths), preserved at reconciliation. The rebased execution tree `830b1318afbb942f9ce7ba9021ceead6b9bf8b8e` retains those interview/admin changes, unchanged frontend dependencies, both newly added checks and all original check commands. Core/test/application/export and current release-policy identities are unchanged.
+
+Complete frontend checks, both default and production path-routing builds, asset-retention checks, release policies and exact worker regeneration passed on the new tree. The fresh nested Attention page again passed 7/7 real Worker/Pyodide tests plus explicit mm/bmm assertions, with the same documented trusted health/anonymous-account fixtures and blocked external writes. Original full numerical test SHAs are preserved. No CI, tag, package publication or deployment was initiated.
