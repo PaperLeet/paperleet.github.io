@@ -12,3 +12,10 @@
 
 .interview-company-targets>summary>.company-targets-chevron{color:var(--muted);transition:transform .16s ease}.interview-company-targets[open]>summary>.company-targets-chevron{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){.interview-company-targets>summary>.company-targets-chevron{transition:none}}
+
+.company-targets-error>div{display:flex;flex-wrap:wrap;gap:8px 16px}.company-targets-error>div>button{min-height:40px;color:var(--accent)}
+.company-targets-capacity{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}
+.company-targets-capacity>b{color:var(--text);font-size:var(--type-body)}.company-targets-capacity>p{margin:0;font-size:var(--type-small);line-height:1.75}
+.company-targets-body>.company-targets-limit{padding:10px 12px;border-inline-start:3px solid var(--accent);background:var(--surface2);color:var(--text)}
+.company-targets-error button:disabled{opacity:.55;cursor:default}
+@media(pointer:coarse){.company-targets-error>div>button{min-height:44px}}

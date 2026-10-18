@@ -95,3 +95,25 @@ including StrictMode, native links, account retirement and source/draft preserva
 `--readonly` checks the browser-only edition. Private service tests cover real HTTP,
 separate sessions, authorization, concurrent capacity and idempotent updates. These
 checks do not prove native layout, device focus or real identity-provider behavior.
+
+### Target-company capacity and recovery
+
+When twelve targets are already confirmed, the company control opens the shortcut
+manager without sending another add. The manager states the limit and lets you remove
+one. Read failures also keep an actionable status control that opens the retry area.
+Neither action silently changes targets or the interview filters.
+
+A compatible service returns `400 / company_targets_full` only for an atomic, definite
+capacity rejection. The UI labels that addition as not saved, distinct from a lost or
+malformed acknowledgement. Refresh the current list or confirm a removal before
+retrying the original add; it never adds automatically. A definite rejected addition
+can be canceled locally. An uncertain request retains its original direction and
+cannot be discarded as though the server had rejected it. Legacy services without
+the specific code keep the existing uncertain-result recovery.
+
+Opening management and canceling a rejected addition move focus synchronously to
+the native summary. Background reads and late saves do not take focus from newer
+editing. Failed-add notices and captured intent stay in memory for the current
+account/provider lifetime; they are not cross-device drafts. `check-company-target-recovery.mjs` checks the real hub, capacity races, late/pre-rejection reads, explicit
+recovery, locale and account transitions in React/JSDOM; it also supports a disposable
+real HTTP/SQLite bridge. It does not prove native browser geometry or device focus.
