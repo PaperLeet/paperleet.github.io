@@ -1,0 +1,102 @@
+id: representation/vae
+number: 96
+title: VAE：重参数化与 Bernoulli ELBO
+title_en: 'VAE: Reparameterization and the Bernoulli ELBO'
+paper_id: vae
+paper:
+  title: Auto-Encoding Variational Bayes
+  authors: Diederik P. Kingma, Max Welling
+  venue: ICLR 2014
+  arxiv: '1312.6114'
+  anchors:
+  - 'Section 2.2, Equation (3): variational lower bound'
+  - 'Section 3, Equations (9)-(10): diagonal Gaussian, pathwise sampling and analytic KL'
+  - 'Appendices B and C.1: Gaussian KL derivation and Bernoulli decoder'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: reparameterize
+  signature: 'reparameterize(mu: Tensor, logvar: Tensor, noise: Tensor) -> Tensor'
+- name: gaussian_kl
+  signature: 'gaussian_kl(mu: Tensor, logvar: Tensor) -> Tensor'
+- name: negative_elbo
+  signature: 'negative_elbo(logits: Tensor, target: Tensor, mu: Tensor, logvar: Tensor) -> Tensor'
+module:
+  goal: 实现可微高斯采样、对标准正态的解析 KL，以及稳定的 Bernoulli 负 ELBO。
+  goal_en: Implement differentiable Gaussian sampling, analytic KL to a standard normal and a stable Bernoulli negative
+    ELBO.
+  scope: 补全三个函数；编码器、解码器和合成二值模式的 120 步训练由实验提供，不复现 MNIST 或图像生成指标。
+  scope_en: Complete three functions; the supplied encoder/decoder train for 120 steps on synthetic binary patterns.
+    No MNIST or image-generation benchmark is reproduced.
+  required_functions:
+  - reparameterize
+  - gaussian_kl
+  - negative_elbo
+  provided_functions: []
+  optional: false
+conventions:
+  posterior: mu, logvar, noise share [B,Z], Z > 0; logvar = log(sigma^2), never log(sigma); noise is provided, not
+    sampled internally
+  kl: Return positive KL(q||N(0,I)) with shape [B], summing Z; no detach
+  observations: logits and target share nonempty [B,F]; target in [0,1]; posterior has same B
+  objective: Negative ELBO = batch mean of (sum_F Bernoulli NLL + sum_Z KL); one posterior sample, original KL coefficient
+    1
+  stability: Compute Bernoulli NLL in logit space, without log(sigmoid) or probability clipping
+  purity: Preserve differentiable paths and matching float32/float64 dtype/device; no mutation; sampling and KL
+    accept B=0; objective requires B>0
+tests:
+  T0: 1
+  T1: 1
+  T2: 7
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Variational Inference
+- Generative Models
+- Reparameterization
+- ELBO
+viz:
+- toy_experiment
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/html/1312.6114v11#S3
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/html/1312.6114v11#S3
+  anchor: 'Section 2.2, Equation (3): variational lower bound; Section 3, Equations (9)-(10): diagonal Gaussian,
+    pathwise sampling and analytic KL; Appendices B and C.1: Gaussian KL derivation and Bernoulli decoder'
+  adaptation: A linear two-dimensional Gaussian encoder and Bernoulli decoder train for 120 Adam updates on two
+    complementary six-bit patterns. Curves report sampled negative ELBO, NLL and KL; these are not exact marginal
+    likelihoods, MNIST results, or proof of a useful latent representation.
+mutants:
+- id: m1_variance_as_std
+  bug: Use variance instead of standard deviation
+- id: m2_detached_mean
+  bug: Detach the posterior mean
+- id: m3_latent_mean
+  bug: Average rather than sum latent KL
+- id: m4_negative_kl
+  bug: Use the ELBO KL sign in a positive-KL helper
+- id: m5_feature_mean
+  bug: Average rather than sum reconstruction events
+- id: m6_missing_kl
+  bug: Drop KL from the negative ELBO
+- id: m7_detached_kl
+  bug: Detach KL while preserving its forward value
+browser:
+  backend: numpy-autograd-wasm
+calibration:
+  status: measured
+  checked_at: '2026-10-17'
+  device: CPU
+  threads: 2
+  machine: arm64
+  torch_version: 2.14.1
+  repeats: 3
+  reference_metrics:
+    initial_negative_elbo: 4.167099073717379
+    final_20_mean_negative_elbo: 1.6941523735955637
+    relative_negative_elbo_threshold: 0.8
