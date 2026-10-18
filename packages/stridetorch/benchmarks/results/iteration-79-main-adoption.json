@@ -1,0 +1,41 @@
+{
+  "status": "verified_077_on_main",
+  "version": "0.77.0",
+  "source_commit": "3941149119e06d2db62d4f00ede7d603d9732ed3",
+  "remote_main": "3941149119e06d2db62d4f00ede7d603d9732ed3",
+  "github_api_main": "3941149119e06d2db62d4f00ede7d603d9732ed3",
+  "qualified_git_blobs": 2442,
+  "owned_paths": 197,
+  "source_resources": 62,
+  "active_export_identities": 183,
+  "prior_immutable_entries": 15319,
+  "worktree_clean_at_source_verification": true,
+  "actions_runs_for_source": 0,
+  "guarded_push": {
+    "kind": "adoption",
+    "exit_code": 0,
+    "expected_remote": "1535c6bc492726119ef10afc850bf7b52bcc0cfd",
+    "seconds": 8.216561459004879,
+    "command": [
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-69/integration-dev-env/bin/python",
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-67/final-integration/push-main-native.py",
+      "1535c6bc492726119ef10afc850bf7b52bcc0cfd",
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-79/main-integration/audit-main.py"
+    ],
+    "scoped_git_config": {
+      "http.postBuffer": "134217728",
+      "http.lowSpeedTime": "30",
+      "http.lowSpeedLimit": "1"
+    },
+    "mandatory_wrapper_unchanged": true,
+    "ordinary_no_tag_push": true,
+    "log_sha256": "7365d1f7d8ccd5861af9faeccaa5fb6efb55f731ada60c662981d5bacf89ba13"
+  },
+  "original_core_numeric_execution_base": "e64e88956d796f2d8bd06d3854257575fa4e9856",
+  "application_execution_head": "b4b06237893fbdfe70efd3afbf0ee38b8b7cb4fe",
+  "goal_status": "active",
+  "ci_triggered": false,
+  "tags_created": false,
+  "published": false,
+  "deployed": false
+}
