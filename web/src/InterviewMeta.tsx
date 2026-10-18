@@ -21,7 +21,7 @@ export default function InterviewMeta({details,compact=false,returnTo,browseFrom
      const href=interviewFacetHref(details,facet.id,browseFrom),content=<>{facet.icon}{facet.text}</>;
      return href?<a key={facet.id} data-interview-facet={facet.id} href={href} aria-label={facet.label} title={facet.label}>{content}</a>:<span key={facet.id}>{content}</span>;
    })}{details.outcome!=='unknown'&&<span className="interview-outcome" data-outcome={details.outcome}>{interviewLabel('outcomes',details.outcome,en)}</span>}
-   {!compact&&details.interview_month&&<span><CalendarDays size={13}/>{details.interview_month}</span>}{!compact&&details.location&&<span><MapPin size={13}/>{details.location}</span>}</div>
+   {details.interview_month&&<span className="interview-event-month" title={t('分享者填写的实际面试月份','Actual interview month supplied by the author')}><CalendarDays size={13}/>{t('面试：','Interview: ')}{details.interview_month}</span>}{details.location&&<span className="interview-event-location" title={details.location}><MapPin size={13}/>{details.location}</span>}</div>
    {!compact&&<InterviewReportPractice revealPractice={revealPractice} revealRequest={revealRequest} questions={details.questions} topics={topics} returnTo={returnTo||interviewHref({...emptyInterviewFilters(),company:details.company})} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>}
  </div>;
 }

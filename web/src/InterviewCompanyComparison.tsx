@@ -1,3 +1,4 @@
+import {matchesInterviewContext} from './interviewContext';
 import {useId,useMemo,useRef,useState} from 'react';
 import {ArrowLeftRight,ChevronDown,X} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -26,9 +27,9 @@ export default function InterviewCompanyComparison({owner='guest',filters,summar
  }
  const {open,pair}=current;
  const view:CompanyComparisonView=filters.comparison||'shared';
- const scope=JSON.stringify([pair.left,pair.right,filters.role,filters.stage,filters.outcome,filters.days,filters.concept,view]);
+ const scope=JSON.stringify([pair.left,pair.right,filters.role,filters.stage,filters.outcome,filters.days,filters.location,filters.month_from,filters.month_to,filters.concept,view]);
  const [shown,setShown]=useState({scope:'',limit:PAGE_SIZE});
- const compare=useMemo(()=>summary&&summary.days===filters.days&&!loading&&!error?compareInterviewCompanies(summary,pair.left,pair.right):undefined,[summary,filters.days,loading,error,pair.left,pair.right]);
+ const compare=useMemo(()=>summary&&summary.days===filters.days&&matchesInterviewContext(summary.context,filters)&&!loading&&!error?compareInterviewCompanies(summary,pair.left,pair.right):undefined,[summary,filters.days,filters.location,filters.month_from,filters.month_to,loading,error,pair.left,pair.right]);
  const byId=useMemo(()=>new Map(problems.map(problem=>[problem.id,problem])),[problems]);
  const label=(company:string)=>{const row=interviewCatalog.companies.find(row=>row.id===company);return row?(locale==='en'?row.name_en:row.name):company;};
  const selected=!!pair.left&&!!pair.right&&pair.left!==pair.right;

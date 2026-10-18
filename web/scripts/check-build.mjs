@@ -241,4 +241,6 @@ for(const marker of ['No concepts match this difficulty and duration','Any pract
  assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(marker)), 'Practice metadata filtering UI must remain deferred');
  assert(Object.values(manifest).some(entry=>entry.file.endsWith('.js')&&fs.readFileSync(`dist/${entry.file}`,'utf8').includes(marker)), 'Deferred interview preparation must retain metadata filtering UI');
 }
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-context-filters')), 'Experience context styles must stay deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-context-filters'))), 'Deferred interview views must include experience context styles');
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);

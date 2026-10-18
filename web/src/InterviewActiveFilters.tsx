@@ -16,6 +16,9 @@ export default function InterviewActiveFilters({filters,problems,onChange}:{filt
  if(filters.view==='questions'&&filters.study!=='all')chips.push({key:'study',label:({todo:t('未开始','Not started'),started:t('进行中','In progress'),done:t('已通过','Passed')})[filters.study],change:{study:'all'}});
  if(filters.view==='questions'&&filters.difficulty)chips.push({key:'difficulty',label:t('难度：','Difficulty: ')+({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')})[filters.difficulty],change:{difficulty:''}});
  if(filters.view==='questions'&&filters.max_minutes)chips.push({key:'max_minutes',label:t(`单题 ≤ ${filters.max_minutes} 分钟`,`Up to ${filters.max_minutes} min per exercise`),change:{max_minutes:''}});
+ if(filters.location)chips.push({key:'location',label:t(`地点包含：${filters.location}`,`Location contains: ${filters.location}`),change:{location:''}});
+ if(filters.month_from)chips.push({key:'month_from',label:t(`面试自 ${filters.month_from}`,`Interview from ${filters.month_from}`),change:{month_from:''}});
+ if(filters.month_to)chips.push({key:'month_to',label:t(`面试至 ${filters.month_to}`,`Interview through ${filters.month_to}`),change:{month_to:''}});
  const path=interviewCatalog.paths.find(path=>path.id===filters.track);
  if(path)chips.push({key:'track',label:t(`准备路径：${path.name}`,`Path: ${path.name_en}`),change:{track:''}});
  if(!chips.length)return null;

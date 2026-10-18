@@ -1,8 +1,8 @@
 export const MAX_INTERVIEW_PAGE=5000;
 export type InterviewStudyState='all'|'todo'|'started'|'done';
 export type InterviewCompanyOrder='catalog'|'contributors'|'reports'|'name';
-export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string;company_order:InterviewCompanyOrder;outcome:string;difficulty:''|'E'|'M'|'H';max_minutes:''|'15'|'30'|'45'|'60';compare?:string;comparison?:'shared'|'different'|'all'};
-export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog',outcome:'',difficulty:'',max_minutes:''});
+export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string;company_order:InterviewCompanyOrder;outcome:string;difficulty:''|'E'|'M'|'H';max_minutes:''|'15'|'30'|'45'|'60';location:string;month_from:string;month_to:string;compare?:string;comparison?:'shared'|'different'|'all'};
+export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog',outcome:'',difficulty:'',max_minutes:'',location:'',month_from:'',month_to:''});
 export function readInterviewRoute(route:string):InterviewFilters|undefined {
   if(route.length>8192)return;
   const [path,search='',extra]=route.replace(/^#\/?/,'').split('?');
@@ -17,6 +17,8 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     else if(key==='concept'){if(!/^[a-z0-9_-]{1,80}\/[a-z0-9_-]{1,80}$/.test(value))return;filters.concept=value;}
     // Keep the routing list aligned with the catalog without importing its deferred metadata here.
     else if(key==='track'){if(!['training-generation','generation-continual-basics','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation','world-models','representation-shape','policy-distillation','visual-quantization','feedback-distillation','advanced-architecture','off-policy-passk','generation-targets','low-rank-quantization','block-generation','inverse-diffusion','vision-foundations'].includes(value))return;filters.track=value;}
+    else if(key==='location'){if(!value.trim()||Array.from(value).length>80||/[\u0000-\u001f\u007f]/.test(value))return;filters.location=value.trim();}
+    else if(key==='month_from'||key==='month_to'){if(!/^(19|20)\d{2}-(0[1-9]|1[0-2])$/.test(value))return;filters[key]=value;}
     else if(key==='difficulty'){if(!['E','M','H'].includes(value))return;filters.difficulty=value as InterviewFilters['difficulty'];}
     else if(key==='max_minutes'){if(!['15','30','45','60'].includes(value))return;filters.max_minutes=value as InterviewFilters['max_minutes'];}
     else if(key==='study'){if(!['all','todo','started','done'].includes(value))return;filters.study=value as InterviewStudyState;}
@@ -32,6 +34,7 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
   }
   if((filters.compare||filters.comparison)&&(filters.view!=='companies'||!!filters.company||!filters.compare))return;
   if((filters.difficulty||filters.max_minutes)&&filters.view!=='questions')return;
+  if(filters.month_from&&filters.month_to&&filters.month_from>filters.month_to)return;
   return filters;
 }
 export function interviewHref(filters:InterviewFilters=emptyInterviewFilters()){

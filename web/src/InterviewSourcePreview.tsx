@@ -11,7 +11,7 @@ import CommunityAuthor from './CommunityAuthor';
 import InterviewMeta from './InterviewMeta';
 import './interview-source-preview.css';
 
-type Props={concept:string;name:string;reports:number;contributors:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;practice?:{href:string;number?:number};returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
+type Props={concept:string;name:string;reports:number;contributors:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;contextAvailable?:boolean;practice?:{href:string;number?:number};returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
 const currentScope=()=>{const filters=readInterviewRoute(location.hash);return filters?interviewHref(filters):undefined;};
 
 export default function InterviewSourcePreview(props:Props){
@@ -41,12 +41,12 @@ function SourcePreview(props:Props){
   </section>;
 }
 
-export function InterviewSourceReports({concept,sourceHref,returnTo,owner,accountLoading=false,practice,returnId,onReturnReady,onReturnPending}:Props){
+export function InterviewSourceReports({concept,sourceHref,returnTo,owner,accountLoading=false,contextAvailable=false,practice,returnId,onReturnReady,onReturnPending}:Props){
   const {t,locale}=useI18n(),[,setRouteRevision]=useState(0),[retry,setRetry]=useState(0),busy=useRef(false);
   const inPractice=!!practice;
-  const path=interviewSourceRequest(sourceHref),here=practice?interviewPracticePreviewScope(location.hash,concept,practice.number)===practice.href:currentScope()===returnTo;
+  const path=interviewSourceRequest(sourceHref,contextAvailable),here=practice?interviewPracticePreviewScope(location.hash,concept,practice.number)===practice.href:currentScope()===returnTo;
   const resource=useInterviewResource<unknown>(path||'',!!path&&!accountLoading&&here,retry,JSON.stringify([owner,returnTo,practice?.href]));
-  const feed=readInterviewSourcePreview(resource.data,sourceHref),loading=accountLoading||resource.loading;
+  const feed=readInterviewSourcePreview(resource.data,sourceHref,contextAvailable),loading=accountLoading||resource.loading;
   const error=!path?t('来源筛选暂不可用，请查看全部来源。','Source filters are unavailable. Open all source reports.'):resource.error||(resource.data&&!feed?t('暂时无法确认来源面经，请刷新预览。','Could not confirm the source experiences. Refresh this preview.'):undefined);
   busy.current=loading;
   useEffect(()=>{if(inPractice)return;const changed=()=>setRouteRevision(value=>value+1);window.addEventListener('hashchange',changed);window.addEventListener('popstate',changed);return()=>{window.removeEventListener('hashchange',changed);window.removeEventListener('popstate',changed);};},[inPractice]);

@@ -328,3 +328,5 @@
 .interview-meta:not(.compact) .interview-report-topics a>span{overflow:visible;white-space:normal;overflow-wrap:anywhere}
 .interview-meta:not(.compact) .interview-report-practice-missing{font-size:var(--type-small)}
 .interview-meta:not(.compact) .interview-report-practice-missing small{font-size:var(--type-meta)}
+
+.interview-meta-tags .interview-event-location{max-width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal}
