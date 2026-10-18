@@ -40,4 +40,10 @@ One early CPU attempt ended with exit 120 while local disk space was nearly exha
 
 Release policies are unchanged. No CI, tag, package publication or deployment was initiated. [Machine record](../../packages/stridetorch/benchmarks/results/iteration-78.json).
 
-[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 6,674,610 bytes; SHA-256 `14200777124a22408cda2c85619468e39985004e37c83f6c083a79a5dda0c381`.
+[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 6,946,311 bytes; SHA-256 `eae1d756e6b80faa0ecdd1abadeaf4e353cf3d10a364487d18284931352edc94`.
+
+## Rebased UI validation
+
+Remote main advanced by three UI commits to `58ff4d8ba738c0d7929bca7e80d4743d99f83adb` while the 0.76 application checks ran. Both tested unpublished commits were preserved at `refs/codex/checkpoints/torch-iteration-78-before-ui-rebase` and rebased without conflicts. The rebased tree `5a7e8d7a0a4405bf4b99e6de73b3819bbe9ddc12` retains all 26 external UI/validation changes. All 62 core resources, 78 test files, 1,426 application inputs, live exports and release-policy identities match the original qualification. Existing frontend dependencies and check commands are preserved; two new frontend checks are included.
+
+The complete frontend checks, default/current-Pages-profile builds, release-policy checks and exact generated-worker verification were rerun on that rebased tree and passed. Numerical CPU/WASM runs retain their original execution SHA; no numerical rerun on the rebased Git parent is claimed. The combined qualification ties unchanged compute/application inputs to the new tested frontend.
