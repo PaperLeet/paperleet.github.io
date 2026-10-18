@@ -1,4 +1,4 @@
-import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ArrowLeft,ChevronDown,UserRound} from 'lucide-react';
 import type {Reply} from './communityDiscussion';
 import {useI18n} from './i18n';
@@ -41,6 +41,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
  const searchIndex=useMemo(()=>searching?new Map(replies.map(reply=>[reply.id,replySearchText(reply)])):undefined,[replies,searching]);
  const matched=useMemo(()=>ordered.filter(reply=>(!authorOnly||reply.author.id===authorId)&&(!searchIndex||matchesReplySearch(searchIndex.get(reply.id)||'',terms))),[ordered,authorOnly,authorId,searchIndex,terms]);
  const shown=matched.slice(0,limit);
+ const matchPositions=useMemo(()=>new Map((query?matched:[]).map((reply,index)=>[reply.id,{index,previous:matched[index-1]?.id,next:matched[index+1]?.id}])),[matched,query]);
  const rowElement=(id:string)=>{const node=document.getElementById(rowIdPrefix+id);return node&&root.current?.contains(node)?node:undefined;};
  const intent=():Intent=>({href:location.href,opener:document.activeElement,before:interactionVersion});
  function clearReadingReturn(){setHistory(value=>value.length?[]:value);setRevealed(undefined);setNotice(undefined);setJump(undefined);}
@@ -106,6 +107,8 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
  },[jump,rowIdPrefix,revealBlock,disabled]);
  const previous=history.at(-1),canReturn=!!previous&&previous.href===location.href;
  return {root,shown,byId,authorOnly,order,query,total:matched.length,reveal,revealed,disabled,canReturn,clearReadingReturn,notice:notice&&notice.href===location.href?notice.kind:undefined,
+  firstMatch:matched[0]?.id,matchPosition:(id:string)=>matchPositions.get(id),
+  seekSearchReply(id:string){if(disabled||!query)return;const position=matchPositions.get(id);if(!position)return;clearReadingReturn();setLimit(value=>Math.max(value,Math.ceil((position.index+1)/batchSize)*batchSize));setJump({...intent(),kind:'focus',id});},
   returnToOrigin(){if(disabled||!previous||previous.href!==location.href)return;setJump({...intent(),kind:'back',origin:previous});},
   chooseOrder(value:Order){if(disabled)return;clearReadingReturn();setOrder(value);setLimit(batchSize);},
   chooseAuthor(value:boolean){if(disabled)return;clearReadingReturn();setAuthorOnly(value);setLimit(batchSize);},
@@ -124,12 +127,14 @@ export function ReplyReadingNotice({list}:{list:ReturnType<typeof useDiscussionR
  return list.notice?<p className="reply-reading-notice" role="status">{list.notice==='restored'?t('已返回刚才的阅读位置。','Returned to your previous reading position.'):t('原位置已不可用，已返回评论列表。','The original position is unavailable. You are back at the replies.')}</p>:null;
 }
 export function ReplyListControls({list,disabled}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean}){
- const {t}=useI18n();
+ const {t}=useI18n(),help=useId();
  return <div className="discussion-reply-controls">
   <button type="button" aria-pressed={list.authorOnly} disabled={disabled} onClick={()=>list.chooseAuthor(!list.authorOnly)}><UserRound size={14} aria-hidden="true"/>{t('只看楼主','Author only')}</button>
   <select aria-label={t('回复排序','Sort replies')} value={list.order} disabled={disabled} onChange={event=>list.chooseOrder(event.target.value as Order)}><option value="oldest">{t('最早回复','Oldest first')}</option><option value="newest">{t('最新回复','Newest first')}</option></select>
   <span role="status">{t(`显示 ${list.shown.length} / ${list.total} 条回复`,`${list.shown.length} of ${list.total} replies shown`)}</span>
-  <div className="discussion-reply-search"><CommunitySearch applied={list.query} onApply={list.chooseQuery} disabled={disabled} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码或作者…','Search content, code or author…')}/></div>
+  {list.query&&list.firstMatch&&<button type="button" className="discussion-reply-first-match" disabled={disabled} onClick={()=>{if(list.firstMatch)list.seekSearchReply(list.firstMatch);}}>{t('跳到首条匹配','Go to first match')}</button>}
+  <div className="discussion-reply-search"><CommunitySearch applied={list.query} onApply={list.chooseQuery} disabled={disabled} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
+  <p id={help} className="discussion-reply-search-help">{t('搜索本帖全部公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search all public replies in this discussion. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.')}</p>
  </div>;
 }
 export function MoreReplies({list,disabled}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean}){

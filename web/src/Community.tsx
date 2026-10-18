@@ -6,6 +6,7 @@ import {initialCommunityTag} from './communityTagBrowsing';
 import {unavailableCommunityTags} from './communityTagSelection';
 import './community-taxonomy.css';
 import PostSearchMatch from './PostSearchMatch';
+import ReplySearchContext from './ReplySearchContext';
 import {sourcePostReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
@@ -1231,7 +1232,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                       </button>
                     )}
                   </div>
-                  <CommunityMarkdown body={r.body} />
+                  <ReplySearchContext reply={r} list={replyList}><CommunityMarkdown body={r.body} /></ReplySearchContext>
                   {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
                   {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
                     readVersion.current++;setLoading(false);

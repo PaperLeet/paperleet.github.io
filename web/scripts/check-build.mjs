@@ -146,6 +146,9 @@ assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFil
 
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.company-comparison')), 'Company comparison styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.company-comparison'))), 'Deferred interview preparation must include company comparison styles');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Search match context')), 'Reply match readers must stay deferred with community reading');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-search-context')), 'Reply match reader styles must stay deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-search-context'))), 'Community reading must include reply match styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('post-search-match')), 'Search highlighting must remain deferred with community reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.post-search-match')), 'Search highlight styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.post-search-match'))), 'Deferred community views must include search highlight styles');
