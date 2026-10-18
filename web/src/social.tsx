@@ -51,6 +51,7 @@ export type AccountUser = PublicUser & {
 export type AccountCapabilities = {
   admin_workspace?: boolean;
   admin_review_inbox?: boolean;
+  admin_moderation_navigation?: boolean;
   admin_review_navigation?: boolean;
   community_taxonomy?: boolean;
   community_open_publishing?: boolean;

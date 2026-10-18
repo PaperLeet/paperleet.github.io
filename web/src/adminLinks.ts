@@ -3,7 +3,7 @@ export function adminHref(view:AdminView){
  if(!Number.isSafeInteger(view.page)||view.page<1||view.page>501)throw Error('Invalid administrator page');
  const params=new URLSearchParams(),options=adminOptions[view.section]||{};
  if(view.q)params.set('q',view.q);
- for(const key of ['status','review','kind'] as const)if(view[key]&&view[key]!==options[key]?.[0])params.set(key,view[key]!);
+ for(const key of ['status','review','kind','state','minimum'] as const)if(view[key]&&view[key]!==options[key]?.[0])params.set(key,view[key]!);
  if(view.page>1)params.set('page',String(view.page));
  if(view.item)params.set('item',view.item);
  if(view.create)params.set('create','1');

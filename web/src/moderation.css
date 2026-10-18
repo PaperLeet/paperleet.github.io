@@ -26,3 +26,4 @@
 .moderation-case .moderation-consent { display:flex; align-items:start; gap:10px; }
 .moderation-consent input { margin-top:6px; flex:none; }
 @media(max-width:800px) { .moderation-layout { grid-template-columns:1fr; } .moderation-page { padding:24px 16px 48px; } .moderation-heading { flex-direction:column; } .moderation-case { padding:18px; } }
+.moderation-return{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin:14px 0 20px;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}.moderation-return span{font-size:var(--type-small);color:var(--muted)}.moderation-return button,.moderation-empty button{min-height:44px}.moderation-count:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:4px}.moderation-empty{padding:16px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:var(--type-small);line-height:1.7}

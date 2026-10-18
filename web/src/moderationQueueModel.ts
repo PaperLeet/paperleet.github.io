@@ -1,0 +1,6 @@
+import type {ReviewRow} from './communityReports';
+export type ModerationQueueData={owner_id:string;items:ReviewRow[];total:number;state:string;minimum:number;limit:number;offset:number};
+export function confirmedModerationQueue(value:ModerationQueueData,owner:string,state:string,minimum:number,offset:number){
+ if(!value||value.owner_id!==owner||value.state!==state||value.minimum!==minimum||value.offset!==offset||value.limit!==20||!Array.isArray(value.items)||value.items.length>20||!Number.isSafeInteger(value.total)||value.total<0||value.items.length>Math.max(0,value.total-offset)||new Set(value.items.map(row=>row?.post_id)).size!==value.items.length||value.items.some(row=>!row||!/^[a-f0-9]{32}$/.test(row.post_id)||typeof row.title!=='string'||!Number.isSafeInteger(row.revision)||row.revision<1||!Number.isSafeInteger(row.total_reports)||!Number.isSafeInteger(row.pending_reports)||row.pending_reports<0||row.total_reports<Math.max(minimum,row.pending_reports)||!['pending','dismissed','removed'].includes(row.state)||state==='pending'&&(row.state!=='pending'||row.pending_reports<1)||state==='resolved'&&row.state==='pending'||row.post&&row.post.id!==row.post_id))throw Error('The review queue could not be confirmed.');
+ return value;
+}

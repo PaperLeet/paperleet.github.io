@@ -3,45 +3,56 @@ import {Flag,RefreshCw,ShieldCheck} from 'lucide-react';
 import {DateLabel,errorMessage,SocialError,socialApi,useAccount} from './social';
 import {useI18n} from './i18n';
 import {signInHref} from './accountNavigation';
-import {reportReasons,reportRequestId,type ReviewCase,type ReviewCommand,type ReviewPost,type ReviewRow} from './communityReports';
+import {reportReasons,reportRequestId,type ReviewCase,type ReviewCommand,type ReviewPost} from './communityReports';
 import CommunityMarkdown from './CommunityMarkdown';
 import {deferredFeature} from './deferredFeature';
 import './community-reports.css';
 import './moderation.css';
+import type {AdminView} from './adminNavigation';
+import {keepReadingTriggerVisible} from './readingViewport';
+import {confirmedModerationQueue,type ModerationQueueData as Queue} from './moderationQueueModel';
 
-type Queue={owner_id:string;items:ReviewRow[];total:number;state:string;minimum:number;limit:number;offset:number};
+type Navigation={view:AdminView;onChange:(view:AdminView)=>void};
 const SnapshotComparison=deferredFeature(()=>import('./ModerationSnapshotComparison'),['内容对比','content comparison']);
 function SnapshotChanges({before,after}:{before:ReviewPost;after:ReviewPost}){
  const {t}=useI18n(),[visited,setVisited]=useState(false);
  return <details className="moderation-change-disclosure" onToggle={event=>{if(event.currentTarget.open)setVisited(true);}}><summary>{t('对比当前内容','Compare with current content')}<small>{t('标题、正文与分类','Title, body and category')}</small></summary>{visited&&<SnapshotComparison before={before} after={after}/>}</details>;
 }
-export default function ModerationQueue({embedded=false,refreshKey=0,initialPostId}:{embedded?:boolean;refreshKey?:number;initialPostId?:string}){
- const {user,loading,capabilities}=useAccount(),{t}=useI18n();
- if(loading)return <main className="moderation-page"><p role="status">{t('正在确认审核权限…','Checking review access…')}</p></main>;
- if(!user)return <main className="moderation-page"><h1>{t('社区举报审核','Community reports')}</h1><a href={signInHref('#/community/moderation')}>{t('登录管理员账号','Sign in as an administrator')}</a></main>;
- if(user.role!=='admin'||user.status&&user.status!=='active')return <main className="moderation-page"><h1>{t('需要管理员权限','Administrator access required')}</h1></main>;
- if(capabilities?.community_reports!==true)return <main className="moderation-page"><p>{t('此服务暂不支持举报审核。','Report review is unavailable on this service.')}</p></main>;
- return <QueueView key={user.id} owner={user.id} embedded={embedded} refreshKey={refreshKey} initialPostId={initialPostId}/>;
+export default function ModerationQueue({embedded=false,refreshKey=0,initialPostId,navigation}:{embedded?:boolean;refreshKey?:number;initialPostId?:string;navigation?:Navigation}){
+ const {user,loading,capabilities}=useAccount(),{t}=useI18n(),Root=embedded?'section':'main';
+ if(loading)return <Root className="moderation-page"><p role="status">{t('正在确认审核权限…','Checking review access…')}</p></Root>;
+ if(!user)return <Root className="moderation-page"><h1>{t('社区举报审核','Community reports')}</h1><a href={signInHref('#/community/moderation')}>{t('登录管理员账号','Sign in as an administrator')}</a></Root>;
+ if(user.role!=='admin'||user.status&&user.status!=='active')return <Root className="moderation-page"><h1>{t('需要管理员权限','Administrator access required')}</h1></Root>;
+ if(capabilities?.community_reports!==true)return <Root className="moderation-page"><p>{t('此服务暂不支持举报审核。','Report review is unavailable on this service.')}</p></Root>;
+ return <QueueView key={user.id} owner={user.id} embedded={embedded} refreshKey={refreshKey} initialPostId={initialPostId} navigation={navigation}/>;
 }
-function QueueView({owner,embedded=false,refreshKey=0,initialPostId=''}:{owner:string;embedded?:boolean;refreshKey?:number;initialPostId?:string}){
- const {t}=useI18n(),[state,setState]=useState('pending'),[minimum,setMinimum]=useState(1),[offset,setOffset]=useState(0),[selected,setSelected]=useState(initialPostId);
- const [data,setData]=useState<Queue>(),[loading,setLoading]=useState(false),[error,setError]=useState(''),sequence=useRef(0),mounted=useRef(true);
- useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;sequence.current++;};},[]);
- async function load(){const request=++sequence.current;setLoading(true);setError('');try{
-  const value=await socialApi<Queue>(`community/moderation?state=${state}&minimum=${minimum}&limit=20&offset=${offset}`,undefined,AbortSignal.timeout(20_000));
-  if(value.owner_id!==owner||value.state!==state||value.minimum!==minimum||value.offset!==offset||value.limit!==20||!Array.isArray(value.items)||!Number.isSafeInteger(value.total)||value.total<0||value.items.some(row=>!row.post_id||!Number.isSafeInteger(row.revision)||row.revision<1||!Number.isSafeInteger(row.total_reports)||!Number.isSafeInteger(row.pending_reports)||row.pending_reports<0||row.total_reports<row.pending_reports||!['pending','dismissed','removed'].includes(row.state)||row.post&&row.post.id!==row.post_id))throw Error('The review queue could not be confirmed.');
-  if(mounted.current&&request===sequence.current)setData(value);
- }catch(e){if(mounted.current&&request===sequence.current)setError(errorMessage(e));}finally{if(mounted.current&&request===sequence.current)setLoading(false);}}
- useEffect(()=>{void load();},[state,minimum,offset,refreshKey]);
- useEffect(()=>{setSelected(initialPostId);},[initialPostId]);
+function QueueView({owner,embedded=false,refreshKey=0,initialPostId='',navigation}:{owner:string;embedded?:boolean;refreshKey?:number;initialPostId?:string;navigation?:Navigation}){
+ const {t}=useI18n(),[localState,setState]=useState('pending'),[localMinimum,setMinimum]=useState(1),[localOffset,setOffset]=useState(0),[localSelected,setSelected]=useState(initialPostId);
+ const state=navigation?.view.state||localState,minimum=Number(navigation?.view.minimum||localMinimum),offset=navigation?(navigation.view.page-1)*20:localOffset,selected=navigation?navigation.view.item||'':localSelected;
+ const scope=JSON.stringify([owner,state,minimum,offset]),[snapshot,setSnapshot]=useState<{scope:string;data:Queue}>(),[request,setRequest]=useState<{scope:string;loading:boolean;error:string}>();
+ const data=snapshot?.scope===scope?snapshot.data:undefined,loading=request?.scope!==scope||request.loading,error=request?.scope===scope?request.error:'';
+ const sequence=useRef(0),mounted=useRef(true),transport=useRef<{controller:AbortController;timer:ReturnType<typeof setTimeout>}|undefined>(undefined),queueHeading=useRef<HTMLParagraphElement>(null);
+ const abort=()=>{if(transport.current){transport.current.controller.abort();clearTimeout(transport.current.timer);transport.current=undefined;}};
+ useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;sequence.current++;abort();};},[]);
+ async function load(){abort();const ticket=++sequence.current,controller=new AbortController(),timer=setTimeout(()=>{controller.abort();if(mounted.current&&ticket===sequence.current){sequence.current++;setRequest({scope,loading:false,error:t('读取举报超时，请重试。','Report queue request timed out. Retry loading.')});}},20_000);transport.current={controller,timer};setRequest({scope,loading:true,error:''});try{
+  const value=confirmedModerationQueue(await socialApi<Queue>(`community/moderation?state=${state}&minimum=${minimum}&limit=20&offset=${offset}`,undefined,controller.signal),owner,state,minimum,offset);
+  if(mounted.current&&ticket===sequence.current&&!controller.signal.aborted)setSnapshot({scope,data:value});
+ }catch(e){if(mounted.current&&ticket===sequence.current)setRequest({scope,loading:false,error:errorMessage(e)});}
+ finally{clearTimeout(timer);if(mounted.current&&ticket===sequence.current)setRequest(previous=>previous?.scope===scope?{...previous,loading:false}:previous);}}
+ useEffect(()=>{void load();return()=>{sequence.current++;abort();};},[scope,refreshKey]);
+ useEffect(()=>{if(!navigation)setSelected(initialPostId);},[initialPostId]);
+ function filter(update:{state?:string;minimum?:number}){if(navigation)navigation.onChange({...navigation.view,state:update.state??navigation.view.state,minimum:update.minimum===undefined?navigation.view.minimum:String(update.minimum),page:1,item:undefined});else{if(update.state!==undefined)setState(update.state);if(update.minimum!==undefined)setMinimum(update.minimum);setOffset(0);setSelected('');}}
+ function select(item:string){if(navigation)navigation.onChange({...navigation.view,item:item||undefined});else setSelected(item);}
+ function page(next:number){if(!Number.isSafeInteger(next)||next<0||next>10000||next===offset)return;if(queueHeading.current){queueHeading.current.focus({preventScroll:true});keepReadingTriggerVisible(queueHeading.current);}if(navigation)navigation.onChange({...navigation.view,page:next/20+1,item:undefined});else{setOffset(next);setSelected('');}}
+ const lastOffset=data?Math.min(10000,Math.max(0,Math.ceil(data.total/20)-1)*20):0;
  const Root=embedded?"section":"main";
  return <Root className="moderation-page">{embedded?<p className="admin-intro">{t('按待审举报人数优先排列。每个账号对同一帖子只计一票，举报不会自动删除帖子。','Prioritized by pending reporters. Each account counts once per post. Reports do not automatically remove content.')}</p>:<header className="moderation-heading"><div><span><ShieldCheck size={17}/>{t('管理员工作台','Administrator workspace')}</span><h1>{t('社区举报审核','Community reports')}</h1><p>{t('按待审举报人数优先排列。每个账号对同一帖子只计一票，举报不会自动删除帖子。','Prioritized by pending reporters. Each account counts once per post. Reports do not automatically remove content.')}</p></div><a href="#/community">{t('返回社区','Back to community')}</a></header>}
-  <div className="moderation-filters"><label>{t('审核状态','Review status')}<select value={state} onChange={event=>{setState(event.target.value);setOffset(0);setSelected('');}}><option value="pending">{t('待审核','Pending')}</option><option value="resolved">{t('已处理','Resolved')}</option><option value="all">{t('全部','All')}</option></select></label><label>{t('累计举报至少','At least this many reports')}<select value={minimum} onChange={event=>{setMinimum(Number(event.target.value));setOffset(0);setSelected('');}}>{[1,3,5,10].map(n=><option key={n} value={n}>{n}</option>)}</select></label><button className="button subtle" type="button" disabled={loading} onClick={()=>void load()}><RefreshCw size={15}/>{t('刷新队列','Refresh queue')}</button></div>
-  {loading&&<p role="status">{t('正在读取举报…','Loading reports…')}</p>}{error&&<p role="alert">{error}</p>}
-  {data&&<><p className="moderation-count">{t(`共 ${data.total} 个帖子`,`${data.total} posts`)}</p><div className="moderation-layout"><section className="moderation-list" aria-label={t('举报帖子','Reported posts')}>
-   {!data.items.length&&<p>{t('当前筛选下没有举报帖子。','No reported posts match these filters.')}</p>}
-   {data.items.map(row=><button type="button" key={row.post_id} disabled={loading||!!error} aria-pressed={selected===row.post_id} onClick={()=>setSelected(row.post_id)}><span className="moderation-report-count"><Flag size={14}/>{t(`待审 ${row.pending_reports} · 累计 ${row.total_reports}`,`${row.pending_reports} pending · ${row.total_reports} total`)}</span><b>{row.post?.title||row.title}</b><small>{row.state==='pending'?t('待审核','Pending'):row.state==='removed'?t('已删除','Removed'):t('已保留','Kept')} · <DateLabel value={row.last_report_at}/></small>{!row.post&&<small>{t('帖子已不存在，举报快照仍保留','Post unavailable; report snapshots retained')}</small>}</button>)}
-   <nav aria-label={t('审核队列翻页','Review queue pages')}><button type="button" className="text-button" disabled={loading||!offset} onClick={()=>{setOffset(value=>Math.max(0,value-20));setSelected('');}}>{t('上一页','Previous')}</button><span>{Math.floor(offset/20)+1}</span><button type="button" className="text-button" disabled={loading||offset+20>=data.total} onClick={()=>{setOffset(value=>value+20);setSelected('');}}>{t('下一页','Next')}</button></nav>
+  <div className="moderation-filters"><label>{t('审核状态','Review status')}<select value={state} onChange={event=>{filter({state:event.target.value});}}><option value="pending">{t('待审核','Pending')}</option><option value="resolved">{t('已处理','Resolved')}</option><option value="all">{t('全部','All')}</option></select></label><label>{t('累计举报至少','At least this many reports')}<select value={minimum} onChange={event=>{filter({minimum:Number(event.target.value)});}}>{[1,3,5,10].map(n=><option key={n} value={n}>{n}</option>)}</select></label><button className="button subtle" type="button" disabled={loading} onClick={()=>void load()}><RefreshCw size={15}/>{t('刷新队列','Refresh queue')}</button></div>
+  {loading&&<p role="status">{t('正在读取举报…','Loading reports…')}</p>}{error&&<p role="alert">{error} <button type="button" className="text-button" disabled={loading} onClick={()=>void load()}>{t('重试加载队列','Retry queue loading')}</button></p>}
+  <p className="moderation-count" ref={queueHeading} tabIndex={-1} role="status">{data?t(`共 ${data.total} 个帖子 · 第 ${offset/20+1} 页`,`${data.total} posts · Page ${offset/20+1}`):error?t('举报队列暂不可用','Report queue unavailable'):t('正在确认当前队列…','Checking the current queue…')}</p>{selected&&navigation&&<div className="moderation-return"><button type="button" className="text-button" onClick={()=>{queueHeading.current?.focus({preventScroll:true});select('');}}>{t('返回本页队列','Return to this queue page')}</button><span>{t('已保留审核状态、举报人数与页码。','Review status, reporter threshold and page are kept.')}</span></div>}{data&&<><div className="moderation-layout"><section className="moderation-list" aria-label={t('举报帖子','Reported posts')}>
+   {!data.items.length&&<div className="moderation-empty"><p>{offset?t('这一页已没有举报帖子，筛选仍保留。','This page is empty. Your filters are kept.'):t('当前筛选下没有举报帖子。','No reported posts match these filters.')}</p>{offset>0&&<button type="button" className="text-button" disabled={loading||!!error} onClick={()=>page(lastOffset)}>{t('返回最后一个可查看页','Go to the last available page')}</button>}</div>}
+   {data.items.map(row=><button type="button" key={row.post_id} disabled={loading||!!error} aria-pressed={selected===row.post_id} onClick={()=>select(row.post_id)}><span className="moderation-report-count"><Flag size={14}/>{t(`待审 ${row.pending_reports} · 累计 ${row.total_reports}`,`${row.pending_reports} pending · ${row.total_reports} total`)}</span><b>{row.post?.title||row.title}</b><small>{row.state==='pending'?t('待审核','Pending'):row.state==='removed'?t('已删除','Removed'):t('已保留','Kept')} · <DateLabel value={row.last_report_at}/></small>{!row.post&&<small>{t('帖子已不存在，举报快照仍保留','Post unavailable; report snapshots retained')}</small>}</button>)}
+   <nav aria-label={t('审核队列翻页','Review queue pages')}><button type="button" className="text-button" disabled={loading||!!error||!offset} onClick={()=>page(Math.max(0,offset-20))}>{t('上一页','Previous')}</button><span>{Math.floor(offset/20)+1}</span><button type="button" className="text-button" disabled={loading||!!error||offset>=10000||offset+20>=data.total} onClick={()=>page(offset+20)}>{t('下一页','Next')}</button></nav>{offset>=10000&&data.total>10020&&<p role="status">{t('已到可查看范围的最后一页，请调整筛选缩小队列。','You reached the last available page. Narrow the filters to browse further.')}</p>}
   </section>{selected?<ReviewCaseView key={owner+':'+selected} owner={owner} postId={selected} refreshKey={refreshKey} onReviewed={()=>void load()}/>:<section className="moderation-case"><p>{t('选择一篇帖子查看内容、举报原因和处理记录。','Choose a post to read its content, reports and review history.')}</p></section>}</div></>}
  </Root>;
 }

@@ -1,9 +1,10 @@
 /** Local administrator views only. Review notes and captured commands never enter URLs. */
 export type AdminSection = '' | 'boards' | 'tags' | 'reports' | 'users' | 'papers' | 'audit';
-export type AdminView = {section:AdminSection; page:number; q?:string; status?:string; review?:string; kind?:string; item?:string; create?:boolean};
+export type AdminView = {section:AdminSection; page:number; q?:string; status?:string; review?:string; kind?:string; state?:string; minimum?:string; item?:string; create?:boolean};
 export const adminOptions:Record<string,Record<string,string[]>>={
  users:{status:['all','active','disabled','waitlisted']},
  papers:{status:['pending_review','all','suitability','generation','validation','pool','ready','changes','rejected','published'],review:['all','pending','approved']},
+ reports:{state:['pending','resolved','all'],minimum:['1','3','5','10']},
  audit:{kind:['all','boards','tags','users','papers']},
 };
 export function readAdminRoute(route:string):AdminView|undefined {
@@ -19,7 +20,7 @@ export function readAdminRoute(route:string):AdminView|undefined {
  for(const [key,value]of params){
   if(params.getAll(key).length!==1)return;
   if(Object.hasOwn(options,key)){if(!options[key].includes(value))return;result[key as 'status']=value;}
-  else if(key==='page'&&(resource||section==='audit')){if(!/^[1-9]\d{0,2}$/.test(value)||+value>501)return;result.page=+value;}
+  else if(key==='page'&&(resource||section==='audit'||section==='reports')){if(!/^[1-9]\d{0,2}$/.test(value)||+value>501)return;result.page=+value;}
   else if(key==='q'&&section==='users'){const q=value.trim();if([...q].length>100||/[\x00-\x1f\x7f]/.test(value))return;result.q=q;}
   else if(key==='item'&&(resource||taxonomy||section==='reports')){if(!(resource||section==='reports'?/^[a-f0-9]{32}$/:/^[a-z][a-z0-9_-]{0,39}$/).test(value))return;result.item=value;}
   else if(key==='create'&&taxonomy&&value==='1')result.create=true;
