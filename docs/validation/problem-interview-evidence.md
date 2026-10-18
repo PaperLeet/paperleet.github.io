@@ -1,0 +1,9 @@
+# Filter interview evidence inside a practice problem
+
+The hosted problem page offers publication periods of30 days,90 days, one year and all time. Company tags and their counts use the selected period. The preview can then narrow to any maintained company, or return to all companies, without leaving practice or changing its existing library/interview return context.
+
+The publication-period select, company select, disclosure and editor remain mounted while evidence changes. The panel stays open through loading, empty results and retry. Missing evidence is explicit and never manufactures company tags or an official interview frequency. Changing company reads only the relevant preview, not another full summary; a company with no evidence avoids an unnecessary preview request. Whole-source links carry the selected public company/period/concept and open in a new tab from the practice preview.
+
+A problem-scoped summary must confirm its publication period and the requested concept's report/contributor counts. Global company counts must agree with that concept; report totals are conserved, while contributor counts are not added across companies. Other concepts from the same reports remain valid. Wrong-scope, duplicate or inconsistent evidence produces a recoverable error. Unsubmitted code, grades, drafts and account information never enter these links or requests.
+
+Verification uses controlled React/JSDOM and an optional real anonymous loopback HTTP/SQLite flow with two companies and an older publication. It covers rapid period/company switches, late-response cancellation, source mismatch/retry, loading/empty/error continuity, locale/native-control focus, account retirement and exact code/caret/both-scroll preservation. It does not claim browser rendering, physical IME/native focus trapping, OS clipboard or live-provider verification.

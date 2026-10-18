@@ -5,9 +5,10 @@ import {useAccount} from './social';
 import InterviewCompanySources from './InterviewCompanySources';
 import {hostedEdition} from './deployment';
 import {useInterviewResource} from './interviewApi';
-import {readInterviewSummary,type InterviewSummary} from './interviewModels';
-import {interviewHref,emptyInterviewFilters} from './interviewNavigation';
+import {interviewCatalog} from './interviewModels';
+import {interviewHref} from './interviewNavigation';
 import {interviewPracticePreviewScope} from './interviewSourcePreviewModel';
+import {problemInterviewPeriods,problemInterviewFilters,readProblemInterviewEvidence,type ProblemInterviewPeriod} from './problemInterviewEvidence';
 import {deferredFeature} from './deferredFeature';
 import {keepReadingTriggerVisible} from './readingViewport';
 import './interviews.css';
@@ -19,33 +20,38 @@ type Props={problemId:string;number?:number;onCode?:()=>void};
 export default function ProblemCompanyTags(props:Props){
  const {user,loading}=useAccount(),owner=user?.id||'guest';
  if(loading)return null;
- return <CompanyTags key={JSON.stringify([owner,props.problemId])} {...props} owner={owner} accountLoading={loading}/>;
+ return <CompanyTags key={JSON.stringify([owner,props.problemId])} {...props} owner={owner} enabled={hostedEdition}/>;
 }
-function CompanyTags({problemId,number,onCode,owner,accountLoading}:Props&{owner:string;accountLoading:boolean}){
- const {t}=useI18n(),id=useId(),toggle=useRef<HTMLButtonElement>(null),panel=useRef<HTMLElement>(null),root=useRef<HTMLDivElement>(null);
+function CompanyTags({problemId,number,onCode,owner,enabled}:Props&{owner:string;enabled:boolean}){
+ const {t,locale}=useI18n(),id=useId(),hint=useId(),toggle=useRef<HTMLButtonElement>(null),panel=useRef<HTMLElement>(null),root=useRef<HTMLDivElement>(null),periodControl=useRef<HTMLSelectElement>(null);
+ const [days,setDays]=useState<ProblemInterviewPeriod>('365'),[company,setCompany]=useState(''),[seen,setSeen]=useState(false);
  const [retry,setRetry]=useState(0),[opening,setOpening]=useState<string>(),[route,setRoute]=useState(()=>location.hash),lastRoute=useRef(location.hash);
  useEffect(()=>{const changed=()=>{if(lastRoute.current===location.hash)return;lastRoute.current=location.hash;setOpening(undefined);setRoute(location.hash);};window.addEventListener('hashchange',changed);window.addEventListener('popstate',changed);return()=>{window.removeEventListener('hashchange',changed);window.removeEventListener('popstate',changed);};},[]);
- const resource=useInterviewResource<InterviewSummary>('community/interviews/summary?days=365&problem_id='+encodeURIComponent(problemId),hostedEdition&&!accountLoading,retry,owner);
- const summary=readInterviewSummary(resource.data),evidence=summary?.questions.find(row=>row.problem_id===problemId);
- const companies=evidence?.companies.filter(company=>company.reports>0&&company.contributors>0);
+ const resource=useInterviewResource<unknown>('community/interviews/summary?days='+days+'&problem_id='+encodeURIComponent(problemId),enabled,retry,owner);
+ const result=readProblemInterviewEvidence(resource.data,problemId,days),companies=result?.companies,evidence=result?.evidence;
+ if(!seen&&!!companies?.length)setSeen(true);
  const current=interviewPracticePreviewScope(location.hash,problemId,number),expanded=!!opening&&opening===current&&route===location.hash;
- const here=()=>!accountLoading&&!!root.current?.isConnected&&interviewPracticePreviewScope(location.hash,problemId,number)===opening;
+ const here=()=>!!root.current?.isConnected&&interviewPracticePreviewScope(location.hash,problemId,number)===opening;
  function close(){
   if(!here())return;
   if(panel.current?.contains(document.activeElement)){toggle.current?.focus({preventScroll:true});if(toggle.current)keepReadingTriggerVisible(toggle.current,100);}
   setOpening(undefined);
  }
- if(accountLoading)return null;
- if(resource.error||resource.data&&!summary)return <div className="problem-company-evidence problem-company-retry" role="status"><small>{t('公司面经暂时无法读取，仍可继续练习。','Company experiences are unavailable. You can keep practicing.')}</small><button type="button" onClick={()=>setRetry(value=>value+1)}>{t('重试面经','Retry experiences')}</button></div>;
- if(!companies?.length)return null;
- const sourceHref=interviewHref({...emptyInterviewFilters(),concept:problemId});
- return <div ref={root} className="problem-company-evidence"><small>{t('近一年面经提及','In reports from the past year')}</small><InterviewCompanySources companies={companies} problemId={problemId}/><a href={interviewHref({...emptyInterviewFilters(),view:'questions',concept:problemId})}>{t('查看统计依据','Explore report-based counts')}</a>
-  {current&&<button ref={toggle} type="button" className="problem-interview-toggle" aria-expanded={expanded} aria-controls={id} onClick={()=>{if(accountLoading||!root.current?.isConnected||interviewPracticePreviewScope(location.hash,problemId,number)!==current)return;expanded?close():setOpening(current);}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起面经预览','Collapse experience preview'):t('预览关联面经','Preview linked experiences')}</button>}
+ const filters=problemInterviewFilters(problemId,days),previewFilters=problemInterviewFilters(problemId,days,company),sourceHref=interviewHref(previewFilters);
+ const selected=company?companies?.find(row=>row.company===company):evidence;
+ const error=resource.error||resource.data&&!result;
+ const period=(value:string)=>value==='all'?t('全部时间','All time'):value==='365'?t('近一年','Past year'):t(`近 ${value} 天`,`Past ${value} days`);
+ if(!enabled)return null;
+ return <div ref={root} className="problem-interview-reference">
+  <div className="problem-interview-reference-heading"><strong>{t('面经参考','Interview evidence')}</strong><label>{t('发布时间','Published')}<select ref={periodControl} value={days} aria-describedby={hint} onChange={event=>{const value=event.target.value;if(problemInterviewPeriods.includes(value as ProblemInterviewPeriod))setDays(value as ProblemInterviewPeriod);}}>{problemInterviewPeriods.map(value=><option value={value} key={value}>{period(value)}</option>)}</select></label><small id={hint}>{t('社区自述 · 非官方考频','Community reports · Not official frequency')}</small></div>
+  {error?<div className="problem-company-evidence problem-company-retry" role="status"><small>{t('公司面经暂时无法读取，仍可继续练习。','Company experiences are unavailable. You can keep practicing.')}</small><button type="button" onClick={event=>{if(document.activeElement===event.currentTarget)periodControl.current?.focus({preventScroll:true});setRetry(value=>value+1);}}>{t('重试面经','Retry experiences')}</button></div>:resource.loading?<p className="problem-interview-status" role="status">{t('正在核对本题的面经依据…','Checking report evidence for this exercise…')}</p>:companies?.length?<div className="problem-company-evidence"><small>{period(days)}{t('面经提及',' report mentions')}</small><InterviewCompanySources companies={companies} problemId={problemId} filters={filters}/><a href={interviewHref({...filters,view:'questions'})}>{t('查看统计依据','Explore report-based counts')}</a></div>:<p className="problem-interview-status" role="status">{t('当前时间范围暂无公开面经提及此题，可调整范围或去社区查看与分享。','No public reports mention this exercise in this period. Change the period or explore and share experiences.')} <a href={sourceHref} target="_blank" rel="noopener noreferrer">{t('查看与分享面经','Explore and share experiences')}<ArrowUpRight size={13} aria-hidden="true"/></a></p>}
+  {current&&seen&&<button ref={toggle} type="button" className="problem-interview-toggle" aria-expanded={expanded} aria-controls={id} onClick={()=>{if(!root.current?.isConnected||interviewPracticePreviewScope(location.hash,problemId,number)!==current)return;expanded?close():setOpening(current);}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起面经预览','Collapse experience preview'):t('预览关联面经','Preview linked experiences')}</button>}
   <section id={id} ref={panel} hidden={!expanded} className="problem-interview-panel interview-source-preview" role="region" aria-label={t('本题关联面经预览','Linked experience preview for this exercise')} onKeyDown={event=>{
    if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
    event.preventDefault();event.stopPropagation();close();
   }}>{expanded&&<>
-   <SourceReports concept={problemId} name={t('本题','this exercise')} reports={evidence!.reports} contributors={evidence!.contributors} sourceHref={sourceHref} returnTo={sourceHref} owner={owner} accountLoading={accountLoading} practice={{href:opening!,number}}/>
+   <div className="problem-interview-preview-filters"><label>{t('来源公司','Source company')}<select value={company} onChange={event=>{const value=event.target.value;if(!value||interviewCatalog.companies.some(row=>row.id===value))setCompany(value);}}><option value="">{t('全部公司','All companies')}</option>{interviewCatalog.companies.map(row=><option value={row.id} key={row.id}>{locale==='en'?row.name_en:row.name}</option>)}</select></label><span>{period(days)} · {t('按面经发布时间','By report publication date')}</span></div>
+   {resource.loading?<p className="problem-interview-status" role="status">{t('正在核对当前时间范围…','Checking the selected publication period…')}</p>:error?<p className="problem-interview-status" role="status">{t('面经依据暂不可用。上方可重试，筛选与练习仍保留。','Report evidence is unavailable. Retry above; your filters and practice are kept.')}</p>:selected&&selected.reports>0?<SourceReports key={sourceHref} concept={problemId} name={t('本题','this exercise')} reports={selected.reports} contributors={selected.contributors} sourceHref={sourceHref} returnTo={sourceHref} owner={owner} practice={{href:opening!,number}}/>:<p className="problem-interview-status" role="status">{company?t('这家公司在当前时间范围暂无关联面经，可换公司或调整发布时间。','No linked reports for this company in this period. Choose another company or publication period.'):t('当前时间范围暂无关联面经，可调整发布时间。','No linked reports in this period. Change the publication period.')}</p>}
    <footer className="problem-interview-actions"><a href={sourceHref} target="_blank" rel="noopener noreferrer">{t('新标签页查看全部面经','Read all experiences in a new tab')}<ArrowUpRight size={14} aria-hidden="true"/></a><div><button type="button" className="text-button" onClick={close}>{t('收起预览','Collapse preview')}</button>{onCode&&<button type="button" className="button subtle" onClick={()=>{if(!here())return;close();onCode();}}><Code2 size={14} aria-hidden="true"/>{t('返回代码','Back to code')}</button>}</div></footer>
   </>}</section>
  </div>;
