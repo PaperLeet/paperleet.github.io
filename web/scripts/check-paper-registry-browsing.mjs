@@ -58,6 +58,9 @@ fixture.practice.update=fixture.practice.update.bind(fixture.practice);
 fixture.browser.run=fixture.browser.run.bind(fixture.browser);
 globalThis.__paperleetWorkspaceActionTest = fixture;
 const mocks = {
+  // The global GitHub badge has its own public request; registry navigation
+  // must stay isolated from header services just like account and presence.
+  './RepositoryLink': `export default function RepositoryLink(){return null;}`,
   './social': `import {useSyncExternalStore} from 'react';
     export {profileHref} from '/src/social.tsx';
     export const AccountProvider=({children})=>children;
