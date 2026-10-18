@@ -5,9 +5,10 @@ const held=new Map<string,AdminCommand>(),retired=new Map<string,Set<string>>();
 const key=(owner:string)=>'paperleet.admin.command.v1:'+encodeURIComponent(owner);
 function valid(value:unknown,owner:string):value is AdminCommand{
  if(!value||typeof value!=='object')return false;const c=value as AdminCommand,p=c.payload;
- if(c.draft&&(!/^[a-f0-9]{32}$/.test(c.draft.workspace)||!Number.isSafeInteger(c.draft.stamp)||c.draft.stamp<1||typeof c.draft.key!=='string'||! /^(?:(?:boards|tags):(?:\$new|[a-z][a-z0-9_-]{0,39})|(?:users|papers):[a-f0-9]{32})$/.test(c.draft.key)))return false;
+ if(c.draft&&(!/^[a-f0-9]{32}$/.test(c.draft.workspace)||!Number.isSafeInteger(c.draft.stamp)||c.draft.stamp<1||typeof c.draft.key!=='string'||! /^(?:(?:boards|tags):(?:\$new|[a-z][a-z0-9_-]{0,39})|(?:users|papers):[a-f0-9]{32}|highlights:(?:global|board:[a-z][a-z0-9_-]{0,39}):[1-3])$/.test(c.draft.key)))return false;
  if(c.draft&&c.draft.key!==c.kind+':'+c.resource&&!(c.draft.key===c.kind+':$new'&&['boards','tags'].includes(c.kind)))return false;
  if(!p||p.expected_user_id!==owner||!Number.isSafeInteger(p.expected_revision)||p.expected_revision<0||!/^[a-f0-9]{32}$/.test(p.request_id)||typeof p.reason!=='string'||!p.reason.trim()||p.reason.length>1000||typeof c.label!=='string'||c.label.length>100||typeof c.resource!=='string')return false;
+ if(c.kind==='highlights')return typeof p.category==='string'&&(p.category===''||/^[a-z][a-z0-9_-]{0,39}$/.test(p.category))&&typeof p.slot==='number'&&[1,2,3].includes(p.slot)&&(p.post_id===null?p.expected_content_version===null:typeof p.post_id==='string'&&/^[a-f0-9]{32}$/.test(p.post_id)&&typeof p.expected_content_version==='string'&&/^[a-f0-9]{64}$/.test(p.expected_content_version))&&/^(?:global|board:[a-z][a-z0-9_-]{0,39}):[1-3]$/.test(c.resource)&&c.path==='admin/highlights'&&c.resource===(p.category?'board:'+p.category:'global')+':'+p.slot;
  return (['boards','tags'].includes(c.kind)&&/^[a-z][a-z0-9_-]{0,39}$/.test(c.resource)&&c.path==='admin/'+c.kind&&p.id===c.resource)||(['users','papers'].includes(c.kind)&&/^[a-f0-9]{32}$/.test(c.resource)&&c.path===`admin/${c.kind}/${c.resource}/${c.kind==='users'?'status':'review'}`);
 }
 export function readAdminCommand(owner:string):AdminCommand|undefined{

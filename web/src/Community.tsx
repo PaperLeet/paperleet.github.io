@@ -1,5 +1,6 @@
 import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
+import CommunityHighlights from './CommunityHighlights';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
@@ -816,6 +817,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           )}
           {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><AppLink href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></AppLink></div>}
           <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
+          {!embedded&&!topicId&&!solutions&&!accountLoading&&capabilities?.community_highlights===true&&page===1&&!tag&&!following&&!saved&&!search&&!sort&&!days&&<CommunityHighlights key={`${user?.id||'guest'}:${category||''}`} category={category||''} returnTo={returnTo}/>}
           <SolutionReadingNotice navigation={solutionReading}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>

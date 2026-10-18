@@ -1,0 +1,34 @@
+# Community recommendations
+
+The community homepage and each board have three independent administrator-selected
+slots. Public results are a separate, bounded projection of current public posts;
+ordinary feed order, pagination, search, personal filters and interview counts do
+not change. The default first discussion page offers a native disclosure. It reads
+only after activation, caches the visit snapshot and supports explicit refresh.
+Scoped/malformed reads fail visibly, stale responses retire and private practice
+input is untouched. Native rendering, geometry and device behavior are not proven
+by DOM checks.
+
+Administrator preview reads use the existing public anonymous identity formatter.
+Only explicit preview activation changes that snapshot; refreshing the workspace
+updates placement state without silently replacing an already-previewed version.
+Saving captures the previewed content hash and slot revision, records an internal
+reason atomically and uses the existing immutable request receipt. Later input
+remains unsubmitted when an earlier request is retried. Selection is not a content
+edit or a vote. Changed content requires an explicit new preview and selection;
+missing posts, inactive authors and paused boards are omitted. Withdrawing an
+unavailable post remains possible and preserves audit history. Duplicate posts in
+one placement, malformed commands, stale versions and unauthorized actors fail.
+
+Public output contains at most three title/excerpt/author projections. Anonymous
+profiles retain only the existing public affiliation, not account provenance.
+Review reasons, administrator identity, private learner state and saved commands
+never enter the public projection or placement URLs. New capabilities gate both
+interfaces. Older services keep their existing navigation and audit list.
+
+Checks cover actual workbench and community components in React/JSDOM, real
+loopback HTTP/session/SQLite writes and reads, lost acknowledgements, audited
+withdrawal, external author edits/removal and explicit current-version reapproval.
+Mail/identity providers are controlled, and malformed/late responses are injected.
+No production account, browser automation, physical focus/IME/clipboard, deployment
+or workflow dispatch is part of this verification.

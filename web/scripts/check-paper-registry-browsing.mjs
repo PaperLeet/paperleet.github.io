@@ -58,9 +58,6 @@ fixture.practice.update=fixture.practice.update.bind(fixture.practice);
 fixture.browser.run=fixture.browser.run.bind(fixture.browser);
 globalThis.__paperleetWorkspaceActionTest = fixture;
 const mocks = {
-  // The global GitHub badge has its own public request; registry navigation
-  // must stay isolated from header services just like account and presence.
-  './RepositoryLink': `export default function RepositoryLink(){return null;}`,
   './social': `import {useSyncExternalStore} from 'react';
     export {profileHref} from '/src/social.tsx';
     export const AccountProvider=({children})=>children;
@@ -101,8 +98,8 @@ const catalog=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
 fixture.catalog={...catalog,problems:catalog.problems.map(({detail_url,...entry})=>entry)};
 fixture.account.loading=false;fixture.account.refresh=async()=>{};
 fixture.practice.saved={'representation/graphsage_mean':{code:'PRIVATE REGISTRY PRACTICE 😀'}};
-const savedBefore=JSON.stringify(fixture.practice.saved),network=[];
-globalThis.fetch=async url=>{network.push(String(url));throw Error('Unexpected registry request');};
+const savedBefore=JSON.stringify(fixture.practice.saved),network=[],starReads=[];
+globalThis.fetch=async(url,options)=>{if(String(url)==='https://api.github.com/repos/Hongyang-Du/PaperLeet'){assert.equal(options?.credentials,'omit');assert.equal(options?.referrerPolicy,'no-referrer');assert(options?.signal instanceof AbortSignal);assert.equal(options.body,undefined);assert.equal(options.headers,undefined);starReads.push(String(url));return Response.json({stargazers_count:42});}network.push(String(url));throw Error('Unexpected registry request');};
 const scrolls=[];dom.window.HTMLElement.prototype.scrollIntoView=function(){scrolls.push(this);};
 const server=await createServer({cacheDir:cache,server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('hosted'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('0')},plugins:[{name:'registry-runtime-boundaries',enforce:'pre',resolveId(source,importer){if(source==='./social')return '\0registry:'+source;if(importer?.endsWith('/src/App.tsx')&&source in mocks)return '\0registry:'+source;},load(id){if(id.startsWith('\0registry:'))return mocks[id.slice('\0registry:'.length)];}}]});
 let root;
@@ -138,7 +135,7 @@ try{
  await setRoute({category:'future-category'});assert.equal(category().value,'future-category');assert(category().selectedOptions[0].textContent.includes('Unavailable'));assert(button('Clear filters'));await click(button('Clear filters'));assert.equal(document.activeElement,input);assert.equal(cards().length,20);
  await act(async()=>controls.setRoute('paper-registry?owner=alice'));assert(document.querySelector('[role=alert]'));assert.equal(document.querySelector('.paper-registry-toolbar'),null);assert.equal(document.querySelector('a[href="#/paper-registry"]').textContent,'Open the full paper registry');
  assert.equal(JSON.stringify(fixture.practice.saved),savedBefore);assert.equal(network.length,0);
- console.log('PASS paper registry browsing: bounded pages and category/sort/search state, real contextual exercise links, explicit results focus, locale/caret preservation, composition/modifier-safe Escape, retained error/retry/late catalog controls, unavailable category and explicit empty-page recovery; no network or practice writes');
+ assert.equal(starReads.length,0);console.log('PASS paper registry browsing: bounded pages and category/sort/search state, real contextual exercise links, explicit results focus, locale/caret preservation, composition/modifier-safe Escape, retained error/retry/late catalog controls, unavailable category and explicit empty-page recovery; no network or practice writes');
  await act(async()=>root.unmount());root=undefined;
  // Traverse the actual App: keep the registry, paper detail and workspace routes real.
  const {default:App}=await server.ssrLoadModule('/src/App.tsx');
@@ -150,7 +147,7 @@ try{
  // History can be unavailable; controlled UI and explicit links must still carry the newest view.
  const replace=window.history.replaceState;window.history.replaceState=()=>{throw Error('History blocked');};await field(search(),'#100');assert.equal(cards().length,1);const recent=cards()[0].querySelector('h2 a').getAttribute('href');assert.equal(nav.readPaperRegistryRoute(nav.libraryReturnHref(recent)).query,'#100');window.history.replaceState=replace;
  assert.equal(JSON.stringify(fixture.practice.saved),savedBefore);assert.deepEqual(calls.runs,[]);assert.deepEqual(calls.submits,[]);assert.equal(calls.flushes,0);assert.equal(network.length,0);
- console.log('PASS actual App registry flow: live pagination and filters, paper detail and practice breadcrumbs, exact list return and sign-in continuation, blocked-history explicit-link recovery; original private source retained without judge, submission, flush or network');
+ await wait(()=>starReads.length===1);assert.equal(starReads.length,1);console.log('PASS actual App registry flow: live pagination and filters, paper detail and practice breadcrumbs, exact list return and sign-in continuation, blocked-history explicit-link recovery; original private source retained without judge, submission, flush or registry/private requests; one controlled anonymous bounded GitHub star read');
  // Revisit an actual App workspace with geometry that changes when the return notice mounts.
  let registryY=0;const registryScrolls=[];Object.defineProperty(window,'scrollY',{get:()=>registryY,configurable:true});Object.defineProperty(document,'hidden',{get:()=>false,configurable:true});window.requestAnimationFrame=globalThis.requestAnimationFrame;window.cancelAnimationFrame=globalThis.cancelAnimationFrame;window.scrollTo=(value,next)=>{registryY=typeof value==='number'?next:value.top;registryScrolls.push(registryY);};
  const box=(top,height)=>({top,bottom:top+height,height,left:0,right:1200,width:1200,x:0,y:top,toJSON(){return this;}}),originalBounds=window.HTMLElement.prototype.getBoundingClientRect;
@@ -160,5 +157,5 @@ try{
  const returnedModule=cards()[0].querySelector('a[href^="#/100?"]');assert.equal(returnedModule.getBoundingClientRect().top,readingTop);assert.equal(location.hash,readingSource);assert.equal(document.activeElement,returnedModule);assert(registryScrolls.length>0);
  const refreshed=await server.ssrLoadModule('/src/registryPosition.ts?fresh=app-reload');assert.equal(refreshed.readRegistryPosition(readingSource).paper,'graphsage');assert.equal(refreshed.readRegistryPosition(readingSource).top,readingTop);const beforeClose=returnedModule.getBoundingClientRect().top;await click(document.querySelector('[aria-label="Dismiss position notice"]'));await wait(()=>!document.querySelector('.paper-registry-position')&&document.activeElement===returnedModule);assert.equal(returnedModule.getBoundingClientRect().top,beforeClose);
  assert.equal(JSON.stringify(fixture.practice.saved),savedBefore);assert.equal(calls.flushes,0);assert.deepEqual(calls.runs,[]);assert.deepEqual(calls.submits,[]);assert.equal(network.length,0);
- console.log('PASS actual App registry reading return: captured exercise entry and exact source view, committed-notice geometry and keyboard focus after workspace return, reloadable public position, dismissal without a reading jump, unchanged private source and no judge/flush/network');
+ assert.equal(starReads.length,1);console.log('PASS actual App registry reading return: captured exercise entry and exact source view, committed-notice geometry and keyboard focus after workspace return, reloadable public position, dismissal without a reading jump, unchanged private source, coalesced public star read and no judge/flush/registry or private requests');
 }finally{await act(async()=>{if(root)root.unmount();await server.close();});rmSync(cache,{recursive:true,force:true});dom.window.close();for(const[name,value]of originals)if(value)Object.defineProperty(globalThis,name,value);else delete globalThis[name];}
