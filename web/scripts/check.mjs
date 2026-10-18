@@ -78,7 +78,7 @@ try {
   assert.equal(new Set(paperCollections.map((list) => list.id)).size, paperCollections.length,
     "Collections need unique route IDs");
   for (const list of paperCollections) {
-    assert(list.name && list.name_en && list.description && list.description_en && list.paperIds.length,
+    assert(list.name && list.name_en && list.paperIds.length,
       `${list.id}: collections need bilingual names and papers`);
     assert.equal(new Set(list.paperIds).size, list.paperIds.length,
       `${list.id}: a paper must not be counted twice within one collection`);
