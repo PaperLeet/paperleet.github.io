@@ -1,30 +1,22 @@
 # PaperLeet brand assets
 
-The PaperLeet mark is Naiwa: a round yellow face, green eyes, and a straight mouth.
-This uses the first round-head version, before the eyes were enlarged. Light and
-dark themes share the same transparent mark and the existing PaperLeet wordmark.
+The PaperLeet mark is a smiling black cat emoji with a soft, abstract front-facing head, closed crescent eyes, warm coral cheeks, and an open smile with a small coral tongue. Its cream circular badge keeps the cat visible on both light and dark backgrounds. The geometry and colors match `web/src/Brand.tsx`.
 
 | Asset | Canvas | Use |
 | --- | --- | --- |
-| `paperleet-naiwa.png` | 256 × 256 | Transparent standalone mark |
-| `paperleet-mark.svg` | 96 × 96 | Self-contained SVG wrapper around the selected PNG |
-| `paperleet-logo-light.svg` | 320 × 80 | Wordmark for light backgrounds |
-| `paperleet-logo-dark.svg` | 320 × 80 | Wordmark for dark backgrounds |
-| `../favicon.svg` | 64 × 64 | Self-contained icon |
-| `../favicon.png` | 96 × 96 | Browser and search icon |
-| `../favicon.ico` | 16, 32, 48, 96 px | Browser icon sizes |
-| `paperleet-brand-preview.svg` | 1200 × 640 | Light/dark wordmarks and small-size samples |
-| `social-card.svg`, `social-card.png` | 1200 × 630 | Social sharing card |
+| `paperleet-logo-light.svg` | 320 × 80 | Full wordmark on light backgrounds; transparent canvas |
+| `paperleet-logo-dark.svg` | 320 × 80 | Full wordmark on dark backgrounds; transparent canvas |
+| `paperleet-mark.svg` | 96 × 96 | Standalone black cat on its cream circular badge |
+| `paperleet-cat.svg` | 96 × 96 | Black cat head on a transparent canvas; use on light backgrounds |
+| `../favicon.svg` | 64 × 64 | Browser icon with the same cream badge |
+| `paperleet-brand-preview.svg` | 1200 × 640 | Light and dark logo sheet with 96, 32, and 16 px icon samples |
 
-The selected original is kept in `docs/brand/naiwa-round-v1.png`. It was generated
-with the built-in imagegen tool from the user's reference and subsequent design
-feedback. The final instruction changed only the head to a front-facing circle,
-preserving the yellow color, green eyes, dark outlines, and straight mouth.
-Production files remove excess transparent padding (1000 × 1000 crop at x=125,
-y=122) and resize without changing the drawing. SVG exports embed the PNG; they
-are not traced vector artwork. Existing wordmark glyphs remain outlined paths.
-The navigation uses a 96 px copy at `web/src/assets/paperleet-naiwa.png`, imported
-by Vite so its URL changes when the image changes.
+| Color | Value |
+| --- | --- |
+| Black cat | `#161619` |
+| Closed eyes, smile, and badge | `#f3efe6` |
+| Cheeks and tongue | `#f09996` |
+| Light-theme wordmark | `#262626` |
+| Dark-theme wordmark | `#efeff1` |
 
-`paperleet-cat.svg` is a legacy asset retained for old links. It is no longer the
-active brand mark.
+The cat stays black in both interface themes. Keep the cream badge on dark backgrounds; do not invert the head to white. SVG assets contain native paths and shapes with no external references or runtime fonts. Wordmark and preview-label glyphs are outlined from Arial Bold; the website header uses its system font stack.
