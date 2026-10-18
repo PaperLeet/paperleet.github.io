@@ -40,10 +40,18 @@ One early CPU attempt ended with exit 120 while local disk space was nearly exha
 
 Release policies are unchanged. No CI, tag, package publication or deployment was initiated. [Machine record](../../packages/stridetorch/benchmarks/results/iteration-78.json).
 
-[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 6,946,311 bytes; SHA-256 `eae1d756e6b80faa0ecdd1abadeaf4e353cf3d10a364487d18284931352edc94`.
+[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 7,562,242 bytes; SHA-256 `c77b48dbb8c1fb03cc8b4f7655f04b5da00a22395406f1f7b373b4916f371bd6`.
 
 ## Rebased UI validation
 
 Remote main advanced by three UI commits to `58ff4d8ba738c0d7929bca7e80d4743d99f83adb` while the 0.76 application checks ran. Both tested unpublished commits were preserved at `refs/codex/checkpoints/torch-iteration-78-before-ui-rebase` and rebased without conflicts. The rebased tree `5a7e8d7a0a4405bf4b99e6de73b3819bbe9ddc12` retains all 26 external UI/validation changes. All 62 core resources, 78 test files, 1,426 application inputs, live exports and release-policy identities match the original qualification. Existing frontend dependencies and check commands are preserved; two new frontend checks are included.
 
 The complete frontend checks, default/current-Pages-profile builds, release-policy checks and exact generated-worker verification were rerun on that rebased tree and passed. Numerical CPU/WASM runs retain their original execution SHA; no numerical rerun on the rebased Git parent is claimed. The combined qualification ties unchanged compute/application inputs to the new tested frontend.
+
+## Path-routing integration
+
+A further 106 upstream paths were reconciled at `3f56fa6863b38db12ea0b2153ce396b3e8396672`. The actual frontend qualification ran on `170e134d722bac4aa39b8d32e0732aa823f39a43`: complete frontend checks, release-policy checks, default build, path-routing production-profile build and exact generated-worker verification passed. The production build verified all 166 static HTTP 200 routes, metadata, no-JS content, root assets and real missing-page 404s. Upstream added `VITE_PATH_ROUTING=1` to the CI/Pages build environment; release triggers and SHA gates were preserved. All 62 core resources, 78 tests, 1,426 application inputs, live exports and 15,139 prior immutable resources retained their qualified identities. Original numerical executions retain their original SHA.
+
+A fresh real Chrome session opened `/problems/architecture/attention/`, edited the canonical solution through CodeMirror, and executed the real judge Worker with Pyodide/NumPy WASM. All 7/7 Attention tests passed, together with explicit `mm` gradient, nonempty `bmm`, and mixed-dtype empty `bmm` assertions. The hosted health and anonymous-account responses were trusted test fixtures; all other external requests, including writes, were blocked. This verifies the local browser execution flow, without claiming live backend/API integration. The first harness attempt stopped at the expected read-only health precondition and is retained separately.
+
+Upstream then added a three-file static-asset retention fix at `891f620921791775082e2e290ff5caf8e06e5b72`. It normalizes root-relative asset references and adds local validation; the exact workflow delta only adds two validation commands. The resulting local tree `4042315876503fbaaf3fe2e6f5f793feb3b7d829` preserves all other tested frontend/build and numerical inputs. Twenty asset-retention tests, a read-only validation of the actual 253-asset production build, release-gate checks and backfill checks passed. Prior browser-served build payloads were rechecked byte-for-byte. No CI, tag, publication or deployment was initiated.

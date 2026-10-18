@@ -604,8 +604,8 @@
   "deployed": false,
   "raw_archive": {
     "path": "iteration-78-raw.tar.gz",
-    "bytes": 6946311,
-    "sha256": "eae1d756e6b80faa0ecdd1abadeaf4e353cf3d10a364487d18284931352edc94"
+    "bytes": 7562242,
+    "sha256": "c77b48dbb8c1fb03cc8b4f7655f04b5da00a22395406f1f7b373b4916f371bd6"
   },
   "ui_requalification": {
     "status": "passed",
@@ -1453,5 +1453,196 @@
     },
     "combined_owned_paths": 390,
     "numeric_app_inputs_unchanged": true
-  }
+  },
+  "path_routing_ui_requalification": {
+    "status": "passed",
+    "execution_head": "170e134d722bac4aa39b8d32e0732aa823f39a43",
+    "integration_base": "3f56fa6863b38db12ea0b2153ce396b3e8396672",
+    "original_numeric_execution_base": "0ed2aa3a95d9e7febf683874b5dafd1284af5f1f",
+    "receipts": [
+      {
+        "label": "full-frontend-check",
+        "exit_code": 0,
+        "seconds": 206.11433845898136,
+        "command": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+        "log_sha256": "76d1de1a25334e7d25e360ef740b6ba1573231d28d2575a97a6d4fa6fb9a63c4",
+        "summary": [
+          "PASS path navigation: real hrefs, legacy bookmarks, deep links, context, metadata, click order, history, document anchors and dynamic-route compatibility"
+        ]
+      },
+      {
+        "label": "pages-policy",
+        "exit_code": 0,
+        "seconds": 0.08876870799576864,
+        "command": [
+          "/Users/david/.npm/_npx/d18f28baf1132559/node_modules/node/bin/node",
+          "web/scripts/check-pages-release.cjs"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+        "log_sha256": "2d1b13db615e47c7d3de6f8509ee0e6f4ecc0fa0c89da9d79b836e0609b1eac5",
+        "summary": [
+          "PASS explicit release gates: manual/tag-only, exact current main, annotated/moved tags, complete quality, provenance, duplicate publication and stale/rerun rejection"
+        ]
+      },
+      {
+        "label": "build",
+        "exit_code": 0,
+        "seconds": 17.260140833008336,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+        "log_sha256": "90b75660569ef4f39c5998009a728836b357dca0c8be5a2747cdaa82c5f3a593",
+        "summary": [
+          "Static search checks: not a path-routing edition"
+        ]
+      },
+      {
+        "label": "pages-profile-build",
+        "exit_code": 0,
+        "seconds": 14.926858749997336,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+        "log_sha256": "87d7dd25f9634c48aeff84f554fef30f19ec129da55004267a25bf1c188832ac",
+        "summary": [
+          "PASS 166 static HTTP 200 routes, distinct metadata, no-JS content, root assets, sitemap, sharing image, escaping and real missing-page 404s"
+        ]
+      },
+      {
+        "label": "generated-worker",
+        "exit_code": 0,
+        "seconds": 0.04147583301528357,
+        "command": [
+          "/Users/david/.npm/_npx/d18f28baf1132559/node_modules/node/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-78/path-routing-ui/verify-generated-worker.mjs"
+        ],
+        "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+        "log_sha256": "e8680d4bfbb46ef5b0230ddfad23c317c1baaa8538a56c82afed5d4b4e450bd9",
+        "summary": [
+          "{\"status\":\"verified\",\"source_files\":6,\"asset_digest\":\"071d0be1ab04968ff0674ea5b1ecc58acb129018dd554a9935999c84e89edad8\"}"
+        ]
+      }
+    ],
+    "application_inputs_unchanged": 1426,
+    "external_paths_preserved": 106,
+    "combined_owned_paths": 390,
+    "worker_inputs_unchanged": true,
+    "no_numeric_rerun_claimed": true,
+    "ci_triggered": false,
+    "published": false,
+    "deployed": false,
+    "frontend_inputs_count": 663,
+    "core_source_resources": 62,
+    "evidence_directory": "path-routing-ui"
+  },
+  "nested_browser_wasm_smoke": {
+    "status": "passed",
+    "path": "/problems/architecture/attention/",
+    "feedback": "Tests passed\n7 / 7 tests passed",
+    "browser": "155.0.8059.82",
+    "workers": [
+      "blob:null/bec274cd-fe8b-4445-a94c-ee4d329b97ec"
+    ],
+    "source_sha256": "0169c742286823c81dd5c8190ea68ba4921224fdc91f898e8335c4dcfdc0c9e5",
+    "reference_source_sha256": "0b8e504a70eeb2210cd3da9d9f3d420f99dd399ba91dbddb17bff4381080778a",
+    "page_errors": [],
+    "scope": "Fresh real Chrome loads the actual prerendered nested problem page, enters the canonical attention solution plus explicit mm/bmm/empty-dtype assertions through the editor, and runs actual local Pyodide/NumPy WASM tests. Only health/anonymous-account responses are supplied by trusted configuration fixtures; numerical execution and static assets are real. All other external requests are blocked, including writes. No server submission or account mutation.",
+    "served_identities": 115,
+    "record_sha256": "27ac4bbe313390c02e92ded665662b48899d77164b44feb1f1bc918a371add8e",
+    "harness_sha256": "4b3f31209c679eeb08bd266784bb72d78f153ea46415e4f227a08818482158b0",
+    "evidence_directory": "path-routing-ui",
+    "external_write_requests_blocked": true
+  },
+  "asset_retention_reconciliation": {
+    "status": "passed",
+    "execution_head": "4042315876503fbaaf3fe2e6f5f793feb3b7d829",
+    "integration_base": "891f620921791775082e2e290ff5caf8e06e5b72",
+    "external_inputs": {
+      "web/scripts/retain-pages-assets.py": "ed2d0f796274ccd564af0ab14c26ebc3e8d3c1c580237935407f551578a22efc",
+      "web/scripts/check-pages-assets.py": "c449a3913711017ce937b2747414f4166a34b4f812afe79d7a0d026314f5b007",
+      ".github/workflows/ci.yml": "c2e535ac5220a712152a24643067e3a84c56f31ada395dc0323e16ff2e163ca9"
+    },
+    "receipts": [
+      {
+        "label": "pages-assets",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-69/integration-dev-env/bin/python",
+          "-B",
+          "web/scripts/check-pages-assets.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.0843460840114858,
+        "log_sha256": "9353b41000781fc2a4b43a3524aef111576ba1aa8020ffbed4fdb649cee3c275",
+        "tail": [
+          "Pages assets: 1 current, 1 retained, 2 generations; grace period 7 days.",
+          "Pages assets: 1 current, 2 retained, 3 generations; grace period 7 days.",
+          "Pages assets: 1 current, 1 retained, 2 generations; grace period 7 days."
+        ]
+      },
+      {
+        "label": "retain-production-assets-check",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-69/integration-dev-env/bin/python",
+          "-B",
+          "web/scripts/retain-pages-assets.py",
+          "web/dist",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.15917116598575376,
+        "log_sha256": "bf67952a05167de3a8a938ff1dfe850dd5b8361e44e8643ea5439303997d4763",
+        "tail": [
+          "Validated 253 current Pages assets"
+        ]
+      },
+      {
+        "label": "pages-release-policy",
+        "command": [
+          "/Users/david/.npm/_npx/d18f28baf1132559/node_modules/node/bin/node",
+          "web/scripts/check-pages-release.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.3112738750060089,
+        "log_sha256": "2d1b13db615e47c7d3de6f8509ee0e6f4ecc0fa0c89da9d79b836e0609b1eac5",
+        "tail": [
+          "PASS explicit release gates: manual/tag-only, exact current main, annotated/moved tags, complete quality, provenance, duplicate publication and stale/rerun rejection"
+        ]
+      },
+      {
+        "label": "pages-backfill-policy",
+        "command": [
+          "/Users/david/.npm/_npx/d18f28baf1132559/node_modules/node/bin/node",
+          "web/scripts/check-pages-backfill.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.5952000409888569,
+        "log_sha256": "13870908cb8612b7e361f2ee8661e424a3bf48a996ebaecbe7e93707a2d42bfa",
+        "tail": [
+          "PASS Pages asset backfill: policy migration, seven-day query, bounded downloads, expired artifacts, safe archive extraction, bounded transient retries, sanitized failure logs, and no repeated history downloads"
+        ]
+      }
+    ],
+    "unchanged_frontend_inputs": 661,
+    "nested_browser_assets_verified": 115,
+    "prior_ui_execution": "170e134d722bac4aa39b8d32e0732aa823f39a43",
+    "full_frontend_and_both_builds_reused_by_unchanged_inputs": true,
+    "numeric_and_worker_inputs_unchanged": true,
+    "no_numeric_rerun_claimed": true,
+    "ci_triggered": false,
+    "published": false,
+    "deployed": false
+  },
+  "latest_integration_base": "891f620921791775082e2e290ff5caf8e06e5b72",
+  "core_numerical_execution_provenance_preserved": true
 }
