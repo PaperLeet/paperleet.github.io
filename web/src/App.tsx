@@ -9,7 +9,8 @@ import {PaperRegistry,DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,Inb
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
-import type {LibraryCompanyData,LibraryCompanyStatusProps} from './libraryCompanyScope';
+import type {LibraryCompanyData} from './libraryCompanyScope';
+import {CompanyTools} from './LibraryCompanyTools';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
@@ -76,7 +77,6 @@ import "./community.css";
 
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
-const CompanyStatus=deferredFeature<LibraryCompanyStatusProps>(()=>import('./LibraryCompanyEvidence').then(module=>({default:module.LibraryCompanyStatus})),['公司练习','company practice']);
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -229,7 +229,8 @@ function Workspace() {
   const selectedPaper = papers.find((paper) =>
     sourceProblem ? paper.id === sourceProblem.paper_id : path === `papers/${paper.id}`,
   );
-  const returningCollection = paperCollections.find(collection => collection.id === readLibraryRoute(libraryReturn || '')?.collectionId && collection.kind === 'course');
+  const returningLibrary=libraryReturn?readLibraryRoute(libraryReturn):undefined;
+  const returningCollection = paperCollections.find(collection => collection.id === returningLibrary?.collectionId && collection.kind === 'course');
   const courseModules = returningCollection ? papersInCollection(papers, returningCollection).flatMap(paper => paperModules(paper, problems)) : [];
   const courseCollection = courseModules.some(module => module.id === sourceProblem?.id) ? returningCollection : undefined;
   const inCourse = !!courseCollection || selectedPaper?.kind === 'course';
@@ -245,7 +246,7 @@ function Workspace() {
   const learningNotice = hosted && <BrowserLearningNotice count={learningView.localPasses} failed={learning.failed} saving={learning.saving} onRetry={learning.retry} />;
   const progressReady = practice.ready && !practice.loading && learning.ready;
   const practiceReturn = libraryView ? libraryHref(libraryView.collectionId, libraryView.filters) : libraryReturn;
-  const scopeView=libraryView||(libraryReturn?readLibraryRoute(libraryReturn):undefined);
+  const scopeView=libraryView||returningLibrary;
   const company=scopeView?.filters.company||'',companyDays=scopeView?.filters.company_days||'365';
   const [companyData,setCompanyData]=useState<LibraryCompanyData>(),[companyRetry,setCompanyRetry]=useState(0);
   const identity=JSON.stringify([user?.id,accountLoading,company,companyDays,companyRetry]),generation=useRef({identity,revision:0});
@@ -656,7 +657,7 @@ function Workspace() {
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
       ) : !problem ? (
-        <>{learningNotice}{selectedPaper&&company&&<CompanyStatus company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>} {selectedPaper ? (
+        <>{learningNotice}{selectedPaper&&company&&<CompanyTools company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>} {selectedPaper ? (
           <PaperDetail
             paper={selectedPaper}
             problems={problems}
@@ -686,7 +687,7 @@ function Workspace() {
         )}</>
       ) : (
         <>
-          {company&&<CompanyStatus company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>}
+          {company&&<CompanyTools company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>}
           <div className="workspace-toolbar">
             <a
               className="back-link"

@@ -6,9 +6,12 @@ import {hostedEdition,hostedAppAvailable,hostedAppHref} from './deployment';
 import {interviewCatalog,interviewLabel,type InterviewSummary} from './interviewModels';
 import {emptyInterviewFilters,interviewHref,type InterviewFilters} from './interviewNavigation';
 import {libraryInterviewEvidence} from './libraryInterviewEvidence';
-import type {LibraryCompanyData,LibraryCompanyScope} from './libraryCompanyScope';
+import type {LibraryCompanyData,LibraryCompanyScope,LibraryCompanyToolsProps} from './libraryCompanyScope';
 import type {Problem} from './types';
 import './library-company.css';
+import LibraryCompanyRowTools from './LibraryCompanyRowTools';
+export {LibraryCompanyRowTools};
+export function LibraryCompanyTools(props:LibraryCompanyToolsProps){return 'problem' in props?<LibraryCompanyRowTools {...props}/>:'scope' in props?<LibraryCompanyStatus {...props}/>:<LibraryCompanyControls {...props}/>;}
 
 /** Confirm the complete selected public cohort before it can direct practice. */
 export function readLibraryCompanyEvidence(summary:InterviewSummary|undefined,problems:Problem[],company:string,days:string){

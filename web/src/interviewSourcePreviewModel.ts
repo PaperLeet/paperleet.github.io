@@ -1,9 +1,17 @@
 import {appendInterviewContext,hasInterviewContext} from './interviewContext';
-import {libraryReturnHref} from './libraryNavigation';
+import {libraryReturnHref,readLibraryRoute,libraryHref} from './libraryNavigation';
 import {interviewCatalog,readInterviewFeed} from './interviewModels';
-import {interviewHref,readInterviewRoute,type InterviewFilters} from './interviewNavigation';
+import {interviewHref,readInterviewRoute,emptyInterviewFilters,type InterviewFilters} from './interviewNavigation';
 
 export const INTERVIEW_SOURCE_PREVIEW_LIMIT=3;
+/** A library preview is public evidence for its exact company/publication cohort. */
+export function libraryInterviewPreviewScope(href:string,sourceHref:string):string|undefined{
+ const library=readLibraryRoute(href),source=readInterviewRoute(sourceHref);
+ if(!library?.filters.company||!source?.concept||!interviewSourceRequest(sourceHref))return;
+ const expected=interviewHref({...emptyInterviewFilters(),company:library.filters.company,days:(library.filters.company_days||'365') as InterviewFilters['days'],concept:source.concept});
+ if(interviewHref(source)!==expected)return;
+ return libraryHref(library.collectionId,library.filters);
+}
 export function interviewSourceHref(filters:InterviewFilters,concept:string){
   return interviewHref({...filters,view:'reports',page:1,q:'',concept,saved:false,queue:'',study:'all',company_order:'catalog'});
 }

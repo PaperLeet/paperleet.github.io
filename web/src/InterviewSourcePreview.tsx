@@ -5,13 +5,13 @@ import {DateLabel} from './social';
 import {useInterviewResource} from './interviewApi';
 import {communityPostHref} from './communityNavigation';
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
-import {interviewSourceRequest,readInterviewSourcePreview,interviewPracticePreviewScope} from './interviewSourcePreviewModel';
+import {interviewSourceRequest,readInterviewSourcePreview,interviewPracticePreviewScope,libraryInterviewPreviewScope} from './interviewSourcePreviewModel';
 import {postPreview} from './postExcerpt';
 import CommunityAuthor from './CommunityAuthor';
 import InterviewMeta from './InterviewMeta';
 import './interview-source-preview.css';
 
-type Props={concept:string;name:string;reports:number;contributors:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;contextAvailable?:boolean;practice?:{href:string;number?:number};returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
+type Props={concept:string;name:string;reports:number;contributors:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;contextAvailable?:boolean;practice?:{href:string;number?:number};library?:{href:string};returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
 const currentScope=()=>{const filters=readInterviewRoute(location.hash);return filters?interviewHref(filters):undefined;};
 
 export default function InterviewSourcePreview(props:Props){
@@ -41,10 +41,10 @@ function SourcePreview(props:Props){
   </section>;
 }
 
-export function InterviewSourceReports({concept,sourceHref,returnTo,owner,accountLoading=false,contextAvailable=false,practice,returnId,onReturnReady,onReturnPending}:Props){
+export function InterviewSourceReports({concept,sourceHref,returnTo,owner,accountLoading=false,contextAvailable=false,practice,library,returnId,onReturnReady,onReturnPending}:Props){
   const {t,locale}=useI18n(),[,setRouteRevision]=useState(0),[retry,setRetry]=useState(0),busy=useRef(false);
-  const inPractice=!!practice;
-  const path=interviewSourceRequest(sourceHref,contextAvailable),here=practice?interviewPracticePreviewScope(location.hash,concept,practice.number)===practice.href:currentScope()===returnTo;
+  const inPractice=!!practice,newTab=!!practice||!!library;
+  const path=interviewSourceRequest(sourceHref,contextAvailable),isHere=()=>library?libraryInterviewPreviewScope(location.hash,sourceHref)===library.href:practice?interviewPracticePreviewScope(location.hash,concept,practice.number)===practice.href:currentScope()===returnTo,here=isHere();
   const resource=useInterviewResource<unknown>(path||'',!!path&&!accountLoading&&here,retry,JSON.stringify([owner,returnTo,practice?.href]));
   const feed=readInterviewSourcePreview(resource.data,sourceHref,contextAvailable),loading=accountLoading||resource.loading;
   const error=!path?t('来源筛选暂不可用，请查看全部来源。','Source filters are unavailable. Open all source reports.'):resource.error||(resource.data&&!feed?t('暂时无法确认来源面经，请刷新预览。','Could not confirm the source experiences. Refresh this preview.'):undefined);
@@ -54,11 +54,11 @@ export function InterviewSourceReports({concept,sourceHref,returnTo,owner,accoun
   useEffect(()=>{if(returnId===undefined||!here)return;if(loading)returnCallbacks.current.onReturnPending?.(returnId);else if(feed||error)returnCallbacks.current.onReturnReady?.(returnId);},[returnId,here,loading,feed,error]);
   if(!here)return null;
   return <>
-    <div className="interview-source-panel-heading"><p>{t('当前知识点的公开来源，最多预览 3 篇。','Public source experiences for this concept, up to 3 reports.')} {(readInterviewRoute(returnTo)?.saved||readInterviewRoute(returnTo)?.q)&&t('收藏与知识点搜索仅用于原列表。','Saved and concept-search filters apply to the original list.')}</p><button type="button" className="text-button" aria-disabled={loading||!path} onClick={()=>{if(busy.current||!path||!(practice?interviewPracticePreviewScope(location.hash,concept,practice.number)===practice.href:currentScope()===returnTo))return;busy.current=true;setRetry(value=>value+1);}}><RefreshCw size={13} aria-hidden="true"/>{error?t('重试来源','Retry sources'):t('刷新来源','Refresh sources')}</button></div>
+    <div className="interview-source-panel-heading"><p>{t('当前知识点的公开来源，最多预览 3 篇。','Public source experiences for this concept, up to 3 reports.')} {library&&t('题库搜索、难度与学习状态只筛选练习，不筛选面经正文。','Library search, difficulty and progress select exercises, not report text.')} {(readInterviewRoute(returnTo)?.saved||readInterviewRoute(returnTo)?.q)&&t('收藏与知识点搜索仅用于原列表。','Saved and concept-search filters apply to the original list.')}</p><button type="button" className="text-button" aria-disabled={loading||!path} onClick={()=>{if(busy.current||!path||!isHere())return;busy.current=true;setRetry(value=>value+1);}}><RefreshCw size={13} aria-hidden="true"/>{error?t('重试来源','Retry sources'):t('刷新来源','Refresh sources')}</button></div>
     <div aria-busy={loading}>
       {loading?<p className="interview-source-status" role="status"><span className="spinner"/>{accountLoading?t('正在确认账号…','Checking your account…'):t('正在读取来源面经…','Loading source experiences…')}</p>:error?<p className="interview-source-error" role="alert">{error}</p>:feed?.items.length?<><p className="interview-source-status" role="status">{t(`预览 ${feed.items.length} / ${feed.total} 篇公开面经`,`Previewing ${feed.items.length} of ${feed.total} public ${feed.total===1?'experience':'experiences'}`)}</p><div className="interview-source-items">{feed.items.map(post=>{
         const excerpt=postPreview(post.body,140,locale==='en'?'[formula]':'[公式]').text;
-        return <article key={post.id} className="interview-source-item" data-reading-post={post.id} data-reading-concept={concept}><div className="interview-source-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div><a data-reading-link="title" className="interview-source-title" href={communityPostHref(post.id,returnTo)} target={practice?'_blank':undefined} rel={practice?'noopener noreferrer':undefined} aria-label={practice?t(`${post.title} · 在新标签页阅读完整面经`,`${post.title} · Read the full experience in a new tab`):undefined}>{post.title}{practice&&<ArrowUpRight size={13} aria-hidden="true"/>}</a>{excerpt&&<p className="interview-source-excerpt">{excerpt}</p>}<InterviewMeta details={post.interview} compact browseFrom={sourceHref}/></article>;
+        return <article key={post.id} className="interview-source-item" data-reading-post={post.id} data-reading-concept={concept}><div className="interview-source-author"><CommunityAuthor user={post.author} compact/><DateLabel value={post.created_at}/></div><a data-reading-link="title" className="interview-source-title" href={communityPostHref(post.id,returnTo)} target={newTab?'_blank':undefined} rel={newTab?'noopener noreferrer':undefined} aria-label={newTab?t(`${post.title} · 在新标签页阅读完整面经`,`${post.title} · Read the full experience in a new tab`):undefined}>{post.title}{newTab&&<ArrowUpRight size={13} aria-hidden="true"/>}</a>{excerpt&&<p className="interview-source-excerpt">{excerpt}</p>}<InterviewMeta details={post.interview} compact browseFrom={sourceHref} newTab={!!library}/></article>;
       })}</div></>:<p className="interview-source-status" role="status">{t('当前预览没有匹配的面经，内容可能已修改或删除。仍可刷新预览、查看全部来源或继续练习。','No experiences match this preview. Content may have changed or been removed. Refresh, open all sources or keep practicing.')}</p>}
     </div>
   </>;

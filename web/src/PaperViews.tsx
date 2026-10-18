@@ -16,7 +16,8 @@ import "./practice-journey.css";
 import { StateIcon } from "./PaperState";
 import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters } from './libraryNavigation';
 
-import type {LibraryCompanyScope,LibraryCompanyStatusProps,LibraryCompanyControlsProps} from './libraryCompanyScope';
+import type {LibraryCompanyScope} from './libraryCompanyScope';
+import {CompanyTools} from './LibraryCompanyTools';
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export { paperModules, matchingPaperModules, paperProgress } from './libraryPractice';
 
@@ -26,8 +27,7 @@ const CollectionControls=deferredFeature<{rail:import('react').RefObject<HTMLEle
 const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(()=>import('./LibraryResultControls'), ['列表显示','list display'], {loading:()=>null});
 const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练习概览','practice overview'], {loading:()=>null});
 
-const CompanyControls=deferredFeature<LibraryCompanyControlsProps>(()=>import('./LibraryCompanyEvidence').then(module=>({default:module.LibraryCompanyControls})),['公司筛选','company filters'],{loading:()=>null});
-const CompanyStatus=deferredFeature<LibraryCompanyStatusProps>(()=>import('./LibraryCompanyEvidence').then(module=>({default:module.LibraryCompanyStatus})),['公司练习','company practice']);
+
 
 export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, route = '', onFilters, companyScope }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string) => void; companyScope?:LibraryCompanyScope }) {
   const { t, locale } = useI18n();
@@ -170,8 +170,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         </div>
         <button className="random-problem" aria-label={t('随机一题', 'Random problem')} onClick={randomProblem} disabled={!progressReady || !companyReady || !unattempted.length} title={!companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true" /><span>{t("随机一题", "Random problem")}</span></button>
       </div>
-      <CompanyControls company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
-      {company&&companyScope&&<CompanyStatus company={company} days={companyDays} returnTo={viewHref} {...companyScope}/>}
+      <CompanyTools company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
+      {company&&companyScope&&<CompanyTools company={company} days={companyDays} returnTo={viewHref} {...companyScope}/>}
       <div className="library-results"><span role="status">{waitingForStatus ? !companyReady?t('公司练习范围尚未确认…','Company practice scope is unconfirmed…'):t('正在核对学习进度…','Checking your learning progress…') : <>{!moduleView && <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · </>}{filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span><ResultControls hasFilters={hasFilters} moduleView={moduleView} company={company} course={course} sort={sort} density={density} onClear={clear} onSort={sort=>change({sort})} onDensity={changeDensity}/></div>
       {hasFilters && <div className="active-filters" aria-label={t("当前筛选条件", "Active filters")}>
         {[
@@ -192,6 +192,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <span className={`difficulty ${module.difficulty}`}>{({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[module.difficulty]}</span>
             <ChevronRight size={16} aria-hidden="true" />
           </a>
+          {company&&companyScope&&<CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={companyScope}/>}
         </div>) : filtered.slice(0, visibleCount).map((paper) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);

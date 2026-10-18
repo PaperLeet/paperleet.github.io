@@ -3,6 +3,10 @@ import type { ComponentType, ReactNode } from 'react';
 import { useI18n } from './i18n';
 
 export type FeatureLabel = [string, string];
+/** Small optional actions retry in place without reloading the workspace. */
+export function FeatureRetry({retry,label=['重试加载','Retry loading']}:{retry:()=>void;label?:FeatureLabel}){
+ const {t}=useI18n();return <button type="button" className="text-button" onClick={retry}>{t(...label)}</button>;
+}
 export function FeatureLoading({ label }: { label: FeatureLabel }) {
   const { t } = useI18n();
   return <div className="feature-loading" role="status" aria-busy="true"><span className="spinner" />{t(`正在加载${label[0]}…`, `Loading ${label[1]}…`)}</div>;
