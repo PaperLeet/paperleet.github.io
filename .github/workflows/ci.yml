@@ -51,8 +51,8 @@ jobs:
       - name: Build production Pages edition
         working-directory: web
         env:
-          VITE_PATH_ROUTING: '1'
           PAPERLEET_MAIN_SITE_ENABLED: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED }}
+          VITE_PATH_ROUTING: '1'
           VITE_PUBLIC_SITE: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && '0' || '1' }}
           VITE_APP_EDITION: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'hosted' || 'local' }}
           VITE_API_ORIGIN: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'https://app.paperleet.com' || '' }}
