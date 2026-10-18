@@ -3,14 +3,14 @@ import { errorMessage, socialApi, type PublicUser } from './social';
 
 export type InboxCounts = { user_id: string; unread_count: number; notification_unread_count: number; message_unread_count: number };
 export type InboxNotification = {
-  id: string; kind: 'like' | 'reply' | 'follow' | 'repost'; latest_event_id: number; created_at: string;
+  id: string; kind: 'like' | 'reply' | 'follow' | 'repost' | 'review'; latest_event_id: number; created_at: string;
   unread: boolean; actor_count: number; actors: PublicUser[]; post: {id: string; title: string} | null;
-  reply_id: string | null; preview: string;
+  reply_id: string | null; preview: string; review?:unknown;
 };
 export type DirectMessage = { id: number; sender_id: string; body: string; created_at: string; request_id?: string };
 export type Conversation = { id: number; peer: PublicUser; last_message: DirectMessage; unread_count: number; can_send: boolean; awaiting_reply: boolean; is_mutual_follow: boolean };
 export type InboxSnapshot = InboxCounts & {
-  observed_event_id: number; observed_message_id?: number; notifications: InboxNotification[]; notifications_next_before: number | null;
+  reviews_included?:boolean; observed_event_id: number; observed_message_id?: number; notifications: InboxNotification[]; notifications_next_before: number | null;
   conversations: Conversation[]; conversations_next_before: number | null;
 };
 export type MessageThread = {
@@ -35,17 +35,17 @@ export async function inboxRequest<T extends {user_id: string}>(owner: string, p
   return result;
 }
 
-export type InboxReadCutoff = {through_event_id: number; through_message_id: number};
+export type InboxReadCutoff = {through_event_id: number; through_message_id: number;include_reviews?:true};
 export function inboxReadCutoff(snapshot?: InboxSnapshot): InboxReadCutoff | undefined {
   if (!snapshot || !Number.isSafeInteger(snapshot.observed_event_id) || snapshot.observed_event_id < 0
     || !Number.isSafeInteger(snapshot.observed_message_id) || snapshot.observed_message_id! < 0) return;
-  return {through_event_id: snapshot.observed_event_id, through_message_id: snapshot.observed_message_id!};
+  return {through_event_id: snapshot.observed_event_id, through_message_id: snapshot.observed_message_id!,...(snapshot.reviews_included===true?{include_reviews:true as const}:{})};
 }
 
 /** Only rows covered by the acknowledged snapshot change; newer arrivals stay unread. */
 export function applyInboxReadAll(snapshot: InboxSnapshot, counts: InboxCounts, cutoff: InboxReadCutoff): InboxSnapshot {
   return {...snapshot, ...counts,
-    notifications: snapshot.notifications.map(item => item.latest_event_id <= cutoff.through_event_id ? {...item, unread: false} : item),
+    notifications: snapshot.notifications.map(item => item.latest_event_id <= cutoff.through_event_id && (item.kind!=='review'||cutoff.include_reviews===true) ? {...item, unread: false} : item),
     conversations: snapshot.conversations.map(item => item.last_message.id <= cutoff.through_message_id ? {...item, unread_count: 0} : item)};
 }
 

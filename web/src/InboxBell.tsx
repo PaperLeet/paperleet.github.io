@@ -11,17 +11,17 @@ const InboxPanel = deferredFeature(() => import('./InboxPanel'), ['通知', 'not
 export default function InboxBell() {
   const {user, loading, capabilities} = useAccount();
   if (!user || loading || (!capabilities?.inbox_notifications && !capabilities?.direct_messages)) return null;
-  return <AccountInboxBell key={user.id} owner={user.id} notifications={capabilities.inbox_notifications === true} messages={capabilities.direct_messages === true}/>;
+  return <AccountInboxBell key={user.id} owner={user.id} notifications={capabilities.inbox_notifications === true} messages={capabilities.direct_messages === true} reviews={capabilities.inbox_reviews === true}/>;
 }
 
-function AccountInboxBell({owner, notifications, messages}: {owner: string; notifications: boolean; messages: boolean}) {
+function AccountInboxBell({owner, notifications, messages, reviews}: {owner: string; notifications: boolean; messages: boolean; reviews:boolean}) {
   const {t} = useI18n();
   const [open, setOpen] = useState(false), [counts, setCounts] = useState<InboxCounts>();
   const root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), panel = useRef<HTMLElement>(null);
   const id = useId();
   useInboxPolling(owner, async signal => {
     try {
-      const data = await inboxRequest<InboxCounts>(owner, 'inbox?summary=1', undefined, signal);
+      const data = await inboxRequest<InboxCounts>(owner, `inbox?summary=${reviews?2:1}`, undefined, signal);
       if (!signal.aborted) setCounts(data);
     } catch { /* Keep the last confirmed count; the open panel has retry controls. */ }
   });
@@ -54,7 +54,7 @@ function AccountInboxBell({owner, notifications, messages}: {owner: string; noti
     </button>
     {open && <section className="inbox-popover" id={id} ref={panel} tabIndex={-1} role="dialog" aria-label={t('通知与私信', 'Notifications and messages')}>
       <button type="button" className="inbox-close" aria-label={t('关闭收件箱','Close inbox')} onClick={()=>{setOpen(false);trigger.current?.focus({preventScroll:true});}}><X size={17} aria-hidden="true"/></button>
-      <InboxPanel owner={owner} notifications={notifications} messages={messages} onCounts={setCounts}/>
+      <InboxPanel key={String(reviews)} owner={owner} notifications={notifications} messages={messages} onCounts={setCounts}/>
     </section>}
   </div>;
 }

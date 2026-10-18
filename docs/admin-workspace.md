@@ -33,3 +33,22 @@ Controlled React/JSDOM checks cover normalized search, no-request browsing, queu
 ## Daily administration
 
 The overview prioritizes pending reports, intake submissions and candidate reviews, with explicit links for creating boards/tags, finding users and reviewing the audit log. Opening a shortcut never submits a command. The audit log translates known action names and links to the current protected object; historical before/after snapshots remain separate. Older services without protected detail reads link to the compatible user/paper list instead. Unknown kinds and malformed object identifiers are not navigable. Empty filtered audit results have an explicit empty state.
+
+## Review feedback in the inbox
+
+Compatible account services send private review notifications in the existing inbox.
+Paper submitters receive the decision, reviewed version and already-public feedback,
+with a link back to their submission. An approval is a historical review result, not a
+publication promise or approval of a later candidate.
+
+Resolving a report batch notifies its pending reporters of keep/remove outcomes.
+Removing an existing post also notifies its author. Report notifications contain no
+reporter identity, report evidence or internal review note. Removed-post notices link
+back to the community rather than to a missing thread. Reporters can open their own
+report history. Notices are recorded atomically with the decision; exact retries do
+not send duplicates. Existing decisions are not backfilled at startup.
+
+Opening the inbox or expanding feedback does not acknowledge unseen notifications.
+Individual reads and mark-all capture observed event cutoffs; newer decisions remain
+unread. Older clients retain their original notification view and cannot mark hidden
+review notices. See `validation/review-notifications.md` for the compatibility contract.

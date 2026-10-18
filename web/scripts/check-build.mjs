@@ -275,3 +275,6 @@ for(const name of ['solution-pane','community-pane','post-interaction']){
 
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('account/interview-companies')), 'Private target-company controls must remain deferred');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-company-targets')), 'Target-company styles must remain deferred');
+
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('inbox-review-notification')), 'Review notification content must remain deferred');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.inbox-review-feedback')), 'Review feedback styles must remain deferred');

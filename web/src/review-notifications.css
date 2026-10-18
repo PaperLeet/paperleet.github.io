@@ -1,0 +1,8 @@
+.inbox-event-review{background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent)}
+.inbox-review-sender{font-size:var(--type-small);color:var(--muted)}
+.inbox-review-description{font-size:var(--type-small);line-height:1.65;color:var(--text-secondary)}
+.inbox-review-feedback{margin:0 18px 14px 58px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}
+.inbox-review-feedback>summary{cursor:pointer;font-size:var(--type-small);line-height:1.7;color:var(--accent)}
+.inbox-review-feedback p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--type-body);line-height:1.75;margin:10px 0 0;color:var(--text)}
+.inbox-review-feedback>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+@media(pointer:coarse){.inbox-review-feedback>summary{min-height:44px;padding-block:8px;box-sizing:border-box}}

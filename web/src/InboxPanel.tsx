@@ -1,3 +1,4 @@
+import ReviewNotification from './ReviewNotification';
 import AppLink from './AppLink';
 import InboxListRefresh from './InboxListRefresh';
 import {inboxListUpdate} from './inboxListUpdate';
@@ -14,7 +15,7 @@ export type InboxPanelProps = {owner: string; notifications: boolean; messages: 
 export default function InboxPanel({owner, notifications, messages, onCounts}: InboxPanelProps) {
   const {t} = useI18n();
   const {capabilities} = useAccount();
-  const readAllAvailable = capabilities?.inbox_read_all === true;
+  const readAllAvailable = capabilities?.inbox_read_all === true, reviewsAvailable=capabilities?.inbox_reviews===true;
   const panelId = useId();
   const [tab, setTab] = useState<'notifications' | 'messages'>(notifications ? 'notifications' : 'messages');
   const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [more, setMore] = useState(false), [snapshotLoading, setSnapshotLoading] = useState(true), [readingId,setReadingId]=useState<string>(),[marked,setMarked]=useState(false),[readError,setReadError]=useState('');
@@ -28,8 +29,9 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
     const version = ++revision.current;
     if(!currentData.current||replace)setSnapshotLoading(true);
     try {
-      const next = await inboxRequest<InboxSnapshot>(owner, 'inbox?limit=20', undefined, signal);
+      const next = await inboxRequest<InboxSnapshot>(owner, 'inbox?limit=20'+(reviewsAvailable?'&reviews=1':''), undefined, signal);
       if (signal?.aborted || !alive.current || version !== revision.current) return;
+      if(reviewsAvailable&&next.reviews_included!==true)throw Error('Review notifications could not be confirmed.');
       const current=currentData.current;
       if(current&&!replace){const update=inboxListUpdate(current,next);setData(update.snapshot);setChanged(update.changed);}
       else{setData(next);setChanged(false);}
@@ -43,19 +45,19 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
   }});
   useInboxPolling(owner, refresh, !readAll.busy && !busy && !more);
   const retry = () => { manual.current?.abort(); manual.current = new AbortController(); setMore(false);replacing.current=true; void refresh(manual.current.signal,true); };
-  const reading=useRef(false),readAttempt=useRef<{notification?:Pick<InboxNotification,'id'|'latest_event_id'>;cutoff:number}|undefined>(undefined);
-  async function read(notification?: Pick<InboxNotification,'id'|'latest_event_id'>,through?:number) {
+  const reading=useRef(false),readAttempt=useRef<{notification?:Pick<InboxNotification,'id'|'latest_event_id'>;cutoff:number;includeReviews:boolean}|undefined>(undefined);
+  async function read(notification?: Pick<InboxNotification,'id'|'latest_event_id'>,through?:number,includeReviews?:boolean) {
     if (!data || busy || readAll.busy || snapshotLoading || replacing.current || more || reading.current) return;
-    const cutoff = through ?? notification?.latest_event_id ?? data.observed_event_id;
+    const cutoff = through ?? notification?.latest_event_id ?? data.observed_event_id,include=includeReviews??data.reviews_included===true;
     ++revision.current;
-    reading.current=true;readAttempt.current={notification,cutoff};setReadError('');setBusy(true);setReadingId(notification?.id);setMarked(false);
+    reading.current=true;readAttempt.current={notification,cutoff,includeReviews:include};setReadError('');setBusy(true);setReadingId(notification?.id);setMarked(false);
     try {
-      const counts = await inboxRequest<InboxCounts>(owner, 'inbox/read', {through_event_id: cutoff, ...(notification ? {notification_ids: [notification.id]} : {})});
+      const counts = await inboxRequest<InboxCounts>(owner, 'inbox/read', {through_event_id: cutoff,...(include?{include_reviews:true}:{}), ...(notification ? {notification_ids: [notification.id]} : {})});
       if (alive.current) {
         ++revision.current;
         onCounts(counts); setError('');setReadError('');setMarked(true);
         setData(current => current ? {...current, ...counts, notifications: current.notifications.map(item =>
-          item.latest_event_id <= cutoff && (!notification || item.id === notification.id) ? {...item, unread: false} : item)} : current);
+          item.latest_event_id <= cutoff && (item.kind!=='review'||include) && (!notification || item.id === notification.id) ? {...item, unread: false} : item)} : current);
       }
       inboxChanged(owner);
     } catch (e) { if (alive.current) setReadError(errorMessage(e)); }
@@ -73,8 +75,9 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
     const version = ++revision.current;
     setMore(true);
     try {
-      const next = await inboxRequest<InboxSnapshot>(owner, `inbox?limit=20&${tab === 'notifications' ? 'notifications' : 'conversations'}_before=${before}`, undefined, controller.signal);
+      const next = await inboxRequest<InboxSnapshot>(owner, `inbox?limit=20&${tab === 'notifications' ? 'notifications' : 'conversations'}_before=${before}${reviewsAvailable?'&reviews=1':''}`, undefined, controller.signal);
       if (controller.signal.aborted || !alive.current || version !== revision.current) return;
+      if(reviewsAvailable&&next.reviews_included!==true)throw Error('Review notifications could not be confirmed.');
       setData(current => current ? tab === 'notifications' ? {...current, notifications: [...current.notifications, ...next.notifications.filter(item => !current.notifications.some(old => old.id === item.id))], notifications_next_before: next.notifications_next_before}
         : {...current, conversations: [...current.conversations, ...next.conversations.filter(item => !current.conversations.some(old => old.id === item.id))], conversations_next_before: next.conversations_next_before} : next);
       setError('');
@@ -93,7 +96,7 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
     {data&&<InboxListRefresh changed={changed} busy={snapshotLoading||busy||more||readAll.busy} onRefresh={retry}/>}
     <span className="sr-only" role="status">{marked?t('通知已标为已读。','Notifications marked as read.'):null}</span>
     {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
-    {readError&&<div className="inbox-error inbox-notification-read-error" role="alert"><p>{readError}</p><button type="button" disabled={busy||readAll.busy||snapshotLoading||more} onClick={()=>void read(readAttempt.current?.notification,readAttempt.current?.cutoff)}>{t('重试标记已读','Retry mark as read')}</button></div>}
+    {readError&&<div className="inbox-error inbox-notification-read-error" role="alert"><p>{readError}</p><button type="button" disabled={busy||readAll.busy||snapshotLoading||more} onClick={()=>void read(readAttempt.current?.notification,readAttempt.current?.cutoff,readAttempt.current?.includeReviews)}>{t('重试标记已读','Retry mark as read')}</button></div>}
     {!data && !error && <p className="inbox-empty" role="status">{t('正在加载…', 'Loading…')}</p>}
     {data && <div className="inbox-tab-content" role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${tab}`}>
       {tab === 'notifications' ? <>
@@ -111,6 +114,7 @@ export default function InboxPanel({owner, notifications, messages, onCounts}: I
 
 export function NotificationRow({notification: item, onRead,onMarkRead,disabled=false,marking=false}: {notification: InboxNotification; onRead: () => void;onMarkRead?:()=>void;disabled?:boolean;marking?:boolean}) {
   const {t} = useI18n(),rowId=useId();
+  if(item.kind==='review')return <ReviewNotification notification={item} onRead={onRead} onMarkRead={onMarkRead} disabled={disabled} marking={marking}/>;
   const actor = item.actors[0];
   const name = actor?.anonymous ? t('匿名用户', 'Anonymous') : actor?.display_name || t('一位用户', 'Someone');
   const people = item.actor_count > 1 ? t(`${name} 等 ${item.actor_count} 人`, `${name} and ${item.actor_count - 1} ${item.actor_count === 2 ? 'other' : 'others'}`) : name;

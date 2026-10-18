@@ -1,0 +1,7 @@
+import {useAccount} from './social';
+import {useI18n} from './i18n';
+export default function ReviewDeliveryHint({paper=false}:{paper?:boolean}){
+ const {capabilities}=useAccount(),{t}=useI18n();
+ if(capabilities?.inbox_reviews!==true)return null;
+ return <p className="admin-intro">{paper?t('提交后会向作者发送站内审核通知。通过当前候选版本不代表正式发布。','The author receives an inbox review notification. Approving a candidate does not publish it.'):t('结案后会通知本批举报人；移除帖子时也会通知作者。举报人身份与内部审核说明不会写入通知。','Pending reporters receive the outcome; removal also notifies the author. Reporter identities and internal review notes stay private.')}</p>;
+}
