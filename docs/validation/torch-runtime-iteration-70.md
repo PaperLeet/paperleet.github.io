@@ -151,3 +151,7 @@ sources retain their original 0.69 version literal and are not relabeled as
 final-version runs. No CI workflow, tag, package publication or deployment was
 initiated by these local checks. The independent library name remains
 StrideTorch pending a naming decision.
+
+## Main adoption
+
+Version 0.70.0 was adopted on main at `9f2715fc21fa408230a3c49c047dd14af1c69c13`. The guarded ordinary push passed with no active release chain. The remote ref and 2300 tested Git blobs were verified, together with generated Worker derivatives and all 14,083 prior immutable asset tree entries. The adopted SHA had zero Actions runs at verification. No workflow dispatch, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/stridetorch/benchmarks/results/iteration-70-main-adoption.json).
