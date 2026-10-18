@@ -1,3 +1,4 @@
+import {readAdminRoute} from './adminNavigation';
 import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import { communityContinuation } from './communityNavigation';
 import { favoriteHref,readFavoriteRoute,libraryContinuation } from './libraryNavigation';
@@ -15,9 +16,10 @@ function returnRoute(route: string): string | undefined {
   const interviews=readInterviewRoute(route);
   if(interviews)return interviewHref(interviews).slice(2);
   if (/^submit\?(?:proposal=[a-f0-9]{32}|view=pool)$/.test(route)) return route;
+  if (readAdminRoute(route)) return route;
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
   if (["community/reports","community/moderation","","community","submit","achievements","favorites","drafts"].includes(route)) return route;
-  if (/^(?:[1-9]\d*|community\/(?:admin(?:\/(?:boards|tags|reports|users|papers|audit))?|problem\/[a-z0-9_-]+\/[a-z0-9_-]+|[a-f0-9]{32})|submission\/[a-f0-9]{32}|u\/[a-z0-9_]{3,24}|messages(?:\/[a-z0-9_]{3,24})?|(?:papers|collections|lists|foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+)$/.test(route)) return route;
+  if (/^(?:[1-9]\d*|community\/(?:problem\/[a-z0-9_-]+\/[a-z0-9_-]+|[a-f0-9]{32})|submission\/[a-f0-9]{32}|u\/[a-z0-9_]{3,24}|messages(?:\/[a-z0-9_]{3,24})?|(?:papers|collections|lists|foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+)$/.test(route)) return route;
   return undefined;
 }
 
