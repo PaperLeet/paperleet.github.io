@@ -3,6 +3,7 @@ import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
 import PostTags from './PostTags';
 import CommunityTagBrowser,{CommunityTagContext} from './CommunityTagBrowser';
 import {initialCommunityTag} from './communityTagBrowsing';
+import {unavailableCommunityTags} from './communityTagSelection';
 import './community-taxonomy.css';
 import PostSearchMatch from './PostSearchMatch';
 import {sourcePostReadingReturn} from './readingReturn';
@@ -414,6 +415,7 @@ function Composer({
     if(!previous&&publicationBlocked)return;
     if(!previous&&submitted.tagIds?.length&&!taxonomy.supported){setError(t('标签服务暂不可用，草稿已保留。','Tags are unavailable. Your draft is kept.'));return;}
     if(!previous&&taxonomy.supported&&(!taxonomy.ready||!taxonomy.data.boards.some(row=>row.id===submitted.category&&row.enabled))){setError(t('请等待版位配置加载，或选择仍开放的版位。','Wait for board settings or choose an open board.'));return;}
+    if(!previous&&taxonomy.supported&&unavailableCommunityTags(taxonomy.data.tags,submitted.tagIds||[]).length){setError(t('所选标签含停用或不可用项，请在标签区移除后发布。草稿已保留。','Some selected tags are paused or unavailable. Remove them in the tag section before publishing. Your draft is kept.'));return;}
     if(solution&&!previous&&!topic&&!topics.some(row=>row.id===submitted.problemId&&!row.retired)){setError(t("请选择题解对应的题目。","Choose the practice module for your solution."));return;}
     if(!previous&&!hasCommunityDraftContent(submitted.body)){setError(t('提纲已准备好，请补充自己的问题、观察或思考后再发布。','Your outline is ready. Add your own question, observations or thoughts before publishing.'));return;}
     const paperUrl = previous ? previous.payload.paper_url : (submitted.category === 'papers' ? submitted.paperUrl : undefined);
@@ -519,7 +521,7 @@ function Composer({
           </select>
           {categoryHint && <small id={categoryHintId}>{t(...categoryHint)}</small>}
         </label>
-        <TaxonomyStatus/><CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/>
+        <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/>
         {initialTag&&hasDraft(draft)&&!draft.tagIds?.includes(initialTag)&&<p className="community-tag-draft-context" role="status">{t("当前列表筛选没有更改此草稿的标签，可在这里手动调整。","Your list filter has not changed this draft’s tags. Adjust them here if needed.")}</p>}
         {board === 'papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl => edit({ paperUrl })} owner={owner} available={papersAvailable} required={papersAvailable} disabled={busy} onUseTitle={paperTitle => edit({ title: paperTitle.slice(0, 160) })} />}
         <label>

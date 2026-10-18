@@ -210,10 +210,12 @@ assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.re
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('KaTeX_Main-Regular')), 'Math font styles must load with rich text rather than the homepage');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'Python navigation styles must stay deferred with the editor');
 assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'The enhanced editor must include its navigation layout');
-for (const marker of ['community-tag-browser','Tag filtering is unavailable']) {
+for (const marker of ['community-tag-browser','Tag filtering is unavailable','community-selected-tags']) {
   assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Tag discovery must remain deferred');
   assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes(marker)), 'Deferred community views must include tag discovery');
 }
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-tag-browser')), 'Tag discovery styles must remain deferred');
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-tag-browser'))), 'Deferred community views must include tag discovery styles');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-selected-tags')), 'Tag selection styles must remain deferred');
+assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-selected-tags'))), 'Deferred composers must include selected tag styles');
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);

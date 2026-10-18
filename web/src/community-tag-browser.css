@@ -42,3 +42,7 @@
 
 .community-feed-toolbar:has(.community-tag-browser[open]) { flex-wrap:wrap; align-items:flex-start; }
 .community-feed-controls:has(.community-tag-browser[open]) { flex-basis:100%; margin-inline-start:0; }
+
+.community-tag-options:has(>button) { padding:5px; margin:-5px; }
+
+@media(pointer:coarse) { .community-tag-browser-search>button { min-width:44px; } }
