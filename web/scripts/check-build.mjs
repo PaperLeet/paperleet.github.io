@@ -272,3 +272,6 @@ for(const name of ['solution-pane','community-pane','post-interaction']){
  assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('@container '+name)), 'Pane adaptation must stay out of initial styles');
  assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('@container '+name))), 'Deferred readers must include their pane adaptation');
 }
+
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('account/interview-companies')), 'Private target-company controls must remain deferred');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-company-targets')), 'Target-company styles must remain deferred');

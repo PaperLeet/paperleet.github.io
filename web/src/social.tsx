@@ -75,6 +75,7 @@ export type AccountCapabilities = {
   community_bookmarks?: boolean;
   interview_outcome_filter?: boolean;
   interview_context_filters?: boolean;
+  interview_company_targets?: boolean;
   auth_available: boolean;
   auth_mode?: "institutional" | "test" | "oauth";
   oauth_providers?: { id: "google" | "microsoft"; available: boolean }[];

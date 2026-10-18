@@ -13,12 +13,12 @@
 .interview-company-entry .interview-company-resource-count { margin-top:auto; padding-top:6px; color:var(--muted); font-size:var(--type-small); line-height:1.6; }
 .interview-company-entry .company-directory-concepts { color:var(--accent); }
 .company-directory-actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr)); gap:1px; border-top:1px solid var(--line); background:var(--line); }
-.company-directory-actions a { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; min-width:0; min-height:40px; padding:9px 8px; background:var(--surface2); color:var(--muted); font-size:var(--type-small); line-height:1.5; text-align:center; overflow-wrap:anywhere; }
-.company-directory-actions a:hover { color:var(--accent); background:var(--surface); }
+.company-directory-actions :is(a,button) { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; min-width:0; min-height:40px; padding:9px 8px; background:var(--surface2); color:var(--muted); font-size:var(--type-small); line-height:1.5; text-align:center; overflow-wrap:anywhere; }
+.company-directory-actions :is(a,button):hover { color:var(--accent); background:var(--surface); }
 .company-directory-toolbar select:focus-visible,.interview-company-entry a:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
 @media(max-width:760px) { .interview-company-directory .interview-company-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:420px) { .interview-company-directory .interview-company-grid { grid-template-columns:minmax(0,1fr); } .company-directory-toolbar label { flex:1; } .company-directory-toolbar select { flex:1; } }
-@media(pointer:coarse) { .company-directory-toolbar select,.company-directory-actions a { min-height:44px; font-size:var(--type-body); } }
+@media(pointer:coarse) { .company-directory-toolbar select,.company-directory-actions :is(a,button) { min-height:44px; font-size:var(--type-body); } }
 
 .company-directory-learning > p { margin:14px 0 0; font-size:var(--type-small); line-height:1.7; color:var(--muted); }
 .company-directory-recovery { display:flex; align-items:center; flex-wrap:wrap; gap:6px 12px; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); font-size:var(--type-small); line-height:1.7; color:var(--muted); }

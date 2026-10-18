@@ -69,3 +69,29 @@ show a retryable data error instead of an indefinite loader. Retry preserves the
 late or aborted responses cannot overwrite it, and changing language translates the
 error without issuing another request. `check-company-preparation.mjs` exercises the
 actual components and controlled timers for these flows, without production writes.
+
+## Private target companies / 我的目标公司
+
+In the account application, use **Set target / 设为目标** on a company card or
+preparation overview to save up to twelve companies. **My target companies / 我的目标公司**
+is a collapsed shortcut list above the hub filters. Its links open company preparation
+with the current role, period and other applicable report filters. Search, saved-report
+mode and captured practice batches are cleared for this navigation.
+
+Targets belong to the signed-in account and sync through the private account service;
+they are not published to profiles, company counts or affiliation. Other tabs refresh
+on focus or a storage invalidation containing only an account ID and nonce. The
+selection itself is not kept in local storage. An uncertain save retains the last
+confirmed state and retries the original add/remove direction. Switching accounts
+retires in-flight requests and hides the previous account's list immediately.
+
+Guests can sign in from a company card; signing in does not automatically add a target.
+Read-only editions and older services without the capability omit these controls.
+Removed catalog companies can still be removed from the private list.
+
+`check-company-target-store.mjs` checks ownership, revisions, concurrent responses and
+retry behavior. `check-company-targets.mjs` exercises the actual hub in React/JSDOM,
+including StrictMode, native links, account retirement and source/draft preservation;
+`--readonly` checks the browser-only edition. Private service tests cover real HTTP,
+separate sessions, authorization, concurrent capacity and idempotent updates. These
+checks do not prove native layout, device focus or real identity-provider behavior.
