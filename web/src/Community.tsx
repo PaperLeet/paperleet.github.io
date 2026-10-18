@@ -1,3 +1,4 @@
+import JoinPrompt from './CommunityJoinPrompt';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
@@ -199,32 +200,6 @@ function Loading() {
     <div className="social-loading">
       <span className="spinner" />
       {t("正在加载…", "Loading…")}
-    </div>
-  );
-}
-function JoinPrompt({ returnTo = "community" }: { returnTo?: string }) {
-  const { t } = useI18n();
-  const { capabilities } = useAccount();
-  const testAuth = capabilities?.auth_mode === "test";
-  return (
-    <div className="join-prompt">
-      <p>
-        {testAuth
-          ? t(
-              "使用管理员提供的内测账号加入讨论。",
-              "Join the discussion with your administrator-issued test account.",
-            )
-          : t(
-              "使用已验证的机构邮箱加入讨论。",
-              "Join the conversation with a verified institutional email.",
-            )}
-      </p>
-      <AppLink className="button" href={signInHref(returnTo)}>
-        {testAuth
-          ? t("内测账号登录", "Test account sign-in")
-          : t("登录 / 注册", "Sign in / Join")}
-        <ArrowRight size={14} />
-      </AppLink>
     </div>
   );
 }

@@ -264,3 +264,6 @@ console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes r
 
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.admin-paper-progress')), 'Administrator review progress must stay out of initial styles');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.admin-paper-progress'))), 'Deferred administration must include review progress styles');
+
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.community-join-copy')), 'Community join presentation must remain deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.community-join-copy'))), 'Deferred community must include its join presentation');

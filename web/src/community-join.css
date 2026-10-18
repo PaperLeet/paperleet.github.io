@@ -1,0 +1,7 @@
+.join-prompt{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:16px;min-width:0;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);text-align:left}
+.community-join-icon{display:grid;place-items:center;width:44px;height:44px;align-self:start;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--accent)}
+.community-join-copy{min-width:0}.community-join-copy strong{display:block;font-size:18px;line-height:1.5;font-weight:650;color:var(--text)}
+.community-join-copy p{margin:6px 0 0;font-size:var(--type-body);line-height:1.75;color:var(--text-secondary);overflow-wrap:anywhere}
+.join-prompt>.button{min-height:44px;white-space:nowrap;gap:8px}.join-prompt>.button:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.community-empty .join-prompt{max-width:660px;margin-top:8px}
+@media(max-width:650px){.join-prompt{grid-template-columns:44px minmax(0,1fr);gap:12px;padding:16px}.join-prompt>.button{grid-column:2;justify-self:start}.community-join-copy strong{font-size:17px}}
