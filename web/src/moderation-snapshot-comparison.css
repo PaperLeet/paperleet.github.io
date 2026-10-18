@@ -1,0 +1,42 @@
+.moderation-change-disclosure>summary { display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-weight:600; }
+.moderation-change-disclosure>summary::before { content:'›'; display:inline-block; width:12px; font-size:20px; line-height:1; }
+.moderation-change-disclosure[open]>summary::before { content:'⌄'; }
+.moderation-change-disclosure>summary small { color:var(--muted); font-weight:400; }
+.moderation-comparison { margin:6px 0 14px; padding:16px; border:1px solid var(--line); border-radius:9px; background:var(--surface); min-width:0; }
+.moderation-comparison h4 { margin:0 0 8px; font-size:var(--type-small); color:var(--text); }
+.moderation-comparison p { margin:8px 0 12px; font-size:var(--type-small); }
+.moderation-comparison-scope { padding-bottom:12px; border-bottom:1px solid var(--line); }
+.moderation-comparison-fields { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:16px; margin:16px 0 20px; }
+.moderation-comparison-fields dl { display:grid; gap:10px; margin:0; }
+.moderation-comparison-fields dl>div { display:grid; grid-template-columns:56px minmax(0,1fr); gap:8px; }
+.moderation-comparison-fields dt { color:var(--muted); font-size:var(--type-meta); }
+.moderation-comparison-fields dd { margin:0; overflow-wrap:anywhere; }
+.moderation-comparison-fields :is(del,ins) { text-decoration:none; border-radius:3px; padding:1px 3px; }
+.moderation-comparison-fields del { background:color-mix(in srgb,var(--red) 9%,transparent); }
+.moderation-comparison-fields ins { background:color-mix(in srgb,var(--green) 9%,transparent); }
+.moderation-comparison-body-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+.moderation-comparison-body-heading h4 { margin:0; }
+.moderation-comparison-body-heading>span { color:var(--muted); font-size:var(--type-meta); }
+.moderation-comparison-scroll { max-height:480px; overflow:auto; overscroll-behavior:contain; border:1px solid var(--line); border-radius:7px; }
+.moderation-comparison table { width:100%; table-layout:fixed; border-collapse:collapse; margin:0; text-align:start; }
+.moderation-comparison :is(th,td) { padding:5px 7px; border-bottom:1px solid var(--line); vertical-align:top; font-size:var(--type-small); }
+.moderation-comparison :is(th,td):nth-child(-n+2) { width:42px; text-align:end; font-variant-numeric:tabular-nums; color:var(--muted); font-size:var(--type-meta); user-select:none; }
+.moderation-comparison thead { position:sticky; top:0; background:var(--surface2); z-index:1; }
+.moderation-comparison tbody tr:last-child td { border-bottom:0; }
+.moderation-comparison td:last-child:not([colspan]) { position:relative; padding-inline:28px 45px; }
+.moderation-comparison td code { font-family:var(--mono,ui-monospace,monospace); font-size:var(--type-small); line-height:1.8; white-space:pre-wrap; overflow-wrap:anywhere; tab-size:4; }
+.moderation-diff-mark { position:absolute; inset-inline-start:9px; font-weight:700; user-select:none; }
+.moderation-comparison td small { position:absolute; inset-inline-end:7px; top:8px; font-size:var(--type-meta); color:var(--muted); user-select:none; }
+.moderation-diff-added { background:color-mix(in srgb,var(--green) 7%,var(--surface)); }
+.moderation-diff-removed { background:color-mix(in srgb,var(--red) 7%,var(--surface)); }
+.moderation-diff-added .moderation-diff-mark { color:var(--green); }
+.moderation-diff-removed .moderation-diff-mark { color:var(--red); }
+.moderation-comparison .moderation-diff-gap td { color:var(--muted); text-align:center; font-size:var(--type-meta); background:var(--surface2); width:auto; user-select:auto; }
+.moderation-comparison-sources { margin-top:14px; }
+.moderation-comparison-sources>div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.moderation-comparison-sources h5 { font-size:var(--type-small); margin:8px 0; }
+.moderation-comparison-sources section { min-width:0; }
+.moderation-comparison-sources pre { max-height:360px; overflow:auto; overscroll-behavior:contain; margin:0; padding:12px; background:var(--surface2); border:1px solid var(--line); border-radius:6px; font-size:var(--type-small); line-height:1.8; white-space:pre-wrap; overflow-wrap:anywhere; }
+.moderation-comparison :is(summary,[tabindex]):focus-visible,.moderation-change-disclosure>summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media(max-width:600px) { .moderation-comparison { padding:12px; } .moderation-comparison-fields,.moderation-comparison-sources>div { grid-template-columns:1fr; } .moderation-comparison :is(th,td):nth-child(-n+2) { width:30px; padding-inline:4px; } }
+@media(pointer:coarse) { .moderation-change-disclosure>summary,.moderation-comparison summary { min-height:44px; } }

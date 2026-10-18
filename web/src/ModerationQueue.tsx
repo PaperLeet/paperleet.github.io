@@ -3,12 +3,18 @@ import {Flag,RefreshCw,ShieldCheck} from 'lucide-react';
 import {DateLabel,errorMessage,SocialError,socialApi,useAccount} from './social';
 import {useI18n} from './i18n';
 import {signInHref} from './accountNavigation';
-import {reportReasons,reportRequestId,type ReviewCase,type ReviewCommand,type ReviewRow} from './communityReports';
+import {reportReasons,reportRequestId,type ReviewCase,type ReviewCommand,type ReviewPost,type ReviewRow} from './communityReports';
 import CommunityMarkdown from './CommunityMarkdown';
+import {deferredFeature} from './deferredFeature';
 import './community-reports.css';
 import './moderation.css';
 
 type Queue={owner_id:string;items:ReviewRow[];total:number;state:string;minimum:number;limit:number;offset:number};
+const SnapshotComparison=deferredFeature(()=>import('./ModerationSnapshotComparison'),['内容对比','content comparison']);
+function SnapshotChanges({before,after}:{before:ReviewPost;after:ReviewPost}){
+ const {t}=useI18n(),[visited,setVisited]=useState(false);
+ return <details className="moderation-change-disclosure" onToggle={event=>{if(event.currentTarget.open)setVisited(true);}}><summary>{t('对比当前内容','Compare with current content')}<small>{t('标题、正文与分类','Title, body and category')}</small></summary>{visited&&<SnapshotComparison before={before} after={after}/>}</details>;
+}
 export default function ModerationQueue(){
  const {user,loading,capabilities}=useAccount(),{t}=useI18n();
  if(loading)return <main className="moderation-page"><p role="status">{t('正在确认审核权限…','Checking review access…')}</p></main>;
@@ -40,12 +46,12 @@ function QueueView({owner}:{owner:string}){
 function ReviewCaseView({owner,postId,onReviewed}:{owner:string;postId:string;onReviewed:()=>void}){
  const {t}=useI18n(),[data,setData]=useState<ReviewCase>(),[offset,setOffset]=useState(0),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [note,setNote]=useState(''),[action,setAction]=useState<'dismiss'|'remove'>('dismiss'),[consent,setConsent]=useState(false),[command,setCommand]=useState<ReviewCommand>(),[busy,setBusy]=useState(false),[recover,setRecover]=useState(false);
- const mounted=useRef(true),sequence=useRef(0),working=useRef(false),heading=useRef<HTMLHeadingElement>(null),path=`community/moderation/${encodeURIComponent(postId)}`;
+ const mounted=useRef(true),sequence=useRef(0),working=useRef(false),heading=useRef<HTMLHeadingElement>(null),acceptedVersion=useRef(''),path=`community/moderation/${encodeURIComponent(postId)}`;
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;sequence.current++;};},[]);
  async function load(clear=false){const request=++sequence.current;setLoading(true);setError('');try{
   const value=await socialApi<ReviewCase>(`${path}?offset=${offset}`,undefined,AbortSignal.timeout(20_000));
   if(value.owner_id!==owner||value.post_id!==postId||value.offset!==offset||value.limit!==5||!Number.isSafeInteger(value.revision)||value.revision<1||!['pending','dismissed','removed'].includes(value.state)||value.post&&(value.post.id!==postId||typeof value.post.body!=='string'||!/^[a-f0-9]{64}$/.test(value.post.edit_version||''))||!Number.isSafeInteger(value.total_reports)||!Number.isSafeInteger(value.pending_reports)||value.pending_reports<0||value.total_reports<value.pending_reports||!Array.isArray(value.reports)||value.reports.length>5||value.reports.some(row=>row.snapshot?.id!==postId||typeof row.snapshot?.body!=='string'||!/^[a-f0-9]{64}$/.test(row.snapshot?.edit_version||'')||!row.id)||!Array.isArray(value.reviews))throw Error('The reviewed content could not be confirmed.');
-  if(mounted.current&&request===sequence.current){setData(value);if(clear){setCommand(undefined);setRecover(false);setConsent(false);}}
+  if(mounted.current&&request===sequence.current){const version=value.revision+':'+(value.post?.edit_version||'');if(acceptedVersion.current&&acceptedVersion.current!==version){setConsent(false);if(value.state==='pending')setNotice(t('内容或举报有更新，请重新检查；删除确认已重置。','Content or reports changed. Review them again; removal confirmation has been reset.'));}acceptedVersion.current=version;setData(value);if(clear){setCommand(undefined);setRecover(false);setConsent(false);}}
  }catch(e){if(mounted.current&&request===sequence.current)setError(errorMessage(e));}finally{if(mounted.current&&request===sequence.current)setLoading(false);}}
  useEffect(()=>{void load();},[offset]);
  async function review(previous?:ReviewCommand){
@@ -64,9 +70,9 @@ function ReviewCaseView({owner,postId,onReviewed}:{owner:string;postId:string;on
   {loading&&<p role="status">{t('正在读取审核内容…','Loading review content…')}</p>}{notice&&<p role="status">{notice}</p>}
   {error&&<div role="alert"><p>{error}</p><button type="button" className="text-button" disabled={busy||loading} onClick={()=>{focus();if(command&&!recover)void review(command);else void load(!!command);}}>{command&&!recover?t('重试原审核决定','Retry original decision'):t('载入最新内容','Load latest content')}</button></div>}
   {data&&<><p>{t(`待审 ${data.pending_reports} 人 · 累计 ${data.total_reports} 人`,`${data.pending_reports} pending reporters · ${data.total_reports} total`)}</p>
-   {data.post?<><h3>{data.post.title}</h3><a href={`#/community/${postId}`}>{t('打开原帖','Open original post')}</a><CommunityMarkdown body={data.post.body}/></>:<p>{t('帖子已不存在，可根据快照结案。','The post is unavailable. You can close this case using its snapshots.')}</p>}
+   {data.post?<><h3>{data.post.title}</h3><a href={`#/community/${postId}`} target="_blank" rel="noopener noreferrer">{t('在新标签打开原帖','Open original post in a new tab')} <span aria-hidden="true">↗</span></a><CommunityMarkdown body={data.post.body}/></>:<p>{t('帖子已不存在，可根据快照结案。','The post is unavailable. You can close this case using its snapshots.')}</p>}
    <h3>{t('举报记录与内容快照','Reports and content snapshots')}</h3><p>{t('举报人的身份不在此处展示。快照保留举报时的公开内容。','Reporter identities are not shown. Snapshots preserve the public content at reporting time.')}</p>
-   {data.reports.map(report=><article key={report.id} className="moderation-report"><header><b>{reasonTitle(report.reason)}</b><DateLabel value={report.created_at}/><span>{report.pending?t('待审','Pending'):t('已审','Reviewed')}</span></header>{report.details&&<p className="moderation-report-note">{report.details}</p>}<details><summary>{t('查看举报时快照','View reported snapshot')}{data.post?.edit_version!==report.snapshot.edit_version&&<span> · {t('与当前内容不同','Different from current content')}</span>}</summary><h4>{report.snapshot.title}</h4><CommunityMarkdown body={report.snapshot.body}/></details></article>)}
+   {data.reports.map(report=><article key={report.id} className="moderation-report"><header><b>{reasonTitle(report.reason)}</b><DateLabel value={report.created_at}/><span>{report.pending?t('待审','Pending'):t('已审','Reviewed')}</span></header>{report.details&&<p className="moderation-report-note">{report.details}</p>}{data.post&&data.post.edit_version!==report.snapshot.edit_version&&<SnapshotChanges before={report.snapshot} after={data.post}/>}<details><summary>{t('查看举报时快照','View reported snapshot')}{data.post?.edit_version!==report.snapshot.edit_version&&<span> · {t('与当前内容不同','Different from current content')}</span>}</summary><h4>{report.snapshot.title}</h4><CommunityMarkdown body={report.snapshot.body}/></details></article>)}
    <nav aria-label={t('举报记录翻页','Report pages')}><button type="button" className="text-button" disabled={busy||loading||!!command||!offset} onClick={()=>setOffset(value=>Math.max(0,value-5))}>{t('上一页记录','Previous reports')}</button><span>{offset+1}–{Math.min(offset+5,data.total_reports)} / {data.total_reports}</span><button type="button" className="text-button" disabled={busy||loading||!!command||offset+5>=data.total_reports} onClick={()=>setOffset(value=>value+5)}>{t('下一页记录','Next reports')}</button></nav>
    <form onSubmit={event=>{event.preventDefault();void review();}}><h3>{data.state==='pending'?t('处理全部待审举报','Resolve all pending reports'):t('审核说明草稿','Review note draft')}</h3>
     <label>{t('审核说明（必填）','Review note (required)')}<textarea required rows={3} maxLength={1000} value={note} onChange={event=>setNote(event.target.value)}/></label>
