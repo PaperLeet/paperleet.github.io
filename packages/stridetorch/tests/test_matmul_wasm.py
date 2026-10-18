@@ -93,7 +93,7 @@ def test_large_route_retains_minimal_saved_value_guards(active,changed):
 
 
 @pytest.mark.parametrize('shape_a,shape_b',[
-    ((4,64),(64,4)),((128,0),(0,128)),((2,128,64),(64,128)),((64,),(64,128))])
+    ((4,64),(64,4)),((128,0),(0,128)),((2,64,64),(64,32)),((64,),(64,128))])
 def test_ineligible_shapes_retain_the_original_operation(shape_a,shape_b,monkeypatch):
     def unexpected(*args,**kwargs):raise AssertionError('ineligible shape reached einsum')
     monkeypatch.setattr(np,'einsum',unexpected)

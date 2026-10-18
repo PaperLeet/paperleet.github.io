@@ -5,6 +5,19 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_batched_matmul.py` compares 78 warm float32/float64 public Tensor,
+fused SDPA and original PaperLeet attention/GQA flows. Pass `--baseline-source`,
+`--candidate-source`, `--fixtures benchmarks/fixtures/batched_attention` (relative
+to this package), and `--output result.json`. The two fixtures retain their
+original imports and function bodies; `as_torch()` binds each imported namespace
+once during setup. A0/A1 are independent imports of the same baseline and B is
+the candidate. Values are checked before calibration, batches target 50 ms,
+and all samples/source digests are retained. Use four fresh processes with
+`--cycle 0` through `--cycle 3`; default sampling is three rotated batches.
+The Python entry point also runs in Pyodide with both sources and fixtures
+mounted. Do not overlap timing with tests/builds or allocation checks. Results
+exclude native-Torch/WebGPU timing, cold import, transfer and whole-app throughput.
+
 `bench_matmul.py` compares 34 warm float32/float64 public Tensor calls in two
 source trees. Pass `--baseline-source` and `--candidate-source` directories
 containing `__init__.py`, plus `--output result.json`. It measures independent

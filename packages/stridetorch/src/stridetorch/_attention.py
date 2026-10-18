@@ -4,7 +4,9 @@ import numbers
 from functools import lru_cache
 import numpy as np
 
-from . import _autograd, _errors, _ops, _random, _state, _tensor
+from . import _autograd, _errors, _ops, _random, _state, _tensor, _matmul
+
+_WASM_ATTENTION = _tensor._WASM_MATMUL
 
 _REAL = (np.dtype('float32').str, np.dtype('float64').str)
 _BOOL = np.dtype('bool').str
@@ -13,20 +15,23 @@ _BOOL = np.dtype('bool').str
 def _head_product(left, right, grouped):
     """Broadcast a K/V head across its query group without repeating storage."""
     if not grouped or left.shape[-3] == right.shape[-3] or right.shape[-3] == 1:
-        return left @ right
+        return _matmul.product(left, right) if _WASM_ATTENTION and left.size >= 4096 else left @ right
     heads, queries = right.shape[-3], left.shape[-3]
     a = left.reshape((*left.shape[:-3], heads, queries // heads, *left.shape[-2:]))
-    value = a @ np.expand_dims(right, -3)
+    expanded = np.expand_dims(right, -3)
+    value = _matmul.product(a, expanded) if _WASM_ATTENTION and left.size >= 4096 else a @ expanded
     return value.reshape((*value.shape[:-4], queries, *value.shape[-2:]))
 
 
 def _head_gradient(left, right, shape, grouped):
     if not grouped or left.shape[-3] == shape[-3] or shape[-3] == 1:
-        return _ops.unbroadcast(left @ right, shape)
+        product = _matmul.product(left, right) if _WASM_ATTENTION and left.size >= 4096 else left @ right
+        return _ops.unbroadcast(product, shape)
     heads, queries = shape[-3], left.shape[-3]
     a = left.reshape((*left.shape[:-3], heads, queries // heads, *left.shape[-2:]))
     b = right.reshape((*right.shape[:-3], heads, queries // heads, *right.shape[-2:]))
-    return _ops.unbroadcast((a @ b).sum(axis=-3), shape)
+    product = _matmul.product(a, b) if _WASM_ATTENTION and left.size >= 4096 else a @ b
+    return _ops.unbroadcast(product.sum(axis=-3), shape)
 
 
 def _tensor_head_product(left, right, grouped):

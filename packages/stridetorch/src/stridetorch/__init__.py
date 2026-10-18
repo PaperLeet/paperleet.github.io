@@ -6,7 +6,7 @@ Importing this package never replaces an installed PyTorch module.
 """
 from ._integration import as_torch, create_torch, install_as_torch
 
-__version__ = '0.74.0'
+__version__ = '0.75.0'
 __all__ = ['torch', 'Tensor', 'UnsupportedOperation', 'create_torch', 'as_torch',
            'install_as_torch']
 _namespace = None

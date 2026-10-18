@@ -1954,3 +1954,25 @@ the output already had C layout. Temporary range-scan allocations add bounded
 peak memory; input buffers are not cached. The independent native-Torch numeric
 controls, warm-call A/A/B measurements, precision limits and application gates
 are recorded in the [iteration 76 validation](../../docs/validation/torch-runtime-iteration-76.md).
+
+Version 0.75 extends the measured WASM contraction path to batched and broadcast
+matmul and to the numerical products inside fused SDPA. Native CPU retains
+NumPy matmul. Batched cores require `M,N >= 32`, `K >= 64`, at least 262,144
+multiply-add terms per core and at least 1,048,576 across broadcast batches.
+The existing caller-size gate and exceptional-range fallback remain in place.
+Ranks above 34 keep the original operation because the tested shape-only
+broadcast helper has a lower rank limit than NumPy matmul.
+
+Contiguous reduction rows avoid the slow traversal observed with unprepared
+ellipsis contractions. Packing preserves shared zero-stride batch axes, and
+range checks inspect unique values instead of expanding those repeats. The
+output remains C-contiguous; packed data are temporary and are not retained
+between calls. Grouped SDPA keeps its existing unrepeated K/V representation.
+Packing increases temporary allocation, and small SDPA calls have measured
+overhead; timing and lifetime controls are in the
+[iteration 77 validation](../../docs/validation/torch-runtime-iteration-77.md).
+
+Limits queries use canonical scalar types. A first call with a NumPy dtype
+carrying arbitrary metadata previously allowed NumPy's global `finfo` cache
+to retain that metadata after all tensors were released. Cold-cache lifetime
+regressions cover both the existing 2D route and the new batched route.
