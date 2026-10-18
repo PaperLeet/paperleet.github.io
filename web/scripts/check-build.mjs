@@ -41,6 +41,8 @@ const moderation=Object.entries(manifest).filter(([,entry])=>entry.name==='Moder
 assert(moderation.length===1&&!initial.has(moderation[0][0]), 'Administrator report review must stay deferred');
 const history=Object.entries(manifest).filter(([,entry])=>entry.name==='ReportHistory'&&entry.isDynamicEntry);
 assert(history.length===1&&!initial.has(history[0][0]), 'Private report history must stay uniquely deferred');
+const comparison=Object.entries(manifest).filter(([,entry])=>entry.name==='ModerationSnapshotComparison'&&entry.isDynamicEntry);
+assert(comparison.length===1&&!initial.has(comparison[0][0]), 'Optional moderator snapshot comparison must stay uniquely deferred');
 const files = [...initial].map(key => manifest[key].file);
 const reportPreview=Object.entries(manifest).filter(([,entry])=>entry.name==='InterviewSourcePreview'&&entry.isDynamicEntry);
 assert(reportPreview.length===1&&!initial.has(reportPreview[0][0]), 'Source experience preview must remain a unique deferred entry');
@@ -61,11 +63,12 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('copyi
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Updates available')), 'Inbox reading continuity presentation must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Copy study checklist')), 'Interview batch sharing must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your report history could not be confirmed.')), 'Private report history data validation must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Read both complete sources')), 'Moderator snapshot comparison must not grow the library shell');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
-for(const selector of ['.moderation-layout','.post-report-dialog','.report-history-card']){
+for(const selector of ['.moderation-layout','.post-report-dialog','.report-history-card','.moderation-comparison']){
   assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(selector)), 'Report interfaces must stay out of initial styles');
   assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes(selector))), 'Report interfaces must ship their deferred styles');
 }
