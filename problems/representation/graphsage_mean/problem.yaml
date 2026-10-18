@@ -1,0 +1,76 @@
+id: representation/graphsage_mean
+number: 100
+title: GraphSAGE：采样邻域均值与归纳编码
+title_en: 'GraphSAGE: Sampled Neighborhood Means and Inductive Encoding'
+paper_id: graphsage
+paper:
+  title: Inductive Representation Learning on Large Graphs
+  authors: William L. Hamilton, Rex Ying and Jure Leskovec
+  venue: NIPS 2017
+  arxiv: '1706.02216'
+  url: https://arxiv.org/abs/1706.02216
+  anchors:
+  - 'Algorithm 1, lines 4–7: neighborhood aggregation, own-feature concatenation, nonlinear projection and per-hop L2 normalization'
+  - 'Section 3.3: mean aggregator; Equation 2 is a different self-inclusive GCN variant'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: masked_neighbor_mean
+  signature: 'masked_neighbor_mean(features: Tensor, neighbors: Tensor, valid: Tensor) -> Tensor'
+- name: graphsage_encode
+  signature: 'graphsage_encode(features: Tensor, neighbors, masks, weights, eps: float=1e-12) -> Tensor'
+- name: _check_features
+  signature: _check_features(features) -> None
+- name: _check_mean
+  signature: _check_mean(features, neighbors, valid) -> None
+- name: _check_encoder
+  signature: _check_encoder(features, neighbors, masks, weights, eps) -> None
+module:
+  goal: 从采样邻域聚合特征，以共享权重为未见节点生成表示。
+  goal_en: Aggregate sampled neighborhood features and generate embeddings for unseen nodes with shared weights.
+  scope: 实现掩码均值与 Algorithm 1 的同步多跳编码；采样表、验证和小型归纳分类训练已提供。
+  scope_en: Implement masked means and Algorithm 1 synchronous sampled hops; sampling tables, validation and small inductive classification training are supplied.
+  required_functions: [masked_neighbor_mean, graphsage_encode]
+  provided_functions: [_check_features, _check_mean, _check_encoder]
+  optional: false
+conventions:
+  seed: 42
+  dtype: float32/float64 features and weights; int32/int64 neighbor IDs; Boolean validity masks.
+  device: CPU; no GPU, PyG, account, external data or pretrained model.
+  contract: 'Each hop uses [N,S] sampled slots, counts repeated IDs and ignores masked IDs before gathering. Empty neighborhoods yield zero. Concatenate own then mean features, multiply [2*Din,Dout], apply ReLU and feature-axis L2 normalization with denominator max(norm,eps). Zero depth returns the input. Preserve all feature/weight gradients and inputs; validation is provided.'
+tests: {T0: 2, T1: 1, T2: 7, T3: 1}
+t3_budget_s: 8
+estimated_minutes: 30
+tags: [GraphSAGE, Inductive Learning, Neighbor Aggregation, Graph Neural Networks]
+viz: [toy_experiment]
+browser: {backend: numpy-autograd-wasm}
+sources_verified: '2026-10-16'
+verified_sources:
+  checked_at: '2026-10-16'
+  links:
+  - https://arxiv.org/pdf/1706.02216
+  - https://snap.stanford.edu/graphsage/
+  - https://github.com/williamleif/GraphSAGE
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1706.02216
+  anchor: Algorithm 1 and Section 3.3 mean aggregator
+  adaptation: Two sampled hops, 80 shared encoder/classifier parameters and 100 Adam updates on a synthetic 14-node graph. Frozen weights classify zero-feature query nodes on a distinct permuted 18-node graph with new anchor features. Fixed sampled tables, padding/empty-neighborhood conventions and eps stabilization are explicit teaching adaptations. No original dataset, node-ID lookup, full TensorFlow configuration or paper benchmark reproduction.
+mutants:
+- id: m1_sum_not_mean
+  bug: Sum sampled neighbors without dividing by their valid count.
+- id: m2_padding_denominator
+  bug: Divide by padded width rather than valid sampled slots.
+- id: m3_unsafe_padding
+  bug: Gather masked invalid IDs before sanitizing them.
+- id: m4_drop_own_features
+  bug: Replace the separate own-feature branch with zeros.
+- id: m5_batch_normalization_axis
+  bug: Normalize across nodes rather than output features.
+- id: m6_final_normalization_only
+  bug: Normalize only after the last hop instead of at every hop.
+- id: m7_missing_nonlinearity
+  bug: Omit the per-hop ReLU.
+- id: m8_detached_neighbors
+  bug: Detach aggregated neighbors and cut their feature/earlier-layer gradient paths.

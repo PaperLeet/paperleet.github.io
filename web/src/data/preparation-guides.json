@@ -3641,6 +3641,49 @@
           }
         }
       ]
+    },
+    {
+      "id": "representation/graphsage_mean",
+      "source": "problems/representation/graphsage_mean/README.md",
+      "functions": [
+        "masked_neighbor_mean",
+        "graphsage_encode"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 GraphSAGE 可以为训练时没有出现过的节点生成表示？",
+            "en": "Why can GraphSAGE embed nodes that were not present during training?"
+          },
+          "hint": {
+            "zh": "共享的是邻域聚合函数和权重，而不是每个节点独有的可训练向量；说明节点特征和采样邻域的作用。",
+            "en": "Share aggregation functions and weights rather than trainable vectors tied to node IDs. Explain the roles of node features and sampled neighborhoods."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何在存在 padding、重复邻居和空邻域时实现均值聚合与同步多跳编码？",
+            "en": "How do you implement mean aggregation and synchronous hops with padding, repeated neighbors and empty neighborhoods?"
+          },
+          "hint": {
+            "zh": "先替换无效索引再 gather，按有效采样槽数取均值；每一跳用上一跳完整状态，拼接自身与邻域均值，再投影、ReLU 和逐节点归一化。",
+            "en": "Sanitize masked indices before gathering and divide by valid sampled slots. Read the complete previous-hop state, concatenate own and mean features, project, apply ReLU and normalize each node."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样验证归纳泛化和邻域特征的梯度，而不只检查训练集拟合？",
+            "en": "How do you check inductive behavior and neighbor gradients beyond fitting the training graph?"
+          },
+          "hint": {
+            "zh": "冻结共享权重在另一张图上评估；用独立标量结果、重复索引梯度和有限差分检测邻域分支的错误 detach。",
+            "en": "Freeze shared weights and evaluate a distinct graph. Use independent scalar values, repeated-index derivatives and finite differences to detect detached neighbor branches."
+          }
+        }
+      ]
     }
   ]
 }

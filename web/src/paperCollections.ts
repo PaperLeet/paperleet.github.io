@@ -27,7 +27,7 @@ export const paperCollections: PaperCollection[] = [
     id: "retrieval",
     name: "检索与推荐",
     name_en: "Retrieval",
-    paperIds: ["bpr", "lightgcn", "sasrec", "clip", "colbert", "rotation-trick", "tiger"],
+    paperIds: ["bpr", "lightgcn", "graphsage", "sasrec", "clip", "colbert", "rotation-trick", "tiger"],
   },
   {
     id: "rl",

@@ -543,6 +543,7 @@
         "retrieval/bpr",
         "retrieval/sasrec",
         "retrieval/lightgcn",
+        "representation/graphsage_mean",
         "retrieval/late_interaction",
         "retrieval/semantic_ids",
         "retrieval/generative_retrieval"
