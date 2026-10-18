@@ -5,12 +5,12 @@ export type InterviewFilters={company:string;role:string;stage:string;q:string;d
 export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog',outcome:''});
 export function readInterviewRoute(route:string):InterviewFilters|undefined {
   if(route.length>8192)return;
-  const value=route.replace(/^#\/?/,'');const [path,search='']=value.split('?');
-  if(path!=='interviews'||value.split('?').length>2)return;
+  const [path,search='',extra]=route.replace(/^#\/?/,'').split('?');
+  if(path!=='interviews'||extra!==undefined)return;
   try{decodeURIComponent(search.replaceAll('+','%20'));}catch{return;}
   const params=new URLSearchParams(search),filters=emptyInterviewFilters();
   for(const [key,value] of params){
-    if(params.getAll(key).length!==1||!['company','role','stage','q','days','sort','page','view','track','saved','concept','study','queue','company_order','outcome','compare','comparison'].includes(key))return;
+    if(params.getAll(key).length!==1)return;
     if(key==='compare'){if(!/^[a-z][a-z0-9-]{0,39},[a-z][a-z0-9-]{0,39}$/.test(value)||new Set(value.split(',')).size!==2)return;filters.compare=value;}
     else if(key==='comparison'){if(!['shared','different','all'].includes(value))return;filters.comparison=value as InterviewFilters['comparison'];}
     else if(key==='saved'){if(!['0','1'].includes(value))return;filters.saved=value==='1';}
@@ -26,7 +26,7 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     else if(key==='days'){if(!['all','30','90','365'].includes(value))return;filters.days=value as InterviewFilters['days'];}
     else if(key==='sort'){if(!['recent','helpful'].includes(value))return;filters.sort=value as InterviewFilters['sort'];}
     else if(key==='view'){if(!['reports','questions','companies'].includes(value))return;filters.view=value as InterviewFilters['view'];}
-    else {if(!/^[a-z][a-z0-9-]{0,39}$/.test(value))return;filters[key as 'company'|'role'|'stage']=value;}
+    else {if(!['company','role','stage'].includes(key)||!/^[a-z][a-z0-9-]{0,39}$/.test(value))return;filters[key as 'company'|'role'|'stage']=value;}
   }
   if((filters.compare||filters.comparison)&&(filters.view!=='companies'||!!filters.company||!filters.compare))return;
   return filters;
