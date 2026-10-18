@@ -32,3 +32,14 @@ withdrawal, external author edits/removal and explicit current-version reapprova
 Mail/identity providers are controlled, and malformed/late responses are injected.
 No production account, browser automation, physical focus/IME/clipboard, deployment
 or workflow dispatch is part of this verification.
+
+Compact content context identifies ordinary discussions, module discussions,
+solutions and interview experiences from existing public post metadata. Current
+module links lead to the corresponding discussion/solution list; retired modules
+retain their original identity without an actionable practice link. Interview
+context contains catalog company, role and stage only, excluding outcome,
+location, date and question lists. Administrator preview uses the same projection.
+Clients validate the optional discriminated context before display; legacy absent
+context preserves the original presentation. Context changes remain subject to
+existing content-version reapproval. No extra detail, statistics or catalog reads
+are introduced by the context component.

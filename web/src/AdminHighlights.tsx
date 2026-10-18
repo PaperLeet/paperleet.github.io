@@ -4,6 +4,7 @@ import {useI18n} from './i18n';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import {useAccount} from './social';
 import CommunityAuthor from './CommunityAuthor';
+import HighlightContext from './HighlightContext';
 import {communityPostHref} from './communityNavigation';
 import {postPreview} from './postExcerpt';
 import {useAdminDraft,AdminDraftActions} from './AdminDrafts';
@@ -33,7 +34,7 @@ function HighlightForm({row,category,owner,run,blocked}:{row:HighlightSlot;categ
   {stale&&<p role="status">{t('此精选位已更新，输入已保留。核对最新状态后再继续。','This slot changed. Your inputs are kept; review the latest state.')} <button type="button" className="text-button" onClick={()=>{draft.change({base:row,candidate:undefined});setPreviewId('');}}>{t('已核对，使用最新状态','Reviewed; use latest state')}</button></p>}
   <form className="admin-form" onSubmit={e=>{e.preventDefault();submit();}}><label>{t('帖子链接或 ID','Post link or ID')}<input maxLength={1800} value={input} onChange={e=>{if(preview.data)draft.change({input:e.target.value,candidate:preview.data.post});else draft.change({input:e.target.value});setPreviewId('');}}/></label>
    <button type="button" className="button subtle" disabled={blocked||!id||preview.loading} onClick={()=>{setPreviewId(id!);setPreviewRetry(n=>n+1);}}>{t('预览当前帖子','Preview current post')}</button>{previewId&&<ReadStatus {...preview}/>}
-   {shown&&shown.id===id&&<div className="admin-highlight-preview"><b>{shown.title}</b><p>{postPreview(shown.body_excerpt,320,t('[公式]','[formula]')).text}</p><CommunityAuthor user={shown.author} compact/><AppLink href={communityPostHref(shown.id)} target="_blank" rel="noopener noreferrer">{t('打开完整帖子核对','Review the full post')} ↗</AppLink></div>}
+   {shown&&shown.id===id&&<div className="admin-highlight-preview"><b>{shown.title}</b><HighlightContext context={shown.context} newTab/><p>{postPreview(shown.body_excerpt,320,t('[公式]','[formula]')).text}</p><CommunityAuthor user={shown.author} compact/><AppLink href={communityPostHref(shown.id)} target="_blank" rel="noopener noreferrer">{t('打开完整帖子核对','Review the full post')} ↗</AppLink></div>}
    <label>{t('操作原因（仅管理员可见）','Reason (administrator-only)')}<textarea maxLength={1000} required rows={2} value={reason} onChange={e=>draft.change({reason:e.target.value,...(preview.data?{candidate:preview.data.post}:{})})}/></label>
    <div className="admin-highlight-actions"><button className="button" disabled={!ready||!reason.trim()}>{t('保存已预览的版本','Save previewed version')}</button>{row.post_id&&<button type="button" className="text-button" disabled={blocked||stale||!reason.trim()} onClick={()=>submit(true)}>{t('撤下此精选','Remove recommendation')}</button>}</div><AdminDraftActions draft={draft} disabled={blocked} onReset={()=>setPreviewId('')}/>
   </form>

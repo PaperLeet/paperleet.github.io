@@ -1,5 +1,8 @@
 import type {PublicUser} from './social';
-export type HighlightPost={id:string;title:string;body_excerpt:string;category:string;created_at:string;author:PublicUser;content_version:string};
+import type {ProblemTopic} from './communityTopics';
+import {interviewCatalog} from './interviewModels';
+export type HighlightContext={kind:'discussion'}|{kind:'solution'|'question';problem:ProblemTopic}|{kind:'interview';company:string;role:string;stage:string};
+export type HighlightPost={id:string;title:string;body_excerpt:string;category:string;created_at:string;author:PublicUser;content_version:string;context?:HighlightContext};
 export type HighlightSlot={id:string;slot:number;revision:number;post_id:string|null;state:'empty'|'active'|'changed'|'unavailable';post:HighlightPost|null};
 export type HighlightList={category:string;items:{slot:number;post:HighlightPost}[]};
 export type AdminHighlightList={owner_id:string;category:string;slots:HighlightSlot[]};
@@ -7,6 +10,14 @@ const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&
 const slug=(v:unknown):v is string=>typeof v==='string'&&/^[a-z][a-z0-9_-]{0,39}$/.test(v);
 const id=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{32}$/.test(v);
 const text=(v:unknown,max:number)=>typeof v==='string'&&v.length<=max&&!/[\uD800-\uDFFF]/u.test(v);
+export function isHighlightContext(value:unknown):value is HighlightContext{
+ if(!object(value))return false;
+ if(value.kind==='discussion')return Object.keys(value).length===1;
+ if(value.kind==='interview')return Object.keys(value).length===4&&(['company','role','stage'] as const).every(key=>interviewCatalog[({company:'companies',role:'roles',stage:'stages'} as const)[key]].some(row=>row.id===value[key]));
+ if(!['solution','question'].includes(String(value.kind))||Object.keys(value).length!==2||!object(value.problem))return false;
+ const p=value.problem;
+ return Object.keys(p).every(key=>['id','number','title','title_en','retired'].includes(key))&&typeof p.id==='string'&&/^[a-z0-9_-]{1,80}\/[a-z0-9_-]{1,80}$/.test(p.id)&&text(p.title,500)&&!!p.title&&(p.title_en==null||text(p.title_en,500))&&(p.number==null||Number.isSafeInteger(p.number)&&Number(p.number)>0)&&(p.retired===undefined||p.retired===true);
+}
 export const highlightResource=(category:string,slot:number)=>(category?'board:'+category:'global')+':'+slot;
 export function highlightPostId(value:string):string|undefined{
  const input=value.trim();if(/^[a-f0-9]{32}$/.test(input))return input;if(input.length>1800)return;
@@ -18,6 +29,7 @@ export function highlightPostId(value:string):string|undefined{
  }catch{return;}
 }
 export function isHighlightPost(v:unknown,category:string):v is HighlightPost{
+ if(object(v)&&v.context!==undefined&&!isHighlightContext(v.context))return false;
  if(!object(v)||!id(v.id)||!text(v.title,180)||!v.title||!text(v.body_excerpt,2400)||!slug(v.category)||!!category&&v.category!==category||typeof v.content_version!=='string'||!/^[a-f0-9]{64}$/.test(v.content_version)||typeof v.created_at!=='string'||v.created_at.length>40||!/^\d{4}-\d{2}-\d{2}T/.test(v.created_at)||!Number.isFinite(Date.parse(v.created_at))||!object(v.author))return false;
  const a=v.author;
  if(!text(a.id,100)||!a.id||!text(a.username,80)||!text(a.display_name,160)||typeof a.avatar_color!=='string'||!/^#[a-f0-9]{6}$/i.test(a.avatar_color)||typeof a.bio!=='string'||typeof a.created_at!=='string'||a.anonymous!==undefined&&typeof a.anonymous!=='boolean')return false;
