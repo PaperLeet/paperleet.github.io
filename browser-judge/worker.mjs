@@ -1,0 +1,45 @@
+// Runs only inside the disposable, opaque-origin browser judge sandbox.
+import { calibrationDiagnostic, runtimeDiagnostic } from './diagnostics.mjs';
+import { syntaxCheck } from './syntax.mjs';
+import { loadJudgePackages } from './packages.mjs';
+const send = globalThis.postMessage.bind(globalThis);
+let started = false;
+self.onmessage = async ({ data }) => {
+  if (started) return;
+  started = true;
+  const { base, bundle, source } = data;
+  const progress = (stage, detail = {}) => send({ type: 'progress', stage, ...detail });
+  const unsupported = (reason, detail = '') => send({ type: 'unsupported', reason, detail });
+  try {
+    progress('loading', { step: 'python' });
+    const { loadPyodide } = await import(`${base}browser-runtime/pyodide-0.29.4/pyodide.mjs`);
+    const py = await loadPyodide({ indexURL: `${base}browser-runtime/pyodide-0.29.4/`, stdout() {}, stderr() {} });
+    progress('loading', { step: 'syntax' });
+    py.globals.set('learner_source', source);
+    const diagnostic = JSON.parse(py.runPython(syntaxCheck));
+    if (diagnostic) return send({ type: 'syntax_error', diagnostic });
+    progress('loading', { step: 'packages' });
+    await loadJudgePackages(py, Object.keys(bundle.files || {}).some(name => name.endsWith('/problem.yaml')));
+    progress('loading', { step: 'preparing' });
+    py.globals.set('bundle_json', JSON.stringify(bundle));
+    py.runPython(`import json, inspect\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);
+    py.globals.set('_browser_progress', (step, completed, total) => progress(step === 'tests' ? 'running' : 'calibrating', { step, completed, total }));
+    py.globals.set('_browser_activity', (step, completed, total, index, test, layer, why, mutant) => progress(step === 'tests' ? 'running' : 'calibrating', {
+      step, completed, total, activity: { index, test, layer, why, ...(mutant ? { mutant } : {}) },
+    }));
+    // Older immutable bundles have a harness without optional callbacks.
+    const withProgress = py.runPython("'progress' in inspect.signature(calibrate).parameters and 'progress' in inspect.signature(run_suite).parameters");
+    const withActivity = py.runPython("'activity' in inspect.signature(calibrate).parameters and 'activity' in inspect.signature(run_suite).parameters");
+    const extra = (withProgress ? ', progress=_browser_progress' : '') + (withActivity ? ', activity=_browser_activity' : '');
+    progress('calibrating');
+    const calibration = JSON.parse(py.runPython(`json.dumps(calibrate(bundle, '/judge'${extra}), allow_nan=False)`));
+    if (!calibration.compatible) return unsupported('calibration_failed', calibrationDiagnostic(calibration));
+    progress('running');
+    const report = JSON.parse(py.runPython(`json.dumps(run_suite(bundle, learner_source, '/judge'${extra}), allow_nan=False)`));
+    if (report.error) return unsupported('collection_failed');
+    if (report.tests.some((test) => /BrowserUnsupported|ModuleNotFoundError|ImportError/.test(test.message))) return unsupported('python_api_unsupported');
+    send({ type: 'result', report, calibration });
+  } catch (error) {
+    unsupported('runtime_failed', runtimeDiagnostic(error));
+  }
+};
