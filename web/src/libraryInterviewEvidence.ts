@@ -3,9 +3,9 @@ import type {InterviewSummary} from './interviewModels';
 import type {Problem} from './types';
 
 /** Counts describe one public report cohort; a report can link several exercises. */
-export function libraryInterviewEvidence(summary:InterviewSummary|undefined,problems:Problem[],company=''){
+export function libraryInterviewEvidence(summary:InterviewSummary|undefined,problems:Problem[],company='',days='365'){
  const evidence=readCompanyConceptEvidence(summary);
- if(!summary||!evidence||summary.days!=='365'||summary.questions.some(row=>row.reports>summary.reports||row.contributors>summary.contributors||row.reports!==row.companies.reduce((sum,source)=>sum+source.reports,0)||row.contributors>row.companies.reduce((sum,source)=>sum+source.contributors,0)||row.companies.some(source=>source.problem_id!==row.problem_id||(source.reports===0)!==(source.contributors===0))))return;
+ if(!summary||!evidence||summary.days!==days||summary.questions.some(row=>row.reports>summary.reports||row.contributors>summary.contributors||row.reports!==row.companies.reduce((sum,source)=>sum+source.reports,0)||row.contributors>row.companies.reduce((sum,source)=>sum+source.contributors,0)||row.companies.some(source=>source.problem_id!==row.problem_id||(source.reports===0)!==(source.contributors===0))))return;
  const byId=new Map(problems.map(problem=>[problem.id,problem]));
  const questions=summary.questions.flatMap(row=>{
   const problem=byId.get(row.problem_id),sources=evidence.questions.find(value=>value.id===row.problem_id)!.sources;

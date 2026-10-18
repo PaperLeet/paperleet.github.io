@@ -4,7 +4,7 @@ import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
 export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title';
 export type PaperRegistryView={query:string;category:string;sort:LibrarySort;page:number};
-export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort };
+export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort; company?:string; company_days?:string };
 export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
 export const routePath = (route: string) => route.split('?')[0];
 const practicePath = /^(?:[1-9]\d*|(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
@@ -36,7 +36,7 @@ export function libraryTags(papers: Paper[], category = 'all'): string[] {
 
 export function readLibraryRoute(route: string): { collectionId?: string; filters: LibraryFilters } | undefined {
   const value = parts(route);
-  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state', 'sort'])) return;
+  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state', 'sort','company','company_days'])) return;
   const collectionId = /^(?:collections|lists)\/([a-z0-9_-]+)$/.exec(value.path)?.[1];
   if (value.path && (!collectionId || !paperCollections.some(collection => collection.id === collectionId))) return;
   const filters = { query: value.params.get('q') || '', category: value.params.get('category') || 'all', tag: value.params.get('tag') || 'all',
@@ -44,9 +44,12 @@ export function readLibraryRoute(route: string): { collectionId?: string; filter
   if (!bounded(filters.query, 200) || !bounded(filters.tag, 80) || !/^[a-z0-9-]{1,80}$/.test(filters.category)
     || !['all', 'E', 'M', 'H'].includes(filters.difficulty) || !['all', 'browser', 'server'].includes(filters.runtime)
     || !['all', 'todo', 'started', 'done'].includes(filters.state)) return;
+  const company=value.params.get('company'),days=value.params.get('company_days');
+  if(company!==null&&!/^[a-z][a-z0-9-]{0,39}$/.test(company)||days!==null&&(!company||!['30','90','365','all'].includes(days)))return;
+  const companyScope=company?{company,...(days&&days!=='365'?{company_days:days}:{})}:{};
   const sort = value.params.get('sort');
   if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)) return;
-  return { collectionId, filters: sort && sort !== 'default' ? { ...filters, sort: sort as LibrarySort } : filters };
+  return { collectionId, filters: sort && sort !== 'default' ? { ...filters,...companyScope, sort: sort as LibrarySort } : {...filters,...companyScope} };
 }
 
 export function libraryHref(collectionId: string | undefined, filters: LibraryFilters): string {
@@ -54,6 +57,8 @@ export function libraryHref(collectionId: string | undefined, filters: LibraryFi
   if (filters.query) params.set('q', filters.query);
   for (const key of ['category', 'tag', 'difficulty', 'runtime', 'state'] as const) if (filters[key] !== 'all') params.set(key, filters[key]);
   if (filters.sort && filters.sort !== 'default') params.set('sort', filters.sort);
+  if(filters.company)params.set('company',filters.company);
+  if(filters.company_days&&filters.company_days!=='365')params.set('company_days',filters.company_days);
   const base = collectionId ? `#/collections/${collectionId}` : '#';
   const href = base + (params.size ? `${collectionId ? '?' : '/?'}${params}` : '');
   if (!readLibraryRoute(href)) throw Error('Invalid library filters');
@@ -92,7 +97,8 @@ export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'
 export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]): LibraryFilters {
   const category = filters.category === 'all' || papers.some(paper => paper.category === filters.category) ? filters.category : 'all';
   const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.some(tag => sameLibraryTag(tag, filters.tag))) ? filters.tag : 'all';
-  return { ...filters, category, tag, runtime: 'all' };
+  const {company,company_days,...rest}=filters;
+  return { ...rest, category, tag, runtime: 'all',...(company?{company,...(company_days&&company_days!=='365'?{company_days}:{})}:{}) };
 }
 
 export function readFavoriteRoute(route:string):{query:string;state:string;list?:string}|undefined {

@@ -52,6 +52,8 @@ assert(manifest['src/MarkdownSectionNav.tsx']?.isDynamicEntry&&!initial.has('src
 assert(manifest['src/ProblemSolutionPanel.tsx']?.isDynamicEntry&&!initial.has('src/ProblemSolutionPanel.tsx'), 'Per-problem solution navigation must remain deferred');
 assert(manifest['src/EditorTools.tsx']?.isDynamicEntry&&!initial.has('src/EditorTools.tsx'), 'Optional editor controls must remain deferred');
 assert(manifest['src/LibraryOverview.tsx']?.isDynamicEntry&&!initial.has('src/LibraryOverview.tsx'), 'Practice overview and company interview preparation must remain deferred');
+assert(manifest['src/LibraryCompanyEvidence.tsx']?.isDynamicEntry&&!initial.has('src/LibraryCompanyEvidence.tsx'), 'Company evidence and filtering controls must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Filter library by company')), 'Company catalogs and filtering presentation must not grow the initial shell');
 const studyLists=manifest['src/StudyLists.tsx']?[['src/StudyLists.tsx',manifest['src/StudyLists.tsx']]]:Object.entries(manifest).filter(([,entry])=>entry.name==='StudyLists'&&entry.isDynamicEntry);
 assert(studyLists.length===1&&studyLists[0][1].isDynamicEntry&&!initial.has(studyLists[0][0]), 'Private study-list reading and editing must remain uniquely deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Could not confirm your private study lists.')), 'Private study-list stores must not grow the library shell');

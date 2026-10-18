@@ -3,18 +3,19 @@ import { CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Circle } from "lu
 import {readInterviewRoute} from './interviewNavigation';
 import {preparationProgress} from './interviewPreparation';
 import {interviewPracticeBatch} from './interviewPracticeBatch';
-import { withLibraryContext } from "./libraryNavigation";
+import { readLibraryRoute,withLibraryContext } from "./libraryNavigation";
 import { useI18n } from "./i18n";
 import { status, type Problem, type Saved } from "./types";
 
-export function ModuleNavigator({ current, modules: paperModules, allModules, saved, ready, returnTo, course }: { current: Problem; modules: Problem[]; allModules?:Problem[]; saved: Record<string, Saved>; ready: boolean; returnTo?: string; course?: boolean }) {
+export function ModuleNavigator({ current, modules: paperModules, allModules, saved, ready, returnTo, course,scopeReady=true }: { current: Problem; modules: Problem[]; allModules?:Problem[]; saved: Record<string, Saved>; ready: boolean; returnTo?: string; course?: boolean;scopeReady?:boolean }) {
   const { t, locale } = useI18n();
   const track=returnTo?readInterviewRoute(returnTo)?.track:undefined;
   const progress=track?preparationProgress(track,allModules||paperModules,saved):undefined;
   const scoped=progress?.modules.some(module=>module.id===current.id)?progress:undefined;
   const batch=interviewPracticeBatch(returnTo,allModules||paperModules,saved,current);
   const modules=batch?.modules||scoped?.modules||paperModules;
-  const heading=batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):t('本篇论文','This paper');
+  const company=!!readLibraryRoute(returnTo||'')?.filters.company;
+  const heading=company?t('当前公司练习','Current company practice'):batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):t('本篇论文','This paper');
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -36,6 +37,7 @@ export function ModuleNavigator({ current, modules: paperModules, allModules, sa
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
   }, [open]);
   useEffect(()=>setOpen(false),[current.id,returnTo]);
+  if(company&&(!scopeReady||index<0))return <div className="module-batch-unavailable" role="status">{!scopeReady?t('公司练习范围尚未确认，仍可编辑与运行当前题目。','Company scope is unconfirmed. You can edit and run this module.'):t('当前题目不在最新筛选范围，仍可继续编辑。','This module is outside the latest scope and remains editable.')}<a href={returnTo}>{t('返回公司练习','Back to company practice')}</a></div>;
   if(batch&&!batch.currentIncluded)return <div className="module-batch-unavailable" role="status">{t('这组练习已调整，仍可继续编辑当前题目。','This practice batch has changed. Your current module remains editable.')}<a href={returnTo}>{t('返回准备列表','Return to preparation')}</a></div>;
   return <div className="problem-navigation module-navigator" ref={root} onBlur={(event) => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false); }}>
     <button className="icon-button" aria-label={t("上一个模块", "Previous module")} disabled={index <= 0} onClick={() => { location.hash = withLibraryContext(modules[index - 1].number, returnTo).slice(1); }}><ChevronLeft size={15} /></button>

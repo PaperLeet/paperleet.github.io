@@ -9,6 +9,7 @@ import {PaperRegistry,DraftCenter,ProblemFavoriteButton,ProblemFavoritesPage,Inb
 import {usePracticeReadingOrigin} from './usePracticeReadingOrigin';
 import {PracticeProgressProvider} from './PracticeProgressContext';
 import {loadCatalogIndex} from './catalogIndex';
+import type {LibraryCompanyData,LibraryCompanyStatusProps} from './libraryCompanyScope';
 import { selectLibraryPractice } from './libraryPractice';
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
@@ -59,7 +60,7 @@ import { browserReason } from "./browserMessages";
 import { browserBudget } from './browserBudgets';
 import { topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
-import { publicSite, hostedAppHref, hostedAppAvailable } from "./deployment";
+import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
 import { type ExperimentView } from "./experimentResults";
 import { useReportSource } from "./ReportSourceNotice";
 import { useWorkspaceShortcuts } from "./useWorkspaceShortcuts";
@@ -74,6 +75,8 @@ import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libra
 import "./community.css";
 
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
+const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
+const CompanyStatus=deferredFeature<LibraryCompanyStatusProps>(()=>import('./LibraryCompanyEvidence').then(module=>({default:module.LibraryCompanyStatus})),['公司练习','company practice']);
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -242,12 +245,20 @@ function Workspace() {
   const learningNotice = hosted && <BrowserLearningNotice count={learningView.localPasses} failed={learning.failed} saving={learning.saving} onRetry={learning.retry} />;
   const progressReady = practice.ready && !practice.loading && learning.ready;
   const practiceReturn = libraryView ? libraryHref(libraryView.collectionId, libraryView.filters) : libraryReturn;
-  const practiceScope = selectLibraryPractice(papers, problems, learningSaved, libraryView || (libraryReturn ? readLibraryRoute(libraryReturn) : undefined));
+  const scopeView=libraryView||(libraryReturn?readLibraryRoute(libraryReturn):undefined);
+  const company=scopeView?.filters.company||'',companyDays=scopeView?.filters.company_days||'365';
+  const [companyData,setCompanyData]=useState<LibraryCompanyData>(),[companyRetry,setCompanyRetry]=useState(0);
+  const identity=JSON.stringify([user?.id,accountLoading,company,companyDays,companyRetry]),generation=useRef({identity,revision:0});
+  if(generation.current.identity!==identity)generation.current={identity,revision:generation.current.revision+1};
+  const companyKey=identity+generation.current.revision;
+  const companyScope={scope:companyKey,data:companyData,retry:()=>setCompanyRetry(value=>value+1),reload:()=>{void loadCatalog();setCompanyRetry(value=>value+1);}};
+  const companyReady=!company||companyData?.scope===companyKey&&companyData.phase==='ready';
+  const practiceScope = selectLibraryPractice(papers, problems, learningSaved, scopeView, companyReady?companyData?.ids:undefined);
   const scopedSiblings = siblingModules.filter(module => practiceScope.problems.some(candidate => candidate.id === module.id));
-  const idlePracticeLabel = !practiceScope.problems.some(module => !module.module.optional) ? t("当前范围暂无核心模块", "No core modules in this view") : practiceReturn && practiceReturn !== "#" ? t("本范围核心模块已完成", "Core modules complete in this view") : t("核心模块已完成", "Core modules complete");
-  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(scopedSiblings, learningSaved, !!courseCollection) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
-  const nextProblem = problem && progressReady
-    ? nextPractice(problem, siblingModules.map(module => module.id), practiceScope.problems, learningSaved)
+  const idlePracticeLabel = !companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!practiceScope.problems.some(module => !module.module.optional) ? t("当前范围暂无核心模块", "No core modules in this view") : practiceReturn && practiceReturn !== "#" ? t("本范围核心模块已完成", "Core modules complete in this view") : t("核心模块已完成", "Core modules complete");
+  const resumeProblem = progressReady && companyReady ? (selectedPaper&&!company ? recommendPractice(scopedSiblings, learningSaved, !!courseCollection) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
+  const nextProblem = problem && progressReady && companyReady
+    ? nextPractice(problem, (company?practiceScope.problems:siblingModules).map(module => module.id), practiceScope.problems, learningSaved)
     : undefined;
   const browser = useBrowserJudge(practice.owner);
   const queueReady = !publicSite && practice.ready && !practice.loading && problems.length > 0 && (!hosted || !!user);
@@ -501,6 +512,7 @@ function Workspace() {
   return (
     <PracticeProgressProvider owner={practice.owner} problems={problems} saved={learningSaved} ready={progressReady} failed={!!practice.error||learning.failed} retry={()=>{practice.retry();learning.retry();}}>
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
+      {company&&<CompanyBridge key={companyKey} company={company} days={companyDays} scope={companyKey} accountLoading={accountLoading} problems={problems} retry={companyRetry} onChange={setCompanyData} enabled={hostedEdition}/>}
       <header className="topbar">
         <div className="nav-inner">
           <Brand />
@@ -648,11 +660,12 @@ function Workspace() {
           </> : <><span className="spinner" />{t("正在加载这道题…", "Loading this module…")}</>}
         </main>
       ) : !problem ? (
-        <>{learningNotice}{selectedPaper ? (
+        <>{learningNotice}{selectedPaper&&company&&<CompanyStatus company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>} {selectedPaper ? (
           <PaperDetail
             paper={selectedPaper}
             problems={problems}
             practiceProblems={practiceScope.problems}
+            scopeReady={companyReady}
             saved={learningSaved}
             stats={problemStats}
             returnTo={libraryReturn}
@@ -667,6 +680,7 @@ function Workspace() {
             collectionId={collectionIdFromRoute(id)}
             route={id}
             onFilters={changeCatalogView}
+            companyScope={companyScope}
             progressReady={progressReady}
             categories={categories}
             papers={papers}
@@ -676,13 +690,14 @@ function Workspace() {
         )}</>
       ) : (
         <>
+          {company&&<CompanyStatus company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>}
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={company?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
+              {company?t("公司练习","Company practice"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>
@@ -714,7 +729,7 @@ function Workspace() {
               setLayoutRequest({horizontal:{ratio}});
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />}
+            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse} current={problem} modules={company?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady} returnTo={libraryReturn} />}
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
@@ -975,7 +990,7 @@ function Workspace() {
                   {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
                     onEdit={openEditor} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={inCourse} current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
+                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={inCourse} current={problem} problems={company?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
                   </WorkspaceTestResults>}
                   </div>
                   </div>

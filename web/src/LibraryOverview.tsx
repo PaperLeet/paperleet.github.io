@@ -2,9 +2,12 @@ import { CheckCircle2 } from 'lucide-react';
 import { useI18n } from './i18n';
 import { status, type Problem, type Saved } from './types';
 import LibraryInterviewGuide from './LibraryInterviewGuide';
+import type {LibraryCompanyScope} from './libraryCompanyScope';
 import {hostedAppAvailable} from './deployment';
 
-export default function LibraryOverview({ problems, practiceProblems=[], scopeReady=true, returnTo='#', saved, ready, difficulty, onDifficulty }: {
+export default function LibraryOverview({ problems, practiceProblems=[], scopeReady=true, returnTo='#', saved, ready, difficulty, onDifficulty,companyScope,onCompanyFilter }: {
+  companyScope?:LibraryCompanyScope;
+  onCompanyFilter?:(company:string)=>void;
   problems: Problem[];
   practiceProblems?:Problem[];
   scopeReady?:boolean;
@@ -23,7 +26,7 @@ export default function LibraryOverview({ problems, practiceProblems=[], scopeRe
     <section className="library-progress-card">
       <header><h2>{t('我的进度', 'Your progress')}</h2><CheckCircle2 size={16} aria-hidden="true" /></header>
       <div className="library-progress-ring" role="img" aria-label={ready ? t(`${solved} / ${core.length} 核心模块已通过，${percent}%`, `${solved} of ${core.length} core modules solved, ${percent}%`) : t('正在加载进度', 'Loading progress')} style={{ background: `conic-gradient(var(--green) ${percent}%, var(--surface3) 0)` }}>
-        <div><b>{ready ? solved : '—'}<span> / {core.length}</span></b><small>{t('已通过', 'Solved')}</small></div>
+        <div><b>{ready ? solved : '—'}<span> / {companyScope&&!scopeReady?'—':core.length}</span></b><small>{t('已通过', 'Solved')}</small></div>
       </div>
       <div className="library-progress-summary"><span><i />{t('进行中', 'In progress')}<b>{ready ? started : '—'}</b></span><span><i />{t('未开始', 'Not started')}<b>{ready ? core.length - solved - started : '—'}</b></span></div>
       <div className="library-difficulty-list" aria-label={t('按难度练习', 'Practice by difficulty')}>
@@ -31,12 +34,12 @@ export default function LibraryOverview({ problems, practiceProblems=[], scopeRe
           const group = core.filter(problem => problem.difficulty === value);
           const count = group.filter(problem => status(problem, saved[problem.id]) === 'done').length;
           return <button key={value} className={`difficulty-summary ${value}`} aria-pressed={difficulty === value} onClick={() => onDifficulty(difficulty === value ? 'all' : value)}>
-            <span>{({ E: t('简单', 'Easy'), M: t('中等', 'Medium'), H: t('困难', 'Hard') })[value]}</span><b>{ready ? count : '—'}<small> / {group.length}</small></b>
+            <span>{({ E: t('简单', 'Easy'), M: t('中等', 'Medium'), H: t('困难', 'Hard') })[value]}</span><b>{ready ? count : '—'}<small> / {companyScope&&!scopeReady?'—':group.length}</small></b>
             <div aria-hidden="true"><i style={{ width: `${ready && group.length ? count / group.length * 100 : 0}%` }} /></div>
           </button>;
         })}
       </div>
     </section>
-    <LibraryInterviewGuide problems={practiceProblems} scopeReady={scopeReady} returnTo={returnTo}/>
+    <LibraryInterviewGuide external={companyScope} onCompanyFilter={onCompanyFilter} problems={practiceProblems} scopeReady={scopeReady} returnTo={returnTo}/>
   </aside>;
 }

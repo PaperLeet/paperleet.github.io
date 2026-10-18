@@ -44,17 +44,21 @@ export function paperProgress(paper: Paper, { problems, saved }: Practice) {
 
 
 /** Use the same collection and filters for library cards and every practice entry point. */
-export function selectLibraryPractice(papers: Paper[], problems: Problem[], saved: Record<string, Saved>, view?: { collectionId?: string; filters: LibraryFilters }) {
+export function selectLibraryPractice(papers: Paper[], problems: Problem[], saved: Record<string, Saved>, view?: { collectionId?: string; filters: LibraryFilters }, companyModules?:ReadonlySet<string>) {
   if (!view) return { papers, problems };
   const collection = paperCollections.find(collection => collection.id === view.collectionId);
   const listed = papersInCollection(papers, collection);
   const filters = normalizeLibraryFilters(view.filters, listed);
+  if(filters.company&&!companyModules)return {papers:[],problems:[]};
+  const matching=(paper:Paper)=>matchingPaperModules(paper,problems,filters.query,filters.difficulty,filters.runtime).filter(problem=>!filters.company||companyModules!.has(problem.id));
+  const moduleStatus=collection?.kind==='course'||!!filters.company;
   const visible = listed.filter(paper =>
     (filters.category === 'all' || paper.category === filters.category) &&
-    matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime).length > 0 &&
-    (collection?.kind === 'course' || filters.state === 'all' || paperProgress(paper, { problems, saved }).state === filters.state) &&
+    matching(paper).length > 0 &&
+    (moduleStatus || filters.state === 'all' || paperProgress(paper, { problems, saved }).state === filters.state) &&
     (filters.tag === 'all' || paper.tags.some(tag => sameLibraryTag(tag, filters.tag))));
-  const modules = visible.flatMap(paper => matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime))
-    .filter(problem => collection?.kind !== 'course' || filters.state === 'all' || status(problem, saved[problem.id]) === filters.state);
+  const modules = visible.flatMap(matching)
+    .filter(problem => !moduleStatus || filters.state === 'all' || status(problem, saved[problem.id]) === filters.state);
+  if(filters.company){const rank=new Map([...companyModules!].map((id,index)=>[id,index]));modules.sort((a,b)=>(rank.get(a.id)??Infinity)-(rank.get(b.id)??Infinity));}
   return { papers: visible.filter(paper => modules.some(problem => paper.module_ids.includes(problem.id))), problems: modules };
 }

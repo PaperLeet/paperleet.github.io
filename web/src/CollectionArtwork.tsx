@@ -1,3 +1,39 @@
+import {useEffect,useState,type RefObject} from 'react';
+import {ChevronLeft,ChevronRight} from 'lucide-react';
+import {useI18n} from './i18n';
+export function CollectionControls({rail}:{rail:RefObject<HTMLElement|null>}){
+ const {t}=useI18n();
+  const [railEdges, setRailEdges] = useState({ previous: false, next: false });
+  useEffect(() => {
+    const element = rail.current;
+    if (!element) return;
+    const reveal = () => {
+      const card = element.querySelector('[aria-current="page"]');
+      if (!card) return;
+      const bounds = element.getBoundingClientRect(), selected = card.getBoundingClientRect();
+      if (selected.left < bounds.left) element.scrollLeft -= bounds.left - selected.left;
+      else if (selected.right > bounds.right) element.scrollLeft += selected.right - bounds.right;
+    };
+    reveal();
+    const measure = () => setRailEdges({ previous: element.scrollLeft > 2, next: element.scrollLeft + element.clientWidth < element.scrollWidth - 2 });
+    measure();
+    element.addEventListener("scroll", measure, { passive: true });
+    const observer = new ResizeObserver(() => {
+      reveal();
+      measure();
+    });
+    observer.observe(element);
+    return () => { element.removeEventListener("scroll", measure); observer.disconnect(); };
+  }, [rail]);
+  function scrollCollections(direction: number) {
+    const element = rail.current;
+    if (element) element.scrollBy({ left: direction * element.clientWidth });
+  }
+ return (        <div className="collection-controls">
+          <button aria-label={t("上一组合集", "Previous collections")} disabled={!railEdges.previous} onClick={() => scrollCollections(-1)}><ChevronLeft size={18} /></button>
+          <button aria-label={t("下一组合集", "Next collections")} disabled={!railEdges.next} onClick={() => scrollCollections(1)}><ChevronRight size={18} /></button>
+        </div>);
+}
 /** Decorative, text-free diagrams for the featured paper collections. */
 export default function CollectionArtwork({ kind }: { kind: string }) {
   let artwork;
