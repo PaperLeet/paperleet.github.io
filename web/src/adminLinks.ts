@@ -11,3 +11,12 @@ export function adminHref(view:AdminView){
  if(!readAdminRoute(href))throw Error('Invalid administrator view');return href;
 }
 export const adminListView=(view:AdminView):AdminView=>({...view,item:undefined,create:undefined});
+
+/** Navigate only to a known workbench object, never to an audit-supplied URL. */
+export function adminAuditHref(kind:string,resource:string,detailsAvailable:boolean):string|undefined {
+ if(!['boards','tags','users','papers'].includes(kind))return;
+ const taxonomy=kind==='boards'||kind==='tags';
+ if(!(taxonomy?/^[a-z][a-z0-9_-]{0,39}$/:/^[a-f0-9]{32}$/).test(resource))return;
+ return adminHref({section:kind as 'boards'|'tags'|'users'|'papers',page:1,
+  ...(kind==='papers'?{status:'all'}:{}),...(taxonomy||detailsAvailable?{item:resource}:{})});
+}
