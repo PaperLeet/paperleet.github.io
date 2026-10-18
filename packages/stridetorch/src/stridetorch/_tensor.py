@@ -1,12 +1,15 @@
 """NumPy-backed tensor implementation; extracted from PaperLeet."""
 import copy
 import math
+import sys
 import weakref
 import warnings
 from collections import namedtuple
 from statistics import NormalDist
 import numpy as np
-from . import _layout, _statistics, _reductions
+from . import _layout, _statistics, _reductions, _matmul
+
+_WASM_MATMUL = sys.platform == 'emscripten'
 
 
 class StorageVersion:
@@ -601,7 +604,10 @@ class Tensor:
             current = current[:, None] if b.ndim == 1 else current
             if g.dtype != current.dtype:
                 raise RuntimeError('matmul backward operands must have matching dtypes')
-            grad = _ops.unbroadcast(promote(g) @ np.swapaxes(current, -1, -2), aa.shape)
+            if _WASM_MATMUL and a.size >= 4096:
+                grad = _ops.unbroadcast(_matmul.product(promote(g), np.swapaxes(current, -1, -2)), aa.shape)
+            else:
+                grad = _ops.unbroadcast(promote(g) @ np.swapaxes(current, -1, -2), aa.shape)
             return grad.reshape(a.shape)
         def right(g):
             if a.ndim == b.ndim == 1:
@@ -612,9 +618,14 @@ class Tensor:
             current = current[None, :] if a.ndim == 1 else current
             if current.dtype != g.dtype:
                 raise RuntimeError('matmul backward operands must have matching dtypes')
-            grad = _ops.unbroadcast(np.swapaxes(current, -1, -2) @ promote(g), bb.shape)
+            if _WASM_MATMUL and a.size >= 4096:
+                grad = _ops.unbroadcast(_matmul.product(np.swapaxes(current, -1, -2), promote(g)), bb.shape)
+            else:
+                grad = _ops.unbroadcast(np.swapaxes(current, -1, -2) @ promote(g), bb.shape)
             return grad.reshape(b.shape)
-        output=_autograd.result(a @ b, (self, left), (other, right),versioned=())
+        output=_autograd.result(
+            _matmul.product(a, b) if _WASM_MATMUL and a.size >= 4096 else a @ b,
+            (self, left), (other, right), versioned=())
         if output.requires_grad:
             # Each derivative saves only its opposite operand. The result is
             # never read by either pullback, so its mutation is harmless.

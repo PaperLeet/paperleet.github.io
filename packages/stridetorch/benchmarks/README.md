@@ -5,6 +5,18 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_matmul.py` compares 34 warm float32/float64 public Tensor calls in two
+source trees. Pass `--baseline-source` and `--candidate-source` directories
+containing `__init__.py`, plus `--output result.json`. It measures independent
+baseline A0/A1 imports and candidate B, checks their values before timing, and
+retains every batch, iteration count and source digest. Default batches target
+50 ms with three samples; use at least four fresh processes with `--cycle 0`
+through `--cycle 3` to rotate ordering. Large contiguous/transposed/strided
+forward and complete forward/VJP calls have small, skinny, batched, exceptional
+and below-threshold controls. The same Python entry point runs in Pyodide when
+both source trees are mounted. These are warm library calls, without native
+Torch, GPU, cold import, transfer or full-application throughput comparisons.
+
 `bench_pooling_separable.py` compares direct 3D APIs on both releases (baseline
 0.43 or newer). Its 76 float32/float64 flows retain the earlier cube/slab,
 dilated, strided, NDHWC, index, VJP and JVP cases and add larger overlapping

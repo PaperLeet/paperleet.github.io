@@ -1935,3 +1935,22 @@ construction; Tensor subclasses retain their `detach`/`requires_grad_` dispatch.
 The existing strict checks, caller isolation, cast behavior and returned reverse
 graphs remain covered by the SDK and numeric inventories. Performance results
 are scoped to the workflows and runtimes recorded in the validation report.
+
+Version 0.74 uses a direct NumPy contraction for measured large two-dimensional
+float32/float64 matmul calls on Pyodide, including their two pullbacks. Native
+CPU calls retain NumPy matmul. The WASM route requires both output dimensions
+at least 32, a reduction dimension at least 64, at least 1,048,576 multiply-add
+terms, and a captured left input with at least 4,096 elements. Vector, batch,
+integer, complex, small and invalid-shape products retain the existing operation.
+Nonfinite and exceptional finite ranges also fall back: nonzero input magnitudes
+must lie between `sqrt(finfo.tiny)` and `sqrt(finfo.max / reduction_size) / 2`.
+This protects exceptional product ranges; cancellation and floating-point
+roundoff still depend on the backend. Output storage remains C-contiguous, and
+opposite-operand saved-value guards retain their existing behavior.
+
+The contraction keeps NumPy's traversal choice and normalizes the output layout
+afterward. Explicit `einsum(order='C')` lost the measured WASM speedup even when
+the output already had C layout. Temporary range-scan allocations add bounded
+peak memory; input buffers are not cached. The independent native-Torch numeric
+controls, warm-call A/A/B measurements, precision limits and application gates
+are recorded in the [iteration 76 validation](../../docs/validation/torch-runtime-iteration-76.md).
