@@ -5,6 +5,19 @@ runtime, sources, dtype, workload and sampling configuration for each comparison
 Do not overlap timing runs with tests or other benchmarks. Results retain every
 sample, the median, runtime versions and imported implementation path.
 
+`bench_vector_matmul.py` compares 98 warm float32/float64 flows, retaining
+the batched Tensor/SDPA and original PaperLeet attention/GQA workloads and adding
+tiny vector/matrix and empty forward/backward calls. Pass `--baseline-source`,
+`--candidate-source`, `--fixtures benchmarks/fixtures/batched_attention`, and
+`--output result.json`; use three fresh processes with `--cycle 0` through `2`.
+A0/A1 are independent baseline imports and B is the candidate. Each flow checks
+values/gradients, calibrates all variants to 100 ms targets, then uses their
+maximum iteration count for three rotated batches. Check that every recorded
+batch exceeds 20 ms. Source hashes and every sample are retained. `mv16` uses
+the existing `@` route so an older baseline can execute it. No import, transfer,
+native Torch, GPU or whole-application throughput is timed. See iteration 79
+for the three-process CPU/Node/real Chrome results and measured regressions.
+
 `bench_batched_matmul.py` compares 78 warm float32/float64 public Tensor,
 fused SDPA and original PaperLeet attention/GQA flows. Pass `--baseline-source`,
 `--candidate-source`, `--fixtures benchmarks/fixtures/batched_attention` (relative
