@@ -1,5 +1,5 @@
 id: representation/vae
-number: 96
+number: 99
 title: VAE：重参数化与 Bernoulli ELBO
 title_en: 'VAE: Reparameterization and the Bernoulli ELBO'
 paper_id: vae

@@ -1,5 +1,5 @@
 id: architecture/residual_block
-number: 94
+number: 97
 title: ResNet：残差分支与投影捷径
 title_en: 'ResNet: Residual Branches and Projection Shortcuts'
 paper_id: resnet

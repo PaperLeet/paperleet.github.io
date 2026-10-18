@@ -1,5 +1,5 @@
 id: architecture/batch_norm
-number: 95
+number: 98
 title: BatchNorm：批统计量、移动估计与推理
 title_en: 'BatchNorm: Batch Moments, Moving Estimates and Inference'
 paper_id: batchnorm

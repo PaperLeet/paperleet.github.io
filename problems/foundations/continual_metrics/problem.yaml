@@ -1,0 +1,62 @@
+id: foundations/continual_metrics
+number: 96
+title: 持续学习：评估矩阵与遗忘指标
+title_en: 'Continual Learning: Evaluation Matrices and Forgetting'
+paper_id: gem
+paper:
+  title: Gradient Episodic Memory for Continual Learning
+  authors: David Lopez-Paz, Marc'Aurelio Ranzato
+  venue: NeurIPS 2017
+  arxiv: '1706.08840'
+  anchors:
+  - 'Section 2, Equations (2)-(4): ACC, BWT and FWT'
+  - 'Algorithm 1: evaluate all tasks after each training stage'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: continual_metrics
+  signature: 'continual_metrics(scores: Tensor, baseline: Tensor) -> dict[str, Tensor]'
+module:
+  goal: 从阶段×任务评估矩阵计算准确率、前后向迁移和历史峰值遗忘。
+  goal_en: Compute accuracy, forward/backward transfer and peak forgetting from a stage-by-task evaluation matrix.
+  scope: 实现 GEM 的三个评估指标及明确约定的峰值遗忘扩展；不实现 GEM 梯度投影或完整持续学习算法。
+  scope_en: Implement GEM's three evaluation metrics plus an explicit peak-forgetting extension; not GEM gradient projection or a complete continual-learning algorithm.
+  required_functions: [continual_metrics]
+  provided_functions: []
+  optional: false
+conventions:
+  layout: 'scores [T,T]: row i is after training task i; column j evaluates task j. baseline [T] is before all training.'
+  dtype: Matching float32/float64 CPU tensors; T>=1; used values in [0,1].
+  unused: Entries scores[i,j] with j>i+1 and baseline[0] are unused and may be NaN.
+  reduction: Equal task weighting; return four scalar tensors in a dict with acc/bwt/fwt/forgetting keys.
+  forgetting: For each old task j<T-1, take the maximum over stages j..T-1 including the final stage, subtract its final accuracy, then average. This nonnegative peak-drop extension is not a GEM metric.
+  endpoint: T=1 returns scores[0,0] for acc and zero for the other three metrics.
+  gradients: No gradient requirement; do not mutate either input or retain state.
+estimated_minutes: 20
+tests: {T0: 1, T1: 2, T2: 4, T3: 1}
+t3_budget_s: 10
+tags: [Back to Basics, Continual Learning, Evaluation, Forgetting]
+viz: [sequential_evaluation]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-17'
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/abs/1706.08840
+  - https://papers.nips.cc/paper/2017/file/f87522788a2be2d171666752f97ddebb-Paper.pdf
+toy:
+  kind: teaching_adaptation
+  source: https://papers.nips.cc/paper/2017/file/f87522788a2be2d171666752f97ddebb-Paper.pdf
+  anchor: Section 2 evaluation matrix and Algorithm 1 stage-wise evaluation
+  adaptation: A deterministic two-weight logistic classifier learns three synthetic tasks sequentially; learner metrics evaluate real held-out stage scores. No GEM optimizer, replay method, LLM training or paper benchmark is reproduced.
+mutants:
+- id: m1_acc_diagonal
+  bug: 用刚学完各任务时的对角准确率替代最终行。
+- id: m2_bwt_sign
+  bug: 把后向迁移的差值方向反转。
+- id: m3_fwt_diagonal
+  bug: 用学完任务后的对角值计算前向迁移。
+- id: m4_forgetting_as_bwt
+  bug: 把历史峰值遗忘误写成负的后向迁移。

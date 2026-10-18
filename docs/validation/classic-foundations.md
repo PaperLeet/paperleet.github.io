@@ -1,8 +1,8 @@
 # ResNet, BatchNorm and VAE
 
-Validated on 2026-10-17. Three previously absent classic papers add three CPU/browser exercises, 30 learner tests and 19 localized mutants. The catalog becomes 60 papers plus one introductory course, 81 core modules, 649 learner tests and 361 mutants.
+Validated on 2026-10-17. Three previously absent classic papers add three CPU/browser exercises, 30 learner tests and 19 localized mutants. After integrating concurrent public main, the catalog contains 63 papers plus one introductory course, 85 core modules, 679 learner tests and 378 mutants.
 
-Paper IDs 62–64 and module IDs 94–96 leave paper 61/module 93 available for the existing GraphSAGE PR #34. Existing IDs and learner drafts are unchanged.
+Paper IDs 64–66 and module IDs 97–99 follow the maximum published IDs in public main `c79995fe`. The three unpublished exercises were renumbered when concurrent sampling/continual-learning work occupied their original branch IDs. All 82 upstream module records and 61 upstream paper/course records remain identical after export; published IDs and existing learner drafts are unchanged.
 
 ## Sources and selected scope
 
@@ -17,15 +17,15 @@ Each package has bilingual seven-section statements and notes, exact starter con
 ## Numerical and browser checks
 
 - New-module three-repeat native gate: 660 test executions; 6/6 residual, 6/6 BatchNorm and 7/7 VAE mutants caught by genuine assertions.
-- Full native gate: `paperleet ci --budget 600`, 81 modules, 10,878 test executions, three repeats, passed in 494.80 seconds. No per-test budget, assertion, tolerance or training loop was weakened.
+- Before concurrent four-module integration, full native gate: `paperleet ci --budget 600`, 81 modules, 10,878 test executions, three repeats, passed in 494.80 seconds. No per-test budget, assertion, tolerance or training loop was weakened.
 - Public infrastructure and StrideTorch regressions: 41,599 passed, one skipped. Public and private applications use separate virtual environments so the open-edition boundary check remains effective.
-- Full actual WASM catalog: Pyodide 0.29.4 / NumPy 2.2.5, 81/81 modules passed reference, all-mutant calibration and learner suites. The three new modules took approximately 9.30/8.01/5.91 seconds respectively on this run, with no browser-budget overruns. The existing Flow Matching module exceeded a browser phase budget on this concurrently loaded host; the verifier retained the full computation and recorded that warning. Full-catalog correctness does not establish device latency or browser-deadline compliance.
+- Before concurrent four-module integration, full actual WASM catalog: Pyodide 0.29.4 / NumPy 2.2.5, 81/81 modules passed reference, all-mutant calibration and learner suites. The three new modules took approximately 9.30/8.01/5.91 seconds respectively on this run, with no browser-budget overruns. The existing Flow Matching module exceeded a browser phase budget on this concurrently loaded host; the verifier retained the full computation and recorded that warning. Full-catalog correctness does not establish device latency or browser-deadline compliance.
 - Actual Chrome production-build workspace: ResNet starter 0/9, completed implementation 9/9; BatchNorm implementation 11/11; VAE implementation 10/10. The Lab displays learner-executed curves separately from reference curves, with measured artifacts and correct source identity. Formula rendering and practice/source navigation were inspected.
 - Matching production worker dependencies: Python 3.12, PyTorch 2.6.0, Linux ARM64, exact `Dockerfile.judge` allowlisted source. Non-root containers ran without network, with read-only root, dropped capabilities, two CPUs and a 1 GiB memory limit. All three references passed and all 19 mutants produced genuine failing assertions. Account code and credentials were absent from the worker.
 
 Timings are local observations, not CPU/WASM/server speed comparisons. Docker image and detailed raw reports remain local development artifacts.
 
-Complete frontend checks and the affected moderation checks after integrating concurrent public main passed. Hosted, connected-public, standalone-public and local production builds all pass on Node 22.23.3. The hosted build retains the 400 KiB raw / 130 KiB gzip initial-JavaScript limits (408,955 / 133,094 bytes). Routing parses the query once and rejects unknown keys in the remaining company/role/stage branch, avoiding a duplicate whitelist while preserving the existing strict-route tests. The path/handbook count assertions derive their expected sizes from the maintained catalogs.
+Complete frontend checks and the affected moderation checks after integrating concurrent public main passed. Hosted, connected-public, standalone-public and local production builds all pass on Node 22.23.3. The hosted build retains the 400 KiB raw / 130 KiB gzip initial-JavaScript limits (408,985 / 133,097 bytes after the concurrent curriculum integration). Routing parses the query once and rejects unknown keys in the remaining company/role/stage branch, avoiding a duplicate whitelist while preserving the existing strict-route tests. The path/handbook count assertions derive their expected sizes from the maintained catalogs.
 
 ## Experiments
 

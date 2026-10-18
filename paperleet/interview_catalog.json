@@ -423,6 +423,31 @@
       ]
     },
     {
+      "id": "generation-continual-basics",
+      "name": "生成、对话与持续学习基础",
+      "name_en": "Generation, dialogue & continual learning",
+      "description": "从核采样和下一词目标，练到多轮回答掩码、策略目标、参数保留与任务评估。",
+      "description_en": "Connect nucleus sampling and next-token targets with multi-turn response masks, policy objectives, parameter retention and task evaluation.",
+      "modules": [
+        "foundations/top_p_sampling",
+        "foundations/top_k_sampling",
+        "foundations/top_p_draw",
+        "foundations/next_token_loss",
+        "foundations/sft_loss_mask",
+        "foundations/multiturn_sft_mask",
+        "architecture/attention",
+        "rl/ppo_clip",
+        "finetuning/ewc",
+        "foundations/continual_metrics"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research",
+        "software"
+      ]
+    },
+    {
       "id": "llm",
       "name": "大模型算法准备",
       "name_en": "LLM foundations",

@@ -3347,6 +3347,174 @@
       ]
     },
     {
+      "id": "foundations/top_p_draw",
+      "source": "problems/foundations/top_p_draw/README.md",
+      "functions": [
+        "sample_top_p"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "候选概率已经算好后，还需要哪一步才能得到实际 token？",
+            "en": "What remains after candidate probabilities have been computed to obtain an actual token?"
+          },
+          "hint": {
+            "zh": "区分核集合、重归一化概率和随机选择。返回值是原词表编号，不能直接选最高概率，也不能返回排序后的名次。",
+            "en": "Separate the nucleus, renormalized probabilities and the random draw. Return an original vocabulary ID, not the mode or a sorted rank."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "逆 CDF 在 u 恰好落到累计概率边界时，应选择哪一个区间？",
+            "en": "Which inverse-CDF interval owns a uniform draw exactly on a cumulative-probability boundary?"
+          },
+          "hint": {
+            "zh": "本题采用左闭右开区间，零质量区间不能被选中。先用最后一项归一化 CDF，再考虑 q=[0,.5,0,.5]、u=0 和 u=.5。",
+            "en": "Intervals are left-closed and right-open; zero-mass intervals cannot be selected. Normalize the CDF by its final entry, then consider q=[0,.5,0,.5] with u=0 and u=.5."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样同时检验抽样频率正确、batch 行独立和调用方随机数流未被破坏？",
+            "en": "How would you check frequencies, independent batch rows and preservation of the caller-owned random stream?"
+          },
+          "hint": {
+            "zh": "用独立标量基准对照固定均匀数，再检查后续随机数与全局生成器。频率测试检查排除项和目标分布，不能替代确定性边界检查。",
+            "en": "Compare fixed uniforms with a scalar oracle and inspect subsequent and global RNG draws. Check excluded tokens and target frequencies separately from exact interval boundaries."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/multiturn_sft_mask",
+      "source": "problems/foundations/multiturn_sft_mask/README.md",
+      "functions": [
+        "assistant_target_mask"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "多轮 SFT 中，角色掩码、padding 掩码和会话边界分别解决什么问题？",
+            "en": "What distinct problems do role masks, padding masks and conversation boundaries solve in multi-turn SFT?"
+          },
+          "hint": {
+            "zh": "角色决定哪些目标 token 需要学习；有效位过滤 padding；会话边界阻止前一会话的末位去预测后一会话首位。损失掩码本身不隔离注意力。",
+            "en": "Roles select supervised target tokens, validity removes padding, and boundaries stop one conversation predicting the next conversation’s first token. A loss mask does not isolate attention."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "第一段 assistant 回答的首 token，是否要求前一个 token 也属于 assistant？",
+            "en": "Must the token before the first assistant response token also have the assistant role?"
+          },
+          "hint": {
+            "zh": "前一个 token 可以来自 user 或 system。目标位置必须属于 assistant，且与有效前驱处于同一会话；本题 EOS 按调用方提供的角色处理。",
+            "en": "The preceding token may belong to user or system. The target must be an assistant token with a valid predecessor in the same conversation; EOS follows the supplied role label."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造测试，区分多轮首回答遗漏、packed 边界泄漏和截断后的错位？",
+            "en": "How would you distinguish missing first-response tokens, packed-conversation leakage and truncation offsets?"
+          },
+          "hint": {
+            "zh": "放入两轮回答、相邻不同会话以及中间 padding，再分别左右截断。保留切片的第一项没有预测前驱；不要凭空补出 EOS。",
+            "en": "Use two response turns, adjacent distinct conversations and an internal padding gap, then truncate on either side. The retained first token has no predecessor; never invent an EOS token."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/ewc",
+      "source": "problems/finetuning/ewc/README.md",
+      "functions": [
+        "ewc_penalty"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 EWC 的参数约束不等同于普通均匀 L2 正则？",
+            "en": "Why is EWC’s parameter constraint different from uniform L2 regularization?"
+          },
+          "hint": {
+            "zh": "约束围绕旧任务参数，而不是零；Fisher 对角给不同参数不同权重。本题直接给出这些权重，只实现惩罚项，不估计 Fisher。",
+            "en": "The anchor is the old-task parameter vector rather than zero. The Fisher diagonal weights parameters differently; this exercise supplies those weights and only asks for the penalty."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "哪些输入应接收梯度，求和与求平均为什么会产生不同结果？",
+            "en": "Which inputs should receive gradients, and why do summation and averaging give different objectives?"
+          },
+          "hint": {
+            "zh": "只有当前 theta 接收梯度，anchor 和 Fisher 是固定快照。原式对参数求和；参数数量变化不能隐式改变正则强度。",
+            "en": "Only the current theta receives gradients; anchor and Fisher are frozen snapshots. The formula sums parameters, so parameter count must not implicitly rescale regularization."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "零 Fisher、零强度、空参数以及冲突的新旧任务，分别能检查什么？",
+            "en": "What do zero Fisher, zero strength, empty parameters and conflicting tasks test?"
+          },
+          "hint": {
+            "zh": "前三种情况检查可反传零和无约束方向；冲突任务展示保留与适应的权衡。不能用一个合成实验声称任何任务都不遗忘。",
+            "en": "The first cases test differentiable zero and unconstrained directions. Conflicting tasks expose the retention/adaptation tradeoff, not a universal guarantee against forgetting."
+          }
+        }
+      ]
+    },
+    {
+      "id": "foundations/continual_metrics",
+      "source": "problems/foundations/continual_metrics/README.md",
+      "functions": [
+        "continual_metrics"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "评估矩阵的行和列分别表示什么，ACC、BWT、FWT 各回答什么问题？",
+            "en": "What do the rows and columns of an evaluation matrix mean, and what do ACC, BWT and FWT measure?"
+          },
+          "hint": {
+            "zh": "行是训练阶段，列是被评估任务。最终准确率、对已学任务的变化、学习新任务前相对初始基线的变化需要读取不同位置。",
+            "en": "Rows are training stages and columns are evaluated tasks. Final accuracy, changes to learned tasks and pre-learning improvements over initialization use different matrix entries."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么历史峰值遗忘不总等于负 BWT？",
+            "en": "Why is historical-peak forgetting not always equal to negative BWT?"
+          },
+          "hint": {
+            "zh": "BWT 比较最终值与该任务刚学完的值；遗忘扩展比较最终值与任务学完以来的峰值。本题峰值包含最终阶段，因而遗忘非负。",
+            "en": "BWT compares final performance with the value immediately after learning a task. The forgetting extension compares with the subsequent historical peak, including the final stage, so it is nonnegative."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "只有一个任务、正向迁移以及未使用位置包含 NaN 时，输出应如何表现？",
+            "en": "What should happen for a single task, positive transfer and NaNs in unused entries?"
+          },
+          "hint": {
+            "zh": "单任务只保留 ACC，其他指标为零。正 BWT 是允许的；不要整矩阵归约，也不要把未使用的未来任务值或 baseline[0] 混入计算。",
+            "en": "With one task, only ACC is nonzero. Positive BWT is valid; avoid whole-matrix reductions and do not read unused future-task entries or baseline[0]."
+          }
+        }
+      ]
+    },
+    {
       "id": "architecture/residual_block",
       "source": "problems/architecture/residual_block/README.md",
       "functions": [

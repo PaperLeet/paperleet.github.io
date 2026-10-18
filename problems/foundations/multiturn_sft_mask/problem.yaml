@@ -1,0 +1,75 @@
+id: foundations/multiturn_sft_mask
+number: 94
+title: 多轮 SFT：回答标签与会话边界
+title_en: 'Multi-turn SFT: Assistant Targets and Conversation Boundaries'
+paper_id: llm-training-generation
+paper:
+  title: 'LLM Training and Generation: Small Implementation Exercises'
+  authors: PaperLeet original curriculum; primary documentation linked per exercise
+  url: https://huggingface.co/learn/llm-course/chapter1/1
+  anchors:
+  - https://huggingface.co/docs/trl/sft_trainer#train-on-assistant-messages-only
+  - https://huggingface.co/docs/trl/sft_trainer#label-shifting-and-masking
+  - https://huggingface.co/docs/trl/reducing_memory_usage#packing
+  - https://huggingface.co/docs/trl/reducing_memory_usage#truncation
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: assistant_target_mask
+  signature: 'assistant_target_mask(role_ids: Tensor, conversation_ids: Tensor, attention_mask: Tensor) -> Tensor'
+module:
+  goal: 从结构化角色生成多轮回答标签，排除 padding 与跨会话预测。
+  goal_en: Select assistant targets across turns while excluding padding and cross-conversation predictions.
+  scope: 实现一个布尔掩码函数；角色、会话编号与截断后的序列已提供，不实现 tokenizer、聊天模板或 attention mask。
+  scope_en: Implement one boolean mask; roles, conversation IDs and truncated sequences are supplied. No tokenizer, chat template or attention-mask construction.
+  required_functions: [assistant_target_mask]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: int64 role/conversation IDs; bool input/output masks
+  device: CPU
+  contract: >-
+    Inputs have identical [B,T] shapes, B,T>=0, CPU. role_ids/conversation_ids are int64;
+    attention_mask is bool. At valid positions roles are 0=system/header, 1=user,
+    2=assistant content including its EOS, 3=tool; conversation IDs are nonnegative.
+    Padding metadata may be arbitrary int64. Return bool [B,T] on the same device,
+    with column zero false. For j>0 select iff role_ids[b,j]==2, attention_mask[b,j]
+    and attention_mask[b,j-1] are true, and adjacent conversation IDs match. The
+    previous role need not be assistant. All turns of one conversation share an ID;
+    adjacent packed conversations use different IDs. Inputs are already truncated:
+    the first retained token has no predictor and right truncation invents no EOS.
+    No shift of the returned mask, token-ID inspection, gradients or input mutation.
+    Valid inputs are guaranteed; input validation is not a required function.
+estimated_minutes: 15
+tests: {T0: 1, T1: 1, T2: 5, T3: 1}
+t3_budget_s: 10
+tags: [Back to Basics, LLM Training and Generation, SFT, Multi-turn, Packing]
+viz: [toy_experiment]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-17'
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://huggingface.co/docs/trl/sft_trainer
+  - https://huggingface.co/docs/trl/reducing_memory_usage
+toy:
+  kind: teaching_adaptation
+  source: https://huggingface.co/docs/trl/sft_trainer#train-on-assistant-messages-only
+  anchor: Assistant-only targets and label shifting; explicit structured packing convention
+  adaptation: >-
+    Two original 12-token rows train independent four-class position logits with
+    the submitted mask for 80 SGD steps. Role IDs, conversation boundaries and EOS
+    ownership are explicit teaching conventions, not a TRL tokenizer reproduction.
+    No pretrained model, real conversations, throughput or generalization claim.
+mutants:
+- id: m1_predictor_role
+  bug: 使用预测位置的角色，而不是目标位置的角色。
+- id: m2_cross_conversation
+  bug: 允许前一个会话预测下一个会话的首 token。
+- id: m3_ignore_padding
+  bug: 忽略目标及前驱位置的 padding。
+- id: m4_first_token
+  bug: 将没有前驱预测位置的首 token 也选为目标。
