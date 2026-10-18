@@ -654,12 +654,13 @@ papers:
     summary: 从下一词预测与回答掩码，到候选概率、有效 token 梯度累积和全局裁剪。
     summary_en: From next-token targets and response masks to candidate probabilities, token-weighted
       accumulation and global clipping.
-    scope: 6 道独立基础题，明确错位、掩码、并列值和归约约定；提供确定性概率实验与真实小模型梯度更新。
-    scope_en: Six standalone exercises with explicit shifting, masks, ties and reductions; deterministic
+    scope: 7 道独立基础题，明确错位、掩码、并列值和归约约定；提供确定性概率实验与真实小模型梯度更新。
+    scope_en: Seven standalone exercises with explicit shifting, masks, ties and reductions; deterministic
       probability experiments and actual small-model gradient updates.
     module_ids:
     - foundations/next_token_loss
     - foundations/sft_loss_mask
+    - foundations/multiturn_sft_mask
     - foundations/top_k_sampling
     - foundations/top_p_sampling
     - foundations/gradient_accumulation
@@ -676,3 +677,39 @@ papers:
     scope: 实现可微的分组统计与逐通道仿射参数；提供标量基准、梯度检查和无需训练的合成实验。
     scope_en: Implement differentiable grouped moments and per-channel affine; scalar oracles, gradient checks and a training-free synthetic experiment are supplied.
     module_ids: [architecture/group_norm]
+
+  - id: nucleus-sampling
+    number: 61
+    category: foundations
+    short_title: Nucleus Sampling
+    year: 2020
+    tags: [Back to Basics, Sampling, Top-p]
+    summary: 从动态核集合的重归一化概率中抽取下一个词表 token。
+    summary_en: Draw the next vocabulary token from the renormalized distribution over a dynamic nucleus.
+    scope: 提供核概率 helper，练习逆 CDF、词表索引和调用方随机数流；用 8192 次真实合成抽样验证。
+    scope_en: A nucleus-probability helper is provided; practice inverse-CDF draws, vocabulary IDs and caller-owned RNG with 8192 actual synthetic samples.
+    module_ids: [foundations/top_p_draw]
+
+  - id: ewc
+    number: 62
+    category: post-training
+    short_title: EWC
+    year: 2017
+    tags: [Back to Basics, Continual Learning, Regularization]
+    summary: 用 Fisher 对角加权的参数锚点约束，理解学习新任务与保留旧任务的权衡。
+    summary_en: Use a Fisher-diagonal parameter anchor to study the tradeoff between new-task learning and old-task retention.
+    scope: 给定旧参数和 Fisher 权重，实现 EWC 惩罚与正确梯度；用两任务合成训练观察权衡。
+    scope_en: Given old parameters and Fisher weights, implement the EWC penalty and its gradients, then observe the tradeoff in synthetic two-task training.
+    module_ids: [finetuning/ewc]
+
+  - id: gem
+    number: 63
+    category: foundations
+    short_title: Continual Learning Metrics · GEM
+    year: 2017
+    tags: [Back to Basics, Continual Learning, Evaluation]
+    summary: 从任务评估矩阵计算准确率、前向和后向迁移，区分迁移与历史峰值遗忘。
+    summary_en: Compute accuracy and forward/backward transfer from a task evaluation matrix, separating transfer from peak-based forgetting.
+    scope: 实现 GEM 的 ACC、BWT、FWT 及明确标注的历史峰值遗忘扩展；不实现 GEM 梯度投影算法。
+    scope_en: Implement GEM's ACC, BWT and FWT plus an explicitly defined peak-forgetting extension; GEM gradient projection is outside this exercise.
+    module_ids: [foundations/continual_metrics]

@@ -16,7 +16,9 @@ try{
  const {default:Fields}=await server.ssrLoadModule('/src/InterviewFields.tsx');
  const {searchRelatedModules,relatedModuleQuery}=await server.ssrLoadModule('/src/relatedModuleMatching.ts');
  const published=JSON.parse(fs.readFileSync('public/data/index.json','utf8')).problems;
- assert(published.length>=78);
+ const catalog=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8')).problems;
+ assert(catalog.length>0);
+ assert.deepEqual(published.map(problem=>problem.id).sort(),catalog.map(problem=>problem.id).sort(),'Search checks cover every published catalog exercise');
  for(const problem of published){
   for(const title of [problem.title,problem.translations?.en?.title||problem.title])assert(searchRelatedModules(published,`${problem.number}. ${title}`).some(row=>row.id===problem.id));
   assert(searchRelatedModules(published,`#${problem.number} · ${problem.title}`).some(row=>row.id===problem.id));

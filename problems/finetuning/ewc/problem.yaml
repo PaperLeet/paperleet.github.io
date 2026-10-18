@@ -1,0 +1,70 @@
+id: finetuning/ewc
+number: 95
+title: EWC：用参数重要性约束遗忘
+title_en: 'EWC: Penalize Changes to Important Parameters'
+paper_id: ewc
+paper:
+  title: Overcoming catastrophic forgetting in neural networks
+  authors: James Kirkpatrick et al.
+  venue: PNAS 2017
+  arxiv: 1612.00796v2
+  url: https://arxiv.org/abs/1612.00796v2
+  anchors:
+  - 'Section 2, Eq. (3): lambda/2 times the Fisher-weighted squared parameter displacement'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: ewc_penalty
+  signature: 'ewc_penalty(theta: Tensor, anchor: Tensor, fisher_diag: Tensor, strength: float) -> Tensor'
+module:
+  goal: 实现给定 Fisher 对角权重的 EWC 惩罚，并冻结旧参数与重要性快照。
+  goal_en: Implement EWC with a supplied Fisher diagonal and freeze the old-parameter and importance snapshots.
+  scope: 一个标量惩罚函数；Fisher 已给定，提供两任务线性训练，不估计 Fisher、不训练大模型。
+  scope_en: One scalar penalty with a supplied Fisher diagonal; a two-task linear training experiment is provided. No Fisher estimation or LLM training.
+  required_functions: [ewc_penalty]
+  provided_functions: []
+  optional: false
+conventions:
+  dtype: CPU float32/float64 with matching dtype and shape; finite inputs, nonnegative Fisher weights
+  strength: Finite nonnegative Python scalar; no gradient to strength is required
+  contract: Sum all parameter coordinates without averaging or broadcasting. Return a scalar tensor in theta's dtype/device. Only theta has gradients; anchor and fisher_diag are detached even if trainable on input. Support scalar, empty and noncontiguous tensors; no mutation or input validation required. Zero strength and zero Fisher coordinates contribute differentiable zero even for large finite inactive values; active arithmetic is within dtype range.
+tests: {T0: 1, T1: 1, T2: 4, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 20
+tags: [Back to Basics, Continual Learning, EWC, Catastrophic Forgetting]
+viz: [toy_experiment]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-17'
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/html/1612.00796v2#S2.E3
+  - https://doi.org/10.1073/pnas.1611835114
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1612.00796v2
+  anchor: 'Section 2, Eq. (3)'
+  adaptation: Two linear weights and four deterministic observations per task; 60 SGD updates on A then 160 on B with strengths 0 and 1. The unit-variance Gaussian model supplies F=[2.5,0] analytically. No sampled Fisher estimate, replay, MNIST, Atari, LLM or held-out benchmark. Shows a retention/adaptation tradeoff, not guaranteed retention for arbitrary tasks.
+calibration:
+  seed: 42
+  threads: 2
+  dtype: float64
+  method: Three native CPU reference/mutation runs with identical outcomes; all seven original tests and four mutants also pass exported NumPy-autograd browser compatibility calibration. T3 uses SGD and an independently solved quadratic optimum with rtol=atol=0.001; old-task MSE bounds are baseline>30 and 0.5<EWC<2. Data are deterministic; no RNG draws are required.
+  reference_metrics:
+    task_a_before_b: 0.0
+    unregularized_old_mse: 39.978182368581955
+    unregularized_new_mse: 0.0000007439670349024286
+    ewc_old_mse: 1.1111111111111107
+    ewc_new_mse: 5.555555704348963
+  observed_native_t3_s: 0.047
+mutants:
+- id: m1_missing_half
+  bug: Omit the factor one-half from the penalty.
+- id: m2_parameter_mean
+  bug: Average parameter contributions instead of summing them.
+- id: m3_ignore_importance
+  bug: Give every positive-Fisher coordinate unit importance.
+- id: m4_train_anchor
+  bug: Backpropagate into the old parameter snapshot.

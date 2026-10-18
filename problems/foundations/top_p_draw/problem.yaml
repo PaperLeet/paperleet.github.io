@@ -1,0 +1,79 @@
+id: foundations/top_p_draw
+number: 93
+title: Top-p：从候选概率到抽取 token
+title_en: 'Top-p: Draw Tokens from the Nucleus'
+paper_id: nucleus-sampling
+paper:
+  title: The Curious Case of Neural Text Degeneration
+  authors: Ari Holtzman, Jan Buys, Li Du, Maxwell Forbes, Yejin Choi
+  venue: ICLR 2020
+  arxiv: '1904.09751'
+  anchors:
+  - 'Section 3.1, Equations (2–3): nucleus support and renormalization; inverse-CDF
+    drawing is an explicit teaching extension'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: nucleus_probs
+  signature: 'nucleus_probs(logits: Tensor, p: float, temperature: float = 1.) ->
+    Tensor'
+- name: sample_top_p
+  signature: 'sample_top_p(logits: Tensor, p: float, temperature: float, generator:
+    torch.Generator) -> Tensor'
+module:
+  goal: 用逆累计分布从核采样概率中抽出词表 token。
+  goal_en: Draw vocabulary token IDs from nucleus probabilities using an inverse CDF.
+  scope: 提供核概率函数；实现逐行抽样、随机数流和词表索引映射。
+  scope_en: The nucleus probability helper is provided; implement per-row sampling,
+    random-stream ownership and vocabulary indexing.
+  required_functions:
+  - sample_top_p
+  provided_functions:
+  - nucleus_probs
+  optional: false
+conventions:
+  layout: Finite CPU float32/64 logits [...,V], V>=1; p in (0,1], temperature>0; output
+    int64 [...].
+  rng: One torch.rand(leading_shape, dtype=float64, generator=generator) call; caller
+    generator required, never reseed. Normalize float64 vocabulary-order CDF by last
+    entry; choose first CDF strictly above u. Empty leading batches allowed.
+  gradient: No gradient required; do not mutate inputs.
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 20
+tags:
+- Back to Basics
+- Sampling
+- Top-p
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-17'
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/abs/1904.09751
+  - https://pytorch.org/docs/stable/generated/torch.rand.html
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1904.09751
+  anchor: Section 3.1, Equations (2–3)
+  adaptation: Inverse-CDF sampling on synthetic logits with a caller-owned generator,
+    no pretrained model or text-quality benchmark.
+mutants:
+- id: m1_greedy
+  bug: Uses the mode instead of sampling.
+- id: m2_sorted_ids
+  bug: Samples sorted ranks instead of vocabulary IDs.
+- id: m3_global_rng
+  bug: Ignores the caller-owned generator.
+- id: m4_shared_draw
+  bug: Reuses one uniform draw for every batch row.
+- id: m5_unnormalized_cdf
+  bug: Leaves a CDF rounding gap at the right endpoint.
