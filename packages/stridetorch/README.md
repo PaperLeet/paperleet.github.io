@@ -1796,3 +1796,35 @@ round-trip through pickle using references to this distribution's operators.
 Shallow and deep copies retain live callable identity; Transformer activation
 restoration keeps its legacy defaults. Arbitrary user lambdas retain ordinary
 Python pickle limitations.
+
+
+## Functional Jacobians
+
+Version 0.70 adds `torch.autograd.functional.jacobian(func, inputs,
+create_graph=False, strict=False, vectorize=False, strategy='reverse-mode')`
+for supported real first-order operators. It runs the callback once, isolates
+each explicit input from repeated arguments and captured originals, and returns
+detached Jacobians shaped as `output.shape + input.shape`, with each input's
+dtype. Tensor/tuple nesting follows the input and output structure. Caller
+gradient flags, existing `.grad` buffers and original tensor hooks are preserved.
+The callback can update its own model buffers, as in native Torch; a training
+BatchNorm callback runs once and updates its running statistics once.
+
+```python
+x = torch.tensor([2., 3.])
+jacobian = torch.autograd.functional.jacobian(lambda a: a.square(), x)
+assert jacobian.tolist() == [[4., 0.], [0., 6.]]
+```
+
+`strict=True` checks each output against each input, including outputs that are
+independent of only one argument. Constant or unused paths produce zeros in
+default mode. Implicit NumPy exports inside the recorded callback raise an
+error; `detach()`, `no_grad()` and `numpy(force=True)` deliberately disconnect
+the graph. Empty inputs with nonempty output can yield empty Jacobians; native
+empty-output and empty-tuple error boundaries are preserved.
+
+Dense Jacobians allocate one final buffer per input and fill gradient rows
+directly. Their inherent output size still scales with output elements times
+input elements. Higher-order graphs, complex inputs, vectorized/forward-mode
+Jacobians and nesting in forward AD remain explicitly unsupported. This API
+does not add `torch.func.jacrev`, `torch.func.jacfwd` or a GPU backend.

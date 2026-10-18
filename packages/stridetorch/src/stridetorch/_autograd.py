@@ -389,12 +389,12 @@ def functional_vjp(func, inputs, v=None, create_graph=False, strict=False):
         # Distinct leaves separate explicit arguments from captured originals,
         # including repeated arguments that happen to share the same storage.
         arguments = tuple(item.detach().requires_grad_(True) for item in original)
-        previous_transform = _state._functional_vjp_active
-        _state._functional_vjp_active = True
+        previous_transform = _state._functional_ad_active
+        _state._functional_ad_active = True
         try:
             returned = func(*arguments)
         finally:
-            _state._functional_vjp_active = previous_transform
+            _state._functional_ad_active = previous_transform
         outputs, outputs_tuple = tensors(returned, 'outputs')
         if strict and any(not output.requires_grad for output in outputs):
             raise RuntimeError('A functional VJP output does not require gradients in strict mode')
@@ -424,6 +424,69 @@ def functional_vjp(func, inputs, v=None, create_graph=False, strict=False):
         outputs = tuple(output.detach() for output in outputs)
         return (outputs if outputs_tuple else outputs[0],
                 gradients if inputs_tuple else gradients[0])
+
+
+def functional_jacobian(func, inputs, create_graph=False, strict=False,
+                        vectorize=False, strategy='reverse-mode'):
+    """First-order reverse-mode Jacobian; one callback and isolated inputs."""
+    if create_graph:
+        raise _errors.BrowserUnsupported('Higher-order functional Jacobians require the server')
+    if vectorize or strategy != 'reverse-mode':
+        raise _errors.BrowserUnsupported('Vectorized or forward-mode Jacobians require the server')
+    if _state._jvp_active:
+        raise _errors.BrowserUnsupported('Functional Jacobians inside forward AD require the server')
+
+    def tensors(value, name):
+        was_tuple = isinstance(value, tuple)
+        values = value if was_tuple else (value,)
+        if any(not isinstance(item, _tensor.Tensor) for item in values):
+            raise TypeError(name + ' must be a Tensor or a tuple of Tensors')
+        return values, was_tuple
+
+    with enable_grad():
+        original, inputs_tuple = tensors(inputs, 'inputs')
+        if any(isinstance(item, ForwardTensor) or item.dtype.kind == 'c' for item in original):
+            raise _errors.BrowserUnsupported('Complex or forward-AD Jacobian inputs require the server')
+        arguments = tuple(item.detach().requires_grad_(True) for item in original)
+        previous = _state._functional_ad_active
+        _state._functional_ad_active = True
+        try:
+            returned = func(*arguments)
+        finally:
+            _state._functional_ad_active = previous
+        outputs, outputs_tuple = tensors(returned, 'outputs')
+        if strict and any(not output.requires_grad for output in outputs):
+            raise RuntimeError('A functional Jacobian output does not require gradients in strict mode')
+        if not outputs or not arguments:
+            raise IndexError('Empty functional Jacobian Tensor tuple')
+        result = []
+        for output in outputs:
+            if not output.numel():
+                raise RuntimeError('Cannot stack an empty functional Jacobian output')
+            # Fill one final buffer per input. Keeping every temporary gradient
+            # row and then stacking them would retain a second dense Jacobian.
+            matrices = tuple(np.empty((output.numel(),) + argument.shape, dtype=argument.dtype)
+                             for argument in arguments)
+            for row in range(output.numel()):
+                if output.requires_grad:
+                    data = np.zeros_like(output._data)
+                    data.flat[row] = 1
+                    gradients = autograd_grad(output, arguments, _tensor.Tensor(data),
+                                              retain_graph=True, allow_unused=True)
+                else:
+                    gradients = (None,) * len(arguments)
+                for matrix, gradient in zip(matrices, gradients):
+                    if gradient is None:
+                        if strict:
+                            raise RuntimeError('A Jacobian output is independent of an input in strict mode')
+                        matrix[row] = 0
+                    else:
+                        matrix[row] = gradient._data
+            result.append(tuple(_tensor.Tensor(matrix.reshape(output.shape + argument.shape))
+                                for matrix, argument in zip(matrices, arguments)))
+        if not inputs_tuple:
+            result = [values[0] for values in result]
+        return tuple(result) if outputs_tuple else result[0]
 
 
 def gradcheck(func, inputs, *, eps=1e-6, atol=1e-5, rtol=1e-3, raise_exception=True, **options):

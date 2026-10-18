@@ -18,4 +18,4 @@ _storages = {}
 _where_uint8_warning_emitted = False
 
 # Functional reverse transforms reject implicit NumPy graph escapes.
-_functional_vjp_active = False
+_functional_ad_active = False

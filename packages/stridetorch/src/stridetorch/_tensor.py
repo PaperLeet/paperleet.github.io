@@ -155,8 +155,8 @@ class Tensor:
     def _real_only(self):
         if self.dtype.kind == 'c': raise _errors.BrowserUnsupported('This complex operation requires the server')
     def __array__(self, dtype=None, copy=None):
-        if _state._functional_vjp_active and _state._grad_enabled and self.requires_grad:
-            raise RuntimeError('A functional VJP cannot export a recorded Tensor to NumPy; detach explicitly')
+        if _state._functional_ad_active and _state._grad_enabled and self.requires_grad:
+            raise RuntimeError('A functional AD transform cannot export a recorded Tensor to NumPy; detach explicitly')
         exported = self._data.view()
         return np.array(exported, dtype=dtype, copy=copy) if copy is not None else np.asarray(exported, dtype=dtype)
     def __len__(self): return len(self._data)
@@ -172,8 +172,8 @@ class Tensor:
     def tolist(self): return self._data.tolist()
     def numpy(self, *, force=False):
         if force is False:
-            if _state._functional_vjp_active and _state._grad_enabled and self.requires_grad:
-                raise RuntimeError('A functional VJP cannot export a recorded Tensor to NumPy; detach explicitly')
+            if _state._functional_ad_active and _state._grad_enabled and self.requires_grad:
+                raise RuntimeError('A functional AD transform cannot export a recorded Tensor to NumPy; detach explicitly')
         elif force is not True:
             raise TypeError('numpy force must be bool')
         return self._data.view()

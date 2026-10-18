@@ -5,11 +5,11 @@ import pytest
 from stridetorch import torch
 
 @pytest.mark.parametrize('kind',['module','transformer'])
-@pytest.mark.parametrize('operator',['sin','vjp'])
+@pytest.mark.parametrize('operator',['sin','vjp','jacobian'])
 @pytest.mark.parametrize('method',['copy','deepcopy','pickle2','pickle_highest'])
 def test_registered_operator_attributes_survive_model_copy_pickle(kind,operator,method):
     model=torch.nn.Module() if kind=='module' else torch.nn.TransformerEncoderLayer(4,2,8,dropout=0.)
-    fn=torch.sin if operator=='sin' else torch.autograd.functional.vjp
+    fn=torch.sin if operator=='sin' else getattr(torch.autograd.functional,operator)
     model.operator=fn;model.same_operator=fn
     model.register_buffer('buffer',torch.tensor([1.,2.]));model.alias=model.buffer
     if method=='copy':restored=copy.copy(model)
@@ -21,9 +21,12 @@ def test_registered_operator_attributes_survive_model_copy_pickle(kind,operator,
     else:assert restored.buffer is not model.buffer
     x=torch.tensor([2.,3.],requires_grad=True)
     if operator=='sin':np.testing.assert_allclose(restored.operator(x).detach().numpy(),np.sin([2.,3.]),rtol=1e-6,atol=1e-7)
-    else:
+    elif operator=='vjp':
         out,g=restored.operator(lambda a:a.square().sum(),x)
         assert out.item()==13 and g.tolist()==[4.,6.] and x.grad is None
+    else:
+        jac=restored.operator(lambda a:a.square(),x)
+        assert jac.tolist()==[[4.,0.],[0.,6.]] and not jac.requires_grad and x.grad is None
 
 class _OrdinaryPayload:
     @property
