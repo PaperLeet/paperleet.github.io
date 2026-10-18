@@ -297,3 +297,13 @@ The CI trigger header is unchanged: tags/manual dispatch only; exact current-mai
 SHA gates and the Pages workflow remain intact. The seven policy hashes now pin
 this reviewed upstream identity; the earlier identity is retained for old-stage
 provenance. No push-triggered CI, manual retry or deployment is introduced here.
+
+## Main adoption
+
+Validated source `57f81ea7b7233f2d46172605197b70dc151b1f79` was adopted on remote main by ordinary non-force push.
+The remote SHA matched exactly, with zero observed Actions runs for that SHA.
+All 61 source/license resources, 169 active exports, 13,563 immutable payloads
+and seven canonical release-policy files were rechecked. A separate proof commit
+records this observation; its final main identity is checked outside the repository.
+No tag, workflow dispatch, release, PyPI upload or deployment was initiated.
+The broader library efficiency/core-coverage/backend objective remains active.
