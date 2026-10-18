@@ -27,3 +27,10 @@ it does not simulate positive API result presentation.
 
 Verification is TypeScript, React/JSDOM and disposable HTTP/SQLite, not native browser
 layout, physical focus/IME/clipboard, real mail/OAuth or production verification.
+
+A separate before-fix component probe reproduced successful retry unmounting its
+button and dropping DOM focus to body. Recovery now synchronously focuses a stable
+local h3 before invoking the callback. There is no delayed focus effect: successful
+button removal retains that target, while newer editor focus/caret takes precedence.
+The actual hub check covers both progress and catalog recovery and the newer-action
+case. The before-fix observation remains tied to its original source commit.

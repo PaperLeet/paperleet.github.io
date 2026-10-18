@@ -49,3 +49,5 @@
 .company-comparison-row-practice>.interview-group-toggle{margin-top:0}.company-comparison-state{color:var(--muted);font-weight:400}.company-comparison-state.done{color:var(--green)}.company-comparison-state.started{color:var(--accent)}
 .company-comparison-row-practice>a{display:inline-flex;align-items:center;min-height:32px}.company-comparison-learning p>.text-button{min-height:32px}
 @media(pointer:coarse){.company-comparison-learning-filters>button,.company-comparison-row-practice>a,.company-comparison-learning p>.text-button{min-height:44px}}
+
+.company-comparison-learning-heading>h3{margin:0;font-size:inherit;font-weight:600}.company-comparison-learning-heading>h3:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
