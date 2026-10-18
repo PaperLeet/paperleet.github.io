@@ -7,13 +7,13 @@ import os from 'node:os';
 import path from 'node:path';
 
 const dom=new JSDOM('<!doctype html><textarea id="private-support-code">UNCHANGED PRIVATE CODE 😀</textarea><div id="root"></div>',{url:'https://paperleet.test/#/interviews',pretendToBeVisual:true});
-const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,Element:dom.window.Element,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__filterSupport:undefined};
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,Element:dom.window.Element,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,history:dom.window.history,HashChangeEvent:dom.window.HashChangeEvent,IS_REACT_ACT_ENVIRONMENT:true,__filterSupport:undefined};
 const originals=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
 window.matchMedia=()=>({matches:true});let scrolls=0;window.HTMLElement.prototype.scrollIntoView=()=>{scrolls++;};localStorage.setItem('paperleet.locale','en');
 const caches=[],account={user:{id:'support-alice',username:'alice',display_name:'Alice'},loading:true,capabilities:{community_bookmarks:true}},requests=[],pending=[];
 globalThis.__filterSupport={account,request(url,body,signal){assert.equal(body,undefined);requests.push({url,signal});return new Promise(resolve=>pending.push({url,signal,resolve}));}};
-let server,root,Hub,LocaleProvider,useI18n,locale,nav,route,model;
+let server,root,Hub,LocaleProvider,useI18n,locale,nav,route,model,pathLocation;
 let problems=[{id:'architecture/attention',number:1,title:'Attention',translations:{en:{title:'Attention'}},difficulty:'M',estimated_minutes:20,starter:'initial',tests:{T0:1,T1:1},module:{goal:'Implement attention',goal_en:'Implement attention'}}];
 let saved={'architecture/attention':{acceptedReport:{problem:'architecture/attention',summary:{T0:[1,1],T1:[1,1]},tests:[{id:'shape',layer:'T0',passed:true},{id:'numeric',layer:'T1',passed:true}]}}};
 const code=document.querySelector('#private-support-code');code.focus();code.setSelectionRange(2,12,'backward');code.scrollTop=37;code.scrollLeft=11;const privateSnapshot=[code.value,code.selectionStart,code.selectionEnd,code.selectionDirection,code.scrollTop,code.scrollLeft];
@@ -24,7 +24,7 @@ async function open(edition='hosted',publicSite=false,connected=false){
 }
 async function close(){if(root){await act(async()=>root.unmount());root=undefined;}if(server){await server.close();server=undefined;}}
 function Controls(){locale=useI18n();return null;}
-const render=()=>act(async()=>{location.hash=route;root.render(React.createElement(LocaleProvider,null,React.createElement(Controls),React.createElement(Hub,{route,problems,saved,progressReady:true})));});
+const render=()=>act(async()=>{if(pathLocation)pathLocation.hash=route;else location.hash=route;root.render(React.createElement(LocaleProvider,null,React.createElement(Controls),React.createElement(Hub,{route,problems,saved,progressReady:true})));});
 const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
 const input=async(node,value)=>{await act(async()=>{node.focus();Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set.call(node,value);node.dispatchEvent(new window.Event('input',{bubbles:true}));});};
 const take=piece=>{const i=pending.findIndex(row=>row.url.includes(piece));assert(i>=0,piece);return pending.splice(i,1)[0];},answer=async(request,value)=>act(async()=>request.resolve(value));
@@ -68,6 +68,22 @@ try{
   console.log('PASS filter support HTTP: actual hub blocks unsupported cohorts before reads, explicit unsupported-only recovery joins real JudgeHandler/InterviewService/SQLite cohorts, supported context and all other filters remain exact, and capability updates never silently restore or relax filters; two public reads and no writes');
   console.log('FILTER_SUPPORT_HTTP '+JSON.stringify({summary_reads:transport.length,writes:0,cohort_reports:transport.map(row=>row.value.reports)}));
  }
+ // Install the production router last: its listeners live for this window's lifetime.
+ await open();
+ const catalog=JSON.parse(readFileSync('public/data/catalog.json','utf8')),entry=catalog.problems.find(problem=>problem.id==='architecture/attention');assert(entry);problems=[entry];saved={};
+ const {startPathNavigation}=await server.ssrLoadModule('/src/pathNavigation.ts'),routing=await server.ssrLoadModule('/src/appLocation.ts');pathLocation=routing.appLocation;
+ document.documentElement.dataset.routing='path';startPathNavigation();routing.registerCatalogRoutes(catalog.problems);
+ account.user={id:'support-alice',username:'alice',display_name:'Alice'};account.loading=false;account.capabilities={interview_outcome_filter:false,interview_context_filters:true};
+ const pathReads=[],pathFilters={...filters,q:'',saved:false,page:1},pathSummary={...summary,questions:[{...summary.questions[0],problem_id:entry.id}]};
+ globalThis.__filterSupport.request=async(url,body)=>{assert.equal(body,undefined);pathReads.push(url);return url.includes('/summary')?pathSummary:{items:[],total:0,offset:0,limit:20,owner_id:account.user.id,context};};
+ route=nav.interviewHref(pathFilters);await render();assert(support());assert.equal(pathReads.length,0);await click(support().querySelector('button'));
+ assert.deepEqual(nav.readInterviewRoute(pathLocation.hash),{...pathFilters,outcome:''});assert.equal(location.pathname,'/');assert.equal(document.activeElement,document.querySelector('.interview-filter-bar'));
+ route=pathLocation.hash;await render();assert.equal(pathReads.length,2);assert.equal(support(),null);
+ const practice=document.querySelector('[data-company-practice=start]');assert(practice);assert(practice.getAttribute('href').startsWith('/problems/'+entry.id+'/'));
+ const target=new URL(practice.href),practiceRoute=routing.routeHash(target);const returnView=nav.readInterviewRoute('#/'+new URLSearchParams(target.search).get('from'));assert.deepEqual(returnView,{...pathFilters,outcome:'',view:'questions',queue:String(entry.number)});
+ await click(practice);assert.equal(location.pathname,'/problems/'+entry.id+'/');assert.equal(location.hash,'');assert.equal(pathLocation.hash,practiceRoute);assert.equal(pathReads.length,2);
+ route=nav.interviewHref(pathFilters);await render();const stale=support().querySelector('button');pathLocation.hash=practiceRoute;const moved=location.href;await click(stale);assert.equal(location.href,moved,'A retired interview recovery cannot rewrite a canonical problem route');assert.equal(pathReads.length,2);await close();
+ console.log('PASS path-routed interview recovery: real production router, explicit unsupported-only clear, exact supported cohort, converted practice links and return context, canonical navigation and stale-control rejection without writes');
  assert.deepEqual([code.value,code.selectionStart,code.selectionEnd,code.selectionDirection,code.scrollTop,code.scrollLeft],privateSnapshot);assert(scrolls>=2);
  console.log('PASS readonly interview editions: local/disconnected-public/connected-public actual hubs retain report filters without API calls, fake login/loading/retry/count panels or composer; curated concepts, official resources and explicit path focus remain usable, hosted continuation is exact, and comparison/count-only controls are omitted');
 }finally{await close();for(const cache of caches)rmSync(cache,{recursive:true,force:true});dom.window.close();for(const [key,descriptor]of originals)if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}

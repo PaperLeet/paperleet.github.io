@@ -183,7 +183,7 @@ assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('da
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('data-interview-facet')), 'Deferred interview metadata must include related experience links');
 assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('View interview experiences')), 'Profile interview controls must remain deferred');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('View interview experiences')), 'Deferred profiles must include interview contributions');
-assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Interview outcome')), 'Deferred interviews must include outcome filtering');
+assert.equal(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Interview outcome')), environment.VITE_APP_EDITION === 'hosted', 'Outcome filtering must be deferred in hosted editions and removed from read-only editions');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Company directory order')), 'Deferred interviews must include company-directory ordering');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.interview-company-directory')), 'Company-directory styles must remain deferred');
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.interview-company-directory'))), 'Deferred interviews must include company-directory styles');
@@ -191,7 +191,7 @@ assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.re
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.page-jump')), 'Shared page-jump styles must remain deferred');
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.page-jump'))), 'Deferred list views must include page-jump styles');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.interview-page-jump')), 'Interview page-jump styles must remain deferred');
-assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Jump to experience page')), 'Deferred interviews must include direct page navigation');
+assert.equal(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Jump to experience page')), environment.VITE_APP_EDITION === 'hosted', 'Experience pagination must be deferred in hosted editions and removed from read-only editions');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.report-test-search')), 'Test-detail search styles must remain deferred');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('Search test details')), 'Deferred report views must include test-detail search');
 assert(Object.values(manifest).some(entry => (entry.css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.report-test-search'))), 'Deferred report views must include test-detail search styles');
@@ -261,3 +261,6 @@ for(const marker of ['.interview-filter-support','.interview-readonly-notice']){
 }
 
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);
+
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.admin-paper-progress')), 'Administrator review progress must stay out of initial styles');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.admin-paper-progress'))), 'Deferred administration must include review progress styles');
