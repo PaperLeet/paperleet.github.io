@@ -35,7 +35,7 @@ try {
   const catalog=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
   const paper=catalog.papers.find(p=>p.id==='transformer');
   const originalView=libraryHref(undefined,{...emptyLibraryFilters(),query:'Vaswani Sinusoidal'});
-  const latestView=libraryHref('llm-basics',{...emptyLibraryFilters(),query:'Vaswani',difficulty:'M',sort:'title'});
+  const latestView=libraryHref('llm-frontier',{...emptyLibraryFilters(),query:'Vaswani',difficulty:'M',sort:'title'});
   const scope=view=>selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute(view)).problems;
   const caught=[],uncaught=[];
   const settle=async check=>{

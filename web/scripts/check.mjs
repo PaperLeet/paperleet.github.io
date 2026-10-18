@@ -159,7 +159,7 @@ try {
   const rope = catalog.problems.find(p => p.id === 'architecture/rope');
   assert(rope && rope.number === 63 && rope.paper_id === 'roformer' && Object.values(rope.tests).reduce((sum,count)=>sum+count,0) === 10);
   assert(matchingPaperModules(catalog.papers.find(p => p.id === 'roformer'), catalog.problems, 'RoPE', 'all', 'browser').some(p => p.id === rope.id));
-  assert(paperCollections.find(list => list.id === 'llm-basics').paperIds.includes('roformer'));
+  assert(paperCollections.find(list => list.id === 'llm-frontier').paperIds.includes('roformer'));
   const gqa = catalog.problems.find(p => p.id === 'architecture/gqa');
   assert(gqa && gqa.number === 62 && gqa.paper_id === 'gqa' && Object.values(gqa.tests).reduce((sum,count)=>sum+count,0) === 10);
   assert(matchingPaperModules(catalog.papers.find(p => p.id === 'gqa'), catalog.problems, '', 'all', 'browser').some(p => p.id === gqa.id));
