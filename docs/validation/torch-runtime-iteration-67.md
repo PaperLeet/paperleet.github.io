@@ -144,3 +144,22 @@ push, with zero observed Actions runs for that SHA. All 61 runtime resources,
 upstream policy files were verified. A separate proof commit records this result.
 No tag, workflow dispatch, release, package upload or deployment was initiated.
 The overall independent-library efficiency/core/backend goal remains active.
+
+## Expanded curriculum compatibility
+
+Concurrent main `905f50bbff0ca84e54bf6de040e8fe53c5005b98` adds residual blocks, BatchNorm and VAE exercises after
+the original 0.67 source/proof commits. Both commits remain in main history and
+all 61 runtime resources are unchanged. Every one of the 85 exported modules uses
+the exact 0.67 runtime profile.
+
+The three added modules pass 660 native reference/mutant
+cases across three repeats, plus their actual pinned-WASM checks. All 19 new
+mutants are detected and original browser budgets pass. Combined coverage is
+**85 modules / 378 mutants**, comprising the complete original 82-module run and
+this three-module extension; this is not a fresh full 85 rerun. The current
+export has 175 active asset/index identities.
+
+The [extension record](../../packages/stridetorch/benchmarks/results/iteration-67-curriculum-extension.json)
+preserves both native and WASM results, unchanged-source identity and current
+export hashes. No runtime modification, tag, workflow dispatch or deployment
+is introduced by this verification.
