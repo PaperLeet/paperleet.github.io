@@ -8,7 +8,7 @@ import {usePracticeProgress} from './PracticeProgressContext';
 import {keepReadingTriggerVisible} from './readingViewport';
 
 /** An expansion is local reading state; it never fetches or starts a practice session. */
-export default function InterviewReportPractice({questions,problems=[],topics,returnTo,catalogLoading,catalogError,onRetryCatalog,revealPractice}:{questions:string[];problems?:Problem[];topics?:ProblemTopic[];returnTo:string;catalogLoading?:boolean;catalogError?:string;onRetryCatalog?:()=>void;revealPractice?:string}){
+export default function InterviewReportPractice({questions,problems=[],topics,returnTo,catalogLoading,catalogError,onRetryCatalog,revealPractice,revealRequest=0}:{questions:string[];revealRequest?:number;problems?:Problem[];topics?:ProblemTopic[];returnTo:string;catalogLoading?:boolean;catalogError?:string;onRetryCatalog?:()=>void;revealPractice?:string}){
  const {t,locale}=useI18n(),id=useId(),workspace=usePracticeProgress();
  const [view,setView]=useState<{expanded:boolean;revealed?:string}>({expanded:false});
  const [focusedNext,setFocusedNext]=useState<{owner:string;source:string;id:string}>();
@@ -19,10 +19,10 @@ export default function InterviewReportPractice({questions,problems=[],topics,re
  const sources=topics||problems.map(topicFromProblem),waiting=catalogLoading??(!sources.length&&!catalogError);
  const retired=new Set(sources.filter(topic=>topic.retired).map(topic=>topic.id));
  const ids=[...new Set(questions)],byId=new Map(sources.filter(topic=>!topic.retired).map(topic=>[topic.id,topic]));
- const fromReturn=!!revealPractice&&view.revealed!==revealPractice&&ids.indexOf(revealPractice)>1;
+ const revealKey=revealPractice?revealPractice+':'+revealRequest:undefined,fromReturn=!!revealPractice&&view.revealed!==revealKey&&ids.indexOf(revealPractice)>1;
  const expanded=fromReturn||view.expanded;
  // Keep a revealed origin mounted if the parent later yields to newer focus.
- useLayoutEffect(()=>{if(fromReturn)setView({expanded:true,revealed:revealPractice});},[fromReturn,revealPractice]);
+ useLayoutEffect(()=>{if(fromReturn)setView({expanded:true,revealed:revealKey});},[fromReturn,revealKey]);
  const shown=expanded?ids:ids.slice(0,2),missing=shown.some(id=>!byId.has(id));
  const progress=ids.flatMap(id=>{const value=byId.has(id)?workspace?.read(id):undefined;return value?[{id,...value}]:[];});
  const passed=progress.filter(row=>row.state==='done').length,complete=progress.length===ids.length&&passed===ids.length;
@@ -70,7 +70,7 @@ export default function InterviewReportPractice({questions,problems=[],topics,re
     return <span key={question} data-practice-index={index} tabIndex={-1} className="interview-report-practice-item"><a data-reading-link="practice" data-reading-practice={question} data-practice-state={state} href={withLibraryContext(problem.id,returnTo)} title={title}>{state==='done'?<CheckCircle2 size={13} aria-hidden="true"/>:state==='started'?<Clock3 size={13} aria-hidden="true"/>:<Code2 size={13} aria-hidden="true"/>}<span>{title}</span>{state&&<small className="interview-report-practice-state">{stateLabel(state)}</small>}</a></span>;
    })}
   </div>
-  {ids.length>2&&<button ref={toggle} type="button" className="interview-report-practice-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{pending.current={href:location.href,opener:document.activeElement,kind:expanded?'collapse':'expand',keyboard:event.detail===0};setView({expanded:!expanded,revealed:revealPractice||view.revealed});}}>{expanded?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}{expanded?t('收起配套练习','Collapse practice'):t(`再展开 ${ids.length-2} 个知识点`,`Show ${ids.length-2} more ${ids.length-2===1?'concept':'concepts'}`)}</button>}
+  {ids.length>2&&<button ref={toggle} type="button" className="interview-report-practice-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{pending.current={href:location.href,opener:document.activeElement,kind:expanded?'collapse':'expand',keyboard:event.detail===0};setView({expanded:!expanded,revealed:revealKey||view.revealed});}}>{expanded?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}{expanded?t('收起配套练习','Collapse practice'):t(`再展开 ${ids.length-2} 个知识点`,`Show ${ids.length-2} more ${ids.length-2===1?'concept':'concepts'}`)}</button>}
   {missing&&catalogError&&<p className="interview-report-practice-retry" role="status">{t('部分练习信息暂未加载，面经和评论仍可阅读。','Some practice details could not load. The experience and comments remain readable.')} {onRetryCatalog&&<button type="button" onClick={event=>{pending.current={href:location.href,opener:event.currentTarget,kind:'retry',keyboard:false,question:shown.find(question=>!byId.has(question)&&!retired.has(question))||shown.find(question=>!byId.has(question))};onRetryCatalog();}}><RefreshCw size={12} aria-hidden="true"/>{t('重试练习信息','Retry practice details')}</button>}</p>}
   {workspace&&<div ref={progressRoot} tabIndex={-1} className="interview-report-progress" aria-label={t('本篇面经的练习进度','Practice progress for this experience')}>
    <span className="interview-report-progress-label">{t('我的练习','My practice')}</span>

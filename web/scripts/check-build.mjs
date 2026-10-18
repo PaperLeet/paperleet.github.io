@@ -146,6 +146,10 @@ assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFil
 
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.company-comparison')), 'Company comparison styles must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.company-comparison'))), 'Deferred interview preparation must include company comparison styles');
+assert(manifest['src/practiceReadingOrigin.ts']?.isDynamicEntry&&!initial.has('src/practiceReadingOrigin.ts'), 'Practice return confirmation must load only for a confirmed workspace visit');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('paperleet.discussion.reading.v1')), 'Private discussion reading snapshots must stay deferred');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-practice-return')), 'Discussion practice return styles must stay deferred');
+assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-practice-return'))), 'Deferred discussions must include reading return styles');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Search match context')), 'Reply match readers must stay deferred with community reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-search-context')), 'Reply match reader styles must stay deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.reply-search-context'))), 'Community reading must include reply match styles');

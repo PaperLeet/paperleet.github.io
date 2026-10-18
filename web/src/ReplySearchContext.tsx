@@ -12,7 +12,9 @@ function Passage({value}:{value:ReplySearchPassage}){
  return <>{value.before&&<span aria-hidden="true">…</span>}{value.ranges.map(({start,end})=>{const before=value.text.slice(previous,start);previous=end;return <Fragment key={start}>{before}<mark>{value.text.slice(start,end)}</mark></Fragment>;})}{value.text.slice(previous)}{value.after&&<span aria-hidden="true">…</span>}</>;
 }
 export default function ReplySearchContext({reply,list,children}:{reply:Reply;list:ReturnType<typeof useDiscussionReplies>;children:ReactNode}){
- const {t}=useI18n(),bodyId=useId(),[opened,setOpened]=useState<{query:string;body:string}>();
+ const {t}=useI18n(),bodyId=useId(),[source,setSource]=useState<{request:number;opened?:{query:string;body:string}}>(()=>({request:list.restoreRequest,opened:list.restoredExpansion(reply)?{query:list.query,body:reply.body}:undefined}));
+ let current=source;if(current.request!==list.restoreRequest){current={request:list.restoreRequest,opened:list.restoredExpansion(reply)?{query:list.query,body:reply.body}:undefined};setSource(current);}
+ const opened=current.opened,setOpened=(opened:{query:string;body:string}|undefined)=>setSource({request:list.restoreRequest,opened});
  const contexts=useMemo(()=>list.query?Object.entries(replySearchFields(reply)).flatMap(([kind,text])=>{const passages=replySearchPassages(text,list.query);return passages.length?[{kind,passages}]:[];}):[],[reply,list.query]);
  const position=list.query?list.matchPosition(reply.id):undefined,searching=!!list.query&&!!position,expanded=!searching||opened?.query===list.query&&opened.body===reply.body;
  return <div className="reply-search-reading">

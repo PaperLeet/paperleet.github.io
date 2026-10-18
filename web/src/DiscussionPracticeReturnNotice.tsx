@@ -1,0 +1,11 @@
+import {CornerUpLeft,X} from 'lucide-react';
+import {useI18n} from './i18n';
+import type {DiscussionReturnNotice} from './useDiscussionPracticeReturn';
+import './discussion-practice-return.css';
+export default function DiscussionPracticeReturnNotice({notice,disabled,canReveal,onRestore,onDismiss,onReveal}:{notice:DiscussionReturnNotice|undefined;disabled:boolean;canReveal:boolean;onRestore:(opener:HTMLElement)=>void;onDismiss:(opener:HTMLElement)=>void;onReveal:()=>void}){
+ const {t}=useI18n();if(!notice)return null;
+ return <div className="discussion-practice-return" role="status" data-discussion-return-request={notice.request}>
+  <CornerUpLeft size={17} aria-hidden="true"/><span>{notice.kind==='expired'?t('之前的阅读记录已不可用，已保留当前视图。','The earlier reading record is unavailable. Your current view is kept.'):notice.kind==='restoring'?t('正在恢复离开前的阅读视图…','Restoring your previous reading view…'):notice.kind==='restored'?t('已恢复回复筛选和离开前的阅读位置。','Your reply filters and previous reading position are restored.'):notice.kind==='nearby'?t('已恢复阅读视图；之前的练习入口暂不可见。','Your reading view is restored. The earlier practice link is currently unavailable.'):notice.kind==='missing'?t('已恢复阅读视图；原位置已变化或不在当前范围。','Your reading view is restored. The original position changed or is outside this view.'):t('可以恢复离开前的回复筛选、全文展开和阅读位置。','Resume your previous reply filters, expanded replies and reading position.')}</span>
+  <div className="discussion-practice-return-actions">{(notice.kind==='available'||notice.kind==='expired')&&<button type="button" disabled={notice.kind==='available'&&disabled} onClick={event=>{event.currentTarget.focus({preventScroll:true});if(notice.kind==='expired')onDismiss(event.currentTarget);else onRestore(event.currentTarget);}}>{notice.kind==='expired'?t('继续当前阅读','Continue current reading'):t('恢复阅读','Resume reading')}</button>}{notice.kind==='missing'&&canReveal&&<button type="button" disabled={disabled} onClick={onReveal}>{t('查看原回复','View original reply')}</button>}<button type="button" className="discussion-return-dismiss" disabled={notice.kind==='restoring'} aria-label={t('关闭阅读恢复提示','Dismiss reading return notice')} onClick={event=>onDismiss(event.currentTarget)}><X size={16} aria-hidden="true"/></button></div>
+ </div>;
+}

@@ -15,6 +15,8 @@ import InterviewMeta from './InterviewMeta';
 import {readInterviewFeed} from './interviewModels';
 import {InlinePostBody} from './InlineCommentBody';
 import {useReadingOrigin,useReadingPosition} from './useReadingPosition';
+import {useDiscussionPracticeReturn} from './useDiscussionPracticeReturn';
+import DiscussionPracticeReturnNotice from './DiscussionPracticeReturnNotice';
 import ReadingReturnNotice from './ReadingReturnNotice';
 import {readInterviewRoute} from './interviewNavigation';
 import {withLibraryContext} from './libraryNavigation';
@@ -155,7 +157,7 @@ function TopicContext({ topic, discussion = false, solutions=false,practiceRetur
         )}
         <a href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</a>
         {!topic.retired && (
-          <a className="button subtle" href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
+          <a className="button subtle" data-reading-link={practiceReturnTo?"practice":undefined} data-reading-practice={practiceReturnTo?topic.id:undefined} href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
             <Code2 size={15} />{t("返回练习", "Back to practice")}
           </a>
         )}
@@ -934,6 +936,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
     [deleteTarget, setDeleteTarget] = useState<string>();
   const repliesLocked=busy||loading||!!editingReply;
   const replyList=useDiscussionReplies({replies:post?.replies,authorId:post?.author.id,linkedReply:replyTarget,disabled:repliesLocked});
+  const practiceReading=useDiscussionPracticeReturn({owner:readingOwner,post:id,list:replyList,ready:!!post&&!loading&&!busy&&!editingPost&&!editingReply&&!accountLoading&&!error&&!catalogLoading,linkedReply:replyTarget});
   // Community keys this component by both post and account before it renders.
   const owner = user?.id || "";
   const [draft, setDraft] = useState<ReplyDraft>(() => readReplyDraft(tabDraftStorage(), owner, id) || { body: "" });
@@ -1108,13 +1111,14 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
     }
   }
   return (
-    <main className="social-page discussion-page">
+    <main ref={practiceReading.root} data-discussion-post={id} tabIndex={-1} className="social-page discussion-page">
       <div className="discussion-navigation"><a className="social-back" href={returnTo || (post?.problem ? post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id) : "#/community")}>
         <ArrowLeft size={14} />
         {returnTo&&readReportHistory(returnTo)?t('返回我的举报','Back to my reports'):returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? post.solution?t("返回本题题解","Back to module solutions"):t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </a><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
         <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
       </button></div>
+      <DiscussionPracticeReturnNotice notice={practiceReading.notice} disabled={!post||loading||busy||!!editingReply||editingPost||accountLoading||!!error||!!catalogLoading} canReveal={!!practiceReading.notice?.row.anchor.reply&&replyList.byId.has(practiceReading.notice.row.anchor.reply)} onRestore={practiceReading.restore} onDismiss={practiceReading.dismiss} onReveal={practiceReading.revealOriginal}/>
       {error && <SocialNotice error={error} />}
       {loading && !post ? (
         <Loading />
@@ -1146,9 +1150,9 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 )}
               </div>
             </div>
-            {post.interview && <InterviewMeta details={post.interview} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
+            {post.interview && <InterviewMeta details={post.interview} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <PostTags post={post} returnTo={returnTo}/>
-            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} returnTo={postHref(post.id)}><DiscussionReading body={post.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} postId={post.id} />}
+            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} postId={post.id} />}
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
               <PostReport postId={post.id} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
@@ -1185,7 +1189,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
               {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<a className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</a>}
             </div>
           </article>
-          <section ref={replyList.root} tabIndex={-1} aria-labelledby="discussion-replies-heading" className="social-panel discussion-replies">
+          <PracticeMentions papers={papers} topics={topics} body="" returnTo={postHref(id)} showSummary={false}><section ref={replyList.root} tabIndex={-1} aria-labelledby="discussion-replies-heading" className="social-panel discussion-replies">
             {replyTarget&&!post.replies.some(row=>row.id===replyTarget)&&<p role="status">{t('链接指向的回复已删除或暂不可用，其他讨论内容仍可阅读。','The linked reply is deleted or unavailable. The rest of the discussion is still readable.')} <a href={postHref(id,providedReturnTo)}>{t('查看完整讨论','View full discussion')}</a></p>}
             <div className="panel-title">
               <h2 id="discussion-replies-heading" tabIndex={-1}>
@@ -1268,7 +1272,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
               </p>
             )}
             <MoreReplies list={replyList} disabled={repliesLocked}/>
-          </section>
+          </section></PracticeMentions>
           {editingReply&&(!post.replies.some(row=>row.id===editingReply&&canEditReply(row,owner)))&&<div role="status"><p>{t('这条回复已删除或暂不可编辑，修改草稿已保留。','This reply is deleted or cannot be edited now. Your edit draft is kept.')}</p><button type="button" className="text-button" onClick={()=>closeReplyEditing(editingReply)}>{t('关闭编辑','Close editor')}</button></div>}
           {user ? (
             <section className="social-panel reply-composer">

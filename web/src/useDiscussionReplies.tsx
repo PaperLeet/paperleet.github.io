@@ -6,6 +6,7 @@ import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,keepReadin
 import './discussion-replies.css';
 import CommunitySearch from './CommunitySearch';
 import {matchesReplySearch,replySearchQuery,replySearchTerms,replySearchText} from './replySearch';
+import type {DiscussionView,DiscussionExpansion} from './discussionPracticeReturn';
 
 const PAGE_SIZE=20,MAX_RETURN_DEPTH=12;
 const EMPTY:Reply[]=[];
@@ -31,6 +32,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
  const root=useRef<HTMLElement>(null),located=useRef<string|undefined>(undefined),previousLinked=useRef<string|undefined>(undefined),processed=useRef<Jump|undefined>(undefined);
  const [order,setOrder]=useState<Order>(initialOrder),[authorOnly,setAuthorOnly]=useState(false),[query,setQuery]=useState(''),[limit,setLimit]=useState<number>(batchSize),[jump,setJump]=useState<Jump>();
  const [history,setHistory]=useState<Origin[]>([]),[revealed,setRevealed]=useState<string>(),[notice,setNotice]=useState<ReadingNotice>();
+ const [restored,setRestored]=useState<{request:number;query:string;expanded:DiscussionExpansion[]}>();
  useEffect(watchInteractions,[]);
  const ordered=useMemo(()=>[...replies].sort((a,b)=>{
   const left=a.created_at+'\0'+a.id,right=b.created_at+'\0'+b.id;
@@ -107,6 +109,13 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
  },[jump,rowIdPrefix,revealBlock,disabled]);
  const previous=history.at(-1),canReturn=!!previous&&previous.href===location.href;
  return {root,shown,byId,authorOnly,order,query,total:matched.length,reveal,revealed,disabled,canReturn,clearReadingReturn,notice:notice&&notice.href===location.href?notice.kind:undefined,
+  snapshotView:():DiscussionView=>({order,authorOnly,query,limit}),restoreRequest:restored?.request||0,
+  restoredExpansion:(reply:Reply)=>restored?.query===query&&!!reply.edit_version&&restored.expanded.some(value=>value.reply===reply.id&&value.revision===reply.edit_version),
+  restoreView(value:DiscussionView,expanded:DiscussionExpansion[],request:number,anchor?:string){
+   if(disabled)return false;
+   const rows=order===value.order?ordered:[...ordered].reverse(),wanted=replySearchTerms(value.query),filtered=rows.filter(row=>(!value.authorOnly||row.author.id===authorId)&&(!value.query||matchesReplySearch(replySearchText(row),wanted))),index=anchor?filtered.findIndex(row=>row.id===anchor):-1;
+   clearReadingReturn();setOrder(value.order);setAuthorOnly(value.authorOnly);setQuery(value.query);setLimit(Math.min(Math.max(replies.length,batchSize),Math.max(batchSize,value.limit,Math.ceil((index+1)/batchSize)*batchSize)));setRestored({request,query:value.query,expanded:expanded.map(row=>({...row}))});return true;
+  },
   firstMatch:matched[0]?.id,matchPosition:(id:string)=>matchPositions.get(id),
   seekSearchReply(id:string){if(disabled||!query)return;const position=matchPositions.get(id);if(!position)return;clearReadingReturn();setLimit(value=>Math.max(value,Math.ceil((position.index+1)/batchSize)*batchSize));setJump({...intent(),kind:'focus',id});},
   returnToOrigin(){if(disabled||!previous||previous.href!==location.href)return;setJump({...intent(),kind:'back',origin:previous});},

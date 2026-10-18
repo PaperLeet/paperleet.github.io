@@ -36,12 +36,13 @@ const key=(value:string)=>value.toLowerCase().replace(/[‐‑–—]/g,'-').rep
 const escape=(value:string)=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const word=(value:string|undefined)=>!!value&&/[a-z0-9_]/i.test(value);
 
-/** Exact names only. Generic tags and fuzzy matches never create an exercise claim. */
+/** Exact maintained names and unique exercise numbers only. Generic tags and fuzzy matches never create an exercise claim. */
 export function practiceMentionIndex(source:ProblemTopic[]):MentionIndex|undefined{
  const active=source.filter(topic=>!topic.retired),byId=new Map(active.map(topic=>[topic.id,topic]));
- const candidates=new Map<string,Map<string,ProblemTopic>>();
+ const candidates=new Map<string,Map<string,ProblemTopic>>(),numbers=new Map<number,Map<string,ProblemTopic>>();
  const add=(name:string|undefined,topic:ProblemTopic)=>{if(!name||name.trim().length<3||name.length>220)return;const term=key(name),items=candidates.get(term)||new Map();items.set(topic.id,topic);candidates.set(term,items);};
  for(const topic of active){
+   if(typeof topic.number==='number'&&Number.isSafeInteger(topic.number)&&topic.number>0&&topic.number<=99_999_999){const items=numbers.get(topic.number)||new Map();items.set(topic.id,topic);numbers.set(topic.number,items);}
    for(const name of [topic.title,topic.title_en]){
      add(name||undefined,topic);
      if(name){const prefix=name.split(/[:：]/)[0];if(prefix!==name)add(prefix,topic);const acronym=/^([A-Za-z][A-Za-z0-9.-]*)\s/.exec(name)?.[1];if(acronym&&(/[A-Z].*[A-Z]/.test(acronym)||/\d/.test(acronym)))add(acronym,topic);}
@@ -56,6 +57,7 @@ export function practiceMentionIndex(source:ProblemTopic[]):MentionIndex|undefin
    for(const value of [topic.paper?.arxiv,topic.paper?.url])if(value&&!sources.has(paperIdentity(value)))sources.set(paperIdentity(value),topic);
  }
  for(const [id,names] of Object.entries(aliases)){const topic=byId.get(id);if(topic)for(const name of names)topics.set(key(name),topic);}
+ for(const [number,items]of numbers){if(items.size===1)topics.set('#'+number,[...items.values()][0]);else topics.delete('#'+number);}
  if(!topics.size)return;
  const pattern=new RegExp([...topics.keys()].sort((a,b)=>b.length-a.length).map(term=>escape(term).replace(/-/g,'[-‐‑–—]').replace(/ /g,'\\s+')).join('|'),'gi');
  return {pattern,topics,sources};
@@ -66,6 +68,7 @@ export function findPracticeMentions(text:string,index?:MentionIndex):PracticeMe
  const matches:PracticeMention[]=[];index.pattern.lastIndex=0;
  for(const match of text.matchAll(index.pattern)){
    const start=match.index!,end=start+match[0].length,term=key(match[0]);
+   if(match[0][0]==='#'&&(word(text[start-1])||/[#@/]/.test(text[start-1]||'')||/^[.\/-][a-z0-9_]/i.test(text.slice(end))))continue;
    if(word(match[0][0])&&word(text[start-1])||word(match[0].at(-1))&&word(text[end]))continue;
    // These acronyms are also ordinary English/programming words.
    if(['clip','var','jit'].includes(term)&&match[0]!==match[0].toUpperCase())continue;
