@@ -2033,3 +2033,40 @@ complex-autograd and nonleaf in-place mutation boundaries remain explicit.
 Python `@` reflection returns `NotImplemented` for foreign operand types.
 NumPy's reflected matmul inference can return a Tensor; it requires detached
 inputs when gradients are enabled.
+
+### Affine matrix and vector products (0.78 development candidate)
+
+`torch.addmm(input, mat1, mat2, *, beta=1, alpha=1)` and
+`torch.addmv(input, mat, vec, *, beta=1, alpha=1)` compute
+`beta * input + alpha * product`, with corresponding Tensor methods.
+The implementation performs the affine operation on private NumPy output
+storage and records one analytical reverse node. Real float32/float64 paths
+support reverse gradients, direct JVP, functional JVP and functional HVP.
+
+```python
+bias = torch.tensor([1., 2.], requires_grad=True)
+matrix = torch.tensor([[1., 2.], [3., 4.]], requires_grad=True)
+vector = torch.tensor([2., 1.], requires_grad=True)
+result = torch.addmv(bias, matrix, vector, alpha=2, beta=.5)
+assert result.tolist() == [8.5, 21.]
+result.sum().backward()
+assert vector.grad.tolist() == [8., 12.]
+```
+
+`beta=0` ignores nonfinite input-bias values. Scalar conversion and empty-input
+behavior follow the pinned native Torch 2.6 controls. In particular, an empty
+`addmv` with nonzero beta can retain the bias's original shape; this native
+behavior does not guarantee a valid JVP for every broadcast bias. Half-precision
+inference retains the tested native nonfinite-product behavior at `alpha=0`.
+Complex reverse AD and gradients for active float16 inputs remain unsupported.
+Top-level `out=None` is accepted. A Tensor output buffer reports the explicit
+unsupported boundary; a non-Tensor output argument raises `TypeError`.
+
+The candidate also preserves wider direct-forward tangents through scalar
+addition and softmax, supports empty softmax/log-softmax inputs, and avoids
+unused Linear inference graph setup and a separate bias-result allocation.
+Reverse-based JVP also preserves cat's ignored one-dimensional empty-operand
+boundary, including its detached zero Jacobian contraction.
+The [iteration 80 work record](../../docs/validation/torch-runtime-iteration-80.md)
+tracks CPU evidence and remaining browser, packaging and application gates.
+This development version has not been adopted on main or published.

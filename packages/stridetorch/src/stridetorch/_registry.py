@@ -57,12 +57,18 @@ class OperatorRegistry:
     def __init__(self, modules):
         self.modules, self.capabilities = modules, {}
 
-    def add(self, name, function, *, reverse='unsupported', forward=False, unsupported_keywords=()):
+    def add(self, name, function, *, reverse='unsupported', forward=False, unsupported_keywords=(), implementation_keywords=()):
         if name in self.capabilities: raise ValueError(f'Duplicate browser operator: {name}')
         if reverse not in ('analytic', 'nondifferentiable', 'factory', 'control', 'unsupported'):
             raise ValueError(f'Invalid reverse-mode capability: {reverse}')
         prefix, attribute = name.rsplit('.', 1)
         signature = inspect.signature(function)
+        unsupported_keywords = tuple(unsupported_keywords)
+        implementation_keywords = frozenset(implementation_keywords)
+        if not implementation_keywords.issubset(unsupported_keywords):
+            raise ValueError('Implementation keywords must declare their unsupported boundary')
+        if not implementation_keywords.issubset(signature.parameters):
+            raise ValueError('Implementation keywords must have explicit function parameters')
         capability = OperatorCapability(reverse, forward, tuple(unsupported_keywords), str(signature))
         self.capabilities[name] = capability
         validated_patterns = None
@@ -70,7 +76,11 @@ class OperatorRegistry:
         @functools.wraps(function)
         def call(*args, **kwargs):
             nonlocal validated_patterns
-            options = {keyword: kwargs.pop(keyword) for keyword in capability.unsupported_keywords if keyword in kwargs}
+            # Some operators validate an option's type before reporting their
+            # unsupported mode. Keep those options in the bound implementation
+            # call while retaining the public capability restriction.
+            options = {keyword: kwargs.pop(keyword) for keyword in capability.unsupported_keywords
+                       if keyword in kwargs and keyword not in implementation_keywords}
             # Binding validates argument structure only. Keep values and AD state
             # out of this bounded cache, and run their guards on every call.
             pattern = (len(args), tuple(kwargs))

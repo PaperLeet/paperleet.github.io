@@ -102,8 +102,21 @@ def backprop(output, seed, *, retain_graph=False, inputs=None, accumulate=False)
 
 
 def match_tangent(tangent, primal):
-    if tangent.dtype != primal.dtype: tangent = tangent.to(dtype=primal.dtype)
+    if tangent.dtype != primal.dtype:
+        dtype = np.promote_types(tangent.dtype,primal.dtype)
+        if tangent.dtype != dtype:tangent = tangent.to(dtype=dtype)
     return tangent if tangent.shape == primal.shape else tangent.expand(primal.shape)
+
+
+def _forward_zero_edge(tangent, primal):
+    if (not _state._grad_enabled or not primal.requires_grad or
+            _state._functional_jvp_active or _state._hvp_active):return tangent
+    # Direct forward AD retains a differentiable ZeroTensor edge to a primal
+    # even when a constant operand's tangent is undefined. Record that zero
+    # without evaluating primal*0, which would corrupt infinities and NaNs.
+    shape,dtype=tuple(primal.shape),primal.dtype
+    return result(tangent._data,(tangent,lambda g:g),
+                  (primal,lambda g:np.zeros(shape,dtype=dtype)),saves_tensors=False)
 
 
 class ForwardTensor(_tensor.Tensor):
@@ -117,7 +130,11 @@ class ForwardTensor(_tensor.Tensor):
             tangent = _tensor.Tensor(np.zeros_like(primal._data))
         self.__dict__ = primal.__dict__.copy()
         self._primal_value = primal
-        self._tangent_value = tangent.to(dtype=primal.dtype) if tangent.dtype != primal.dtype else tangent
+        # Direct forward AD can retain a wider tangent than its primal (for
+        # example a mixed-dtype addmv bias). Reverse-based functional transforms
+        # construct their cotangents in the primal output's dtype instead.
+        reverse_based = _state._functional_jvp_active or _state._hvp_active
+        self._tangent_value = tangent.to(dtype=primal.dtype) if reverse_based and tangent.dtype != primal.dtype else tangent
         self._forward_level = _state._jvp_level
 
     @property
@@ -154,12 +171,13 @@ class ForwardTensor(_tensor.Tensor):
         primal = self._primal * p
         tangent = self._tangent * p
         if isinstance(other, ForwardTensor): tangent = tangent + self._primal * other._tangent
+        else:tangent = _forward_zero_edge(tangent,self._primal)
         return ForwardTensor(primal, tangent)
     def __rmul__(self, other): return self * other
     def __truediv__(self, other):
         p = _arithmetic.forward_primal(self._primal, other)
         primal = self._primal / p
-        tangent = (self._tangent - primal * other._tangent) / p if isinstance(other, ForwardTensor) else self._tangent / p
+        tangent = (self._tangent - primal * other._tangent) / p if isinstance(other, ForwardTensor) else _forward_zero_edge(self._tangent / p,self._primal)
         return ForwardTensor(primal, tangent)
     def __rtruediv__(self, other):
         if not isinstance(other, _tensor.Tensor): return self.reciprocal() * other
@@ -209,6 +227,11 @@ class ForwardTensor(_tensor.Tensor):
         tangent=self._tangent
         if name in ('flatten','unsqueeze','squeeze','permute','transpose','expand'):
             tangent=_layout.matching_tangent(tangent,self._primal)
+        if name == 'mean' and _state._functional_jvp_active and not self.numel():
+            # The reverse-based Jacobian has no entries in an empty reduction.
+            # Its contraction is zero, although the primal mean itself is NaN.
+            tangent = tangent.sum(*args,**kwargs) * 0
+            return ForwardTensor(primal,tangent)
         return ForwardTensor(primal,getattr(tangent,name)(*args,**kwargs))
     def to(self, *args, **kwargs):
         primal = self._primal.to(*args, **kwargs)
@@ -226,7 +249,7 @@ class ForwardTensor(_tensor.Tensor):
         return ForwardTensor(p, self._tangent * (1 - p.square()))
     def sigmoid(self):
         p = self._primal.sigmoid()
-        return ForwardTensor(p, self._tangent * p * (1 - p))
+        return ForwardTensor(p, self._tangent * (p * (1 - p)))
     def logsigmoid(self):
         primal = self._primal
         value = primal.logsigmoid()
@@ -271,11 +294,11 @@ class ForwardTensor(_tensor.Tensor):
                                   keepdim=keepdim, correction=correction, kind='std')
     def softmax(self, dim, dtype=None):
         p = self._primal.softmax(dim, dtype)
-        t = self._tangent.to(dtype=p.dtype)
+        t = self._tangent.to(dtype=p.dtype) if dtype is not None else self._tangent
         return ForwardTensor(p, p * (t - (t * p).sum(dim, True)))
     def log_softmax(self, dim, dtype=None):
         p = self._primal.log_softmax(dim, dtype)
-        t = self._tangent.to(dtype=p.dtype)
+        t = self._tangent.to(dtype=p.dtype) if dtype is not None else self._tangent
         return ForwardTensor(p, t - (t * self._primal.softmax(dim, dtype)).sum(dim, True))
 
 

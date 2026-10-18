@@ -589,6 +589,10 @@ class Tensor:
         return _ops.mm(self, mat2)
     def bmm(self, mat2):
         return _ops.bmm(self, mat2)
+    def addmm(self, mat1, mat2, *, beta=1, alpha=1):
+        return _ops.addmm(self, mat1, mat2, beta=beta, alpha=alpha)
+    def addmv(self, mat, vec, *, beta=1, alpha=1):
+        return _ops.addmv(self, mat, vec, beta=beta, alpha=alpha)
     def matmul(self, other):
         return _ops.matmul(self, other)
     def dot(self, tensor):
@@ -608,7 +612,13 @@ class Tensor:
             if special is not None:return _ops._empty_product(self, other, *special)
         try:value = _matmul.product(a, b) if _WASM_MATMUL and a.size >= 4096 else a @ b
         except ValueError as error:raise RuntimeError(str(error)) from None
-        if not value.size:value = _layout.contiguous_empty(value)
+        if not value.size:
+            if needs_grad and a.ndim == 2 and b.ndim == 1:
+                # An empty vector result has zero pullbacks for both factors.
+                # Reuse its private numeric allocation and retain only the
+                # original version guards and shape/dtype metadata.
+                return _ops._empty_product(self, other, value.shape, value.dtype, _value=value)
+            value = _layout.contiguous_empty(value)
         # The ordinary inference route needs no pullback closures or saved
         # factors. Subclasses keep result()'s forward-transform safeguards.
         if not needs_grad and type(self) is Tensor and type(other) is Tensor:
@@ -1102,6 +1112,11 @@ class Tensor:
     def softmax(self, dim, dtype=None):
         self._real_only()
         x = self.to(dtype=dtype) if dtype is not None else self
+        if not x.numel():
+            _layout.dimension(dim,x.ndim)
+            if x.dtype.kind != 'f':raise RuntimeError('softmax requires floating tensors')
+            value = _layout.contiguous_empty(np.empty(x.shape,dtype=x.dtype))
+            return _autograd.result(value,(x,lambda g:np.empty(x.shape,dtype=x.dtype)))
         shifted = x._data - x._data.max(axis=dim, keepdims=True)
         exps = np.exp(shifted)
         probabilities = exps / exps.sum(axis=dim, keepdims=True)
@@ -1172,6 +1187,11 @@ class Tensor:
     def log_softmax(self, dim, dtype=None):
         self._real_only()
         x = self.to(dtype=dtype) if dtype is not None else self
+        if not x.numel():
+            _layout.dimension(dim,x.ndim)
+            if x.dtype.kind != 'f':raise RuntimeError('log_softmax requires floating tensors')
+            value = _layout.contiguous_empty(np.empty(x.shape,dtype=x.dtype))
+            return _autograd.result(value,(x,lambda g:np.empty(x.shape,dtype=x.dtype)))
         shifted = x._data - x._data.max(axis=dim, keepdims=True)
         value = shifted - np.log(np.exp(shifted).sum(axis=dim, keepdims=True))
         return _autograd.result(value, (x, lambda g: g - np.exp(value) * g.sum(axis=dim, keepdims=True)))

@@ -156,6 +156,8 @@ def create_torch(name='torch', *, register=False):
     }, reverse='analytic')
     registry.group('torch', {'mm': _ops.mm, 'bmm': _ops.bmm, 'matmul': _ops.matmul, 'dot': _ops.dot, 'mv': _ops.mv},
                    reverse='analytic', forward=True, unsupported_keywords=('out',))
+    registry.group('torch', {'addmm': _ops.addmm, 'addmv': _ops.addmv}, reverse='analytic', forward=True,
+                   unsupported_keywords=('out',), implementation_keywords=('out',))
     registry.add('torch.nn.functional.pdist', _ops.pdist, reverse='analytic')
     registry.add('torch.nan_to_num', _ops.nan_to_num, reverse='analytic', unsupported_keywords=('out',))
     def outer(input, other):

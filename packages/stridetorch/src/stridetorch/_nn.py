@@ -34,7 +34,9 @@ def linear(input, weight, bias=None):
         value = np.einsum('...i,oi->...o', x, w, optimize=False)
     else:
         value = x @ w.T
-    if bias is not None: value = value + bias._data
+    if bias is not None: np.add(value, bias._data, out=value)
+    if not _state._grad_enabled or not (input.requires_grad or weight.requires_grad or bias is not None and bias.requires_grad):
+        return _tensor.Tensor(value, _metadata_owned=True)
     if _WASM_LINEAR_GRADS:
         edges = [(input, lambda g: np.einsum('...o,oi->...i', g, w, optimize=False)),
                  (weight, lambda g: np.einsum('bo,bi->oi', g.reshape(rows, w.shape[0]),

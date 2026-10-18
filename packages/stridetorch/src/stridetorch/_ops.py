@@ -25,17 +25,17 @@ _BOOL_DTYPE = np.dtype('bool')
 _BYTE_DTYPE = np.dtype('uint8')
 
 
-def _empty_product(input, mat2, shape, dtype, aliases=(True, True)):
+def _empty_product(input, mat2, shape, dtype, aliases=(True, True), *, _value=None):
     if isinstance(input, _autograd.ForwardTensor) or isinstance(mat2, _autograd.ForwardTensor):
         a, da = _autograd.forward_parts(input)
         b, db = _autograd.forward_parts(mat2)
         return _autograd.ForwardTensor(_empty_product(a, b, shape, dtype, aliases),
-            _empty_product(da, b, shape, dtype, aliases) + _empty_product(a, db, shape, dtype, aliases))
+            matmul(da, b) + matmul(a, db))
     shape_a, shape_b = tuple(input.shape), tuple(mat2.shape)
     dtype_a, dtype_b = input.dtype, mat2.dtype
     if np.dtype(dtype).kind not in 'fc' and _state._grad_enabled and (input.requires_grad or mat2.requires_grad):
         raise RuntimeError('An integer or boolean matrix result cannot carry gradients')
-    value = np.zeros(shape, dtype=dtype)
+    value = np.zeros(shape, dtype=dtype) if _value is None else _value
     if not value.size:value = _layout.contiguous_empty(value)
     if np.dtype(dtype).kind not in 'fc':
         return _tensor.Tensor(value, _metadata_owned=True)
@@ -521,6 +521,7 @@ def concatenate(tensors, dim=0, *, stack=False):
         raise TypeError('Expected a list or tuple of Tensors')
     if type(dim) is bool: raise TypeError('Tensor dimension must be an integer, not bool')
     dim = operator.index(dim)
+    if not -(2**63) <= dim < 2**63:raise RuntimeError('Overflow when unpacking long')
     tensors = tuple(tensors)
     if not tensors: raise RuntimeError('Expected a non-empty tensor sequence')
     dtype, all_same, forward, empty, active = None, True, False, False, False
@@ -539,8 +540,15 @@ def concatenate(tensors, dim=0, *, stack=False):
             raise RuntimeError('Zero-dimensional tensors cannot be concatenated')
     if forward:
         parts = [_autograd.forward_parts(v) for v in tensors]
-        return _autograd.ForwardTensor(concatenate([v[0] for v in parts], dim, stack=stack), concatenate([v[1] for v in parts], dim, stack=stack))
+        primal = concatenate([v[0] for v in parts], dim, stack=stack)
+        tangent = concatenate([v[1] for v in parts], dim, stack=stack)
+        # Native cat ignores its special 1D empty operands. Its reverse-based
+        # Jacobian contraction has no graph when every operand is ignored.
+        if not stack and _state._functional_jvp_active and all(p.shape == (0,) for p,_ in parts):
+            tangent = tangent.detach()
+        return _autograd.ForwardTensor(primal,tangent)
     values = tensors if stack or not empty else tuple(value for value in tensors if value.shape != (0,))
+    if not stack and not values:dim = 0
     rank = (values[0] if values else tensors[0]).ndim + int(stack)
     if not -rank <= dim < rank: raise IndexError('Tensor dimension out of range')
     dim %= rank
@@ -726,3 +734,5 @@ def squeeze(input,dim=_layout.UNSPECIFIED_DIM):
 from ._sequences import arange, linspace, logspace
 
 from ._distance import cdist, pdist
+
+from ._fused_matrix import addmm, addmv
