@@ -142,3 +142,23 @@ export function resumePracticeReadingOrigin(owner:string|undefined,problem:{id:s
  if(row.phase!=='reading'){pending={...row,phase:'reading'};persist();notify();}
  watch();
 }
+
+/** Preserve a previously confirmed journey while its optional workspace observer loads. */
+export function replayPracticeReadingOrigin(owner:string,href:string,expected:string,origin:string,events:readonly {before:string;after:string}[],snapshot:string){
+ const row=currentReadingReturn();if(!row||row.owner!==owner||row.phase!=='reading'||snapshot.length>12000||events.length<1||events.length>8)return;
+ let captured:unknown;try{captured=JSON.parse(snapshot);}catch{return;}
+ if(!valid(captured)||JSON.stringify(row)!==JSON.stringify(captured))return;
+ const source=href===communityPostHref(row.post),target=(route:string)=>source?sourcePostPracticeTarget(route,row.post):readingPracticeTarget(route,href);
+ if(!source&&row.href!==href||!target(origin)||target(expected)!==target(origin)||events.at(-1)?.after!==location.hash)return;
+ let previous=origin,phase:ReadingReturn['phase']='reading',retired=false;
+ for(const event of events){
+  if(typeof event.before!=='string'||typeof event.after!=='string'||event.before.length>8192||event.after.length>8192||event.before!==previous)return;
+  previous=event.after;
+  if(retired)continue;
+  if(isDestination(event.after,row))phase='reading';
+  else if(phase==='reading'&&isDestination(event.before,row)&&readingListHref(event.after)===row.href)phase='returning';
+  else retired=true;
+ }
+ if(retired){discardReadingReturn(row.id);return;}
+ pending={...row,phase};persist();watch();notify();
+}
