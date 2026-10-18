@@ -15,12 +15,13 @@ const foundations = [
 ];
 
 /** Resume an unfinished draft first; otherwise suggest an unsolved core module. */
-export function recommendPractice(problems: Problem[], saved: Record<string, Saved>): Problem | undefined {
+export function recommendPractice(problems: Problem[], saved: Record<string, Saved>, ordered = false): Problem | undefined {
   const remaining = problems.filter((p) => !p.module.optional && status(p, saved[p.id]) !== "done");
   const started = remaining.filter((p) => status(p, saved[p.id]) === "started");
   if (started.length) {
     return started.sort((a, b) => (saved[b.id]?.updated || "").localeCompare(saved[a.id]?.updated || "") || a.number - b.number)[0];
   }
+  if (ordered) return remaining[0];
   const rank = (p: Problem) => {
     const index = foundations.indexOf(p.id);
     return index < 0 ? foundations.length : index;

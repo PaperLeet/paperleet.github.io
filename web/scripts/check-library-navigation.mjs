@@ -15,6 +15,7 @@ try {
   const { PaperLibrary } = await server.ssrLoadModule('/src/PaperViews.tsx');
   const { default: PaperDetail } = await server.ssrLoadModule('/src/PaperDetail.tsx');
   const { matchingPaperModules, selectLibraryPractice } = await server.ssrLoadModule('/src/libraryPractice.ts');
+  const { recommendPractice, nextPractice } = await server.ssrLoadModule('/src/practice-recommendation.ts');
   const { PracticeNextStep } = await server.ssrLoadModule('/src/PracticeJourney.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
   const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
@@ -143,6 +144,9 @@ try {
   for (const en of [false, true]) {
     globalThis.localStorage = { getItem: () => en ? 'en' : 'zh' };
     const render = (Component, props) => renderToString(React.createElement(LocaleProvider, null, React.createElement(Component, props)));
+    const acceptedFor = problem => ({ problem: problem.id,
+      tests: Object.entries(problem.tests).flatMap(([layer,count])=>Array.from({length:count},(_,i)=>({id:`${layer}_${i}`,layer,passed:true}))),
+      summary: Object.fromEntries(Object.entries(problem.tests).map(([layer,count])=>[layer,[count,count]])) });
     for (const query of bibliographyQueries) {
       const results = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query }) });
       assert(results.includes('data-paper-id="transformer"'), 'Bibliography queries render the linked paper in both languages');
@@ -157,7 +161,28 @@ try {
       const page = render(PaperLibrary, { ...catalog, saved: {}, collectionId: collection.id, route: `collections/${collection.id}` });
       assert.equal((page.match(/<h1>/g) || []).length, 1, 'Collection pages have one dedicated page title');
       assert(page.includes(`<h1>${en ? collection.name_en.replaceAll('&', '&amp;') : collection.name.replaceAll('&', '&amp;')}</h1>`));
-      assert.equal((page.match(/data-paper-id=/g) || []).length, papersInCollection(catalog.papers, collection).length, 'The collection page lists its own papers');
+      const members = papersInCollection(catalog.papers, collection);
+      if (collection.kind === 'course') {
+        const modules = selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute(`collections/${collection.id}`)).problems;
+        const document = JSDOM.fragment(page);
+        assert.equal(document.querySelectorAll('[data-paper-id]').length,0,'A course does not nest papers or another course');
+        assert.deepEqual([...document.querySelectorAll('[data-module-id]')].map(row=>row.dataset.moduleId),members.flatMap(paper=>paper.module_ids),'Every original exercise remains in course order');
+        for (const module of modules) assert.equal(document.querySelector(`[data-module-id="${module.id}"]`).getAttribute('href'),withLibraryContext(module.number,`#/collections/${collection.id}`));
+        assert.equal(document.querySelector('.collection-practice').getAttribute('href'),withLibraryContext(modules[0].number,`#/collections/${collection.id}`),'Starting a course opens its first exercise');
+        const saved = {[modules[0].id]: {report:acceptedFor(modules[0])}};
+        const doneRoute=`collections/${collection.id}?state=done`;
+        assert.deepEqual(selectLibraryPractice(catalog.papers,catalog.problems,saved,readLibraryRoute(doneRoute)).problems.map(p=>p.id),[modules[0].id],'Course status is per exercise, including partly completed source papers');
+        const todo=selectLibraryPractice(catalog.papers,catalog.problems,saved,readLibraryRoute(`collections/${collection.id}?state=todo`)).problems;
+        assert.equal(todo.length,modules.length-1);
+        assert.equal(recommendPractice(modules,saved,true).id,modules[1].id);
+        const boundary = members[0].module_ids.length-1;
+        assert.equal(nextPractice(modules[boundary],modules.map(p=>p.id),modules,{}).id,modules[boundary+1].id,'Next crosses source-paper boundaries inside the course');
+        const donePage=JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute}));
+        assert.equal(donePage.querySelectorAll('[data-module-id]').length,1);
+        const waitingPage=JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute,progressReady:false}));
+        assert.equal(waitingPage.querySelectorAll('[data-module-id]').length,0);
+        assert(!waitingPage.textContent.includes(en?'No matching modules':'没有符合条件的练习'));
+      } else assert.equal((page.match(/data-paper-id=/g) || []).length, members.length, 'Other collections keep their paper lists');
       assert(page.includes('class="back-link" href="#"') && page.includes('class="button collection-practice"'), 'Each collection has home and practice navigation');
     }
     const legacyServer = render(PaperLibrary,{...catalog,saved:{},route:'?runtime=server'});
@@ -188,9 +213,7 @@ try {
     const resumed = detailPage({saved:drafts});
     assert.equal(primary(resumed).getAttribute('href'), positionHref, 'A newer draft outside the filter cannot replace the scoped recommendation');
     assert(primary(resumed).textContent.includes(en ? 'Continue practice' : '继续实现'));
-    const acceptedFor = problem => ({ problem: problem.id,
-      tests: Object.entries(problem.tests).flatMap(([layer,count])=>Array.from({length:count},(_,i)=>({id:`${layer}_${i}`,layer,passed:true}))),
-      summary: Object.fromEntries(Object.entries(problem.tests).map(([layer,count])=>[layer,[count,count]])) });
+
     const reviewed = detailPage({saved:{[position.id]:{report:acceptedFor(position)}}});
     assert(primary(reviewed).textContent.includes(en ? 'Review implementation' : '回顾实现'), 'Review follows the selected module, even when the rest of its paper is unfinished');
     assert.equal(reviewed.querySelector('[data-next]'), null, 'A solved filtered module must not be marked as unfinished Up next');
@@ -236,6 +259,8 @@ try {
   assert.deepEqual(readLibraryPosition('#/?q=19'), { y: 19 });
   rememberLibraryPosition('#/?q=19', { y: Infinity });
   assert.deepEqual(readLibraryPosition('#/?q=19'), { y: 19 });
+  rememberLibraryPosition('#/collections/llm-basics', { y: 420, anchor: { id: 'architecture/attention', top: 140 } });
+  assert.deepEqual(readLibraryPosition('#/collections/llm-basics'), { y: 420, anchor: { id: 'architecture/attention', top: 140 } }, 'Course exercise anchors survive navigation');
   globalThis.sessionStorage = { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); } };
   rememberLibraryPosition('#/?q=volatile', { y: 123 });
   assert.deepEqual(readLibraryPosition('#/?q=volatile'), { y: 123 });

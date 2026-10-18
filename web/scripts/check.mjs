@@ -230,12 +230,12 @@ try {
       {...libraryProps, saved: completed, collectionId: list.id}));
     assert(/class="random-problem"[^>]*disabled/.test(completedHtml),
       `${list.id}: do not fall back to unsolved modules outside a fully completed collection`);
-    assert.deepEqual(rowIds(html), list.paperIds,
+    assert.deepEqual(rowIds(html), list.kind === "course" ? [] : list.paperIds,
       `${list.id}: the library must show exactly the selected papers in curated order`);
     for (const match of html.matchAll(/href="(#\/papers\/[^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), `#/collections/${list.id}`,
       'Every collection paper must retain its library return context');
     const collectionHeading = headingText(html, 'collection-page-header');
-    assert(collectionHeading.includes(list.name) && collectionHeading.includes(`${members.length} 篇论文`) && collectionHeading.includes(`${moduleIds.size} 道题`),
+    assert(collectionHeading.includes(list.name) && (list.kind === "course" ? collectionHeading.includes("课程") : collectionHeading.includes(`${members.length} 篇论文`)) && collectionHeading.includes(`${moduleIds.size} 道题`),
       `${list.id}: the dedicated heading must name its collection and count its own papers/modules`);
     assert(headingText(html).includes(`已通过模块 1 / ${moduleIds.size}`),
       `${list.id}: an accepted module outside this collection must not affect its progress`);

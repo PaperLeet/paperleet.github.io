@@ -2,6 +2,7 @@ import type { Paper } from "./types";
 
 export type PaperCollection = {
   id: string;
+  kind?: "course";
   name: string;
   name_en: string;
   description: string;
@@ -13,6 +14,7 @@ export type PaperCollection = {
 export const paperCollections: PaperCollection[] = [
   {
     id: "llm-basics",
+    kind: "course",
     name: "LLM 基础",
     name_en: "LLM Basics",
     description: "训练与生成入门 · Attention · LoRA",

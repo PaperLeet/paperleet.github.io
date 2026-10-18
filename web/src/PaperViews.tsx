@@ -58,6 +58,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   }, []);
   const practice = { problems, saved };
   const selectedCollection = paperCollections.find((collection) => collection.id === collectionId);
+  const course = selectedCollection?.kind === "course";
   const listedPapers = papersInCollection(papers, selectedCollection);
   const filters = normalizeLibraryFilters(readLibraryRoute(route)?.filters || emptyLibraryFilters(), listedPapers);
   const {query,category,tag,difficulty:diff,state,sort = 'default'} = filters;
@@ -125,14 +126,14 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   }
   function clear() { change({...emptyLibraryFilters(), sort}); }
   const hasFilters = !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
-  const nextInCollection = selectedCollection && progressReady ? recommendPractice(filteredModules, saved) || filteredModules[0] : undefined;
+  const nextInCollection = selectedCollection && progressReady ? recommendPractice(filteredModules, saved, course) || filteredModules[0] : undefined;
   const nextState = nextInCollection && status(nextInCollection, saved[nextInCollection.id]);
   return <main className={`home paper-library${selectedCollection ? " collection-page" : ""}`}>
     {selectedCollection ? <header className="collection-page-header">
       <a className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</a>
       <div className="collection-page-title-row">
-        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{listedPapers.length} {t("篇论文", "papers")}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
-        {nextInCollection && <a className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></a>}
+        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
+        {nextInCollection && <a className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></a>}
       </div>
     </header> : <>
     <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
@@ -150,7 +151,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const count = memberIds.size;
           const completed = problems.filter(problem => memberIds.has(problem.id) && status(problem,saved[problem.id]) === "done").length;
           const label = t(collection.name, collection.name_en);
-          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${members.length} ${t("篇论文", "papers")} · ${count} ${t("道题", "problems")}`}>
+          return <a key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${collection.kind === "course" ? t("课程", "Course") : `${members.length} ${t("篇论文", "papers")}`} · ${count} ${t("道题", "problems")}`}>
             <div className="collection-copy">
               <h3>{label}</h3>
             </div>
@@ -165,18 +166,18 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
-      <div className="library-title">{selectedCollection ? <h2>{t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
+      <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
       <a className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</a>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{solvedModules} / {listedModules.length}</b></div>
     </header>
-    <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
+    {!course && <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
       <button aria-pressed={category === "all"} onClick={() => { change({category:"all",tag:"all"}); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
       {visibleCategories.map((item) => {
         const label = categoryLabels[item.id] || [item.name, item.name_en];
         return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { change({category:item.id,tag:"all"}); }}><i aria-hidden="true" /><BilingualText zh={label[0]} en={label[1]} /><span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
       })}
-    </div>
-    <section className="problem-list" aria-label={t("论文列表", "Paper list")}>
+    </div>}
+    <section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
         <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} placeholder={t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape") change({query:''}); }} />{query ? <button className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { change({query:""}); searchInput.current?.focus(); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
         <button className="library-filter-toggle" aria-controls="library-advanced-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(open => !open)}><SlidersHorizontal size={16} aria-hidden="true" />{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
@@ -187,13 +188,13 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           <div className="select-wrap"><select aria-label={t("模块难度筛选", "Filter module difficulty")} value={diff} onChange={(e) => change({difficulty:e.target.value})}>
             <option value="all">{t("难度", "Difficulty")}</option><option value="E">{t("简单", "Easy")}</option><option value="M">{t("中等", "Medium")}</option><option value="H">{t("困难", "Hard")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
-          <div className="select-wrap"><select aria-label={t("论文状态筛选", "Filter paper status")} disabled={!progressReady} value={state} onChange={(e) => change({state:e.target.value})}>
+          <div className="select-wrap"><select aria-label={course ? t("练习状态筛选", "Filter module status") : t("论文状态筛选", "Filter paper status")} disabled={!progressReady} value={state} onChange={(e) => change({state:e.target.value})}>
             <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
         </div>
         <button className="random-problem" aria-label={t('随机一题', 'Random problem')} onClick={randomProblem} disabled={!progressReady || !unattempted.length} title={!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true" /><span>{t("随机一题", "Random problem")}</span></button>
       </div>
-      <div className="library-results"><span role="status">{waitingForStatus ? t('正在核对学习进度…','Checking your learning progress…') : <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · {filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span><div className="library-result-actions">{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}<label className="library-sort"><ArrowDownWideNarrow size={14} aria-hidden="true" /><select aria-label={t("论文排序", "Sort papers")} value={sort} onChange={event => change({sort:event.target.value as LibrarySort})}><option value="default">{t("默认排序", "Discovery order")}</option><option value="newest">{t("最新发表", "Newest first")}</option><option value="oldest">{t("最早发表", "Oldest first")}</option><option value="title">{t("名称 A–Z", "Title A–Z")}</option></select></label><div className="library-density" role="group" aria-label={t('列表密度', 'List density')}><button aria-label={t('舒适列表', 'Comfortable list')} title={t('舒适列表', 'Comfortable list')} aria-pressed={density === 'comfortable'} onClick={() => changeDensity('comfortable')}><Rows3 size={15} /></button><button aria-label={t('紧凑列表', 'Compact list')} title={t('紧凑列表', 'Compact list')} aria-pressed={density === 'compact'} onClick={() => changeDensity('compact')}><List size={15} /></button></div></div></div>
+      <div className="library-results"><span role="status">{waitingForStatus ? t('正在核对学习进度…','Checking your learning progress…') : <>{!course && <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · </>}{filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span><div className="library-result-actions">{hasFilters && <button className="text-button" onClick={clear}>{t("重置筛选", "Reset filters")}</button>}<label className="library-sort"><ArrowDownWideNarrow size={14} aria-hidden="true" /><select aria-label={course ? t("按来源排序", "Sort by source") : t("论文排序", "Sort papers")} value={sort} onChange={event => change({sort:event.target.value as LibrarySort})}><option value="default">{t("默认排序", course ? "Course order" : "Discovery order")}</option><option value="newest">{t("最新发表", "Newest first")}</option><option value="oldest">{t("最早发表", "Oldest first")}</option><option value="title">{t("名称 A–Z", "Title A–Z")}</option></select></label><div className="library-density" role="group" aria-label={t('列表密度', 'List density')}><button aria-label={t('舒适列表', 'Comfortable list')} title={t('舒适列表', 'Comfortable list')} aria-pressed={density === 'comfortable'} onClick={() => changeDensity('comfortable')}><Rows3 size={15} /></button><button aria-label={t('紧凑列表', 'Compact list')} title={t('紧凑列表', 'Compact list')} aria-pressed={density === 'compact'} onClick={() => changeDensity('compact')}><List size={15} /></button></div></div></div>
       {hasFilters && <div className="active-filters" aria-label={t("当前筛选条件", "Active filters")}>
         {[
           { id:"query", value:!!query, label:`“${query}”`, patch:{query:""} },
@@ -203,9 +204,17 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           { id:"state", value:state!=="all", label:({todo:t("未开始","Not started"),started:t("进行中","In progress"),done:t("已完成","Solved")} as Record<string,string>)[state], patch:{state:"all"} },
         ].filter(item=>item.value).map(item=><button key={item.id} aria-label={t(`移除筛选：${item.label}`,`Remove filter: ${item.label}`)} onClick={()=>change(item.patch)}>{item.label}<X size={12} aria-hidden="true" /></button>)}
       </div>}
-      <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{t("论文", "Paper")}</span><span className="paper-year">{t("年份", "Year")}</span><span>{t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
+      <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{course ? t("练习", "Module") : t("论文", "Paper")}</span><span className="paper-year">{course ? t("用时", "Time") : t("年份", "Year")}</span><span>{course ? t("难度", "Difficulty") : t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
       <div className="problem-rows">
-        {!waitingForStatus && filtered.map((paper) => {
+        {!waitingForStatus && (course ? filteredModules.map(module => <div className="paper-result-group" key={module.id}>
+          <a className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
+            <StateIcon state={status(module,saved[module.id])} />
+            <div className="problem-info paper-info"><strong><span>{module.number}.</span>{locale === "en" ? module.translations?.en?.title || module.title : module.title}</strong><small>{t(module.module.goal,module.module.goal_en)}</small></div>
+            <span className="paper-year">{module.estimated_minutes || 25} min</span>
+            <span className={`difficulty ${module.difficulty}`}>{({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[module.difficulty]}</span>
+            <ChevronRight size={16} aria-hidden="true" />
+          </a>
+        </div>) : filtered.map((paper) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
@@ -216,9 +225,9 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />
           </a>{showMatches && <div className="matching-modules"><span>{t("匹配模块", "Matching modules")}</span>{matching.map(module=><a key={module.id} href={withLibraryContext(module.number,viewHref)}><Code2 size={13} aria-hidden="true" />{module.number}. {locale === "en" ? module.translations?.en?.title || module.title : module.title}<ArrowRight size={12} aria-hidden="true" /></a>)}</div>}</div>;
-        })}
+        }))}
       </div>
-      {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
+      {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{course ? t("没有符合条件的练习", "No matching modules") : t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
     </section>
     </div>
     <LibraryOverview problems={listedModules} practiceProblems={waitingForStatus?[]:filteredModules} scopeReady={!waitingForStatus} returnTo={viewHref} saved={saved} ready={progressReady} difficulty={diff} onDifficulty={difficulty => change({difficulty})} />

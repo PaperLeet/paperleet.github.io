@@ -46,12 +46,15 @@ export function paperProgress(paper: Paper, { problems, saved }: Practice) {
 /** Use the same collection and filters for library cards and every practice entry point. */
 export function selectLibraryPractice(papers: Paper[], problems: Problem[], saved: Record<string, Saved>, view?: { collectionId?: string; filters: LibraryFilters }) {
   if (!view) return { papers, problems };
-  const listed = papersInCollection(papers, paperCollections.find(collection => collection.id === view.collectionId));
+  const collection = paperCollections.find(collection => collection.id === view.collectionId);
+  const listed = papersInCollection(papers, collection);
   const filters = normalizeLibraryFilters(view.filters, listed);
   const visible = listed.filter(paper =>
     (filters.category === 'all' || paper.category === filters.category) &&
     matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime).length > 0 &&
-    (filters.state === 'all' || paperProgress(paper, { problems, saved }).state === filters.state) &&
+    (collection?.kind === 'course' || filters.state === 'all' || paperProgress(paper, { problems, saved }).state === filters.state) &&
     (filters.tag === 'all' || paper.tags.some(tag => sameLibraryTag(tag, filters.tag))));
-  return { papers: visible, problems: visible.flatMap(paper => matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime)) };
+  const modules = visible.flatMap(paper => matchingPaperModules(paper, problems, filters.query, filters.difficulty, filters.runtime))
+    .filter(problem => collection?.kind !== 'course' || filters.state === 'all' || status(problem, saved[problem.id]) === filters.state);
+  return { papers: visible.filter(paper => modules.some(problem => paper.module_ids.includes(problem.id))), problems: modules };
 }

@@ -37,7 +37,7 @@ import {
 import { isPassed, status } from "./types";
 import type { Category, Paper, Problem, Report } from "./types";
 import { PaperLibrary, paperModules } from "./PaperViews";
-import { collectionIdFromRoute } from "./paperCollections";
+import { paperCollections, papersInCollection, collectionIdFromRoute } from "./paperCollections";
 import { decodeProblemHash } from "./reports";
 import { LocaleProvider, useI18n } from "./i18n";
 import { AccountNav, AccountProvider, profileHref, useAccount } from "./social";
@@ -221,7 +221,11 @@ function Workspace() {
   const selectedPaper = papers.find((paper) =>
     sourceProblem ? paper.id === sourceProblem.paper_id : path === `papers/${paper.id}`,
   );
-  const siblingModules = selectedPaper
+  const returningCollection = paperCollections.find(collection => collection.id === readLibraryRoute(libraryReturn || '')?.collectionId && collection.kind === 'course');
+  const courseModules = returningCollection ? papersInCollection(papers, returningCollection).flatMap(paper => paperModules(paper, problems)) : [];
+  const courseCollection = courseModules.some(module => module.id === sourceProblem?.id) ? returningCollection : undefined;
+  const inCourse = !!courseCollection || selectedPaper?.kind === 'course';
+  const siblingModules = courseCollection ? courseModules : selectedPaper
     ? paperModules(selectedPaper, problems)
     : sourceProblem
       ? [sourceProblem]
@@ -236,9 +240,9 @@ function Workspace() {
   const practiceScope = selectLibraryPractice(papers, problems, learningSaved, libraryView || (libraryReturn ? readLibraryRoute(libraryReturn) : undefined));
   const scopedSiblings = siblingModules.filter(module => practiceScope.problems.some(candidate => candidate.id === module.id));
   const idlePracticeLabel = !practiceScope.problems.some(module => !module.module.optional) ? t("当前范围暂无核心模块", "No core modules in this view") : practiceReturn && practiceReturn !== "#" ? t("本范围核心模块已完成", "Core modules complete in this view") : t("核心模块已完成", "Core modules complete");
-  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(scopedSiblings, learningSaved) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
+  const resumeProblem = progressReady ? (selectedPaper ? recommendPractice(scopedSiblings, learningSaved, !!courseCollection) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
   const nextProblem = problem && progressReady
-    ? nextPractice(problem, selectedPaper?.module_ids || [], practiceScope.problems, learningSaved)
+    ? nextPractice(problem, siblingModules.map(module => module.id), practiceScope.problems, learningSaved)
     : undefined;
   const browser = useBrowserJudge(practice.owner);
   const queueReady = !publicSite && practice.ready && !practice.loading && problems.length > 0 && (!hosted || !!user);
@@ -671,10 +675,10 @@ function Workspace() {
           <div className="workspace-toolbar">
             <a
               className="back-link"
-              href={sourcePostReturn||libraryReturn?.split('?')[0] === '#/favorites' || libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={courseCollection ? libraryReturn : sourcePostReturn||libraryReturn?.split('?')[0] === '#/favorites' || libraryReturn?.startsWith('#/interviews') ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {sourcePostReturn ? backLabel : libraryReturn?.split('?')[0] === '#/favorites' ? t('收藏题目','Saved problems') : libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
+              {courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn ? backLabel : libraryReturn?.split('?')[0] === '#/favorites' ? t('收藏题目','Saved problems') : libraryReturn?.startsWith('#/interviews') ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </a>
@@ -706,7 +710,7 @@ function Workspace() {
               setLayoutRequest({horizontal:{ratio}});
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={selectedPaper?.kind === "course"} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />}
+            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse} current={problem} modules={siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} returnTo={libraryReturn} />}
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
@@ -800,7 +804,7 @@ function Workspace() {
                   )
                 ) : (
                   <>
-                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={selectedPaper?.kind==='course'} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={openEditor}/>
+                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={inCourse} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={openEditor}/>
                     {tab === "description" && <PreparationGuide key={problem.id} problemId={problem.id} onNotes={()=>selectReadingTab("notes")} notesUnlocked={notesUnlocked&&progressReady} onLab={()=>openLab("concept")}/>}
                     {tab === "explanation" && (
                       <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />
@@ -967,7 +971,7 @@ function Workspace() {
                   {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
                     onEdit={openEditor} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={selectedPaper?.kind === "course"} current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
+                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={inCourse} current={problem} problems={problems} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
                   </WorkspaceTestResults>}
                   </div>
                   </div>

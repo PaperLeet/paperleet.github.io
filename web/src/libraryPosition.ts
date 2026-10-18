@@ -11,7 +11,7 @@ function canonical(href: string) {
 function valid(value: unknown): value is Position {
   if (!value || typeof value !== 'object') return false;
   const row = value as Position;
-  return Number.isFinite(row.y) && row.y >= 0 && row.y <= 1e7 && (!row.anchor || typeof row.anchor.id === 'string' && /^[a-z0-9_-]{1,160}$/.test(row.anchor.id)
+  return Number.isFinite(row.y) && row.y >= 0 && row.y <= 1e7 && (!row.anchor || typeof row.anchor.id === 'string' && /^[a-z0-9_-]{1,80}(?:\/[a-z0-9_-]{1,80})?$/.test(row.anchor.id)
     && Number.isFinite(row.anchor.top) && Math.abs(row.anchor.top) <= 1e5);
 }
 export function rememberLibraryPosition(href: string, value: Position) {
@@ -46,21 +46,22 @@ export function readLibraryPosition(href: string): Position | undefined {
 export function watchLibraryPosition(href: string, restore: boolean) {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const here = () => canonical(location.hash) === href;
-  const rows = () => Array.from(document.querySelectorAll<HTMLElement>('[data-paper-id]'));
+  const rows = () => Array.from(document.querySelectorAll<HTMLElement>('[data-paper-id],[data-module-id]'));
+  const rowId = (element?: HTMLElement) => element?.dataset.paperId || element?.dataset.moduleId;
   const position = restore && readLibraryPosition(href);
   let anchorId = position && position.anchor?.id;
   const visible = (element: HTMLElement) => { const rect = element.getBoundingClientRect(); return rect.bottom > 100 && rect.top < innerHeight; };
   function capture(preferred?: HTMLElement) {
     if (!here()) return;
-    const candidates = rows(), retained = candidates.find(element => element.dataset.paperId === anchorId && visible(element));
-    // Keep the selected paper as the anchor until the reader scrolls away.
-    const row = preferred?.dataset.paperId ? preferred : retained || candidates.find(visible);
-    anchorId = row?.dataset.paperId;
-    rememberLibraryPosition(href, { y: Math.max(0, scrollY), ...(row ? { anchor: { id: row.dataset.paperId!, top: row.getBoundingClientRect().top } } : {}) });
+    const candidates = rows(), retained = candidates.find(element => rowId(element) === anchorId && visible(element));
+    // Keep the selected row as the anchor until the reader scrolls away.
+    const row = rowId(preferred) ? preferred : retained || candidates.find(visible);
+    anchorId = rowId(row);
+    rememberLibraryPosition(href, { y: Math.max(0, scrollY), ...(row ? { anchor: { id: rowId(row)!, top: row.getBoundingClientRect().top } } : {}) });
   }
   const frame = position ? requestAnimationFrame(() => {
     if (!here()) return;
-    const row = position.anchor && rows().find(element => element.dataset.paperId === position.anchor!.id);
+    const row = position.anchor && rows().find(element => rowId(element) === position.anchor!.id);
     scrollTo(0, Math.max(0, row && position.anchor ? scrollY + row.getBoundingClientRect().top - position.anchor.top : position.y));
   }) : undefined;
   const scroll = () => { clearTimeout(timer); timer = setTimeout(() => capture(), 120); };
