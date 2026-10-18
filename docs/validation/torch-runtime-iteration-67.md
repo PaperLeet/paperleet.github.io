@@ -135,3 +135,12 @@ the repository sources and the pinned Pyodide/runtime dependencies identified
 by those manifests; local temporary environments/build outputs are excluded.
 
 The independent-library efficiency, core API and backend objective remains active.
+
+## Main adoption
+
+Validated source `0be832d1a1ee468b90e4da2582d662e48c7a07b4` was adopted on remote main by an ordinary non-force
+push, with zero observed Actions runs for that SHA. All 61 runtime resources,
+169 active export/index identities, 13,729 immutable payloads and seven unchanged
+upstream policy files were verified. A separate proof commit records this result.
+No tag, workflow dispatch, release, package upload or deployment was initiated.
+The overall independent-library efficiency/core/backend goal remains active.
