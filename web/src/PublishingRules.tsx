@@ -16,7 +16,7 @@ export function PublishingRules({ action }: { action?: PublicationAction }) {
     <p>{t('登录账号即可发帖和回复，学校／企业认证为选填。发现违规内容可使用举报入口，交由管理员人工审核。', 'Signed-in accounts can post and reply; school/company verification is optional. Use Report to send problematic content for human review.')}</p>
     <p>{t('允许 AI 辅助，但发布前须由本人核对内容和引用。禁止无人值守的批量投稿、发帖、自动回复，以及使用多个账号绕过限制。',
       'AI assistance is allowed; review the content and sources yourself before publishing. Unattended bulk proposals, posts, automated replies, and using multiple accounts to bypass limits are prohibited.')}</p>
-    <p>{t('论文投稿先经管理员初审，再进入生成和验证；候选版本还需管理员与社区评审后才可入库。请勿发布重复内容、广告或他人的私人信息。',
+    <p>{t('论文投稿先经管理员初审，再进入生成和验证；候选版本还需管理员与社区人工评审后才可入库。请勿发布重复内容、广告或他人的私人信息。',
       'Paper proposals need intake approval before generation and validation. Candidate versions also need maintainer and community review before entering the catalog. Do not publish duplicate content, spam, or other people’s private information.')}</p>
   </details>;
 }

@@ -18,6 +18,7 @@ function parts(route: string) {
     return { path: decodeURIComponent(query < 0 ? raw : raw.slice(0, query)), params: new URLSearchParams(query < 0 ? '' : raw.slice(query + 1)) };
   } catch { return undefined; }
 }
+const validFlag=(value:string)=>['', '1', 'true', '0', 'false'].includes(value);
 function knownParameters(params: URLSearchParams, allowed: string[]) {
   return [...params.keys()].every(key => allowed.includes(key) && params.getAll(key).length === 1);
 }
@@ -41,8 +42,8 @@ export function readCommunityFeed(route: string): { topicId?: string; state: Com
   const days = value.params.get('days') ?? 'all';
   const search = (value.params.get('q') || '').trim();
   const page = value.params.get('page') || '1';
-  if ((tag!==''&&!isCommunityCategory(tag)) || (category !== '' && !isCommunityCategory(category)) || !['', '1', 'true', '0', 'false'].includes(following)
-    || !['', '1', 'true', '0', 'false'].includes(saved) || !['', '1', 'true', '0', 'false'].includes(solutions) || !['latest','active','top'].includes(sort) || !['all','7','30'].includes(days)
+  if ((tag!==''&&!isCommunityCategory(tag)) || (category !== '' && !isCommunityCategory(category)) || !validFlag(following)
+    || !validFlag(saved) || !validFlag(solutions) || !['latest','active','top'].includes(sort) || !['all','7','30'].includes(days)
     || Array.from(search).length > 200 || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page)) || Number(page) > MAX_COMMUNITY_PAGE) return;
   return { topicId, state: { category, ...(tag?{tag}:{}), following: following === '1' || following === 'true',
     ...(solutions === '1' || solutions === 'true' ? {solutions:true} : {}),
