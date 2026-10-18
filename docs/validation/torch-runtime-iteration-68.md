@@ -36,3 +36,7 @@ Local validation does not itself claim main adoption or deployment. Main adoptio
 ## Current-main frontend extension
 
 After source validation, upstream `bf6915ba5a5a731b206f9abcc24c02ad8eadbd32` added deferred community tag discovery. Merge `847c45286c1196a2ec64f72b7ace7fdca472bbdf` preserves all original 0.68 numerical, export, package and report/archive payloads. The complete **149-command** frontend suite, WASM driver, Pages policy and both Node 22.23.3 builds pass again. Current production startup graph: **408,681 raw / 132,849 gzip** bytes. No budgets or release triggers were relaxed. [Machine-readable current-UI qualification](../../packages/stridetorch/benchmarks/results/iteration-68-current-ui.json).
+
+## Main adoption
+
+Version 0.68.0 was adopted on main at `c13563b0cfb66af2f993e89a95b21314bcfc4960`, including implementation `c84a3210e8235108e182d5e70e61dc66b5398116` and the qualified current UI. A guarded ordinary push passed with no active release chain. The remote ref and 313 Git blobs were checked; all 13,735 earlier immutable asset tree entries remain identical. The adopted SHA had zero Actions runs at verification. No workflow dispatch, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/stridetorch/benchmarks/results/iteration-68-main-adoption.json).
