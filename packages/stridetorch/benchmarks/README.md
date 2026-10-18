@@ -427,3 +427,15 @@ with singleton broadcasting retained. Four fresh children per runtime/phase,
 alternating orders and every sample are kept. See the
 [validation record](../../../docs/validation/torch-runtime-iteration-51.md) for
 scope, regressions and retained-buffer versus peak-memory distinctions.
+
+
+`bench_joint.py` compares 26 existing GroupNorm/classification flows between
+source directories, covering float32/64 training, frozen affine/input channels,
+no-grad forward and index/smoothed/soft-label losses. It checks official
+independent composition/formula fixtures before timing complete library calls.
+Pass `--baseline-source`, `--candidate-source` and optionally `--output`.
+`--validate-only` checks values/derivatives without collecting timings and is
+safe to use alongside functional gates. Timed runs use five alternating common
+batches of at least 20 ms; run them serially on an idle machine and preserve
+all samples, source hashes and fixture hashes. The fixture functions come from
+`bench_groupnorm.py` and `bench_classification.py` alongside the script.

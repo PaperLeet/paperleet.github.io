@@ -324,7 +324,11 @@ def _inverse_jvp(input):
     if _INVERSE_JVP_SHARED and value.shape[-1]>=32 and output.requires_grad and direction.requires_grad:
         def backward(g,needs):
             negative=-g;shared=negative @ transpose
-            gp=_layout.contiguous_empty(shared @ e.swapaxes(-1,-2)+left.swapaxes(-1,-2) @ negative) if needs[0] else None
+            gp=None
+            if needs[0]:
+                gp=shared @ e.swapaxes(-1,-2)
+                gp+=left.swapaxes(-1,-2) @ negative
+                gp=_layout.contiguous_empty(gp)
             ge=transpose @ shared if needs[1] else None
             if ge is not None:
                 ge=_layout.contiguous_empty(ge) if not ge.size else np.asfortranarray(ge) if column_direction else np.ascontiguousarray(ge)

@@ -42,7 +42,9 @@ class Node:
 
     def release(self):
         if self.saved:
-            self._parents = tuple((parent, None, dtype) for parent, _, dtype in self._parents)
+            # Joint edges already contain no per-edge saved callbacks.
+            if self.joint is None:
+                self._parents = tuple((parent, None, dtype) for parent, _, dtype in self._parents)
             self.joint, self.versions, self.released = None, (), True
 
 
@@ -74,7 +76,8 @@ def run(roots, seeds, *, retain_graph=False, targets=None, accumulate=False):
         elif id(node) not in visited:
             visited.add(id(node))
             stack.append((node, True))
-            stack.extend((parent, False) for parent, _, _ in node._parents)
+            if node._parents:
+                stack.extend((parent, False) for parent, _, _ in node._parents)
     needed = None
     if targets is not None:
         needed = set(targets)
@@ -136,13 +139,15 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
             owner = None
         if not accumulate and (leaf or targets is not None and key in targets or owner is not None and owner.retains_grad):
             derivatives[key] = hook_gradient if (leaf or node.callbacks is not None) and hook_gradient is not None else gradient
-        execute_target = accumulate and targets is not None and key in targets and not leaf
+        if leaf:
+            continue
+        execute_target = accumulate and targets is not None and key in targets
         edges = parents if needed is None or execute_target else tuple(edge for edge in parents if id(edge[0]) in needed)
         if not edges:
             continue
         if node.released:
             raise RuntimeError('Trying to backward through the graph a second time: saved tensors were freed; use retain_graph=True')
-        if any(counter.version != version for counter, version in node.versions):
+        if node.versions and any(counter.version != version for counter, version in node.versions):
             raise _errors.BrowserUnsupported('A tensor saved for backward was modified in-place; this graph requires the server')
         if node.joint is None:
             for parent, vjp, dtype in edges:
@@ -166,21 +171,33 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
             values = backward(gradient, needs)
             if not isinstance(values, (tuple, list)) or len(values) != len(active):
                 raise RuntimeError('A joint VJP must return one gradient per input')
-            parent_index = 0
-            for index, value in enumerate(values):
-                if needs[index] and value is None:
-                    raise RuntimeError('A joint VJP omitted a required input gradient')
-                if not active[index]:
-                    continue
-                parent, _, dtype = parents[parent_index]
-                parent_index += 1
-                if needed is not None and id(parent) not in needed:
-                    continue
-                incoming = np.asarray(value, dtype=dtype)
-                if incoming.shape != parent.shape:
-                    raise RuntimeError('A joint VJP gradient shape must match its input')
-                parent_key = id(parent)
-                pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
+            if needed is None and len(parents) == len(active):
+                # Unfiltered all-active joints align gradients with parent edges.
+                for (parent, _, dtype), value in zip(parents, values):
+                    if value is None:
+                        raise RuntimeError('A joint VJP omitted a required input gradient')
+                    incoming = np.asarray(value, dtype=dtype)
+                    if incoming.shape != parent.shape:
+                        raise RuntimeError('A joint VJP gradient shape must match its input')
+                    parent_key = id(parent)
+                    pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
+            else:
+                parent_index = 0
+                for index, value in enumerate(values):
+                    if needs[index] and value is None:
+                        raise RuntimeError('A joint VJP omitted a required input gradient')
+                    if not active[index]:
+                        continue
+                    parent, _, dtype = parents[parent_index]
+                    parent_index += 1
+                    if needed is not None and id(parent) not in needed:
+                        continue
+                    incoming = np.asarray(value, dtype=dtype)
+                    if incoming.shape != parent.shape:
+                        raise RuntimeError('A joint VJP gradient shape must match its input')
+                    parent_key = id(parent)
+                    pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
+            del backward
         if not retain_graph and node.saved:
             node.release()
     return order, derivatives

@@ -1742,3 +1742,14 @@ including interleaved empty batches: native empty tangent canonicalization does
 not create an independent saved copy. Joint reverse rules validate and route
 returned gradients in one pass. Existing rules retain construction-time needs;
 only explicitly validated rules opt into target-dependent pruning.
+
+
+Version 0.67 releases consumed joint backward callbacks before predecessor hooks
+run, so their saved payloads do not remain live through unrelated reverse work.
+Retained graphs keep those callbacks until their final traversal. All-active
+joint gradients use a direct validated routing path, while filtered/frozen-input
+rules preserve the general route. Leaf traversal and callback-free joint release
+avoid unnecessary Python work. Shared inverse-JVP reverse rules accumulate a
+private matrix temporary in place instead of allocating a second sum buffer.
+These changes preserve public APIs, target selection, hooks, repeated parents,
+dtype/shape checks, storage guards and retained-backward behavior.
