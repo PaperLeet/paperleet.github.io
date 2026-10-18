@@ -18,5 +18,15 @@ try{
  saving=store.set('google',true);take().resolve({...snap(5,['openai','meta','amazon']),company_id:'google',active:false});assert(await saving);assert(!get().snapshot.items.some(row=>row.company_id==='google'));
  const oldRead=store.refresh(),old=take();store.stop();assert(old.signal.aborted);store.start();const freshRead=store.refresh(),fresh=take();old.resolve(snap(99,['google']));fresh.resolve(snap(6,['meta']));await Promise.all([oldRead,freshRead]);assert.equal(get().snapshot.revision,6,'StrictMode restart ignores the retired generation');
  saving=store.set('google',true);request=take();store.stop();assert(request.signal.aborted);request.resolve({...snap(7,['google','meta']),company_id:'google',active:true});assert.equal(await saving,false);const before=changes.length;assert.equal(await store.set('amazon',true),false);assert.equal(changes.length,before);store.start();const identity=store.refresh();take().resolve(snap(0,[],'bob'));await identity;assert(get().accountError);assert.equal(get().snapshot,undefined);assert.deepEqual(get().pending,{});store.stop();
+ // Either a mismatched GET or a revoked write retires every concurrent request.
+ for(const revokedWrite of [false,true]){
+  const queue=[],events=[];const guarded=createCompanyTargetStore(owner,(body,signal)=>new Promise((resolve,reject)=>queue.push({body,signal,resolve,reject})),()=>events.push(true));
+  const initial=guarded.refresh();queue.shift().resolve(snap(0));await initial;
+  const writing=guarded.set('google',true),write=queue.shift();
+  const confirming=revokedWrite?guarded.set('meta',true):guarded.refresh(),confirmation=queue.shift();
+  if(revokedWrite)confirmation.reject(Object.assign(Error('Session revoked'),{status:401}));else confirmation.resolve(snap(0,[],'bob'));
+  await confirming;assert(guarded.getSnapshot().accountError);assert(write.signal.aborted,'Identity failure must abort every in-flight operation');
+  write.resolve({...snap(99,['google']),company_id:'google',active:true});assert.equal(await writing,false);assert.equal(guarded.getSnapshot().snapshot,undefined,'Account mismatch must retire every concurrent write before late acknowledgements can restore private targets');assert.deepEqual(events,[]);guarded.stop();
+ }
  console.log('PASS target-company store: strict private snapshots and bounds; coalesced reads; confirmed-only membership; fixed-direction lost-response retry; independent concurrent companies and monotonic revisions; conflicting and malformed acknowledgements; read recovery; StrictMode generation retirement; aborted owner responses and no private state on account mismatch');
 }finally{await server.close();}

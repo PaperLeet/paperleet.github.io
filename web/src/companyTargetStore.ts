@@ -18,6 +18,11 @@ export function createCompanyTargetStore(owner:string,request:Request,changed:()
  let state:CompanyTargetsState={loading:false,error:'',accountError:false,pending:{}},live=true,epoch=0,read:Promise<void>|undefined;
  const listeners=new Set<()=>void>(),controllers=new Set<AbortController>();
  const update=(next:CompanyTargetsState)=>{if(live){state=next;listeners.forEach(listener=>listener());}};
+ function retireAccount(message:string){
+  epoch++;read=undefined;
+  for(const controller of controllers)controller.abort();controllers.clear();
+  update({loading:false,error:message,accountError:true,pending:{}});
+ }
  function accept(value:CompanyTargetsSnapshot){
   if(!state.snapshot||value.revision>state.snapshot.revision)return value;
   if(value.revision===state.snapshot.revision&&JSON.stringify(value.items)!==JSON.stringify(state.snapshot.items))throw Error('Conflicting target-company data. Load the latest state.');
@@ -32,7 +37,7 @@ export function createCompanyTargetStore(owner:string,request:Request,changed:()
   const generation=epoch;update({...state,loading:true,error:''});
   const task=(async()=>{
    try{const value=await send();if(!live||generation!==epoch)return;const snapshot=accept(companyTargetsSnapshot(value,owner));update({...state,snapshot,error:'',accountError:false});}
-   catch(error){if(live&&generation===epoch){const accountError=accountFailure(error);update({...state,...(accountError?{snapshot:undefined,pending:{}}:{}),accountError,error:error instanceof Error?error.message:'Target companies are unavailable.'});}}
+   catch(error){if(live&&generation===epoch){const message=error instanceof Error?error.message:'Target companies are unavailable.';if(accountFailure(error))retireAccount(message);else update({...state,error:message});}}
    finally{if(live&&generation===epoch){read=undefined;update({...state,loading:false});}}
   })();read=task;return task;
  }
@@ -45,7 +50,7 @@ export function createCompanyTargetStore(owner:string,request:Request,changed:()
    const snapshot=companyTargetsSnapshot(value,owner),ack=value as {company_id:unknown;active:unknown};
    if(ack.company_id!==company_id||ack.active!==active||snapshot.items.some(row=>row.company_id===company_id)!==active)throw Error('The target-company change is unconfirmed. Retry the original action.');
    const accepted=accept(snapshot),pending={...state.pending};delete pending[company_id];update({...state,snapshot:accepted,pending});changed();return true;
-  }catch(error){if(live&&generation===epoch){const accountError=accountFailure(error);update(accountError?{loading:false,snapshot:undefined,pending:{},accountError:true,error:'Refresh your account before managing target companies.'}:{...state,pending:{...state.pending,[company_id]:{active,busy:false,error:error instanceof Error?error.message:'The change is unconfirmed.'}}});}return false;}
+  }catch(error){if(live&&generation===epoch){if(accountFailure(error))retireAccount('Refresh your account before managing target companies.');else update({...state,pending:{...state.pending,[company_id]:{active,busy:false,error:error instanceof Error?error.message:'The change is unconfirmed.'}}});}return false;}
  }
  return {getSnapshot:()=>state,subscribe:(listener:()=>void)=>{listeners.add(listener);return()=>{listeners.delete(listener);};},refresh,set,
   start(){if(!live){live=true;epoch++;state={loading:false,error:'',accountError:false,pending:{}};}},
