@@ -21,7 +21,7 @@ export function readAdminRoute(route:string):AdminView|undefined {
   if(Object.hasOwn(options,key)){if(!options[key].includes(value))return;result[key as 'status']=value;}
   else if(key==='page'&&(resource||section==='audit')){if(!/^[1-9]\d{0,2}$/.test(value)||+value>501)return;result.page=+value;}
   else if(key==='q'&&section==='users'){const q=value.trim();if([...q].length>100||/[\x00-\x1f\x7f]/.test(value))return;result.q=q;}
-  else if(key==='item'&&(resource||taxonomy)){if(!(resource?/^[a-f0-9]{32}$/:/^[a-z][a-z0-9_-]{0,39}$/).test(value))return;result.item=value;}
+  else if(key==='item'&&(resource||taxonomy||section==='reports')){if(!(resource||section==='reports'?/^[a-f0-9]{32}$/:/^[a-z][a-z0-9_-]{0,39}$/).test(value))return;result.item=value;}
   else if(key==='create'&&taxonomy&&value==='1')result.create=true;
   else return;
  }

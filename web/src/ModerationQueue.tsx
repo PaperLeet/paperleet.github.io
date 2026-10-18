@@ -15,16 +15,16 @@ function SnapshotChanges({before,after}:{before:ReviewPost;after:ReviewPost}){
  const {t}=useI18n(),[visited,setVisited]=useState(false);
  return <details className="moderation-change-disclosure" onToggle={event=>{if(event.currentTarget.open)setVisited(true);}}><summary>{t('对比当前内容','Compare with current content')}<small>{t('标题、正文与分类','Title, body and category')}</small></summary>{visited&&<SnapshotComparison before={before} after={after}/>}</details>;
 }
-export default function ModerationQueue({embedded=false,refreshKey=0}:{embedded?:boolean;refreshKey?:number}){
+export default function ModerationQueue({embedded=false,refreshKey=0,initialPostId}:{embedded?:boolean;refreshKey?:number;initialPostId?:string}){
  const {user,loading,capabilities}=useAccount(),{t}=useI18n();
  if(loading)return <main className="moderation-page"><p role="status">{t('正在确认审核权限…','Checking review access…')}</p></main>;
  if(!user)return <main className="moderation-page"><h1>{t('社区举报审核','Community reports')}</h1><a href={signInHref('#/community/moderation')}>{t('登录管理员账号','Sign in as an administrator')}</a></main>;
  if(user.role!=='admin'||user.status&&user.status!=='active')return <main className="moderation-page"><h1>{t('需要管理员权限','Administrator access required')}</h1></main>;
  if(capabilities?.community_reports!==true)return <main className="moderation-page"><p>{t('此服务暂不支持举报审核。','Report review is unavailable on this service.')}</p></main>;
- return <QueueView key={user.id} owner={user.id} embedded={embedded} refreshKey={refreshKey}/>;
+ return <QueueView key={user.id} owner={user.id} embedded={embedded} refreshKey={refreshKey} initialPostId={initialPostId}/>;
 }
-function QueueView({owner,embedded=false,refreshKey=0}:{owner:string;embedded?:boolean;refreshKey?:number}){
- const {t}=useI18n(),[state,setState]=useState('pending'),[minimum,setMinimum]=useState(1),[offset,setOffset]=useState(0),[selected,setSelected]=useState('');
+function QueueView({owner,embedded=false,refreshKey=0,initialPostId=''}:{owner:string;embedded?:boolean;refreshKey?:number;initialPostId?:string}){
+ const {t}=useI18n(),[state,setState]=useState('pending'),[minimum,setMinimum]=useState(1),[offset,setOffset]=useState(0),[selected,setSelected]=useState(initialPostId);
  const [data,setData]=useState<Queue>(),[loading,setLoading]=useState(false),[error,setError]=useState(''),sequence=useRef(0),mounted=useRef(true);
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;sequence.current++;};},[]);
  async function load(){const request=++sequence.current;setLoading(true);setError('');try{
@@ -33,6 +33,7 @@ function QueueView({owner,embedded=false,refreshKey=0}:{owner:string;embedded?:b
   if(mounted.current&&request===sequence.current)setData(value);
  }catch(e){if(mounted.current&&request===sequence.current)setError(errorMessage(e));}finally{if(mounted.current&&request===sequence.current)setLoading(false);}}
  useEffect(()=>{void load();},[state,minimum,offset,refreshKey]);
+ useEffect(()=>{setSelected(initialPostId);},[initialPostId]);
  const Root=embedded?"section":"main";
  return <Root className="moderation-page">{embedded?<p className="admin-intro">{t('按待审举报人数优先排列。每个账号对同一帖子只计一票，举报不会自动删除帖子。','Prioritized by pending reporters. Each account counts once per post. Reports do not automatically remove content.')}</p>:<header className="moderation-heading"><div><span><ShieldCheck size={17}/>{t('管理员工作台','Administrator workspace')}</span><h1>{t('社区举报审核','Community reports')}</h1><p>{t('按待审举报人数优先排列。每个账号对同一帖子只计一票，举报不会自动删除帖子。','Prioritized by pending reporters. Each account counts once per post. Reports do not automatically remove content.')}</p></div><a href="#/community">{t('返回社区','Back to community')}</a></header>}
   <div className="moderation-filters"><label>{t('审核状态','Review status')}<select value={state} onChange={event=>{setState(event.target.value);setOffset(0);setSelected('');}}><option value="pending">{t('待审核','Pending')}</option><option value="resolved">{t('已处理','Resolved')}</option><option value="all">{t('全部','All')}</option></select></label><label>{t('累计举报至少','At least this many reports')}<select value={minimum} onChange={event=>{setMinimum(Number(event.target.value));setOffset(0);setSelected('');}}>{[1,3,5,10].map(n=><option key={n} value={n}>{n}</option>)}</select></label><button className="button subtle" type="button" disabled={loading} onClick={()=>void load()}><RefreshCw size={15}/>{t('刷新队列','Refresh queue')}</button></div>
