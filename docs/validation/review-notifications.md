@@ -3,7 +3,7 @@
 The deferred inbox adds a typed `review` row with a system sender and bounded literal
 feedback. The public interface validates the resource identifier, phase, version,
 decision and Unicode text bounds before creating local links. Report outcomes never
-contain internal notes or reporter identity. Candidate feedback records the reviewed
+contain internal notes or reporter identity. When the author already deleted a reported post, the outcome explicitly says the content is unavailable, rather than claiming that it was kept or newly removed. Candidate feedback records the reviewed
 version and links to current submission state. Expanding native details retains its
 state across locale changes and does not send a read acknowledgement.
 

@@ -6,7 +6,7 @@ export function reviewNotice(value:unknown):ReviewNotice|undefined{
  if(row.kind==='paper_review'){
   if(!['approve','changes','reject'].includes(row.decision)||!['submission','candidate'].includes(row.phase)||row.phase==='candidate'&&row.version<1)return;
  }else if(row.kind==='report_result'){
-  if(!['dismiss','remove'].includes(row.decision)||row.phase!==''||row.version!==0||row.feedback!=='')return;
+  if(!['dismiss','remove','unavailable'].includes(row.decision)||row.phase!==''||row.version!==0||row.feedback!=='')return;
  }else if(row.kind==='post_removed'){
   if(row.decision!=='remove'||row.phase!==''||row.version!==0||row.feedback!=='')return;
  }else return;
