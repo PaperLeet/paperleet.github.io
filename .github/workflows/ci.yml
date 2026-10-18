@@ -59,6 +59,10 @@ jobs:
           VITE_HOSTED_APP_AVAILABLE: '1'
           VITE_HOSTED_APP_URL: https://app.paperleet.com
         run: npm run build
+      - name: Validate production asset retention
+        run: |
+          python web/scripts/check-pages-assets.py
+          python web/scripts/retain-pages-assets.py web/dist --check
       - uses: actions/upload-artifact@v4
         if: always()
         with:

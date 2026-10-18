@@ -191,6 +191,23 @@ class PagesAssetsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.publish(dist)
 
+    def test_path_routed_entry_retains_root_assets_and_old_cached_chunks(self):
+        previous = self.archive("legacy", [("assets/old.js", "old")])
+        dist = self.build("paths", {"assets/style.css": "css", "papers/example/index.html": "paper"})
+        (dist / "index.html").write_text('<script type="module" src="/assets/paths.js"></script><link rel="stylesheet" href="/assets/style.css">')
+        _, manifest = self.publish(dist, previous)
+        self.assertEqual(manifest["generations"][0]["assets"], ["assets/paths.js", "assets/style.css"])
+        self.assertEqual((dist / "assets/old.js").read_text(), "old")
+        self.assertEqual((dist / "papers/example/index.html").read_text(), "paper")
+
+    def test_root_asset_urls_do_not_allow_missing_files_or_traversal(self):
+        for i, value in enumerate(("/assets/missing.js", "/assets/../escape.js", "/assets//bad.js")):
+            with self.subTest(value=value):
+                dist = self.build(f"invalidroot{i}")
+                (dist / "index.html").write_text(f'<script src="{value}"></script>')
+                with self.assertRaises(ValueError):
+                    self.publish(dist)
+
     def test_size_limit_drops_whole_old_generations_before_copying(self):
         previous = self.archive("large", [("assets/old.js", "x" * 20)])
         dist = self.build("current")

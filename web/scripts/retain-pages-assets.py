@@ -65,6 +65,10 @@ class EntryAssets(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         value = attrs.get("src") if tag == "script" else attrs.get("href") if tag == "link" else None
+        # Path-routed documents share assets from the site root. Archive names
+        # must remain relative; normalize only this known local URL prefix.
+        if value and value.startswith("/assets/"):
+            value = value[1:]
         if value and value.removeprefix("./").startswith("assets/"):
             self.paths.add(safe_name(value))
 
@@ -201,10 +205,14 @@ def retain_assets(dist, previous=None, *, seeds=(), now=None, archive_out=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dist", type=Path)
+    parser.add_argument("--check", action="store_true", help="Validate the current build without retaining or writing assets")
     parser.add_argument("--previous", type=Path)
     parser.add_argument("--archive-out", type=Path)
     parser.add_argument("--seed", type=Path, action="append", default=[])
     args = parser.parse_args()
+    if args.check:
+        print(f"Validated {len(current_assets(args.dist))} current Pages assets")
+        return
     retain_assets(args.dist, args.previous, seeds=args.seed, archive_out=args.archive_out)
 
 
