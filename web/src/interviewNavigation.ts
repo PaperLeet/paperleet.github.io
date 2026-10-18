@@ -1,8 +1,8 @@
 export const MAX_INTERVIEW_PAGE=5000;
 export type InterviewStudyState='all'|'todo'|'started'|'done';
 export type InterviewCompanyOrder='catalog'|'contributors'|'reports'|'name';
-export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string;company_order:InterviewCompanyOrder;outcome:string;compare?:string;comparison?:'shared'|'different'|'all'};
-export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog',outcome:''});
+export type InterviewFilters={company:string;role:string;stage:string;q:string;days:'all'|'30'|'90'|'365';sort:'recent'|'helpful';page:number;view:'reports'|'questions'|'companies';track:string;saved:boolean;concept:string;study:InterviewStudyState;queue:string;company_order:InterviewCompanyOrder;outcome:string;difficulty:''|'E'|'M'|'H';max_minutes:''|'15'|'30'|'45'|'60';compare?:string;comparison?:'shared'|'different'|'all'};
+export const emptyInterviewFilters=():InterviewFilters=>({company:'',role:'',stage:'',q:'',days:'365',sort:'recent',page:1,view:'reports',track:'',saved:false,concept:'',study:'all',queue:'',company_order:'catalog',outcome:'',difficulty:'',max_minutes:''});
 export function readInterviewRoute(route:string):InterviewFilters|undefined {
   if(route.length>8192)return;
   const [path,search='',extra]=route.replace(/^#\/?/,'').split('?');
@@ -17,6 +17,8 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     else if(key==='concept'){if(!/^[a-z0-9_-]{1,80}\/[a-z0-9_-]{1,80}$/.test(value))return;filters.concept=value;}
     // Keep the routing list aligned with the catalog without importing its deferred metadata here.
     else if(key==='track'){if(!['training-generation','generation-continual-basics','llm','normalization','recommendation','training','representation','transformer','post-training','few-step-generation','world-models','representation-shape','policy-distillation','visual-quantization','feedback-distillation','advanced-architecture','off-policy-passk','generation-targets','low-rank-quantization','block-generation','inverse-diffusion','vision-foundations'].includes(value))return;filters.track=value;}
+    else if(key==='difficulty'){if(!['E','M','H'].includes(value))return;filters.difficulty=value as InterviewFilters['difficulty'];}
+    else if(key==='max_minutes'){if(!['15','30','45','60'].includes(value))return;filters.max_minutes=value as InterviewFilters['max_minutes'];}
     else if(key==='study'){if(!['all','todo','started','done'].includes(value))return;filters.study=value as InterviewStudyState;}
     else if(key==='outcome'){if(!['unknown','pending','offer','rejected','withdrew'].includes(value))return;filters.outcome=value;}
     else if(key==='company_order'){if(!['catalog','contributors','reports','name'].includes(value))return;filters.company_order=value as InterviewCompanyOrder;}
@@ -29,11 +31,12 @@ export function readInterviewRoute(route:string):InterviewFilters|undefined {
     else {if(!['company','role','stage'].includes(key)||!/^[a-z][a-z0-9-]{0,39}$/.test(value))return;filters[key as 'company'|'role'|'stage']=value;}
   }
   if((filters.compare||filters.comparison)&&(filters.view!=='companies'||!!filters.company||!filters.compare))return;
+  if((filters.difficulty||filters.max_minutes)&&filters.view!=='questions')return;
   return filters;
 }
 export function interviewHref(filters:InterviewFilters=emptyInterviewFilters()){
   const defaults=emptyInterviewFilters(),params=new URLSearchParams();
-  for(const key of Object.keys(defaults) as (keyof InterviewFilters)[])if(filters[key]!==defaults[key]&&(key!=='study'||filters.view==='questions')&&(key!=='queue'||interviewBatchView(filters))&&(key!=='company_order'||filters.view==='companies'))params.set(key,key==='saved'?'1':String(filters[key]));
+  for(const key of Object.keys(defaults) as (keyof InterviewFilters)[])if(filters[key]!==defaults[key]&&(key!=='study'||filters.view==='questions')&&(key!=='queue'||interviewBatchView(filters))&&(key!=='company_order'||filters.view==='companies')&&(!['difficulty','max_minutes'].includes(key)||filters.view==='questions'))params.set(key,key==='saved'?'1':String(filters[key]));
   if(filters.compare&&filters.view==='companies'&&!filters.company){params.set('compare',filters.compare);if(filters.comparison&&filters.comparison!=='shared')params.set('comparison',filters.comparison);}
   const href='#/interviews'+(params.size?'?'+params:'');
   if(!readInterviewRoute(href))throw Error('Invalid interview filters');

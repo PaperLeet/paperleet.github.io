@@ -44,9 +44,9 @@
 .interview-search > button:hover { background:var(--surface2); color:var(--text); }
 .interview-search > button:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
 .interview-search > input::-webkit-search-cancel-button,.interview-search > input::-webkit-search-decoration { -webkit-appearance:none; }
-.interview-selects { display:flex; flex-wrap:wrap; gap:8px; }
+.interview-selects { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:8px; }
 .interview-selects select,.interview-results-heading select { min-width:0; max-width:100%; min-height:40px; padding:6px 24px 6px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text-secondary); font-size:var(--type-small); }
-.interview-selects select { flex:1; }
+.interview-selects select { width:100%; }
 .interview-active-filters { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:12px; }
 .interview-active-filters > button:not(.text-button) { display:inline-flex; align-items:center; gap:6px; min-width:0; max-width:100%; min-height:40px; padding:7px 10px; border:1px solid transparent; border-radius:6px; background:var(--surface2); font-size:var(--type-small); color:var(--text-secondary); }
 .interview-active-filters > button:not(.text-button) span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

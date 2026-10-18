@@ -237,4 +237,8 @@ for (const marker of ['pdf_url','paper-registry-toolbar','paperleet.registry.pos
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-budget-planner')), 'Interview time planning must remain deferred');
 assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-budget-planner'))), 'Deferred interview preparation must include time planning styles');
 
+for(const marker of ['No concepts match this difficulty and duration','Any practice difficulty']){
+ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(marker)), 'Practice metadata filtering UI must remain deferred');
+ assert(Object.values(manifest).some(entry=>entry.file.endsWith('.js')&&fs.readFileSync(`dist/${entry.file}`,'utf8').includes(marker)), 'Deferred interview preparation must retain metadata filtering UI');
+}
 console.log(`PASS initial build graph: ${files.length} JS assets, ${raw} bytes raw / ${gzip} bytes gzip; editor, rich text, community, accounts, submissions, labs, highlighting and solution history deferred`);
