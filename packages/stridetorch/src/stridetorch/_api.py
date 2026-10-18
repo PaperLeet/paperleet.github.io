@@ -30,7 +30,7 @@ def create_torch(name='torch', *, register=False):
                  'nn.modules.normalization', 'nn.modules.transformer', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.instancenorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
                  'nn.modules.flatten', 'nn.modules.distance', 'nn.modules.pooling',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
-                 'optim.adamw', 'optim.lr_scheduler', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
+                 'optim.adamw', 'optim.lr_scheduler', 'autograd', 'autograd.functional', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         module = types.ModuleType(root_name + '.' + name)
         def missing(key, _name=name, _module=module):
             return _errors.missing_attribute(_module, key, 'torch.' + _name + '.' + key)
@@ -40,6 +40,7 @@ def create_torch(name='torch', *, register=False):
     for name in ('nn', 'optim', 'autograd', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         setattr(torch, name, modules['torch.' + name])
     torch.nn.functional = modules['torch.nn.functional']
+    torch.autograd.functional = modules['torch.autograd.functional']
     for name, cls in {
         'Module': _nn.Module, 'Parameter': _nn.Parameter, 'Linear': _nn.Linear, 'Sequential': _nn.Sequential,
         'ModuleList': _nn.ModuleList, 'ModuleDict': _nn.ModuleDict,
@@ -280,6 +281,7 @@ def create_torch(name='torch', *, register=False):
     registry.group('torch.autograd', {'grad': _autograd.autograd_grad, 'gradcheck': _autograd.gradcheck,
                                     'backward': _autograd.autograd_backward}, reverse='control')
     registry.add('torch.func.jvp', _autograd.jvp, reverse='control')
+    registry.add('torch.autograd.functional.vjp', _autograd.functional_vjp, reverse='control')
     torch._browser_capabilities = types.MappingProxyType(registry.capabilities)
     def missing_root(key):
         return _errors.missing_attribute(torch, key)

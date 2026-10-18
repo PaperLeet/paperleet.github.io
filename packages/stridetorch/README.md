@@ -1758,3 +1758,41 @@ Version 0.68 clears traversal-local references to consumed joint cotangent array
 before predecessor work. Retained callbacks and saved-tensor version checks keep
 their existing lifetime rules; gradient values, hooks and target selection are
 unchanged. This removes temporary retention without caching gradient results.
+
+
+## Functional vector-Jacobian products
+
+Version 0.69 adds `torch.autograd.functional.vjp(func, inputs, v=None,
+create_graph=False, strict=False)` for the supported real first-order operators.
+It calls `func` once with distinct input objects, preserves the caller's gradient
+flags and existing `.grad` buffers, and returns detached outputs and derivatives.
+A Tensor input produces a Tensor derivative; an input tuple produces a tuple.
+Output tuples retain their structure. An omitted seed requires one output with
+one element. Unused inputs receive zeros, or raise an error with `strict=True`.
+
+```python
+x = torch.tensor([2., 3.])
+value, gradient = torch.autograd.functional.vjp(lambda a: a.square().sum(), x)
+assert value.item() == 13.0
+assert gradient.tolist() == [4.0, 6.0]
+assert x.grad is None
+```
+
+Inside a recorded functional VJP callback, `numpy()` and `np.asarray` reject an
+implicit graph escape. `detach().numpy()`, an explicit `no_grad()` scope, and
+`numpy(force=True)` deliberately disconnect the value and can therefore produce
+a zero derivative. On this CPU/NumPy backend, `force=True` exports the existing
+array with its dtype, strides and shared storage; it implies no GPU transfer.
+The flag is keyword-only and accepts a Python bool. Existing direct-adapter
+exports outside this transform keep their earlier contract.
+
+Higher-order `create_graph=True`, complex inputs and nesting inside forward AD
+retain explicit unsupported errors. This does not add `torch.func.vjp` or a GPU
+backend. Numerical kernels and the 0.68 cotangent lifetime improvements remain
+in use.
+
+Registered operator attributes on `nn.Module`, including functional VJP, now
+round-trip through pickle using references to this distribution's operators.
+Shallow and deep copies retain live callable identity; Transformer activation
+restoration keeps its legacy defaults. Arbitrary user lambdas retain ordinary
+Python pickle limitations.

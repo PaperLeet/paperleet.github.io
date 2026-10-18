@@ -113,16 +113,10 @@ class _DenseLayer(Module):
         return getattr(self, self._feedforward_dropout)(y)
 
     def __getstate__(self):
-        state = self.__dict__.copy()
-        if 'activation' in state:
-            state['activation'] = _registry.pickle_operator(state['activation'])
-        return state
+        return super().__getstate__()
 
     def __setstate__(self, state):
-        # copy.copy passes state directly, without pickling its contents.
-        if isinstance(state.get('activation'), _registry._OperatorReference):
-            state = {**state, 'activation': state['activation'].function}
-        self.__dict__.update(state)
+        super().__setstate__(state)
         if not hasattr(self, 'activation'):
             self.activation = _activation.relu
         if isinstance(self, TransformerEncoderLayer) and not hasattr(self, 'activation_relu_or_gelu'):

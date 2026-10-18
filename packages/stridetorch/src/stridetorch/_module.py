@@ -2,6 +2,7 @@
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping
 from functools import partial
+from types import FunctionType
 from reprlib import recursive_repr
 
 import numpy as np
@@ -58,6 +59,22 @@ class Module(ModuleHooks, ModuleConversion):
         object.__setattr__(self, '_modules', {})
         object.__setattr__(self, '_non_persistent_buffers_set', set())
         object.__setattr__(self, '_has_forward_hooks', False)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        for name, value in state.items():
+            if type(value) is FunctionType:
+                state[name] = _registry.pickle_operator(value)
+        return state
+
+    def __setstate__(self, state):
+        # Ordinary unpickled state uses the fast dict path. Shallow copies
+        # retain reference objects, which need their original live callable.
+        self.__dict__.update(state)
+        reference = _registry._OperatorReference
+        for name, value in state.items():
+            if type(value) is reference:
+                self.__dict__[name] = value.function
 
     def __getattr__(self, name):
         for registry in ('_parameters', '_buffers', '_modules'):
@@ -429,4 +446,4 @@ class Module(ModuleHooks, ModuleConversion):
         return self._get_name() + '(\n  ' + '\n  '.join(lines) + '\n)'
 
 
-from . import _autograd, _errors, _ops
+from . import _autograd, _errors, _ops, _registry

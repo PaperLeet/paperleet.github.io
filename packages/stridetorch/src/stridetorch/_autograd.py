@@ -368,6 +368,64 @@ def autograd_grad(output, inputs, grad_outputs=None, retain_graph=None, create_g
     return tuple(values) if keys is None else dict(zip(keys,values))
 
 
+def functional_vjp(func, inputs, v=None, create_graph=False, strict=False):
+    """First-order functional VJP with isolated input objects and no .grad writes."""
+    if create_graph:
+        raise _errors.BrowserUnsupported('Higher-order functional VJP requires the server')
+    if _state._jvp_active:
+        raise _errors.BrowserUnsupported('Functional VJP inside forward AD requires the server')
+
+    def tensors(value, name):
+        was_tuple = isinstance(value, tuple)
+        values = value if was_tuple else (value,)
+        if any(not isinstance(item, _tensor.Tensor) for item in values):
+            raise TypeError(name + ' must be a Tensor or a tuple of Tensors')
+        return values, was_tuple
+
+    with enable_grad():
+        original, inputs_tuple = tensors(inputs, 'inputs')
+        if any(isinstance(item, ForwardTensor) or item.dtype.kind == 'c' for item in original):
+            raise _errors.BrowserUnsupported('Complex or forward-AD functional VJP inputs require the server')
+        # Distinct leaves separate explicit arguments from captured originals,
+        # including repeated arguments that happen to share the same storage.
+        arguments = tuple(item.detach().requires_grad_(True) for item in original)
+        previous_transform = _state._functional_vjp_active
+        _state._functional_vjp_active = True
+        try:
+            returned = func(*arguments)
+        finally:
+            _state._functional_vjp_active = previous_transform
+        outputs, outputs_tuple = tensors(returned, 'outputs')
+        if strict and any(not output.requires_grad for output in outputs):
+            raise RuntimeError('A functional VJP output does not require gradients in strict mode')
+        if v is None:
+            if len(outputs) != 1 or outputs[0].numel() != 1:
+                raise RuntimeError('Implicit VJP seeds require one output with one element')
+            seeds = (None,)
+        else:
+            seeds, _ = tensors(v, 'v')
+            if len(seeds) != len(outputs):
+                raise RuntimeError('Expected one VJP seed per output')
+            if any(seed.shape != output.shape for seed, output in zip(seeds, outputs)):
+                raise RuntimeError('VJP seed shapes must match their outputs')
+        active = tuple((output, seed) for output, seed in zip(outputs, seeds) if output.requires_grad)
+        if active and arguments:
+            gradients = autograd_grad(tuple(item[0] for item in active), arguments,
+                                      tuple(item[1] for item in active), allow_unused=True)
+        else:
+            gradients = (None,) * len(arguments)
+        if strict and any(value is None for value in gradients):
+            raise RuntimeError('A functional VJP input is independent of all outputs in strict mode')
+        # Native functional VJP rejects empty Tensor tuples during postprocessing.
+        if not outputs or not arguments:
+            raise IndexError('Empty functional VJP Tensor tuple')
+        gradients = tuple(_tensor.Tensor(np.zeros_like(argument._data)) if gradient is None
+                          else gradient.detach() for argument, gradient in zip(arguments, gradients))
+        outputs = tuple(output.detach() for output in outputs)
+        return (outputs if outputs_tuple else outputs[0],
+                gradients if inputs_tuple else gradients[0])
+
+
 def gradcheck(func, inputs, *, eps=1e-6, atol=1e-5, rtol=1e-3, raise_exception=True, **options):
     """Bounded full first-order Jacobian check; never substitutes training VJPs."""
     if options: raise _errors.BrowserUnsupported('Advanced gradcheck options require the server')
