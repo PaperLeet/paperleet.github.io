@@ -57,7 +57,7 @@ await check('abandoned port lifetime bounded by host lease',async({client,dispos
 await check('client timeout abandons and closes owned session',async({client,gates,disposed})=>{
   const a=client.send('hold');await assert.rejects(a.promise,error=>error.code==='Timeout');const result=await disposed;assert.equal(result.stats.total_bytes,0);assert.equal(client.pending.size,0);
 },{timeoutMs:25});
-const source_sha256=Object.fromEntries(['gpu-service.mjs','rpc-client.mjs','check-protocol.mjs'].map(name=>[name,createHash('sha256').update(fs.readFileSync(new URL('./'+name,import.meta.url))).digest('hex')]));
+const source_sha256=Object.fromEntries(['gpu-service.mjs','plan-program.mjs','rpc-client.mjs','check-protocol.mjs'].map(name=>[name,createHash('sha256').update(fs.readFileSync(new URL('./'+name,import.meta.url))).digest('hex')]));
 const report={status:'passed',cases:rows.length,rows,source_sha256,scope:'Deterministic service/client lifecycle and protocol tests with an injected fake engine; not real GPU execution.'};
 if(process.env.GPU_PROTOCOL_RESULT)fs.writeFileSync(process.env.GPU_PROTOCOL_RESULT,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report));

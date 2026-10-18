@@ -39,6 +39,19 @@ export class MatrixRpc {
   matmul(a,b,transposeA=false,transposeB=false){return this.send('matmul',{a,b,transposeA,transposeB}).promise;}
   async read(handle){const value=await this.send('read',{handle}).promise;return new Float32Array(value.data);}
   release(handle){return this.send('release',{handle}).promise;}
+  releaseMany(handles){return this.send('release_many',{handles}).promise;}
+  async program(inputs,nodes,outputs){
+    const transfer=[];
+    const owned=inputs.map(input=>{
+      if(Object.hasOwn(input,'handle'))return {handle:input.handle};
+      let data=input.data;if(typeof data?.toJs==='function')data=data.toJs();
+      if(!(data instanceof Float32Array))throw new TypeError('Program upload requires contiguous float32 data');
+      const copy=new Float32Array(data);transfer.push(copy.buffer);return {rows:input.rows,cols:input.cols,data:copy.buffer};
+    });
+    const result=await this.send('program',{inputs:owned,nodes,outputs},transfer).promise;
+    for(const output of result.outputs)if(output.data instanceof ArrayBuffer)output.data=new Float32Array(output.data);
+    return result;
+  }
   stats(){return this.send('stats').promise;}
   cancel(target){return this.send('cancel',{target}).promise;}
   async close(){if(this.closed)return;try{await this.send('close').promise;}finally{this.fail(Object.assign(new Error('Client closed'),{code:'Closed'}));}}

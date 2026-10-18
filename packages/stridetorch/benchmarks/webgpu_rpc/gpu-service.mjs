@@ -1,6 +1,8 @@
 // Experimental fixed-operation service. This is not a supported torch device.
+import {planProgram} from './plan-program.mjs';
 export const LIMITS = Object.freeze({bytes:32*1024*1024,matrixBytes:4*1024*1024,
-  dimension:1024,macs:256*1024*1024,handles:24,pending:8,requests:4096,leaseMs:120000});
+  dimension:1024,macs:256*1024*1024,handles:24,pending:8,requests:4096,leaseMs:120000,
+  programInputs:8,programNodes:8,programOutputs:8});
 const shader = `
 struct D {m:u32,n:u32,k:u32,ac:u32,bc:u32,ta:u32,tb:u32,pad:u32}
 @group(0) @binding(0) var<storage,read> a:array<f32>;
@@ -72,6 +74,54 @@ export async function createGpuEngine(limits=LIMITS){
     info:{vendor:info?.vendor,architecture:info?.architecture,fallback:info?.isFallbackAdapter,secure_context:isSecureContext},
     async execute(request){
       requireValue(!closed,'Closed','Service closed');
+      if(request.op==='program'){
+        const plan=planProgram(request,{limits,find,residentCount:handles.size,totalBytes:total});
+        const created=[],kept=new Set(),published=[];const values=[];
+        let workIssued=false,enqueued=false,finished=false;
+        const allocate=(bytes,usage)=>{const item=alloc(bytes,usage);created.push(item);return item;};
+        try{
+          const result=await scoped(async()=>{
+            for(const input of plan.inputs){
+              if(input.existing){values.push(input.existing);continue;}
+              const item=allocate(input.bytes,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC|GPUBufferUsage.COPY_DST);
+              workIssued=true;device.queue.writeBuffer(item.gpu,0,input.data);values.push({rows:input.rows,cols:input.cols,item});
+            }
+            const encoder=device.createCommandEncoder();
+            for(const node of plan.nodes){
+              const a=values[node.a],b=values[node.b];
+              const item=allocate(node.bytes,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC|GPUBufferUsage.COPY_DST);
+              const uniform=allocate(32,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
+              workIssued=true;device.queue.writeBuffer(uniform.gpu,0,new Uint32Array([node.rows,node.cols,node.k,a.cols,b.cols,+node.transposeA,+node.transposeB,0]));
+              const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[a.item,b.item,item,uniform].map((resource,binding)=>({binding,resource:{buffer:resource.gpu}}))});
+              const pass=encoder.beginComputePass();pass.setPipeline(pipeline);pass.setBindGroup(0,group);
+              pass.dispatchWorkgroups(Math.ceil(node.cols/8),Math.ceil(node.rows/8));pass.end();values.push({rows:node.rows,cols:node.cols,item});
+            }
+            const stage=plan.readBytes?allocate(plan.readBytes,GPUBufferUsage.MAP_READ|GPUBufferUsage.COPY_DST):null;
+            let offset=0;
+            for(const output of plan.outputs)if(output.read){encoder.copyBufferToBuffer(values[output.ref].item.gpu,0,stage.gpu,offset,output.bytes);offset+=output.bytes;}
+            device.queue.submit([encoder.finish()]);enqueued=true;submitted++;
+            if(!stage){await device.queue.onSubmittedWorkDone();completed++;finished=true;requireValue(!closed,'Closed','Service closed');return {outputs:plan.outputs.map(output=>({rows:output.rows,cols:output.cols}))};}
+            await stage.gpu.mapAsync(GPUMapMode.READ);completed++;finished=true;requireValue(!closed,'Closed','Service closed');
+            const mapped=stage.gpu.getMappedRange();offset=0;
+            const outputs=plan.outputs.map(output=>{
+              const value={rows:output.rows,cols:output.cols};
+              if(output.read){value.data=mapped.slice(offset,offset+output.bytes);offset+=output.bytes;}
+              return value;
+            });stage.gpu.unmap();return {outputs};
+          });
+          for(let i=0;i<plan.outputs.length;i++)if(plan.outputs[i].retain){
+            const value=values[plan.outputs[i].ref],handle=publish(value).handle;published.push(handle);kept.add(value.item);result.outputs[i].handle=handle;
+          }
+          return result;
+        }catch(error){
+          if(workIssued&&!finished&&!closed){
+            try{await device.queue.onSubmittedWorkDone();if(enqueued)completed++;}
+            catch{engine.close();}
+          }
+          for(const handle of published)handles.delete(handle);kept.clear();throw error;
+        }
+        finally{for(const item of created)if(!kept.has(item))drop(item);}
+      }
       if(request.op==='upload'){
         keys(request,['id','op','rows','cols','data']);
         requireValue(request.data instanceof ArrayBuffer,'Dtype','A transferred float32 ArrayBuffer is required');
@@ -116,10 +166,17 @@ export async function createGpuEngine(limits=LIMITS){
       if(request.op==='release'){
         keys(request,['id','op','handle']);const value=find(request.handle);handles.delete(request.handle);drop(value.item);return {released:true};
       }
+      if(request.op==='release_many'){
+        keys(request,['id','op','handles']);
+        requireValue(Array.isArray(request.handles)&&integer(request.handles.length,1,limits.handles)&&new Set(request.handles).size===request.handles.length,'Protocol','A bounded unique handle list is required');
+        const values=request.handles.map(find);
+        for(let i=0;i<values.length;i++){handles.delete(request.handles[i]);drop(values[i].item);}
+        return {released:values.length};
+      }
       if(request.op==='stats'){keys(request,['id','op']);return engine.stats();}
       throw fault('Operation','Unsupported operation');
     },
-    discard(result){if(result?.handle&&handles.has(result.handle)){const value=handles.get(result.handle);handles.delete(result.handle);drop(value.item);}},
+    discard(result){for(const output of result?.outputs||[result])if(output?.handle&&handles.has(output.handle)){const value=handles.get(output.handle);handles.delete(output.handle);drop(value.item);}},
     stats(){return {resident_handles:handles.size,resident_bytes:[...handles.values()].reduce((n,value)=>n+value.item.bytes,0),total_bytes:total,allocations:allocations.size,peak_bytes:peak,submitted,completed,closed};},
     close(){if(!closed){closed=true;handles.clear();for(const item of [...allocations])drop(item);device.destroy();}},
     lost:device.lost,
@@ -141,7 +198,8 @@ export function servePort(port,engine,{limits=LIMITS,onClosed=()=>{}}={}){
         if(ticket.cancelled)throw fault('Cancelled','Request cancelled before execution');
         const result=await engine.execute(ticket.request);
         if(ticket.cancelled){engine.discard(result);throw fault('Cancelled','Completed result discarded after cancellation');}
-        if(!closing)send({id:ticket.request.id,ok:true,result},result?.data instanceof ArrayBuffer?[result.data]:[]);
+        const transfer=[result?.data,...(Array.isArray(result?.outputs)?result.outputs.map(output=>output.data):[])].filter(value=>value instanceof ArrayBuffer);
+        if(!closing)send({id:ticket.request.id,ok:true,result},[...new Set(transfer)]);
       }catch(error){if(!closing)answer(ticket.request.id,false,error);}
       finally{tickets.delete(ticket.request.id);ticket.request=null;}
     }

@@ -52,3 +52,56 @@ retains historical absolute paths and requires Playwright, Chrome, native Torch
 and local Pyodide assets to reproduce. The 2D primitives and explicit VJPs do not
 constitute automatic torch autograd, batched/broadcast matmul, attention,
 float64/complex/special-value coverage or a GPU training backend.
+
+## Bounded multi-operation programs
+
+`MatrixProgram` groups up to eight input descriptors, eight fixed matmul nodes
+and eight distinct computed outputs into one request. Add all inputs before
+nodes. Inputs can be float32 NumPy arrays (copied when `run` submits them) or
+live `Matrix` objects owned by the same client/session. References returned by
+`input`/`matmul` identify values inside this program; forward/cyclic references
+and arbitrary shader operations are rejected.
+
+```python
+program = MatrixProgram()
+ar, br, gr = [program.input(value) for value in (a, b, gradient)]
+y = program.matmul(ar, br)
+da = program.matmul(gr, br, transpose_b=True)
+db = program.matmul(ar, gr, transpose_a=True)
+with program.run([y, da, db]) as result:
+    output, a_gradient, b_gradient = result.arrays
+```
+
+These are explicit analytical matrix derivatives, rather than automatic torch
+autograd. `run(..., read=False, retain=True)` returns resident outputs in
+`result.matrices`; use them as inputs to later programs. Request both flags to
+obtain independent CPU snapshots and resident matrices. The context manager
+closes all still-live retained outputs in one validated `release_many` call;
+individual Matrix objects also retain their ordinary `close` method.
+
+The host validates the entire DAG, shapes and peak byte/work/handle requirements
+before allocating. The 268,435,456 multiply-accumulate limit applies to the
+**sum** of all nodes. The 32 MiB allocation limit includes new uploads, computed
+values, uniforms and the packed readback buffer, plus existing resident buffers.
+Large programs may need partitioning even when each individual product is valid.
+No default budget is increased by this interface.
+
+One command submission contains the compute passes and final readback copies.
+Only requested retained outputs survive the transaction. Ordinary rollback
+drains already queued writes before releasing tracked buffers; failure to drain
+invalidates the device and its existing handles. Cancellation still skips queued
+requests or discards all newly retained outputs after execution. It does not
+preempt submitted GPU work.
+
+Portable failure-injection and transaction checks:
+
+```sh
+node packages/stridetorch/benchmarks/webgpu_rpc/check-program.mjs
+```
+
+See [iteration 75](../../../../docs/validation/torch-runtime-iteration-75.md) for
+three program ownership modes, native numerical controls, real multi-output
+quota/cancellation checks and sequential-versus-program measurements. The initial
+short-batch measurements are retained. The longer measurement host raises only
+its trusted request counter quota to support longer sampling; the default
+4096-request limit, memory/work/handle limits and production runtime are unchanged.
