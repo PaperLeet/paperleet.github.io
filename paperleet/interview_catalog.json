@@ -830,6 +830,23 @@
         "research",
         "software"
       ]
+    },
+    {
+      "id": "objectives-regularization",
+      "name": "学习目标与随机正则化",
+      "name_en": "Learning objectives & regularization",
+      "description": "从掩码词预测和对抗学习，理解监督目标、梯度归属与随机激活。",
+      "description_en": "Connect masked prediction and adversarial learning with target construction, gradient ownership and random activations.",
+      "modules": [
+        "foundations/bert_mlm",
+        "representation/gan",
+        "architecture/dropout"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research"
+      ]
     }
   ]
 }

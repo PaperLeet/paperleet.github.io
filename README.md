@@ -13,7 +13,7 @@
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The catalog includes **63 papers, one introductory course, and 85 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The catalog includes **67 papers, one introductory course, and 89 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
 
 Search the library by title, author, venue, year, module goal, or arXiv reference. Abstract/PDF links and versioned arXiv IDs find the same catalog paper; queries such as `Vaswani 2017` combine terms. Search and practice links retain the current collection and filters.
 
@@ -213,6 +213,9 @@ paperleet ci
 | 66 | VAE | Gaussian reparameterization, analytic KL and stable Bernoulli negative ELBO with actual toy training. | 99 |
 
 RMSNorm, GQA and RoPE are part of LLM Basics. Each includes independent gradient checks, complete CPU/WASM judging and supplied synthetic experiments. See [public-core validation](docs/validation/llm-foundations-public.md).
+| 68 | BERT | 80/10/10 selected-token corruption, original targets and stable masked language-model loss. | 101 |
+| 69 | GAN | Stable discriminator/non-saturating generator objectives and actual alternating Gaussian-location training. | 102 |
+| 70 | Dropout | Explicit keep masks, inverted scaling, endpoint gradients and Monte Carlo moments. | 103 |
 
 The homepage groups papers by research area. New modules include CPU toy experiments, source/adaptation notes, and T0–T3 checks. Lab distinguishes reference plots from your submitted code’s T3 results. This is selected core practice; full model training and GPU kernel benchmarking remain outside scope.
 
@@ -267,7 +270,7 @@ The Oral/Spotlight expansion adds 12 papers and 14 modules. See the [candidate e
 
 VAR and FD-Loss add four focused modules with CPU experiments. See the [source and validation record](docs/validation/var-and-fd-loss.md).
 
-As of 2026-10-17, browser judging covers all **85 maintained teaching modules**, with **679 learner tests** and **378 maintained mutants**. This includes Schedules, Attention, LoRA, retrieval and representation learning, RL and diffusion, and the six introductory LLM exercises. The complete suites run on CPU/WASM without a GPU, preserving the original precision, gradients, model sizes and training steps. For example, LoRA retains its 300-step training experiment and Flow Matching retains all 2000 training steps.
+As of 2026-10-17, browser judging covers all **89 maintained teaching modules**, with **721 learner tests** and **406 maintained mutants**. This includes Schedules, Attention, LoRA, retrieval and representation learning, RL and diffusion, and the six introductory LLM exercises. The complete suites run on CPU/WASM without a GPU, preserving the original precision, gradients, model sizes and training steps. For example, LoRA retains its 300-step training experiment and Flow Matching retains all 2000 training steps.
 
 **Run tests** stays in the browser. Unsupported APIs, timeouts and runtime failures are shown without automatically sending source to the server; signed-in users choose **Submit** for server judging and saved account results. Runtime assets load on demand, and live steps show preparation, reference/mutant calibration and learner tests, with Stop available throughout. CI executes every exported module in a fresh pinned Pyodide process, checks every reference and mutant, and verifies the exact test counts and source identities. This WASM gate is separate from actual browser UI and device compatibility checks. See [implementation and compatibility notes](docs/browser-judge.md).
 

@@ -786,3 +786,60 @@ papers:
       the full TensorFlow configuration or paper benchmarks.
     module_ids:
     - representation/graphsage_mean
+
+  - id: bert
+    number: 68
+    category: foundations
+    short_title: BERT
+    year: 2019
+    tags:
+    - Masked Language Modeling
+    - Pretraining
+    - Bidirectional Context
+    - Gradients
+    summary: 实现选中词的 80/10/10 替换、原词标签，以及只对选中位置求均值的稳定交叉熵。
+    summary_en: Implement 80/10/10 selected-token corruption, original-token labels and stable cross entropy averaged
+      only over selected positions.
+    scope: 补全数据替换与 MLM 损失；提供双向上下文表的合成训练，不包含 Transformer、NSP、分词或语言基准复现。
+    scope_en: Complete corruption and the MLM loss; a supplied bidirectional context table trains on synthetic triples.
+      Transformer, NSP, tokenization and language benchmarks are outside scope.
+    module_ids:
+    - foundations/bert_mlm
+
+  - id: gan
+    number: 69
+    category: generative-models
+    short_title: GAN
+    year: 2014
+    tags:
+    - Adversarial Learning
+    - Generative Models
+    - Non-saturating Loss
+    - Gradients
+    summary: 实现判别器的两个独立期望，以及稳定、可微的非饱和生成器目标。
+    summary_en: Implement the discriminator's two independently averaged expectations and the stable differentiable
+      non-saturating generator objective.
+    scope: 补全 logits 损失；提供一维高斯位置的真实交替训练，不实现图像 GAN、完整网络或稳定收敛保证。
+    scope_en: Complete logit losses; a supplied one-dimensional Gaussian location game performs actual alternating
+      training. Image GANs, complete networks and convergence guarantees are outside scope.
+    module_ids:
+    - representation/gan
+
+  - id: dropout
+    number: 70
+    category: architecture
+    short_title: Dropout
+    year: 2014
+    tags:
+    - Regularization
+    - Dropout
+    - Bernoulli Masks
+    - Gradients
+    summary: 实现显式保留掩码的反向缩放 Dropout，区分训练、推理和两个概率端点。
+    summary_en: Implement explicitly masked inverted dropout, distinguishing training, inference and both probability
+      endpoints.
+    scope: 补全一个逐元素函数；提供实际掩码训练、Monte Carlo 均值与方差实验，不证明泛化收益或复现图像基准。
+    scope_en: Complete one element-wise function; actual masked training and Monte Carlo moments are supplied, without
+      a generalization claim or image benchmark reproduction.
+    module_ids:
+    - architecture/dropout

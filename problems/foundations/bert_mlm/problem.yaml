@@ -1,0 +1,92 @@
+id: foundations/bert_mlm
+number: 101
+title: BERT：80/10/10 替换与掩码语言建模
+title_en: 'BERT: Corruption and Masked Language Modeling'
+paper_id: bert
+paper:
+  title: 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding'
+  authors: Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova
+  venue: NAACL 2019
+  arxiv: '1810.04805'
+  anchors:
+  - 'Section 3.1, Task #1: Masked LM; Appendix C.2: masking procedures'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: make_mlm_inputs
+  signature: 'make_mlm_inputs(tokens: torch.Tensor, selected: torch.Tensor, draws: torch.Tensor, random_ids: torch.Tensor,
+    mask_token_id: int, ignore_index: int = -100) -> tuple[torch.Tensor, torch.Tensor]'
+- name: masked_lm_loss
+  signature: 'masked_lm_loss(logits: torch.Tensor, labels: torch.Tensor, ignore_index: int = -100) -> torch.Tensor'
+module:
+  goal: 实现选中词的 80/10/10 替换、原词标签，以及只对选中位置求均值的稳定交叉熵。
+  goal_en: Implement 80/10/10 selected-token corruption, original-token labels and stable cross entropy averaged
+    only over selected positions.
+  scope: 补全数据替换与 MLM 损失；提供双向上下文表的合成训练，不包含 Transformer、NSP、分词或语言基准复现。
+  scope_en: Complete corruption and the MLM loss; a supplied bidirectional context table trains on synthetic triples.
+    Transformer, NSP, tokenization and language benchmarks are outside scope.
+  required_functions:
+  - make_mlm_inputs
+  - masked_lm_loss
+  provided_functions: []
+  optional: false
+conventions:
+  contract: See the complete bilingual statement and starter for exact shapes, dtypes, reductions and boundary behavior.
+tests:
+  T0: 1
+  T1: 1
+  T2: 8
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Masked Language Modeling
+- Pretraining
+- Bidirectional Context
+- Gradients
+viz:
+- toy_experiment
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/html/1810.04805v2#S3.SS1
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/html/1810.04805v2#S3.SS1
+  anchor: 'Section 3.1, Task #1: Masked LM; Appendix C.2: masking procedures'
+  adaptation: The supplied 64 three-token sequences cover 16 ordered left/right pairs; the center is `(2*left+right)%4`.
+    Only centers are eligible, selected at rate 15%. Your corruption function supplies inputs/labels. A 16×4 conditional
+    table reads only the corrupted left/right tokens and trains through your MLM loss for 100 Adam updates (lr=0.08,
+    seed=163, float64). The chart evaluates all centers. Acceptance requires final NLL<0.1 and <10% of initial,
+    with context accuracy>=95%. This is a synthetic conditional-table experiment, without a Transformer or natural-language
+    generalization claim.
+mutants:
+- id: m1_all_selected_mask
+  bug: Replace every selected token by MASK
+- id: m2_corrupted_labels
+  bug: Predict corrupted tokens instead of original tokens
+- id: m3_mask_boundary
+  bug: Put exactly .8 in the MASK branch
+- id: m4_all_position_mean
+  bug: Dilute the loss by total sequence positions
+- id: m5_detached_logits
+  bug: Detach logit gradients before log-softmax
+- id: m6_next_token_shift
+  bug: Apply an autoregressive target shift to MLM
+- id: m7_random_boundary
+  bug: Put exactly .9 in the random branch
+browser:
+  backend: numpy-autograd-wasm
+calibration:
+  status: measured
+  checked_at: '2026-10-17'
+  device: CPU
+  threads: 2
+  machine: arm64
+  torch_version: 2.14.1
+  repeats: 3
+  reference_metrics:
+    initial_nll: 1.3862943611198906
+    final_nll: 0.028432732370043467
+    context_accuracy: 1.0
