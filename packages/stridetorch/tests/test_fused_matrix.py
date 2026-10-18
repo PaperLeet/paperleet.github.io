@@ -225,3 +225,74 @@ def test_ignored_empty_cat_accepts_native_integer_axes_and_checks_overflow():
         assert all(g.shape==(0,) for g in gradients)
     for axis in (-2**63-1,2**63):
         with pytest.raises(RuntimeError,match='Overflow'):torch.cat((a,b),dim=axis)
+
+
+@pytest.mark.parametrize('dtype',[torch.bool,torch.uint8,torch.int64])
+def test_integer_empty_addmv_output_rejects_a_floating_gradient(dtype):
+    c=torch.ones((2,),dtype=dtype)
+    a=torch.zeros((2,0),dtype=torch.float32,requires_grad=True)
+    b=torch.zeros((0,),dtype=dtype)
+    with pytest.raises(RuntimeError,match='cannot carry gradients'):torch.addmv(c,a,b)
+    with torch.no_grad():
+        y=torch.addmv(c,a,b)
+        assert y.dtype==dtype and not y.requires_grad
+        np.testing.assert_array_equal(y.numpy(),c.numpy())
+
+
+@pytest.mark.parametrize('matrix',[False,True])
+@pytest.mark.parametrize('active',[0,1])
+@pytest.mark.parametrize('alpha',[0,1.5])
+def test_single_factor_jvp_has_an_analytical_zero_reverse_edge(matrix,active,alpha):
+    a=torch.ones((2,3));b=torch.ones((3,2) if matrix else (3,));c=torch.ones((2,))
+    values=[a,b];values[active].requires_grad_()
+    def fn(x):
+        arguments=values.copy();arguments[active]=x
+        return getattr(torch,'addmm' if matrix else 'addmv')(c,*arguments,alpha=alpha)
+    x=values[active];primal,tangent=torch.func.jvp(fn,(x,),(torch.ones_like(x),))
+    assert primal.requires_grad and tangent.requires_grad
+    np.testing.assert_array_equal(tangent.numpy(),np.full(primal.shape,alpha*3))
+    gradient=torch.autograd.grad(tangent,x,torch.ones_like(tangent))[0]
+    np.testing.assert_array_equal(gradient.numpy(),np.zeros(x.shape))
+
+
+def test_single_factor_addmv_jvp_promotes_an_undefined_bias_tangent():
+    c=torch.ones((2,),dtype=torch.float64);a=torch.ones((2,3),requires_grad=True);b=torch.ones((3,))
+    primal,tangent=torch.func.jvp(lambda a:torch.addmv(c,a,b),(a,),(torch.ones_like(a),))
+    assert primal.dtype==torch.float32 and tangent.dtype==torch.float64 and tangent.requires_grad
+    np.testing.assert_array_equal(tangent.numpy(),[3.,3.])
+
+
+def test_single_bias_addmv_jvp_promotes_an_undefined_product_tangent():
+    c=torch.ones((2,),requires_grad=True);a=torch.zeros((2,0),dtype=torch.bool);b=torch.zeros((0,),dtype=torch.float64)
+    primal,tangent=torch.func.jvp(lambda c:torch.addmv(c,a,b),(c,),(torch.ones_like(c),))
+    assert primal.dtype==tangent.dtype==torch.float64 and not tangent.requires_grad
+    np.testing.assert_array_equal(tangent.numpy(),[1.,1.])
+
+
+def test_chained_affine_bias_keeps_an_already_wider_tangent():
+    c=torch.ones((2,),dtype=torch.float64);a=torch.ones((2,2));b=torch.ones((2,))
+    def fn(c):return torch.addmv(torch.addmv(c,a,b),a,b)
+    primal,tangent=torch.func.jvp(fn,(c,),(torch.ones_like(c),))
+    assert primal.dtype==torch.float32 and tangent.dtype==torch.float64
+    np.testing.assert_array_equal(primal.numpy(),[5.,5.]);np.testing.assert_array_equal(tangent.numpy(),[1.,1.])
+
+
+def test_partial_bias_jvp_checks_the_native_empty_addmv_shape():
+    c=torch.ones((1,));a=torch.zeros((2,0));b=torch.zeros((0,))
+    fn=lambda c:torch.addmv(c,a,b)
+    with pytest.raises(RuntimeError,match='tangent shape'):torch.func.jvp(fn,(c,),(torch.ones_like(c),))
+    p,t=torch.autograd.functional.jvp(fn,c,torch.ones_like(c))
+    assert p.shape==t.shape==(1,) and t.item()==1
+
+
+@pytest.mark.parametrize('shapes',[((2,0),(2,0,3)),((0,3),(2,3,2)),((1,2,0),(3,0,2)),((1,2,3),(0,3,2))])
+@pytest.mark.parametrize('types',[(torch.float32,torch.float64),(torch.float64,torch.float32)])
+@pytest.mark.parametrize('right_grad',[False,True])
+def test_empty_matmul_jvp_keeps_the_original_batched_kernel(shapes,types,right_grad):
+    a=torch.zeros(shapes[0],dtype=types[0],requires_grad=True)
+    b=torch.zeros(shapes[1],dtype=types[1],requires_grad=right_grad)
+    p,t=torch.func.jvp(lambda a,b:a@b,(a,b),(torch.ones_like(a),torch.ones_like(b)))
+    expected=a.detach().numpy()@b.detach().numpy()
+    assert p.shape==t.shape==expected.shape and p.dtype==t.dtype==types[1]
+    np.testing.assert_array_equal(p.numpy(),np.zeros(expected.shape))
+    np.testing.assert_array_equal(t.numpy(),np.zeros(expected.shape))

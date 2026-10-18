@@ -2070,3 +2070,10 @@ boundary, including its detached zero Jacobian contraction.
 The [iteration 80 work record](../../docs/validation/torch-runtime-iteration-80.md)
 tracks CPU evidence and remaining browser, packaging and application gates.
 This development version has not been adopted on main or published.
+
+Partial direct JVP preserves the shape/dtype contribution of undefined tangents
+and their zero reverse dependencies. Chained affine calls retain a wider
+tangent. Integer affine results reject active floating gradients; `no_grad`
+inference remains available. Empty matmul JVP retains its forward-selected
+kernel's dtype rules. The [iteration 81 record](../../docs/validation/torch-runtime-iteration-81.md)
+adds complete Node/Chrome SDK and isolated installed-wheel qualification.

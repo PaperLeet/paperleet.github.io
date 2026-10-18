@@ -118,7 +118,9 @@ def _fused(input, left, right, beta, alpha, matrix):
         values = tuple(v._primal if dual else v for v,dual in zip((input,left,right),duals))
         c,a,b = values;primal = _fused(c,a,b,beta,alpha,matrix);terms=[]
         reverse_based = _state._functional_jvp_active or _state._hvp_active
+        partial = not all(duals)
         tangent_shapes = [tuple(input.shape) if i == 0 else shape for i,dual in enumerate(duals) if dual]
+        if not reverse_based and partial:tangent_shapes.append(shape)
         try:tangent_shape = np.broadcast_shapes(*tangent_shapes)
         except ValueError:raise RuntimeError('Product tangent shapes do not broadcast') from None
         if np.broadcast_shapes(tangent_shape,primal.shape) != primal.shape:
@@ -135,12 +137,25 @@ def _fused(input, left, right, beta, alpha, matrix):
                          else _scaled(operation(a,right._tangent),alpha))
         tangent = terms[0]
         for term in terms[1:]:tangent = tangent+term
+        if not reverse_based and partial:
+            # Undefined tangents are efficient ZeroTensors in native forward
+            # AD. They still determine the broadcast shape and promoted dtype,
+            # and matrix products retain zero reverse edges to their factors.
+            bias_dtype = input.dtype if not isinstance(beta,complex) and beta == 1 else _promotion._combine(input.dtype,beta_kind,wrapped=True)
+            product_dtype = right.dtype if not isinstance(alpha,complex) and alpha == 1 else _promotion._combine(right.dtype,alpha_kind,wrapped=True)
+            dtype = _construction.promote_types(bias_dtype,product_dtype)
+            dtype = _construction.promote_types(tangent.dtype,dtype)
+            if tangent.dtype != dtype:tangent = tangent.to(dtype=dtype)
+            if not duals[1]:tangent = _autograd._forward_zero_edge(tangent,b)
+            if not duals[2]:tangent = _autograd._forward_zero_edge(tangent,a)
         try:tangent = tangent.expand(primal.shape) if tangent.shape != primal.shape else tangent
         except RuntimeError:raise RuntimeError('Product tangent shape does not match its primal') from None
         return _autograd.ForwardTensor(primal,tangent)
     value = _value(input,left,right,shape,alpha,beta,beta_kind,matrix)
     needs_grad = _state._grad_enabled and any(v.requires_grad for v in (input,left,right))
-    if not needs_grad or value.dtype.kind not in 'fc':return _tensor.Tensor(value,_metadata_owned=True)
+    if needs_grad and value.dtype.kind not in 'fc':
+        raise RuntimeError('An integer or boolean product result cannot carry gradients')
+    if not needs_grad:return _tensor.Tensor(value,_metadata_owned=True)
     if any(v.requires_grad and v.dtype == _HALF for v in (input,left,right)):
         raise _errors.BrowserUnsupported('Fused product gradients require float32/float64')
     shape_input,shape_left,shape_right = tuple(input.shape),tuple(left.shape),tuple(right.shape)
@@ -176,4 +191,4 @@ def addmv(input,mat,vec,*,beta=1,alpha=1,out=None):
     return _fused(input,mat,vec,beta,alpha,False)
 
 
-from . import _arithmetic,_autograd,_errors,_layout,_matmul,_ops,_promotion,_state,_tensor
+from . import _arithmetic,_autograd,_construction,_errors,_layout,_matmul,_ops,_promotion,_state,_tensor

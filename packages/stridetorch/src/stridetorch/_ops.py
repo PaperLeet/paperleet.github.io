@@ -27,10 +27,21 @@ _BYTE_DTYPE = np.dtype('uint8')
 
 def _empty_product(input, mat2, shape, dtype, aliases=(True, True), *, _value=None):
     if isinstance(input, _autograd.ForwardTensor) or isinstance(mat2, _autograd.ForwardTensor):
+        mode = _matmul_mode(input, mat2)
         a, da = _autograd.forward_parts(input)
         b, db = _autograd.forward_parts(mat2)
+        def derivative(left, right):
+            # Reuse the forward-selected kernel. Unwrapped reverse flags can
+            # otherwise switch an empty bmm into a folded, dtype-strict mm.
+            if mode in ('dot','mm'):
+                if left.dtype != right.dtype:raise RuntimeError('matmul operands must have the same dtype')
+                target = left.dtype
+            elif mode == 'mv':
+                target = left.dtype if right.ndim > left.ndim else right.dtype
+            else:target = right.dtype
+            return _empty_product(left,right,shape,target,aliases)
         return _autograd.ForwardTensor(_empty_product(a, b, shape, dtype, aliases),
-            matmul(da, b) + matmul(a, db))
+            derivative(da,b) + derivative(a,db))
     shape_a, shape_b = tuple(input.shape), tuple(mat2.shape)
     dtype_a, dtype_b = input.dtype, mat2.dtype
     if np.dtype(dtype).kind not in 'fc' and _state._grad_enabled and (input.requires_grad or mat2.requires_grad):
