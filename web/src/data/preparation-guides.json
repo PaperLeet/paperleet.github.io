@@ -3513,6 +3513,134 @@
           }
         }
       ]
+    },
+    {
+      "id": "architecture/residual_block",
+      "source": "problems/architecture/residual_block/README.md",
+      "functions": [
+        "residual_block"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "零残差时，为什么原始 ResNet 块对负输入不等于恒等映射？",
+            "en": "Why is a zero-residual original ResNet block not identity for negative inputs?"
+          },
+          "hint": {
+            "zh": "区分相加前的线性输出与相加后的 ReLU，保持与本题 post-activation 契约一致。",
+            "en": "Separate the linear sum from its post-addition ReLU, following this exercise’s post-activation contract."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何让输入维度变化时仍有可训练的捷径？",
+            "en": "How can the shortcut remain trainable when feature widths change?"
+          },
+          "hint": {
+            "zh": "分别写出两层权重和投影的形状；即使投影是方阵，也不能把它当成恒等路径。",
+            "en": "Write down both branch-weight shapes and the projection shape; a square projection is still not identity."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何发现前向完全一致、但输入或权重梯度被 detach 的实现？",
+            "en": "How would you detect matching forward values with detached input or weight gradients?"
+          },
+          "hint": {
+            "zh": "在远离激活拐点的样本上分别检查两条路径，并用有限差分核验全部活跃参数。",
+            "en": "Check both paths away from activation kinks and use finite differences for every live parameter."
+          }
+        }
+      ]
+    },
+    {
+      "id": "architecture/batch_norm",
+      "source": "problems/architecture/batch_norm/README.md",
+      "functions": [
+        "batch_norm"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么训练归一化与移动方差不能直接使用同一个分母？",
+            "en": "Why do training normalization and the running variance use different denominators?"
+          },
+          "hint": {
+            "zh": "区分当前 batch 的总体矩与总体方差估计，样本数包含 batch 与空间位置。",
+            "en": "Distinguish observed batch moments from a population-variance estimate; count batch and spatial positions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "纯函数接口怎样保留归一化梯度，又避免移动状态串起跨 batch 的计算图？",
+            "en": "How does a pure interface preserve normalization gradients without linking graphs across batches?"
+          },
+          "hint": {
+            "zh": "训练输出使用实时均值方差；返回的新估计和推理使用的 buffers 是 detached 状态。",
+            "en": "Training output uses live moments; returned estimates and inference buffers are detached state."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何在不训练完整网络的情况下验证训练与推理的同批依赖差异？",
+            "en": "How would you verify training versus inference batch dependence without training a full network?"
+          },
+          "hint": {
+            "zh": "固定一个样本，改变同批其他样本，再分别固定或重新计算统计量；不要把结果当作模型精度。",
+            "en": "Keep an anchor fixed, change companions, and compare fixed versus recomputed moments without claiming model accuracy."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/vae",
+      "source": "problems/representation/vae/README.md",
+      "functions": [
+        "reparameterize",
+        "gaussian_kl",
+        "negative_elbo"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 log variance 在采样和解析 KL 中以不同形式出现？",
+            "en": "Why does log variance enter posterior sampling and analytic KL in different forms?"
+          },
+          "hint": {
+            "zh": "采样需要标准差，KL 则同时包含方差和它的对数；先写出每个量的定义。",
+            "en": "Sampling needs standard deviation; KL contains variance and its logarithm. Define each quantity first."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样确定负 ELBO 的符号，以及观测、潜变量和 batch 的归约顺序？",
+            "en": "How do you determine the negative-ELBO sign and reductions over observations, latents and batch?"
+          },
+          "hint": {
+            "zh": "本题最小化 NLL 加正 KL，先对每个样本的事件求和，再平均 batch；KL 系数固定为 1。",
+            "en": "Minimize NLL plus positive KL, sum each observation’s event axes, then average the batch, with KL coefficient one."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用极端 logits 和解析梯度发现数值正确性与梯度归属错误？",
+            "en": "How can extreme logits and analytic derivatives expose numerical and gradient-ownership bugs?"
+          },
+          "hint": {
+            "zh": "在 logits 空间计算 Bernoulli NLL，并分别检查均值、log variance 和 logits 的梯度。",
+            "en": "Compute Bernoulli NLL in logit space and check derivatives for the mean, log variance and logits separately."
+          }
+        }
+      ]
     }
   ]
 }

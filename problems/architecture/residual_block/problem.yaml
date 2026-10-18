@@ -1,0 +1,87 @@
+id: architecture/residual_block
+number: 97
+title: ResNet：残差分支与投影捷径
+title_en: 'ResNet: Residual Branches and Projection Shortcuts'
+paper_id: resnet
+paper:
+  title: Deep Residual Learning for Image Recognition
+  authors: Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+  venue: CVPR 2016
+  arxiv: '1512.03385'
+  anchors:
+  - 'Section 3.2, Equations (1) and (2), Figure 2: two-layer residual mapping and post-addition ReLU'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: residual_block
+  signature: 'residual_block(x: Tensor, w1: Tensor, w2: Tensor, projection: Tensor | None = None) -> Tensor'
+module:
+  goal: 实现两层残差分支、恒等或投影捷径，以及相加后的 ReLU。
+  goal_en: Implement a two-layer residual branch, identity or projection shortcut, and post-addition ReLU.
+  scope: 补全一个矩阵版本的残差块；提供四块网络的合成回归实验，不包含卷积、BN 或完整 ResNet 训练。
+  scope_en: Complete one matrix residual block; a four-block synthetic regression experiment is supplied. Convolutions,
+    BN and full ResNet training are outside scope.
+  required_functions:
+  - residual_block
+  provided_functions: []
+  optional: false
+conventions:
+  layout: x [B,D_in], w1 [D_in,H], w2 [H,D_out], projection [D_in,D_out]; positive feature widths, B >= 0
+  weights: Weights are right-multiplied, unlike nn.Linear.weight storage; no biases or normalization
+  activation: ReLU after the first matrix product and after the residual/shortcut sum; no ReLU on the second branch
+    output before addition
+  shortcut: None means identity and requires D_in == D_out; an explicit projection is always used, even if square
+  gradients: Preserve gradients to x, w1, w2 and projection; no detach or in-place modification
+  dtype: Matching float32/float64 dtype/device; CPU tests use finite, well-scaled inputs
+tests:
+  T0: 1
+  T1: 1
+  T2: 6
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Residual Learning
+- Computer Vision
+- Gradients
+viz:
+- toy_experiment
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/html/1512.03385v1#S3.SS2
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/html/1512.03385v1#S3.SS2
+  anchor: 'Section 3.2, Equations (1) and (2), Figure 2: two-layer residual mapping and post-addition ReLU'
+  adaptation: Four two-layer matrix residual blocks learn a positive-vector nonlinear regression task in 80 Adam
+    updates. No CIFAR/ImageNet, convolutional ResNet, normalization or benchmark reproduction.
+mutants:
+- id: m1_missing_shortcut
+  bug: Omit the shortcut
+- id: m2_missing_final_relu
+  bug: Omit post-addition ReLU
+- id: m3_relu_before_add
+  bug: Rectify the residual before addition
+- id: m4_detached_shortcut
+  bug: Detach the shortcut gradient
+- id: m5_detached_residual
+  bug: Detach the residual branch
+- id: m6_ignore_projection
+  bug: Ignore a square projection
+browser:
+  backend: numpy-autograd-wasm
+calibration:
+  status: measured
+  checked_at: '2026-10-17'
+  device: CPU
+  threads: 2
+  machine: arm64
+  torch_version: 2.14.1
+  repeats: 3
+  reference_metrics:
+    initial_mse: 0.06155066670463727
+    final_mse: 0.0009984254815040897
+    final_mse_threshold: 0.003
+    relative_mse_threshold: 0.05

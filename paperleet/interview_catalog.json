@@ -812,6 +812,23 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "vision-foundations",
+      "name": "视觉与变分生成基础",
+      "name_en": "Vision & variational foundations",
+      "description": "从残差路径和批统计量，练到可微采样与变分生成目标。",
+      "description_en": "Connect residual paths and batch statistics with differentiable sampling and variational generation.",
+      "modules": [
+        "architecture/residual_block",
+        "architecture/batch_norm",
+        "representation/vae"
+      ],
+      "roles": [
+        "ml",
+        "research",
+        "software"
+      ]
     }
   ]
 }

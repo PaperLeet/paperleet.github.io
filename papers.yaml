@@ -713,3 +713,56 @@ papers:
     scope: 实现 GEM 的 ACC、BWT、FWT 及明确标注的历史峰值遗忘扩展；不实现 GEM 梯度投影算法。
     scope_en: Implement GEM's ACC, BWT and FWT plus an explicitly defined peak-forgetting extension; GEM gradient projection is outside this exercise.
     module_ids: [foundations/continual_metrics]
+
+  - id: resnet
+    category: architecture
+    number: 64
+    short_title: ResNet
+    year: 2016
+    tags:
+    - Residual Learning
+    - Computer Vision
+    - Gradients
+    summary: 实现两层残差分支、恒等或投影捷径，以及相加后的 ReLU。
+    summary_en: Implement a two-layer residual branch, identity or projection shortcut, and post-addition ReLU.
+    scope: 补全一个矩阵版本的残差块；提供四块网络的合成回归实验，不包含卷积、BN 或完整 ResNet 训练。
+    scope_en: Complete one matrix residual block; a four-block synthetic regression experiment is supplied. Convolutions,
+      BN and full ResNet training are outside scope.
+    module_ids:
+    - architecture/residual_block
+  - id: batchnorm
+    category: architecture
+    number: 65
+    short_title: BatchNorm
+    year: 2015
+    tags:
+    - Batch Normalization
+    - Normalization
+    - Computer Vision
+    - Gradients
+    summary: 区分训练归一化的总体方差与移动估计使用的无偏方差，并实现冻结统计量的推理。
+    summary_en: Distinguish population variance for training normalization from unbiased running estimates, then implement
+      frozen-statistics inference.
+    scope: 补全一个纯函数，返回输出和下一组统计量；提供仿射参数训练与推理独立性实验，不复现 ImageNet 结果。
+    scope_en: Complete a pure function returning output and next statistics; affine training and inference-independence
+      experiments are supplied, without reproducing ImageNet results.
+    module_ids:
+    - architecture/batch_norm
+  - id: vae
+    category: generative-models
+    number: 66
+    short_title: VAE
+    year: 2014
+    tags:
+    - Variational Inference
+    - Generative Models
+    - Reparameterization
+    - ELBO
+    summary: 实现可微高斯采样、对标准正态的解析 KL，以及稳定的 Bernoulli 负 ELBO。
+    summary_en: Implement differentiable Gaussian sampling, analytic KL to a standard normal and a stable Bernoulli
+      negative ELBO.
+    scope: 补全三个函数；编码器、解码器和合成二值模式的 120 步训练由实验提供，不复现 MNIST 或图像生成指标。
+    scope_en: Complete three functions; the supplied encoder/decoder train for 120 steps on synthetic binary patterns.
+      No MNIST or image-generation benchmark is reproduced.
+    module_ids:
+    - representation/vae

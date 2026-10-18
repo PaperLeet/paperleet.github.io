@@ -1,0 +1,97 @@
+id: architecture/batch_norm
+number: 98
+title: BatchNorm：批统计量、移动估计与推理
+title_en: 'BatchNorm: Batch Moments, Moving Estimates and Inference'
+paper_id: batchnorm
+paper:
+  title: 'Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift'
+  authors: Sergey Ioffe, Christian Szegedy
+  venue: ICML 2015
+  arxiv: '1502.03167'
+  anchors:
+  - 'Section 3, Algorithm 1: differentiable minibatch population moments'
+  - 'Section 3.1, Algorithm 2: unbiased population variance estimates and frozen inference'
+  - 'Section 3.2: per-channel reduction over batch and spatial positions'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: batch_norm
+  signature: 'batch_norm(x: Tensor, weight: Tensor, bias: Tensor, running_mean: Tensor, running_var: Tensor, training:
+    bool = True, momentum: float = 0.1, eps: float = 1e-5) -> tuple[Tensor, Tensor, Tensor]'
+module:
+  goal: 区分训练归一化的总体方差与移动估计使用的无偏方差，并实现冻结统计量的推理。
+  goal_en: Distinguish population variance for training normalization from unbiased running estimates, then implement
+    frozen-statistics inference.
+  scope: 补全一个纯函数，返回输出和下一组统计量；提供仿射参数训练与推理独立性实验，不复现 ImageNet 结果。
+  scope_en: Complete a pure function returning output and next statistics; affine training and inference-independence
+    experiments are supplied, without reproducing ImageNet results.
+  required_functions:
+  - batch_norm
+  provided_functions: []
+  optional: false
+conventions:
+  layout: x [N,C,*spatial], rank >= 2; C and spatial dimensions positive; affine parameters/buffers [C]
+  reduction: Reduce (0,2,3,...), independently for each channel; m = N * product(spatial)
+  training: m >= 2; normalize using population variance (denominator m); preserve gradients through both batch moments
+  running: next = (1-momentum)*old + momentum*batch; variance update uses m/(m-1); returned estimates and inference
+    buffers are detached
+  inference: Use supplied running moments; do not recompute them or change buffers; empty batches allowed
+  purity: Return (y,next_mean,next_var), never update an input in place; all tensors have matching float32/float64
+    dtype/device
+  parameters: Finite eps > 0 inside sqrt; finite momentum in [0,1]; training is bool; well-scaled finite inputs
+tests:
+  T0: 1
+  T1: 1
+  T2: 8
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Batch Normalization
+- Normalization
+- Computer Vision
+- Gradients
+viz:
+- toy_experiment
+verified_sources:
+  checked_at: '2026-10-17'
+  links:
+  - https://arxiv.org/html/1502.03167v3#S3
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/html/1502.03167v3#S3
+  anchor: 'Section 3, Algorithm 1: differentiable minibatch population moments; Section 3.1, Algorithm 2: unbiased
+    population variance estimates and frozen inference; Section 3.2: per-channel reduction over batch and spatial
+    positions'
+  adaptation: Eighty minibatches from synthetic N(3,4) features fit scale/shift with Adam and update detached estimates.
+    Frozen inference is tested with changed companion samples. No network acceleration, causal explanation of BN
+    efficacy, or ImageNet result is claimed.
+mutants:
+- id: m1_unbiased_training
+  bug: Use unbiased variance to normalize training activations
+- id: m2_biased_running
+  bug: Forget unbiased running-variance correction
+- id: m3_reversed_momentum
+  bug: Use momentum as the old-state coefficient
+- id: m4_detached_moments
+  bug: Detach normalization statistics
+- id: m5_epsilon_outside
+  bug: Put epsilon outside the square root
+- id: m6_live_running_state
+  bug: Keep gradients in the moving mean
+browser:
+  backend: numpy-autograd-wasm
+calibration:
+  status: measured
+  checked_at: '2026-10-17'
+  device: CPU
+  threads: 2
+  machine: arm64
+  torch_version: 2.14.1
+  repeats: 3
+  reference_metrics:
+    initial_mse: 3.379994043316286
+    final_mse: 0.0007123552875168459
+    final_mse_threshold: 0.003
+    affine_error_threshold: 0.04
