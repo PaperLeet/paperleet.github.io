@@ -49,6 +49,8 @@ const files = [...initial].map(key => manifest[key].file);
 const reportPreview=Object.entries(manifest).filter(([,entry])=>entry.name==='InterviewSourcePreview'&&entry.isDynamicEntry);
 assert(reportPreview.length===1&&!initial.has(reportPreview[0][0]), 'Source experience preview must remain a unique deferred entry');
 assert(manifest['src/MarkdownSectionNav.tsx']?.isDynamicEntry&&!initial.has('src/MarkdownSectionNav.tsx'), 'Optional writing section navigation must remain deferred');
+assert(manifest['src/InterviewQuestionBuilder.tsx']?.isDynamicEntry&&!initial.has('src/InterviewQuestionBuilder.tsx'), 'Optional interview question records must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Insert record at report cursor')), 'Question-record editing must not grow the initial shell');
 assert(manifest['src/ProblemSolutionPanel.tsx']?.isDynamicEntry&&!initial.has('src/ProblemSolutionPanel.tsx'), 'Per-problem solution navigation must remain deferred');
 assert(manifest['src/EditorTools.tsx']?.isDynamicEntry&&!initial.has('src/EditorTools.tsx'), 'Optional editor controls must remain deferred');
 assert(manifest['src/LibraryOverview.tsx']?.isDynamicEntry&&!initial.has('src/LibraryOverview.tsx'), 'Practice overview and company interview preparation must remain deferred');

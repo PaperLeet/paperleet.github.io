@@ -143,3 +143,34 @@ filter, show a recovery action and allow an explicit return to All.
 next-step, owner/locale transitions and exact returns in React/JSDOM, with an optional
 disposable real HTTP/SQLite public-summary bridge. It does not establish native
 browser geometry, physical focus, IME, clipboard or live-provider behavior.
+
+## Question and follow-up records
+
+The interview composer has an optional **Record a question and follow-ups / 整理一条问题与追问**
+panel below the report editor. Keep the actual question, your approach and follow-up
+reflection in separate inputs, optionally naming an already selected concept.
+Opening the panel, typing or choosing a concept does not publish, insert text or
+change the report's linked concepts. Generic questions need no exercise association.
+
+Insert commits one ordinary Markdown record at the report cursor without replacing
+the selection or existing text. The body remains the canonical published content:
+records participate in ordinary reading, search, editing and sharing. Counts still
+come only from explicitly selected concepts. A length or incomplete Markdown/fence
+boundary failure keeps both source and inputs intact. Undo restores the prior report,
+record input, selection direction and both textarea scroll offsets; newer body or
+record edits disable that undo. Clear fields has a separate explicit confirmation.
+
+Uninserted inputs stay in the owner-bound draft in the current tab. The writing draft
+center labels, previews/searches and resumes them. They are not automatically part
+of a publication payload. Insert or clear them before publishing the current draft.
+An explicit original-request retry can still confirm an earlier publication; its
+cleanup cannot erase a newer private record. If the optional panel fails to load,
+a plain editor preserves the inputs and can insert without a concept label.
+
+`check-question-records.mjs` exercises parsing, cold/storage failure recovery, draft
+center resumption, actual composer insertion/undo, locale/owner transitions, fallback
+editing, captured publication retry and safe Markdown readback. The optional
+disposable HTTP/SQLite bridge proves a single idempotent public post, searchable
+inserted content and private uninserted content. No new API field or service schema
+is introduced; native browser geometry/focus/IME/clipboard is not established by
+these component and HTTP checks.

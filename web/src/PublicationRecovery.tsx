@@ -4,10 +4,10 @@ import {readInterviewDetails} from './interviewModels';
 import InterviewMeta from './InterviewMeta';
 import PaperPreviewCard from './PaperPreviewCard';
 
-export default function PublicationRecovery({pending,payload,busy,disabled=false,onRetry}:{pending?:PendingPublication;payload:PublicationPayload;busy:boolean;disabled?:boolean;onRetry:()=>void}) {
+export default function PublicationRecovery({pending,payload,busy,disabled=false,newerDraft=false,onRetry}:{pending?:PendingPublication;payload:PublicationPayload;busy:boolean;disabled?:boolean;newerDraft?:boolean;onRetry:()=>void}) {
   const {t}=useI18n();
   if(!pending||busy)return null;
-  const changed=!samePublication(pending.receipt,payload);
+  const changed=newerDraft||!samePublication(pending.receipt,payload);
   let interview;
   try{if(pending.receipt.kind==='interview')interview=readInterviewDetails(JSON.parse(pending.receipt.payload.interview as string));}catch{/* A malformed recovery record cannot add metadata to the review. */}
   return <div className="publication-recovery" role="status">

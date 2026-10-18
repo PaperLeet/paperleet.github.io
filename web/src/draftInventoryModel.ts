@@ -1,3 +1,4 @@
+import {interviewQuestionText} from './interviewQuestionDraft';
 import {clearPublishedDraft,draftKey,hasDraft,readPostDraft,type DraftStorage,type PostDraft} from './communityDrafts';
 import {clearInterviewDraft,interviewDraftKey,isInterviewDraftDurable,readInterviewDraft,type InterviewDraft} from './interviewDrafts';
 import {heldPublications,publicationKey,publicationSignature,readPublication,type PendingPublication} from './publicationRequests';
@@ -73,6 +74,6 @@ export function discardInventoryDraft(storage:InventoryStorage|undefined,owner:s
 export function matchesInventoryDraft(row:DraftEntry,query:string){
  const normalize=(value:string)=>value.normalize('NFKC').toLocaleLowerCase('en');
  const terms=normalize(Array.from(query).slice(0,200).join('')).trim().split(/\s+/u).filter(Boolean);
- const corpus=normalize([row.title,row.body,row.scope,row.interview?.interview.company,row.interview?.interview.role,row.interview?.interview.location].filter(Boolean).join('\n'));
+ const corpus=normalize([row.title,row.body,interviewQuestionText(row.interview?.questionScratch),row.scope,row.interview?.interview.company,row.interview?.interview.role,row.interview?.interview.location].filter(Boolean).join('\n'));
  return terms.every(term=>corpus.includes(term));
 }
