@@ -5,21 +5,22 @@ import {currentReadingReturn,discardReadingReturn,keepReadingOwner,readingListHr
 import {readInterviewRoute} from './interviewNavigation';
 
 export type ReadingNotice='restored'|'available'|'missing';
-type State={owner:string;href:string;id:number;notice:ReadingNotice;post?:string;practice?:string;reply?:string};
+type State={owner:string;href:string;id:number;notice:ReadingNotice;region?:ReadingReturn['region'];post?:string;practice?:string;reply?:string};
 export function useReadingOrigin(owner:string|undefined,post:string,href:string|undefined){
  useEffect(()=>resumeReadingOrigin(owner,post,href),[owner,post,href]);
 }
 
 /** A return belongs to one owner, exact feed and actual thread/practice traversal. No draft text is retained. */
-export function useReadingPosition(owner:string|undefined,href:string,ready:boolean){
+export function useReadingPosition(owner:string|undefined,href:string,ready:boolean,{highlightsEnabled=false,highlightsReady}:{highlightsEnabled?:boolean;highlightsReady?:number}={}){
  const container=useRef<HTMLElement>(null),live=useRef({owner,href,ready});live.current={owner,href,ready};
  const interactions=useRef(0),previousOwner=useRef(owner);
  const scrollRequest=useRef<{row:ReadingReturn;opener?:HTMLElement;before:number}|undefined>(undefined);
  const [state,setState]=useState<State>();
+ const [returning,setReturning]=useState<ReadingReturn>();
  const revision=useSyncExternalStore(subscribeReadingReturn,readingReturnRevision,()=>0);
  const here=()=>live.current.owner===owner&&live.current.href===href&&live.current.ready&&readingListHref(appLocation.hash)===href&&!!container.current?.isConnected;
  const targetFor=(row:ReadingReturn)=>{
-  const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]${row.concept?`[data-reading-concept="${row.concept}"]`:""}${row.reply?`[data-reading-reply="${row.reply}"]`:""}`);
+  const card=container.current?.querySelector<HTMLElement>(`[data-reading-post="${row.post}"]${row.region?'[data-reading-region="highlights"]':':not([data-reading-region="highlights"])'}${row.concept?`[data-reading-concept="${row.concept}"]`:""}${row.reply?`[data-reading-reply="${row.reply}"]`:""}`);
   if(row.link==='practice')return card?.querySelector<HTMLElement>(`a[data-reading-link="practice"][data-reading-practice="${row.practice}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link="title"]')||card?.querySelector<HTMLElement>('a[data-reading-link="read"]');
   return card?.querySelector<HTMLElement>(`a[data-reading-link="${row.link}"]`)||card?.querySelector<HTMLElement>('a[data-reading-link]');
  };
@@ -27,12 +28,14 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
   const active=document.activeElement;
   return interactions.current===before&&(opener?active===opener||!opener.isConnected&&active===document.body:interactions.current===0&&(active===document.body||!active?.isConnected));
  };
+ const waitingForHighlights=(row:ReadingReturn)=>row.region==='highlights'&&highlightsEnabled&&(highlightsReady!==row.id||container.current?.querySelector<HTMLDetailsElement>('details[data-reading-region="highlights"]')?.dataset.readingReady!==String(row.id));
  function apply(row:ReadingReturn,opener?:HTMLElement){
   if(!here()||row.owner!==owner||row.href!==href)return;
+  if(waitingForHighlights(row))return;
   const before=interactions.current;
-  if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,notice:'available'});return;}
+  if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,region:row.region,notice:'available'});return;}
   scrollRequest.current={row,opener,before};
-  setState({owner:row.owner,href,id:row.id,notice:targetFor(row)?'restored':'missing',post:targetFor(row)?row.post:undefined,practice:row.practice,reply:row.reply});
+  setState({owner:row.owner,href,id:row.id,region:row.region,notice:targetFor(row)?'restored':'missing',post:targetFor(row)?row.post:undefined,practice:row.practice,reply:row.reply});
  }
  // Commit the notice first, then measure. Its height must not displace the restored card.
  useLayoutEffect(()=>{
@@ -43,7 +46,12 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
     if(state?.id===row.id)setState(undefined);
     return;
    }
-   if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,notice:'available'});return;}
+   if(waitingForHighlights(row))return;
+   if(!permitted(before,opener)){setState({owner:row.owner,href,id:row.id,region:row.region,notice:'available'});return;}
+   if(row.region==='highlights'){
+    const disclosure=container.current?.querySelector<HTMLDetailsElement>('details[data-reading-region="highlights"]');
+    if(disclosure)disclosure.open=true;
+   }
    const target=targetFor(row);
    const notice=target?'restored':'missing';
    if(state?.notice!==notice){scrollRequest.current=request;setState({owner:row.owner,href,id:row.id,notice,post:target?row.post:undefined,practice:row.practice,reply:row.reply});return;}
@@ -51,7 +59,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
     window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-row.top),behavior:'instant'});
     if(row.focus||opener)target.focus({preventScroll:true});
    }else{
-    const list=container.current!.querySelector<HTMLElement>('[data-reading-list]');
+    const list=container.current!.querySelector<HTMLElement>(row.region==='highlights'?'details[data-reading-region="highlights"]>summary':'[data-reading-list]')||container.current!.querySelector<HTMLElement>('[data-reading-list]');
     list?.scrollIntoView?.({block:'start',behavior:'instant'});
     if(row.focus||opener)list?.focus({preventScroll:true});
    }
@@ -76,7 +84,7 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
    const sourceConcept=readingSourceConcept(href,card.dataset.readingConcept);
    if(readInterviewRoute(href)?.view==='questions'&&!sourceConcept)return;
    if(link.dataset.readingLink==='practice'?practice!==link.dataset.readingPractice||!practice:privateProfile?!privateProfilePostRoute(routeHash(destination),post):communityPostReturn(routeHash(destination),post)!==href)return;
-   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(sourceConcept?{concept:sourceConcept}:{}),...(practice?{practice}:{}),...(reply?{reply}:{}),...(privateProfile?{privateProfile:true as const}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
+   rememberReadingReturn({owner:live.current.owner!,href,post,link:practice?'practice':link.dataset.readingLink==='read'?'read':'title',...(card.dataset.readingRegion==='highlights'?{region:'highlights' as const}:{}),...(sourceConcept?{concept:sourceConcept}:{}),...(practice?{practice}:{}),...(reply?{reply}:{}),...(privateProfile?{privateProfile:true as const}:{}),top:link.getBoundingClientRect().top,focus:event.detail===0&&document.activeElement===link});
    setState(undefined);
   };
   document.addEventListener('click',capture);
@@ -87,12 +95,17 @@ export function useReadingPosition(owner:string|undefined,href:string,ready:bool
   previousOwner.current=owner;keepReadingOwner(owner);
  },[owner]);
  useLayoutEffect(()=>{
+  const row=currentReadingReturn();
+  const next=row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning'?row:undefined;
+  setReturning(previous=>previous?.id===next?.id?previous:next);
+ },[owner,href,revision]);
+ useLayoutEffect(()=>{
   if(!ready){setState(undefined);return;}
   const row=currentReadingReturn();
   if(row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning')apply(row);
- },[owner,href,ready,revision]);
- const visible=ready&&state&&state.owner===owner&&state.href===href?state:undefined;
- return {container,notice:visible?.notice,resumedPost:visible?.post,resumedReply:visible?.reply,resumedPractice:visible?.post?visible.practice:undefined,restore:(opener:HTMLElement)=>{
+ },[owner,href,ready,revision,highlightsEnabled,highlightsReady]);
+ const visible=ready&&state&&state.owner===owner&&state.href===href&&(state.region!=='highlights'||!highlightsEnabled||highlightsReady===state.id)?state:undefined;
+ return {container,notice:visible?.notice,region:visible?.region,highlightReturn:returning&&returning.owner===owner&&returning.href===href&&returning.region==='highlights'?{id:returning.id,post:returning.post}:undefined,resumedPost:visible?.post,resumedReply:visible?.reply,resumedPractice:visible?.post?visible.practice:undefined,restore:(opener:HTMLElement)=>{
   const row=currentReadingReturn();if(row&&owner&&row.owner===owner&&row.href===href&&row.phase==='returning')apply(row,opener);
  }};
 }

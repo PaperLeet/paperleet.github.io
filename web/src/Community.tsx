@@ -630,7 +630,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
-  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable);
+  const highlightsEnabled=!embedded&&!topicId&&!solutions&&!accountLoading&&capabilities?.community_highlights===true&&page===1&&!tag&&!following&&!saved&&!search&&!sort&&!days;
+  const [highlightsReady,setHighlightsReady]=useState<number>();
+  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,{highlightsEnabled,highlightsReady});
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
     if(embedded)setLocalFilters(next);else appLocation.hash = communityFeedHref(topicId,next);
@@ -816,8 +818,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} initialTag={tagsAvailable&&taxonomy.ready?initialCommunityTag(taxonomy.data.tags,tag):undefined} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
           )}
           {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><AppLink href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></AppLink></div>}
-          <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
-          {!embedded&&!topicId&&!solutions&&!accountLoading&&capabilities?.community_highlights===true&&page===1&&!tag&&!following&&!saved&&!search&&!sort&&!days&&<CommunityHighlights key={`${user?.id||'guest'}:${category||''}`} category={category||''} returnTo={returnTo}/>}
+          <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore} kind={reading.region==='highlights'?'pick':'post'}/>
+          {highlightsEnabled&&<CommunityHighlights key={`${user?.id||'guest'}:${category||''}`} category={category||''} returnTo={returnTo} resume={reading.highlightReturn} onResumeReady={setHighlightsReady} resumedPost={reading.region==='highlights'?reading.resumedPost:undefined}/>}
           <SolutionReadingNotice navigation={solutionReading}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
@@ -878,7 +880,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {days&&<button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t('查看不限时间','Browse all time')}</button>}
               </Empty>
             ) : (
-              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
+              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.region!=='highlights'&&reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
             )}
           </div>
           {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && (

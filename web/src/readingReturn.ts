@@ -5,7 +5,7 @@ import {interviewHref,readInterviewRoute} from './interviewNavigation';
 import {favoriteHref,readFavoriteRoute,libraryReturnHref} from './libraryNavigation';
 import {readReportHistory,reportHistoryHref} from './reportHistoryNavigation';
 
-export type ReadingReturn={version:1;id:number;owner:string;href:string;post:string;link:'title'|'read'|'practice';concept?:string;practice?:string;reply?:string;privateProfile?:true;top:number;focus:boolean;at:number;phase:'opening'|'reading'|'returning'};
+export type ReadingReturn={version:1;id:number;owner:string;href:string;post:string;link:'title'|'read'|'practice';region?:'highlights';concept?:string;practice?:string;reply?:string;privateProfile?:true;top:number;focus:boolean;at:number;phase:'opening'|'reading'|'returning'};
 export const READING_RETURN_KEY='paperleet.reading.return.v1';
 const maxAge=6*60*60*1000;
 let pending:ReadingReturn|undefined,hydrated=false,sequence=0,revision=0,watching=false;
@@ -25,6 +25,12 @@ export function readingListHref(route:string){
  return interviews&&(interviews.view==='reports'||interviews.view==='questions')?interviewHref(interviews):undefined;
 }
 const moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]{1,100}$/;
+/** Recommendations belong only to the first, unfiltered community or board feed. */
+export function readingHighlightsScope(href:string){
+ const feed=readCommunityFeed(href);if(!feed||feed.topicId)return false;
+ const f=feed.state;
+ return f.page===1&&!f.solutions&&!f.saved&&!f.following&&!f.tag&&!f.search&&!f.sort&&!f.days;
+}
 /** A source post can occur under several concepts; bind its return to the originating row. */
 export function readingSourceConcept(href:string,value:unknown){
  const filters=readInterviewRoute(href);
@@ -48,9 +54,10 @@ function valid(value:unknown):value is ReadingReturn{
  // Keep the v1 row identifier for stored reading returns. Only favorite views
  // may use a canonical module ID here, bound to the same practice ID and owner.
  const itemValid=typeof row.post==='string'&&(favorite?moduleId.test(row.post)&&row.post===row.practice&&typeof row.owner==='string'&&row.owner.startsWith('account:'):/^[a-f0-9]{32}$/.test(row.post));
- return Object.keys(row).every(key=>['version','id','owner','href','post','link','concept','practice','reply','privateProfile','top','focus','at','phase'].includes(key))&&row.version===1
+ return Object.keys(row).every(key=>['version','id','owner','href','post','link','region','concept','practice','reply','privateProfile','top','focus','at','phase'].includes(key))&&row.version===1
   &&Number.isSafeInteger(row.id)&&row.id>0&&typeof row.owner==='string'&&/^(?:guest|account:[a-zA-Z0-9_-]{1,160})$/.test(row.owner)
   &&typeof row.href==='string'&&readingListHref(row.href)===row.href&&itemValid
+  &&(!Object.hasOwn(row,'region')||row.region==='highlights'&&row.link==='title'&&readingHighlightsScope(row.href))
   &&(!readReportHistory(row.href)||row.owner.startsWith('account:'))
   &&(readInterviewRoute(row.href)?.view==='questions'?!!readingSourceConcept(row.href,row.concept):!Object.hasOwn(row,'concept'))
   &&(readProfileRoute(row.href)?.tab==='replies'?typeof row.reply==='string'&&/^[a-f0-9]{32}$/.test(row.reply):!Object.hasOwn(row,'reply'))

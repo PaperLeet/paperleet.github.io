@@ -43,3 +43,20 @@ Clients validate the optional discriminated context before display; legacy absen
 context preserves the original presentation. Context changes remain subject to
 existing content-version reapproval. No extra detail, statistics or catalog reads
 are introduced by the context component.
+
+Reading returns now bind a recommendation origin separately from the ordinary
+feed row of the same post. Only an actual same-tab, unmodified title activation
+on an eligible feed arms that region. The existing owner-scoped, six-hour
+metadata record accepts this optional field only for an unfiltered first-page
+community/board title; no title, body, author or private code is stored.
+
+A confirmed return opens and reads that recommendation scope, waits for a valid
+current response, then uses the existing interaction-aware reading controller.
+Keyboard origin restores the exact link; pointer origin does not force focus.
+New focus or manual collapse yields an explicit return action, which can reopen
+the native disclosure. A new refresh must settle again before restoration. Read
+failures remain retryable and cannot masquerade as a missing item. A genuinely
+missing selection has its own notice and never falls back to an identical feed
+row. Account/scope changes retire pending responses; older records and ordinary
+feed return behavior remain covered by the shared reading checks. Geometry in
+these tests is controlled DOM geometry, not a native browser layout claim.
