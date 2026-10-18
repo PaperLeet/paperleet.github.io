@@ -1,3 +1,4 @@
+import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
@@ -205,12 +206,13 @@ function Loading() {
 }
 function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved,searchQuery }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void;searchQuery?:string }) {
   const { t,locale } = useI18n();
+  const translation=useCommunityTranslation('post',post,!!searchQuery);
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const [bookmarked,setBookmarked]=useState(post.viewer.bookmarked),[bookmarkBusy,setBookmarkBusy]=useState(false);
   const bookmarkAvailable=capabilities?.community_bookmarks===true&&typeof bookmarked==='boolean';
   const returnTo=privateProfile?undefined:sourceReturnTo;
   return (
-    <article className="community-post-card" data-reading-post={post.id} data-reading-private-profile={privateProfile?"true":undefined} data-reading-resumed={resumed||undefined}>
+    <article ref={translation.ref} className="community-post-card" data-reading-post={post.id} data-reading-private-profile={privateProfile?"true":undefined} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
       <div className="post-card-layout">
         <CommunityAuthorAvatar user={post.author}/>
@@ -221,8 +223,9 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             <DateLabel value={post.created_at} />
             <Category value={post.solution ? "solutions" : post.category} />
           </div>
-          {readInPlace ? <><SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><AppLink data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
-            <PostSearchMatch text={post.title} query={searchQuery}/>
+          <TranslationNotice translation={translation}/>
+          {readInPlace ? <><SolutionReadingCard id={post.id} title={translation.title} body={post.body} displayBody={translation.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><AppLink data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
+            <PostSearchMatch text={translation.title} query={searchQuery}/>
           </AppLink>
           {post.problem && (
             <AppLink className="post-problem-link" href={post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id)}>
@@ -230,7 +233,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             </AppLink>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}
-          <InlinePostBody postId={post.id} body={post.body} limit={190} query={searchQuery}/>
+          <InlinePostBody postId={post.id} body={post.body} displayBody={translation.body} limit={190} query={searchQuery}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
           <PostTags post={post} returnTo={returnTo}/>
@@ -915,6 +918,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [deleteTarget, setDeleteTarget] = useState<string>();
+  const translation=useCommunityTranslation('post',post);
   const repliesLocked=busy||loading||!!editingReply;
   const replyList=useDiscussionReplies({replies:post?.replies,authorId:post?.author.id,linkedReply:replyTarget,disabled:repliesLocked});
   const practiceReading=useDiscussionPracticeReturn({owner:readingOwner,post:id,list:replyList,ready:!!post&&!loading&&!busy&&!editingPost&&!editingReply&&!accountLoading&&!error&&!catalogLoading,linkedReply:replyTarget});
@@ -1111,10 +1115,11 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             setPost(previous=>previous&&previous.id===confirmed.id?{...confirmed,replies:previous.replies}:previous);
             closePostEditing();setPostEdited(true);
           }}/>}
-          <article className="social-panel discussion-post">
+          <article ref={translation.ref} className="social-panel discussion-post">
             <div className="discussion-heading">
               <Category value={post.solution ? "solutions" : post.category} />
-              <h1>{post.title}</h1>
+              <h1>{translation.title}</h1>
+              <TranslationNotice translation={translation}/>
               <div className="discussion-author">
                 <CommunityAuthor user={post.author}/>
                 <DateLabel value={post.created_at} />
@@ -1133,7 +1138,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             </div>
             {post.interview && <InterviewMeta details={post.interview} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <PostTags post={post} returnTo={returnTo}/>
-            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} postId={post.id} />}
+            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} displayBody={translation.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} displayBody={translation.body} postId={post.id} />}
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
               <PostReport postId={post.id} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
@@ -1217,7 +1222,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                       </button>
                     )}
                   </div>
-                  <ReplySearchContext reply={r} list={replyList}><CommunityMarkdown body={r.body} /></ReplySearchContext>
+                  <ReplySearchContext reply={r} list={replyList}><TranslatedReply reply={r} /></ReplySearchContext>
                   {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
                   {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
                     readVersion.current++;setLoading(false);
@@ -1741,7 +1746,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                         <AppLink data-reading-link="title" href={postHref(item.post.id,profile.viewer.is_self&&item.post.anonymous===true?undefined:returnTo,item.reply.id)}>{item.post.title}</AppLink>
                         <DateLabel value={item.created_at} />
                       </div>
-                      <CommunityMarkdown body={item.reply.body} />
+                      <TranslatedReply reply={item.reply} />
                     </article>
                   ) : (
                     <PostCard

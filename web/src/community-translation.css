@@ -1,0 +1,4 @@
+.community-translation{display:flex;align-items:center;flex-wrap:wrap;gap:.65rem;margin:.45rem 0;font-size:.75rem;color:var(--muted);line-height:1.5}
+.community-translation button{border:0;background:transparent;padding:2px 0;color:var(--accent);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.community-translation button:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:2px}
+.translated-reply{min-width:0}
