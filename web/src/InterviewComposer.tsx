@@ -1,3 +1,5 @@
+import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
+import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import {useEffect,useId,useRef,useState} from 'react';
 import {BookOpen,Check,ChevronDown,ChevronRight,X} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -31,6 +33,7 @@ function WritingGuideFailure({onRetry}:{onRetry:()=>void}){
 
 export default function InterviewComposer({owner,company,problems,panelProps,onClose,onPublished}:{owner:string;company:string;problems:InterviewModule[];panelProps?:WritingPanelProps;onClose:()=>void;onPublished:(post:InterviewPost)=>void}){
  const {t,locale}=useI18n(),{user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
+ const taxonomy=useCommunityTaxonomy();
  const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
  const [draft,setDraft]=useState<InterviewDraft>(()=>readInterviewDraft(tabDraftStorage(),owner)||{title:'',body:'',interview:{company:company||'other',role:'ml',stage:'technical',outcome:'unknown',interview_month:'',location:'',questions:[]}});
  const latest=useRef(draft),active=useRef(true),inflight=useRef(false),currentOwner=useRef(user?.id);currentOwner.current=user?.id;
@@ -69,7 +72,9 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  async function publish(previous?:PublicationReceipt){
    if(inflight.current||!user||user.id!==owner||!canPublish)return;
    const receipt=previous||(pending&&samePublication(pending.receipt,interviewPublication(latest.current))?pending.receipt:undefined);
-   const submitted=receipt?{anonymous:receipt.payload.anonymous===true,title:receipt.payload.title as string,body:receipt.payload.body as string,interview:JSON.parse(receipt.payload.interview as string)} as InterviewDraft:latest.current;
+   const submitted=receipt?{...(Array.isArray(receipt.payload.tag_ids)?{tagIds:receipt.payload.tag_ids}:{}),anonymous:receipt.payload.anonymous===true,title:receipt.payload.title as string,body:receipt.payload.body as string,interview:JSON.parse(receipt.payload.interview as string)} as InterviewDraft:latest.current;
+   if(!receipt&&submitted.tagIds?.length&&!taxonomy.supported){setError(t('标签服务暂不可用，草稿已保留。','Tags are unavailable. Your draft is kept.'));return;}
+   if(!receipt&&taxonomy.supported&&(!taxonomy.ready||!taxonomy.data.boards.some(row=>row.id==='career'&&row.enabled))){setError(t('求职版位暂未开放，草稿已保留。','The career board is unavailable. Your draft is kept.'));return;}
    if(!submitted.title.trim()||!submitted.body.trim()||!receipt&&!hasInterviewDraftContent(submitted.body))return;
    if(submitted.anonymous&&capabilities?.community_anonymous_posts!==true){setError(t('匿名发布暂不可用，草稿已保留。','Anonymous posting is unavailable. Your draft is kept.'));return;}
    inflight.current=true;setBusy(true);setError('');
@@ -96,7 +101,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
   <PublishingAffiliationNotice/>
   {!confirmedPost&&<PublicationRecovery pending={pending} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
-   <PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
+   <TaxonomyStatus/><CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
    <label>{t('面经标题','Title')}<input data-writing-title="" required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>

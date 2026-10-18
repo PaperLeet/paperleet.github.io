@@ -132,7 +132,7 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
       <PublishingRules action="paper" />
     </form>
     <aside className="pool-process social-panel">
-      <ol><li><span>1</span><div><strong>{t('去重与适用性检查', 'Check duplicates & suitability')}</strong><p>{t('识别同一篇论文，确认能提炼出可测试、可在 CPU 运行的算法练习。', 'Identify existing papers and check for a testable algorithm that runs on a CPU.')}</p></div></li>
+      <ol><li><span>1</span><div><strong>{t('管理员初审与适用性检查', 'Intake review & suitability')}</strong><p>{t('投稿先由管理员审核，通过后进入生成与测试流程。', 'A maintainer reviews the submission before generation and testing.')}</p></div></li>
         <li><span>2</span><div><strong>{t('生成并验证题目', 'Generate & validate')}</strong><p>{t('AI 生成题面、返回值要求、初始代码和测试，通过独立验证后进入试做池。', 'AI prepares the statement, return contract, starter and tests. Validation comes before community trials.')}</p></div></li>
         <li><span>3</span><div><strong>{t('社区试做与评审', 'Community trial & review')}</strong><p>{t('至少 5 人评审、80% 建议入库，开放满 48 小时后交维护者确认。', 'After 48 hours, at least 5 reviews with 80% approval qualify for maintainer review.')}</p></div></li></ol>
       {capabilities && (!capabilities.automation_enabled || !capabilities.generation.ready) && <p className="pool-service-notice" role="status">{t('自动出题服务尚未就绪。你仍可以投稿，论文会保留并等待维护者启动生成。', 'Automatic generation is not ready. You can still submit; proposals are retained until a maintainer enables generation.')}</p>}
@@ -143,10 +143,10 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
 function PoolStatus({status}: {status: string}) {
   const {t} = useI18n();
   const labels: Record<string, [string, string]> = {
-    queued: ['排队中', 'Queued'], submitted: ['已提交', 'Submitted'], suitability: ['适用性检查', 'Checking suitability'], screening: ['适用性检查', 'Checking suitability'],
+    pending_review: ['待管理员初审','Awaiting intake review'], queued: ['排队中', 'Queued'], submitted: ['已提交', 'Submitted'], suitability: ['适用性检查', 'Checking suitability'], screening: ['适用性检查', 'Checking suitability'],
     generation: ['生成中', 'Generating'], generating: ['生成中', 'Generating'], validation: ['验证中', 'Validating'], validating: ['验证中', 'Validating'],
     pool: ['公开试做', 'Open for trials'], changes: ['需要修改', 'Needs changes'], needs_changes: ['需要修改', 'Needs changes'], changes_requested: ['需要修改', 'Needs changes'],
-    ready: ['待维护者确认', 'Awaiting maintainer review'], rejected: ['不适合出题', 'Not suitable'], published: ['已入库', 'Published'],
+    ready: ['社区评审通过', 'Community review complete'], rejected: ['不适合出题', 'Not suitable'], published: ['已入库', 'Published'],
     blocked: ['等待服务就绪', 'Waiting for service'], config_blocked: ['等待服务就绪', 'Waiting for service'], failed: ['处理失败', 'Processing failed'],
   };
   return <span className={`pool-status ${processing(status) ? 'processing' : ''}`}>{processing(status) && <LoaderCircle size={12} className="spin" />}{labels[status] ? t(...labels[status]) : status}</span>;
@@ -192,6 +192,9 @@ function PoolDetail({id, owner, capabilities, onChanged}: {id: string; owner?: s
       <header className="pool-detail-heading"><div><PoolStatus status={proposal.status} /><h2>{title}</h2><div className="pool-card-meta">{paperUrl && <a href={paperUrl} target="_blank" rel="noreferrer">arXiv:{proposal.arxiv_id}<ArrowUpRight size={13} /></a>}{proposal.version && <span>{t('版本', 'Version')} {proposal.version}</span>}</div></div>
         {proposal.author && <div className="pool-author"><a href={profileHref(proposal.author)}><Avatar user={proposal.author} size={30} /><span>{proposal.author.display_name}</span></a><AffiliationBadge affiliation={proposal.author.affiliation} institution={proposal.author.institution} /></div>}
       </header>
+      {proposal.status==='pending_review'&&<p className="pool-service-notice" role="status">{t('投稿已保留，等待管理员初审；通过后进入生成流程。','Your submission is awaiting intake review. Approval starts the generation process.')}</p>}
+      {proposal.maintainer_review&&proposal.version&&<p className="pool-muted">{t('当前候选版本审核：','Current candidate review: ')}{proposal.maintainer_review.approved?t('已通过管理员审核','Approved by a maintainer'):t('等待管理员审核','Awaiting maintainer review')}</p>}
+      {proposal.maintainer_review?.approved&&proposal.maintainer_review.reason&&<p className="pool-service-notice">{proposal.maintainer_review.reason}</p>}
       {proposal.reason && <p className="pool-service-notice" role="status">{proposal.reason}</p>}
       {processing(proposal.status) && capabilities && (!capabilities.automation_enabled || !capabilities.generation.ready) && <p className="pool-service-notice" role="status">{t('自动出题服务尚未就绪，投稿已保留，等待维护者启动生成。', 'Automatic generation is not ready. Your proposal is retained until a maintainer enables generation.')}</p>}
       {processing(proposal.status) && <p className="pool-muted" role="status">{t('处理进度会自动更新。你可以稍后回来查看。', 'Progress updates automatically. You can return later.')}</p>}
@@ -202,30 +205,9 @@ function PoolDetail({id, owner, capabilities, onChanged}: {id: string; owner?: s
   </section>;
 }
 
-function PoolModeration({proposal, owner, onChanged}: {proposal: PoolProposal; owner: string; onChanged: (proposal: PoolProposal) => void}) {
-  const {t} = useI18n();
-  const [action, setAction] = useState('request_changes'), [reason, setReason] = useState('');
-  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
-  const mounted = useRef(true), working = useRef(false);
-  useEffect(() => {mounted.current = true; return () => {mounted.current = false;};}, []);
-  async function moderate() {
-    if (working.current || !proposal.viewer.can_manage) return;
-    if (!reason.trim()) {setError(t('请说明处理原因。', 'Explain the reason for this action.')); return;}
-    working.current = true; setBusy(true); setError(''); setSaved(false);
-    try {
-      const result = await poolApi<PoolProposal>(`/${proposal.id}/moderate`, {action, reason: reason.trim(), expected_user_id: owner});
-      if (!mounted.current) return;
-      if (result.id !== proposal.id) throw Error(t('无法确认处理结果，请刷新。', 'Could not confirm the action. Please refresh.'));
-      onChanged(result); setSaved(true);
-    } catch (e) {if (mounted.current) setError(errorMessage(e));}
-    finally {working.current = false; if (mounted.current) setBusy(false);}
-  }
-  return <details className="pool-moderation social-panel"><summary>{t('维护者操作', 'Maintainer actions')}</summary><form className="social-form" onSubmit={event => {event.preventDefault(); void moderate();}}>
-    <label>{t('处理方式', 'Action')}<select value={action} disabled={busy} onChange={event => setAction(event.target.value)}><option value="request_changes">{t('退回修改', 'Request changes')}</option><option value="retry">{t('重新生成并验证', 'Regenerate and validate')}</option></select></label>
-    <label>{t('原因', 'Reason')}<textarea rows={3} required maxLength={2000} value={reason} disabled={busy} onChange={event => setReason(event.target.value)} /></label>
-    {error && <p className="pool-error" role="alert">{error}</p>}{saved && <p className="pool-feedback" role="status">{t('处理结果已保存。', 'Action saved.')}</p>}
-    <button className="button subtle" type="submit" disabled={busy}>{busy ? t('处理中…', 'Saving…') : t('保存处理结果', 'Save action')}</button>
-  </form></details>;
+function PoolModeration(_props: {proposal: PoolProposal; owner: string; onChanged: (proposal: PoolProposal) => void}) {
+  const {t}=useI18n();
+  return <section className="pool-moderation"><h3>{t('维护者审核','Maintainer review')}</h3><p>{t('在管理员工作台核对当前版本、填写反馈并提交审核决定。','Review the current version and submit reasoned feedback in the administrator workspace.')}</p><a className="button subtle" href="#/community/admin/papers">{t('打开论文审核','Open paper review')}</a></section>;
 }
 
 function CandidateTrial({proposal, owner, capabilities, onChanged}: {proposal: PoolProposal; owner?: string; capabilities?: PaperPoolCapabilities; onChanged: (proposal: PoolProposal) => void}) {

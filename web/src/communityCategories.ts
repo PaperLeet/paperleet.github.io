@@ -7,12 +7,13 @@ export const communityCategories = [
   { id: 'lounge', zh: '闲聊', en: 'Lounge' },
 ] as const;
 
-export type CommunityCategory = typeof communityCategories[number]['id'];
-const categoryIds = new Set<string>(communityCategories.map(category => category.id));
+export type CommunityCategory = string;
 export const isCommunityCategory = (value: unknown): value is CommunityCategory =>
-  typeof value === 'string' && categoryIds.has(value);
+  typeof value === 'string' && /^[a-z][a-z0-9_-]{0,39}$/.test(value);
 
 export function communityCategoryHint(category: string): readonly [string, string] | undefined {
   if (category === 'admissions') return ['MS / PhD 申请、选校、导师与录取。', 'MS / PhD applications, programs, supervisors and offers.'];
   if (category === 'career') return ['实习、招聘、面试与职业发展。', 'Internships, hiring, interviews and career development.'];
 }
+
+export const validCommunityTags = (value:unknown):value is string[] => Array.isArray(value) && value.length<=5 && value.every(isCommunityCategory) && new Set(value).size===value.length;

@@ -6,7 +6,7 @@ export type ReportHistoryItem={id:string;post_id:string;title:string;reason:Repo
 export type ReportHistory={owner_id:string;state:'all'|'pending'|'reviewed';limit:number;offset:number;total:number;summary:{all:number;pending:number;reviewed:number};items:ReportHistoryItem[]};
 export type ReportCommand={expected_user_id:string;request_id:string;reason:ReportReason;details:string};
 export type ReviewCommand={expected_user_id:string;request_id:string;expected_revision:number;expected_content_version:string|null;action:'dismiss'|'remove';note:string};
-export type ReviewPost=Pick<Post,'id'|'title'|'body'|'category'|'anonymous'|'solution'|'problem_id'|'author'|'edit_version'|'updated_at'>;
+export type ReviewPost=Pick<Post,'id'|'title'|'body'|'category'|'anonymous'|'solution'|'problem_id'|'author'|'edit_version'|'updated_at'|'tags'>;
 export type ReviewRow={post_id:string;title:string;revision:number;state:'pending'|'dismissed'|'removed';total_reports:number;pending_reports:number;last_report_at:string;post:Omit<ReviewPost,'body'>|null};
 export type ReviewCase=Omit<ReviewRow,'title'|'last_report_at'|'post'>&{post:ReviewPost|null;owner_id:string;offset:number;limit:number;reports:{id:string;reason:ReportReason;details:string;created_at:string;pending:boolean;snapshot:ReviewPost}[];reviews:{id:string;action:'dismiss'|'remove';note:string;created_at:string}[]};
 export const reportRequestId=()=>crypto.randomUUID().replaceAll('-','');

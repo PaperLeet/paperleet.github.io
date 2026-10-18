@@ -1,3 +1,5 @@
+import {useCommunityTaxonomy} from './useCommunityTaxonomy';
+import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
 import { useEffect, useId, useRef, useState } from 'react';
 import CommunityMarkdown from './CommunityMarkdown';
 import MarkdownEditor from './MarkdownEditor';
@@ -14,7 +16,7 @@ import PaperPreviewCard from './PaperPreviewCard';
 import { canonicalArxivUrl } from './communityPapers';
 import {affiliationRequired,canPublishCommunity} from './communityPublishing';
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
-import { communityCategories, communityCategoryHint } from './communityCategories';
+import { communityCategoryHint } from './communityCategories';
 import {topicFromProblem} from './communityTopics';
 import {communityPostHref} from './communityNavigation';
 
@@ -22,6 +24,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
 }) {
   const {t}=useI18n();
+  const taxonomy=useCommunityTaxonomy();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const [draft,setDraft]=useState(()=>readPostEdit(tabDraftStorage(),owner,post.id)||newPostEdit(post));
@@ -37,14 +40,15 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   },[!!post.interview,catalogRetry]);
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
   const needsReview=draft.baseVersion!==post.edit_version;
-  const currentCategory=communityCategories.find(category=>category.id===post.category);
+  const currentCategory=taxonomy.data.boards.find(category=>category.id===post.category);
   const categoryHint=communityCategoryHint(draft.category),categoryHintId=useId();
   function edit(change:Partial<PostEditDraft>) {
     const next={...current.current,...change}; current.current=next;setDraft(next);
     setSaved(writePostEdit(tabDraftStorage(),owner,post.id,next));
   }
   async function save() {
-    if(busy||disabled||!canPublish||saving.current||needsReview||!canEditPost(post,owner)||!draft.title.trim()||!draft.body.trim())return;
+    if((taxonomy.supported&&!taxonomy.ready)||busy||disabled||!canPublish||saving.current||needsReview||!canEditPost(post,owner)||!draft.title.trim()||!draft.body.trim())return;
+    if(draft.tagIds?.length&&!taxonomy.supported){setError(t('标签服务暂不可用，修改草稿已保留。','Tags are unavailable. Your edit draft is kept.'));return;}
     if(draft.category==='papers' && draft.paperUrl?.trim() && (!canonicalArxivUrl(draft.paperUrl) || !capabilities?.community_papers)) {
       setError(!capabilities?.community_papers ? t('论文链接暂时无法保存，请保留修改草稿并稍后重试。','Paper links cannot be saved right now. Keep your edit draft and try again shortly.') : t('请添加有效的 arXiv 论文链接，或清空此字段。','Add a valid arXiv paper link, or clear the field.'));
       return;
@@ -53,6 +57,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
     try {
       const confirmed=await socialApi<Post>(`community/posts/${encodeURIComponent(post.id)}/edit`,{
         title:submitted.title,body:submitted.body,category:submitted.category,
+        ...(taxonomy.supported?{tag_ids:submitted.tagIds||[]}:{}),
         expected_version:submitted.baseVersion,expected_user_id:owner,
         ...(submitted.interview?{interview:submitted.interview}:{}),
         ...((submitted.paperUrl !== undefined || post.paper_url) ? {paper_url:submitted.category==='papers' ? canonicalArxivUrl(submitted.paperUrl) || null : null} : {}),
@@ -85,8 +90,9 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       {post.interview&&<InterviewFields value={draft.interview||post.interview} onChange={interview=>edit({interview,category:'career'})} problems={modules} disabled={busy}/>}
       {catalogError&&<p role="status">{t('暂时无法读取关联练习，现有关联会保留。','Related modules could not load. Existing links are preserved.')} <button type="button" onClick={()=>setCatalogRetry(value=>value+1)}>{t('重试加载','Retry loading')}</button></p>}
       <label>{t('版块','Category')}<select value={draft.category} disabled={busy||!!post.interview||post.solution===true} aria-describedby={categoryHint?categoryHintId:undefined} onChange={e=>edit({category:e.target.value})}>
-        {communityCategories.map(({id,zh,en})=><option key={id} value={id}>{t(zh,en)}</option>)}
+        {taxonomy.data.boards.filter(row=>row.enabled||row.id===draft.category).map(({id,zh,en})=><option key={id} value={id}>{t(zh,en)}</option>)}
       </select>{categoryHint&&<small id={categoryHintId}>{t(...categoryHint)}</small>}</label>
+      <TaxonomyStatus/><CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/>
       {draft.category==='papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl=>edit({paperUrl})} owner={owner} available={capabilities?.community_papers===true} disabled={busy} initialPaper={post.paper} onUseTitle={title=>edit({title:title.slice(0,180)})}/>}
       <label>{t('标题','Title')}<input autoFocus required maxLength={180} value={draft.title} disabled={busy} onChange={e=>edit({title:e.target.value})}/></label>
       <MarkdownEditor sectionNavigation scopeKey={JSON.stringify(['post-edit',owner,post.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}

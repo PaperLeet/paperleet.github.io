@@ -31,7 +31,7 @@ try {
   assert.notEqual(draftKey('a:b', 'c'), draftKey('a', 'b:c'), 'Escaped keys must not collide');
   storage.setItem(draftKey('bob', 'architecture/attention'), storage.getItem(draftKey('alice', 'architecture/attention')));
   assert.equal(readPostDraft(storage, 'bob', 'architecture/attention'), undefined, 'Envelope owner must match even if copied into another key');
-  for (const raw of ['{bad json', 'null', JSON.stringify({ version: 2, owner: 'alice', scope: 'general', draft: original }), JSON.stringify({ version: 1, owner: 'alice', scope: 'general', draft: {...original, category: 'unknown'} }), JSON.stringify({ version: 1, owner: 'alice', scope: 'general', draft: {...original, body: 'a'.repeat(20001)} }), 'a'.repeat(100001)]) {
+  for (const raw of ['{bad json', 'null', JSON.stringify({ version: 2, owner: 'alice', scope: 'general', draft: original }), JSON.stringify({ version: 1, owner: 'alice', scope: 'general', draft: {...original, category: '../unknown'} }), JSON.stringify({ version: 1, owner: 'alice', scope: 'general', draft: {...original, body: 'a'.repeat(20001)} }), 'a'.repeat(100001)]) {
     storage.setItem(draftKey('alice', 'general'), raw);
     assert.equal(readPostDraft(storage, 'alice', 'general'), undefined);
   }

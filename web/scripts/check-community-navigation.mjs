@@ -92,7 +92,7 @@ try {
   }
   assert.equal(communityContinuation('community?following=true&page=2'),'community?following=1&page=2');
   const badFeeds=['https://evil.test/','//evil.test/','javascript:alert(1)','community/problem/../attention','community/problem/architecture/attention/extra',
-    'account/continue/community','community?from=community','community?unknown=1','community?category=private','community?page=0','community?page=-2','community?page=1.5',
+    'account/continue/community','community?from=community','community?unknown=1','community?category=../private','community?page=0','community?page=-2','community?page=1.5',
     'community?page=9007199254740991','community?q='+encodeURIComponent('x'.repeat(201)),'community?q=a&q=b','community?following=admin','community%252Fproblem%252Farchitecture%252Fattention'];
   for(const route of badFeeds) {
     assert.equal(readCommunityFeed(route),undefined,route);

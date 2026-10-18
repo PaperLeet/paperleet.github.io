@@ -5,6 +5,7 @@ export type Counts = { likes: number; reposts: number; replies: number };
 export type Post = {
   id: string; title: string; body: string; category: string;
   anonymous?: boolean;
+  tags?: {id:string;zh:string;en:string;enabled:boolean}[];
   solution?: boolean;
   interview?: import('./interviewModels').InterviewDetails;
   paper_url?: string | null; paper?: import('./communityPapers').PaperPreview | null;

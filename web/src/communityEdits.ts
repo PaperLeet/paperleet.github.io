@@ -2,9 +2,9 @@ import type { DraftStorage } from './communityDrafts';
 import {isThreadAnonymous} from './communityIdentity';
 import type { Post } from './communityDiscussion';
 import {readInterviewDetails,type InterviewDetails} from './interviewModels';
-import { isCommunityCategory } from './communityCategories';
+import { isCommunityCategory, validCommunityTags } from './communityCategories';
 
-export type PostEditDraft = { title: string; body: string; category: string; baseVersion: string; interview?:InterviewDetails; paperUrl?:string };
+export type PostEditDraft = { title: string; body: string; category: string; baseVersion: string; interview?:InterviewDetails; paperUrl?:string; tagIds?:string[] };
 const version = /^[a-f0-9]{64}$/;
 export const postEditKey = (owner:string,post:string) =>
   `paperleet.community.post-edit.v1:${encodeURIComponent(owner)}:${encodeURIComponent(post)}`;
@@ -12,18 +12,18 @@ export function canEditPost(post:Post,owner:string):boolean {
   return !!owner && (post.author.id === owner || isThreadAnonymous(post.author,post.id)) && post.viewer.can_edit === true && version.test(post.edit_version || '');
 }
 export function newPostEdit(post:Post):PostEditDraft {
-  return {title:post.title,body:post.body,category:post.category,baseVersion:post.edit_version || '',...(post.interview?{interview:{...post.interview,questions:[...post.interview.questions]}}:{}),...(post.paper_url?{paperUrl:post.paper_url}:{})};
+  return {...(post.tags?.length?{tagIds:post.tags.map(row=>row.id)}:{}),title:post.title,body:post.body,category:post.category,baseVersion:post.edit_version || '',...(post.interview?{interview:{...post.interview,questions:[...post.interview.questions]}}:{}),...(post.paper_url?{paperUrl:post.paper_url}:{})};
 }
 function valid(value:unknown):value is PostEditDraft {
   if(!value || typeof value !== 'object') return false;
   const draft=value as PostEditDraft;
   return typeof draft.title==='string' && draft.title.length<=180 && typeof draft.body==='string' && draft.body.length<=20000
-    && isCommunityCategory(draft.category) && typeof draft.baseVersion==='string' && version.test(draft.baseVersion)
+    && (draft.tagIds===undefined||validCommunityTags(draft.tagIds)) && isCommunityCategory(draft.category) && typeof draft.baseVersion==='string' && version.test(draft.baseVersion)
     && (draft.interview===undefined||(draft.category==='career'&&!!readInterviewDetails(draft.interview)))
     && (draft.paperUrl===undefined||(typeof draft.paperUrl==='string'&&draft.paperUrl.length<=2048));
 }
 export function samePostEdit(a:PostEditDraft,b:PostEditDraft):boolean {
-  return a.title===b.title && a.body===b.body && a.category===b.category && a.baseVersion===b.baseVersion && JSON.stringify(a.interview)===JSON.stringify(b.interview) && (a.paperUrl||'')===(b.paperUrl||'');
+  return JSON.stringify(a.tagIds||[])===JSON.stringify(b.tagIds||[]) && a.title===b.title && a.body===b.body && a.category===b.category && a.baseVersion===b.baseVersion && JSON.stringify(a.interview)===JSON.stringify(b.interview) && (a.paperUrl||'')===(b.paperUrl||'');
 }
 export function readPostEdit(storage:DraftStorage|undefined,owner:string,post:string):PostEditDraft|undefined {
   if(!storage||!owner||!post)return;
@@ -33,7 +33,7 @@ export function readPostEdit(storage:DraftStorage|undefined,owner:string,post:st
     const value=JSON.parse(raw);
     if(value?.version!==1||value.owner!==owner||value.post!==post||!valid(value.draft))return;
     const {title,body,category,baseVersion}=value.draft;
-    return {title,body,category,baseVersion,...(value.draft.interview?{interview:readInterviewDetails(value.draft.interview)}:{}),...(value.draft.paperUrl!==undefined?{paperUrl:value.draft.paperUrl}:{})};
+    return {title,body,category,baseVersion,...(value.draft.tagIds?{tagIds:[...value.draft.tagIds]}:{}),...(value.draft.interview?{interview:readInterviewDetails(value.draft.interview)}:{}),...(value.draft.paperUrl!==undefined?{paperUrl:value.draft.paperUrl}:{})};
   } catch {return;}
 }
 export function writePostEdit(storage:DraftStorage|undefined,owner:string,post:string,draft:PostEditDraft):boolean {

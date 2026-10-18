@@ -1,0 +1,17 @@
+/** One captured operation per administrator. Private tab storage never crosses accounts. */
+export type AdminCommand={path:string;label:string;resource:string;kind:string;payload:Record<string,unknown>&{expected_user_id:string;expected_revision:number;request_id:string}};
+const held=new Map<string,AdminCommand>();
+const key=(owner:string)=>'paperleet.admin.command.v1:'+encodeURIComponent(owner);
+function valid(value:unknown,owner:string):value is AdminCommand{
+ if(!value||typeof value!=='object')return false;const c=value as AdminCommand,p=c.payload;
+ if(!p||p.expected_user_id!==owner||!Number.isSafeInteger(p.expected_revision)||p.expected_revision<0||!/^[a-f0-9]{32}$/.test(p.request_id)||typeof p.reason!=='string'||!p.reason.trim()||p.reason.length>1000||typeof c.label!=='string'||c.label.length>100||typeof c.resource!=='string')return false;
+ return (['boards','tags'].includes(c.kind)&&/^[a-z][a-z0-9_-]{0,39}$/.test(c.resource)&&c.path==='admin/'+c.kind&&p.id===c.resource)||(['users','papers'].includes(c.kind)&&/^[a-f0-9]{32}$/.test(c.resource)&&c.path===`admin/${c.kind}/${c.resource}/${c.kind==='users'?'status':'review'}`);
+}
+export function readAdminCommand(owner:string):AdminCommand|undefined{
+ if(held.has(owner))return structuredClone(held.get(owner));
+ try{const raw=sessionStorage.getItem(key(owner));if(!raw||raw.length>20000)return;const value=JSON.parse(raw);if(valid(value,owner)){held.set(owner,structuredClone(value));return value;}}catch{/* Storage may be unavailable. */}
+}
+export function holdAdminCommand(command:AdminCommand):boolean{
+ const owner=command.payload.expected_user_id;if(!valid(command,owner))throw Error('Invalid administrator operation');held.set(owner,structuredClone(command));try{sessionStorage.setItem(key(owner),JSON.stringify(command));return true;}catch{return false;}
+}
+export function clearAdminCommand(command:AdminCommand){const owner=command.payload.expected_user_id;if(readAdminCommand(owner)?.payload.request_id!==command.payload.request_id)return;held.delete(owner);try{sessionStorage.removeItem(key(owner));}catch{/* The captured in-page operation has retired. */}}

@@ -1,6 +1,6 @@
-import { isCommunityCategory } from './communityCategories';
+import { isCommunityCategory, validCommunityTags } from './communityCategories';
 
-export type PostDraft = { title: string; body: string; category: string; paperUrl?: string; anonymous?: boolean; problemId?:string };
+export type PostDraft = { title: string; body: string; category: string; paperUrl?: string; anonymous?: boolean; problemId?:string; tagIds?:string[] };
 export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
 export function draftKey(owner: string, scope: string): string {
@@ -22,14 +22,15 @@ export function readPostDraft(storage: DraftStorage | undefined, owner: string, 
     if (typeof draft?.title !== "string" || draft.title.length > 160 ||
         typeof draft.body !== "string" || draft.body.length > 20_000 ||
         !isCommunityCategory(draft.category) || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') ||
+        (draft.tagIds!==undefined&&!validCommunityTags(draft.tagIds)) ||
         (draft.problemId!==undefined&&(typeof draft.problemId!=='string'||draft.problemId.length>200||!/^([a-z0-9_-]+\/[a-z0-9_-]+)?$/.test(draft.problemId))) ||
         (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return undefined;
-    return { title: draft.title, body: draft.body, category: draft.category, ...(draft.problemId!==undefined?{problemId:draft.problemId}:{}), ...(draft.anonymous?{anonymous:true}:{}), ...(draft.paperUrl !== undefined ? { paperUrl: draft.paperUrl } : {}) };
+    return { ...(draft.tagIds?{tagIds:[...draft.tagIds]}:{}), title: draft.title, body: draft.body, category: draft.category, ...(draft.problemId!==undefined?{problemId:draft.problemId}:{}), ...(draft.anonymous?{anonymous:true}:{}), ...(draft.paperUrl !== undefined ? { paperUrl: draft.paperUrl } : {}) };
   } catch { return undefined; }
 }
 
 export function writePostDraft(storage: DraftStorage | undefined, owner: string, scope: string, draft: PostDraft): boolean {
-  if (!storage || !owner || !scope || (draft.problemId!==undefined&&(typeof draft.problemId!=='string'||draft.problemId.length>200||!/^([a-z0-9_-]+\/[a-z0-9_-]+)?$/.test(draft.problemId))) || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') || (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return false;
+  if (!storage || !owner || !scope || (draft.tagIds!==undefined&&!validCommunityTags(draft.tagIds)) || (draft.problemId!==undefined&&(typeof draft.problemId!=='string'||draft.problemId.length>200||!/^([a-z0-9_-]+\/[a-z0-9_-]+)?$/.test(draft.problemId))) || (draft.anonymous!==undefined&&typeof draft.anonymous!=='boolean') || (draft.paperUrl !== undefined && (typeof draft.paperUrl !== "string" || draft.paperUrl.length > 2048))) return false;
   try {
     if (hasDraft(draft)) {
       storage.setItem(draftKey(owner, scope), JSON.stringify({ version: 1, owner, scope, draft }));
@@ -41,7 +42,7 @@ export function writePostDraft(storage: DraftStorage | undefined, owner: string,
 /** A delayed publish must not erase a newer draft created after navigation. */
 export function clearPublishedDraft(storage: DraftStorage | undefined, owner: string, scope: string, submitted: PostDraft): boolean {
   const saved = readPostDraft(storage, owner, scope);
-  if (!saved || saved.title !== submitted.title || saved.body !== submitted.body || saved.category !== submitted.category || (saved.paperUrl || '') !== (submitted.paperUrl || '') || !!saved.anonymous!==!!submitted.anonymous || saved.problemId!==submitted.problemId) return false;
+  if (!saved || saved.title !== submitted.title || saved.body !== submitted.body || saved.category !== submitted.category || (saved.paperUrl || '') !== (submitted.paperUrl || '') || !!saved.anonymous!==!!submitted.anonymous || saved.problemId!==submitted.problemId || JSON.stringify(saved.tagIds||[])!==JSON.stringify(submitted.tagIds||[])) return false;
   try { storage!.removeItem(draftKey(owner, scope)); return true; }
   catch { return false; }
 }

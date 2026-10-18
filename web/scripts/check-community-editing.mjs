@@ -44,7 +44,7 @@ export async function checkCommunityEditing(server) {
   assert.equal(edits.readPostEdit(storage,'bob','post'),undefined);
   storage.setItem(edits.postEditKey('alice','other'),storage.getItem(edits.postEditKey('alice','post')));
   assert.equal(edits.readPostEdit(storage,'alice','other'),undefined,'A copied envelope cannot move an edit to another post');
-  for(const change of [{title:'x'.repeat(181)},{body:'x'.repeat(20001)},{category:'unknown'},{baseVersion:'wrong'},{body:4}]) {
+  for(const change of [{title:'x'.repeat(181)},{body:'x'.repeat(20001)},{category:'../unknown'},{baseVersion:'wrong'},{body:4}]) {
     assert(!edits.writePostEdit(storage,'alice','post',{...draft,...change}));
   }
   const newer={...draft,body:'Newer draft after returning to the thread'};

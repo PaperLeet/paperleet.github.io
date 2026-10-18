@@ -16,6 +16,7 @@ export type PoolProposal = {
   arxiv_url: string;
   prompt?: string;
   status: string;
+  maintainer_review?: {approved:boolean;version:number|null;reason?:string;reviewed_at?:string|null};
   reason?: string;
   created_at: string;
   updated_at: string;

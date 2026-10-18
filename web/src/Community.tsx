@@ -1,3 +1,7 @@
+import {useCommunityTaxonomy} from './useCommunityTaxonomy';
+import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
+import PostTags from './PostTags';
+import './community-taxonomy.css';
 import PostSearchMatch from './PostSearchMatch';
 import {sourcePostReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
@@ -156,7 +160,8 @@ function TopicContext({ topic, discussion = false, solutions=false,practiceRetur
 }
 function Category({ value }: { value: string }) {
   const { t } = useI18n();
-  const c = value === "solutions" ? {zh:"题解",en:"Solution"} : CATEGORIES.find((c) => c.id === value);
+  const taxonomy=useCommunityTaxonomy();
+  const c = value === "solutions" ? {zh:"题解",en:"Solution"} : taxonomy.data.boards.find((c) => c.id === value);
   return (
     <span className="community-category">{c ? t(c.zh, c.en) : value}</span>
   );
@@ -243,6 +248,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
           <InlinePostBody postId={post.id} body={post.body} limit={190} query={searchQuery}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
+          <PostTags post={post} returnTo={returnTo}/>
           <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}>
             <PostBookmark key={`${post.id}:${user?.id||'guest'}`} postId={post.id} owner={user?.id||''} bookmarked={bookmarked}
               enabled={capabilities?.community_bookmarks===true} returnTo={postHref(post.id,returnTo)} disabled={accountLoading} hidden={accountLoading}
@@ -289,6 +295,7 @@ function Composer({
   onBackgroundPublish?: (post:Post) => void;
 }) {
   const { t, locale } = useI18n();
+  const taxonomy=useCommunityTaxonomy();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading&&(!solution||capabilities?.community_solutions===true);
   const anonymousAvailable=capabilities?.community_anonymous_posts===true;
@@ -391,7 +398,7 @@ function Composer({
       : t("草稿仅保存在本标签页，发布后才会公开。", "Drafts stay in this tab and become public only when published.");
   function discardDraft() {
     writingEdit.current=undefined;setWritingNotice('');
-    edit({ title: "", body: "", category: initialCategory, paperUrl: "", anonymous:false });
+    edit({ tagIds:[], title: "", body: "", category: initialCategory, paperUrl: "", anonymous:false });
     setDiscardRequested(false);
     setPreview(false);
   }
@@ -400,6 +407,8 @@ function Composer({
     const submitted = { ...currentDraft.current };
     previous ||= publication&&samePublication(publication.receipt,postPublication(submitted,topic?.id,solution))?publication.receipt:undefined;
     if(!previous&&publicationBlocked)return;
+    if(!previous&&submitted.tagIds?.length&&!taxonomy.supported){setError(t('标签服务暂不可用，草稿已保留。','Tags are unavailable. Your draft is kept.'));return;}
+    if(!previous&&taxonomy.supported&&(!taxonomy.ready||!taxonomy.data.boards.some(row=>row.id===submitted.category&&row.enabled))){setError(t('请等待版位配置加载，或选择仍开放的版位。','Wait for board settings or choose an open board.'));return;}
     if(solution&&!previous&&!topic&&!topics.some(row=>row.id===submitted.problemId&&!row.retired)){setError(t("请选择题解对应的题目。","Choose the practice module for your solution."));return;}
     if(!previous&&!hasCommunityDraftContent(submitted.body)){setError(t('提纲已准备好，请补充自己的问题、观察或思考后再发布。','Your outline is ready. Add your own question, observations or thoughts before publishing.'));return;}
     const paperUrl = previous ? previous.payload.paper_url : (submitted.category === 'papers' ? submitted.paperUrl : undefined);
@@ -496,14 +505,16 @@ function Composer({
         <label>
           {t("版块", "Category")}
           <select value={board} disabled={busy||solution} aria-describedby={categoryHint ? categoryHintId : undefined} onChange={(e) => edit({ category: e.target.value })}>
-            {CATEGORIES.map((c) => (
-              <option key={c.id} value={c.id}>
+            {!taxonomy.data.boards.some(row=>row.id===board)&&<option value={board} disabled>{board}</option>}
+            {taxonomy.data.boards.filter(row=>row.enabled||row.id===board).map((c) => (
+              <option key={c.id} value={c.id} disabled={!c.enabled}>
                 {t(c.zh, c.en)}
               </option>
             ))}
           </select>
           {categoryHint && <small id={categoryHintId}>{t(...categoryHint)}</small>}
         </label>
+        <TaxonomyStatus/><CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/>
         {board === 'papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl => edit({ paperUrl })} owner={owner} available={papersAvailable} required={papersAvailable} disabled={busy} onUseTitle={paperTitle => edit({ title: paperTitle.slice(0, 160) })} />}
         <label>
           {t("标题", "Title")}
@@ -563,10 +574,12 @@ type CommunityProps = {
   onCode?:()=>void;
   practiceCode?:SolutionCodeSource;
 };
+const AdminWorkspace=deferredFeature(()=>import('./AdminWorkspace'),['管理员工作台','administration']);
 const ModerationQueue=deferredFeature(()=>import('./ModerationQueue'),['举报审核','report review']);
 const ReportHistory=deferredFeature(()=>import('./ReportHistory'),['举报记录','report history']);
 export default function Community({ postId, route, ...scope }: CommunityProps) {
   const { user } = useAccount();
+  if(route?.replace(/^#\/?/,'').split(/[/?]/).slice(0,2).join('/')==='community/admin')return <AdminWorkspace key={user?.id||'guest'} route={route}/>;
   if(route==='community/moderation')return <ModerationQueue/>;
   if(route?.replace(/^#\/?/,'').split('?')[0]==='community/reports')return <ReportHistory route={route}/>;
   return postId ? (
@@ -587,6 +600,8 @@ export function ProblemDiscussions({topic,onCode}:{topic:ProblemTopic;onCode:()=
 }
 function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, reloadCatalog, topics, embedded=false, onCode,practiceCode }: Omit<CommunityProps, "postId">) {
   const { t, locale } = useI18n();
+  const taxonomy=useCommunityTaxonomy();
+  const configuredBoards=taxonomy.data.boards.map(row=>({...row,icon:CATEGORIES.find(item=>item.id===row.id)?.icon||MessagesSquare}));
   const { user, capabilities, loading: accountLoading } = useAccount();
   const solutions=readCommunityFeed(route||"")?.state.solutions===true;
   const solutionAvailable=capabilities?.community_solutions===true;
@@ -596,7 +611,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const draftScope = (topicId || "general")+(solutions?":solutions":"");
   const [draftAvailable, setDraftAvailable] = useState(() => !!(user && readPostDraft(tabDraftStorage(), user.id, draftScope)));
   const filters = embedded?localFilters:readCommunityFeed(route || (topicId ? topicHref(topicId) : 'community'))?.state || emptyCommunityFeed();
-  const { category, following, search, page, sort, days } = filters;
+  const { category, tag, following, search, page, sort, days } = filters;
   const saved = filters.saved === true;
   const sortingAvailable = capabilities?.community_feed_sorting === true;
   const sortingUnavailable = !!sort && !accountLoading && !sortingAvailable;
@@ -608,7 +623,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const feedAccessReady = (!following || !!user) && (!saved || !!user && savedAvailable && !accountLoading);
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
-  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
+  const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
   const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
@@ -647,6 +662,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     setFailure(undefined);
     const params = new URLSearchParams({
       category,
+      ...(tag?{tag}:{}),
       q: search,
       ...(sort ? {sort} : {}),
       ...(days ? {days} : {}),
@@ -671,9 +687,10 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       live=false;controller.abort();
       setFailure({requestKey,kind:'timeout'});setLoading(false);
     },COMMUNITY_FEED_TIMEOUT);
-    socialApi<Page<Post> & {sort?:string;solutions?:boolean;days?:string}>(`community/posts?${params}`,undefined,controller.signal)
+    socialApi<Page<Post> & {sort?:string;solutions?:boolean;days?:string;tag?:string}>(`community/posts?${params}`,undefined,controller.signal)
       .then((data) => {
         if (!live) return;
+        if(tag&&(data?.tag!==tag||data.items?.some(post=>!post.tags?.some(item=>item.id===tag))))throw Error(t('暂时无法确认标签筛选，请重试。','Could not confirm this tag filter. Please retry.'));
         if(days&&data?.days!==days)throw Error(t('暂时无法确认发布时间筛选，请重试。','Could not confirm the publication period. Please retry.'));
         if(embedded&&!solutions&&data&&Array.isArray(data.items)&&((topicId&&data.items.some(post=>post.problem_id!==topicId))||(data.solutions!==undefined&&data.solutions!==false)))throw Error(t('暂时无法确认本题讨论的范围，请重试。','Could not confirm the discussion scope for this problem. Please retry.'));
         if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort) || (solutions && (data.solutions!==true || data.items.some(post=>post.solution!==true || !post.problem_id || (topicId && post.problem_id!==topicId))))) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
@@ -681,7 +698,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         if (page > lastPage) {
           redirected = true;
           if(embedded){setLocalFilters(previous=>({...previous,page:lastPage}));return;}
-          location.replace(communityFeedHref(topicId, { category, following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), ...(days?{days}:{}), search, page: lastPage }));
+          location.replace(communityFeedHref(topicId, { category, ...(tag?{tag}:{}), following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), ...(days?{days}:{}), search, page: lastPage }));
           return;
         }
         setData({ ...data, requestKey,generation });
@@ -697,7 +714,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     return () => {
       live = false; clearTimeout(timer); controller.abort();
     };
-  }, [category, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded, days, periodUnavailable]);
+  }, [category, tag, following, saved, savedGate, waitingForSavedAccount, search, offset, user?.id, retry, topicId, sort, accountLoading, sortingAvailable, sortingUnavailable, solutions, solutionUnavailable, solutionAvailable, embedded, days, periodUnavailable]);
   const FeedRoot=embedded?"section":"main";
   return (
     <FeedRoot ref={reading.container} className={embedded?`problem-community ${solutions?'problem-solutions':'problem-discussions'} community-page`:"social-page community-page"}>
@@ -723,7 +740,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {t("所有讨论", "All discussions")}
               </button>
               <button type="button" className={solutions?"selected":""} aria-pressed={solutions} onClick={()=>choose({solutions:true,category:""})}><Code2 size={17}/>{t("题解","Solutions")}</button>
-              {CATEGORIES.map((c) => (
+              {configuredBoards.filter(row=>row.enabled||row.id===category).map((c) => (
                 <button
                   key={c.id}
                   className={!solutions&&category === c.id ? "selected" : ""}
@@ -773,6 +790,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>}
             </div>
             <div className="community-feed-controls">
+              <TaxonomyStatus/>{(taxonomy.data.tags.length>0||tag)&&<label>{t("标签","Tag")}<select aria-label={t("按标签筛选","Filter by tag")} value={tag||""} onChange={e=>choose({tag:e.target.value||undefined})}><option value="">{t("全部标签","All tags")}</option>{tag&&!taxonomy.data.tags.some(row=>row.id===tag)&&<option value={tag}>{tag}</option>}{taxonomy.data.tags.filter(row=>row.enabled||row.id===tag).map(row=><option key={row.id} value={row.id}>{t(row.zh,row.en)}</option>)}</select></label>}
               <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
               {sortingAvailable && <label className="community-sort" htmlFor="community-feed-sort"><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id="community-feed-sort" aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
@@ -780,7 +798,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </select></label>}
             </div>
           </div>
-          <CommunityFeedFilters filters={filters} onChange={change=>{
+          <CommunityFeedFilters boards={taxonomy.data.boards} tags={taxonomy.data.tags} filters={filters} onChange={change=>{
             // Keep keyboard focus on a stable control group when a chip disappears.
             // Synchronous intent cannot override a later route/account/editor action.
             toolbar.current?.focus({preventScroll:true});choose(change);
@@ -1116,6 +1134,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,catalogL
               </div>
             </div>
             {post.interview && <InterviewMeta details={post.interview} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
+            <PostTags post={post} returnTo={returnTo}/>
             <DiscussionReading body={post.body} postId={post.id} />
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">

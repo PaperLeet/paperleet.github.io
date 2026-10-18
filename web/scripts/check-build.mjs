@@ -37,6 +37,8 @@ for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
 for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/WorkspaceTestResults.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx', 'src/ProblemOverview.tsx']) {
   assert(manifest[key]?.isDynamicEntry && !initial.has(key), `${key} must load with practice rather than the library`);
 }
+const administration=Object.entries(manifest).filter(([,entry])=>entry.name==='AdminWorkspace'&&entry.isDynamicEntry);
+assert(administration.length===1&&!initial.has(administration[0][0]), 'Administrator workspace must remain uniquely deferred');
 const moderation=Object.entries(manifest).filter(([,entry])=>entry.name==='ModerationQueue'&&entry.isDynamicEntry);
 assert(moderation.length===1&&!initial.has(moderation[0][0]), 'Administrator report review must stay deferred');
 const history=Object.entries(manifest).filter(([,entry])=>entry.name==='ReportHistory'&&entry.isDynamicEntry);
@@ -70,7 +72,7 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
-for(const selector of ['.moderation-layout','.post-report-dialog','.report-history-card','.moderation-comparison']){
+for(const selector of ['.admin-workspace','.community-tag-picker','.moderation-layout','.post-report-dialog','.report-history-card','.moderation-comparison']){
   assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(selector)), 'Report interfaces must stay out of initial styles');
   assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes(selector))), 'Report interfaces must ship their deferred styles');
 }

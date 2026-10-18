@@ -49,12 +49,12 @@ export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
       if(event.key==='ArrowDown'){event.preventDefault();setOpen(true);}
     }}>{user?<Avatar user={user} size={32}/>:<span className="guest-avatar" aria-hidden="true"><UserRound size={18}/></span>}</button>
     {open&&<section className="account-menu-panel" ref={panel} tabIndex={-1} id={id} role="dialog" aria-label={t('个人菜单','Personal menu')}>
-      <AccountMenuContent {...props} user={user} loading={loading} savedAvailable={capabilities?.community_bookmarks===true} moderationAvailable={capabilities?.community_reports===true} reportsAvailable={capabilities?.community_report_history===true} onClose={()=>{close();trigger.current?.focus({preventScroll:true});}}/>
+      <AccountMenuContent {...props} user={user} loading={loading} savedAvailable={capabilities?.community_bookmarks===true} adminAvailable={capabilities?.admin_workspace===true} moderationAvailable={capabilities?.community_reports===true} reportsAvailable={capabilities?.community_report_history===true} onClose={()=>{close();trigger.current?.focus({preventScroll:true});}}/>
     </section>}
   </div>;
 }
 
-export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onBackup,backupReady,savedAvailable=false,moderationAvailable=false,reportsAvailable=false}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void;savedAvailable?:boolean;moderationAvailable?:boolean;reportsAvailable?:boolean}) {
+export function AccountMenuContent({user,loading,onClose,returnTo='',theme='light',onTheme,onBackup,backupReady,savedAvailable=false,moderationAvailable=false,reportsAvailable=false,adminAvailable=false}:HeaderAccountMenuProps&{user:AccountUser|null;loading:boolean;onClose:()=>void;savedAvailable?:boolean;moderationAvailable?:boolean;reportsAvailable?:boolean;adminAvailable?:boolean}) {
   const {locale,setLocale,t}=useI18n();
   const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好和游客草稿自动保存在当前浏览器','Preferences and guest drafts save in this browser')}</small></span>{user&&<ChevronRight size={16}/>}</>;
   return <>
@@ -71,7 +71,7 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
     </div>
     <div className="account-menu-links">
       {user&&reportsAvailable&&<a className="account-menu-row" href={hostedAppHref('#/community/reports')} onClick={onClose}><Flag size={16}/><span>{t('我的举报','My reports')}</span><ChevronRight size={14}/></a>}
-      {user?.role==='admin'&&moderationAvailable&&<a className="account-menu-row" href={hostedAppHref('#/community/moderation')} onClick={onClose}><Flag size={16}/><span>{t('社区举报审核','Community reports')}</span><ChevronRight size={14}/></a>}
+      {!loading&&user?.role==='admin'&&(!user.status||user.status==='active')&&(moderationAvailable||adminAvailable)&&<a className="account-menu-row" href={hostedAppHref(adminAvailable?'#/community/admin':'#/community/moderation')} onClick={onClose}><Flag size={16}/><span>{adminAvailable?t('管理员工作台','Administration'):t('社区举报审核','Community reports')}</span><ChevronRight size={14}/></a>}
       {user&&<a className="account-menu-row" href={hostedAppHref('#/drafts')} onClick={onClose}><FilePenLine size={16}/><span>{t('创作草稿','Writing drafts')}</span><ChevronRight size={14}/></a>}
       {hostedAppAvailable&&<a className="account-menu-row" href="#/favorites" onClick={onClose}><Bookmark size={16}/><span>{t("收藏与题单","Saved problems & lists")}</span><ChevronRight size={14}/></a>}
       {user&&savedAvailable&&<a className="account-menu-row" href={hostedAppHref('#/interviews?saved=1&days=all')} onClick={onClose}><Bookmark size={16}/><span>{t('收藏面经','Saved interviews')}</span><ChevronRight size={14}/></a>}
