@@ -11,3 +11,5 @@ Validation:
 - Chrome preview confirms the flat 18-exercise list, course return link and whole-course module picker, including opening Attention from the foundation exercise. The local hosted preview cannot authenticate against the production API; no production submissions were made.
 
 The accompanying classic-foundations PR was merged with fresh exports for StrideTorch 0.66. Native `paperleet ci --budget 600` passes all 85 modules, 11,349 executions over three repetitions, in 269.11 seconds. Real Pyodide 0.29.4 / NumPy 2.2.5 runs pass ResNet (9 tests, 6 mutants), BatchNorm (11 tests, 6 mutants) and VAE (10 tests, 7 mutants).
+
+Full frontend `npm run check` passes. Before publication, current main advanced StrideTorch to 0.67; the source was integrated and all 85 exports regenerated. All three new exercises pass complete real WASM reference/mutant/learner checks again on 0.67, and the catalog, immutable bundle and course-navigation checks pass after regeneration.
