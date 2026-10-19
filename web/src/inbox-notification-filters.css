@@ -1,0 +1,11 @@
+.inbox-notification-filters{padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface)}
+.inbox-filter-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.inbox-filter-controls>label{display:flex;align-items:center;gap:7px;flex:none;min-height:44px;color:var(--text-secondary);font-size:var(--type-small)}
+.inbox-filter-controls>label>svg{color:var(--muted)}
+.inbox-filter-controls>select{flex:1 1 140px;min-width:0;max-width:100%;min-height:44px;padding:8px 28px 8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--text);font:inherit;font-size:var(--type-control)}
+.inbox-filter-controls>button{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:none;min-height:44px;min-width:44px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text-secondary);font:inherit;font-size:var(--type-small)}
+.inbox-filter-controls :is(select,button):hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.inbox-filter-controls :is(select,button):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.inbox-filter-controls :disabled{opacity:.55;cursor:not-allowed}
+.inbox-notification-filters>p{margin:8px 0 0;color:var(--muted);font-size:var(--type-caption);line-height:1.7;overflow-wrap:anywhere}
+@media(prefers-reduced-motion:no-preference){.inbox-filter-controls :is(select,button){transition:background-color .15s,border-color .15s,color .15s}}

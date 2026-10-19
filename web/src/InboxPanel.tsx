@@ -1,113 +1,110 @@
 import ReviewNotification from './ReviewNotification';
 import AppLink from './AppLink';
 import InboxListRefresh from './InboxListRefresh';
-import {inboxListUpdate} from './inboxListUpdate';
+import InboxNotificationFilters from './InboxNotificationFilters';
+import {confirmInboxFilter,inboxSnapshotPath} from './inboxNotificationQuery';
+import {inboxListUpdate,replaceInboxNotifications} from './inboxListUpdate';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Bell, CheckCheck, Heart, MessageCircle, Repeat2, UserPlus } from 'lucide-react';
 import { Avatar, DateLabel, errorMessage, profileHref, useAccount } from './social';
 import { useI18n } from './i18n';
 import { communityPostHref } from './communityNavigation';
-import { applyInboxReadAll, inboxChanged, inboxRequest, messagesHref, useInboxPolling, useInboxReadAll, type InboxCounts, type InboxNotification, type InboxSnapshot } from './inbox';
+import { applyInboxReadAll, inboxChanged, inboxRequest, messagesHref, useInboxPolling, useInboxReadAll, type InboxCounts, type InboxNotification, type InboxNotificationKind, type InboxSnapshot } from './inbox';
 import InboxReadAll from './InboxReadAll';
 import {navigateTabs} from './tabNavigation';
 
 export type InboxPanelProps = {owner: string; notifications: boolean; messages: boolean; onCounts: (counts: InboxCounts) => void};
-export default function InboxPanel({owner, notifications, messages, onCounts}: InboxPanelProps) {
-  const {t} = useI18n();
-  const {capabilities} = useAccount();
-  const readAllAvailable = capabilities?.inbox_read_all === true, reviewsAvailable=capabilities?.inbox_reviews===true;
-  const panelId = useId();
-  const [tab, setTab] = useState<'notifications' | 'messages'>(notifications ? 'notifications' : 'messages');
-  const [data, setData] = useState<InboxSnapshot>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [more, setMore] = useState(false), [snapshotLoading, setSnapshotLoading] = useState(true), [readingId,setReadingId]=useState<string>(),[marked,setMarked]=useState(false),[readError,setReadError]=useState('');
-  const alive = useRef(true), manual = useRef<AbortController | undefined>(undefined), revision = useRef(0);
-  const currentData=useRef(data),replacing=useRef(false);
-  const [changed,setChanged]=useState(false);
-  useLayoutEffect(()=>{currentData.current=data;},[data]);
-  useEffect(() => { alive.current = true; return () => { alive.current = false; manual.current?.abort(); }; }, []);
-  async function refresh(signal?: AbortSignal,replace=false) {
-    if(!replace&&replacing.current)return;
-    const version = ++revision.current;
-    if(!currentData.current||replace)setSnapshotLoading(true);
-    try {
-      const next = await inboxRequest<InboxSnapshot>(owner, 'inbox?limit=20'+(reviewsAvailable?'&reviews=1':''), undefined, signal);
-      if (signal?.aborted || !alive.current || version !== revision.current) return;
-      if(reviewsAvailable&&next.reviews_included!==true)throw Error('Review notifications could not be confirmed.');
+export default function InboxPanel(props:InboxPanelProps){return <AccountInboxPanel key={props.owner} {...props}/>;}
+function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPanelProps) {
+  const {t}=useI18n(),{capabilities,user,loading}=useAccount();
+  const readAllAvailable=capabilities?.inbox_read_all===true,reviewsAvailable=capabilities?.inbox_reviews===true,filtersAvailable=capabilities?.inbox_notification_filters===true;
+  const visibleOwner=user?.id===owner&&!loading;
+  const panelId=useId(),root=useRef<HTMLDivElement>(null),href=useRef(location.href);
+  const [tab,setTab]=useState<'notifications'|'messages'>(notifications?'notifications':'messages'),[selectedKind,setKind]=useState<InboxNotificationKind>('all');
+  const kind=filtersAvailable&&(selectedKind!=='review'||reviewsAvailable)?selectedKind:'all',scope=`${filtersAvailable}/${reviewsAvailable}/${kind}`;
+  const [data,setData]=useState<InboxSnapshot>(),[loadedScope,setLoadedScope]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[more,setMore]=useState(false),[snapshotLoading,setSnapshotLoading]=useState(true),[readingId,setReadingId]=useState<string>(),[marked,setMarked]=useState(false),[readError,setReadError]=useState(''),[changed,setChanged]=useState(false);
+  const alive=useRef(true),manual=useRef<AbortController|undefined>(undefined),revision=useRef(0),currentData=useRef(data),currentScope=useRef(scope),confirmedScope=useRef(loadedScope),replacing=useRef(false),account=useRef({id:user?.id,loading});
+  useLayoutEffect(()=>{currentData.current=data;currentScope.current=scope;confirmedScope.current=loadedScope;account.current={id:user?.id,loading};},[data,scope,loadedScope,user?.id,loading]);
+  useEffect(()=>{alive.current=true;return()=>{alive.current=false;manual.current?.abort();};},[]);
+  useEffect(()=>{if(selectedKind!==kind)setKind(kind);},[selectedKind,kind]);
+  function canAct(){return alive.current&&account.current.id===owner&&!account.current.loading&&location.href===href.current&&!!root.current?.isConnected&&!root.current.closest('[hidden],[inert],[aria-hidden="true"]');}
+  const ready=loadedScope===scope;
+  async function refresh(signal?:AbortSignal,replace=false,manualRead=false){
+    if(!canAct()||!replace&&!manualRead&&replacing.current)return;
+    const version=++revision.current,requestedScope=scope;
+    if(!currentData.current||replace||confirmedScope.current!==scope)setSnapshotLoading(true);
+    try{
+      const next=await inboxRequest<InboxSnapshot>(owner,inboxSnapshotPath(kind,filtersAvailable,reviewsAvailable),undefined,signal);
+      if(signal?.aborted||!canAct()||currentScope.current!==requestedScope||version!==revision.current)return;
+      confirmInboxFilter(next,kind,filtersAvailable,reviewsAvailable);
       const current=currentData.current;
-      if(current&&!replace){const update=inboxListUpdate(current,next);setData(update.snapshot);setChanged(update.changed);}
+      if(current&&!replace){const update=confirmedScope.current===scope?inboxListUpdate(current,next):replaceInboxNotifications(current,next);setData(update.snapshot);setChanged(update.changed);}
       else{setData(next);setChanged(false);}
-      onCounts(next); setError('');
-    } catch (e) { if (!signal?.aborted && alive.current && version === revision.current) setError(errorMessage(e)); }
-    finally { if(replace&&!signal?.aborted)replacing.current=false; if (!signal?.aborted && alive.current && version === revision.current) setSnapshotLoading(false); }
+      confirmedScope.current=scope;setLoadedScope(scope);onCounts(next);setError('');
+    }catch(e){if(!signal?.aborted&&canAct()&&currentScope.current===requestedScope&&version===revision.current)setError(errorMessage(e));}
+    finally{if((replace||manualRead)&&!signal?.aborted)replacing.current=false;if(!signal?.aborted&&alive.current&&currentScope.current===requestedScope&&version===revision.current)setSnapshotLoading(false);}
   }
-  const readAll = useInboxReadAll({owner, snapshot: data, available: readAllAvailable, blocked: snapshotLoading || busy || more, onRead: (counts, cutoff) => {
-    ++revision.current; replacing.current=false;manual.current?.abort(); setSnapshotLoading(false); setMore(false); onCounts(counts);
-    setData(current => current ? applyInboxReadAll(current, counts, cutoff) : current);
+  const readAll=useInboxReadAll({owner,snapshot:data,available:readAllAvailable,blocked:!ready||snapshotLoading||busy||more,canAct,onRead:(counts,cutoff)=>{
+    ++revision.current;replacing.current=false;manual.current?.abort();setSnapshotLoading(false);setMore(false);onCounts(counts);setData(current=>current?applyInboxReadAll(current,counts,cutoff):current);
   }});
-  useInboxPolling(owner, refresh, !readAll.busy && !busy && !more);
-  const retry = () => { manual.current?.abort(); manual.current = new AbortController(); setMore(false);replacing.current=true; void refresh(manual.current.signal,true); };
+  useInboxPolling(owner,refresh,visibleOwner&&!readAll.busy&&!busy&&!more,scope);
+  const retry=()=>{if(!canAct()||busy||readAll.busy)return;manual.current?.abort();manual.current=new AbortController();setMore(false);replacing.current=true;void refresh(manual.current.signal,confirmedScope.current===scope,true);};
   const reading=useRef(false),readAttempt=useRef<{notification?:Pick<InboxNotification,'id'|'latest_event_id'>;cutoff:number;includeReviews:boolean}|undefined>(undefined);
-  async function read(notification?: Pick<InboxNotification,'id'|'latest_event_id'>,through?:number,includeReviews?:boolean) {
-    if (!data || busy || readAll.busy || snapshotLoading || replacing.current || more || reading.current) return;
-    const cutoff = through ?? notification?.latest_event_id ?? data.observed_event_id,include=includeReviews??data.reviews_included===true;
-    ++revision.current;
-    reading.current=true;readAttempt.current={notification,cutoff,includeReviews:include};setReadError('');setBusy(true);setReadingId(notification?.id);setMarked(false);
-    try {
-      const counts = await inboxRequest<InboxCounts>(owner, 'inbox/read', {through_event_id: cutoff,...(include?{include_reviews:true}:{}), ...(notification ? {notification_ids: [notification.id]} : {})});
-      if (alive.current) {
-        ++revision.current;
-        onCounts(counts); setError('');setReadError('');setMarked(true);
-        setData(current => current ? {...current, ...counts, notifications: current.notifications.map(item =>
-          item.latest_event_id <= cutoff && (item.kind!=='review'||include) && (!notification || item.id === notification.id) ? {...item, unread: false} : item)} : current);
+  function changeKind(next:InboxNotificationKind){
+    if(!canAct()||busy||reading.current||readAll.busy||!filtersAvailable||next===kind||next==='review'&&!reviewsAvailable)return;
+    ++revision.current;manual.current?.abort();replacing.current=false;setMore(false);setSnapshotLoading(true);setError('');setReadError('');setMarked(false);readAttempt.current=undefined;setKind(next);
+  }
+  async function read(notification?:Pick<InboxNotification,'id'|'latest_event_id'>,through?:number,includeReviews?:boolean){
+    if(!canAct()||!ready||!data||busy||readAll.busy||snapshotLoading||replacing.current||more||reading.current)return;
+    const cutoff=through??notification?.latest_event_id??data.observed_event_id,include=includeReviews??data.reviews_included===true;
+    ++revision.current;reading.current=true;readAttempt.current={notification,cutoff,includeReviews:include};setReadError('');setBusy(true);setReadingId(notification?.id);setMarked(false);
+    try{
+      const counts=await inboxRequest<InboxCounts>(owner,'inbox/read',{through_event_id:cutoff,...(include?{include_reviews:true}:{}),...(notification?{notification_ids:[notification.id]}:{})});
+      if(canAct()){
+        ++revision.current;onCounts(counts);setError('');setReadError('');setMarked(true);
+        setData(current=>current?{...current,...counts,notifications:current.notifications.map(item=>item.latest_event_id<=cutoff&&(item.kind!=='review'||include)&&(!notification||item.id===notification.id)?{...item,unread:false}:item)}:current);
       }
       inboxChanged(owner);
-    } catch (e) { if (alive.current) setReadError(errorMessage(e)); }
-    finally { reading.current=false;if (alive.current){setBusy(false);setReadingId(undefined);} }
+    }catch(e){if(canAct())setReadError(errorMessage(e));}
+    finally{reading.current=false;if(alive.current){setBusy(false);setReadingId(undefined);}}
   }
   useEffect(()=>{
     const attempt=readAttempt.current;if(!readError||busy||!attempt?.notification)return;
     const item=data?.notifications.find(row=>row.id===attempt.notification!.id);
     if(item?.latest_event_id===attempt.notification.latest_event_id&&!item.unread){setReadError('');setMarked(true);}
   },[data,readError,busy]);
-  async function loadMore() {
-    const before = tab === 'notifications' ? data?.notifications_next_before : data?.conversations_next_before;
-    if (!before || more || busy || readAll.busy || snapshotLoading || replacing.current) return;
-    manual.current?.abort(); const controller = new AbortController(); manual.current = controller;
-    const version = ++revision.current;
-    setMore(true);
-    try {
-      const next = await inboxRequest<InboxSnapshot>(owner, `inbox?limit=20&${tab === 'notifications' ? 'notifications' : 'conversations'}_before=${before}${reviewsAvailable?'&reviews=1':''}`, undefined, controller.signal);
-      if (controller.signal.aborted || !alive.current || version !== revision.current) return;
-      if(reviewsAvailable&&next.reviews_included!==true)throw Error('Review notifications could not be confirmed.');
-      setData(current => current ? tab === 'notifications' ? {...current, notifications: [...current.notifications, ...next.notifications.filter(item => !current.notifications.some(old => old.id === item.id))], notifications_next_before: next.notifications_next_before}
-        : {...current, conversations: [...current.conversations, ...next.conversations.filter(item => !current.conversations.some(old => old.id === item.id))], conversations_next_before: next.conversations_next_before} : next);
+  async function loadMore(){
+    const section=tab,before=section==='notifications'?data?.notifications_next_before:data?.conversations_next_before;
+    if(!canAct()||!ready||!before||more||busy||readAll.busy||snapshotLoading||replacing.current)return;
+    manual.current?.abort();const controller=new AbortController();manual.current=controller;const version=++revision.current,requestedScope=scope;setMore(true);
+    try{
+      const next=await inboxRequest<InboxSnapshot>(owner,inboxSnapshotPath(kind,filtersAvailable,reviewsAvailable,{section,value:before}),undefined,controller.signal);
+      if(controller.signal.aborted||!canAct()||currentScope.current!==requestedScope||version!==revision.current)return;
+      confirmInboxFilter(next,kind,filtersAvailable,reviewsAvailable);
+      setData(current=>current?section==='notifications'?{...current,notifications:[...current.notifications,...next.notifications.filter(item=>!current.notifications.some(old=>old.id===item.id))],notifications_next_before:next.notifications_next_before}:{...current,conversations:[...current.conversations,...next.conversations.filter(item=>!current.conversations.some(old=>old.id===item.id))],conversations_next_before:next.conversations_next_before}:next);
       setError('');
-    } catch (e) { if (!controller.signal.aborted && alive.current && version === revision.current) setError(errorMessage(e)); }
-    finally { if (alive.current && version === revision.current) setMore(false); }
+    }catch(e){if(!controller.signal.aborted&&canAct()&&version===revision.current)setError(errorMessage(e));}
+    finally{if(alive.current&&version===revision.current)setMore(false);}
   }
+  if(!visibleOwner)return null;
   return <>
-    <header className="inbox-panel-heading"><div className="inbox-panel-title"><h2>{t('收件箱', 'Inbox')}</h2>{messages && <AppLink href={messagesHref()}>{t('打开私信', 'Open messages')}</AppLink>}</div>{readAllAvailable && <InboxReadAll action={readAll}/>}</header>
-    <div className="inbox-tabs" role="tablist" aria-label={t('消息类型', 'Inbox sections')} onKeyDown={event => {
-      if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;
-      navigateTabs(event);
-    }}>
-      {notifications && <button type="button" role="tab" id={`${panelId}-notifications`} aria-controls={panelId} tabIndex={tab === 'notifications' ? 0 : -1} aria-selected={tab === 'notifications'} onClick={() => setTab('notifications')}>{t('通知', 'Notifications')}{!!data?.notification_unread_count && <span>{data.notification_unread_count}</span>}</button>}
-      {messages && <button type="button" role="tab" id={`${panelId}-messages`} aria-controls={panelId} tabIndex={tab === 'messages' ? 0 : -1} aria-selected={tab === 'messages'} onClick={() => setTab('messages')}>{t('私信', 'Messages')}{!!data?.message_unread_count && <span>{data.message_unread_count}</span>}</button>}
+    <header className="inbox-panel-heading"><div className="inbox-panel-title"><h2>{t('收件箱','Inbox')}</h2>{messages&&<AppLink href={messagesHref()}>{t('打开私信','Open messages')}</AppLink>}</div>{readAllAvailable&&<InboxReadAll action={readAll}/>}</header>
+    <div ref={root} className="inbox-tabs" role="tablist" aria-label={t('消息类型','Inbox sections')} onKeyDown={event=>{if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||!canAct())return;navigateTabs(event);}}>
+      {notifications&&<button type="button" role="tab" id={`${panelId}-notifications`} aria-controls={panelId} tabIndex={tab==='notifications'?0:-1} aria-selected={tab==='notifications'} onClick={()=>{if(canAct())setTab('notifications');}}>{t('通知','Notifications')}{!!data?.notification_unread_count&&<span>{data.notification_unread_count}</span>}</button>}
+      {messages&&<button type="button" role="tab" id={`${panelId}-messages`} aria-controls={panelId} tabIndex={tab==='messages'?0:-1} aria-selected={tab==='messages'} onClick={()=>{if(canAct())setTab('messages');}}>{t('私信','Messages')}{!!data?.message_unread_count&&<span>{data.message_unread_count}</span>}</button>}
     </div>
-    {data&&<InboxListRefresh changed={changed} busy={snapshotLoading||busy||more||readAll.busy} onRefresh={retry}/>}
+    {tab==='notifications'&&filtersAvailable&&<InboxNotificationFilters kind={kind} reviews={reviewsAvailable} disabled={busy||readAll.busy} controls={panelId} readAll={readAllAvailable} canAct={canAct} onChange={changeKind}/>}
+    {data&&<InboxListRefresh changed={ready&&changed} busy={!ready||snapshotLoading||busy||more||readAll.busy} onRefresh={retry}/>}
     <span className="sr-only" role="status">{marked?t('通知已标为已读。','Notifications marked as read.'):null}</span>
-    {error && <div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试', 'Retry')}</button></div>}
-    {readError&&<div className="inbox-error inbox-notification-read-error" role="alert"><p>{readError}</p><button type="button" disabled={busy||readAll.busy||snapshotLoading||more} onClick={()=>void read(readAttempt.current?.notification,readAttempt.current?.cutoff,readAttempt.current?.includeReviews)}>{t('重试标记已读','Retry mark as read')}</button></div>}
-    {!data && !error && <p className="inbox-empty" role="status">{t('正在加载…', 'Loading…')}</p>}
-    {data && <div className="inbox-tab-content" role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${tab}`}>
-      {tab === 'notifications' ? <>
-        {!readAllAvailable && <button type="button" className="inbox-mark-read" disabled={busy || snapshotLoading || !data.notification_unread_count} onClick={() => void read()}><CheckCheck size={14}/>{busy ? t('正在标记…', 'Marking…') : t('将通知标为已读', 'Mark notifications as read')}</button>}
-        {data.notifications.length ? <ul className="inbox-items">{data.notifications.map(item => <li key={item.id}><NotificationRow notification={item} onRead={() => { if (item.unread) void read(item); }} onMarkRead={()=>void read(item)} disabled={busy||readAll.busy||snapshotLoading||more} marking={readingId===item.id}/></li>)}</ul>
-          : <div className="inbox-empty"><Bell size={26}/><p>{changed?t('当前列表没有通知','No notifications in this list'):t('还没有通知', 'No notifications yet')}</p><small>{t('回复、点赞和新关注会显示在这里。', 'Replies, likes and new followers will appear here.')}</small></div>}
-      </> : data.conversations.length ? <ul className="inbox-items">{data.conversations.map(item => <li key={item.id}><AppLink className={`inbox-item${item.unread_count ? ' unread' : ''}`} href={messagesHref(item.peer.username)}>
-        <Avatar user={item.peer} size={36}/><span className="inbox-item-copy"><b>{item.peer.display_name}</b><span className="inbox-message-preview">{item.last_message.sender_id === owner ? t('你：', 'You: ') : ''}{item.last_message.body}</span><DateLabel value={item.last_message.created_at}/></span>
-        {item.unread_count > 0 && <span className="inbox-count" aria-label={t(`${item.unread_count} 条未读`, `${item.unread_count} unread`)}>{item.unread_count}</span>}
-      </AppLink></li>)}</ul> : <div className="inbox-empty"><MessageCircle size={26}/><p>{changed?t('当前列表没有私信','No messages in this list'):t('还没有私信', 'No messages yet')}</p><small>{t('可以从对方的个人主页发起私信。', 'Start a conversation from someone’s profile.')}</small></div>}
-      {(tab === 'notifications' ? data.notifications_next_before : data.conversations_next_before) && <button type="button" className="inbox-more" disabled={more || busy || readAll.busy || snapshotLoading} onClick={() => void loadMore()}>{more ? t('正在加载…', 'Loading…') : t('加载更多', 'Load more')}</button>}
+    {error&&<div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试','Retry')}</button></div>}
+    {readError&&<div className="inbox-error inbox-notification-read-error" role="alert"><p>{readError}</p><button type="button" disabled={busy||readAll.busy||!ready||snapshotLoading||more} onClick={()=>void read(readAttempt.current?.notification,readAttempt.current?.cutoff,readAttempt.current?.includeReviews)}>{t('重试标记已读','Retry mark as read')}</button></div>}
+    {(!data||tab==='notifications'&&!ready)&&!error&&<p className="inbox-empty" role="status">{t('正在加载…','Loading…')}</p>}
+    {data&&<div className="inbox-tab-content" role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${tab}`} aria-busy={!ready||snapshotLoading}>
+      {tab==='notifications'?ready&&<>
+        {!readAllAvailable&&<button type="button" className="inbox-mark-read" disabled={busy||snapshotLoading||!data.notification_unread_count} onClick={()=>void read()}><CheckCheck size={14}/>{busy?t('正在标记…','Marking…'):t('将通知标为已读','Mark notifications as read')}</button>}
+        {data.notifications.length?<ul className="inbox-items">{data.notifications.map(item=><li key={item.id}><NotificationRow notification={item} onRead={()=>{if(item.unread)void read(item);}} onMarkRead={()=>void read(item)} disabled={busy||readAll.busy||snapshotLoading||more} marking={readingId===item.id}/></li>)}</ul>:<div className="inbox-empty"><Bell size={26}/><p>{kind!=='all'?t('还没有这类通知','No notifications of this type'):changed?t('当前列表没有通知','No notifications in this list'):t('还没有通知','No notifications yet')}</p><small>{kind!=='all'?t('切换通知类型，或清除筛选查看全部。','Choose another type, or clear the filter to see all.'):t('回复、点赞和新关注会显示在这里。','Replies, likes and new followers will appear here.')}</small></div>}
+      </>:data.conversations.length?<ul className="inbox-items">{data.conversations.map(item=><li key={item.id}><AppLink className={`inbox-item${item.unread_count?' unread':''}`} href={messagesHref(item.peer.username)}><Avatar user={item.peer} size={36}/><span className="inbox-item-copy"><b>{item.peer.display_name}</b><span className="inbox-message-preview">{item.last_message.sender_id===owner?t('你：','You: '):''}{item.last_message.body}</span><DateLabel value={item.last_message.created_at}/></span>{item.unread_count>0&&<span className="inbox-count" aria-label={t(`${item.unread_count} 条未读`,`${item.unread_count} unread`)}>{item.unread_count}</span>}</AppLink></li>)}</ul>:<div className="inbox-empty"><MessageCircle size={26}/><p>{changed?t('当前列表没有私信','No messages in this list'):t('还没有私信','No messages yet')}</p><small>{t('可以从对方的个人主页发起私信。','Start a conversation from someone’s profile.')}</small></div>}
+      {ready&&(tab==='notifications'?data.notifications_next_before:data.conversations_next_before)&&<button type="button" className="inbox-more" disabled={more||busy||readAll.busy||snapshotLoading} onClick={()=>void loadMore()}>{more?t('正在加载…','Loading…'):t('加载更多','Load more')}</button>}
     </div>}
   </>;
 }

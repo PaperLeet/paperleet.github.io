@@ -7,10 +7,11 @@ export type InboxNotification = {
   unread: boolean; actor_count: number; actors: PublicUser[]; post: {id: string; title: string} | null;
   reply_id: string | null; preview: string; review?:unknown;
 };
+export type InboxNotificationKind='all'|InboxNotification['kind'];
 export type DirectMessage = { id: number; sender_id: string; body: string; created_at: string; request_id?: string };
 export type Conversation = { id: number; peer: PublicUser; last_message: DirectMessage; unread_count: number; can_send: boolean; awaiting_reply: boolean; is_mutual_follow: boolean };
 export type InboxSnapshot = InboxCounts & {
-  reviews_included?:boolean; observed_event_id: number; observed_message_id?: number; notifications: InboxNotification[]; notifications_next_before: number | null;
+  notification_kind?:InboxNotificationKind;reviews_included?:boolean; observed_event_id: number; observed_message_id?: number; notifications: InboxNotification[]; notifications_next_before: number | null;
   conversations: Conversation[]; conversations_next_before: number | null;
 };
 export type MessageThread = {
@@ -49,8 +50,8 @@ export function applyInboxReadAll(snapshot: InboxSnapshot, counts: InboxCounts, 
     conversations: snapshot.conversations.map(item => item.last_message.id <= cutoff.through_message_id ? {...item, unread_count: 0} : item)};
 }
 
-export function useInboxReadAll({owner, snapshot, available, blocked, onRead}: {
-  owner: string; snapshot?: InboxSnapshot; available: boolean; blocked: boolean;
+export function useInboxReadAll({owner, snapshot, available, blocked, onRead, canAct}: {
+  owner: string; snapshot?: InboxSnapshot; available: boolean; blocked: boolean;canAct?:()=>boolean;
   onRead: (counts: InboxCounts, cutoff: InboxReadCutoff) => void;
 }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [result, setResult] = useState<InboxCounts>();
@@ -66,7 +67,7 @@ export function useInboxReadAll({owner, snapshot, available, blocked, onRead}: {
   }, [owner, snapshot, busy]);
   const ready = available && !!inboxReadCutoff(snapshot);
   async function mark() {
-    if (!ready || blocked || running.current || !snapshot?.unread_count) return;
+    if (!ready || blocked || running.current || !snapshot?.unread_count || canAct?.()===false) return;
     const cutoff = pending.current || inboxReadCutoff(snapshot)!;
     pending.current = cutoff;
     running.current = true; setBusy(true); setError(''); setResult(undefined);
@@ -74,7 +75,7 @@ export function useInboxReadAll({owner, snapshot, available, blocked, onRead}: {
     try {
       const counts = await inboxRequest<InboxCounts>(owner, 'inbox/read-all', cutoff, controller.signal);
       if (controller.signal.aborted) return;
-      pending.current = undefined; onRead(counts, cutoff); setResult(counts);
+      pending.current = undefined; if(canAct?.()!==false){onRead(counts, cutoff); setResult(counts);}
       inboxChanged(owner);
     } catch (e) { if (!controller.signal.aborted) setError(errorMessage(e)); }
     finally { running.current = false; if (!controller.signal.aborted) setBusy(false); }
@@ -83,7 +84,7 @@ export function useInboxReadAll({owner, snapshot, available, blocked, onRead}: {
 }
 
 /** Pause background refreshes when hidden/offline and abort every obsolete read. */
-export function useInboxPolling(owner: string, refresh: (signal: AbortSignal) => Promise<void>, enabled = true) {
+export function useInboxPolling(owner: string, refresh: (signal: AbortSignal) => Promise<void>, enabled = true, scope = '') {
   const latest = useRef(refresh);
   latest.current = refresh;
   useEffect(() => {
@@ -112,5 +113,5 @@ export function useInboxPolling(owner: string, refresh: (signal: AbortSignal) =>
       window.removeEventListener('offline', run);
       window.removeEventListener(inboxChangedEvent, changed);
     };
-  }, [owner, enabled]);
+  }, [owner, enabled, scope]);
 }
