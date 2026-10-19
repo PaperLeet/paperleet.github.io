@@ -25,10 +25,8 @@ import {
   Check,
   CheckCircle2,
   Code2,
-  LockKeyhole,
   Loader2,
   Play,
-  Terminal,
   X,
   XCircle,
 } from "lucide-react";
@@ -641,7 +639,7 @@ function Workspace() {
         />
       ) : loadError ? (
         <main className="load-error">
-          <Terminal size={35} />
+          <AlertCircle size={35} aria-hidden="true"/>
           <h2>{t("题库暂时不可用", "Catalog unavailable")}</h2>
           <p>{loadError}</p>
           <button className="button" onClick={loadCatalog}>
@@ -775,14 +773,14 @@ function Workspace() {
                         {key === "description" ? (
                           <WorkspacePanelIcon name="file" size={14} />
                         ) : key === "result" ? (
-                          <Terminal size={14} />
+                          <WorkspacePanelIcon name="terminal" size={14}/>
                         ) : key === "lab" ? (
                           <WorkspacePanelIcon name="lab" size={14} />
                         ) : key === "discussion" ? (
                           <WorkspacePanelIcon name="discussion" size={14} />
                         ) : key === "notes" &&
                           !notesUnlocked ? (
-                          <LockKeyhole size={12} />
+                          <WorkspacePanelIcon name="lock" size={12}/>
                         ) : null}
                         {label}
                       </button>
@@ -799,7 +797,7 @@ function Workspace() {
                   !notesUnlocked ? (
                     <div className="empty-state">
                       <div className="empty-icon">
-                        <LockKeyhole size={25} />
+                        <WorkspacePanelIcon name="lock" size={25}/>
                       </div>
                       <h3>
                         {t(
@@ -875,7 +873,7 @@ function Workspace() {
               </RetainedReadingPane>}
               <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
                 <div className="workspace-result-heading" role="status">
-                  <Terminal size={17} aria-hidden="true" /><h2>{t("结果", "Result")}</h2>
+                  <WorkspacePanelIcon name="terminal" size={17}/><h2>{t("结果", "Result")}</h2>
                   <span>{running ? t("运行中…", "Running…") : browserRunStopped ? t("已停止", "Stopped") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
                 </div>
                 <div id="problem-results-content">

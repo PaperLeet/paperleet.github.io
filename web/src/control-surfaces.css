@@ -98,3 +98,5 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 
 .library-column-short{display:none}
 @media(max-width:700px){.paper-library .library-column-sort.paper-year{display:none}.paper-library .library-column-sort[data-sort-column=difficulty] .library-column-label{display:none}.paper-library .library-column-short{display:inline}}
+
+.library-company-column-marker{visibility:hidden}

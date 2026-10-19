@@ -12,6 +12,15 @@ export function libraryInterviewPreviewScope(href:string,sourceHref:string):stri
  if(interviewHref(source)!==expected)return;
  return libraryHref(library.collectionId,library.filters);
 }
+export type LibraryExerciseSourceScope={concept:string;company:string;days:InterviewFilters['days']};
+/** General-library evidence is authorized by the caller's validated problem/company/period cohort. */
+export function libraryExercisePreviewScope(href:string,sourceHref:string,cohort:LibraryExerciseSourceScope):string|undefined{
+ const library=readLibraryRoute(href),source=readInterviewRoute(sourceHref);
+ if(!library||library.filters.company||!cohort.company||!['30','90','365','all'].includes(cohort.days)||!source||!interviewSourceRequest(sourceHref))return;
+ const expected=interviewHref({...emptyInterviewFilters(),concept:cohort.concept,company:cohort.company,days:cohort.days});
+ if(interviewHref(source)!==expected)return;
+ return libraryHref(library.collectionId,library.filters);
+}
 export function interviewSourceHref(filters:InterviewFilters,concept:string){
   return interviewHref({...filters,view:'reports',page:1,q:'',concept,saved:false,queue:'',study:'all',company_order:'catalog'});
 }
