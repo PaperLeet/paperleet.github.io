@@ -54,12 +54,12 @@ function useFavorites(refreshOnMount=false){
   useEffect(()=>store?watchFavorites(store,owner):undefined,[store,owner]);
   return {...account,state,store};
 }
-type ButtonProps={problemId:string;returnTo?:string;label?:string;canSave?:boolean};
+type ButtonProps={problemId:string;returnTo?:string;label?:string;canSave?:boolean;problemName?:string;showStudyLists?:boolean;canAct?:()=>boolean};
 export function ProblemFavoriteButton(props:ButtonProps){
   const {user}=useAccount();
   return hostedAppAvailable?<FavoriteControl key={(user?.id||'guest')+':'+props.problemId} {...props}/>:null;
 }
-function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:ButtonProps){
+function FavoriteControl({problemId,returnTo='favorites',label,canSave=true,problemName,showStudyLists=true,canAct}:ButtonProps){
   const {t}=useI18n(),{user,loading,capabilities,state,store,refresh}=useFavorites();
   const [checking,setChecking]=useState(false),[authError,setAuthError]=useState(''),[recovering,setRecovering]=useState(false);
   const actionButton=useRef<HTMLButtonElement>(null),recoveryFocus=useRef<{opener:Element|null;href:string}|undefined>(undefined);
@@ -75,12 +75,13 @@ function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:But
     try{await refresh();}catch(error){setAuthError(error instanceof Error?error.message:String(error));}finally{setChecking(false);}
   }
   async function retryLoad(){setRecovering(true);try{await store?.refresh();}finally{setRecovering(false);}}
+  const describe=(value:string)=>problemName?value+t('：',': ')+problemName:value;
   if(!loading&&capabilities&&!capabilities.problem_bookmarks)return null;
-  if(!loading&&!user)return <AppLink className="problem-favorite-button" href={hostedAppHref(signInHref(returnTo))} aria-label={t('登录后收藏题目','Sign in to save this problem')} title={t('登录后收藏题目','Sign in to save this problem')}><Bookmark size={16}/>{label&&<span>{label}</span>}</AppLink>;
+  if(!loading&&!user)return <AppLink className="problem-favorite-button" href={hostedAppHref(signInHref(returnTo))} onClick={event=>{if(canAct?.()===false||event.currentTarget.closest('[hidden],[aria-hidden="true"]'))event.preventDefault();}} aria-label={describe(t('登录后收藏题目','Sign in to save this problem'))} title={describe(t('登录后收藏题目','Sign in to save this problem'))}><Bookmark size={16}/>{label&&<span>{label}</span>}</AppLink>;
   const reloading=!!state.error||recovering,unavailable=!reloading&&!canSave&&!active&&!pending;
   const action=reloading?t('重试收藏加载','Retry saved problems'):unavailable?t('已移除，题目暂不可用','Removed; this problem is currently unavailable'):pending?.error?pending.active?t('重试收藏题目','Retry saving problem'):t('重试取消收藏','Retry removing saved problem'):active?t('取消收藏题目','Remove saved problem'):t('收藏题目','Save problem');
   return <div className="problem-favorite-control">
-    <button ref={actionButton} data-favorite-control={problemId} type="button" className="problem-favorite-button" aria-pressed={reloading?undefined:active} aria-disabled={unavailable||undefined} aria-busy={!!pending?.busy||recovering||undefined} aria-label={action} title={state.error||pending?.error||action} disabled={loading||checking||recovering||state.loading&&!state.snapshot||!!pending?.busy||!state.snapshot&&!state.error} onClick={()=>{if(unavailable)return;if(reloading)void retryLoad();else void store?.set(problemId,!active);}}>
+    <button ref={actionButton} data-favorite-control={problemId} type="button" className="problem-favorite-button" aria-pressed={reloading?undefined:active} aria-disabled={unavailable||undefined} aria-busy={!!pending?.busy||recovering||undefined} aria-label={describe(action)} title={state.error||pending?.error||describe(action)} disabled={loading||checking||recovering||state.loading&&!state.snapshot||!!pending?.busy||!state.snapshot&&!state.error} onClick={event=>{if(unavailable||canAct?.()===false||event.currentTarget.closest('[hidden],[aria-hidden="true"]'))return;if(reloading)void retryLoad();else void store?.set(problemId,!active);}}>
       {reloading?<RefreshCw size={16}/>:<Bookmark size={16} fill={active?'currentColor':'none'}/>}
       {label&&<span>{recovering?t('重试中…','Retrying…'):reloading?t('重试加载','Retry loading'):pending?.busy?t('保存中…','Saving…'):pending?.error?pending.active?t('重试收藏','Retry save'):t('重试取消','Retry removal'):label}</span>}
       {pending?.error&&!reloading&&<span className="favorite-retry-dot" aria-hidden="true">!</span>}
@@ -89,7 +90,7 @@ function FavoriteControl({problemId,returnTo='favorites',label,canSave=true}:But
     {pending?.error&&label&&<span className="favorite-feedback" role="status">{t('收藏操作未确认，请重试。','Bookmark unconfirmed. Please retry.')}
       {pending.accountError&&<><button type="button" data-favorite-control={problemId} className="text-button" disabled={checking} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><AppLink href={hostedAppHref(signInHref(returnTo))}>{t('重新登录','Sign in again')}</AppLink>{authError}</>}
     </span>}
-    <StudyListButton problemId={problemId} canSave={canSave}/>
+    {showStudyLists&&<StudyListButton problemId={problemId} canSave={canSave}/>}
   </div>;
 }
 

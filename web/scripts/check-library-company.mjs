@@ -171,6 +171,7 @@ try{
  console.log('PASS actual App direct exercise journey: canonical paged exercise route, numeric question lookup, exact practice/source return, retained page size, whole-scope navigator and next-module order across pages, direct toolbar return, native view-switch history Back and unchanged saved source/drafts with zero judge or publication');
  const {checkExerciseOrdering}=await import('./fixtures/exercise-ordering.mjs');await checkExerciseOrdering({fixture,catalog,nav,route,wait,click,field,editor,decodeProblemHash});
  const {checkExerciseCompanySources}=await import('./fixtures/exercise-company-sources.mjs');await checkExerciseCompanySources({fixture,catalog,nav,route,wait,click,summary});
+ const {checkExerciseFavorites}=await import('./fixtures/exercise-favorites.mjs');await checkExerciseFavorites({fixture,catalog,nav,route,wait,click,notify,editor,summary});
  const {checkInterviewFilterRecovery}=await import('./fixtures/interview-filter-recovery.mjs');await checkInterviewFilterRecovery({fixture,catalog,nav:await server.ssrLoadModule('/src/interviewNavigation.ts'),route,wait,click,field,notify,summary});
  const {checkCommunityPageRecovery}=await import('./fixtures/community-page-recovery.mjs');await checkCommunityPageRecovery({fixture,catalog,nav:await server.ssrLoadModule('/src/communityNavigation.ts'),route,wait,click,field,notify,http:process.env.PAPERLEET_COMMUNITY_PAGE_HTTP?{...JSON.parse(process.env.PAPERLEET_COMMUNITY_PAGE_HTTP),fetch:originals.get('fetch').value}:undefined});
  if(process.env.PAPERLEET_LIBRARY_COMPANY_HTTP){
