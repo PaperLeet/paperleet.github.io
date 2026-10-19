@@ -14,7 +14,7 @@ const { createRoot } = await import('react-dom/client');
 const server = await createServer({ cacheDir: 'node_modules/.vite-email-login-check', server: { middlewareMode: true, hmr: false, ws: false }, appType: 'custom',
   optimizeDeps: { noDiscovery: true, include: [] }, plugins: [{
     name: 'email-login-fixture', enforce: 'pre',
-    resolveId(source, importer) { if (source === './social' && importer?.endsWith('/Account.tsx')) return '\0email-login-fixture'; },
+    resolveId(source, importer) { if (source === './social' && (importer?.endsWith('/Account.tsx') || importer?.endsWith('/LoginSecurity.tsx'))) return '\0email-login-fixture'; },
     load(id) { if (id === '\0email-login-fixture') return `
       import React from 'react';
       export class SocialError extends Error { constructor(message,status,code){super(message);this.status=status;this.code=code;} }
@@ -102,6 +102,33 @@ try {
   let release; pending = new Promise(resolve => { release = resolve; }); await submit(); await submit(); assert.equal(requests.length, before + 1, 'Busy submits cannot send duplicate codes');
   await act(async () => release(response));
   assert(requests.every(request => !request.path.startsWith('account/affiliation/')), 'Sign-in and affiliation verification use separate flows');
+  // A single challenge protects OAuth, code sending and code verification.
+  const widgets = [], removed = [];
+  window.turnstile = { render(element, options) { widgets.push(options); return String(widgets.length); }, remove(id) { removed.push(id); } };
+  capabilities.turnstile_site_key = 'public-key';
+  await render({ organization: true });
+  assert.equal(container.querySelectorAll('.login-security').length, 1);
+  assert.equal(widgets.at(-1).sitekey, 'public-key'); assert.equal(widgets.at(-1).action, 'login');
+  assert(container.querySelector('.organization-login-button').disabled);
+  await change(email(), 'member@gmail.com'); before = requests.length; await submit();
+  assert.equal(requests.length, before, 'Programmatic form submit also fails without a challenge');
+  await act(async () => widgets.at(-1).callback('one-use-token'));
+  assert(!container.querySelector('.organization-login-button').disabled);
+  await submit();
+  assert.equal(requests.at(-1).payload.turnstile_token, 'one-use-token');
+  assert(container.querySelector('.organization-login-button').disabled, 'Sending a code consumes the challenge');
+  assert(removed.length > 0, 'Consumed widgets are replaced');
+  await act(async () => widgets.at(-1).callback('verification-token'));
+  await change(form().querySelector('input[autocomplete="one-time-code"]'), '123456');
+  response = { user: { id: 'verified' } }; await submit();
+  assert.equal(requests.at(-1).path, 'account/verify'); assert.equal(requests.at(-1).payload.turnstile_token, 'verification-token');
+  await act(async () => widgets.at(-1)['error-callback']());
+  assert(container.querySelector('.login-security [role=status]'));
+  await click(container.querySelector('.login-security button'));
+  assert(container.querySelector('.organization-login-button').disabled);
+  delete capabilities.turnstile_site_key;
+  await stop();
+  delete window.turnstile;
   console.log('PASS capability-gated personal email login: bilingual copy, four ordinary providers/domains, exact send/verify challenge, no publishing grant, legacy fallback, .edu OAuth choice, cooldown, disabled/unavailable and duplicate-send recovery');
 } finally {
   if (root) await act(async () => root.unmount());

@@ -1580,3 +1580,6 @@
 .problem-community :is(button,select,input,a):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .problem-community .community-composer { padding:18px; margin:0 0 20px; }
 @media(pointer:coarse) { .problem-community-heading :is(button,a) { min-height:44px; } }
+.login-security { margin: 0 0 1rem; min-width: 0; }
+.login-security > div { width: 100%; min-height: 65px; }
+.login-security p { font-size: .8rem; line-height: 1.5; }

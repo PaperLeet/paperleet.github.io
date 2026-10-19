@@ -84,7 +84,8 @@ export type AccountCapabilities = {
   interview_company_targets?: boolean;
   auth_available: boolean;
   auth_mode?: "institutional" | "test" | "oauth";
-  oauth_providers?: { id: "google" | "microsoft"; available: boolean }[];
+  oauth_providers?: { id: "google" | "microsoft" | "github"; available: boolean }[];
+  turnstile_site_key?: string;
   organization_account_required?: boolean;
   personal_account_waitlist?: boolean;
   test_login_available?: boolean;
