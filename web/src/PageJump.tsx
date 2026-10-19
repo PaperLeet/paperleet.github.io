@@ -2,7 +2,7 @@ import {useId,useRef,useState} from 'react';
 import {useI18n} from './i18n';
 import './page-jump.css';
 
-export default function PageJump({page,maxPage,onChange,label,className=''}:{page:number;maxPage:number;onChange:(page:number)=>void;label:string;className?:string}){
+export default function PageJump({page,maxPage,onChange,label,className='',controls}:{page:number;maxPage:number;onChange:(page:number)=>void;label:string;className?:string;controls?:string}){
  const {t}=useI18n(),id=useId(),input=useRef<HTMLInputElement>(null),composing=useRef(false),imeEnter=useRef(false);
  const [value,setValue]=useState(String(page)),[invalid,setInvalid]=useState(false);
  function jump(){
@@ -14,7 +14,7 @@ export default function PageJump({page,maxPage,onChange,label,className=''}:{pag
  }
  return <form className={`page-jump ${className}`} aria-label={label} onSubmit={event=>{event.preventDefault();jump();}}>
   <span id={id+'-hint'} className="sr-only">{t(`页码范围 1 至 ${maxPage}，Enter 跳转，Esc 恢复当前页。`,`Pages 1 to ${maxPage}. Enter to go; Escape to restore the current page.`)}</span>
-  <label><span>{t('前往','Go to')}</span><input ref={input} type="text" inputMode="numeric" enterKeyHint="go" autoComplete="off" maxLength={20} value={value} aria-label={t('跳转页码','Jump to page')} aria-invalid={invalid||undefined} aria-describedby={id+'-hint'+(invalid?' '+id+'-error':'')}
+  <label><span>{t('前往','Go to')}</span><input ref={input} type="text" inputMode="numeric" enterKeyHint="go" autoComplete="off" maxLength={20} value={value} aria-label={t('跳转页码','Jump to page')} aria-controls={controls} aria-invalid={invalid||undefined} aria-describedby={id+'-hint'+(invalid?' '+id+'-error':'')}
    onChange={event=>{setValue(event.target.value);setInvalid(false);}}
    onCompositionStart={()=>{composing.current=true;imeEnter.current=false;}}
    onCompositionEnd={()=>{composing.current=false;}}
