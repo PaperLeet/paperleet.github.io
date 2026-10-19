@@ -136,3 +136,17 @@ This moves the integration into the independent distribution. Stable GPU API
 commitments, wider operations/dtypes, public resident Tensor storage, task
 isolation and default dispatch remain future work. No CI, tag, publication or
 deployment is enabled. The full runtime improvement goal remains active.
+
+## Main adoption
+
+Commit `23db63ad55090488eb407666ebd4387c5df1a723` adopts the qualified package
+and compatibility entries on main. Direct remote-tree verification covers all
+27 feature paths, all 77 public package resources, the unchanged 66 CPU root
+resources, 183 active exports, seven release policies and 243 qualified input
+files. Four targeted frontend checks pass after integrating current main.
+
+Both feature and integration SHAs have zero workflow runs. Pages still uses the
+legacy `gh-pages` branch. No tag, publication or deployment was made.
+The [main adoption receipt](../../packages/stridetorch/benchmarks/results/webgpu-package-main-adoption.json)
+and [raw verification evidence](../../packages/stridetorch/benchmarks/results/webgpu-package-main-adoption-harness.tar.gz)
+record the guarded ordinary push and exact remote checks.
