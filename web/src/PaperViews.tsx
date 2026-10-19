@@ -191,8 +191,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       </div>
       {hasFilters&&<ActiveFilters filters={filters} categoryLabel={selectedCategory?t(selectedCategory.name,selectedCategory.name_en):category} onChange={change}/>}
       <div className="table-head paper-table-grid"><TableHeaders moduleView={moduleView} company={company} course={course} sort={sort} listId={listId} onSort={changeSort}/></div>
-      <div className="problem-rows" id={listId} aria-busy={waitingForStatus}>
-        {!waitingForStatus && (moduleView ? filteredModules.slice(offset,offset+size).map(module => <div className="paper-result-group" key={module.id}>
+      <div className="problem-rows" id={listId} role="list" aria-label={moduleView?t("练习列表","Exercise list"):t("论文列表","Paper list")} aria-busy={waitingForStatus}>
+        {!waitingForStatus && (moduleView ? filteredModules.slice(offset,offset+size).map((module,index) => <div className="paper-result-group" key={module.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}>
           <AppLink className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
             <StateIcon state={status(module,saved[module.id])} />
             <div className="problem-info paper-info"><strong><span>{module.number}.</span>{locale === "en" ? module.translations?.en?.title || module.title : module.title}</strong>{directModules&&<span className="library-module-source">{papers.find(paper=>paper.module_ids.includes(module.id))?.short_title}</span>}<small>{t(module.module.goal,module.module.goal_en)}</small></div>
@@ -201,11 +201,11 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <ChevronRight size={16} aria-hidden="true" />
           </AppLink>
           <CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={company?companyScope:undefined}/>
-        </div>) : filtered.slice(offset,offset+size).map((paper) => {
+        </div>) : filtered.slice(offset,offset+size).map((paper,index) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
-          return <div className="paper-result-group" key={paper.id}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
+          return <div className="paper-result-group" key={paper.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
             <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span>{paper.short_title}</strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}>{paper.title}</small></div>
             <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>

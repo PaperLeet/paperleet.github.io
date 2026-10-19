@@ -55,3 +55,19 @@ invalid and keyboard-focused inputs so it cannot replace their feedback color.
 The current refinement is checked with actual library pagination/filter and
 shared page-jump regression fixtures plus production builds. Physical browser
 geometry and native operating-system interactions remain unverified.
+
+Single-page results now retain the range and page-size control while omitting
+the inactive previous/next/number strip in both pagers. An outdated page still
+keeps the existing recovery path. Multi-page navigation groups its buttons on a
+quiet inset surface, with a separate current-page treatment and an error border
+that survives focus. The list exposes native result links inside list items,
+with absolute item positions and the full filtered count across pages. Locale
+changes keep those keyed rows and fields in place.
+
+Shared form controls use the existing readable control type size; native
+validation errors retain their border on hover and focus. Matching exercise
+links have padded targets, and focused result groups receive a subtle edge.
+React/JSDOM regression covers list roles/positions, native link semantics, the
+single-page size controls and all existing paged navigation scenarios. CSS has
+source review and production-build validation; physical browser layout and
+native operating-system interactions remain unverified.

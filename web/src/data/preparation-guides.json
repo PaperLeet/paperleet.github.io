@@ -3248,6 +3248,30 @@
             "en": "Add 1000 to masked post-anchor history: assembled inputs must stay unchanged. Permute objects and their masks together: outputs must permute likewise. Use different masks per example and verify gradients only at supervised predictions, with none into targets. This exercise excludes the visible anchor under the paper’s masking indicator; the released CLEVRER loop also supervises selected anchor slots."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "unequal-mask-shards",
+          "question": {
+            "zh": "不同样本遮蔽的对象数不同时，先算每个分片的损失再直接平均，是否等于整批损失？",
+            "en": "When examples mask different numbers of objects, does averaging independently computed shard losses recover the whole-batch loss?"
+          },
+          "hint": {
+            "zh": "取 H=2、T=3、S=2、D=1，两份单样本分片分别监督 1 个、2 个历史元素，平方误差分别为 [1]、[9,9]，未来误差全零。整批历史均值是 19/3，直接平均分片均值却是 (1+9)/2=5。应分别合并历史和未来的误差和及监督元素数，不能共用分母；无历史目标时仍按接口返回可微零。这里只讨论归约代数，不增加分布式接口。",
+            "en": "Use H=2, T=3, S=2, D=1 and two one-example shards with 1 and 2 supervised history elements. Let their squared errors be [1] and [9,9], with zero future errors. The whole-batch history mean is 19/3, while averaging shard means gives 5. Combine error sums and supervised-element counts separately for history and future. An empty history component keeps its differentiable-zero convention. This is reduction algebra, not a new distributed interface."
+          }
+        },
+        {
+          "id": "identical-anchor-symmetry",
+          "question": {
+            "zh": "若两个对象的身份锚点完全相同，且预测器对对象槽置换等变，是否总能预测出不同的未来状态？",
+            "en": "Can a deterministic slot-permutation-equivariant predictor always separate future states when two objects have identical identity anchors?"
+          },
+          "hint": {
+            "zh": "固定 B=1、H=1、T=2、S=2、D=1，两个首帧状态相同，且不提供对象序号编码。两个未来查询相同；交换对象槽不改变组装输入。确定性且置换等变的预测器因此必须输出相同标量 p。若未来目标为 0、2，未来 MSE=(p-1)²+1，最低为 1。这个反例额外假定预测器等变且没有其他身份信息，说明可观测性的限制，不给输入组装函数增加预测器要求，也不证明因果识别。",
+            "en": "Set B=1, H=1, T=2, S=2, D=1, equal first-frame states and no slot-index encoding. The future queries are identical, so swapping slots leaves assembled inputs unchanged. Deterministic permutation equivariance forces equal predictions p. Targets 0 and 2 give future MSE=(p-1)²+1, minimized at 1. This conditional counterexample assumes an equivariant predictor and no extra identity information; it does not add a predictor requirement to the assembly helper or establish causal identification."
+          }
+        }
       ]
     },
     {
@@ -3289,6 +3313,30 @@
           "hint": {
             "zh": "令 z0=2，动作是 [1,-2]，transition(z,a)=0.5*z+2*a，应得到 [3,-2.5]。末态对初态的梯度是 0.25，对两个动作是 [1,2]；后一个动作不应影响第一个预测。另检查 weight=0 时总损失等于预测项，并用 B≠T 的轨迹捕捉正则器转置错误。",
             "en": "Use z0=2, actions [1,-2] and transition(z,a)=0.5*z+2*a: predictions must be [3,-2.5]. The last state has gradient 0.25 with respect to z0 and [1,2] with respect to the actions; the later action must not affect the first prediction. Check total=prediction at weight=0, and use B≠T to expose incorrect regularizer axes."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "one-step-versus-rollout-error",
+          "question": {
+            "zh": "固定表征空间中的单步预测误差很小，是否足以保证长程潜在展开也准确？",
+            "en": "Does a small one-step error in fixed latent coordinates guarantee an accurate long autoregressive rollout?"
+          },
+          "hint": {
+            "zh": "比较真转移 f(z)=a·z 与近似转移 f_hat(z)=a·z+delta，二者从同一状态出发，动作取零且被忽略。每次使用真实上下文时误差都是 delta；递归展开却满足 e_(t+1)=a·e_t+delta，因此 e_H=delta·sum(j=0..H-1,a^j)。a=2、delta=0.1、H=3 时终态误差为 0.7。这个线性反例说明误差放大取决于动力学；它不是本题 toy 的泛化或规划性能测量。",
+            "en": "Compare f(z)=a·z with f_hat(z)=a·z+delta from the same initial state; take zero actions that both transitions ignore. Every true-context one-step error is delta, but recursive error obeys e_(t+1)=a·e_t+delta, hence e_H=delta·sum(j=0..H-1,a^j). For a=2, delta=0.1 and H=3, the terminal error is 0.7. This fixed-coordinate linear example illustrates dynamical amplification, not a measured generalization or planning result for the exercise toy."
+          }
+        },
+        {
+          "id": "joint-zero-stationary-point",
+          "question": {
+            "zh": "上下文和目标两条编码路径都保留梯度，是否意味着全零表征一定有非零的一阶逃离梯度？",
+            "en": "Do live context and target encoding paths guarantee a nonzero first-order escape gradient at an all-zero representation?"
+          },
+          "hint": {
+            "zh": "额外设预测器为 f(z,a)=Az，忽略动作，正则回调为本题固定方向和节点的 SIGReg，且正则权重为正。所有帧表征为零时，预测残差为零，两条预测路径及 A 的梯度都为零。SIGReg 此时损失为正但特征梯度为零，因此联合目标也可能是一阶驻点。这不是全局最优或通常初始化训练轨迹的结论；任意其他正则回调也未必有这个性质。",
+            "en": "Additionally assume f(z,a)=Az ignores actions and the callback is the fixed-direction/node SIGReg, with positive regularization weight. At zero embeddings, prediction residuals and both prediction-path gradients vanish, as does the A gradient. SIGReg has positive value but zero feature gradient there, so the joint objective can be first-order stationary. This does not establish global optimality or a typical training trajectory, and it need not hold for an arbitrary regularizer callback."
           }
         }
       ]
@@ -3334,6 +3382,30 @@
             "en": "Candidates [-1,1,5], costs [4,0,1] and K=2 must give indices [1,2], mean 3 and variance 4. Tied minima at K=1 select the smallest index and zero variance. Altering intermediate states must not change terminal cost. Transforming actions to 2a-3 transforms the mean likewise and multiplies variance by 4. Environment interaction and MPC replanning are outside these sampling kernels."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "diagonal-refit-loses-correlation",
+          "question": {
+            "zh": "每条精英计划都能到达目标，为什么独立的对角高斯重采样仍可能产生有误差的计划？",
+            "en": "Why can independent diagonal-Gaussian resampling produce bad plans even when every elite reaches the goal?"
+          },
+          "hint": {
+            "zh": "考虑两步标量加法动力学，初态与目标均为零，两个精英动作为 (1,-1)、(-1,1)。逐坐标重估得到均值 (0,0)、方差 (1,1)，却丢掉两步动作的负相关。若外部采样器独立采样这两个未裁剪的高斯坐标，终态和的方差为 2，期望终态平方代价也为 2；均值计划本身仍为零代价。数值 2 依赖这个未裁剪采样假设，不适用于 toy 的裁剪采样器；本题内核仍按约定只返回对角方差。",
+            "en": "Use two scalar additive steps, zero initial state/goal and elites (1,-1), (-1,1). Coordinate-wise refitting gives mean (0,0), variance (1,1), losing cross-time anticorrelation. If an external sampler draws these Gaussian coordinates independently without clipping, their terminal sum has variance 2 and expected squared terminal cost 2, although the mean plan has zero cost. The value 2 depends on that unclipped-sampler assumption, not the toy's clipped sampler. The kernel still returns the specified diagonal variance."
+          }
+        },
+        {
+          "id": "rank-only-cost-check-blindness",
+          "question": {
+            "zh": "若只检查选出的精英，为什么可能发现不了终态代价把特征求和误写成求平均？",
+            "en": "Why can an elite-selection-only check miss a terminal cost that incorrectly averages feature errors instead of summing them?"
+          },
+          "hint": {
+            "zh": "同一批候选的 D 固定，理想算术下 J/D 是对所有 J 的同一个正比例变换，排序与并列关系不变，所以精英索引、重估均值和方差都可能完全一样。例如误差向量 (1,1)、(2,0) 的正确代价是 2、4，错误均值为 1、2，但首选候选相同。应直接核对代价值及 D>1 的归约；外部阈值或混合其他代价后，缩放也可能改变行为。",
+            "en": "With fixed D across a batch, J/D is a common positive scaling in ideal arithmetic. Ordering and ties are unchanged, so elite indices and refitted moments can match exactly. Error vectors (1,1) and (2,0) have correct costs 2 and 4, versus incorrect means 1 and 2; the preferred candidate is the same. Check actual cost values and a D>1 reduction. External thresholds or additional cost terms can make the scaling change behavior."
+          }
+        }
       ]
     },
     {
@@ -3375,6 +3447,30 @@
           "hint": {
             "zh": "复制整批样本两遍，经验特征函数不变，但含 N 的损失应翻倍；反转切片方向不改变统计量。非对称样本能发现漏掉正弦项。全零特征应有正损失和零梯度，不能用“正损失一定有非零梯度”作断言。",
             "en": "Duplicating the batch preserves its empirical characteristic function but doubles this N-scaled loss. Slice sign reversal preserves it. Asymmetric samples expose a missing sine term. Exactly zero features have positive loss and zero gradient; positive loss alone does not imply an escape gradient."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "fixed-direction-nullspace",
+          "question": {
+            "zh": "给定投影方向没有张满特征空间时，SIGReg 能否约束未被这些方向看到的坐标？",
+            "en": "Can SIGReg constrain feature directions outside the span of its supplied projection columns?"
+          },
+          "hint": {
+            "zh": "令方向矩阵为 A，投影为 P=XA。若扰动 U 满足 UA=0，则 X+U 给出完全相同的投影与损失，特征梯度为 grad_X L=(grad_P L)Aᵀ。例 D=2、只给单位方向 (1,0)，任意修改第二列特征都不可见，该列梯度为零。这是固定方向在特征表上的线性盲区；不能由此把有限方向检查当作完整多维分布的识别保证。",
+            "en": "Write P=XA for the supplied direction matrix A. Any perturbation U with UA=0 leaves projections and loss unchanged, and grad_X L=(grad_P L)Aᵀ. For D=2 with only unit direction (1,0), arbitrary second-column changes are invisible and that feature-column gradient is zero. This is a feature-table blind subspace of fixed directions, not a guarantee that finite projections identify the entire multivariate distribution."
+          }
+        },
+        {
+          "id": "characteristic-function-shard-merge",
+          "question": {
+            "zh": "能否直接相加两个分片已经算好的 SIGReg，得到合并样本后的统计量？",
+            "en": "Can you sum independently computed shard SIGReg losses to obtain the concatenated-batch statistic?"
+          },
+          "hint": {
+            "zh": "固定相同方向、频率节点与高斯目标，设 w_i=N_i/(N1+N2)，复偏差 d_i=CF_i-phi。先按样本数合并 CF，才有全局偏差 w1·d1+w2·d2。恒等式 |w1d1+w2d2|²=w1|d1|²+w2|d2|²-w1w2|d1-d2|² 表明平方后的分片统计量缺少交叉项。乘总样本数并使用相同的正梯形权重后，全局统计量不大于两个 N_i 缩放统计量之和，但通常不相等；直接平均也不对。这里只推导统计归约，不实现通信。",
+            "en": "Fix common directions, frequency nodes and Gaussian target. Let w_i=N_i/(N1+N2) and complex deviations d_i=CF_i-phi. Merge CFs by sample count before squaring: |w1d1+w2d2|²=w1|d1|²+w2|d2|²-w1w2|d1-d2|². With the total sample factor and common positive trapezoid weights, the global statistic is no greater than the sum of the two N_i-scaled shard statistics, but generally differs. Direct averaging is also wrong. This derives the reduction, without implementing communication."
           }
         }
       ]
@@ -3420,6 +3516,30 @@
             "en": "Permuting samples preserves all terms; positive direction scaling also preserves them. Translating features affects only center. Views [[[0,2]],[[2,0]],[[5,-1]]] with G=2 yield anchor [1,1] and loss 4. Check anchor-path gradients into global views. At collapse, require finite forward values without assuming unique sorting derivatives."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "shape-stopgrad-versus-rebuild",
+          "question": {
+            "zh": "即使远离排序并列点，为什么重算前向值的数值导数也可能与 shape 项的停止梯度结果不一致？",
+            "en": "Why can derivatives of a rebuilt forward value disagree with the shape-term surrogate gradient even away from sorting ties?"
+          },
+          "hint": {
+            "zh": "只看 shape 项，取 N=2、D=K=1、方向为 1、z=(-a,a)，a>0。令 q=Phi_inverse(2/3)、r=a/(a+eps)，前向值为 (r-q)²。冻结当前标准差后的 a 梯度为 2(r-q)/(a+eps)；重建标准差的普通前向导数却是 2(r-q)eps/(a+eps)²。a=eps=1 时二者相差两倍。这里 eps 仍为合法正值，投影互异；不能用重建分母的导数替代题目要求的停止梯度。",
+            "en": "Isolate shape with N=2, D=K=1, direction 1 and z=(-a,a), a>0. Set q=Phi_inverse(2/3), r=a/(a+eps); its forward value is (r-q)². Freezing the current standard deviation gives a-gradient 2(r-q)/(a+eps), whereas the ordinary rebuilt-forward derivative is 2(r-q)eps/(a+eps)². At a=eps=1 they differ by a factor of two. Epsilon is still positive and projections are distinct. Rebuilding the denominator checks a different derivative from the required stop-gradient path."
+          }
+        },
+        {
+          "id": "shared-view-translation-gradient",
+          "question": {
+            "zh": "给所有视图加同一个偏移时，一致性损失为何不变？这能怎样检查全局视图均值的梯度？",
+            "en": "Why is view invariance unchanged by a shared translation, and how does that constrain gradients through the global-view mean?"
+          },
+          "hint": {
+            "zh": "共同偏移也会平移全局视图均值，所以每个残差不变，沿共同平移方向的梯度和应为零。取 V=3、N=2、D=1，三个视图各自的两个样本恒为 0、2、5，G=2。锚点均为 1、损失为 6；每个样本位置的三视图梯度是 (-1,-1/3,4/3)，和为零。若误把锚点冻结，则为 (-1/3,1/3,4/3)，不再抵消。这个关系只针对 view_invariance，不外推到 scale、shape 或 center 项。",
+            "en": "A shared translation shifts the global-view mean equally, leaving residuals fixed, so its directional gradient sum is zero. Use V=3, N=2, D=1: each view has two constant samples, respectively 0, 2, 5, with G=2. Anchors are 1 and loss is 6. At each sample position, the three view gradients are (-1,-1/3,4/3), summing to zero. Detaching the anchor gives (-1/3,1/3,4/3) instead. This relation concerns view_invariance, not scale, shape or center."
+          }
+        }
       ]
     },
     {
@@ -3461,6 +3581,30 @@
           "hint": {
             "zh": "一个同向 patch 和一个反向 patch，平均对齐为 0；完美速度预测且全部同向时，总目标是 -weight，负值合理。零教师 patch 贡献 0。范数高于 eps 时，分别给各 patch 乘正数或同时重排两边 patch，不应改变损失；亚 eps 向量应另用标量公式核对。",
             "en": "One aligned and one opposite patch average to zero. Perfect velocity prediction with fully aligned patches gives -weight, a valid negative objective. A zero teacher patch contributes zero. Above eps, positive independent patch scaling and joint patch permutation preserve loss; check sub-eps cases with a scalar formula."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "tangent-gradient-discrete-norm",
+          "question": {
+            "zh": "范数高于 eps 时，对齐梯度与学生 patch 正交，是否意味着离散梯度下降会保持 patch 范数？",
+            "en": "Above the norm floor, does a patch-orthogonal alignment gradient imply that discrete gradient descent preserves the student norm?"
+          },
+          "hint": {
+            "zh": "对一个 patch、0<eps<1，取 p=(1,0)、冻结 teacher=(0,1)。负余弦梯度是 g=(0,-1)，确有 p·g=0。但直接更新 patch 为 p-eta·g=(1,eta)，范数平方变成 1+eta²。切向的一阶方向不等于有限步长保范数；一般有 ||p-eta·g||²=||p||²+eta²||g||²。这里单独讨论对齐项和直接 patch 更新，不包含速度损失或参数化投影器的更新。",
+            "en": "For one patch and 0<eps<1, take p=(1,0), frozen teacher=(0,1). Negative-cosine gradient g=(0,-1) satisfies p·g=0. A direct patch update p-eta·g=(1,eta) has squared norm 1+eta². A first-order tangent direction does not preserve norm at finite step size: ||p-eta·g||²=||p||²+eta²||g||². This isolates alignment and a direct patch update, not velocity loss or updates through a parameterized projector."
+          }
+        },
+        {
+          "id": "zero-student-versus-zero-teacher",
+          "question": {
+            "zh": "学生 patch 为零时，对齐损失值为零，是否也意味着学生梯度为零？与教师为零有什么区别？",
+            "en": "If a zero student patch has zero alignment value, must its gradient also vanish, as it does with a zero teacher?"
+          },
+          "hint": {
+            "zh": "eps>0 时，零学生所在的小邻域使用固定分母 eps。若冻结教师归一化后为 z_bar，平均 BN 个 patch 后，该学生的梯度是 -z_bar/(BN·eps)，只要 z_bar 非零就不为零。教师 patch 为零则 z_bar=0，对应学生梯度也为零。学生范数低于 eps 时，前向对其缩放也不再具有通常的余弦尺度不变性。结论只针对对齐分支，教师本身始终不接收梯度。",
+            "en": "With eps>0, a neighborhood of a zero student uses constant denominator eps. For normalized frozen teacher z_bar and an average over BN patches, that student's gradient is -z_bar/(BN·eps), nonzero when z_bar is nonzero. A zero teacher has z_bar=0 and gives zero student gradient. Below the floor, scaling the student also need not preserve the forward alignment value. This isolates the alignment branch; teacher gradients remain blocked."
           }
         }
       ]
@@ -4509,6 +4653,30 @@
           "hint": {
             "zh": "一维 x=[1,1,0]、y=[2,10,3]、w=[2,.1,1]、tau=1，最优 s=2、目标 1.8，x=0 的常量项仍要计入。再测相同最小值选最小断点、全无有效系数、带 masked NaN 的已知尺度/z-shift 点图。全对齐只比较达到的目标值，可用独立二维直线排列 oracle；无需强制某个锚点。此小枚举不代表生产求解复杂度或单目重建质量。",
             "en": "For x=[1,1,0], y=[2,10,3], w=[2,.1,1] and cap=1, expect scale 2 and objective 1.8; the zero-coefficient constant still contributes. Check tied minima, no active coefficient and a known scale/z-shift point map with masked NaNs. Compare achieved full objectives against an independent line-arrangement oracle rather than a chosen anchor. Tiny enumeration does not establish production solver cost or reconstruction quality."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "untruncated-weighted-median",
+          "question": {
+            "zh": "不截断的一维尺度问题为何能解释成加权中位数？权重应是原 weight，还是还要乘别的量？",
+            "en": "Why is the untruncated scalar scale fit a weighted-median problem, and what are its effective weights?"
+          },
+          "hint": {
+            "zh": "对 x_i 非零且 w_i>0 的项，w_i|s·x_i-y_i|=w_i|x_i|·|s-y_i/x_i|，所以折点的有效权重是 w_i|x_i|；x_i=0 的项是常数。例 x=[1,1,10]、y=[0,1,20]、w 全 1，折点为 0、1、2，有效权重 1、1、10，最优 s=2、目标值 3；普通中位数 1 的目标值为 11。这个凸的中位数解释限于 trunc=None；截断后不能据此替代本题的全局候选比较。",
+            "en": "For x_i≠0, w_i>0, rewrite w_i|s·x_i-y_i|=w_i|x_i|·|s-y_i/x_i|. Effective breakpoint weights are w_i|x_i|; x_i=0 terms are constant. With x=[1,1,10], y=[0,1,20], unit weights, ratios are 0,1,2 with weights 1,1,10. The optimum s=2 has objective 3; ordinary median 1 gives 11. This convex median interpretation requires trunc=None and does not replace global candidate comparison for the capped objective."
+          }
+        },
+        {
+          "id": "coordinate-l1-rotation-bias",
+          "question": {
+            "zh": "预测点图与目标一起绕相机 z 轴旋转，是否保证最优 ROE 目标不变？",
+            "en": "Must the optimal ROE objective stay unchanged when prediction and target are jointly rotated around the camera z axis?"
+          },
+          "hint": {
+            "zh": "取 trunc=None、单个有效预测点 (0,0,0)、目标 (1,0,1)，目标深度与权重均为 1。任意尺度下取 z_shift=1，最小目标为 1。共同绕 z 轴旋转 45 度后，目标为 (1/sqrt(2),1/sqrt(2),1)，最小目标变为 sqrt(2)，深度权重没有改变。坐标 L1 具有轴方向依赖；不能把它当作旋转不变的欧氏距离。求解器仍只拟合共享尺度与 z 平移，不增加旋转参数。",
+            "en": "Take trunc=None, one valid prediction (0,0,0), target (1,0,1), depth/weight 1. Choosing z_shift=1 at any scale gives minimum objective 1. Jointly rotate 45 degrees around z: target becomes (1/sqrt(2),1/sqrt(2),1), and the minimum is sqrt(2), with the depth weight unchanged. Coordinate L1 depends on the axes, unlike a rotation-invariant Euclidean norm. The solver still fits only shared scale and z shift, without an added rotation parameter."
           }
         }
       ]
