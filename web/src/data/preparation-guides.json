@@ -1307,6 +1307,30 @@
             "en": "A single-token input needs a graph-connected zero. A different batch row must not alter the pairing, and the final logits row has no prediction target."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "vocabulary-permutation",
+          "question": {
+            "zh": "重排词表列时，为什么 token ID 必须一起重映射，损失才保持不变？",
+            "en": "Why must token IDs be remapped along with a permutation of vocabulary columns to preserve the loss?"
+          },
+          "hint": {
+            "zh": "若新列 j 来自旧列 pi(j)，旧目标 ID 必须映射到 pi 的逆映射。只移动 logits 列而保留原 token ID，就会改变被选中的目标分数。先用两个词交换编号，再检查序列内的错位配对与 batch 边界仍不变。",
+            "en": "If new column j contains old column pi(j), remap each old target ID through the inverse permutation. Moving logits columns alone changes the selected target score. Start with a two-word swap, preserving within-sequence shifts and batch boundaries."
+          }
+        },
+        {
+          "id": "row-shift-gradient",
+          "question": {
+            "zh": "给每个预测位置的所有词表 logits 加同一个常数，为什么损失不变？这给梯度提供什么检查？",
+            "en": "Why does adding one constant to every vocabulary logit at a prediction position preserve the loss, and what gradient check follows?"
+          },
+          "hint": {
+            "zh": "在精确算术下，logsumexp 与目标分数同时增加这个常数，差值不变；每个参与预测的词表行，其 logits 梯度之和应为零。不同位置可以用不同常数。实际检查仍需考虑浮点舍入，不能用溢出的平移制造非法输入。",
+            "en": "In exact arithmetic, logsumexp and the target score increase by the same constant, leaving their difference unchanged. Logit gradients sum to zero along each participating vocabulary row. Constants may differ across positions. Account for floating-point rounding and avoid shifts that overflow the finite-input contract."
+          }
+        }
       ]
     },
     {
@@ -1347,6 +1371,30 @@
           "hint": {
             "zh": "只应选中同时满足两种掩码的目标位置。检查被排除的预测与末尾 logits 梯度为零，并使用不等长回答验证归约。",
             "en": "Only targets admitted by both masks contribute. Check zero gradients for excluded predictors and final logits, and test reduction with unequal response lengths."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "prompt-context-gradient",
+          "question": {
+            "zh": "不对 prompt 目标计算损失，是否意味着 prompt 在完整模型里没有梯度作用？",
+            "en": "Does excluding prompt targets from the loss mean that the prompt has no gradient role in the full model?"
+          },
+          "hint": {
+            "zh": "这里排除的是某些目标对应的预测行；后续回答的预测仍可依赖 prompt 的 hidden states 或共享 embedding 参数。区分 logits 级的直接导数与模型内部经上下文路径传播的梯度。整数 token ID 本身不求导，本函数也不实现完整 Transformer。",
+            "en": "The loss excludes prediction rows for certain targets. Later answer predictions may still depend on prompt hidden states or shared embedding parameters. Distinguish direct logit derivatives from gradients through contextual model paths. Integer token IDs are not differentiated, and this function does not implement a full Transformer."
+          }
+        },
+        {
+          "id": "first-response-predecessor",
+          "question": {
+            "zh": "首个回答 token 前面是 prompt，为什么不能再要求前一位置的 response_mask 也为真？",
+            "en": "Why must the first answer token remain eligible even when its predecessor is a prompt with response_mask=False?"
+          },
+          "hint": {
+            "zh": "用三个 token：prompt、answer1、answer2，回答掩码为 [False,True,True]，attention 掩码全真。answer1 的目标位置 j=1 应使用 logits[:,0]。额外检查 response_mask[:,0] 会错误丢掉第一个回答目标；本题只检查目标位置的两种掩码。",
+            "en": "Use three tokens: prompt, answer1, answer2, with response mask [False,True,True] and all-true attention mask. Target j=1 uses logits[:,0]. Requiring response_mask[:,0] would wrongly remove the first answer target. This contract gates only the two masks at the target position."
           }
         }
       ]
@@ -1433,6 +1481,30 @@
             "en": "Construct hand-computable cumulative masses and check boundary membership and index order. Follow the specified higher-precision comparisons without arbitrary membership tolerances."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "nested-prefix-renormalization",
+          "question": {
+            "zh": "固定 logits、温度和并列规则时，增大 p 会移除原来保留的 token 吗？它们的输出概率会怎样？",
+            "en": "With fixed logits, temperature and tie rules, can increasing p remove a retained token, and how do its output probabilities change?"
+          },
+          "hint": {
+            "zh": "排序不变，最短保留前缀只会保持或延长。前缀未变时输出概率不变；若加入了正概率质量，原有项会因重新归一化的分母增大而变小。区分成员是否保留与概率数值是否不变，累计边界仍按题面精度处理。",
+            "en": "The ordering stays fixed, so the shortest retained prefix stays the same or grows. An unchanged prefix keeps the same output probabilities; adding positive mass increases the renormalization denominator and reduces earlier probabilities. Separate membership from numerical probability, following the specified precision for cumulative boundaries."
+          }
+        },
+        {
+          "id": "topk-pretruncation",
+          "question": {
+            "zh": "先做 top-k 再计算 top-p，只是一种等价的加速吗？",
+            "en": "Is applying top-k before top-p merely an equivalent acceleration?"
+          },
+          "hint": {
+            "zh": "设全词表概率为 [0.5,0.3,0.2]，p=0.6，本题保留前两项。若先保留 top-2 并归一化，首项变成 0.625，已独自达到 0.6；再做 top-p 就只剩一项。两条流程定义的分布不同，本题不能悄悄预裁剪词表后再计算候选。",
+            "en": "For full-vocabulary probabilities [0.5,0.3,0.2] and p=0.6, this exercise retains the first two. Keeping top-2 and renormalizing first raises the first probability to 0.625, so subsequent top-p retains only one. The pipelines define different distributions; silently truncating the vocabulary changes this exercise objective."
+          }
+        }
       ]
     },
     {
@@ -1475,6 +1547,30 @@
             "en": "Compare a full-batch update with merge-then-update, and check that input gradients stay unchanged. The function merges gradients of one parameter and does not run an optimizer."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "hierarchical-token-merge",
+          "question": {
+            "zh": "分两级合并 microbatch 时，为什么中间结果必须同时保留梯度均值与 token 总数？",
+            "en": "Why must a hierarchical microbatch merge retain both its mean gradient and total token count?"
+          },
+          "hint": {
+            "zh": "把梯度 1、5、10 与计数 1、3、2 分组。前两组的均值为 4、计数为 4；再与第三组合并得到 6。若把 4 和 10 等权平均则得到 7。中间均值需要携带原计数，才能保留同一次合并的加权语义。",
+            "en": "Group gradients 1,5,10 with counts 1,3,2. Merging the first two gives mean 4 with count 4; merging with the third gives 6. An equal mean of 4 and 10 gives 7 instead. Intermediate means must carry their original counts to preserve the weighted merge semantics."
+          }
+        },
+        {
+          "id": "optimizer-step-boundary",
+          "question": {
+            "zh": "按 token 合并梯度正确，能否据此断言多次 optimizer 更新与一次大 batch 更新相同？",
+            "en": "Does a correct token-weighted gradient merge imply that multiple optimizer updates equal one large-batch update?"
+          },
+          "hint": {
+            "zh": "不能直接推出。本函数只合并同一参数的给定梯度，不执行更新；加权恒等式比较的是同一参数点上的局部均值。逐批更新会改变后续求梯度时的参数，带状态优化器还会推进自己的状态。不能把线性合并公式当作整个训练过程等价的证明。",
+            "en": "No. This function merges supplied gradients for one parameter without updating it; the weighted identity concerns local means at the same parameter point. Updating between batches changes subsequent gradient evaluation points, and stateful optimizers also advance their state. Linear merging alone does not prove whole-training equivalence."
+          }
+        }
       ]
     },
     {
@@ -1515,6 +1611,30 @@
           "hint": {
             "zh": "检查所有元素都进入全局统计、输出形状与 dtype 不变，并用小于上界的梯度验证不会放大；大、小量级需要稳定计算。",
             "en": "Check that every element contributes, output shapes and dtypes remain unchanged, and gradients below the bound are not amplified. Extreme magnitudes need stable computation."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "parameter-partition",
+          "question": {
+            "zh": "把同一个梯度向量拆成多个参数张量，为什么全局裁剪的缩放系数不应改变？",
+            "en": "Why should splitting the same gradient vector across several parameter tensors preserve the global clipping scale?"
+          },
+          "hint": {
+            "zh": "比较 [3,4] 与分别存放的 [3]、[4]：总平方和都是 25，裁剪前范数都是 5，因此共享同一个 min(1,max_norm/(5+eps))。张量拆分、排列与空张量不应改变这项统计；返回时仍要保留每个输入的形状，且不修改原输入。",
+            "en": "Compare [3,4] with separate tensors [3] and [4]. Both have squared sum 25 and original norm 5, so both use min(1,max_norm/(5+eps)). Tensor partitioning, reordering and empty tensors must not change that statistic. Preserve each output shape and leave inputs untouched."
+          }
+        },
+        {
+          "id": "clip-after-merge",
+          "question": {
+            "zh": "先裁剪各个 microbatch 再加权合并，为什么一般不等于合并后做一次全局裁剪？",
+            "en": "Why does clipping each microbatch before a weighted merge generally differ from clipping once after merging?"
+          },
+          "hint": {
+            "zh": "用等权的一维梯度 +10 与 −8、上限 2 和题面默认 epsilon。先合并得到 1，无需缩小；先分别裁剪会改变两者的抵消关系。裁剪的缩放系数依赖当前整体范数，是非线性操作，不能一般与加权合并交换顺序。",
+            "en": "Use equally weighted one-dimensional gradients +10 and -8, bound 2 and the default exercise epsilon. Merging first gives 1, which needs no reduction; separate clipping changes the cancellation. Its scale depends on the current global norm, making clipping nonlinear and generally noncommutative with weighted merging."
           }
         }
       ]
