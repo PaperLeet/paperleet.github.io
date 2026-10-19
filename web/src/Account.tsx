@@ -106,8 +106,13 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
   }
   return <><div className="account-grid">
     <section className="social-panel login-card">
-      <h1>{t("登录 PaperLeet", "Sign in to PaperLeet")}</h1>
-      <p className="social-description">{t("使用 Google 或 Microsoft 账号登录，首次登录将创建 PaperLeet 账号，无需接收本站验证码。", "Sign in with Google or Microsoft. Your first sign-in creates a PaperLeet account without an emailed code from us.")}</p>
+      <h1>{t("登录 / 免费注册 PaperLeet", "Sign in / Join PaperLeet free")}</h1>
+      <p className="social-description">{t("把每次练习变成可回看的学习记录。使用 Google 或 Microsoft 继续，首次登录自动创建账号。", "Build a learning history you can revisit. Continue with Google or Microsoft; your first sign-in creates your account.")}</p>
+      <ul className="login-benefits">
+        <li><Check size={16} aria-hidden="true"/>{t('保存正式提交的代码、成绩与测试详情','Keep submitted code, results and test details')}</li>
+        <li><Check size={16} aria-hidden="true"/>{t('同步账号草稿，换设备继续练习','Sync account drafts and continue on another device')}</li>
+        <li><Check size={16} aria-hidden="true"/>{t('通过正式提交积累勋章，建立个人学习档案','Earn achievements through submissions and build your learning profile')}</li>
+      </ul>
       {(error || (loginError && failures[loginError])) && <SocialNotice error={error || failures[loginError!]} />}
       <div className="organization-login-buttons" aria-busy={Boolean(busy)}>
         {(["google", "microsoft"] as const).map(provider => {
@@ -860,8 +865,8 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
                       "Show your problem totals, daily activity, recent accepted problems, and account achievements. Turn this off to keep them and featured achievements visible only to you. Code, drafts, and detailed judge reports always stay private.",
                     )
                   : t(
-                      "此开关控制账号判题统计与勋章的公开展示。本地浏览器练习记录不会自动上传；代码和详细报告始终私有。",
-                      "Controls public statistics and achievements from saved account submissions. Browser-only practice is not uploaded automatically. Code and detailed reports always stay private.",
+                      "此开关控制账号判题统计与勋章的公开展示。本机练习记录不会自动上传；代码和详细报告始终私有。",
+                      "Controls public statistics and achievements from saved account submissions. Practice results are not uploaded automatically. Code and detailed reports always stay private.",
                     )}
               </small>
             </span>

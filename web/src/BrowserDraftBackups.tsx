@@ -18,7 +18,7 @@ export function BrowserDraftBackups({backups,source,conflict,busy,onRestore,onDi
     const anchor = document.createElement('a'); anchor.href = url;
     anchor.download = `paperleet-${backup.id.replaceAll('/','-')}-recovered.py`; anchor.click(); URL.revokeObjectURL(url);
   }
-  return <section className="browser-draft-backups" aria-label={t('本机草稿版本','Browser draft versions')}>
+  return <section className="browser-draft-backups" aria-label={t('本机草稿版本','Saved draft versions')}>
     {conflict && <details open><summary>{t('另一标签页保存的版本','Version saved in another tab')}</summary>
       <p>{t('编辑器保留你的代码。核对下面的版本，再选择保留哪份；修改不会自动合并。','Your code stays in the editor. Review this version before choosing which to keep; edits are not merged automatically.')}</p>
       <pre tabIndex={0} aria-label={t('另一份代码','Other source')}>{conflict.code || t('尚无代码','No source saved')}</pre>
@@ -35,7 +35,7 @@ export function BrowserDraftBackups({backups,source,conflict,busy,onRestore,onDi
           <button type="button" onClick={()=>download(backup)}>{t('下载备份','Download backup')}</button>
           <button type="button" disabled={busy} onClick={()=>setDiscard(backup.version)}>{t('放弃备份','Discard backup')}</button></div>
         {discard === backup.version && <div role="group" aria-label={t('确认放弃备份','Confirm discarding backup')}>
-          <p>{t('放弃这份代码的已显示本机备份？编辑器中的代码不会改变。','Discard the displayed browser backups of this source? The editor stays as it is.')}</p>
+          <p>{t('放弃这份代码的已显示本机备份？编辑器中的代码不会改变。','Discard the displayed local backups of this source? The editor stays as it is.')}</p>
           <button type="button" disabled={busy} onClick={()=>{void Promise.all(copies.map(onDiscard));setDiscard(undefined);}}>{t('确认放弃','Discard this backup')}</button>
           <button type="button" onClick={()=>setDiscard(undefined)}>{t('取消','Cancel')}</button>
         </div>}

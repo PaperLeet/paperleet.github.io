@@ -3,7 +3,8 @@ import AppLink from './AppLink';
 import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useI18n } from "./i18n";
-import { publicSite, hostedEdition } from "./deployment";
+import { publicSite, hostedEdition, hostedAppAvailable, hostedAppHref } from "./deployment";
+import { signInHref } from './accountNavigation';
 import { apiFetch } from "./apiClient";
 import { initialDeploymentHealth, unavailableDeploymentHealth, type DeploymentHealth } from './deploymentHealth';
 import { deferredFeature } from './deferredFeature';
@@ -369,7 +370,15 @@ export function DateLabel({ value }: { value: string }) {
   );
 }
 export function AccountNav(props: import('./HeaderAccountMenu').HeaderAccountMenuProps) {
-  return <HeaderAccountMenu {...props}/>;
+  const {user,loading} = useAccount();
+  const {t} = useI18n();
+  return <div className="account-nav-actions">
+    {!loading && !user && hostedAppAvailable && <AppLink className="header-signin-cta" href={hostedAppHref(signInHref(props.returnTo || ''))}
+      title={t('保存解答与成绩，换设备继续练习', 'Save solutions and results, and continue on another device')}>
+      {t('注册 / 登录', 'Join / Sign in')}
+    </AppLink>}
+    <HeaderAccountMenu {...props}/>
+  </div>;
 }
 function AccountMenuFallback({retry}:{retry?:()=>void}) {
   const { user } = useAccount();

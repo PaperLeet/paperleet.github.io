@@ -158,7 +158,7 @@ export default function ProfileProgress({ username, isSelf }: { username: string
   if (!data.visible) return <section className="social-panel practice-private"><LockKeyhole size={19} /><span>{t("该用户的练习记录仅自己可见", "This member’s practice history is private")}</span></section>;
   return (
     <div className="profile-progress">
-      {health?.mode === "local" && <p className="practice-storage-note">{t("这里统计服务器保存的判题记录。本地开发模式中的浏览器练习记录不会计入。", "These totals use server-saved judge results. Browser-only practice in local development mode is not included.")}</p>}
+      {health?.mode === "local" && <p className="practice-storage-note">{t("这里统计服务器保存的判题记录。本地开发模式中的练习记录不会计入。", "These totals use server-saved judge results. Practice in local development mode is not included.")}</p>}
       <ProgressSummary data={data} />
       <PracticeCalendar key={`${data.year}:${data.timezone}`} data={data} year={year} setYear={setYear} />
       <section className="social-panel practice-recent" aria-labelledby="practice-recent-title">

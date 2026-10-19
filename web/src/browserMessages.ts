@@ -1,11 +1,11 @@
 export function browserReason(reason: string, en = false) {
   const messages: Record<string, [string, string]> = {
-    python_api_unsupported: ['当前实现使用了浏览器兼容层未支持的 Python / PyTorch API', 'This implementation uses Python / PyTorch APIs outside the browser adapter'],
-    calibration_failed: ['浏览器运行时未通过参考实现及错误实现校验', 'The browser runtime failed reference and mutation calibration'],
-    collection_failed: ['浏览器未能收集完整的原始测试', 'The browser could not collect the complete maintained suite'],
-    runtime_failed: ['浏览器 Python 运行时加载或执行失败', 'The browser Python runtime could not load or execute'],
-    timeout: ['浏览器运行超时', 'The browser run timed out'],
-    unavailable: ['此环境不支持隔离的浏览器判题', 'Isolated browser judging is unavailable in this environment'],
+    python_api_unsupported: ['当前运行环境暂不支持这份实现使用的 Python / PyTorch API', 'The current runtime does not yet support the Python / PyTorch APIs used by this implementation'],
+    calibration_failed: ['运行环境未通过参考实现及错误实现校验', 'The runtime failed reference and mutation calibration'],
+    collection_failed: ['未能加载完整测试', 'The complete test suite could not be loaded'],
+    runtime_failed: ['Python 运行环境加载或执行失败', 'The Python runtime could not load or execute'],
+    timeout: ['测试运行超时', 'The test run timed out'],
+    unavailable: ['当前环境暂时无法运行测试', 'Tests cannot run in this environment'],
   };
   return (messages[reason] || messages.unavailable)[en ? 1 : 0];
 }

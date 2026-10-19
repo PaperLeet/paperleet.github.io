@@ -8,6 +8,8 @@ import { accountAchievementProgress } from './accountAchievements';
 import { useAccountAchievements } from './useAccountAchievements';
 import { useAccount } from './social';
 import { useI18n } from './i18n';
+import { hostedAppAvailable, hostedAppHref } from './deployment';
+import { signInHref } from './accountNavigation';
 import type { Paper, Problem, Saved } from './types';
 import './achievements.css';
 
@@ -43,6 +45,8 @@ export default function AchievementObserver({problems,papers,saved,ready}: {prob
   const badge = celebration[0];
   return <aside key={celebration.map(badge => badge.id).join(',')} className="achievement-celebration" data-tier={badge.tier} aria-label={t('新勋章','New achievement')} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onFocus={() => setFocused(true)} onBlur={event => { if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     <span className="achievement-celebration-rays" aria-hidden="true" /><span className="achievement-celebration-ring" aria-hidden="true" /><span className="achievement-celebration-particles" aria-hidden="true">{Array.from({length:8},(_,index) => <i key={index} style={{'--particle':index} as CSSProperties}/>)}</span>
-    <AchievementMedal badge={badge}/><div className="achievement-celebration-copy"><span className="achievement-next-label">{user ? t('账号勋章已解锁','ACCOUNT ACHIEVEMENT UNLOCKED') : t('解锁新勋章','ACHIEVEMENT UNLOCKED')}</span><p role="status" aria-live="polite" aria-atomic="true"><b>{t(...badge.title)}</b>{celebration.length > 1 && <small>{t(`同时点亮 ${celebration.length} 枚勋章`,`${celebration.length} achievements unlocked together`)}</small>}</p><AppLink href="#/achievements" onClick={() => setCelebration(undefined)}>{user ? t('查看并置顶','View and feature') : t('查看勋章册','View your collection')}<ArrowRight size={13} aria-hidden="true" /></AppLink></div><button className="icon-button achievement-dismiss" type="button" aria-label={t('关闭勋章提示','Dismiss achievement notification')} onClick={() => setCelebration(undefined)}><X size={15} aria-hidden="true" /></button>
+    <AchievementMedal badge={badge}/><div className="achievement-celebration-copy"><span className="achievement-next-label">{user ? t('账号勋章已解锁','ACCOUNT ACHIEVEMENT UNLOCKED') : t('练习成就已解锁','ACHIEVEMENT UNLOCKED')}</span><p role="status" aria-live="polite" aria-atomic="true"><b>{t(...badge.title)}</b>{celebration.length > 1 && <small>{t(`同时点亮 ${celebration.length} 枚勋章`,`${celebration.length} achievements unlocked together`)}</small>}</p>
+      {!user && hostedAppAvailable && <><small>{t('登录后提交解答，积累账号勋章。','Sign in and submit your solutions to earn account achievements.')}</small><AppLink href={hostedAppHref(signInHref('#/achievements'))} onClick={() => setCelebration(undefined)}>{t('免费注册 / 登录','Join free / Sign in')}<ArrowRight size={13} aria-hidden="true" /></AppLink><br/></>}
+      <AppLink href="#/achievements" onClick={() => setCelebration(undefined)}>{user ? t('查看并置顶','View and feature') : t('查看勋章册','View your collection')}<ArrowRight size={13} aria-hidden="true" /></AppLink></div><button className="icon-button achievement-dismiss" type="button" aria-label={t('关闭勋章提示','Dismiss achievement notification')} onClick={() => setCelebration(undefined)}><X size={15} aria-hidden="true" /></button>
   </aside>;
 }

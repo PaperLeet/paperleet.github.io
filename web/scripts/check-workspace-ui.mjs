@@ -28,9 +28,8 @@ const server=await createServer({server:{middlewareMode:true},appType:'custom',o
 let root;
 try {
   const {createRoot}=await import('react-dom/client');
-  const {AccountProvider,useAccount}=await server.ssrLoadModule('/src/social.tsx');
+  const {AccountProvider,useAccount,AccountNav}=await server.ssrLoadModule('/src/social.tsx');
   const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
-  const {default:Menu}=await server.ssrLoadModule('/src/HeaderAccountMenu.tsx');
   const {default:LayoutMenu}=await server.ssrLoadModule('/src/WorkspaceLayoutMenu.tsx');
   const {default:Split}=await server.ssrLoadModule('/src/ResizableSplit.tsx');
   const h=React.createElement;
@@ -46,7 +45,7 @@ try {
     const [theme,setTheme]=useState('light'),[layout,setLayout]=useState(),[collapsed,setCollapsed]=useState(false),[lab,setLab]=useState(false);
     return h(React.Fragment,null,
       h('button',{className:'outside'},'Outside'),
-      h(Menu,{theme,onTheme:setTheme,returnTo:'22',backupReady:true,onBackup(){backupOpens++;}}),
+      h(AccountNav,{theme,onTheme:setTheme,returnTo:'22',backupReady:true,onBackup(){backupOpens++;}}),
       h(LayoutMenu,{onLayout:(ratio,reset)=>{setLayout({ratio});if(reset)setCollapsed(false);layoutIntent();}}),
       h('button',{onClick:()=>setCollapsed(value=>!value)},'Toggle results'),
       h('button',{onClick:()=>setLab(value=>!value)},'Toggle lab'),
@@ -55,6 +54,8 @@ try {
   root=createRoot(find('#root'));
   await act(async()=>root.render(h(LocaleProvider,null,h(AccountProvider,null,h(Harness)))));
   await settle(()=>account.user?.id===user.id);
+  await settle(()=>find('.account-menu-trigger')?.getAttribute('aria-expanded')==='false');
+  assert(!find('.header-signin-cta'),'Signed-in users do not see registration prompts');
   assert(!find('[role="dialog"]'),'The account panel starts closed');
   await click(find('.account-menu-trigger'));
   await settle(()=>document.activeElement===find('.account-menu-panel'));
@@ -93,6 +94,10 @@ try {
   await click(find('.account-menu-signout'));
   await act(async()=>finishLogout(Response.json({ok:true})));
   await settle(()=>!account.user&&!find('.account-menu-panel'));
+  const join=find('.header-signin-cta');
+  assert(join&&join.textContent==='Join / Sign in','Guests can reach sign-in without opening the personal menu');
+  assert.equal(join.getAttribute('href'),'#/account/continue/22','Registration returns to the current practice route');
+  assert.equal(logoutRequests,2,'Showing the registration entry does not create any account or submission request');
   await click(find('.account-menu-trigger'));
   assert(!find('.account-menu-panel').textContent.includes(user.display_name),'The next owner cannot see the previous account identity');
   assert(!find('.account-menu-links a[href*="saved=1"]'),'Guests do not inherit an account saved-reading shortcut');
@@ -120,6 +125,7 @@ try {
   await settle(()=>document.activeElement===button('Reading'));
   const panel=find('.workspace-layout-popover'),preset=button('Reading'),controls=layoutTrigger.getAttribute('aria-controls');
   await act(async()=>localeControl.setLocale('zh'));assert.equal(find('.workspace-layout-popover'),panel);assert.equal(document.activeElement,preset);assert.equal(preset.textContent.trim(),'阅读优先');assert(panel.textContent.includes('均分题面与代码')&&panel.textContent.includes('收起此面板'));
+  assert.equal(find('.header-signin-cta').textContent,'注册 / 登录');
   await act(async()=>localeControl.setLocale('en'));assert.equal(document.activeElement,preset);assert.equal(layoutTrigger.getAttribute('aria-controls'),controls);assert(panel.textContent.includes('Equal pane widths')&&panel.textContent.includes('Close this panel'));
   for(const options of [{isComposing:true},{keyCode:229},{repeat:true},{altKey:true},{ctrlKey:true},{metaKey:true},{shiftKey:true}]){
     const event=await key(button('Reading'),{key:'Escape',...options});

@@ -338,7 +338,7 @@ function Workspace() {
     : practice.error
       ? t('工作区同步失败，请先重试同步。', 'Workspace sync failed. Retry syncing first.')
     : learning.failed
-      ? t('请先重试保存本机学习记录，再重新加载。', 'Retry saving browser learning progress before reloading.')
+      ? t('请先重试保存本机学习记录，再重新加载。', 'Retry saving your learning progress before reloading.')
     : !practice.ready || practice.loading || !learning.ready
       ? t('正在加载工作区，完成后可重新加载页面。', 'Wait for the workspace to finish loading before reloading.')
     : practice.pending || practice.saving || learning.saving
@@ -514,7 +514,7 @@ function Workspace() {
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
-    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」在浏览器执行，通过后解锁坑点。登录后 Submit 可保存解答和结果到「我的提交」。", "Write code on the right, then Run tests in your browser to unlock Notes. Sign in and Submit to save your solution and server result in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
+    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」，通过后解锁坑点。注册或登录后提交，可保存解答和成绩到「我的提交」。", "Write code on the right, then Run tests to unlock Notes. Join or sign in, then Submit to save your solution and results in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
   );
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
@@ -605,13 +605,13 @@ function Workspace() {
           setId(decodeProblemHash(href));
         }} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
-        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={achievementsReturn} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
+        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={achievementsReturn} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前练习工作区','Current practice workspace')} />
       ) : settingsPage ? (
         <SettingsPage theme={theme} onTheme={selectTheme} returnTo={settingsReturn.current}
           onBackup={() => setBackupOpen(true)}
           backupReady={practice.owner !== 'unresolved' && problems.length > 0}
           accountHref={user ? hostedAppHref('#/account') : undefined}
-          workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
+          workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前练习工作区', 'Current practice workspace')} />
       ) : interviewPage ? (
         <Interviews route={id} papers={papers} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
       ) : path === 'paper-registry' ? (
@@ -888,7 +888,7 @@ function Workspace() {
                   {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || completedBrowserReport) && <div className="browser-judge-panel">
                     {browser.active && (browserHere
                       ? <BrowserRunProgressFrame onStop={browser.stop}><BrowserRunProgressBody progress={browser.progress || { stage: browser.stage || 'loading' }}/></BrowserRunProgressFrame>
-                      : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
+                      : <div role="status">{t("另一道题正在运行", "Another module is running")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
                     {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
@@ -912,11 +912,11 @@ function Workspace() {
                   {practice.error && <div className="practice-notice" role="alert">
                     <span>{practice.error}</span>
                     <button disabled={practice.saving} onClick={practice.retry}>
-                      {browserWorkspace ? t('重试本机保存','Retry browser save') : t("重试同步", "Retry sync")}
+                      {browserWorkspace ? t('重试本机保存','Retry saving progress') : t("重试同步", "Retry sync")}
                     </button>
                   </div>}
                   {runCancelled && <div className="practice-notice" role="status">{browserRunStopped
-                    ? t('浏览器运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Browser run stopped. No new result was produced. Your code is preserved and you can run it again.')
+                    ? t('运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Run stopped. No new result was produced. Your code is preserved and you can run it again.')
                     : t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
                   {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
                     <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
