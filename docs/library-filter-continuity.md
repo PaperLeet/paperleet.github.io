@@ -1,0 +1,9 @@
+# Continuous library filtering
+
+Active filters identify their kind (keyword, category, tag, difficulty or status) as well as their value. Long values truncate visually with a complete native tooltip and accessible removal name. Values remain escaped text and use the existing theme/typography tokens and44px chip targets.
+
+When a focused filter button is removed, focus moves to the next surviving chip, then the previous one, or the existing search field when none remain. Removing a category also removes its tag, so that tag is skipped as a focus destination. Reset filters and the empty-result Clear filters action return focus to the existing search field. Exercise view, ordering and page-size semantics remain owned by the existing filter model.
+
+Focus transfer happens synchronously during the explicit action, before the existing callback, without a timeout, effect or new state. A newer code focus or a programmatic action from an unfocused button does not acquire focus. Chip actions reject detached, hidden, aria-hidden, inert and stale-location contexts before focus or filter mutation. The shared list view guard also protects sorting, paging, view switching and reset on hidden or stale views.
+
+The actual React StrictMode/JSDOM fixture first reproduced the lost focus after category/tag removal. It covers the surviving-button sequence, final-search return, reset and no-result recovery, escaped long values within the existing200-character route contract, full labels, locale-stable native nodes, hidden/inert/stale rejection and unchanged private editor identity/source/caret/both scrolls/storage. Existing list, paging, column, company and reading-return checks cover the surrounding flows. Production builds enforce TypeScript, initial asset budgets and static routes. No physical browser layout, pointer/keyboard/IME, numerical SDK execution or service mutation is claimed.
