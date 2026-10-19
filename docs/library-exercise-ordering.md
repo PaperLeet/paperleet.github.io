@@ -33,3 +33,21 @@ metadata ordering and immutable normalization. Existing library/workspace/readin
 checks protect progress gates and private source/caret/scroll. Both builds and an
 anonymous HTTP/SQLite company-cohort journey retain source evidence. No physical
 browser geometry, numerical SDK run or production deployment is claimed.
+
+The optional table headings now share those same native sort choices. In direct
+exercise view, Time and Difficulty cycle ascending, descending and number order;
+Module cycles title order and number order. The paper list offers title order and
+a newest/oldest/number cycle on Year. Company and course headings stay static.
+Each button describes its current and next order, marks its selected column and
+identifies the controlled result list. Header and select changes share one guarded
+callback, reset the page and preserve native header focus through locale changes.
+Hidden or stale source views cannot change the route through an old control.
+
+The headings load from the existing optional list-controls module. Loading and
+failure keep five plain labels in the same grid, without dead buttons or an extra
+error panel in the heading row. Tests hold and reject that real module import,
+then verify usable list/search rows and unchanged editor data. At the existing
+700px breakpoint, Time/Year stays hidden along with its row metadata; the compact
+visible Level label keeps the full Difficulty action description for assistive
+technology. CSS uses the existing 44px target and theme tokens. No rendered-device
+geometry or native keyboard simulation is claimed by the DOM checks.
