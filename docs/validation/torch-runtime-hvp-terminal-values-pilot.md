@@ -29,7 +29,7 @@ cannot be mistaken for a qualified 0.82 distribution.
 
 ## Exploratory CPU timing
 
-One process measures 14 full HVP calls including owned output copies. Twelve
+One process measures 14 full HVP calls returning NumPy views. Twelve
 norm workloads cover 64/1,024 elements, float32/64, norm-square, norm-sine and a
 nonlinear fractional norm. Two ordinary non-norm controls use the unchanged
 route. Independent A0/A1 load the same frozen baseline; B loads the candidate.
@@ -44,6 +44,11 @@ A separate 100-call norm-square profile records 527,801 baseline versus
 samples. These are one-process CPU observations, with baseline equality rather
 than a separate native oracle in the timing harness; they are not release
 performance qualification or WASM/GPU speedup claims.
+
+Correction: the original harness calls `.numpy()`, which returns a view in
+this library. It does not measure an independent owned output copy. The original
+frozen harness/results remain unchanged; the expanded follow-up explicitly uses
+`.numpy().copy()` and verifies ownership. Its timings must be assessed separately.
 
 Next steps are an independent native oracle corpus, repeated CPU and actual
 WASM measurements, allocation/lifetime checks, actual Chrome SDK and final
