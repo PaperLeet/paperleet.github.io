@@ -41,3 +41,17 @@ category chips, active filters and library header links share 44-pixel targets.
 The component regression covers synchronized sizes, cohort retention, locale
 continuity and inactive top-pager guards. Styles have source review only; no
 physical browser layout verification is claimed for this refinement.
+
+Display options now occupy their own row above the result summary and compact
+pager. The DOM order matches that hierarchy, so keyboard navigation reaches the
+view, sort and density controls before page controls. The count and quick pager
+share a separate wrapping region; at narrow widths the count sits above the
+pager. View, density, sort and reset controls use matching outer heights. Search
+padding and selected segmented controls follow the same field rhythm. Native
+page-size and jump inputs have a focus halo, with reduced-motion support.
+
+Across shared account, community and interview fields, hover styling excludes
+invalid and keyboard-focused inputs so it cannot replace their feedback color.
+The current refinement is checked with actual library pagination/filter and
+shared page-jump regression fixtures plus production builds. Physical browser
+geometry and native operating-system interactions remain unverified.
