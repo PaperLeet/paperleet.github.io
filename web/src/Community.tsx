@@ -113,6 +113,7 @@ import PostReport from './PostReport';
 import {readReportHistory} from './reportHistoryNavigation';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
+import FeedSearchEmpty from './FeedSearchEmpty';
 import Pagination from './CommunityPagination';
 import {revealReadingTarget,keepReadingTriggerVisible} from './readingViewport';
 import RelatedModuleSearch from './RelatedModuleSearch';
@@ -623,6 +624,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, tag?tagsAvailable:undefined, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
+  const searchInput=useRef<HTMLInputElement>(null);
   const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
@@ -795,7 +797,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             <div className="community-feed-controls">
               {!embedded&&<CommunityTopicBrowser key={returnTo} from={returnTo} topics={topics} loading={catalogLoading} error={catalogError} reload={reloadCatalog}/>}
               <TaxonomyStatus/><CommunityTagBrowser value={tag} onChange={tag=>choose({tag})}/>
-              <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
+              <CommunitySearch key={accountLoading?'checking-account':user?.id||'guest'} inputRef={searchInput} resetScope={JSON.stringify([topicId,solutions,category])} applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
               {sortingAvailable && <label className="community-sort" htmlFor={sortId}><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id={sortId} aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
                 <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
@@ -854,6 +856,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               >
                 <JoinPrompt returnTo={returnTo} />
               </Empty>
+            ) : !data.items.length && !!search.trim() ? (
+              <FeedSearchEmpty kind={solutions?'solutions':'discussions'} saved={saved} onClear={()=>{searchInput.current?.focus({preventScroll:true});if(searchInput.current)revealReadingTarget(searchInput.current);choose({search:''});}} onReview={()=>{toolbar.current?.focus({preventScroll:true});if(toolbar.current)revealReadingTarget(toolbar.current);}}/>
             ) : !data.items.length ? (
               <Empty
                 title={
