@@ -9,7 +9,7 @@ import rehypeKatex from 'rehype-katex';
 import CommunityCodeBlock from './CommunityCodeBlock';
 export {default as CommunityCodeBlock} from './CommunityCodeBlock';
 import { useI18n } from './i18n';
-import {headingAnchor} from './markdownOutline';
+import {headingAnchor,markdownOutline} from './markdownOutline';
 import {usePracticeMentions} from './PracticeMentions';
 import {transformPracticeMentions} from './practiceMentionMatcher';
 import {withLibraryContext} from './libraryNavigation';
@@ -41,17 +41,19 @@ const remarkPlugins = [remarkGfm, remarkMath];
 // Keep macros local to each render; public math cannot inject HTML or fetch images.
 const katexOptions = { trust: false, strict: 'ignore' as const, maxExpand: 100, maxSize: 20 };
 
-const CommunityMarkdown = memo(function CommunityMarkdown({ body,headingScope }: { body: string;headingScope?:string }) {
+const CommunityMarkdown = memo(function CommunityMarkdown({ body,displayBody=body,headingScope }: { body: string;displayBody?:string;headingScope?:string }) {
   const mentions=usePracticeMentions();
   const plugins=useMemo(()=>mentions?[...remarkPlugins,()=> (tree:Parameters<typeof transformPracticeMentions>[0])=>{transformPracticeMentions(tree,mentions.index,topic=>withLibraryContext(topic.id,mentions.returnTo));}]:remarkPlugins,[mentions]);
   const readingComponents=useMemo<Components>(()=>{
     if(!headingScope)return components;
+    const source=body===displayBody?undefined:markdownOutline(body,headingScope);
+    const anchors=source?new Map(markdownOutline(displayBody,headingScope).map((heading,index)=>[heading.id,source[index]?.id||heading.id])):undefined;
     const result:Components={...components};
-    for(const tag of ['h1','h2','h3','h4','h5','h6'] as const)result[tag]=({children,node,...props})=>createElement(tag,{...props,id:headingAnchor(headingScope,node?.position?.start.offset),tabIndex:-1,className:'discussion-section-heading'},children);
+    for(const tag of ['h1','h2','h3','h4','h5','h6'] as const)result[tag]=({children,node,...props})=>createElement(tag,{...props,id:anchors?.get(headingAnchor(headingScope,node?.position?.start.offset)||'')||headingAnchor(headingScope,node?.position?.start.offset),tabIndex:-1,className:'discussion-section-heading'},children);
     return result;
-  },[headingScope]);
+  },[headingScope,body,displayBody]);
   return <div className="prose community-prose">
-    <Markdown remarkPlugins={plugins} rehypePlugins={[[rehypeKatex, katexOptions]]} components={readingComponents}>{body}</Markdown>
+    <Markdown remarkPlugins={plugins} rehypePlugins={[[rehypeKatex, katexOptions]]} components={readingComponents}>{displayBody}</Markdown>
   </div>;
 });
 export default CommunityMarkdown;

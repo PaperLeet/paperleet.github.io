@@ -18,8 +18,10 @@ The matrix is shaped `[num_heads * head_dim, input_dim]`; each head occupies a *
 
 For each block $G_h=U_h\operatorname{diag}(s_h)V_h^\top$, return
 
-$$P_h=U_h\operatorname{diag}(\mathbf 1[s_h>\tau_h])V_h^\top,
-\qquad \tau_h=\max(d_h,d_{in})\,\epsilon_{dtype}\,\max(s_h).$$
+$$
+P_h=U_h\operatorname{diag}(\mathbf 1[s_h>\tau_h])V_h^\top,
+\qquad \tau_h=\max(d_h,d_{in})\,\epsilon_{dtype}\,\max(s_h).
+$$
 
 Use reduced SVD. A zero matrix returns zero. A rank-deficient matrix keeps only its nonzero singular directions: do not manufacture an update in its nullspace. Positive rescaling of a full-rank head leaves its result unchanged. For a wide full-row-rank head, $P_hP_h^\top=I$; for a tall full-column-rank head, $P_h^\top P_h=I$.
 

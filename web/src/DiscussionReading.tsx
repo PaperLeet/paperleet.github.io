@@ -9,10 +9,10 @@ import {postSearchQuery} from './postSearchModel';
 import PostSearchMatch from './PostSearchMatch';
 import './discussion-reading.css';
 
-export default function DiscussionReading({body,postId,compact=false,instance=false}:{body:string;postId:string;compact?:boolean;instance?:boolean}){
+export default function DiscussionReading({body,displayBody=body,postId,compact=false,instance=false}:{body:string;displayBody?:string;postId:string;compact?:boolean;instance?:boolean}){
   const {t}=useI18n(),root=useRef<HTMLDivElement>(null),instanceId=useId();
   const suffix=instance?'-instance-'+instanceId.split('').map(character=>character.charCodeAt(0).toString(16).padStart(4,'0')).join(''):'';
-  const scope=`reading-${postId}${suffix}`,sections=useMemo(()=>markdownOutline(body,scope),[body,scope]);
+  const scope=`reading-${postId}${suffix}`,sections=useMemo(()=>{const source=markdownOutline(body,scope);if(body===displayBody)return source;const display=markdownOutline(displayBody,scope);return source.map((section,index)=>({...section,label:display[index]?.label||section.label}));},[body,displayBody,scope]);
   const [open,setOpen]=useState(()=>!compact&&typeof window!=='undefined'&&!!window.matchMedia?.('(min-width: 1200px)').matches);
   const [active,setActive]=useState(''),[jump,setJump]=useState<{id:string;opener:Element|null;body:string;postId:string;href:string}>();
   const minimum=Math.min(...sections.map(section=>section.depth));
@@ -96,6 +96,6 @@ export default function DiscussionReading({body,postId,compact=false,instance=fa
         }}><PostSearchMatch text={section.label} query={query}/></button>
       </li>)}</ol></nav>}
     </details>}
-    <div className="discussion-reading-body"><CommunityMarkdown body={body} headingScope={scope}/></div>
+    <div className="discussion-reading-body"><CommunityMarkdown body={body} displayBody={displayBody} headingScope={scope}/></div>
   </div>;
 }

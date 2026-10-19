@@ -3,6 +3,7 @@ import type { PublicUser } from './social';
 
 export type Counts = { likes: number; reposts: number; replies: number };
 export type Post = {
+  translation_version?:string;
   id: string; title: string; body: string; category: string;
   anonymous?: boolean;
   tags?: {id:string;zh:string;en:string;enabled:boolean}[];
@@ -14,6 +15,7 @@ export type Post = {
   viewer: { liked: boolean; reposted: boolean; can_delete: boolean; can_edit?: boolean; bookmarked?: boolean };
 };
 export type Reply = {
+  translation_version?:string;
   id: string; post_id: string; parent_id: string | null; body: string;
   created_at: string; updated_at?:string; edit_version?:string; author: PublicUser; can_delete: boolean; can_edit?:boolean;
 };

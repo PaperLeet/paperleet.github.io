@@ -42,8 +42,10 @@
 
 `masked_prediction_loss(prediction, target)` 返回 `beta=1` 的 smooth L1 均值：
 
-$$\ell(r)=\begin{cases}\tfrac12r^2,&|r|<1\\ |r|-\tfrac12,&|r|\geq1,\end{cases}\qquad
-L=\operatorname{mean}\ell(prediction-\operatorname{sg}(target)).$$
+$$
+\ell(r)=\begin{cases}\tfrac12r^2,&|r|<1\\ |r|-\tfrac12,&|r|\geq1,\end{cases}\qquad
+L=\operatorname{mean}\ell(prediction-\operatorname{sg}(target)).
+$$
 
 这里遵循**作者发布代码** `src/train.py` 的训练约定；论文文字描述的是平均 L2 预测距离。本题明确区分两者，判题要求 smooth L1。即使传入的目标张量需要梯度，也应在函数内部停止目标梯度；预测值保留梯度。残差 `[-2,0.5]` 的损失为 `(1.5+0.125)/2=0.8125`。
 

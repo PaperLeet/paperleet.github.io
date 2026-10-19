@@ -20,8 +20,10 @@
 
 实现 `masked_is_weights` 与 `offpolicy_loss`。当前 log-prob、已记录的 rollout log-prob、二值有效 token mask 的形状均为 `[B,L]`。优势为 `[B]`，在每个回答的 token 上广播。
 
-$$r_{it}=\exp(\log\pi_{it}-\log\pi_{rollout,it}), \quad
-w_{it}=\operatorname{sg}\!\left[r_{it}\mathbf1(1-\epsilon_l<r_{it}<1+\epsilon_h)\right],$$
+$$
+r_{it}=\exp(\log\pi_{it}-\log\pi_{rollout,it}), \quad
+w_{it}=\operatorname{sg}\!\left[r_{it}\mathbf1(1-\epsilon_l<r_{it}<1+\epsilon_h)\right],
+$$
 $$L=-\frac{\sum_{it}m_{it}w_{it}\operatorname{sg}(A_i)\log\pi_{it}}{\max(1,\sum_{it}m_{it})}.$$
 
 `sg` 表示停止梯度。padding 和**两个端点**的权重为零，不能把越界权重截成端点。分母统计**所有原始有效 token**，包括被比率规则丢弃的 token。空 mask 返回可反向传播的零。

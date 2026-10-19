@@ -17,8 +17,10 @@ Return a **bool Tensor `[B,T]` at target positions**, on the input device. It is
 
 Let `r`, `c` and `a` be the role, conversation ID and validity arrays. Define
 
-$$m_{b,0}=\mathrm{False},\qquad
-m_{b,j}=[r_{b,j}=2]\land a_{b,j}\land a_{b,j-1}\land[c_{b,j}=c_{b,j-1}],\quad j\ge1.$$
+$$
+m_{b,0}=\mathrm{False},\qquad
+m_{b,j}=[r_{b,j}=2]\land a_{b,j}\land a_{b,j-1}\land[c_{b,j}=c_{b,j-1}],\quad j\ge1.
+$$
 
 The predecessor must exist in the same conversation, but **its role need not be assistant**: the last user/context position can predict the first assistant token. Return the mask without shifting it. A supplied causal loss later pairs `logits[:, :-1]`, `tokens[:, 1:]` and `mask[:, 1:]` exactly once.
 

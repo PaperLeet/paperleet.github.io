@@ -65,6 +65,7 @@ assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichT
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your implementation goal')), 'Problem overview and statistics rendering must stay deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Reference reading actions')), 'Reference reading controls must remain deferred with problem solutions');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('This submission is ready to review.')), 'Completion presentation must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Save previewed version')), 'Community curation controls must stay deferred with administration');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('No headings match.')), 'Reader heading filters must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('copying includes the full code.')), 'Long code preview presentation must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Updates available')), 'Inbox reading continuity presentation must remain deferred');

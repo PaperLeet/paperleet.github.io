@@ -1,0 +1,25 @@
+.community-topic-browser{min-width:0;max-width:100%;color:var(--text)}
+.community-topic-browser>summary{display:flex;align-items:center;gap:8px;min-height:44px;max-width:280px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;list-style:none;background:var(--surface);font-size:var(--type-small)}
+.community-topic-browser>summary::-webkit-details-marker{display:none}
+.community-topic-browser>summary>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.community-topic-browser>summary>svg{flex:none;color:var(--muted)}
+.community-topic-browser[open]{flex-basis:100%;width:100%}
+.community-topic-browser[open]>summary{border-color:var(--accent);color:var(--accent)}
+.community-topic-browser[open]>summary>svg:last-child{transform:rotate(180deg)}
+.community-topic-panel{display:grid;gap:12px;padding:16px;margin-top:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.community-topic-panel>header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.community-topic-panel>header>div{min-width:0}
+.community-topic-panel strong{font-size:var(--type-body);line-height:1.6}
+.community-topic-panel p{margin:5px 0 0;line-height:1.7;font-size:var(--type-small);color:var(--muted)}
+.community-topic-panel>header>button{flex:none;min-height:44px}
+.community-topic-selection{display:grid;gap:7px;min-width:0;font-size:var(--type-body)}
+.community-topic-selection>select{width:100%;min-width:0;max-width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text);font:inherit;text-overflow:ellipsis}
+.community-topic-status{color:var(--muted);font-size:var(--type-small);line-height:1.7;overflow-wrap:anywhere}
+.community-topic-panel>footer{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px}
+.community-topic-panel>footer>.button{min-height:44px}
+.community-topic-panel>footer>span{font-size:var(--type-small);color:var(--muted)}
+.community-topic-panel a[aria-disabled=true]{opacity:.55;cursor:default}
+.community-topic-browser :is(summary,button,select,a):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.community-feed-toolbar:has(.community-topic-browser[open]){flex-wrap:wrap}
+.community-feed-controls:has(.community-topic-browser[open]){flex-basis:100%;margin-inline-start:0}
+@media(max-width:520px){.community-topic-panel{padding:12px}.community-topic-browser>summary{max-width:100%}}

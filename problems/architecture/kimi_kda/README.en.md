@@ -25,8 +25,10 @@ $$g=g_{\min}\sigma(e^A z),\qquad \alpha=e^g.$$
 
 For each token, first forget, then correct the memory's prediction, then read:
 
-$$\bar S_t=\operatorname{Diag}(\alpha_t)S_{t-1},\qquad
-S_t=\bar S_t+\beta_t k_t(v_t-k_t^\top\bar S_t)^\top,\qquad o_t=S_t^\top q_t.$$
+$$
+\bar S_t=\operatorname{Diag}(\alpha_t)S_{t-1},\qquad
+S_t=\bar S_t+\beta_t k_t(v_t-k_t^\top\bar S_t)^\top,\qquad o_t=S_t^\top q_t.
+$$
 
 These operations are differentiable. Updating by `beta * outer(k, v)` alone accumulates conflicting values instead of correcting the stored prediction.
 

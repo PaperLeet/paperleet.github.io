@@ -25,8 +25,10 @@ $$g=g_{\min}\sigma(e^A z),\qquad \alpha=e^g.$$
 
 每步依次执行遗忘、修正旧预测、读取新状态：
 
-$$\bar S_t=\operatorname{Diag}(\alpha_t)S_{t-1},\qquad
-S_t=\bar S_t+\beta_t k_t(v_t-k_t^\top\bar S_t)^\top,\qquad o_t=S_t^\top q_t.$$
+$$
+\bar S_t=\operatorname{Diag}(\alpha_t)S_{t-1},\qquad
+S_t=\bar S_t+\beta_t k_t(v_t-k_t^\top\bar S_t)^\top,\qquad o_t=S_t^\top q_t.
+$$
 
 直接累加 `beta * outer(k, v)` 会把同一个 key 的多次写入叠加；delta-rule 则先减去记忆对当前 key 的预测，再写入误差。
 

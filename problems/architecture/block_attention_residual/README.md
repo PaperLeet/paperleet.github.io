@@ -20,9 +20,11 @@
 
 对来源 $v_i$、查询 $w$ 和 RMSNorm 权重 $\gamma$：
 
-$$k_i=\frac{v_i}{\sqrt{\operatorname{mean}(v_i^2)+\epsilon}}\odot\gamma,
+$$
+k_i=\frac{v_i}{\sqrt{\operatorname{mean}(v_i^2)+\epsilon}}\odot\gamma,
 \qquad a_i=\operatorname{softmax}_{i}(w^\top k_i),
-\qquad h=\sum_i a_i v_i.$$
+\qquad h=\sum_i a_i v_i.
+$$
 
 只有 key 经过归一化，value 保持原始幅度。分数不除以 Transformer 常见的 $\sqrt D$。
 

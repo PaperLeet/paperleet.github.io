@@ -1,3 +1,4 @@
+import {TranslatedReply} from './CommunityTranslation';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
@@ -262,7 +263,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         {replies.total?<ol id={regionId+'-list'} className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
           <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/>{row.updated_at&&row.updated_at!==row.created_at&&<span className="card-comment-edited">{t('已编辑','Edited')} <DateLabel value={row.updated_at}/></span>}</div>
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading||!!replyEdit} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
-          <InlineCommentBody body={row.body}/>
+          <TranslatedReply reply={row}>{body=><InlineCommentBody body={row.body} displayBody={body}/>}</TranslatedReply>
           <div className="card-comment-links"><AppLink href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</AppLink>
             {owner&&<button type="button" disabled={!!replyEdit||!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}{owner&&<button type="button" disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} aria-label={t(`引用${row.author.anonymous?'匿名用户':row.author.display_name||'用户'}的评论`,`Quote comment from ${row.author.anonymous?'Anonymous':row.author.display_name||'user'}`)} onClick={()=>quoteComment(row)}><Quote size={12} aria-hidden="true"/>{t('引用','Quote')}</button>}
             {canEditReply(row,owner)&&<button type="button" data-card-edit-reply={row.id} aria-controls={fieldId+'-edit'} aria-expanded={replyEdit?.id===row.id&&open} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} onClick={event=>startReplyEdit(row,event.currentTarget)}><PenLine size={12} aria-hidden="true"/>{t('编辑评论','Edit comment')}</button>}

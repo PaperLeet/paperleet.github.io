@@ -32,9 +32,11 @@ $$\mu_j=\frac1N\sum_n z_{nj},\qquad \sigma_j=\sqrt{\frac1N\sum_n(z_{nj}-\mu_j)^2
 
 Compute
 
-$$L_{scale}=\operatorname{mean}_j(\sigma_j-1)^2,\quad
+$$
+L_{scale}=\operatorname{mean}_j(\sigma_j-1)^2,\quad
 \widetilde z=\frac{z-\mu}{\operatorname{sg}(\sigma)+\epsilon},\quad
-L_{center}=\operatorname{mean}_j\mu_j^2.$$
+L_{center}=\operatorname{mean}_j\mu_j^2.
+$$
 
 Normalize each supplied direction column to unit length, project `z_tilde`, and sort **across the N samples independently for each direction**. For ranks `i=1,...,N`, use `q_i=Phi_inverse(i/(N+1))`, where `Phi` is the standard Gaussian CDF:
 

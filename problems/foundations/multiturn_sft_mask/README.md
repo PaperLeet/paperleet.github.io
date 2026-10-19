@@ -17,8 +17,10 @@ assistant_target_mask(role_ids: Tensor, conversation_ids: Tensor,
 
 用 `r`、`c`、`a` 表示角色、会话编号和有效性：
 
-$$m_{b,0}=\mathrm{False},\qquad
-m_{b,j}=[r_{b,j}=2]\land a_{b,j}\land a_{b,j-1}\land[c_{b,j}=c_{b,j-1}],\quad j\ge1.$$
+$$
+m_{b,0}=\mathrm{False},\qquad
+m_{b,j}=[r_{b,j}=2]\land a_{b,j}\land a_{b,j-1}\land[c_{b,j}=c_{b,j-1}],\quad j\ge1.
+$$
 
 前一个位置必须有效且属于同一会话，但**不要求前一个角色也是 assistant**：最后一个 user/上下文位置可以预测回答的首 token。输出不做错位；后续因果损失将 `logits[:, :-1]`、`tokens[:, 1:]` 和 `mask[:, 1:]` 对齐一次。
 

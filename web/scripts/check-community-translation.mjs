@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import React,{act} from 'react';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {fileURLToPath} from 'node:url';
+import {JSDOM} from 'jsdom';
+import {createServer} from 'vite';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'https://paperleet.test/community',pretendToBeVisual:true});
+dom.window.matchMedia=()=>({matches:false});dom.window.scrollTo=()=>{};
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__translations:undefined,IntersectionObserver:undefined};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+for(const[key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+localStorage.setItem('paperleet.locale','zh');
+const cacheDir=await mkdtemp(tmpdir()+'/paperleet-translations-');
+const server=await createServer({root:fileURLToPath(new URL('..',import.meta.url)),cacheDir,server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'translation-fixture',enforce:'pre',resolveId(source){if(source==='./social')return '\0translation-social';},load(id){if(id==='\0translation-social')return 'export const useAccount=()=>globalThis.__translations.account;export const socialApi=(...args)=>globalThis.__translations.request(...args);';}}]});
+let root;
+try{
+ const {createRoot}=await import('react-dom/client');
+ const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
+ const {useCommunityTranslation,TranslationNotice,TranslatedReply}=await server.ssrLoadModule('/src/CommunityTranslation.tsx');
+ const {default:InlineBody}=await server.ssrLoadModule('/src/InlineCommentBody.tsx');
+ const {default:Reading}=await server.ssrLoadModule('/src/DiscussionReading.tsx');
+ const calls=[],pending=[],account={capabilities:{community_translation:true}};
+ const first={id:'a'.repeat(32),title:'Hello',body:'# Hello\n\nEnglish explanation\n\n## Repeated\n\n```python\nx = 1\n```',translation_version:'a'.repeat(64)};
+ let source={...first},surface='post',disabled=false;
+ globalThis.__translations={account,request:(path,payload,signal)=>{calls.push({path,payload,signal});return new Promise((resolve,reject)=>pending.push({resolve,reject,path,payload,signal}));}};
+ const h=React.createElement;
+ function Post(){const translation=useCommunityTranslation('post',source,disabled);return h('article',{ref:translation.ref},h('h1',null,translation.title),h(TranslationNotice,{translation}),h(Reading,{body:source.body,displayBody:translation.body,postId:source.id}),h('button',{id:'quote',onClick:()=>{document.querySelector('#draft').value=source.body;}},'Quote'));}
+ function Locale(){const {locale,setLocale}=useI18n();return h('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'Locale');}
+ const render=()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(h(LocaleProvider,null,h(Locale),h('textarea',{id:'draft',defaultValue:'PRIVATE DRAFT'}),surface==='post'?h(Post):h(TranslatedReply,{reply:source},body=>h(InlineBody,{body:source.body,displayBody:body}))));});
+ const click=selector=>act(async()=>document.querySelector(selector).click());
+ const finish=async(job,value)=>act(async()=>job.resolve(value));
+ const result=(job,extra={})=>({status:'ready',version:job.payload.version,target:job.path.split('/').at(-1),title:'你好',body:first.body.replaceAll('Hello','你好').replace('English explanation','中文解释').replace('Repeated','第二节'),...extra});
+ await render();assert.equal(calls.length,1);assert.deepEqual(calls[0].payload,{version:first.translation_version});
+ assert(document.body.textContent.includes('English explanation'));assert(document.body.textContent.includes('正在翻译'));
+ const firstJob=pending.shift();await finish(firstJob,result(firstJob));
+ assert(document.body.textContent.includes('中文解释'));assert.equal(document.querySelector('h1').textContent,'你好');assert(document.body.textContent.includes('机器翻译'));
+ assert.deepEqual([...document.querySelectorAll('.discussion-section-heading')].map(node=>node.id),[0,first.body.indexOf('## Repeated')].map(offset=>`reading-${first.id}-${offset}`));
+ await click('#quote');assert.equal(document.querySelector('#draft').value,first.body);
+ await click('.community-translation button');assert(document.body.textContent.includes('English explanation'));
+ await click('.community-translation button');assert(document.body.textContent.includes('中文解释'));
+ source={...first,body:'New body',translation_version:'b'.repeat(64)};await render();assert(!document.body.textContent.includes('中文解释'));const oldJob=pending.shift();
+ source={...first,body:'Newest body',translation_version:'c'.repeat(64)};await render();const newJob=pending.shift();assert(oldJob.signal.aborted);
+ await finish(oldJob,result(oldJob,{body:'STALE'}));assert(!document.body.textContent.includes('STALE'));
+ await finish(newJob,result(newJob,{body:'最新正文'}));assert(document.body.textContent.includes('最新正文'));
+ await click('#locale');const englishJob=pending.shift();assert(englishJob.path.endsWith('/en'));assert(document.body.textContent.includes('Newest body'));
+ await finish(englishJob,result(englishJob,{title:'Hello',body:'Newest body'}));assert(!document.querySelector('.community-translation'));
+ source={...first,body:'Failure original',translation_version:'d'.repeat(64)};await render();const bad=pending.shift();
+ await finish(bad,result(bad,{version:'wrong',body:'MALFORMED'}));assert(document.body.textContent.includes('Failure original'));assert(!document.body.textContent.includes('MALFORMED'));
+ assert(document.body.textContent.includes('Translation unavailable'));await click('.community-translation button');const retry=pending.shift();await act(async()=>retry.reject(Error('Network failed')));assert(document.body.textContent.includes('Failure original'));
+ const count=calls.length;account.capabilities.community_translation=false;await render();account.capabilities.community_translation=true;disabled=true;await render();
+ disabled=false;source={...first,translation_version:undefined};await render();assert.equal(calls.length,count);
+ source={...first,translation_version:'e'.repeat(64)};await render();const unmounted=pending.shift();await act(async()=>root.unmount());root=undefined;assert(unmounted.signal.aborted);await finish(unmounted,result(unmounted));
+ let visible;globalThis.IntersectionObserver=class{constructor(callback){visible=callback;}observe(){}disconnect(){}};
+ surface='reply';source={...first,title:undefined,translation_version:'f'.repeat(64)};await render();assert.equal(pending.length,0);
+ await act(async()=>visible([{isIntersecting:true}]));const reply=pending.shift();await click('.inline-comment-toggle');assert.equal(document.querySelector('.inline-comment-toggle').getAttribute('aria-expanded'),'true');
+ await finish(reply,result(reply,{title:'',body:'# Translated\n\n## Section\n\n```python\nx = 1\n```'}));
+ assert.equal(document.querySelector('.inline-comment-toggle').getAttribute('aria-expanded'),'true');assert(document.body.textContent.includes('Translated'));assert(document.body.textContent.includes('x = 1'));assert.equal(document.querySelector('#draft').value,'PRIVATE DRAFT');
+ console.log('PASS community translation: source/version/locale isolation, visibility, original toggle, safe fallback/retry, stale request cancellation, original quoting, stable heading anchors and expanded reply state');
+}finally{
+ if(root)await act(async()=>root.unmount());await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();
+ for(const[key,descriptor]of previous)if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];
+}

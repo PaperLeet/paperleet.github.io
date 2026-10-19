@@ -1,10 +1,14 @@
+import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
+import CommunityHighlights from './CommunityHighlights';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
 import PostTags from './PostTags';
 import CommunityTagBrowser,{CommunityTagContext} from './CommunityTagBrowser';
+import CommunityTopicBrowser from './CommunityTopicBrowser';
+import {communityTopicKindHref} from './communityTopicScope';
 import {initialCommunityTag} from './communityTagBrowsing';
 import {unavailableCommunityTags} from './communityTagSelection';
 import './community-taxonomy.css';
@@ -140,11 +144,12 @@ const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
 export const COMMUNITY_FEED_TIMEOUT = 20_000;
 type FeedFailure = {requestKey:string;kind:'timeout'}|{requestKey:string;kind:'request';message:string};
-function TopicContext({ topic, discussion = false, solutions=false,practiceReturnTo }: {
+function TopicContext({ topic, discussion = false, solutions=false,practiceReturnTo,browseFrom }: {
   topic: ProblemTopic;
   discussion?: boolean;
   solutions?:boolean;
   practiceReturnTo?:string;
+  browseFrom?:string;
 }) {
   const { t, locale } = useI18n();
   return (
@@ -159,7 +164,7 @@ function TopicContext({ topic, discussion = false, solutions=false,practiceRetur
         {discussion && (
           <AppLink href={solutions?solutionsHref(topic.id):topicHref(topic.id)}>{solutions?t("查看本题题解","All module solutions"):t("查看题目讨论", "All module discussions")}</AppLink>
         )}
-        <AppLink href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</AppLink>
+        <AppLink href={browseFrom&&communityTopicKindHref(browseFrom,!solutions)||(solutions?topicHref(topic.id):solutionsHref(topic.id))}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</AppLink>
         {!topic.retired && (
           <AppLink className="button subtle" data-reading-link={practiceReturnTo?"practice":undefined} data-reading-practice={practiceReturnTo?topic.id:undefined} href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
             <Code2 size={15} />{t("返回练习", "Back to practice")}
@@ -205,12 +210,13 @@ function Loading() {
 }
 function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved,searchQuery }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void;searchQuery?:string }) {
   const { t,locale } = useI18n();
+  const translation=useCommunityTranslation('post',post,!!searchQuery);
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const [bookmarked,setBookmarked]=useState(post.viewer.bookmarked),[bookmarkBusy,setBookmarkBusy]=useState(false);
   const bookmarkAvailable=capabilities?.community_bookmarks===true&&typeof bookmarked==='boolean';
   const returnTo=privateProfile?undefined:sourceReturnTo;
   return (
-    <article className="community-post-card" data-reading-post={post.id} data-reading-private-profile={privateProfile?"true":undefined} data-reading-resumed={resumed||undefined}>
+    <article ref={translation.ref} className="community-post-card" data-reading-post={post.id} data-reading-private-profile={privateProfile?"true":undefined} data-reading-resumed={resumed||undefined}>
       {activity && <div className="activity-label">{activity}</div>}
       <div className="post-card-layout">
         <CommunityAuthorAvatar user={post.author}/>
@@ -221,8 +227,9 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             <DateLabel value={post.created_at} />
             <Category value={post.solution ? "solutions" : post.category} />
           </div>
-          {readInPlace ? <><SolutionReadingCard id={post.id} title={post.title} body={post.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><AppLink data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
-            <PostSearchMatch text={post.title} query={searchQuery}/>
+          <TranslationNotice translation={translation}/>
+          {readInPlace ? <><SolutionReadingCard id={post.id} title={translation.title} body={post.body} displayBody={translation.body} returnTo={returnTo} onCode={onCode} query={searchQuery} discussion={!post.solution}/>{!post.solution&&<>{post.interview&&<InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}<PaperPreviewCard url={post.paper_url} paper={post.paper} compact/></>}</> : <><AppLink data-reading-link="title" className="post-title" href={postHref(post.id, returnTo)}>
+            <PostSearchMatch text={translation.title} query={searchQuery}/>
           </AppLink>
           {post.problem && (
             <AppLink className="post-problem-link" href={post.solution?solutionsHref(post.problem.id):topicHref(post.problem.id)}>
@@ -230,7 +237,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             </AppLink>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}
-          <InlinePostBody postId={post.id} body={post.body} limit={190} query={searchQuery}/>
+          <InlinePostBody postId={post.id} body={post.body} displayBody={translation.body} limit={190} query={searchQuery}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
           <PostTags post={post} returnTo={returnTo}/>
@@ -626,7 +633,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
-  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable);
+  const highlightsEnabled=!embedded&&!topicId&&!solutions&&!accountLoading&&capabilities?.community_highlights===true&&page===1&&!tag&&!following&&!saved&&!search&&!sort&&!days;
+  const [highlightsReady,setHighlightsReady]=useState<number>();
+  const reading=useReadingPosition(accountLoading||embedded?undefined:user?'account:'+user.id:'guest',returnTo,!pending&&!error&&!accountLoading&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,{highlightsEnabled,highlightsReady});
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
     if(embedded)setLocalFilters(next);else appLocation.hash = communityFeedHref(topicId,next);
@@ -784,6 +793,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>}
             </div>
             <div className="community-feed-controls">
+              {!embedded&&<CommunityTopicBrowser key={returnTo} from={returnTo} topics={topics} loading={catalogLoading} error={catalogError} reload={reloadCatalog}/>}
               <TaxonomyStatus/><CommunityTagBrowser value={tag} onChange={tag=>choose({tag})}/>
               <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
@@ -806,13 +816,14 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                   {t("重新加载题目信息", "Reload module details")}
                 </button>
               </div>
-            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
+            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} browseFrom={returnTo} />
           )}
           {writing.expanded && user && (
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} initialTag={tagsAvailable&&taxonomy.ready?initialCommunityTag(taxonomy.data.tags,tag):undefined} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
           )}
           {embedded&&publishedPost&&<div className="notice solution-publication-notice" role="status"><span>{solutions?t('题解已发布。','Your solution was published.'):t('讨论已发布。','Your discussion was published.')}</span><AppLink href={postHref(publishedPost,returnTo)}>{solutions?t('查看已发布题解','View published solution'):t('查看已发布讨论','View published discussion')}<ArrowRight size={14} aria-hidden="true"/></AppLink></div>}
-          <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore}/>
+          <ReadingReturnNotice notice={reading.notice} onRestore={reading.restore} kind={reading.region==='highlights'?'pick':'post'}/>
+          {highlightsEnabled&&<CommunityHighlights key={`${user?.id||'guest'}:${category||''}`} category={category||''} returnTo={returnTo} resume={reading.highlightReturn} onResumeReady={setHighlightsReady} resumedPost={reading.region==='highlights'?reading.resumedPost:undefined}/>}
           <SolutionReadingNotice navigation={solutionReading}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
           <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
@@ -873,7 +884,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {days&&<button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t('查看不限时间','Browse all time')}</button>}
               </Empty>
             ) : (
-              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
+              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.region!=='highlights'&&reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
             )}
           </div>
           {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && (
@@ -915,6 +926,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [deleteTarget, setDeleteTarget] = useState<string>();
+  const translation=useCommunityTranslation('post',post);
   const repliesLocked=busy||loading||!!editingReply;
   const replyList=useDiscussionReplies({replies:post?.replies,authorId:post?.author.id,linkedReply:replyTarget,disabled:repliesLocked});
   const practiceReading=useDiscussionPracticeReturn({owner:readingOwner,post:id,list:replyList,ready:!!post&&!loading&&!busy&&!editingPost&&!editingReply&&!accountLoading&&!error&&!catalogLoading,linkedReply:replyTarget});
@@ -1111,10 +1123,11 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             setPost(previous=>previous&&previous.id===confirmed.id?{...confirmed,replies:previous.replies}:previous);
             closePostEditing();setPostEdited(true);
           }}/>}
-          <article className="social-panel discussion-post">
+          <article ref={translation.ref} className="social-panel discussion-post">
             <div className="discussion-heading">
               <Category value={post.solution ? "solutions" : post.category} />
-              <h1>{post.title}</h1>
+              <h1>{translation.title}</h1>
+              <TranslationNotice translation={translation}/>
               <div className="discussion-author">
                 <CommunityAuthor user={post.author}/>
                 <DateLabel value={post.created_at} />
@@ -1133,7 +1146,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             </div>
             {post.interview && <InterviewMeta details={post.interview} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <PostTags post={post} returnTo={returnTo}/>
-            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} postId={post.id} />}
+            {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} displayBody={translation.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} displayBody={translation.body} postId={post.id} />}
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
               <PostReport postId={post.id} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
@@ -1217,7 +1230,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                       </button>
                     )}
                   </div>
-                  <ReplySearchContext reply={r} list={replyList}><CommunityMarkdown body={r.body} /></ReplySearchContext>
+                  <ReplySearchContext reply={r} list={replyList}><TranslatedReply reply={r} /></ReplySearchContext>
                   {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
                   {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
                     readVersion.current++;setLoading(false);
@@ -1741,7 +1754,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                         <AppLink data-reading-link="title" href={postHref(item.post.id,profile.viewer.is_self&&item.post.anonymous===true?undefined:returnTo,item.reply.id)}>{item.post.title}</AppLink>
                         <DateLabel value={item.created_at} />
                       </div>
-                      <CommunityMarkdown body={item.reply.body} />
+                      <TranslatedReply reply={item.reply} />
                     </article>
                   ) : (
                     <PostCard
