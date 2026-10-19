@@ -129,6 +129,11 @@ try{
   await click(named('Live preview'));assert.equal(document.querySelector('.markdown-editor textarea'),field);assert(!field.closest('label').hidden);assert(document.querySelector('.markdown-editor.has-live-preview .compose-preview').textContent.includes('concrete'));assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);assert.equal(field.scrollLeft,9);assert.equal(JSON.stringify({...sessionStorage}),beforeLive,'Changing the reading layout does not rewrite the '+kind+' draft');
   await click(named('Preview'));await click(named('Write'));assert.equal(document.querySelector('textarea'),field);assert.equal(field.selectionStart,4);assert.equal(field.selectionEnd,12);assert.equal(field.scrollTop,17);
   await click(named('Undo formatting'));assert.equal(field.value,'A concrete reflection 😀');assert.equal(mutations.length,0);
+  field.focus();field.setSelectionRange(2,10,'backward');field.scrollTop=17;field.scrollLeft=9;
+  const tablePicker=document.querySelector('.markdown-table-picker');await click(tablePicker.querySelector('summary'));assert(tablePicker.open);await click([...tablePicker.querySelectorAll('button')].find(button=>button.textContent.trim()==='3 columns'));
+  assert.equal(document.querySelector('.markdown-editor textarea'),field);assert.equal(document.activeElement,field);assert.equal(readDraft().body,field.value,kind+' retains its inserted table in the existing scoped draft');assert(field.value.endsWith('concrete reflection 😀'));
+  await click(named('Preview'));assert.equal(document.querySelectorAll('.compose-preview th').length,3);assert.equal(document.querySelectorAll('.compose-preview tbody>tr').length,2);await click(named('Write'));await click(named('Undo formatting'));
+  assert.equal(field.value,'A concrete reflection 😀');assert.equal(readDraft().body,field.value);assert.deepEqual([field.selectionStart,field.selectionEnd,field.selectionDirection,field.scrollTop,field.scrollLeft],[2,10,'backward',17,9]);assert.equal(mutations.length,0);
   for(const [tool,prefix,selector] of [['Section heading','## ','h2'],['Numbered steps','1. ','ol>li'],['Block quote','> ','blockquote>p']]){
    field.focus();field.setSelectionRange(2,10,'backward');field.scrollTop=17;field.scrollLeft=9;
    named(tool).focus();await click(named(tool));assert.equal(document.querySelector('.markdown-editor textarea'),field);assert.equal(field.value,prefix+'A concrete reflection 😀');assert.equal(document.activeElement,field);assert.equal(field.scrollTop,17);assert.equal(field.scrollLeft,9);
@@ -187,6 +192,7 @@ try{
   await stop();
  }
  console.log('PASS admissions/job-search authoring: selected labels and purpose hints, exact publication categories, failed-response draft/remount/idempotent recovery, and recategorized edits without losing content');
+ console.log('PASS table writing surfaces: actual post, linked solution, interview, reply, inline reply and post/reply editors preserve their existing scoped drafts, render native GFM table rows in preview, restore backward selection and both scrolls on undo, and make no publication request');
  console.log('PASS Markdown editing: ten bilingual tools, whole-line heading/numbered-step/quote toggles with isolated prose and LF/CRLF, real rendered blocks/outline parity, exact source/Unicode/fence/length safety, shortcuts, mounted preview selection/both-scroll, backward-selection undo/focus and saved structural drafts across seven real authoring surfaces including linked solutions, affiliation/direct/shortcut publication gates and verified-account recovery');
 }finally{
  if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
