@@ -1,0 +1,60 @@
+{
+  "status": "verified_main_experimental_matrix_rpc_negotiation_without_ci",
+  "adopted_commit": "460878308149351120063b9841e04bde3a1989ff",
+  "verified_remote_sha": "460878308149351120063b9841e04bde3a1989ff",
+  "verified_utc": "2026-10-19T22:50:56.379382+00:00",
+  "remote_tree": "7cd070fd381145fef693aec5f7380f0fbe937452",
+  "protocol_source_sha256": "e2c27e380aae4e41ff0ece2e3adb1059ac785d2ca8c39c76fcf7840974829d92",
+  "prototype_and_own_files_verified_from_remote": true,
+  "qualified_runtime_version": "0.83.0",
+  "default_runtime_unchanged": true,
+  "runtime_resources_verified": 66,
+  "export_identities_verified": 183,
+  "release_policies_verified": 7,
+  "package_inputs_verified": 206,
+  "own_delta": [
+    "docs/validation/torch-webgpu-protocol-negotiation.md",
+    "packages/stridetorch/benchmarks/results/protocol-negotiation-harness.tar.gz",
+    "packages/stridetorch/benchmarks/results/protocol-negotiation.json",
+    "packages/stridetorch/benchmarks/webgpu_rpc/README.md",
+    "packages/stridetorch/benchmarks/webgpu_rpc/check-negotiation.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/fixtures/protocol-v0/README.md",
+    "packages/stridetorch/benchmarks/webgpu_rpc/fixtures/protocol-v0/gpu-service.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/fixtures/protocol-v0/plan-program.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/fixtures/protocol-v0/rpc-client.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/gpu-service.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/matrix_client.py",
+    "packages/stridetorch/benchmarks/webgpu_rpc/resident_bridge.py",
+    "packages/stridetorch/benchmarks/webgpu_rpc/rpc-client.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/rpc-protocol.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/test_negotiation.py"
+  ],
+  "workflow_runs_by_commit": {
+    "460878308149351120063b9841e04bde3a1989ff": 0,
+    "99a8715d96db1a4bc59ff012688274dfbed296ad": 0
+  },
+  "workflow_runs_for_adopted_commit": 0,
+  "pages_source": {
+    "branch": "gh-pages",
+    "path": "/"
+  },
+  "ordinary_guarded_push": true,
+  "mandatory_wrapper_unchanged": true,
+  "successful_push_seconds": 7.976464750012383,
+  "successful_push_log_sha256": "95cebd051585fdf96c0d0f5d1d6ff9198a7e1a169ebbb807bd2e0f423a80a6dc",
+  "experimental_protocol_negotiation_on_main": true,
+  "production_gpu_dispatch_enabled": false,
+  "resident_torch_gpu_storage": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/protocol-negotiation-main-adoption-harness.tar.gz",
+    "sha256": "f651f9afdbc0f83a7288431b5948a8af99cc79d3ad4645d8c61d19197dc89527",
+    "bytes": 2122802,
+    "files": 61,
+    "all_payloads_verified": true
+  }
+}

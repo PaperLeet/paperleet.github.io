@@ -113,3 +113,17 @@ It includes the failed drafts, historical fixtures, native results, real-browser
 four-host gate, all six performance processes and replay dependencies. Pyodide
 runtime assets and native environments remain external replay dependencies.
 The runtime improvement goal remains active.
+
+## Main adoption
+
+Commit `460878308149351120063b9841e04bde3a1989ff` adopts the qualified
+negotiation changes on main. Direct remote-tree verification covers all 15
+feature paths, 66 runtime resources, 183 active exports, seven release policies
+and 206 package inputs. The three targeted frontend checks also pass after
+integrating the then-current main changes. The default runtime stays 0.83.0.
+
+The feature and integration SHAs have no workflow runs. Pages still uses the
+legacy `gh-pages` branch; no tag, publication or deployment was made.
+The [main adoption receipt](../../packages/stridetorch/benchmarks/results/protocol-negotiation-main-adoption.json)
+and [raw evidence](../../packages/stridetorch/benchmarks/results/protocol-negotiation-main-adoption-harness.tar.gz)
+record the guarded push and exact remote verification.
