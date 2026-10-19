@@ -18,3 +18,17 @@ page retains its simple indicator. The footer marks the active page with the
 primary button colors. Search, select, clear and filter controls now share a
 44-pixel interior target and aligned outer heights; focus and hover feedback stays
 visible in both themes without modifying editor inputs or numerical execution.
+
+The footer now pairs its arrows with visible Previous/Next labels on wider
+screens. The page strip accepts Left/Right and Home/End to move focus without
+navigating; native Enter/Space activates the focused button. Disabled and hidden
+buttons are skipped, and input editing, composition, modified keys and inactive
+surfaces are left alone. Page inputs select their existing number on focus for
+quick replacement. Shared page fields and actions have 44-pixel targets and
+consistent radii; validation keeps the error color during hover and focus.
+General form fields retain a 44-pixel minimum height after shared styles load.
+Arrow labels give way to compact icons below 700 pixels. Library search/filter
+fields have hover feedback, and a focused row action keeps
+its parent row highlighted. These additions are covered by the library component
+regression check; actual browser layout and native keyboard behavior still need
+visual verification.
