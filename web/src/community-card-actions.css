@@ -153,3 +153,5 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .discussion-actions>.discussion-post-quote{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 12px;border-radius:8px;color:var(--text-secondary)}
 .discussion-actions>.discussion-post-quote:hover:not(:disabled){background:var(--surface2);color:var(--accent)}
 @container post-interaction (max-width:560px){.card-actions>.card-post-quote{min-width:44px;padding-inline:10px}.card-post-quote>span{display:none}}
+
+.card-comments-empty>.text-button{margin-block:4px;margin-inline-end:8px}

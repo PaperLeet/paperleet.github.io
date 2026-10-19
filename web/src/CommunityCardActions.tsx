@@ -26,7 +26,7 @@ import {tabDraftStorage} from './communityDrafts';
 import {clearPublishedReplyDraft,hasReplyDraft,readReplyDraft,sameReplyDraft,writeReplyDraft,type ReplyDraft} from './replyDrafts';
 import {clearPublication,preparePublication,readPublication,replyPublication,samePublication,type PublicationReceipt} from './publicationRequests';
 import {withConfirmedReply,withConfirmedReplyEdit,type Post,type PostDetail,type Reply} from './communityDiscussion';
-import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorJump,ReplyAuthorNavigation} from './useDiscussionReplies';
+import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorJump,ReplyAuthorNavigation,ReplyAuthorFilter} from './useDiscussionReplies';
 import {postPreview} from './postExcerpt';
 import {quotePostDraft,quoteReplyDraft,captureReplyQuoteSelection,type DraftQuote,type ReplyQuoteSelection} from './replyQuotes';
 import {controlIsActive} from './activeControls';
@@ -113,6 +113,12 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const rowIdPrefix=regionId+'-reply-';
   const replies=useDiscussionReplies({replies:detail?.replies,authorId:detail?.author.id||post.author.id,disabled:loading||accountLoading||accountRecovery||!!loadError||!!replyEdit,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'start'});
   function revealComment(id:string,trigger:HTMLElement){replies.reveal(id,trigger);}
+  const canFilterAuthor=()=>!busy&&!replies.disabled&&canShare()&&canAct?.()!==false;
+  function showAllComments(trigger:HTMLButtonElement){
+    if(!canFilterAuthor()||!controlIsActive(trigger))return;
+    if(document.activeElement===trigger)replies.root.current?.querySelector<HTMLButtonElement>('[data-author-reply-filter]')?.focus({preventScroll:true});
+    replies.chooseAuthor(false);
+  }
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;readVersion.current++;request.current?.abort();};},[]);
   useEffect(()=>{
     if(busy||accountLoading||accountRecovery||!accountFocus.current)return;
@@ -275,7 +281,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('.card-reply-form,input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
       event.preventDefault();event.stopPropagation();dismissComments(active);
     }}>
-      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||(detail?.replies.length||0)<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
+      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||(detail?.replies.length||0)<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select>{detail&&<ReplyAuthorFilter list={replies} disabled={!!busy} controls={regionId+'-list'} canAct={canFilterAuthor}/>}<ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
       {detail&&(detail.replies.length>0||replies.query)&&<CardCommentSearch title={post.title} list={replies} total={detail.replies.length} controls={regionId+'-list'} canAct={canShare} inputRef={commentSearch}/>}
       <div id={regionId+'-list'} className="card-comment-results" aria-busy={loading||undefined}>
@@ -292,7 +298,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
             <DiscussionLink key={`reply-share:${accountLoading}`} postId={post.id} replyId={row.id} returnTo={returnTo} compact showReplyLink={false} name={row.author.anonymous?t('匿名用户','Anonymous'):row.author.display_name} disabled={accountLoading} canAct={canShare}/>
             <ReplyReadingReturn list={replies} replyId={row.id}/>
           </div>
-        </li>;})}</ol>:<div className="card-comments-empty" role="status">{replies.query?<><p>{t('没有匹配的评论','No matching comments')}</p><button type="button" className="text-button" disabled={replies.disabled} onClick={event=>{if(replies.disabled||!canShare())return;if(document.activeElement===event.currentTarget)commentSearch.current?.focus({preventScroll:true});replies.chooseQuery('');}}>{t('清空评论搜索','Clear comment search')}</button></>:t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}</div>}
+        </li>;})}</ol>:<div className="card-comments-empty" role="status">{replies.query?<><p>{replies.authorOnly?t('楼主回复中没有匹配结果','No matching author replies'):t('没有匹配的评论','No matching comments')}</p><button type="button" className="text-button" disabled={replies.disabled} onClick={event=>{if(replies.disabled||!canShare())return;if(document.activeElement===event.currentTarget)commentSearch.current?.focus({preventScroll:true});replies.chooseQuery('');}}>{t('清空评论搜索','Clear comment search')}</button></>:replies.authorOnly?t('楼主暂未公开回复，其他人的讨论仍可查看。','The author has not replied publicly yet. You can still read everyone else’s comments.'):t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}{replies.authorOnly&&<button type="button" className="text-button" disabled={!!busy||replies.disabled} onClick={event=>showAllComments(event.currentTarget)}>{t('查看全部评论','Show all comments')}</button>}</div>}
         {replies.total>replies.shown.length&&<button type="button" className="card-more-comments" disabled={accountLoading||!!replyEdit} onClick={replies.showMore}><ChevronDown size={14}/>{t('再展开','Show')} {Math.min(3,replies.total-replies.shown.length)} {t('条评论','more comments')}</button>}
       </>}
       </div>
