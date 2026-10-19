@@ -1,5 +1,5 @@
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
-import {ArrowLeft,ArrowUp,ArrowDown,ChevronDown,UserRound} from 'lucide-react';
+import {ArrowLeft,ArrowUp,ArrowDown,ChevronDown,ChevronUp,UserRound} from 'lucide-react';
 import type {Reply} from './communityDiscussion';
 import {useI18n} from './i18n';
 import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,keepReadingTriggerVisible,type ReadingAnchor} from './readingViewport';
@@ -14,7 +14,7 @@ const EMPTY:Reply[]=[];
 type Order='oldest'|'newest';
 type Origin=ReadingAnchor&{href:string;trigger:HTMLElement;row?:string;order:Order;authorOnly:boolean;query:string;limit:number;revealed?:string};
 type Intent={href:string;opener:Element|null;before:number};
-type Jump=Intent&({kind:'reveal';id:string;origin?:Origin}|{kind:'focus';id:string}|{kind:'back'|'restore';origin:Origin});
+type Jump=Intent&({kind:'reveal';id:string;origin?:Origin}|{kind:'focus';id:string}|{kind:'compact'}|{kind:'back'|'restore';origin:Origin});
 type ReadingNotice={href:string;kind:'restored'|'missing'};
 
 // Every open discussion shares these four passive listeners. No event contents or
@@ -74,7 +74,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   if(processed.current===jump)return;
   processed.current=jump;
   const permitted=jump.href===location.href&&jump.before===interactionVersion&&(document.activeElement===jump.opener||document.activeElement===document.body&&!jump.opener?.isConnected);
-  if(!permitted||disabled&&(jump.kind==='back'||jump.kind==='restore')){if(jump.kind==='restore')setNotice(undefined);setJump(undefined);return;}
+  if(!permitted||disabled&&(jump.kind==='back'||jump.kind==='restore'||jump.kind==='compact')){if(jump.kind==='restore')setNotice(undefined);setJump(undefined);return;}
   if(jump.kind==='reveal'){
    if(!rowElement(jump.id)){setJump(undefined);return;}
    if(jump.origin)setHistory(value=>[...value.filter(origin=>origin.href===jump.href),jump.origin!].slice(-MAX_RETURN_DEPTH));
@@ -98,6 +98,10 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
    setJump({...jump,kind:'restore'});return;
   }
   setJump(undefined);
+  if(jump.kind==='compact'){
+   const target=root.current;if(!target||!controlIsActive(target))return;
+   target.focus({preventScroll:true});revealReadingTarget(target,'start');return;
+  }
   if(jump.kind==='focus'){
    const target=rowElement(jump.id);if(!target)return;
    target.focus({preventScroll:true});revealReadingTarget(target,revealBlock);return;
@@ -114,7 +118,11 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   }
  },[jump,rowIdPrefix,revealBlock,disabled]);
  const previous=history.at(-1),canReturn=!!previous&&previous.href===location.href;
- return {root,shown,byId,authorOnly,order,query,searchReadingRevision,total:matched.length,reveal,revealed,disabled,canReturn,clearReadingReturn,notice:notice&&notice.href===location.href?notice.kind:undefined,
+ return {root,shown,byId,authorOnly,order,query,searchReadingRevision,total:matched.length,reveal,revealed,disabled,canReturn,clearReadingReturn,batchSize,canCompact:shown.length>batchSize,notice:notice&&notice.href===location.href?notice.kind:undefined,
+  compact(trigger:HTMLElement){
+   if(disabled||shown.length<=batchSize||authorVisit.current!==visit||location.href!==visit.href||!controlIsActive(root.current)||!controlIsActive(trigger)||!root.current?.contains(trigger))return;
+   const request=intent();clearReadingReturn();setLimit(batchSize);setJump({...request,kind:'compact'});
+  },
   snapshotView:():DiscussionView=>({order,authorOnly,query,limit}),restoreRequest:restored?.request||0,
   restoredExpansion:(reply:Reply)=>restored?.query===query&&!!reply.edit_version&&restored.expanded.some(value=>value.reply===reply.id&&value.revision===reply.edit_version),
   restoreView(value:DiscussionView,expanded:DiscussionExpansion[],request:number,anchor?:string){
@@ -172,13 +180,19 @@ export function ReplyListControls({list,disabled,canAct}:{list:ReturnType<typeof
   <ReplyAuthorFilter list={list} disabled={disabled} canAct={canAct}/>
   <ReplyAuthorJump list={list} disabled={disabled}/>
   <select aria-label={t('回复排序','Sort replies')} value={list.order} disabled={disabled} onChange={event=>list.chooseOrder(event.target.value as Order)}><option value="oldest">{t('最早回复','Oldest first')}</option><option value="newest">{t('最新回复','Newest first')}</option></select>
+  <ReplyListCompact list={list} disabled={disabled} canAct={canAct}/>
   <span role="status">{t(`显示 ${list.shown.length} / ${list.total} 条回复`,`${list.shown.length} of ${list.total} replies shown`)}</span>
   {list.query&&list.firstMatch&&<button type="button" className="discussion-reply-first-match" disabled={disabled} onClick={()=>{if(list.firstMatch)list.seekSearchReply(list.firstMatch);}}>{t('跳到首条匹配','Go to first match')}</button>}
   <div className="discussion-reply-search"><CommunitySearch applied={list.query} readingRevision={list.searchReadingRevision} onApply={list.chooseQuery} disabled={disabled} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
   <p id={help} className="discussion-reply-search-help">{list.authorOnly?t('仅搜索楼主的公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search public author replies only. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.'):t('搜索本帖全部公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search all public replies in this discussion. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.')}</p>
  </div>;
 }
+export function ReplyListCompact({list,disabled=false,controls,canAct}:{list:ReturnType<typeof useDiscussionReplies>;disabled?:boolean;controls?:string;canAct?:()=>boolean}){
+ const {t}=useI18n();
+ if(!list.canCompact)return null;
+ return <button type="button" className="reply-list-compact" disabled={disabled||list.disabled} aria-controls={controls} aria-label={t(`收起回复列表，只显示前 ${list.batchSize} 条`,`Collapse replies to the first ${list.batchSize}`)} title={t('保留当前排序与搜索条件','Keep the current order and search')} onClick={event=>{if(!disabled&&canAct?.()!==false)list.compact(event.currentTarget);}}><ChevronUp size={15} aria-hidden="true"/>{t(`收起到前 ${list.batchSize} 条`,`Show first ${list.batchSize}`)}</button>;
+}
 export function MoreReplies({list,disabled}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean}){
- const {t}=useI18n(),count=Math.min(PAGE_SIZE,list.total-list.shown.length);
- return count>0?<button type="button" className="discussion-replies-more" disabled={disabled} onClick={list.showMore}><ChevronDown size={15} aria-hidden="true"/>{t(`再显示 ${count} 条回复`,`Show ${count} more ${count===1?'reply':'replies'}`)}</button>:null;
+ const {t}=useI18n(),count=Math.min(list.batchSize,list.total-list.shown.length);
+ return count>0||list.canCompact?<div className="discussion-reply-paging">{count>0&&<button type="button" className="discussion-replies-more" disabled={disabled} onClick={list.showMore}><ChevronDown size={15} aria-hidden="true"/>{t(`再显示 ${count} 条回复`,`Show ${count} more ${count===1?'reply':'replies'}`)}</button>}<ReplyListCompact list={list} disabled={disabled}/></div>:null;
 }
