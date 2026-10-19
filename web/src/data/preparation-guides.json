@@ -1680,6 +1680,30 @@
             "en": "Compare both directions on asymmetric paired features. Two orthogonal pairs with s=log(2) give log(1+exp(-2)). Check a single pair, zero features and saturated scale separately."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "paired-permutation",
+          "question": {
+            "zh": "同时重排图像和文本的 batch，为什么仍可使用对角线标签？只重排一侧会怎样？",
+            "en": "Why do diagonal labels remain valid after applying the same batch permutation to images and text? What changes if only one side is reordered?"
+          },
+          "hint": {
+            "zh": "把排列写成矩阵 P：两侧同步重排后 S 变为 P S Pᵀ，正配对仍在对角线，两个方向的 batch 均值都不变。只重排一侧却保留原标签，会把其他样本当正例；用两个相同的正交单位向量并交换文本行，就能构造损失改变的反例。这是配对语义，不是只要求 logits 数值集合相同。",
+            "en": "Write the permutation as P. Reordering both sides gives P S Pᵀ: matches stay diagonal and both directional batch means are unchanged. Reordering only one side while keeping diagonal labels changes the positives. Swap the text rows of two matched orthogonal unit vectors for a counterexample. Preserving the set of logit values alone does not preserve pairing."
+          }
+        },
+        {
+          "id": "single-pair-gradient",
+          "question": {
+            "zh": "只有一个图文配对时，温度没有梯度能说明实现错误吗？该怎样补充检查？",
+            "en": "With just one image–text pair, does a zero temperature gradient prove an implementation bug? How should the check be strengthened?"
+          },
+          "hint": {
+            "zh": "B=1 时每个检索方向都只有一个类别，logsumexp(s)-s 恒为零，所以两侧特征和 logit_scale 的损失梯度都为零，即使温度尚未触及上限。先区分候选退化与 detach、截断错误；再用 B≥2 的非退化相似度检查两方向、归一化和未饱和尺度梯度。单个配对只能覆盖边界行为。",
+            "en": "For B=1, each retrieval direction has one class, so logsumexp(s)-s is identically zero. Both feature gradients and the loss gradient of logit_scale vanish even below its cap. Separate this degenerate candidate set from detach or clipping bugs. Use B≥2 with nondegenerate similarities to check both directions, normalization and an unsaturated scale gradient; one pair only checks a boundary case."
+          }
+        }
       ]
     },
     {
@@ -1720,6 +1744,30 @@
           "hint": {
             "zh": "B=1 时只有正样本，损失和两侧梯度均为零。两个相同的正交视图对应 log(1+2*exp(-1/temperature))；再做两侧有限差分和成对置换。",
             "en": "For B=1, only the positive remains, giving zero loss and zero gradients on both sides. Two identical orthogonal views give log(1+2*exp(-1/temperature)); also check paired permutations and finite differences on both views."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "candidate-set-not-loss-factor",
+          "question": {
+            "zh": "把 CLIP 的双向损失乘二，能补回 SimCLR 漏掉的同视图负样本吗？",
+            "en": "Can multiplying the bidirectional CLIP loss by two recover the same-view negatives missing from a SimCLR implementation?"
+          },
+          "hint": {
+            "zh": "不能：候选集合决定分母里的项，归约倍数只缩放已经算出的损失。取 B=2、两视图为相同的正交单位向量、温度为 1，且 CLIP 的 logit_scale=0：跨视图损失为 log(1+exp(-1))，本题为 log(1+2*exp(-1))，两者不是简单二倍关系。另行对齐作者实现的方向归约倍数，不要用它掩盖候选遗漏。",
+            "en": "No. Candidate membership changes the terms in the denominator; a reduction factor only scales the computed loss. With B=2, identical orthogonal unit-vector views, temperature 1 and CLIP logit_scale=0, the cross-view loss is log(1+exp(-1)); this exercise gives log(1+2*exp(-1)). Doubling the former does not recover the latter. Align directional reduction scales separately from candidate membership."
+          }
+        },
+        {
+          "id": "collapsed-candidate-baseline",
+          "question": {
+            "zh": "所有 2B 个表示都是同一个非零向量时，正样本相似度为 1，为什么损失仍不为零？",
+            "en": "If all 2B representations equal one nonzero vector, why can the loss stay positive even though every positive cosine similarity is one?"
+          },
+          "hint": {
+            "zh": "对任一锚点，排除自身后还剩 2B-1 个等分候选，正样本概率为 1/(2B-1)，故损失为 log(2B-1)。B=1 恰好退化为零；B>1 时正样本没有击败负样本。若得到 log(B)，先检查是否只保留了跨视图候选；若得到 log(2B)，检查自身是否还在分母。这是有限输入的代数检查，不是训练收敛结论。",
+            "en": "Each anchor has 2B-1 equally scored candidates after self exclusion, so its positive probability is 1/(2B-1) and the loss is log(2B-1). B=1 reduces to zero; for B>1 the positive does not outrank negatives. A log(B) result suggests a cross-view-only candidate set; log(2B) suggests self inclusion. This finite-input algebra check makes no training-convergence claim."
           }
         }
       ]
@@ -1766,6 +1814,30 @@
             "en": "Identical nonzero vectors give log(K+1). Check query gradients and None gradients for key/queue. At m=0 copy query, at m=1 preserve key. Enqueue keys cached in the current step instead of re-encoding after EMA."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "enqueue-chunk-composition",
+          "question": {
+            "zh": "把同一批 key 分两次入队，怎样才能与一次顺序入队得到相同的队列和指针？",
+            "en": "How can two enqueue calls on chunks of the same key batch reproduce one sequential enqueue call, including the final pointer?"
+          },
+          "hint": {
+            "zh": "第二次必须使用第一次返回的队列和新指针，不能重复使用旧 pointer。每行独立归一化后按原顺序覆盖，切块不会改变顺序写入语义。容量 K=3、初始 pointer=2，依次写入四个不同的单位向量 a,b,c,d，最终槽位为 [b,c,d]、pointer=0；任意切块都应得到相同结果，并保留输入及返回值的存储独立性。",
+            "en": "Pass the first call’s returned queue and pointer to the second call; do not reuse the original pointer. Row-wise normalization followed by sequential overwrites preserves chunk composition. For K=3 and pointer=2, writing distinct unit vectors a,b,c,d leaves slots [b,c,d] and pointer=0, regardless of the chunk boundary. Preserve inputs and independent returned storage throughout."
+          }
+        },
+        {
+          "id": "changing-query-ema",
+          "question": {
+            "zh": "连续两步在线编码器参数不同，还能把两次动量更新合并为一次 momentum=m² 的更新吗？",
+            "en": "If online encoder parameters differ across two steps, can two momentum updates be replaced by one update with momentum m²?"
+          },
+          "hint": {
+            "zh": "在精确代数下，先用 q1、再用 q2 得到 k2=m²*k0+m*(1-m)*q1+(1-m)*q2。一次 m² 更新却给出 m²*k0+(1-m²)*q2；当 0<m<1 时，只有 q1=q2 才相同，m=0、1 是退化端点。不要把固定在线参数的闭式公式直接用于变化轨迹；实际浮点比较还需合理容差，返回参数仍应 detach。",
+            "en": "In exact algebra, two steps give k2=m²*k0+m*(1-m)*q1+(1-m)*q2. One m² update toward q2 gives m²*k0+(1-m²)*q2. For 0<m<1 these agree only when q1=q2; m=0 and m=1 are degenerate endpoints. A fixed-online closed form does not cover a changing trajectory. Floating comparisons need appropriate tolerance, and returned parameters remain detached."
+          }
+        }
       ]
     },
     {
@@ -1807,6 +1879,30 @@
           "hint": {
             "zh": "默认 epsilon 下三项为 (0,0.99,0)，但精确塌缩仍是驻点。使用小幅、相关但不恒定的特征检查展开；D=1 时协方差项应为零，并核对两个视图的梯度。",
             "en": "With the default epsilon the terms are (0,0.99,0), but exact collapse remains stationary. Start with small, correlated, nonconstant features. Check zero covariance penalty for D=1 and gradients for both views."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "duplicated-batch-statistics",
+          "question": {
+            "zh": "把每个配对样本重复两遍，VICReg 的三项损失都应该保持不变吗？",
+            "en": "Should all three VICReg terms stay unchanged when every paired sample is duplicated twice?"
+          },
+          "hint": {
+            "zh": "不变性项是 B*D 元素均值，因此不变；中心化均值也不变，但样本统计分母从 B-1 变成 2B-1。协方差矩阵缩放为 r*C，r=2*(B-1)/(2B-1)，协方差惩罚变为 r²*c；方差项需重新代入 sqrt(r*Cjj+eps)，一般会改变。B=2 时 r=2/3，可用来发现误用总体方差分母的实现。",
+            "en": "The invariance MSE and centered means stay unchanged. Sample covariance does not: its scatter doubles while the denominator becomes 2B-1, so C becomes r*C with r=2*(B-1)/(2B-1). The covariance penalty becomes r²*c; recompute variance hinges using sqrt(r*Cjj+eps). For B=2, r=2/3. This distinguishes the required sample denominator from population statistics."
+          }
+        },
+        {
+          "id": "cross-block-covariance",
+          "question": {
+            "zh": "把特征分组分别计算协方差惩罚，再按各组宽度加权，能恢复完整特征的惩罚吗？",
+            "en": "Can a width-weighted average of covariance penalties computed separately on feature groups recover the full-feature penalty?"
+          },
+          "hint": {
+            "zh": "一般不能：分组只保留组内非对角项，丢掉了组间交叉协方差。令两个视图相同，B=D=2，样本行为 [-1,-1] 和 [1,1]；每个单特征组的协方差惩罚都是零，完整特征却得到 c=8。这里同时计入两个非对角方向和两个视图，再除以 D。这个反例针对协方差项，不能套作整个目标的分组归约规则。",
+            "en": "Generally no: separate groups omit cross-group covariance. Set both views equal with B=D=2 and rows [-1,-1] and [1,1]. Each one-feature group has zero covariance penalty, but the full feature set gives c=8: count both off-diagonal directions and both views, then divide by D. This counterexample concerns the covariance term, not a grouping rule for the entire objective."
           }
         }
       ]
@@ -1851,6 +1947,30 @@
           "hint": {
             "zh": "本题按作者代码要求 beta=1 的 smooth L1 均值，残差 [-2,0.5] 得到 0.8125。用两个块、两个上下文和两张图逐项核对顺序；teacher 无梯度，EMA 不改写也不共享输入。",
             "en": "This exercise follows the released-code convention: mean smooth L1 with beta=1; residuals [-2,0.5] give 0.8125. Enumerate two blocks, two contexts and two images. Verify no teacher gradients and independent, non-mutating EMA output."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "repeated-mask-weighting",
+          "question": {
+            "zh": "本题允许的重复目标索引或重叠目标块，可以先去重再计算预测损失吗？",
+            "en": "Can repeated target indices or overlapping target blocks accepted by this exercise be deduplicated before computing prediction loss?"
+          },
+          "hint": {
+            "zh": "不能：按给定掩码顺序 gather，每个出现位置都保留，输出形状仍为 [K*C*B,M,D]，损失对全部元素取均值。去重会改变位置对齐、形状或样本权重。例如逐元素残差 [0,2,2] 的 smooth-L1 均值为 1；删掉重复项后 [0,2] 的均值为 0.75。这里讨论题目给定索引的语义，不是在修改论文中的掩码生成策略。",
+            "en": "No. Gather in the supplied mask order and retain each occurrence in [K*C*B,M,D]; the loss averages every element. Deduplication changes alignment, shape or occurrence weights. Element residuals [0,2,2] have mean smooth-L1 loss 1, whereas deduplicating to [0,2] gives 0.75. This concerns the exercise’s supplied indices, not a change to the paper’s mask-generation strategy."
+          }
+        },
+        {
+          "id": "smooth-l1-scale-regimes",
+          "question": {
+            "zh": "把预测残差放大 a 倍，smooth L1 的损失总会放大 a² 倍吗？梯度怎样变化？",
+            "en": "Does scaling prediction residuals by a always scale smooth-L1 loss by a²? How does its prediction gradient behave?"
+          },
+          "hint": {
+            "zh": "仅当相关残差都留在二次区间时，才有平方缩放。beta=1 下，r=0.5 的损失为 0.125，放大 4 倍到 r=2 后为 1.5，而不是 2。若总元素数为 E，每个预测元素的梯度为 clip(r,-1,1)/E；大残差进入线性区，目标分支仍在损失内部停止梯度。不能把本题的 smooth L1 直接替换成均方误差。",
+            "en": "Quadratic scaling applies only while the relevant residuals remain in the quadratic regime. With beta=1, r=0.5 gives loss 0.125; scaling by four gives r=2 and loss 1.5, not 2. For E total elements, the prediction gradient per element is clip(r,-1,1)/E. Large residuals enter the linear regime, while the target stays detached inside the loss. MSE is not interchangeable with this exercise’s smooth L1."
           }
         }
       ]

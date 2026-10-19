@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Forty bilingual follow-up questions extend twenty maintained study guides:
+Fifty bilingual follow-up questions extend twenty-five maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -26,6 +26,12 @@ Forty bilingual follow-up questions extend twenty maintained study guides:
 | foundations/gradient_clipping | Parameter partition invariance; clipping/weighted-merge noncommutation | README global L2 norm, shared epsilon scale and no mutation |
 | foundations/top_p_sampling | Nested prefixes and renormalization; top-k pretruncation counterexample | README full-vocabulary shortest prefix, temperature/tie rules and final normalization |
 
+| representation/clip | Paired versus one-sided permutations; single-pair temperature-gradient degeneracy | README diagonal targets, two retrieval directions and clipped log scale |
+| representation/simclr | Candidate membership versus loss factors; equal-score candidate baseline | README self exclusion, same-view negatives and 2B-anchor mean |
+| representation/moco | Chunk-composed circular enqueue; EMA with changing online parameters | README sequential overwrites, returned pointer, detached functional EMA |
+| representation/vicreg | Duplicated-batch sample statistics; missing cross-group covariance | README B-1 statistics, elementwise MSE and both-view off-diagonal sum |
+| representation/ijepa | Repeated-mask occurrence weights; smooth-L1 scaling regimes | README ordered gather, all-element mean, beta=1 and stopped targets |
+
 
 These are editorial discussions based on the repository exercise statements.
 They are not presented as reported interview questions, frequency counts or a
@@ -47,7 +53,7 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all forty questions, malformed/duplicate/oversized and legacy content shapes,
+all fifty questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
@@ -101,3 +107,21 @@ and the [nucleus-sampling paper](https://arxiv.org/html/1904.09751v2#S3.SS1).
 PaperLeet's pure-function/valid-token interfaces and explicit shortest-prefix
 boundary remain authoritative; these are not literal reproductions of trainer,
 in-place optimizer utility or released sampler implementations.
+
+
+The representation-path expansion adds ten discussions across all five modules of
+that maintained path. The previous 40 follow-ups, 267 core prompts and 89 guide
+identities remain unchanged as parsed objects. Counterexamples and formulas are
+editorial derivations from the local exercise contracts. I-JEPA's supplied
+validator accepts repeated valid indices; this does not assert that the original
+training mask generator produces duplicates. No encoder training, numerical
+judge execution, new grading rule or reported interview frequency is claimed.
+
+Primary background includes the original [CLIP](https://proceedings.mlr.press/v139/radford21a.html)
+and [SimCLR](https://proceedings.mlr.press/v119/chen20j.html) papers,
+[MoCo](https://arxiv.org/html/1911.05722v3), and the pinned author code for
+[VICReg](https://github.com/facebookresearch/vicreg/blob/4e12602fd495af83efd1631fbe82523e6db092e0/main_vicreg.py)
+and [I-JEPA](https://github.com/facebookresearch/ijepa/blob/52c1ae95d05f743e000e8f10a1f3a79b10cff048/src/train.py).
+The maintained README contract controls each exercise's implementation and
+normalization conventions; the added algebra is not a claim of reproducing
+paper benchmarks or every original training detail.
