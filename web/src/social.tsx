@@ -67,6 +67,7 @@ export type AccountCapabilities = {
   inbox_notifications?: boolean;
   inbox_read_all?: boolean;
   inbox_reviews?: boolean;
+  inbox_notification_filters?:boolean;
   direct_messages?: boolean;
   problem_bookmarks?: boolean;
   study_lists?: boolean;
