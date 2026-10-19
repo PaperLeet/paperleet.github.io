@@ -49,7 +49,7 @@ try {
  const edit=async(el,value)=>{assert(el,'Missing field');await act(async()=>{const proto=el.tagName==='TEXTAREA'?'HTMLTextAreaElement':el.tagName==='SELECT'?'HTMLSelectElement':'HTMLInputElement';Object.getOwnPropertyDescriptor(dom.window[proto].prototype,'value').set.call(el,value);el.dispatchEvent(new dom.window.Event(el.tagName==='SELECT'?'change':'input',{bubbles:true}));});};
  const render=async(component)=>{if(!root)root=createRoot(document.querySelector('#root'));await act(async()=>root.render(React.createElement(LocaleProvider,null,component)));};
  const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;pending.length=0;};
- const hub=async(route='interviews',props={})=>render(React.createElement(Interviews,{route,problems:modules,...props}));
+ const hub=async(route='interviews',props={})=>{dom.window.history.replaceState(null,'','#/'+route);return render(React.createElement(Interviews,{route,problems:modules,...props}));};
  account();await hub();assert.equal(document.querySelector('.interview-hero'),null,'The large hero is removed');assert.equal(document.querySelector('.interview-sidebar').firstElementChild,document.querySelector('.interview-sharing-panel'),'Sharing is above official company resources');assert(document.querySelector('.interview-page-header h1'));assert.equal(document.querySelector('.interview-results-heading [role="status"]').textContent,'Loading experiences…','Pending results are shown as loading');
  await reply(take('interviews?'),{items:[],total:0,limit:20,offset:0});await reply(take('interviews/summary'),empty);
  assert(document.body.textContent.includes('Start with the first shared experience'));assert(document.querySelector('a[href*="account/continue/"]'));
