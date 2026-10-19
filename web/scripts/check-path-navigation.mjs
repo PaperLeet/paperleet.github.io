@@ -62,6 +62,8 @@ try {
   const preventNative=event=>event.preventDefault();window.addEventListener('click',preventNative,{once:true});
   document.querySelector('a').dispatchEvent(modified);assert.equal(location.pathname,'/papers/ppo/');
   const library=await server.ssrLoadModule('/src/libraryNavigation.ts');
+  for(const sort of ['difficulty','difficulty-desc','duration','duration-desc']){const from=library.libraryHref(undefined,{...library.emptyLibraryFilters(),view:'modules',sort,page:2,page_size:50});appLocation.hash=from;assert.equal(location.hash,'');assert.equal(library.readLibraryRoute(appLocation.hash).filters.sort,sort);assert.equal(new URLSearchParams(location.search).get('sort'),sort);appLocation.hash=library.withLibraryContext(22,from);assert.equal(library.libraryReturnHref(appLocation.hash),from);appLocation.hash=from;assert.equal(library.readLibraryRoute(appLocation.hash).filters.page,2);}
+  console.log('PASS exercise ordering path routes: all four closed difficulty/time orders survive native public paths, practice source context and exact page-size returns without fragments');
   const pageTwo=library.libraryHref(undefined,{...library.emptyLibraryFilters(),page:2,page_size:50,sort:'newest',view:'modules'});
   appLocation.hash=pageTwo;assert.equal(location.pathname,'/');assert.equal(location.hash,'');assert.equal(appLocation.hash,pageTwo);assert.equal(location.search,'?sort=newest&view=modules&page=2&page_size=50');
   const pagedPractice=library.withLibraryContext(problem.number,pageTwo);

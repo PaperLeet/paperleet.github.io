@@ -8,7 +8,7 @@ import { JSDOM } from 'jsdom';
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 const storage = globalThis.sessionStorage, localeStorage = globalThis.localStorage;
 try {
-  const { emptyLibraryFilters, libraryHref, libraryTags, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
+  const { emptyLibraryFilters, libraryHref, libraryTags, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, readPaperRegistryRoute, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const { signInHref, accountReturnHref } = await server.ssrLoadModule('/src/accountNavigation.ts');
   const { decodeProblemHash } = await server.ssrLoadModule('/src/reports.ts');
   const { collectionIdFromRoute, paperCollections, papersInCollection } = await server.ssrLoadModule('/src/paperCollections.ts');
@@ -64,6 +64,15 @@ try {
     assert.equal(accountReturnHref(decodeProblemHash(signInHref(withLibraryContext(22, view)))), withLibraryContext(22, view));
   }
   assert.equal(libraryHref(undefined, { ...emptyLibraryFilters(), sort: 'default' }), '#');
+  for(const sort of ['difficulty','difficulty-desc','duration','duration-desc']){
+    const filters={...emptyLibraryFilters(),view:'modules',sort,page:2,page_size:50},href=libraryHref(undefined,filters);assert.deepEqual(readLibraryRoute(href),{collectionId:undefined,filters});assert.equal(libraryReturnHref(withLibraryContext(22,href)),href);assert.equal(accountReturnHref(decodeProblemHash(signInHref(withLibraryContext(22,href)))),withLibraryContext(22,href));
+    for(const invalid of ['#/?sort='+sort,'#/?view=modules&company=google&sort='+sort,'#/collections/llm-basics?view=modules&sort='+sort])assert.equal(readLibraryRoute(invalid),undefined);
+    assert.equal(readPaperRegistryRoute('#/paper-registry?sort='+sort),undefined);
+    assert.equal(normalizeLibraryFilters({...filters,view:undefined},catalog.papers).sort,undefined);assert.equal(normalizeLibraryFilters({...filters,company:'google'},catalog.papers).sort,undefined);assert.equal(filters.sort,sort,'Normalization cannot mutate its input');
+    const rank={E:0,M:1,H:2},value=p=>sort.startsWith('difficulty')?rank[p.difficulty]:p.estimated_minutes||25,direction=sort.endsWith('-desc')?-1:1,expected=[...catalog.problems].sort((a,b)=>(value(a)-value(b))*direction||a.number-b.number);
+    assert.deepEqual(selectLibraryPractice(catalog.papers,catalog.problems,{}, {filters}).problems.map(p=>p.id),expected.map(p=>p.id));assert.deepEqual(selectLibraryPractice(catalog.papers,catalog.problems,{}, {filters},undefined,'en').problems.map(p=>p.id),expected.map(p=>p.id));
+  }
+  console.log('PASS exercise ordering contracts: closed direct-module-only routes, exact practice/sign-in/page-size round trips, independent difficulty/time orders with numbered ties, locale stability and immutable paper/company scope normalization');
   assert.equal(readLibraryRoute('#/?sort=unknown'), undefined);
   assert.equal(readLibraryRoute('#/?sort=title&sort=newest'), undefined);
   const samples = [
