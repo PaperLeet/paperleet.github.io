@@ -16,6 +16,7 @@ import {PublishingRules} from './PublishingRules';
 import {canPublishCommunity} from './communityPublishing';
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import PostReport from './PostReport';
+import DiscussionLink from './DiscussionLink';
 import {communityPostHref} from './communityNavigation';
 import {signInHref} from './accountNavigation';
 import {tabDraftStorage} from './communityDrafts';
@@ -59,6 +60,8 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const [publication,setPublication]=useState(()=>readPublication(tabDraftStorage(),owner,'reply',initial.id));
   const current=useRef(draft),mounted=useRef(true),working=useRef(false),readVersion=useRef(0),request=useRef<AbortController|undefined>(undefined);
   const textarea=useRef<HTMLTextAreaElement>(null),toggle=useRef<HTMLButtonElement>(null),composePrompt=useRef<HTMLButtonElement>(null);
+  const card=useRef<HTMLDivElement>(null),shareHref=location.href,sharing=useRef({owner,accountLoading,href:shareHref});sharing.current={owner,accountLoading,href:shareHref};
+  const canShare=()=>mounted.current&&!sharing.current.accountLoading&&sharing.current.owner===owner&&sharing.current.href===shareHref&&location.href===shareHref&&!!card.current?.isConnected&&!card.current.closest('[hidden],[aria-hidden="true"]');
   const editorView=useRef<MarkdownEditorView|undefined>(undefined);
   const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string;source:string;selection?:ReplyQuoteSelection;atEnd?:boolean}|undefined>(undefined),formId=fieldId+'-form';
   const closing=useRef<{opener:HTMLElement;href:string}|undefined>(undefined);
@@ -234,7 +237,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const editingRow=replyEdit?detail?.replies.find(row=>row.id===replyEdit.id):undefined;
   const target=draft.parentId?detail?.replies.find(row=>row.id===draft.parentId):undefined;
   const missingTarget=!!draft.parentId&&!!detail&&!target;
-  return <div className="community-card-interaction">
+  return <div ref={card} className="community-card-interaction">
     <div className="post-card-counts card-actions">
       <button ref={toggle} type="button" onClick={expand} aria-expanded={open} aria-controls={regionId} disabled={accountLoading}>
         <MessageCircle size={15}/><span>{post.counts.replies} {t('评论','comments')}</span>{open?<ChevronUp size={13}/>:<ChevronDown size={13}/>}
@@ -245,6 +248,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       <button type="button" onClick={writeComment} aria-controls={regionId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery}><PenLine size={15}/>{t('写评论','Write comment')}</button>
       <span className="card-reposts"><Repeat2 size={13}/>{post.counts.reposts} {t('转发','reposts')}</span>
       <PostReport postId={post.id} returnTo={href} own={post.viewer.can_edit||post.author.id===owner} disabled={accountLoading||!!replyEdit||!!busy}/>
+      <DiscussionLink key={`post-share:${accountLoading}`} postId={post.id} returnTo={returnTo} compact name={post.title} disabled={accountLoading} canAct={canShare}/>
       {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
       {children&&<div className="card-actions-extras">{children}</div>}
     </div>
@@ -267,6 +271,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
           <div className="card-comment-links"><AppLink href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</AppLink>
             {owner&&<button type="button" disabled={!!replyEdit||!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}{owner&&<button type="button" disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} aria-label={t(`引用${row.author.anonymous?'匿名用户':row.author.display_name||'用户'}的评论`,`Quote comment from ${row.author.anonymous?'Anonymous':row.author.display_name||'user'}`)} onClick={()=>quoteComment(row)}><Quote size={12} aria-hidden="true"/>{t('引用','Quote')}</button>}
             {canEditReply(row,owner)&&<button type="button" data-card-edit-reply={row.id} aria-controls={fieldId+'-edit'} aria-expanded={replyEdit?.id===row.id&&open} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} onClick={event=>startReplyEdit(row,event.currentTarget)}><PenLine size={12} aria-hidden="true"/>{t('编辑评论','Edit comment')}</button>}
+            <DiscussionLink key={`reply-share:${accountLoading}`} postId={post.id} replyId={row.id} returnTo={returnTo} compact showReplyLink={false} name={row.author.anonymous?t('匿名用户','Anonymous'):row.author.display_name} disabled={accountLoading} canAct={canShare}/>
             <ReplyReadingReturn list={replies} replyId={row.id}/>
           </div>
         </li>;})}</ol>:<p className="card-comments-empty">{t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}</p>}
