@@ -43,7 +43,7 @@ export default function CommunitySearch({applied,onApply,label,placeholder,disab
    onKeyDown={event=>{
     const ime=composing.current||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229;
     if(event.key==='Enter'){imeEnter.current=ime;return;}
-    if(event.key==='Escape'&&!ime&&query){event.preventDefault();event.stopPropagation();clear();}
+    if(event.key==='Escape'&&!ime&&!event.repeat&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&query){event.preventDefault();event.stopPropagation();clear();}
    }} onKeyUp={event=>{if(event.key==='Enter')imeEnter.current=false;}} onBlur={()=>{imeEnter.current=false;}}/>
   {!!query&&<button type="button" disabled={disabled} className="community-search-clear" aria-label={t('清空搜索','Clear search')} title={t('清空搜索','Clear search')} onClick={clear}><X size={16} aria-hidden="true"/></button>}
   <button type="submit" className="community-search-submit" disabled={disabled} aria-label={t('搜索','Search')} onPointerDown={()=>{if(!composing.current)imeEnter.current=false;}}>{t('搜索','Search')}</button>

@@ -339,3 +339,5 @@
 @media(pointer:coarse){.interview-filter-support>.button,.interview-readonly-notice :is(a,button){min-height:44px}}
 
 .interview-readonly-notice:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+.interview-search-reading-note{margin:0 0 16px;padding:10px 13px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);font-size:var(--type-small);line-height:1.7;color:var(--text-secondary);overflow-wrap:anywhere}
