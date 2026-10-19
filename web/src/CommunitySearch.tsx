@@ -6,7 +6,7 @@ import './community-search.css';
 const bounded=(value:string)=>Array.from(value).slice(0,200).join('');
 const normalized=(value:string)=>bounded(value).replace(/[\u0000-\u001f\u007f]/g,' ').trim();
 
-export default function CommunitySearch({applied,onApply,label,placeholder,disabled=false,className='community-search',describedBy,inputRef,resetScope,readingRevision}:{applied:string;onApply:(query:string)=>void;label?:string;placeholder?:string;disabled?:boolean;className?:string;describedBy?:string;inputRef?:RefObject<HTMLInputElement|null>;resetScope?:string;readingRevision?:number}){
+export default function CommunitySearch({applied,onApply,label,placeholder,disabled=false,className='community-search',describedBy,inputRef,resetScope,readingRevision,canAct,controls}:{applied:string;onApply:(query:string)=>void;label?:string;placeholder?:string;disabled?:boolean;className?:string;describedBy?:string;inputRef?:RefObject<HTMLInputElement|null>;resetScope?:string;readingRevision?:number;canAct?:()=>boolean;controls?:string}){
  const {t}=useI18n(),hint=useId(),fallback=useRef<HTMLInputElement>(null),composing=useRef(false),imeEnter=useRef(false);
  const input=inputRef||fallback;
  const [query,setQuery]=useState(applied);
@@ -22,29 +22,29 @@ export default function CommunitySearch({applied,onApply,label,placeholder,disab
  },[applied,resetScope,readingRevision]);
  useEffect(()=>{if(disabled){composing.current=false;imeEnter.current=false;}},[disabled]);
  function change(value:string,transient=composing.current){
-  if(disabled)return;
+  if(disabled||canAct&&!canAct())return;
   const next=transient?value:bounded(value);setQuery(next);
   if(!transient&&!next&&applied)onApply('');
  }
  function clear(){
-  if(disabled)return;
+  if(disabled||canAct&&!canAct())return;
   setQuery('');imeEnter.current=false;
   input.current?.focus({preventScroll:true});
   // Cancelling unsubmitted text does not reset the current feed's page.
   if(applied)onApply('');
  }
  function restore(){
-  if(disabled||composing.current)return;
+  if(disabled||composing.current||canAct&&!canAct())return;
   setQuery(applied);imeEnter.current=false;
   input.current?.focus({preventScroll:true});
  }
  return <form className={`${className} community-query`} data-query={!!query||undefined} data-pending={pending||undefined} role="search" aria-label={label||t('搜索讨论','Search discussions')} onSubmit={event=>{
-  event.preventDefault();if(disabled||composing.current||imeEnter.current)return;
+  event.preventDefault();if(disabled||composing.current||imeEnter.current||canAct&&!canAct())return;
   const next=normalized(query);setQuery(next);onApply(next);
  }}>
   <Search size={16} className="community-search-icon" aria-hidden="true"/>
   <span id={hint} className="sr-only">{t('最多200个字符。Enter搜索，Esc清空。','Up to 200 characters. Enter to search; Escape to clear.')}</span>
-  <input ref={input} type="search" enterKeyHint="search" disabled={disabled} aria-label={label||t('搜索讨论','Search discussions')} aria-describedby={[hint,describedBy,pending?hint+'-pending':undefined].filter(Boolean).join(' ')} placeholder={placeholder||t('搜索讨论…','Search discussions…')} value={query} maxLength={400}
+  <input ref={input} type="search" enterKeyHint="search" disabled={disabled} aria-controls={controls} aria-label={label||t('搜索讨论','Search discussions')} aria-describedby={[hint,describedBy,pending?hint+'-pending':undefined].filter(Boolean).join(' ')} placeholder={placeholder||t('搜索讨论…','Search discussions…')} value={query} maxLength={400}
    onChange={event=>change(event.target.value,composing.current||(event.nativeEvent as InputEvent).isComposing===true)}
    onCompositionStart={()=>{composing.current=true;imeEnter.current=false;}}
    onCompositionEnd={event=>{composing.current=false;change(event.currentTarget.value);}}

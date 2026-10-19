@@ -86,6 +86,8 @@ for(const name of ['LibraryPagination','LibraryCollections','LibraryResultContro
  assert(manifest[entry]?.isDynamicEntry&&!initial.has(entry), `${name} must remain deferred independently of the first usable library list`);
 }
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('interview-concept-save-retry')), 'Interview concept bookmark controls must stay deferred with interview preparation');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('card-comment-search-summary')), 'Inline comment search must stay deferred with community cards');
+assert(Object.values(manifest).some(entry=>entry.file.endsWith('.js')&&fs.readFileSync(`dist/${entry.file}`,'utf8').includes('card-comment-search-summary')), 'Published community cards must retain inline comment search');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
