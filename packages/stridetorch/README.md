@@ -6,12 +6,13 @@ reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
 existing browser adapter. Core API fixes and performance improvements are
 developed here and checked against independent native PyTorch results.
 
-Version **0.83** is a development candidate that releases unused operand arrays
-from ordinary multiplication and direct-division pullbacks. Gradient arithmetic,
-saved-value guards and higher-order rules retain their qualified 0.82 behavior.
-The [development record](../../docs/validation/torch-runtime-0.83-development.md)
-separates measured allocation/timing scope from application integration, which
-remains pending. Production WebGPU remains disabled.
+Version **0.83** releases unused operand arrays from ordinary multiplication
+and direct-division pullbacks. A measured large scalar chain reduces traced
+peak allocation by about 83%; the scoped latency costs are retained in the
+[qualification record](../../docs/validation/torch-runtime-0.83-qualification.md).
+Gradient arithmetic, saved-value guards and higher-order rules retain their
+qualified 0.82 behavior. CPU/Pyodide package and current PaperLeet application
+checks pass locally. Production WebGPU remains disabled.
 
 Version **0.81** packs contiguous reduction rows for eligible 2D WASM matrix
 products. Representative complete forward/gradient flows improve while native

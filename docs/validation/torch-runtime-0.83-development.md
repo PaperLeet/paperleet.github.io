@@ -1,5 +1,9 @@
 # Torch runtime 0.83 development candidate
 
+This is the historical development-stage record. The subsequent
+[0.83 qualification](torch-runtime-0.83-qualification.md) resolves its pending
+SDK/package/application gates while preserving the original measurements.
+
 The 0.83 candidate adopts the qualified binary operand-lifetime change described
 in the [owned-flow record](torch-operand-lifetime-owned-flow.md). Its numerical
 source matches the frozen measured 0.82 candidate; the package version literal
