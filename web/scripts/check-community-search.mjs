@@ -7,15 +7,15 @@ const globals={window:dom.window,document:dom.window.document,navigator:dom.wind
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
 localStorage.setItem('paperleet.locale','en');
-const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
 let root;
 try{
  const {createRoot}=await import('react-dom/client');
  const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
  const {default:Search}=await server.ssrLoadModule('/src/CommunitySearch.tsx');
- const calls=[];let applied='old',owner='alice',disabled=false,resetScope,strict=false;
+ const calls=[];let applied='old',owner='alice',disabled=false,resetScope,readingRevision,strict=false;
  function Locale(){const {locale,setLocale}=useI18n();return React.createElement('button',{id:'locale',onClick:()=>setLocale(locale==='en'?'zh':'en')},'locale');}
- const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));const control=React.createElement(Search,{key:owner,applied,disabled,resetScope,onApply:value=>calls.push(value)});root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),strict?React.createElement(React.StrictMode,null,control):control));});
+ const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));const control=React.createElement(Search,{key:owner,applied,disabled,resetScope,readingRevision,onApply:value=>calls.push(value)});root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),strict?React.createElement(React.StrictMode,null,control):control));});
  const field=()=>document.querySelector('.community-search input'),form=()=>document.querySelector('.community-search');
  const edit=async value=>act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(field(),value);field().dispatchEvent(new dom.window.Event('input',{bubbles:true}));});
  const key=async(type,value,extra={})=>{const event=new dom.window.KeyboardEvent(type,{key:value,bubbles:true,cancelable:true,...extra});await act(async()=>field().dispatchEvent(event));return event;};
@@ -56,4 +56,13 @@ try{
  await composition('compositionstart');await edit('Unconfirmed composition');await click(restore());assert.equal(field().value,'Unconfirmed composition');assert.equal(calls.length,1);await composition('compositionend');await click(restore());assert.equal(field().value,applied);assert.equal(status(),null);
  await edit('Do not carry this draft');resetScope='second-view';await render();assert.equal(field(),feedbackInput);assert.equal(field().value,applied);assert.equal(status(),null);assert.equal(calls.length,1);await edit('Previous owner input');owner='other-feedback-owner';applied='Other query';await render();assert.notEqual(field(),feedbackInput);assert.equal(field().value,'Other query');assert.equal(status(),null);assert.equal(location.href,url);
  console.log('PASS explicit search feedback: real StrictMode input distinguishes draft and applied scope, visible localized submit/atomic generic status, canonical-equivalence handling, no typing calls, caller-confirmed apply, callback-free restore with stable focus/page, disabled/composition gates and scope/owner retirement');
+ // Reading-only applied-query changes preserve the current draft in place;
+ // ordinary caller changes, scope changes and owner remounts keep reset semantics.
+ owner='reading-owner';resetScope='thread-one';readingRevision=0;applied='Peer';calls.length=0;await render();const readingInput=field();
+ await edit('Pending 😀 query');field().focus();field().setSelectionRange(1,9,'backward');field().scrollLeft=27;applied='';readingRevision++;await render();assert.equal(field(),readingInput);assert.deepEqual([field().value,field().selectionStart,field().selectionEnd,field().selectionDirection,field().scrollLeft],['Pending 😀 query',1,9,'backward',27]);assert(status());assert.equal(calls.length,0);
+ await edit('Newer pending');field().setSelectionRange(2,7,'forward');field().scrollLeft=33;applied='Peer';readingRevision++;await render();assert.deepEqual([field().value,field().selectionStart,field().selectionEnd,field().selectionDirection,field().scrollLeft],['Newer pending',2,7,'forward',33]);assert.equal(document.activeElement,readingInput);assert.equal(calls.length,0);
+ applied='Saved applied view';await render();assert.equal(field().value,applied,'A regular caller change still resets pending text');await edit('Previous scope input');resetScope='thread-two';readingRevision++;await render();assert.equal(field().value,applied,'A scope change wins over reading continuity');assert.equal(field(),readingInput);
+ await edit('Other owner input');owner='reading-other';applied='Other owner view';readingRevision++;await render();assert.notEqual(field(),readingInput);assert.equal(field().value,applied);assert.equal(calls.length,0);assert.equal(location.href,url);
+ console.log('PASS reading search continuity: actual StrictMode input retains pending text/native selection/direction/scroll on temporary reading changes, preserves newer typing, avoids callbacks and retains ordinary reset/scope/owner semantics');
+
 }finally{if(root)await act(async()=>root.unmount());await server.close();dom.window.close();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}

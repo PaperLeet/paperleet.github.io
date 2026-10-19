@@ -31,6 +31,7 @@ function watchInteractions(){
 export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disabled=false,batchSize=PAGE_SIZE,initialOrder='oldest',rowIdPrefix='reply-',revealBlock='start'}:{replies?:Reply[];authorId?:string;linkedReply?:string;disabled?:boolean;batchSize?:3|20;initialOrder?:Order;rowIdPrefix?:string;revealBlock?:ScrollLogicalPosition}){
  const root=useRef<HTMLElement>(null),located=useRef<string|undefined>(undefined),previousLinked=useRef<string|undefined>(undefined),processed=useRef<Jump|undefined>(undefined);
  const [order,setOrder]=useState<Order>(initialOrder),[authorOnly,setAuthorOnly]=useState(false),[query,setQuery]=useState(''),[limit,setLimit]=useState<number>(batchSize),[jump,setJump]=useState<Jump>();
+ const [searchReadingRevision,setSearchReadingRevision]=useState(0);
  const [history,setHistory]=useState<Origin[]>([]),[revealed,setRevealed]=useState<string>(),[notice,setNotice]=useState<ReadingNotice>();
  const [restored,setRestored]=useState<{request:number;query:string;expanded:DiscussionExpansion[]}>();
  useEffect(watchInteractions,[]);
@@ -57,7 +58,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   const row=element&&root.current?.contains(element)&&byId.has(element.dataset.discussionReply||'')?element:undefined;
   const origin=trigger?.isConnected&&row?.dataset.discussionReply!==id?{href:request.href,trigger,row:row?.dataset.discussionReply,...captureReadingAnchor(row||trigger),order,authorOnly,query,limit,revealed}:undefined;
   const inFilter=matched.some(reply=>reply.id===id),rows=inFilter?matched:ordered;
-  if(!inFilter){setAuthorOnly(false);setQuery('');}
+  if(!inFilter){setAuthorOnly(false);if(query)setSearchReadingRevision(value=>value+1);setQuery('');}
   const index=rows.findIndex(reply=>reply.id===id);
   setLimit(value=>Math.max(value,Math.ceil((index+1)/batchSize)*batchSize));
   setJump({...request,kind:'reveal',id,origin});
@@ -88,7 +89,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
    const restoredTerms=replySearchTerms(restoreQuery);
    const visible=rows.filter(row=>(!restoreAuthor||row.author.id===authorId)&&(!restoreQuery||matchesReplySearch(replySearchText(row),restoredTerms)));
    const index=origin.row?visible.findIndex(row=>row.id===origin.row):-1;
-   setOrder(origin.order);setAuthorOnly(restoreAuthor);setQuery(restoreQuery);setLimit(Math.max(origin.limit,Math.ceil((index+1)/batchSize)*batchSize));
+   setOrder(origin.order);setAuthorOnly(restoreAuthor);if(query!==restoreQuery)setSearchReadingRevision(value=>value+1);setQuery(restoreQuery);setLimit(Math.max(origin.limit,Math.ceil((index+1)/batchSize)*batchSize));
    setHistory(value=>value.at(-1)===origin?value.slice(0,-1):value);
    setRevealed(origin.row&&byId.has(origin.row)?origin.row:origin.revealed&&byId.has(origin.revealed)?origin.revealed:undefined);
    setNotice({href:jump.href,kind:origin.row?byId.has(origin.row)?'restored':'missing':origin.trigger.isConnected?'restored':'missing'});
@@ -112,7 +113,7 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   }
  },[jump,rowIdPrefix,revealBlock,disabled]);
  const previous=history.at(-1),canReturn=!!previous&&previous.href===location.href;
- return {root,shown,byId,authorOnly,order,query,total:matched.length,reveal,revealed,disabled,canReturn,clearReadingReturn,notice:notice&&notice.href===location.href?notice.kind:undefined,
+ return {root,shown,byId,authorOnly,order,query,searchReadingRevision,total:matched.length,reveal,revealed,disabled,canReturn,clearReadingReturn,notice:notice&&notice.href===location.href?notice.kind:undefined,
   snapshotView:():DiscussionView=>({order,authorOnly,query,limit}),restoreRequest:restored?.request||0,
   restoredExpansion:(reply:Reply)=>restored?.query===query&&!!reply.edit_version&&restored.expanded.some(value=>value.reply===reply.id&&value.revision===reply.edit_version),
   restoreView(value:DiscussionView,expanded:DiscussionExpansion[],request:number,anchor?:string){
@@ -167,7 +168,7 @@ export function ReplyListControls({list,disabled}:{list:ReturnType<typeof useDis
   <select aria-label={t('回复排序','Sort replies')} value={list.order} disabled={disabled} onChange={event=>list.chooseOrder(event.target.value as Order)}><option value="oldest">{t('最早回复','Oldest first')}</option><option value="newest">{t('最新回复','Newest first')}</option></select>
   <span role="status">{t(`显示 ${list.shown.length} / ${list.total} 条回复`,`${list.shown.length} of ${list.total} replies shown`)}</span>
   {list.query&&list.firstMatch&&<button type="button" className="discussion-reply-first-match" disabled={disabled} onClick={()=>{if(list.firstMatch)list.seekSearchReply(list.firstMatch);}}>{t('跳到首条匹配','Go to first match')}</button>}
-  <div className="discussion-reply-search"><CommunitySearch applied={list.query} onApply={list.chooseQuery} disabled={disabled} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
+  <div className="discussion-reply-search"><CommunitySearch applied={list.query} readingRevision={list.searchReadingRevision} onApply={list.chooseQuery} disabled={disabled} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
   <p id={help} className="discussion-reply-search-help">{t('搜索本帖全部公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search all public replies in this discussion. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.')}</p>
  </div>;
 }
