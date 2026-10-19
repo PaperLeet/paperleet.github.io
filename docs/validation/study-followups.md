@@ -308,3 +308,41 @@ Duplicating supplied score arrays is distinct from a causal model recomputing
 scores after text repetition. Empty-response scaling follows the local GSPO
 batch convention. No new numerical judge execution, SDK probe, grading rule,
 training result, solver implementation or deployment is introduced.
+
+The operator expansion adds fourteen original bilingual follow-ups to seven
+previously unenriched guides: differential attention, KDA, Block AttnRes,
+SiTU-GLU, Muon Split, SVDQuant and the Rotation Trick. The collection now has 130
+follow-ups across 65 guides. All 116 previous follow-ups, 267 core prompts and 89
+guide identities remain equal as parsed objects. The existing deferred-reader
+fixture checks every new question and hint in both languages, including native
+disclosure state, topic transitions, the full-notes gate and private editor
+preservation. These are editorial discussions, without company or measured
+interview-frequency claims.
+
+Primary background is pinned to [Differential Attention §2.1](https://arxiv.org/html/2410.05258v1#S2.SS1),
+[Kimi K3 v2 architecture §2](https://arxiv.org/html/2607.24653v2#S2),
+[GLM-5 v2 head-wise orthogonalization](https://arxiv.org/html/2602.15763v2#S2.SS1),
+[SVDQuant’s two-branch equation](https://arxiv.org/html/2411.05007v1#S4.SS2),
+and [Rotation Trick §4.2](https://arxiv.org/html/2410.06424v1#S4.SS2).
+Both local statement languages determine each teaching contract. In particular,
+the exact SVD/cutoff in Muon Split and per-tensor INT fake quantizer in SVDQuant
+are local conventions, not claims about the papers’ production kernels.
+
+The algebra was manually reviewed with explicit premises. Differential examples
+use an allowed two-key row and distinguish independent logits from shared
+projection parameters. KDA overwrite requires a unit key for the beta-one
+identity; its write-order example uses the accepted alpha/beta endpoint 1 and
+reads the final state with the specified query. Duplicate depth sources remain
+separate slots; the positive-scale identity also scales epsilon by c² and uses
+ideal arithmetic. SiTU bounds distinguish coordinates, vector width and an
+external projection. Muon’s radial-gradient relation stays away from repeated
+singular values and rank/cutoff changes, and is only a necessary check.
+
+The SVD counterexample compares the low-rank subproblem under two different
+error metrics; it neither replaces the required weight SVD nor ranks complete
+quantized pipelines. Its three-term quantization-error expansion keeps matrix
+order and the ideal zero-residual endpoint. Rotation finite differences rebuild
+a constant forward value map in ideal arithmetic, while the required surrogate
+freezes its base-point transform; separate caller losses can still update the
+original codebook variable. No new numerical judge/SDK execution, training
+result, benchmark, grading rule, solver implementation or deployment is claimed.

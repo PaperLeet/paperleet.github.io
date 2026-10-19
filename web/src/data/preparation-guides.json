@@ -1109,6 +1109,30 @@
             "en": "Distinguish row orthogonality from column orthogonality. The gradient contract covers full-rank inputs with distinct singular values, not derivatives at rank changes."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "per-head-gram",
+          "question": {
+            "zh": "两个头分别满足正交性，拼接后的整矩阵是否也必须满足同一个单位 Gram 矩阵条件？",
+            "en": "If each head is orthogonal, must their concatenation satisfy the same identity-Gram condition?"
+          },
+          "hint": {
+            "zh": "取两个 2×2 头，都为 diag(2,1)，各自的极分解因子都是 I₂。按行拼接 P=[I₂;I₂] 后，PᵀP=2I₂，而非 I₂；每个头自身的 Gram 仍为 I₂。整矩阵与逐头投影使用不同约束。更一般地，若 H 个头各自满列秩且 PhᵀPh=I，拼接的列 Gram 就是 HI。",
+            "en": "Take two 2×2 heads, each diag(2,1). Both polar factors are I₂. Their row concatenation P=[I₂;I₂] has PᵀP=2I₂, while each head's own Gram is I₂. Joint and per-head projection impose different constraints. More generally, H full-column-rank heads with PhᵀPh=I concatenate to column Gram HI."
+          }
+        },
+        {
+          "id": "radial-gradient-constraint",
+          "question": {
+            "zh": "怎样把单个头的正缩放不变性，转成检查梯度方向的一条解析关系？",
+            "en": "How does positive-scale invariance of one head constrain the direction of its input gradient?"
+          },
+          "hint": {
+            "zh": "在奇异值互异、满秩且保留方向不变的邻域，P(cG)=P(G)，c>0。对 c 在 1 处求导得到 DP(G)[G]=0。若标量损失只通过该头的 P 依赖 G，则 Frobenius 内积 <grad_G L,G>=0。只检验这个必要关系还不够：其他尺度不变的错误映射也可能通过，仍需结合部分极分解的前向约束。",
+            "en": "In a full-rank neighborhood with distinct singular values and a fixed retained subspace, P(cG)=P(G) for c>0. Differentiating at c=1 gives DP(G)[G]=0. If a scalar loss depends on G only through this head's P, then the Frobenius inner product <grad_G L,G> is zero. This necessary relation also holds for other scale-invariant maps, so combine it with the required partial-polar forward constraints."
+          }
+        }
       ]
     },
     {
@@ -3608,6 +3632,30 @@
             "en": "Use e=(2,0), q=(0,3), upstream g=(1,0): forward is q and the encoder gradient is (0,−1.5), rather than STE’s (1,0); q has no gradient or a zero gradient. Positive-collinear q=3e gives 3g. Reject zero/antiparallel vectors as specified. Check the analytical surrogate Jacobian, not finite differences of nearest-code selection."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "fixed-code-finite-difference",
+          "question": {
+            "zh": "即使 q 已固定、没有重新选码本，为什么每次重建旋转的前向有限差分也不能验证本题的替代梯度？",
+            "en": "Even with q fixed and no new code selection, why can forward finite differences that rebuild the rotation disagree with the surrogate gradient?"
+          },
+          "hint": {
+            "zh": "在理想算术且输入合法的邻域内，每次重建后 sR(e,q)e 都等于固定的 q，所以数值映射是常量。以 e=(1,0)、q=(0,2)、损失为输出坐标之和为例，重建映射的有限差分为零，而冻结变换的替代梯度为 (2,-2)。要验证替代 Jacobian，应固定基点的变换后检查线性映射，或直接使用解析矩阵；两种检查衡量的对象不同。",
+            "en": "In ideal arithmetic within a valid neighborhood, rebuilding sR(e,q)e always returns the fixed q, so the numerical value map is constant. For e=(1,0), q=(0,2) and loss equal to the sum of output coordinates, rebuilt forward differences are zero while the frozen-transform surrogate gradient is (2,-2). Check the linear map with its base-point transform fixed, or use its analytic matrix, to verify the intended surrogate Jacobian."
+          }
+        },
+        {
+          "id": "separate-codebook-path",
+          "question": {
+            "zh": "量化替代路径不给 q 梯度，是否意味着完整训练目标中的码本参数也不能学习？怎样按损失路径分别求导？",
+            "en": "Does blocking the quantizer's surrogate gradient to q also prevent a separate codebook loss from learning q?"
+          },
+          "hint": {
+            "zh": "另设 L=h(rotation_quantize(e,q))+eta·||q-sg(e)||²，sg 表示停止梯度，eta 为固定系数。重建路径给 e 的梯度是 sRᵀ·grad h，独立码本项给 q 的梯度是 2eta·(q-sg(e))。该码本项不给 e 梯度，量化替代路径不给 q 梯度。冻结的是指定路径，不应在 helper 内全局关闭原 q 的梯度；额外损失由调用方组合。",
+            "en": "Consider the separate objective L=h(rotation_quantize(e,q))+eta·||q-sg(e)||², with fixed eta and stop-gradient sg. The reconstruction path gives e gradient sRᵀ·grad h; the independent codebook term gives q gradient 2eta·(q-sg(e)). That term has no e gradient, and the quantizer surrogate has no q gradient. Freeze the designated path rather than globally disabling gradients on the original q; the caller composes extra losses."
+          }
+        }
       ]
     },
     {
@@ -3866,6 +3914,30 @@
             "en": "With zero Q/K in both branches, T=2, D=1, V=[[2,4],[6,8]], causal mode and lambda=0.25, expect [[1.5,3],[3,4.5]]. Equal maps cancel at lambda=1. Adding c to every value adds (1−lambda)c to output. Then use distinct maps, perturb future K/V and check all input/coefficient gradients. Common-offset cancellation does not imply arbitrary noise reduction."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "zero-output-live-logits",
+          "question": {
+            "zh": "两张注意力图相同、lambda=1 导致输出为零时，两条分支的 logits 梯度也一定为零吗？",
+            "en": "With identical maps and lambda=1, does zero output force both branches' logit gradients to vanish?"
+          },
+          "hint": {
+            "zh": "把两组 logits 视为独立变量。某行两图均为 (1/2,1/2)，value 为 (0,0)、(2,0)，上游梯度为 (1,0)，则两组 logit 梯度分别为 (-1/2,1/2) 与 (1/2,-1/2)，lambda 梯度为 -1。若两分支共享同一参数，才需要合并它们对该参数的贡献；投影参数的梯度还要继续经过 Q/K 的链式法则。",
+            "en": "Treat the two logit arrays as independent variables. For one row with maps (1/2,1/2), values (0,0) and (2,0), and upstream gradient (1,0), their logit gradients are (-1/2,1/2) and (1/2,-1/2); the lambda gradient is -1. Contributions must be combined if parameters are shared. Projection-parameter gradients also pass through the Q/K chain rule."
+          }
+        },
+        {
+          "id": "outside-value-hull",
+          "question": {
+            "zh": "能否用两个有效的 softmax 分布，让差分输出落到 value 的凸包之外？这时重新归一化差分权重会怎样？",
+            "en": "Can two valid softmax maps produce an output outside the values' convex hull, and can renormalizing their difference fix it?"
+          },
+          "hint": {
+            "zh": "取两图为 (0.9,0.1)、(0.1,0.9)，lambda=1，两个 value 为 (0,0)、(1,0)。差分权重为 (0.8,-0.8)，输出 (-0.8,0)，已超出原凸包。这些概率可由有限 logits 产生。此处行和为零，不能再除以行和；lambda 不等于 1 时，除以 1-lambda 也不会自动消除负权重，还会改变本题算子。",
+            "en": "Use maps (0.9,0.1) and (0.1,0.9), lambda=1, and values (0,0) and (1,0). The signed weights (0.8,-0.8) give (-0.8,0), outside the original hull. Finite logits can produce both maps. Their difference has zero row sum here. At other lambda values, division by 1-lambda still need not remove negative weights and changes the required operator."
+          }
+        }
       ]
     },
     {
@@ -3907,6 +3979,30 @@
           "hint": {
             "zh": "取初始状态 2，q=k=1，α=0.5，β=0.25，v=5：遗忘后为 1，残差为 4，更新后状态和输出都为 2。β=0 时仍衰减到 1，β=1 时单位 key 覆写为 5。再比较整段与两段拼接、K≠V、逐通道 α、空序列与非连续输入，检查非空序列中 q/k/v/α/β/初始状态的梯度。",
             "en": "Take initial state 2, q=k=1, alpha=0.5, beta=0.25 and v=5. Decay gives 1, residual 4, and updated state/output 2. Beta=0 still decays to 1; beta=1 overwrites the unit-key value with 5. Compare whole and split scans, unequal K/V widths, channel-specific retention, empty/strided inputs and gradients through all six inputs of a nonempty scan."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "unit-key-overwrite",
+          "question": {
+            "zh": "固定遗忘后的状态，beta=1 是否一定能把当前 key 对应的值精确覆写成 v？key 的范数起什么作用？",
+            "en": "With the decayed state fixed, does beta=1 always overwrite the current key's prediction with v?"
+          },
+          "hint": {
+            "zh": "左乘 k 的转置，得到 kᵀS_new=(1-beta·||k||²)kᵀS_bar+beta·||k||²vᵀ。单位 key 配合 beta=1 才给出这个覆写结论。标量 k=2、S_bar=0、v=1、beta=1 时，新状态为 2，但该 key 的预测为 4。这里分析的是 key 的读出；实际输出还由 q 决定。scan 使用调用方准备好的 key，不在函数内追加归一化。",
+            "en": "Left-multiply the update by kᵀ: kᵀS_new=(1-beta·||k||²)kᵀS_bar+beta·||k||²vᵀ. A unit key with beta=1 gives the overwrite identity. For scalar k=2, S_bar=0, v=1 and beta=1, the new state is 2 but its key prediction is 4. This concerns a read by k; the actual output uses q. The scan consumes prepared keys without adding normalization."
+          }
+        },
+        {
+          "id": "nonorthogonal-write-order",
+          "question": {
+            "zh": "即使每次都用单位 key 精确覆写当前值，先后写入两个非正交 key 的顺序为何仍会影响旧值？",
+            "en": "Why can two unit-key overwrite operations interfere with each other when their keys are not orthogonal?"
+          },
+          "hint": {
+            "zh": "用接口接受的解析端点 alpha=beta=1，从零状态开始。依次写 k1=(1,0),v1=1 和 k2=(1,1)/sqrt(2),v2=0，最终状态列向量为 (1/2,-1/2)，再用 q=k1 读取是 1/2。反过来写则得到 (1,0)，读出为 1。每次写入沿当前 key 修正，非正交旧 key 也会看到这一改变量；正交 key 的该项内积为零。",
+            "en": "Use the interface's analytic endpoints alpha=beta=1 and zero initial state. Write k1=(1,0), v1=1, then k2=(1,1)/sqrt(2), v2=0. The final state column is (1/2,-1/2), so q=k1 reads 1/2. Reversing the writes gives (1,0) and readout 1. A correction along one key also changes a nonorthogonal old key's prediction; that cross term vanishes for orthogonal keys."
           }
         }
       ]
@@ -3952,6 +4048,30 @@
             "en": "For scalar sources 2 and 6, a zero query gives weights [0.5,0.5] and output 4. Appending a zero source gives 8/3; None leaves 4. A sole embedding 2 must return 2 unchanged. Permuting sources only permutes weights. Tokens do not compete. Use a nonzero query for source/query/norm-scale gradient checks, plus strided inputs and large logits."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "duplicate-source-prior",
+          "question": {
+            "zh": "深度来源可以任意置换，为什么复制一个完全相同的来源却通常会改变输出？",
+            "en": "Why is depth attention invariant to source permutation but generally changed by duplicating an identical source?"
+          },
+          "hint": {
+            "zh": "固定原来源分数，令 Z 为原 softmax 分母。复制第 j 个来源后，两份的合计权重变成 2exp(zj)/(Z+exp(zj))，相当于该来源增加 log(2) 的先验分数。零 query 下，来源 0、3 的输出为 3/2；复制 3 后输出为 2。因此，数值相等的真实块仍是不同的 softmax 槽，不能按数值去重。",
+            "en": "Fix the original scores and let Z be their softmax denominator. Duplicating source j gives its two copies total mass 2exp(zj)/(Z+exp(zj)), equivalent to adding log(2) to that source's grouped score. With zero query, values 0 and 3 average to 3/2; duplicating 3 changes the output to 2. Equal-valued real blocks remain distinct softmax slots."
+          }
+        },
+        {
+          "id": "joint-scale-epsilon",
+          "question": {
+            "zh": "把全部来源乘正数 c 时，怎样同步调整 epsilon，才能保持深度权重不变、让 mixed 恰好乘 c？",
+            "en": "How should epsilon change when all sources are scaled by c>0 so that weights stay fixed and mixed scales by c?"
+          },
+          "hint": {
+            "zh": "固定 query 与 norm_weight，同时令 epsilon_new=c²epsilon。分子、RMS 分母都乘 c，所以归一化 key 不变，权重不变；原始 value 乘 c，mixed 也乘 c。在理想算术下这是正 epsilon 的恒等式。若只放大来源而固定 epsilon，靠近 epsilon 尺度的来源一般会改变 key，不能直接套用该不变性。",
+            "en": "Keep query and norm_weight fixed and set epsilon_new=c²epsilon. Both numerator and RMS denominator scale by c, leaving keys and weights unchanged; raw values and mixed scale by c. This is an exact positive-epsilon identity in ideal arithmetic. With epsilon held fixed, sources near its scale generally change their normalized keys."
+          }
+        }
       ]
     },
     {
@@ -3993,6 +4113,30 @@
           "hint": {
             "zh": "用 gate=8、up=2、β1=1、β2=3，分别比较原公式、错误的 capped sigmoid 和交换两支后的结果；它们应不同。再检查任意一支为零、相反符号、大幅值输出界限、负 gate 尾部趋零，以及两支同时靠近原点或 cap 变大时接近 SwiGLU。对未饱和的不同两支做解析或中心差分梯度检查。",
             "en": "Use gate=8, up=2, beta1=1 and beta2=3 to distinguish the formula, capped-sigmoid mistake and swapped branches. Also check a zero branch, opposite signs, large-value bounds, vanishing negative-gate tail and convergence toward SwiGLU near zero or with increasing caps. Verify gradients with unequal, unsaturated branches using analytic derivatives or central differences."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "zero-branch-jacobian",
+          "question": {
+            "zh": "SiTU-GLU 输出为零时，如何区分 gate=0 与 up=0 两种情形的梯度？",
+            "en": "How do the gate=0 and up=0 cases differ in their gradients even though both give zero SiTU-GLU output?"
+          },
+          "hint": {
+            "zh": "记 c1、c2 为两条分支的 softcap。gate=0 时，输出对 gate 的导数为 c2(up)/2，对 up 的导数为零；up=0 时，对 up 的导数为 c1(gate)·sigmoid(gate)，对 gate 的导数为零。两者同时为零时，一阶梯度也全零。因此检查某条梯度路径时，要让另一条分支提供非零信号。",
+            "en": "Write c1 and c2 for the two softcaps. At gate=0, the gate derivative is c2(up)/2 and the up derivative is zero. At up=0, the up derivative is c1(gate)·sigmoid(gate) and the gate derivative is zero. At the joint origin both first derivatives vanish. To inspect one gradient path, supply a nonzero signal through the other branch."
+          }
+        },
+        {
+          "id": "coordinate-to-projection-bound",
+          "question": {
+            "zh": "每个 SiTU-GLU 坐标的默认上界是 100，是否也能据此把任意宽度的向量范数或后续投影限制在 100？",
+            "en": "Does the default coordinate bound of 100 also bound a vector of any width or its subsequent projection by 100?"
+          },
+          "hint": {
+            "zh": "令 B=beta1·beta2，特征宽度为 D，则 ||f||₂≤B·sqrt(D)。若另外讨论线性投影 y=fW，每个输出满足 |yj|≤B·sum_i|Wij|。一列全 1 的 W 能把多个接近 B 的正坐标相加，结果可接近 DB。这样可把激活本身的坐标界、维度相关的范数界和投影界分别说明；投影仍由本题外部提供。",
+            "en": "For B=beta1·beta2 and feature width D, ||f||₂≤B·sqrt(D). For a separate row-vector projection y=fW, |yj|≤B·sum_i|Wij|. A column of ones can sum D positive coordinates approaching B into a value approaching DB. Distinguish the activation's coordinate bound, its dimension-dependent norm bound and the projection bound; projections remain external to this exercise."
           }
         }
       ]
@@ -4298,6 +4442,30 @@
           "hint": {
             "zh": "取 x=[1,3]、W=diag(6,2)、scale=[2,1]、rank=1、bits=2，正确两分支输出 [6,6]；若高精度分支也用 Q(xs)，第一项会丢失。再检查非方阵的行缩放、秩零/满秩、重复奇异值、零张量与输入不变。任意矩阵的量化误差不保证随 rank 单调改善；本题不证明 FP4、打包存储或融合 kernel 的速度收益。",
             "en": "Use x=[1,3], W=diag(6,2), scale=[2,1], rank=1 and bits=2: expect [6,6]. Quantizing xs in the high-precision branch loses the first component. Also check nonsquare row scaling, zero/full rank, repeated singular values, zero tensors and immutability. Error need not improve monotonically for every matrix; this numerical toy does not establish FP4 storage or fused-kernel speedups."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "weight-versus-output-metric",
+          "question": {
+            "zh": "暂时只看低秩支路时，权重 Frobenius 误差最小的 rank-r 近似，也一定让给定激活的输出误差最小吗？",
+            "en": "For the low-rank branch alone, must the best rank-r weight approximation in Frobenius norm also minimize error on a fixed activation batch?"
+          },
+          "hint": {
+            "zh": "令平滑系数全为 1，W=diag(2,1)，xs=(0,1)，rank=1。截断 SVD 保留 diag(2,0)，权重残差范数为 1，但低秩输出误差为 1。改保留 diag(0,1)，权重残差范数为 2，给定 xs 的低秩输出误差却为 0。这是在对照两种低秩目标；本题 split_weight 仍按权重 SVD 定义，完整量化输出还包含残差支路。",
+            "en": "Set all smoothing scales to one, W=diag(2,1), xs=(0,1), rank=1. Truncated SVD keeps diag(2,0): weight-residual norm 1, but low-rank output error 1. Keeping diag(0,1) instead gives weight-residual norm 2 and zero low-rank output error for this xs. These are different low-rank objectives. split_weight still follows the specified weight SVD, and the complete quantized output also includes its residual branch."
+          }
+        },
+        {
+          "id": "residual-error-decomposition",
+          "question": {
+            "zh": "把两次 fake quantization 分别写成精确值加误差，如何解释完整双分支的输出误差，以及满秩这个解析端点？",
+            "en": "How do separate activation and residual quantization errors combine in the full two-branch output, including the full-rank endpoint?"
+          },
+          "hint": {
+            "zh": "写 Q(xs)=xs+Ex、Q(R)=R+Er。低秩项抵消后，近似输出减精确输出为 xs·Er+Ex·R+Ex·Er，矩阵乘法顺序要保留。残差范数减小，并不能单独控制随量化网格改变的 Er 或三项相加后的误差。理想满秩分解给出 R=0，利用 Q(0)=0，三项都消失；实际计算允许题面声明的浮点误差。",
+            "en": "Write Q(xs)=xs+Ex and Q(R)=R+Er. After the low-rank terms cancel, approximate minus exact output is xs·Er+Ex·R+Ex·Er, preserving matrix-product order. A smaller residual norm alone does not control Er as its quantization grid changes, or the sum of these terms. An ideal full-rank split has R=0; since Q(0)=0, all three vanish. Actual arithmetic retains the statement's floating-point tolerance."
           }
         }
       ]
