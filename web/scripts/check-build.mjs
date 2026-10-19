@@ -90,6 +90,7 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-share-compact')), 'Feed sharing recovery layout must remain deferred with community reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-concept-favorite')), 'Interview bookmark action layout must not grow initial styles');
 for(const selector of ['.problem-interview-reference','.admin-workspace','.admin-review-inbox','.community-tag-picker','.moderation-layout','.moderation-return','.post-report-dialog','.report-history-card','.moderation-comparison']){
   assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(selector)), 'Report interfaces must stay out of initial styles');

@@ -1,3 +1,4 @@
+import {publicHref} from './appLocation';
 import {readProfileRoute,profileFeedHref} from './profileNavigation';
 import { topicHref } from './communityTopics';
 import {readInterviewRoute,interviewHref} from './interviewNavigation';
@@ -107,7 +108,7 @@ export function communityReplyTarget(route:string,id:string):string|undefined {
 export function communityShareUrl(pageUrl:string,id:string,replyId?:string):string {
   const page=new URL(pageUrl);
   if(!['http:','https:'].includes(page.protocol)||!/^[a-f0-9]{32}$/.test(id))throw Error('Invalid discussion share URL');
-  return page.origin+page.pathname+communityPostHref(id,undefined,replyId);
+  return new URL(publicHref(communityPostHref(id,undefined,replyId))!,page.origin+page.pathname).href;
 }
 
 /** Account continuations accept only canonical community filters and public list return targets. */
