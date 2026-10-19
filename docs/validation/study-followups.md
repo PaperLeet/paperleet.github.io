@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-One hundred and two bilingual follow-up questions extend fifty-one maintained study guides:
+One hundred and sixteen bilingual follow-up questions extend fifty-eight maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -60,6 +60,14 @@ One hundred and two bilingual follow-up questions extend fifty-one maintained st
 | diffusion/ddpm_sampling | Posterior coefficients are not normalized interpolation weights; paired variance choices | README analytic Gaussian posterior, per-row times and final-noise masking |
 | diffusion/ddim | Equal-coefficient identity and denoiser blind spot; eta-one coarse transitions | README cumulative-coefficient update and adjacent posterior variance |
 | diffusion/flow_matching | Time sampling versus reparameterization; conflicting conditional pairs | README linear path, physical-time derivative and all-element MSE |
+| diffusion/progressive_distillation | Small-step target conditioning; endpoint-equivalent weighting | README amplitude DDIM step, frozen solved target and supplied sample weights |
+| diffusion/consistency | Fixed-online EMA memory; parameter versus prediction averages | README parameter-only EMA and local helper decay endpoints |
+| diffusion/meanflow | Semi-gradient counterexample; nonunit interval displacement | README fixed-r JVP, stop-gradient target and unit-interval sampler |
+| diffusion/dmd | Moving-target finite differences; conditional versus marginal DSM | README VE score surrogate and local sigma-weighted DSM expression |
+| diffusion/dmd2 | Unequal class batches; saturating versus nonsaturating generator gradients | README separate class means and non-saturating fake-logit objective |
+| rl/dapo | Cross-objective length weighting; shard-weighted means | README fixed supplied advantages, token denominator and bounded pure loss |
+| rl/gspo | Geometric versus raw joint ratios; empty-response batch scaling | README length-root ratio and all-response mean including empty rows |
+
 
 
 These are editorial discussions based on the repository exercise statements.
@@ -82,7 +90,7 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all eighty-six questions, malformed/duplicate/oversized and legacy content shapes,
+all one hundred and sixteen questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
@@ -259,3 +267,44 @@ deterministic per-example model; its minimum is not a global data-distribution
 bound. Reparameterizing an integration clock is distinct from changing the
 sampling density of the original time. No new numerical execution, grading
 rule, solver implementation, training result or benchmark is introduced.
+
+
+The distillation/sequence-policy expansion adds fourteen discussions in seven
+previously unenriched guides. All102 earlier follow-ups,267 core prompts and89
+guide identities remain equal as parsed objects. The actual deferred reader
+checks each question and hint in both languages, including stable native
+reading state and unchanged private editor, notes gate and topic retirement.
+These are editorial preparation questions derived from local interfaces;
+no measured interview frequency or company provenance is asserted.
+
+Primary background includes [Progressive Distillation’s solved target](https://arxiv.org/html/2202.00512v2#A7),
+[Consistency Models’ parameter EMA](https://arxiv.org/html/2303.01469v2#S3),
+[MeanFlow’s average velocity and stop-gradient objective](https://arxiv.org/html/2505.13447v1#S4),
+[DMD’s distribution-matching gradient](https://arxiv.org/html/2311.18828v1#S3),
+[DMD2’s adversarial contribution](https://arxiv.org/html/2405.14867v1#S4),
+[DAPO’s token-level reduction](https://arxiv.org/html/2503.14476v1#S3.SS3),
+and [GSPO’s length-normalized ratio](https://arxiv.org/html/2507.18071v1#S4).
+Local README contracts determine the teaching interfaces. The reviewed local
+[DMD expression](../../problems/diffusion/dmd/solution.py) uses sigma-weighted DSM,
+and the [EMA helper](../../problems/diffusion/consistency/solution.py) admits both
+decay endpoints. This does not change the paper’s stated EMA decay range.
+
+The algebra keeps its premises explicit. Progressive target conditioning fixes
+noisy input and time coefficients; c²-weighted clean error equals a single-step
+endpoint error, without an image-quality claim. EMA unrolling fixes the online
+parameters, while a nonlinear parameterization disproves prediction averaging.
+The MeanFlow example fixes inputs and contrasts the required semi-gradient with
+a different fully differentiated objective. General interval scaling is a
+sampler extension for discussion, not a new helper.
+
+The DMD finite-difference example rebuilds a stopped target on each forward;
+its surrogate value is not a numerical KL estimate. The Gaussian DSM minimum
+is a population expectation for independent Gaussian clean data and noise at
+fixed positive sigma, not a lower bound on a finite training batch. DMD2 class
+means and logit derivatives do not establish full-model training convergence.
+The DAPO/GSPO comparison freezes supplied advantages and masks at unit unclipped
+ratios. Shard merging is objective algebra, without a distributed implementation.
+Duplicating supplied score arrays is distinct from a causal model recomputing
+scores after text repetition. Empty-response scaling follows the local GSPO
+batch convention. No new numerical judge execution, SDK probe, grading rule,
+training result, solver implementation or deployment is introduced.
