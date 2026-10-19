@@ -122,6 +122,14 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .library-filter-value{min-width:0;max-width:18rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 .paper-library .active-filters button:hover .library-filter-value{color:var(--accent)}
 /* Shared controls retain native keyboard behavior and clear busy/error states. */
+.paper-library .library-results{column-gap:18px;row-gap:14px}
+.paper-library .library-result-actions{min-width:0;max-width:100%}
+.paper-library .library-sort{min-width:0}
+.paper-library .library-sort select{min-width:0;text-overflow:ellipsis}
+.paper-library .library-toolbar .search kbd{border-color:var(--line);background:var(--surface2);color:var(--muted)}
+.paper-library .library-toolbar .search:focus-within kbd{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));color:var(--accent)}
+.paper-library .table-head>span{overflow-wrap:anywhere}
+@media(forced-colors:active){.paper-library :is(.library-view-switch,.library-density) button[aria-pressed=true],.library-page-buttons button[aria-current=page]{outline:2px solid Highlight;outline-offset:-3px}.paper-library .library-toolbar :is(.search,.select-wrap):focus-within{outline:2px solid Highlight;outline-offset:2px}}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea):not(.cm-textfield){box-sizing:border-box;max-width:100%;border-radius:var(--control-radius);color:var(--text);font-family:var(--font-sans);transition:border-color .15s,box-shadow .15s}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select){min-height:44px;padding:8px 11px;line-height:1.5}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) select:not([multiple]):not([size]){appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238b9099' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:31px;cursor:pointer}

@@ -7,7 +7,7 @@ import { createServer } from 'vite';
 const errors = [];
 const virtualConsole = new VirtualConsole();
 virtualConsole.on('jsdomError', error => errors.push(error));
-const dom = new JSDOM('<div id="root"></div>', { url: 'http://paperleet.test/', virtualConsole });
+const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://paperleet.test/', virtualConsole });
 const globals = { window: dom.window, document: dom.window.document, Element: dom.window.Element, HTMLElement: dom.window.HTMLElement, localStorage: dom.window.localStorage, location: dom.window.location, scrollY: 0, innerHeight: 900, scrollTo() {}, IS_REACT_ACT_ENVIRONMENT: true, ResizeObserver: class { observe() {} disconnect() {} }, requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout };
 const previous = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { value, writable: true, configurable: true });
@@ -26,7 +26,8 @@ try {
   let route = '';
   function Library({ initialRoute = '' }) {
     const [view, setView] = useState(initialRoute);
-    return h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { route = href; setView(href); } });
+    React.useLayoutEffect(()=>{window.history.replaceState(null,'',view||'/');},[view]);
+    return h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { window.history.replaceState(null,'',href); route = href; setView(href); } });
   }
   const find = selector => document.querySelector(selector);
   const click = async element => { assert(element); await act(async () => element.click()); };

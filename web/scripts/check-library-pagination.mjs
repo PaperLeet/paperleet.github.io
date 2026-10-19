@@ -5,7 +5,7 @@ import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-const dom=new JSDOM('<div id="root"></div>',{url:'https://paperleet.test/#',pretendToBeVisual:true});
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'https://paperleet.test/#',pretendToBeVisual:true});
 let y=0,scrolls=0,focusScrolls=0,codeMounts=0;
 const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,Element:dom.window.Element,HTMLElement:dom.window.HTMLElement,location:dom.window.location,history:dom.window.history,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,innerHeight:900,ResizeObserver:class{observe(){}disconnect(){}},scrollY:0,scrollTo(_x,next){y=next;globalThis.scrollY=next;scrolls++;},requestAnimationFrame:cb=>setTimeout(cb,0),cancelAnimationFrame:clearTimeout,IS_REACT_ACT_ENVIRONMENT:true};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));for(const[key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
@@ -80,4 +80,24 @@ try{
  await input(jumpInput(),'１１');await act(async()=>{jumpInput().dispatchEvent(new window.CompositionEvent('compositionstart',{bubbles:true}));jump().dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));});assert.equal(nav.readLibraryRoute(current).filters.page,5);await act(async()=>jumpInput().dispatchEvent(new window.CompositionEvent('compositionend',{bubbles:true})));await click(jump().querySelector('button'));assert.equal(nav.readLibraryRoute(current).filters.page,11);assert.equal(rows().length,5);assert.equal(rows()[0].dataset.paperId,'pagination-200');
  await render('#/collections/llm-basics',{});await wait(()=>document.querySelector('[data-module-id]'));assert(document.querySelectorAll('[data-module-id]').length<=20);assert.equal(codeMounts,mounts);assert.equal(code.value,'PRIVATE_PAGED_CODE');assert(!document.querySelector('.library-load-more'));
  console.log('PASS library page navigation: bounded numbered windows and named bidirectional gap jumps with exact destination rows, locale-stable DOM and heading focus for large catalogs, full-width direct jump with invalid/IME recovery, exact final partial page, native page-size controls and course-module paging without automatic appends');
+ await render('#',{});await wait(()=>pager());
+ const outside=document.createElement('button');outside.textContent='Outside library';document.body.append(outside);
+ const main=document.querySelector('.library-main'),librarySearch=()=>document.querySelector('.library-toolbar input[type=search]');
+ for(const attribute of ['hidden','inert','aria-hidden']){
+  main.setAttribute(attribute,attribute==='aria-hidden'?'true':'');outside.focus();const before=changes.length;
+  assert(!(await key(outside,'/')).defaultPrevented,`${attribute} library must not own the search shortcut`);assert.equal(document.activeElement,outside);
+  await select(document.querySelector('[aria-label="Filter module difficulty"]'),'H');assert.equal(changes.length,before,'Hidden filters cannot change the route');
+  main.removeAttribute(attribute);
+ }
+ for(const extra of [{repeat:true},{isComposing:true},{keyCode:229},{ctrlKey:true},{metaKey:true},{altKey:true}]){outside.focus();assert(!(await key(outside,'/',extra)).defaultPrevented);assert.equal(document.activeElement,outside);}
+ outside.contentEditable='plaintext-only';outside.setAttribute('contenteditable','plaintext-only');outside.focus();assert(!(await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,outside);outside.removeAttribute('contenteditable');
+ outside.focus();const handled=new window.KeyboardEvent('keydown',{key:'/',bubbles:true,cancelable:true});handled.preventDefault();await act(async()=>outside.dispatchEvent(handled));assert.equal(document.activeElement,outside,'Already handled shortcuts keep focus');
+ assert((await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,librarySearch());assert.equal(librarySearch().getAttribute('aria-controls'),document.querySelector('.problem-rows').id);
+ const filterToggle=document.querySelector('.library-filter-toggle');assert.equal(document.getElementById(filterToggle.getAttribute('aria-controls')),document.querySelector('.filter-bar'));
+ const beforeRetired=changes.length,storedDensity=localStorage.getItem('paperleet.library.density.v1');history.replaceState(null,'','#/favorites');outside.focus();
+ assert(!(await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,outside);
+ await select(document.querySelector('[aria-label="Filter module difficulty"]'),'M');await select(document.querySelector('[aria-label="Sort papers"]'),'title');await click(document.querySelector('[aria-label="Compact list"]'));
+ assert.equal(changes.length,beforeRetired);assert.equal(location.hash,'#/favorites');assert.equal(localStorage.getItem('paperleet.library.density.v1'),storedDensity);
+ history.replaceState(null,'',current);await input(librarySearch(),'attention');await wait(()=>document.querySelector('.search-clear'));const retiredClear=document.querySelector('.search-clear');history.replaceState(null,'','#/favorites');outside.focus();const beforeClear=changes.length;await act(async()=>retiredClear.click());assert.equal(changes.length,beforeClear);assert.equal(document.activeElement,outside,'A retired clear button cannot steal focus');assert(!(await key(librarySearch(),'Escape')).defaultPrevented);history.replaceState(null,'',current);outside.remove();assert.equal(codeMounts,mounts);assert.deepEqual([code.value,code.selectionStart,code.selectionEnd,code.scrollTop,code.scrollLeft],['PRIVATE_PAGED_CODE',2,10,48,13]);
+ console.log('PASS library controls: associated result lists, unique filter disclosure, hidden/inert/retired route guards, native editing and IME shortcut ownership, retained private code/caret/scroll and no stale density writes');
 }finally{if(root)await act(async()=>root.unmount());await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();for(const[key,value]of previous)if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}
