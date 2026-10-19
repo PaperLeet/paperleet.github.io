@@ -2750,6 +2750,30 @@
             "en": "A positive-advantage ratio of 1.25 still learns, while a negative-advantage ratio of .75 clips. Compare one- and three-token responses. Isolate extreme padding before exponentiation; an empty mask returns differentiable scalar zero and padding gradients vanish."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "cross-objective-length-weights",
+          "question": {
+            "zh": "相同的未截断比率下，DAPO 和 GSPO 对长短回答的梯度权重一样吗？",
+            "en": "At identical unclipped ratios, do DAPO and GSPO weight short and long responses equally?"
+          },
+          "hint": {
+            "zh": "固定两条回答的有效长度为 1、3，advantage 为 +1、-1，当前与旧分数相等，比率均为 1。DAPO 对每个有效 logp 的偏导是 -A/4；GSPO 则是 -A/(2*该回答长度)。按回答汇总偏导的绝对量，DAPO 为 1/4、3/4，GSPO 为 1/2、1/2。比较的是传入分数的局部梯度，不声称两种方法的完整策略更新只差一个常数。",
+            "en": "Fix two valid response lengths 1 and 3, advantages +1 and -1, and equal current/old scores, so all ratios are one. DAPO gives each valid logp partial derivative -A/4; GSPO gives -A/(2*response_length). Summed gradient magnitudes per response are 1/4 and 3/4 for DAPO, versus 1/2 each for GSPO. These are local derivatives of the supplied scores, not a claim that full policy updates differ by one constant."
+          }
+        },
+        {
+          "id": "shard-weighted-reduction",
+          "question": {
+            "zh": "两个分片各算一个 DAPO 均值后，直接平均能还原大 batch 吗？",
+            "en": "Can averaging two shard-local DAPO means recover the full-batch objective?"
+          },
+          "hint": {
+            "zh": "固定旧分数、advantage、mask 和截断参数。设两个非空分片有 N1、N2 个有效 token、局部损失为 L1、L2，则整体为 (N1*L1+N2*L2)/(N1+N2)。取 N1=1、N2=3、L1=-1、L2=1，整体为 .5，简单平均却是 0。应合并分子和有效计数，空分片贡献零计数；本题不实现分布式训练，这里只讨论目标的代数组合。",
+            "en": "Hold old scores, advantages, masks and clipping parameters fixed. Two nonempty shards with N1,N2 valid tokens and local means L1,L2 combine as (N1*L1+N2*L2)/(N1+N2). With N1=1,N2=3,L1=-1,L2=1, the full loss is .5 while an unweighted average is zero. Merge numerators and valid counts; an empty shard contributes zero count. This is objective algebra, not an implementation of distributed training."
+          }
+        }
       ]
     },
     {
@@ -2791,6 +2815,30 @@
           "hint": {
             "zh": "未截断时，同一回答的有效 logp 梯度相等；[2,.5] 能暴露逐 token 截断。再测正 advantage 的 1.5 与负 advantage 的 .5：都应截断。padding 先隔离再聚合，全空 loss 可微且梯度为零。",
             "en": "Away from clipping, valid logp gradients within a response are equal; [2,.5] exposes token clipping. Also test positive advantage at ratio 1.5 and negative advantage at .5: both clip. Isolate padding before reduction; all-empty loss is differentiable with zero gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "geometric-versus-joint-ratio",
+          "question": {
+            "zh": "长度归一化后的序列比率，还是原始的联合概率重要性比率吗？",
+            "en": "Is the length-normalized sequence ratio still the raw joint-probability importance ratio?"
+          },
+          "hint": {
+            "zh": "对覆盖完整非空回答的有效 token，联合概率比率是各条件比率的乘积；本题返回其 1/长度 次幂。给定 token 比率 [2,2]，联合比率是 4，本题结果为 2。若只复制这些已给定分数，几何均值仍为 2，乘积则为 16；这不表示真实因果模型复制文本后分数不变。长度归一化改变了权重，不能把它直接当作原始无偏重要性采样校正。",
+            "en": "For valid tokens covering a complete nonempty response, the joint ratio is the product of conditional token ratios; this exercise returns its length-th root. Given token ratios [2,2], the product is 4 and the returned ratio is 2. Repeating those supplied scores leaves the geometric mean at 2 but makes the product 16; an actual causal model need not preserve scores when text repeats. Length normalization changes the weight, so it is not the raw unbiased importance-sampling correction."
+          }
+        },
+        {
+          "id": "empty-response-batch-scaling",
+          "question": {
+            "zh": "只追加全 padding 回答，为什么也可能改变已有回答的梯度？",
+            "en": "Why can appending entirely padded responses change gradients of existing responses?"
+          },
+          "hint": {
+            "zh": "保持原有 B>0 条回答的分数、advantage 和 mask 不变，再追加 K 条全空回答。本题让空回答贡献零，但仍把它们计入 batch 均值，因此旧损失及旧 logp 梯度都乘上 B/(B+K)。DAPO 的有效 token 总数不变，所以其目标不受这种追加影响。这是两个练习的归约约定；事先清理空回答会改变参与归约的 batch，不能暗中改掉 GSPO 的分母。",
+            "en": "Keep scores, advantages and masks of B>0 original responses fixed, then append K empty responses. Empty rows contribute zero but remain in this exercise’s batch mean, so the old loss and old logp gradients scale by B/(B+K). DAPO’s valid-token count is unchanged, so its objective is unaffected. These are the two exercise reduction conventions; filtering empty responses changes the batch and must not silently redefine GSPO’s denominator."
           }
         }
       ]
@@ -2837,6 +2885,30 @@
         "ddim_step",
         "distilled_target",
         "distillation_loss"
+      ],
+      "followups": [
+        {
+          "id": "small-step-conditioning",
+          "question": {
+            "zh": "教师终点只偏了一点，解出的干净目标为什么可能偏很多？",
+            "en": "Why can a small teacher-endpoint error become a large clean-target error?"
+          },
+          "hint": {
+            "zh": "固定 noisy 与时间系数，把学生一步写成 r*noisy+c*prediction，r=sigma_s/sigma_t，c=alpha_s-r*alpha_t。教师终点扰动 delta 会让目标改变 delta/c。固定内部时间 t，让 s 从下方趋近 t，则 c 趋近零；严格下降保证分母非零，并不保证条件良好。这是精确代数的敏感性分析，不是一次新采样实验。",
+            "en": "Hold noisy input and time coefficients fixed. Write the student step as r*noisy+c*prediction, with r=sigma_s/sigma_t and c=alpha_s-r*alpha_t. An endpoint perturbation delta changes the solved target by delta/c. At fixed interior t, taking s toward t from below makes c approach zero. Strictly descending times ensure a nonzero denominator, not good conditioning. This is algebraic sensitivity, not a new sampling experiment."
+          }
+        },
+        {
+          "id": "endpoint-loss-weighting",
+          "question": {
+            "zh": "干净预测的均方误差，怎样才等价于一步终点误差？",
+            "en": "When does clean-prediction MSE equal the one-step endpoint error?"
+          },
+          "hint": {
+            "zh": "对同一个固定 noisy、时间系数和教师终点，令 target 为解出的干净目标。学生终点误差恰好为 c*(prediction-target)。因此逐样本用 c² 加权后再按全部元素求均值，就等于终点 MSE；统一权重 1 一般不等价。这里把系数视为常量，不改变本题由调用方提供 weight 的接口，也不涉及图像质量。",
+            "en": "For the same fixed noisy input, time coefficients and teacher endpoint, let target be the solved clean prediction. The endpoint error is exactly c*(prediction-target). Per-sample weights c², followed by the all-element mean, therefore give endpoint MSE; unit weights generally do not. Treat coefficients as constants. The caller-supplied weight interface stays unchanged, and no image-quality claim follows."
+          }
+        }
       ]
     },
     {
@@ -2881,6 +2953,30 @@
         "consistency_function",
         "consistency_loss",
         "update_ema"
+      ],
+      "followups": [
+        {
+          "id": "ema-memory",
+          "question": {
+            "zh": "在线参数暂时不动时，EMA 目标还会变化多少？",
+            "en": "How does the EMA target evolve while online parameters stay fixed?"
+          },
+          "hint": {
+            "zh": "设固定在线参数为 w，初始目标为 u0，连续 k 次使用同一 decay=rho，则 uk=rho^k*u0+(1-rho^k)*w。rho=0 一次复制，rho=1 完全冻结，二者均是本题允许的端点。较大的 rho 保留更久的参数历史，不能直接解释成降低在线优化器学习率；实际在线参数变化时要展开成逐步加权和。",
+            "en": "With fixed online parameters w, initial target u0 and constant decay rho for k updates, uk=rho^k*u0+(1-rho^k)*w. The exercise admits rho=0, which copies immediately, and rho=1, which freezes the target. Larger rho retains parameter history longer; it is not an online-optimizer learning-rate change. If online parameters vary, expand a weighted sum of their successive values."
+          }
+        },
+        {
+          "id": "parameter-versus-function-ema",
+          "question": {
+            "zh": "平均模型参数，是否就等于平均模型的预测？",
+            "en": "Does averaging model parameters also average their predictions?"
+          },
+          "hint": {
+            "zh": "用单参数网络 F_theta(x)=theta²*x，取 x=1、旧目标参数 0、在线参数 2、decay=.5。更新后的参数是 1，预测为 1；两次原预测的均值却是 2。EMA 在参数空间进行，经过非线性参数化后通常不是函数输出平均。只有对参数具有相应线性结构等额外条件时才能交换；这不改变目标分支的停止梯度约定。",
+            "en": "Take F_theta(x)=theta²*x at x=1, old target parameter 0, online parameter 2 and decay .5. The updated parameter is 1 and predicts 1, while the average of the two original predictions is 2. Parameter EMA generally does not commute with nonlinear parameterization. Additional conditions, such as linear dependence on the averaged parameters, are needed. Target stop-gradient behavior is unchanged."
+          }
+        }
       ]
     },
     {
@@ -2925,6 +3021,30 @@
         "meanflow_target",
         "meanflow_loss",
         "one_step"
+      ],
+      "followups": [
+        {
+          "id": "semi-gradient-counterexample",
+          "question": {
+            "zh": "去掉目标的 stop-gradient，前向损失一样，训练方向也一样吗？",
+            "en": "If removing target stop-gradient leaves the forward loss unchanged, is its gradient unchanged?"
+          },
+          "hint": {
+            "zh": "固定标量 z=v=1、t-r=.5，令 u_theta(z,r,t)=theta*z，则沿轨迹的 JVP 为 theta*v，目标为 stopgrad(1-.5*theta)。在 theta=0，均方损失为 1；本题的参数梯度为 -2。若直接微分整个目标，则误差是 1.5*theta-1，梯度变为 -3。相同前向值不能验证正确的梯度路径；这里是固定输入的手算反例。",
+            "en": "Fix scalar z=v=1 and t-r=.5, with u_theta(z,r,t)=theta*z. Its trajectory JVP is theta*v, so the target is stopgrad(1-.5*theta). At theta=0 the squared loss is 1 and the required parameter gradient is -2. Differentiating through the target instead gives residual 1.5*theta-1 and gradient -3. Equal forward values do not establish correct gradient routing; inputs are fixed in this hand derivation."
+          }
+        },
+        {
+          "id": "interval-length",
+          "question": {
+            "zh": "如果把一步采样推广到任意两个时间，为什么不能总是减去一个平均速度？",
+            "en": "Why must a general time-interval sampler scale average velocity by its interval length?"
+          },
+          "hint": {
+            "zh": "平均速度对应的位移为 (t-r)*u(z_t,r,t)，所以 z_r=z_t-(t-r)*u。取恒定速度 2、t=.6、r=.2，应移动 .8；直接减 2 会越界。本题 one_step 只实现 r=0、t=1 的单位区间，系数恰好为 1。推广时需要新的时间参数与区间系数；这里讨论扩展，不新增通用采样器或多步质量保证。",
+            "en": "Average velocity gives displacement (t-r)*u(z_t,r,t), hence z_r=z_t-(t-r)*u. Constant velocity 2 over t=.6 to r=.2 moves by .8, not 2. This exercise’s one_step uses only r=0,t=1, where the interval factor is one. Generalization needs time arguments and interval scaling. This discussion adds neither a general sampler nor a multistep quality guarantee."
+          }
+        }
       ]
     },
     {
@@ -2969,6 +3089,30 @@
         "score_difference",
         "dmd_loss",
         "fake_score_loss"
+      ],
+      "followups": [
+        {
+          "id": "moving-target-finite-difference",
+          "question": {
+            "zh": "为什么每次重建冻结目标的损失，不能直接用完整前向的有限差分验梯度？",
+            "en": "Why can finite differences of a freshly rebuilt frozen-target loss disagree with its intended gradient?"
+          },
+          "hint": {
+            "zh": "关闭配对回归，用一个标量 generated=x、传入 gradient=1。每次前向重建 target=(x-1).detach()，数值损失恒为 1/2；但一次 backward 把该 target 视为常量，要求对 x 的梯度为 1。跨前向重新计算 target 的有限差分会得到 0。可固定基准前向的目标再作局部差分，或核对要求的梯度场；替代损失值不是可直接比较的 KL 数值。",
+            "en": "Disable paired regression and use one scalar generated=x with supplied gradient=1. Rebuilding target=(x-1).detach() on each forward gives value 1/2 everywhere, yet backward treats that target as constant and must return gradient 1. Finite differences that rebuild the target return zero. Hold the baseline target fixed for a local difference check, or check the required gradient field. The surrogate value is not a numerical KL estimate."
+          }
+        },
+        {
+          "id": "conditional-versus-marginal-dsm",
+          "question": {
+            "zh": "真实的边缘 score 已经正确，DSM 总体损失为什么仍可能不为零？",
+            "en": "Why can population DSM loss remain positive when the marginal score is exact?"
+          },
+          "hint": {
+            "zh": "假设一维生成样本 x~N(mu,tau²)，独立噪声 eps~N(0,1)，固定 sigma>0，模型只接收 y=x+sigma*eps 与 sigma。本题平方项是 (sigma*s(y)+eps)²。最优 s(y)=-(y-mu)/(tau²+sigma²)，总体最小值仍为 tau²/(tau²+sigma²)。知道该次 eps 的条件目标可让单次误差为零，但边缘模型不能看到它；这是总体期望结论，不是有限训练批次的损失下界。",
+            "en": "Let scalar x~N(mu,tau²), independent eps~N(0,1), fixed sigma>0, and give the model only y=x+sigma*eps and sigma. The exercise uses (sigma*s(y)+eps)². Its optimum is s(y)=-(y-mu)/(tau²+sigma²), with population minimum tau²/(tau²+sigma²). An oracle given that draw’s eps can make a conditional residual zero; the marginal model does not see eps. This is a population expectation, not a lower bound on a finite training batch."
+          }
+        }
       ]
     },
     {
@@ -3013,6 +3157,30 @@
         "generator_due",
         "adversarial_losses",
         "generator_loss"
+      ],
+      "followups": [
+        {
+          "id": "unequal-class-batches",
+          "question": {
+            "zh": "把 real/fake 拼起来求一个均值，会保持判别器目标吗？",
+            "en": "Does one mean over concatenated real/fake examples preserve the discriminator objective?"
+          },
+          "hint": {
+            "zh": "本题 L_D=mean(softplus(-real))+mean(softplus(fake))，每类各占一个均值。拼接后的普通均值会按各类样本数量分配权重；即使两类等长，也只是本题损失的一半。只复制整组 real 样本，本题损失及 fake 梯度不变，而拼接均值通常会变化。需要按类单独归约，或用能还原两个类均值的显式权重。",
+            "en": "The contract is L_D=mean(softplus(-real))+mean(softplus(fake)): one mean per class. A concatenated mean weights classes by their sample counts; even equal class sizes give half the required loss. Duplicating the entire real batch leaves the contracted loss and fake gradients unchanged, whereas the concatenated mean generally changes. Reduce each class separately, or use explicit weights that recover both class means."
+          }
+        },
+        {
+          "id": "non-saturating-gradient",
+          "question": {
+            "zh": "生成器使用负的 fake 判别器损失，符号正确就够了吗？",
+            "en": "Is a negative discriminator fake loss sufficient for the generator just because its gradient has the right sign?"
+          },
+          "hint": {
+            "zh": "固定一个 fake logit=a。非饱和生成器项 softplus(-a) 的导数是 sigmoid(a)-1；负的判别器 fake 项 -softplus(a) 的导数则是 -sigmoid(a)。a 趋向负无穷时，前者趋于 -1，后者趋于 0：符号相同，饱和行为不同。批量均值另带样本数因子；这是对 logit 的局部分析，不能单独推出完整 GAN 或 DMD2 训练收敛。",
+            "en": "For one fixed fake logit a, softplus(-a) has derivative sigmoid(a)-1, while -softplus(a) has derivative -sigmoid(a). As a tends to negative infinity, the former tends to -1 and the latter to zero: equal signs, different saturation. A batch mean adds its sample-count factor. This is a local logit analysis, not a convergence result for a full GAN or DMD2 training loop."
+          }
+        }
       ]
     },
     {
