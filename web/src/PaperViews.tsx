@@ -1,7 +1,7 @@
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import { matchingPaperModules, paperProgress, selectLibraryPractice } from './libraryPractice';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronDown,
   ChevronRight, Code2, Search, Library, Shuffle, SlidersHorizontal, X,
@@ -13,7 +13,7 @@ import type { Category, Paper, Problem, Saved } from "./types";
 import { paperCollections, papersInCollection } from "./paperCollections";
 import { eligibleUnattemptedProblems, pickRandomUnattemptedProblem } from "./randomProblem";
 import { recommendPractice } from "./practice-recommendation";
-import { deferredFeature } from './deferredFeature';
+import { deferredFeature,FeatureRetry } from './deferredFeature';
 import "./practice-journey.css";
 import { StateIcon } from "./PaperState";
 import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters } from './libraryNavigation';
@@ -23,18 +23,24 @@ import {CompanyTools} from './LibraryCompanyTools';
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export { paperModules, matchingPaperModules, paperProgress } from './libraryPractice';
 
-// Decorative diagrams should not delay search or the first usable list.
-const CollectionArtwork = deferredFeature(() => import('./CollectionArtwork'), ['合集插图', 'collection artwork'], { loading: () => null, failure: () => null });
-const CollectionControls=deferredFeature<{rail:import('react').RefObject<HTMLElement|null>}>(()=>import('./CollectionArtwork').then(module=>({default:module.CollectionControls})),['合集导航','collection navigation'],{loading:()=>null,failure:()=>null});
+// Collection discovery loads independently of search and the first usable list.
+const LibraryCollections = deferredFeature<import('./LibraryCollections').Props>(()=>import('./LibraryCollections'), ['精选合集','featured collections'], {loading:()=><div className="library-collections-placeholder" aria-hidden="true"/>});
 const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(()=>import('./LibraryResultControls'), ['列表显示','list display'], {loading:()=>null});
+const ActiveFilters = deferredFeature<import('react').ComponentProps<typeof import('./LibraryResultControls').LibraryActiveFilters>>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryActiveFilters})),['当前筛选','active filters'],{loading:()=>null});
 const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练习概览','practice overview'], {loading:()=>null});
+const LibraryPagination = deferredFeature<import('./LibraryPagination').Props>(()=>import('./LibraryPagination'), ['题库分页','library pages'], {loading:props=><LibraryPageFallback {...props}/>,failure:(props,retry)=><><LibraryPageFallback {...props}/><FeatureRetry retry={retry}/></>});
 
+function LibraryPageFallback({page,size,total,compact,onPage}:import('./LibraryPagination').Props){
+ const {t}=useI18n(),pages=Math.max(1,Math.ceil(total/size));
+ if(compact||!total)return null;
+ return <nav className="library-page-fallback" aria-label={t('题库分页','Library pages')}><button type="button" className="text-button" disabled={page<=1||page>pages} onClick={()=>onPage(page-1)}>{t('上一页','Previous page')}</button><span>{page} / {pages}</span><button type="button" className="text-button" disabled={page>=pages} onClick={()=>onPage(page+1)}>{t('下一页','Next page')}</button></nav>;
+}
 
-
-export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, route = '', onFilters, companyScope }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string) => void; companyScope?:LibraryCompanyScope }) {
+export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, route = '', onFilters, companyScope }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string,paging?:boolean) => void; companyScope?:LibraryCompanyScope }) {
   const { t, locale } = useI18n();
   const searchInput = useRef<HTMLInputElement>(null);
   const libraryMain = useRef<HTMLDivElement>(null);
+  const resultsHeading=useRef<HTMLDivElement>(null),listId=useId();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
     try { return localStorage.getItem('paperleet.library.density.v1') === 'compact' ? 'compact' : 'comfortable'; }
@@ -65,13 +71,12 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const waitingForStatus = state !== 'all' && !progressReady || !companyReady;
   const viewHref = libraryHref(selectedCollection?.id, filters);
   const editedHref = useRef<string | undefined>(undefined);
-  function change(patch: Partial<LibraryFilters>) {
-    const next = normalizeLibraryFilters({...filters,...patch},listedPapers);
+  function change(patch: Partial<LibraryFilters>,paging=false) {
+    const next = normalizeLibraryFilters({...filters,page:undefined,...patch},listedPapers);
     const href = libraryHref(selectedCollection?.id,next);
     editedHref.current = href;
-    onFilters?.(href);
+    onFilters?.(href,paging);
   }
-  const collectionRail = useRef<HTMLElement>(null);
   const listedModuleIds = new Set(listedPapers.flatMap((paper) => paper.module_ids));
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
   const selectedCategory=categories.find(item=>item.id===category);
@@ -83,19 +88,25 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const selection = selectLibraryPractice(papers, problems, saved, { collectionId: selectedCollection?.id, filters },companyReady?companyData?.ids:undefined);
   const filtered = sortLibraryPapers(selection.papers, sort);
   const filteredModules = company&&sort==='default'?selection.problems:filtered.flatMap(paper => selection.problems.filter(problem => paper.module_ids.includes(problem.id)));
-  const [windowed, setWindowed] = useState({href: viewHref, count: 20});
-  const visibleCount = windowed.href === viewHref ? windowed.count : 20;
   const rowIds = (moduleView ? filteredModules : filtered).map(row => row.id);
   const rowKey = rowIds.join(',');
-  const reveal = (count: number) => setWindowed({href: viewHref, count});
+  const page=filters.page||1,size=filters.page_size||20,pageCount=Math.max(1,Math.ceil(rowIds.length/size)),offset=(page-1)*size,outOfRange=page>pageCount;
+  function paginate(next:number,nextSize= size){
+    const current=readLibraryRoute(appLocation.hash)||readLibraryRoute(appLocation.hash.split('?')[0]);
+    if(waitingForStatus||!current||libraryHref(current.collectionId,normalizeLibraryFilters(current.filters,listedPapers))!==viewHref||!Number.isSafeInteger(next)||next<1||next>Math.max(1,Math.ceil(rowIds.length/nextSize))||![20,50,100].includes(nextSize)||next===page&&nextSize===size)return;
+    resultsHeading.current?.focus({preventScroll:true});resultsHeading.current?.scrollIntoView({block:'start',behavior:'instant'});
+    change({page:next>1?next:undefined,page_size:nextSize===20?undefined:nextSize},true);
+  }
+  const pagination={page,size,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size)};
   useEffect(() => {
     if (waitingForStatus) return;
     let disposed = false, stop: (() => void) | undefined;
     const restore = editedHref.current !== viewHref;
     editedHref.current = undefined;
+    const origin={y:window.scrollY,active:document.activeElement};
     void import('./libraryPosition').then(({watchLibraryPosition}) => {
-      if (!disposed) stop = watchLibraryPosition(viewHref, restore, {ids: rowIds, reveal});
-    }).catch(() => { /* The load-more button works without automatic scrolling. */ });
+      if (!disposed) stop = watchLibraryPosition(viewHref, restore, origin);
+    }).catch(() => { /* Paging and return links also work without position storage. */ });
     return () => { disposed = true; stop?.(); };
   }, [viewHref, waitingForStatus, rowKey]);
   const unattempted = eligibleUnattemptedProblems(filteredModules, saved);
@@ -116,29 +127,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         {nextInCollection && <AppLink className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></AppLink>}
       </div>
     </header> : <>
-    <section className="featured-collections" aria-label={t("精选合集", "Featured collections")}>
-      <div className="collections-heading">
-        <h2>{t("精选合集", "Featured collections")}</h2>
-        <CollectionControls rail={collectionRail}/>
-      </div>
-      <nav ref={collectionRail} className="collection-rail" aria-label={t("精选合集导航", "Featured collection navigation")}>
-        {paperCollections.map((collection) => {
-          const members = papersInCollection(papers, collection);
-          const memberIds = new Set(members.flatMap((paper) => paper.module_ids));
-          const count = memberIds.size;
-          const completed = problems.filter(problem => memberIds.has(problem.id) && status(problem,saved[problem.id]) === "done").length;
-          const label = t(collection.name, collection.name_en);
-          return <AppLink key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${collection.kind === "course" ? t("课程", "Course") : `${members.length} ${t("篇论文", "papers")}`} · ${count} ${t("道题", "problems")}`}>
-            <div className="collection-copy">
-              <h3>{label}</h3>
-            </div>
-            <div className="collection-learning-progress" aria-hidden="true"><span>{progressReady ? `${completed}/${count} ${t("已通过", "solved")}` : t("正在加载进度…", "Loading progress…")}</span></div>
-            <CollectionArtwork kind={collection.id} />
-            <span className="collection-open" aria-hidden="true"><ArrowRight size={20} /></span>
-          </AppLink>;
-        })}
-      </nav>
-    </section>
+    <LibraryCollections papers={papers} problems={problems} saved={saved} progressReady={progressReady}/>
     </>}
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
@@ -157,7 +146,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     </div>}
     <section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
-        <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} placeholder={t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape") change({query:''}); }} />{query ? <button className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { change({query:""}); searchInput.current?.focus(); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
+        <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} placeholder={t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape"&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { change({query:""}); searchInput.current?.focus(); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
         <button className="library-filter-toggle" aria-controls="library-advanced-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(open => !open)}><SlidersHorizontal size={16} aria-hidden="true" />{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
         <div className="filter-bar" id="library-advanced-filters" data-expanded={filtersOpen}>
           <div className="select-wrap"><select aria-label={t("主题筛选", "Filter by topic")} value={selectedTag} onChange={(e) => change({tag:e.target.value})}>
@@ -174,19 +163,11 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       </div>
       <CompanyTools company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
       {company&&companyScope&&<CompanyTools company={company} days={companyDays} returnTo={viewHref} {...companyScope}/>}
-      <div className="library-results"><span role="status">{waitingForStatus ? !companyReady?t('公司练习范围尚未确认…','Company practice scope is unconfirmed…'):t('正在核对学习进度…','Checking your learning progress…') : <>{!moduleView && <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · </>}{filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span><ResultControls hasFilters={hasFilters} moduleView={moduleView} company={company} course={course} sort={sort} density={density} onClear={clear} onSort={sort=>change({sort})} onDensity={changeDensity}/></div>
-      {hasFilters && <div className="active-filters" aria-label={t("当前筛选条件", "Active filters")}>
-        {[
-          { id:"query", value:!!query, label:`“${query}”`, patch:{query:""} },
-          { id:"category", value:category!=="all", label:selectedCategory?t(selectedCategory.name,selectedCategory.name_en):category, patch:{category:"all",tag:"all"} },
-          { id:"tag", value:tag!=="all", label:tag, patch:{tag:"all"} },
-          { id:"difficulty", value:diff!=="all", label:({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[diff], patch:{difficulty:"all"} },
-          { id:"state", value:state!=="all", label:({todo:t("未开始","Not started"),started:t("进行中","In progress"),done:t("已完成","Solved")} as Record<string,string>)[state], patch:{state:"all"} },
-        ].filter(item=>item.value).map(item=><button key={item.id} aria-label={t(`移除筛选：${item.label}`,`Remove filter: ${item.label}`)} onClick={()=>change(item.patch)}>{item.label}<X size={12} aria-hidden="true" /></button>)}
-      </div>}
+      <div className="library-results"><div ref={resultsHeading} className="library-result-summary" tabIndex={-1} role="group" aria-label={t('题库列表结果','Library list results')}><span role="status" aria-atomic="true">{waitingForStatus ? !companyReady?t('公司练习范围尚未确认…','Company practice scope is unconfirmed…'):t('正在核对学习进度…','Checking your learning progress…') : <>{!moduleView && <>{filtered.length} {t("篇论文", filtered.length === 1 ? "paper" : "papers")} · </>}{filteredModules.length} {t("道题", filteredModules.length === 1 ? "module" : "modules")}{!!rowIds.length&&!outOfRange&&<span className="library-visible-range"> · {t(`显示 ${offset+1}–${Math.min(offset+size,rowIds.length)}`,`Showing ${offset+1}–${Math.min(offset+size,rowIds.length)}`)}</span>}{progressReady && filtered.length > 0 && !unattempted.length && <span className="random-empty"> · {t("当前范围暂无未开始的题目", "No unattempted problems in this view")}</span>}</>}</span></div>{!waitingForStatus&&<LibraryPagination {...pagination} compact/>}<ResultControls hasFilters={hasFilters} moduleView={moduleView} company={company} course={course} sort={sort} density={density} onClear={clear} onSort={sort=>change({sort})} onDensity={changeDensity}/></div>
+      {hasFilters&&<ActiveFilters filters={filters} categoryLabel={selectedCategory?t(selectedCategory.name,selectedCategory.name_en):category} onChange={change}/>}
       <div className="table-head paper-table-grid"><span>{t("状态", "Status")}</span><span>{moduleView ? t("练习", "Module") : t("论文", "Paper")}</span><span className="paper-year">{moduleView ? t("用时", "Time") : t("年份", "Year")}</span><span>{moduleView ? t("难度", "Difficulty") : t("已通过 / 模块", "Solved / Modules")}</span><span /></div>
-      <div className="problem-rows">
-        {!waitingForStatus && (moduleView ? filteredModules.slice(0, visibleCount).map(module => <div className="paper-result-group" key={module.id}>
+      <div className="problem-rows" id={listId} aria-busy={waitingForStatus}>
+        {!waitingForStatus && (moduleView ? filteredModules.slice(offset,offset+size).map(module => <div className="paper-result-group" key={module.id}>
           <AppLink className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
             <StateIcon state={status(module,saved[module.id])} />
             <div className="problem-info paper-info"><strong><span>{module.number}.</span>{locale === "en" ? module.translations?.en?.title || module.title : module.title}</strong><small>{t(module.module.goal,module.module.goal_en)}</small></div>
@@ -195,7 +176,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <ChevronRight size={16} aria-hidden="true" />
           </AppLink>
           {company&&companyScope&&<CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={companyScope}/>}
-        </div>) : filtered.slice(0, visibleCount).map((paper) => {
+        </div>) : filtered.slice(offset,offset+size).map((paper) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
@@ -208,7 +189,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           </AppLink>{showMatches && <div className="matching-modules"><span>{t("匹配模块", "Matching modules")}</span>{matching.map(module=><AppLink key={module.id} href={withLibraryContext(module.number,viewHref)}><Code2 size={13} aria-hidden="true" />{module.number}. {locale === "en" ? module.translations?.en?.title || module.title : module.title}<ArrowRight size={12} aria-hidden="true" /></AppLink>)}</div>}</div>;
         }))}
       </div>
-      {!waitingForStatus && visibleCount < rowIds.length && <button className="library-load-more text-button" onClick={() => reveal(Math.min(rowIds.length, visibleCount + 20))}>{t("加载更多", "Load more")}<ChevronDown size={14} aria-hidden="true" /></button>}
+      {!waitingForStatus&&outOfRange&&!!rowIds.length&&<div className="no-results library-page-recovery" role="status"><h3>{t('这一页已没有结果','This page is no longer available')}</h3><p>{t(`当前筛选共 ${pageCount} 页，可以返回有效页继续浏览。`,`This view has ${pageCount} pages. Choose an available page to keep browsing.`)}</p><div><button type="button" className="button subtle" onClick={()=>paginate(pageCount)}>{t('返回最后一页','Open last page')}</button><button type="button" className="text-button" onClick={()=>paginate(1)}>{t('回到第一页','Back to first page')}</button></div></div>}
+      {!waitingForStatus&&<LibraryPagination {...pagination}/>}
       {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{moduleView ? t("没有符合条件的练习", "No matching modules") : t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
     </section>
     </div>

@@ -1,75 +1,49 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import React, {act} from 'react';
+import React,{act} from 'react';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
-
-const dom = new JSDOM('<div id="root"></div>', {url:'https://paperleet.test/#'});
-const observers=[];
-class Observer {
-  constructor(callback){this.callback=callback;observers.push(this);}
-  observe(target){this.target=target;}
-  disconnect(){this.disconnected=true;}
-  enter(){this.callback([{target:this.target,isIntersecting:true}]);}
-}
-const globals={window:dom.window,document:dom.window.document,Element:dom.window.Element,HTMLElement:dom.window.HTMLElement,location:dom.window.location,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,scrollY:0,innerHeight:900,scrollTo(x,y){globalThis.scrollY=y;},IntersectionObserver:Observer,ResizeObserver:class{observe(){} disconnect(){}},requestAnimationFrame:cb=>setTimeout(cb,0),cancelAnimationFrame:clearTimeout,IS_REACT_ACT_ENVIRONMENT:true};
-const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
-for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
-window.matchMedia=()=>({matches:false,addEventListener(){},removeEventListener(){}});
-window.HTMLElement.prototype.scrollIntoView=()=>{};
-localStorage.setItem('paperleet.locale','en');
-const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+const dom=new JSDOM('<div id="root"></div>',{url:'https://paperleet.test/#',pretendToBeVisual:true});
+let y=0,scrolls=0,focusScrolls=0,codeMounts=0;
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,Element:dom.window.Element,HTMLElement:dom.window.HTMLElement,location:dom.window.location,history:dom.window.history,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,innerHeight:900,ResizeObserver:class{observe(){}disconnect(){}},scrollY:0,scrollTo(_x,next){y=next;globalThis.scrollY=next;scrolls++;},requestAnimationFrame:cb=>setTimeout(cb,0),cancelAnimationFrame:clearTimeout,IS_REACT_ACT_ENVIRONMENT:true};
+const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));for(const[key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
+Object.defineProperty(window,'scrollY',{get:()=>y,configurable:true});window.matchMedia=()=>({matches:false,addEventListener(){},removeEventListener(){}});window.scrollTo=globals.scrollTo;window.HTMLElement.prototype.scrollIntoView=function(){focusScrolls++;};localStorage.setItem('paperleet.locale','en');
+const cacheDir=await mkdtemp(tmpdir()+'/paperleet-library-pages-'),server=await createServer({cacheDir,server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
 let root;
-try {
- const {createRoot}=await import('react-dom/client');
- const {PaperLibrary}=await server.ssrLoadModule('/src/PaperViews.tsx');
- const {LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx');
- const catalog=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
- const {readLibraryPosition}=await server.ssrLoadModule('/src/libraryPosition.ts');
- const ordered=[...catalog.papers].sort((a,b)=>a.number-b.number);
- const rows=()=>[...document.querySelectorAll('[data-paper-id]')];
- const flush=async()=>{await act(async()=>new Promise(resolve=>setTimeout(resolve,30)));};
- const waitFor=async predicate=>{for(let i=0;i<100&&!predicate();i++)await flush();assert(predicate());};
- const render=async(route='#',props={})=>{location.hash=route;await act(async()=>root.render(React.createElement(LocaleProvider,null,React.createElement(PaperLibrary,{...catalog,papers:[...catalog.papers].reverse(),saved:{},route,...props}))));};
- root=createRoot(document.querySelector('#root'));
- await render();await waitFor(()=>observers.at(-1)?.target);
- assert.equal(rows().length,20);
- assert.deepEqual(rows().map(row=>row.dataset.paperId),ordered.slice(0,20).map(p=>p.id));
- assert(document.querySelector('.library-results').textContent.includes(`${catalog.problems.length} modules`),'Totals include unloaded results');
- assert.deepEqual([...rows()[0].querySelectorAll('.paper-title-tags > span')].map(el=>el.textContent),ordered[0].tags);
- await act(async()=>{observers.at(-1).enter();observers.at(-1).enter();});
- assert.equal(rows().length,40,'Duplicate observer entries append only one batch');
- const old=observers.at(-1);
- const target=rows()[34];
- globalThis.scrollY=2400;
- target.getBoundingClientRect=()=>({top:350,bottom:430});
- target.addEventListener('click',event=>event.preventDefault());
- await act(async()=>target.click());
- assert.equal(readLibraryPosition('#').anchor.id,ordered[34].id);
- assert.equal(readLibraryPosition('#').count,40);
- await act(async()=>root.unmount());
- assert(old.disconnected);
- globalThis.scrollY=0;
- window.HTMLElement.prototype.getBoundingClientRect=function(){const i=rows().indexOf(this);return {top:300+80*i-globalThis.scrollY,bottom:380+80*i-globalThis.scrollY};};
- root=createRoot(document.querySelector('#root'));
- await render();await waitFor(()=>observers.at(-1)!==old&&observers.at(-1)?.target);
- assert.equal(rows().length,40,'Returning restores the batch before restoring its anchor');
- assert.equal(rows()[34].getBoundingClientRect().top,350);
- const beforeFilter=observers.at(-1);
- await render('#/?q=Dropout');await flush();
- assert.equal(rows().length,1,'Search includes results outside the first batch');
- assert.equal(rows()[0].dataset.paperId,'dropout');
- await act(async()=>beforeFilter.enter());assert.equal(rows().length,1,'Disposed observers cannot alter a new view');
- await render('#/?sort=newest');await waitFor(()=>observers.at(-1)!==beforeFilter);
- assert.equal(rows().length,20,'A new sort starts with one batch');
- assert.deepEqual(rows().map(row=>row.dataset.paperId),[...ordered].sort((a,b)=>!a.year||!b.year?a.year?-1:b.year?1:a.number-b.number:b.year-a.year||a.number-b.number).slice(0,20).map(p=>p.id));
- while(document.querySelector('.library-load-more'))await act(async()=>document.querySelector('.library-load-more').click());
- assert.equal(rows().length,catalog.papers.length,'Manual fallback reaches the exact end');
- assert.equal(new Set(rows().map(row=>row.dataset.paperId)).size,catalog.papers.length);
- await render('#/?state=done',{progressReady:false});await flush();
- assert.equal(rows().length,0);assert.equal(document.querySelector('.library-load-more'),null);
- console.log('Library pagination passed: batches, number order, complete search/totals, inline tags, scroll return and stale observer cleanup.');
-} finally {
- if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
- for(const [key,value] of previous)if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];
-}
+try{
+ const {createRoot}=await import('react-dom/client'),{PaperLibrary}=await server.ssrLoadModule('/src/PaperViews.tsx'),{LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx'),nav=await server.ssrLoadModule('/src/libraryNavigation.ts'),{libraryPageNumbers}=await server.ssrLoadModule('/src/LibraryPagination.tsx'),positions=await server.ssrLoadModule('/src/libraryPosition.ts');
+ const catalog=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8')),ordered=[...catalog.papers].sort((a,b)=>a.number-b.number);let current='#',props={},shown=true,setLocale;const changes=[];
+ function Code(){React.useEffect(()=>{codeMounts++;},[]);return React.createElement('textarea',{'aria-label':'Private code sentinel',defaultValue:'PRIVATE_PAGED_CODE'});}
+ function Frame(){setLocale=useI18n().setLocale;const view=nav.readLibraryRoute(current);return React.createElement(React.Fragment,null,React.createElement(Code),shown&&React.createElement(PaperLibrary,{...catalog,papers:[...catalog.papers].reverse(),saved:{},...props,route:current,collectionId:view?.collectionId,onFilters:(href,paging)=>{changes.push({href,paging});history[paging?'pushState':'replaceState'](null,'',href);current=href;root.render(tree());}}));}
+ const tree=()=>React.createElement(React.StrictMode,null,React.createElement(LocaleProvider,null,React.createElement(Frame)));
+ const render=async(href=current,extra=props)=>act(async()=>{current=href;props=extra;history.replaceState(null,'',href);root??=createRoot(document.querySelector('#root'));root.render(tree());});
+ const wait=async predicate=>{for(let n=0;n<160&&!predicate();n++)await act(async()=>new Promise(r=>setTimeout(r,10)));assert(predicate(),'Library pages did not settle');};
+ const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});},select=async(node,value)=>act(async()=>{assert(node);node.focus();Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype,'value').set.call(node,String(value));node.dispatchEvent(new window.Event('change',{bubbles:true}));});
+ const input=async(node,value)=>act(async()=>{node.focus();Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set.call(node,value);node.dispatchEvent(new window.Event('input',{bubbles:true}));});
+ const rows=()=>[...document.querySelectorAll('[data-paper-id]')],pager=()=>document.querySelector('.library-pagination:not(.library-pagination-compact)'),page=n=>pager()?.querySelector(`[aria-label="Page ${n}"]`),size=()=>pager()?.querySelector('select'),next=()=>pager()?.querySelector('[aria-label="Next page"]');
+ window.HTMLElement.prototype.getBoundingClientRect=function(){const index=rows().indexOf(this);return {top:300+80*index-y,bottom:380+80*index-y,left:0,right:800,width:800,height:80};};
+ sessionStorage.setItem('private-draft-sentinel','KEEP');sessionStorage.setItem('paperleet.library.positions.v1',JSON.stringify([['#',{y:9000,count:60,anchor:{id:ordered[34].id,top:200}}]]));
+ await render();await wait(()=>!!pager()&&!!document.querySelector('.collection-card'));const code=document.querySelector('textarea'),mounts=codeMounts;code.setSelectionRange(2,10,'backward');code.scrollTop=48;code.scrollLeft=13;
+ assert.equal(rows().length,20);assert.deepEqual(rows().map(r=>r.dataset.paperId),ordered.slice(0,20).map(p=>p.id));assert.equal(y,0,'Old infinite-scroll positions must not restore into a paged list');assert(!document.querySelector('.library-load-more'));assert(pager().querySelector('[aria-label="Previous page"]').disabled);assert.equal(pager().querySelector('[aria-current=page]').textContent,'1');
+ await click(page(2));assert.equal(nav.readLibraryRoute(current).filters.page,2);assert(changes.at(-1).paging);assert.deepEqual(rows().map(r=>r.dataset.paperId),ordered.slice(20,40).map(p=>p.id));assert.equal(document.activeElement,document.querySelector('.library-result-summary'));assert(focusScrolls>0);assert(document.querySelector('.library-results').textContent.includes(`${catalog.problems.length} modules`));assert(pager().textContent.includes('21–40'));
+ const link=rows()[0].getAttribute('href');assert.equal(nav.libraryReturnHref(link),current);assert.equal(nav.libraryContinuation(link),link.slice(2));const unchangedHref=current,unchangedRows=rows();await act(async()=>setLocale('zh'));assert.equal(rows()[0],unchangedRows[0]);assert.equal(location.hash,unchangedHref);await act(async()=>setLocale('en'));
+ const anchor=rows()[14];y=2400;globalThis.scrollY=y;anchor.getBoundingClientRect=()=>({top:350,bottom:430});anchor.addEventListener('click',event=>event.preventDefault());await click(anchor);assert.equal(positions.readLibraryPosition(current).anchor.id,ordered[34].id);
+ shown=false;await render();y=0;globalThis.scrollY=0;shown=true;await render();await wait(()=>rows().length===20&&rows()[14].getBoundingClientRect().top===350);assert.equal(rows()[14].dataset.paperId,ordered[34].id);assert.equal(document.querySelector('textarea'),code);
+ await select(size(),50);assert.equal(rows().length,50);assert.equal(nav.readLibraryRoute(current).filters.page,undefined);assert.equal(nav.readLibraryRoute(current).filters.page_size,50);await select(size(),100);assert.equal(rows().length,ordered.length);await select(size(),20);assert.equal(rows().length,20);assert(!current.includes('page_size'));
+ await click(page(2));const search=document.querySelector('[aria-label="Search papers or modules"]');await input(search,'Dropout');await wait(()=>rows().length===1);assert.equal(rows()[0].dataset.paperId,'dropout');assert.equal(nav.readLibraryRoute(current).filters.page,undefined);assert.equal(document.activeElement,search);assert(!next()||next().disabled);
+ const beforeEscape=changes.length;for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{shiftKey:true},{repeat:true},{isComposing:true},{keyCode:229}])await act(async()=>search.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true,...extra})));assert.equal(changes.length,beforeEscape);assert.equal(search.value,'Dropout');await act(async()=>search.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));assert.equal(search.value,'');assert.equal(rows().length,20);assert.equal(document.activeElement,search);
+ await render('#/?page=999');await wait(()=>document.querySelector('.library-page-recovery'));assert.equal(rows().length,0);await click(document.querySelector('.library-page-recovery .button'));assert.equal(nav.readLibraryRoute(current).filters.page,Math.ceil(ordered.length/20));assert.equal(rows().length,ordered.length%20||20);const beforeEnd=changes.length;await click(next());assert.equal(changes.length,beforeEnd);
+ await render('#/?page=2&state=done',{progressReady:false});assert.equal(rows().length,0);assert(!pager());await render('#/?page=0',{});await wait(()=>pager());await click(page(2));assert.equal(nav.readLibraryRoute(current).filters.page,2,'Malformed old page links remain recoverable');
+ const stale=next(),beforeStale=changes.length;await act(async()=>{history.replaceState(null,'','#/favorites');stale.click();});assert.equal(changes.length,beforeStale);assert.equal(location.hash,'#/favorites');await render('#/?page=2');
+ positions.rememberLibraryPosition(current,{y:7000});shown=false;await render();shown=true;await act(async()=>{root.render(tree());code.focus();});const beforeScroll=scrolls;await act(async()=>new Promise(r=>setTimeout(r,60)));assert.equal(scrolls,beforeScroll);assert.equal(document.activeElement,code);
+ assert.equal(codeMounts,mounts);assert.deepEqual([code.value,code.selectionStart,code.selectionEnd,code.selectionDirection,code.scrollTop,code.scrollLeft],['PRIVATE_PAGED_CODE',2,10,'backward',48,13]);assert.equal(sessionStorage.getItem('private-draft-sentinel'),'KEEP');assert(!JSON.stringify(changes).includes(code.value));
+ console.log('PASS library pages: actual StrictMode bounded paper pages, total/range and native selected/disabled states, explicit history intent and exact practice/login returns, per-page choices preserving the first visible cohort, search reset and complete matching, late/loading/stale-route recovery, bilingual DOM continuity, per-page anchor return and newer code priority with unchanged private editor/draft/caret/scroll');
+ const basePaper=ordered.find(p=>p.kind!=='course'),baseProblem=catalog.problems.find(p=>basePaper.module_ids.includes(p.id));const manyPapers=Array.from({length:205},(_,i)=>({...basePaper,id:'pagination-'+i,number:i+1,module_ids:['architecture/pagination-'+i]})),manyProblems=manyPapers.map((p,i)=>({...baseProblem,id:p.module_ids[0],number:i+1,paper_id:p.id,title:'分页题 '+i,translations:{en:{title:'Pagination module '+i}}}));
+ await render('#',{papers:manyPapers,problems:manyProblems});await wait(()=>pager()?.querySelector('.page-jump'));assert.equal(rows().length,20);assert(libraryPageNumbers(5000,10000).length<=9);assert.deepEqual(libraryPageNumbers(1,1),[1]);assert.deepEqual(libraryPageNumbers(1,0),[]);assert.deepEqual(libraryPageNumbers(2,4),[1,2,3,4]);
+ await click(page(5));assert.equal(rows()[0].dataset.paperId,'pagination-80');const jump=()=>pager().querySelector('.page-jump'),jumpInput=()=>jump().querySelector('input');await input(jumpInput(),'1.5');await click(jump().querySelector('button'));assert.equal(jumpInput().getAttribute('aria-invalid'),'true');assert.equal(nav.readLibraryRoute(current).filters.page,5);
+ await input(jumpInput(),'１１');await act(async()=>{jumpInput().dispatchEvent(new window.CompositionEvent('compositionstart',{bubbles:true}));jump().dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));});assert.equal(nav.readLibraryRoute(current).filters.page,5);await act(async()=>jumpInput().dispatchEvent(new window.CompositionEvent('compositionend',{bubbles:true})));await click(jump().querySelector('button'));assert.equal(nav.readLibraryRoute(current).filters.page,11);assert.equal(rows().length,5);assert.equal(rows()[0].dataset.paperId,'pagination-200');
+ await render('#/collections/llm-basics',{});await wait(()=>document.querySelector('[data-module-id]'));assert(document.querySelectorAll('[data-module-id]').length<=20);assert.equal(codeMounts,mounts);assert.equal(code.value,'PRIVATE_PAGED_CODE');assert(!document.querySelector('.library-load-more'));
+ console.log('PASS library page navigation: bounded numbered windows and gaps for large catalogs, full-width direct jump with invalid/IME recovery, exact final partial page, native page-size controls and course-module paging without automatic appends');
+}finally{if(root)await act(async()=>root.unmount());await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();for(const[key,value]of previous)if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}

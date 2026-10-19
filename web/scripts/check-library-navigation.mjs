@@ -36,6 +36,15 @@ try {
     }
   }
   assert.equal(libraryHref(undefined, emptyLibraryFilters()), '#');
+  for(const collection of [undefined,'llm-basics','diffusion'])for(const page of [1,2,10000])for(const page_size of [20,50,100]){
+    const filters={...emptyLibraryFilters(),query:'attention & mask',company:'google',company_days:'90',page,page_size},href=libraryHref(collection,filters),parsed=readLibraryRoute(href);
+    assert.equal(parsed.filters.page,page===1?undefined:page);assert.equal(parsed.filters.page_size,page_size===20?undefined:page_size);assert.equal(libraryHref(parsed.collectionId,parsed.filters),href);
+    const practice=withLibraryContext(22,href);assert.equal(libraryReturnHref(practice),href);assert.equal(accountReturnHref(decodeProblemHash(signInHref(practice))),practice);assert.equal(libraryContinuation(practice),practice.slice(2));
+    assert.deepEqual(selectLibraryPractice(catalog.papers,catalog.problems,{}, {filters:{...filters,company:undefined,company_days:undefined}}),selectLibraryPractice(catalog.papers,catalog.problems,{}, {filters:{...filters,company:undefined,company_days:undefined,page:undefined,page_size:undefined}}),'Paging never narrows the full practice scope');
+  }
+  for(const query of ['page=0','page=-1','page=01','page=1.5','page=10001','page=2&page=3','page_size=0','page_size=25','page_size=50&page_size=100','page=NaN'])assert.equal(readLibraryRoute('#/?'+query),undefined);
+  for(const page of [0,-1,1.5,Infinity,10001])assert.throws(()=>libraryHref(undefined,{...emptyLibraryFilters(),page}));
+  assert.equal(libraryHref(undefined,{...emptyLibraryFilters(),page:1,page_size:20}),'#');
   for (const sort of ['newest', 'oldest', 'title']) {
     const filters = { ...emptyLibraryFilters(), query: 'attention', sort };
     const view = libraryHref('llm-basics', filters);
@@ -243,7 +252,7 @@ try {
     const escaped = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query: '<script>alert(1)</script>' }) });
     assert(escaped.includes('&lt;script&gt;') && !escaped.includes('<script>'));
   }
-  const cache = new Map([['paperleet.library.positions.v1', JSON.stringify([
+  const cache = new Map([['paperleet.library.positions.v2', JSON.stringify([
     ['#/collections/diffusion', { y: 800, anchor: { id: 'ddpm', top: 150 } }],
     ['javascript:alert(1)', { y: 2 }], ['#/?q=bad', { y: -5 }],
   ])]]);
@@ -253,9 +262,9 @@ try {
   assert.equal(readLibraryPosition('javascript:alert(1)'), undefined);
   assert.equal(readLibraryPosition('#/?q=bad'), undefined);
   rememberLibraryPosition('#/?q=second', { y: 200 });
-  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v1')).length, 2, 'Saving after reload must retain other hydrated positions');
+  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v2')).length, 2, 'Saving after reload must retain other hydrated positions');
   for (let i = 0; i < 20; i++) rememberLibraryPosition('#/?q=' + i, { y: i });
-  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v1')).length, 8);
+  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v2')).length, 8);
   assert.equal(readLibraryPosition('#/?q=0'), undefined);
   assert.deepEqual(readLibraryPosition('#/?q=19'), { y: 19 });
   rememberLibraryPosition('#/?q=19', { y: Infinity });

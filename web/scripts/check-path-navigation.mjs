@@ -61,7 +61,16 @@ try {
   const modified=new window.MouseEvent('click',{bubbles:true,cancelable:true,ctrlKey:true});
   const preventNative=event=>event.preventDefault();window.addEventListener('click',preventNative,{once:true});
   document.querySelector('a').dispatchEvent(modified);assert.equal(location.pathname,'/papers/ppo/');
-  console.log('PASS path navigation: real hrefs, legacy bookmarks, deep links, context, metadata, click order, history, document anchors and dynamic-route compatibility');
+  const library=await server.ssrLoadModule('/src/libraryNavigation.ts');
+  const pageTwo=library.libraryHref(undefined,{...library.emptyLibraryFilters(),page:2,page_size:50,sort:'newest'});
+  appLocation.hash=pageTwo;assert.equal(location.pathname,'/');assert.equal(location.hash,'');assert.equal(appLocation.hash,pageTwo);assert.equal(location.search,'?sort=newest&page=2&page_size=50');
+  const pagedPractice=library.withLibraryContext(problem.number,pageTwo);
+  await act(async()=>root.render(React.createElement(AppLink,{href:pagedPractice},'Paged practice')));await act(async()=>document.querySelector('a').click());
+  assert.equal(location.pathname,`/problems/${problem.id}/`);assert.equal(library.libraryReturnHref(appLocation.hash),pageTwo);
+  history.back();await settle();assert.equal(appLocation.hash,pageTwo);assert.equal(library.readLibraryRoute(appLocation.hash).filters.page,2);
+  history.forward();await settle();assert.equal(library.libraryReturnHref(appLocation.hash),pageTwo);
+  appLocation.hash=library.libraryReturnHref(appLocation.hash);assert.equal(appLocation.hash,pageTwo);assert.equal(location.hash,'');
+  console.log('PASS path navigation: real hrefs, legacy bookmarks, deep links, context, metadata, click order, history, document anchors, paged library/practice returns with exact page size/order across native back/forward and dynamic-route compatibility');
 } finally {
   if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
   for(const [key,value] of previous)if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];

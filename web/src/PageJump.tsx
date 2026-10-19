@@ -21,7 +21,7 @@ export default function PageJump({page,maxPage,onChange,label,className=''}:{pag
    onKeyDown={event=>{
     const ime=composing.current||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229;
     if(event.key==='Enter'){imeEnter.current=ime;return;}
-    if(event.key==='Escape'&&!ime){event.preventDefault();event.stopPropagation();setValue(String(page));setInvalid(false);imeEnter.current=false;}
+    if(event.key==='Escape'&&!ime&&!event.repeat&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey){event.preventDefault();event.stopPropagation();setValue(String(page));setInvalid(false);imeEnter.current=false;}
    }} onKeyUp={event=>{if(event.key==='Enter')imeEnter.current=false;}} onBlur={()=>{imeEnter.current=false;}}/>
   </label><span aria-hidden="true">/ {maxPage}</span>
   <button type="submit" onPointerDown={()=>{if(!composing.current)imeEnter.current=false;}}>{t('跳转','Go')}</button>

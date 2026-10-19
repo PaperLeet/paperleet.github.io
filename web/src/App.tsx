@@ -1,6 +1,6 @@
 import {appLocation, publicHref, registerCatalogRoutes} from './appLocation';
 import AppLink from './AppLink';
-import {deferredFeature} from './deferredFeature';
+import {deferredFeature,FeatureRetry} from './deferredFeature';
 import EditorToolsFallback from './EditorToolsFallback';
 import RetainedReadingPane from './RetainedReadingPane';
 import {useReadingTab} from './useReadingTab';
@@ -46,11 +46,11 @@ import { decodeProblemHash } from "./reports";
 import { LocaleProvider, useI18n } from "./i18n";
 import { AccountNav, AccountProvider, profileHref, useAccount } from "./social";
 import { usePracticeWorkspace } from "./PracticeWorkspace";
-import { BrowserRunProgress } from "./BrowserRunProgress";
+import {BrowserRunProgressFrame} from './BrowserRunProgressFrame';
 import Brand from "./Brand";
 import RepositoryLink from "./RepositoryLink";
 import { OnlinePresence } from "./deferredPages";
-import CommunitySubmissions from "./CommunitySubmissions";
+
 import { BilingualText } from "./BilingualText";
 import { getProblemStats, useProblemStats } from "./ProblemStats";
 import { ResizableSplit } from "./deferredPages";
@@ -78,6 +78,8 @@ import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libra
 import "./community.css";
 
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
+const BrowserRunProgress=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgress>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgress})),['运行进度','run progress'],{loading:props=><BrowserRunProgressFrame onStop={props.onStop}><span className="spinner" aria-hidden="true"/></BrowserRunProgressFrame>,failure:(props,retry)=><BrowserRunProgressFrame onStop={props.onStop}><FeatureRetry retry={retry}/></BrowserRunProgressFrame>});
+const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
 const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
 type Theme = "light" | "dark";
@@ -193,8 +195,13 @@ function Workspace() {
     setLabView(view);
     selectReadingTab("lab");
   }
-  function changeCatalogView(href:string){
+  const catalogPageNavigation=useRef<string>(undefined);
+  function changeCatalogView(href:string,paging=false){
     if(!readLibraryRoute(href)&&!readPaperRegistryRoute(href))return;
+    if(paging){
+      catalogPageNavigation.current=decodeProblemHash(href);
+      try{appLocation.hash=href;return;}catch{catalogPageNavigation.current=undefined;}
+    }
     try{history.replaceState(history.state,'',publicHref(href));}catch{/* Explicit return links work when history writes are blocked. */}
     setId(decodeProblemHash(href));
   }
@@ -362,8 +369,8 @@ function Workspace() {
     void loadCatalog();
     let previous=getId();
     const h = () => {
-      const next=getId(),sameProfile=sameProfilePage(previous,next);previous=next;setId(next);
-      if(sameProfile)return;
+      const next=getId(),sameProfile=sameProfilePage(previous,next),paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
+      if(sameProfile||paging)return;
       setTab("description");
       setRightTab("code");
       setMobilePane("read");

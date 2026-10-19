@@ -77,6 +77,10 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('creat
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Snapshot for this company and report publication period')), 'Company row evidence and actions must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('My linked practice')), 'Company preparation progress must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Some filters are unavailable')), 'Interview filter support UI must remain deferred');
+for(const name of ['LibraryPagination','LibraryCollections','LibraryResultControls','CommunitySubmissions','BrowserRunProgress']){
+ const entry='src/'+name+'.tsx';
+ assert(manifest[entry]?.isDynamicEntry&&!initial.has(entry), `${name} must remain deferred independently of the first usable library list`);
+}
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
