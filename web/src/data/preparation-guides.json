@@ -308,6 +308,30 @@
             "en": "Detaching can preserve forward values while breaking gradient coupling within a group. Check input, weight and bias gradients and finite differences. Hold an anchor sample fixed while changing companions: GN output must stay unchanged. Under this exercise’s singleton convention, output equals bias and input/scale gradients are zero."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "group-shift-gradient-direction",
+          "question": {
+            "zh": "同一组的所有元素加同一个常数，和每个通道加不同常数，是否都不改变 GroupNorm 输出？这对输入梯度有什么约束？",
+            "en": "Are a shared group offset and different per-channel offsets both invisible to GroupNorm? What constraint follows for input gradients?"
+          },
+          "hint": {
+            "zh": "整组加同一个常数会等量移动组均值，中心化值与方差不变；逐通道仿射参数也不破坏这个性质。不同通道加不同常数通常会改变组内差异，不能一概抵消。对固定仿射参数、仅通过此 GN 输出依赖输入的标量损失，沿整组共同平移方向的导数为零，因此每个样本、每个组内的输入梯度之和应为零，按有限精度容差理解；不要对整个 batch 求和来掩盖跨组错误。",
+            "en": "A shared group offset shifts its mean equally, leaving centered values and variance unchanged, even with separate channel affine parameters. Different channel offsets generally alter within-group differences. For a scalar loss depending on x only through this GN output, with fixed affine parameters, the derivative along a shared group shift is zero: input gradients sum to zero within each sample/group, up to numerical tolerance. Summing over the whole batch can hide incorrectly coupled groups."
+          }
+        },
+        {
+          "id": "permutations-and-group-membership",
+          "question": {
+            "zh": "空间位置重排和通道重排，对分组归一化有相同的等变性质吗？仿射参数应怎样一起处理？",
+            "en": "Do spatial and channel permutations have the same equivariance under group normalization? How must affine parameters follow a channel permutation?"
+          },
+          "hint": {
+            "zh": "组内空间位置只被重新排列时，统计量不变，输出跟随排列。通道在各组内部重排，或整组互换时，只要逐通道 weight、bias 同步重排，归一化后的输出也相应重排。任意把部分通道移到其他组会改变分组成员及统计量，通常不再等价。关键是是否保持每一组的元素集合，而不是张量形状是否相同。",
+            "en": "Permuting spatial positions preserves each group’s moments and permutes its output. Channel permutations within groups, or swaps of whole groups, also preserve equivariance when channel weight/bias are permuted with them. Arbitrarily moving some channels between groups changes group membership and generally changes the moments. Preserving each group’s element set matters; preserving only the tensor shape is insufficient."
+          }
+        }
       ]
     },
     {
@@ -483,6 +507,30 @@
           "hint": {
             "zh": "先独立核对索引与重建，再检查输入和 A、B 的导数；量化与冻结 scale 不应形成训练梯度。",
             "en": "First check codes and reconstruction independently, then derivatives for the input and A/B. Quantization and frozen scales must not create training gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "transpose-and-block-membership",
+          "question": {
+            "zh": "量化后再转置权重，与先转置再分块量化，为什么通常不同？能否只转置 codes 而沿用 scales？",
+            "en": "Why does transposing a reconstructed quantized weight generally differ from quantizing its transpose? Can codes alone be transposed while keeping scales?"
+          },
+          "hint": {
+            "zh": "本题按行优先展平后划块，块可能跨行；转置通常改变块成员和每块 absmax。dequantize(codes,scales).T 是已有近似权重的转置，而对 W.T 重新量化会产生另一组近似。仅转置 codes、却继续按新展平顺序广播旧 scales，也未必能得到前者。布局转换必须同时保留每个索引与其原始块尺度的对应关系，或明确接受重新量化误差；本题没有打包布局转换接口。",
+            "en": "Blocks follow row-major flattening and may cross rows. Transposition generally changes block membership and absmax values. dequantize(codes,scales).T transposes the existing approximation; quantizing W.T produces a new approximation. Transposing codes alone while broadcasting the old scales in the new flat order need not reproduce the former. A layout conversion must preserve each code’s original scale association or explicitly accept requantization error. Packed-layout conversion is outside this interface."
+          }
+        },
+        {
+          "id": "requantized-adapter-merge",
+          "question": {
+            "zh": "把训练好的 adapter 合并到基座后再做一次 NF4 量化，是否一定与原来的 qlora_linear 完全等价？",
+            "en": "Is merging a trained adapter into the base and quantizing again guaranteed to match the original qlora_linear?"
+          },
+          "hint": {
+            "zh": "原函数使用重建基座 Ŵ 加上 ΔW=(alpha/r)BA。把 Ŵ+ΔW 重新分块量化会重新选择 absmax 与离散码，通常又引入误差；离散量化不能像精确矩阵加法一样交换。若合并成功后还保留原 adapter 分支，则会再次施加更新。应分别核对原加性前向、浮点合并和重新量化后的前向，不能把它们的逐元素等价或完整显存收益当成本题保证。",
+            "en": "The original forward uses reconstructed Ŵ plus ΔW=(alpha/r)BA. Requantizing Ŵ+ΔW selects new block maxima and discrete codes, generally adding rounding error; quantization does not commute with exact matrix addition. Keeping the adapter active after merging also applies the update again. Compare the original additive forward, floating merge and requantized forward separately. This exercise guarantees neither their elementwise equivalence nor full-system memory savings."
           }
         }
       ]
@@ -2181,6 +2229,30 @@
           "hint": {
             "zh": "比较一次生成与分段生成同一批绝对位置的结果，再检查完整 sine/cosine 对的相对位移。固定编码无需梯度；梯度应沿相加操作回到 embedding。",
             "en": "Compare one-shot and chunked generation at identical absolute positions, then check relative shifts of complete sine/cosine pairs. The fixed encoding needs no gradient; addition must still propagate gradients to embeddings."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "pair-dot-relative-offset",
+          "question": {
+            "zh": "位置编码向量的点积一定只由相对距离决定吗？本题的奇数宽度会带来什么例外？",
+            "en": "Does the positional-vector dot product depend only on relative distance? What changes at this exercise’s odd widths?"
+          },
+          "hint": {
+            "zh": "完整的一对通道贡献 sin(ωp)sin(ωq)+cos(ωp)cos(ωq)=cos(ω(p−q))，偶数宽度可按对求和。奇数宽度最后只有 sine，留下依赖 p、q 各自位置的乘积；宽度 1 时，位置对 (0,1) 与 (1,2) 的距离相同，点积却不同。这个结论只针对原始位置向量；与 embedding 相加、再经任意学习投影后，不能直接断言整个注意力分数只依赖相对距离。",
+            "en": "A complete pair contributes sin(ωp)sin(ωq)+cos(ωp)cos(ωq)=cos(ω(p−q)); an even-width dot product sums these terms. An odd width leaves an unpaired sine product depending on both positions. At width1, (0,1) and (1,2) have the same gap but different dot products. This concerns raw positional vectors: adding embeddings and applying arbitrary learned projections does not guarantee relative-only attention scores."
+          }
+        },
+        {
+          "id": "computable-versus-extrapolating",
+          "question": {
+            "zh": "公式能生成训练长度以外的位置，是否就保证更长上下文上的模型效果？还需要区分哪两类数值问题？",
+            "en": "Does generating positions beyond the training length guarantee long-context quality? Which numerical limitations must also be distinguished?"
+          },
+          "hint": {
+            "zh": "区分公式定义、有限精度下的位置可分辨性和训练后模型的泛化。很大的整数位置转成浮点数时，相邻位置可能先被舍入成同一个值；随后还有频率乘法与三角函数的误差。float64 可减轻这些问题，却不保证任意偏移都可区分。题目的偏移与旋转检查只验证给定范围的编码实现，不提供完整模型的长上下文评测。",
+            "en": "Separate the formula’s domain, distinguishable positions in finite precision and a trained model’s generalization. Very large integer positions can round to the same floating value before frequency multiplication; phase computation and trigonometric evaluation add further error. Float64 can reduce these errors without guaranteeing distinct encodings at arbitrary offsets. The exercise’s offset/rotation checks validate encoding in their tested range, not long-context model quality."
           }
         }
       ]
@@ -4418,6 +4490,30 @@
             "en": "Check both paths away from activation kinks and use finite differences for every live parameter."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "zero-second-layer-first-gradient",
+          "question": {
+            "zh": "第二层 W2 零初始化时，为什么第一步的 W1 损失梯度可以为零，而整个残差块仍可能开始学习？",
+            "en": "With W2 initialized to zero, why can W1 have zero loss gradient on the first step while the residual block can still learn?"
+          },
+          "hint": {
+            "zh": "记 H=ReLU(XW1)，G 为经过相加后 ReLU 的上游梯度。W2 的梯度是 HᵀG，可能非零；W1 的梯度包含 G W2ᵀ，此时为零。W2 更新后，后续损失通常可传到 W1；输入还可沿捷径得到梯度，但仍受最后 ReLU 的门控。这里讨论远离激活拐点的当前损失梯度，不把优化器历史或 weight decay 的更新当作该梯度。",
+            "en": "Let H=ReLU(XW1), and let G be the upstream gradient after the final ReLU gate. The W2 gradient is HᵀG and can be nonzero; the W1 gradient contains G W2ᵀ and is initially zero. Once W2 changes, later losses can reach W1. Input gradients can still follow the shortcut, subject to the final ReLU. This describes current loss derivatives away from activation kinks, not updates from optimizer history or weight decay."
+          }
+        },
+        {
+          "id": "identity-valued-trainable-shortcut",
+          "question": {
+            "zh": "projection 恰好等于单位矩阵时，与 projection=None 的块在哪些方面相同，又为什么不能认为训练过程也相同？",
+            "en": "When projection equals the identity matrix, what matches projection=None, and why can their training trajectories still differ?"
+          },
+          "hint": {
+            "zh": "在相同分支权重与输入下，当前前向值相同；远离激活拐点，输入和分支权重的梯度也相同。但显式投影 Ws 仍是独立可训练参数，损失对它的梯度为 XᵀG，可能非零；参数无关的恒等捷径没有这次更新。一次前向或输入 Jacobian 相同，不能证明后续优化轨迹相同，也不能据此忽略或 detach 方阵投影。",
+            "en": "With the same branch weights and input, current outputs match; away from activation kinks, input and branch-weight gradients match too. The explicit Ws remains an independent trainable parameter with loss gradient XᵀG, which can be nonzero. A parameter-free identity shortcut has no such update. Equal forward values or input Jacobians do not establish equal future optimization trajectories or justify ignoring/detaching a square projection."
+          }
+        }
       ]
     },
     {
@@ -4458,6 +4554,30 @@
           "hint": {
             "zh": "固定一个样本，改变同批其他样本，再分别固定或重新计算统计量；不要把结果当作模型精度。",
             "en": "Keep an anchor fixed, change companions, and compare fixed versus recomputed moments without claiming model accuracy."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "microbatch-state-composition",
+          "question": {
+            "zh": "把一个 batch 拆成两个 microbatch，各调用一次训练态 BatchNorm，能否只靠相同 momentum 得到与一次大 batch 完全一样的输出和移动统计量？",
+            "en": "Can two training microbatch calls with the same momentum reproduce one full-batch call’s outputs and running statistics?"
+          },
+          "hint": {
+            "zh": "通常不能：各 microbatch 用自己的矩归一化。若新批系数为 a，连续两次更新均值得到 (1−a)²μrun+a(1−a)μ1+aμ2；一次合并调用则是 (1−a)μrun+aμpooled，权重与旧状态系数都不同。合并方差还需包含两组均值差的组间项，不能只平均方差。梯度累积不会自动合并这些统计量；即使没有更新模型参数，训练态输出和状态也会受拆分方式影响。",
+            "en": "Generally not: each microbatch normalizes with its own moments. With new-batch coefficient a, two mean updates give (1−a)²μrun+a(1−a)μ1+aμ2; one pooled call gives (1−a)μrun+aμpooled. Both batch weights and the old-state coefficient differ. Pooled variance also needs the between-mean contribution, not just averaged variances. Gradient accumulation does not automatically pool these statistics, even when model parameters stay fixed between calls."
+          }
+        },
+        {
+          "id": "fixed-inference-linear-folding",
+          "question": {
+            "zh": "推理态 BatchNorm 如何吸收到前面的 Z=XW+b 中？为什么同样的固定权重折叠不能直接用于训练态？",
+            "en": "How can inference BatchNorm be folded into a preceding Z=XW+b, and why does the same fixed-weight fold fail in training?"
+          },
+          "hint": {
+            "zh": "固定 running mean、variance、gamma、beta，令逐输出通道 d=gamma/sqrt(vrun+epsilon)。右乘权重约定下，W′ 是 W 的每个输出列乘对应 d，b′=(b−μrun)·d+beta；没有原偏置时取 b=0。训练态均值和方差依赖当前输入，且还要返回新状态，不能用同一组固定 W′、b′ 替代。折叠是调用者的推理变换讨论，不改变本题 batch_norm 的纯函数接口和状态隔离要求。",
+            "en": "Fix running moments, gamma and beta, and set per-output-channel d=gamma/sqrt(vrun+epsilon). For right-multiplied weights, scale each output column of W by d and use b′=(b−μrun)·d+beta; use b=0 when there was no bias. Training moments depend on the current input and must also produce updated state, so one fixed W′/b′ cannot replace training BN. Folding is a caller-side inference discussion, not a change to this pure-function contract or its detached buffers."
           }
         }
       ]
@@ -4502,6 +4622,30 @@
           "hint": {
             "zh": "在 logits 空间计算 Bernoulli NLL，并分别检查均值、log variance 和 logits 的梯度。",
             "en": "Compute Bernoulli NLL in logit space and check derivatives for the mean, log variance and logits separately."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "zero-noise-changes-estimator",
+          "question": {
+            "zh": "把提供给 reparameterize 的 noise 永远设为零，是否仍在估计原来的重构期望？对 logvar 的重构梯度与 KL 梯度分别有什么影响？",
+            "en": "Does always passing zero noise to reparameterize still estimate the original reconstruction expectation? How do reconstruction and KL gradients to logvar differ?"
+          },
+          "hint": {
+            "zh": "零噪声使 z=mu，变成在后验均值处解码；非线性重构项在均值处的值通常不等于其后验期望。按调用者独立标准正态噪声采样才得到这里的 Monte Carlo 估计。组合到解码器后，零噪声使采样路径对 logvar 的导数为零，但每样本解析 KL 仍有 0.5·(exp(logvar)−1) 的导数，随后按 batch 平均，不能把整条 logvar 路径 detach。函数应使用传入的噪声，不可为修复估计量而私自重采样。",
+            "en": "Zero noise sets z=mu and decodes the posterior mean. A nonlinear reconstruction term at that mean generally differs from its posterior expectation; independent standard-normal caller draws give the intended Monte Carlo estimator. Through the decoder, zero noise makes the sampling-path derivative to logvar zero, but each observation’s analytic KL still contributes 0.5·(exp(logvar)−1), before batch averaging. Do not detach the entire logvar path or secretly resample inside the function."
+          }
+        },
+        {
+          "id": "expected-bound-versus-single-draw",
+          "question": {
+            "zh": "负 ELBO 在理论上界住负对数似然，是否意味着一次采样得到的训练损失每次都必须更大？",
+            "en": "If negative ELBO bounds negative log likelihood, must every single-sample training loss also be larger?"
+          },
+          "hint": {
+            "zh": "理论不等式针对后验期望中的重构项加解析 KL；单次采样只是这个期望目标的随机估计，逐次不必保持同样的不等式。这一解释要求 logits 来自对应后验样本的概率解码器，噪声分布正确，且观测属于该模型的样本空间。本题 Bernoulli 观测为二值；接口接受软 target 不等于赋予它们二值事件的边缘似然。negative_elbo 单独接收 logits，不能验证完整生成模型。增加独立样本可改善估计，却不能把 toy 曲线当作精确边缘似然或逐次有效的模型质量证明。",
+            "en": "The theoretical inequality applies to the posterior expectation of reconstruction NLL plus analytic KL. A single draw estimates that objective and need not satisfy the inequality pointwise. This requires the corresponding posterior sample’s decoder, correct noise and observations in the model’s sample space. Bernoulli observations are binary; accepting soft targets does not make them binary events with that marginal likelihood. negative_elbo receives logits and cannot verify a whole generative model. More independent draws improve estimation but do not turn toy curves into exact marginal likelihoods or pointwise quality guarantees."
           }
         }
       ]
