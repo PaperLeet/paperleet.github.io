@@ -1,0 +1,6285 @@
+{
+  "status": "promising_isolated_candidate_further_qualification_required",
+  "candidate_source": 340,
+  "source_version_label": "0.80.0 remains inherited in the experimental copy; this is not a released version",
+  "changes": [
+    "_matmul.py"
+  ],
+  "source_sha256": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "_attention.py": "833112810b85ffd4e905aa3421d9e91d60c4a23e7d08f27b292a2af8a639d2d6",
+    "_api.py": "770703dbaa1572af9935d6258467ac64f12d50152b47022ad7500e3f1f099a45",
+    "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "__init__.py": "ce48266ffd581cf03e974b35ff81ebed2764f0635caaac12c5af6a4c4d312e64",
+    "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "_arithmetic.py": "93dbdc5a799aa3366dcdc64e406a4a6a23b4dc666b4a3acf46598bfe3578f860",
+    "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "8cbfd3ac8d87500d21e700e07429e0000ca670fafd7fea1cd42cb2963db50879",
+    "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "a777410d559e6bbad6bc968f269372b7dd9e046f5c311cc537c29d1d5d9855e1",
+    "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "_higher_order.py": "a2fb116c9ad0ebe452e164397f15a26b059444ace6293a0d4af01e1a05fd849b",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_matmul.py": "d133e30307fb190e18e83d19a30f36ee947120dc20a63a25468c2df924a1940a",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+  },
+  "candidate_patch_sha256": "5c5cd02b9762743783674c6039b4a681768ec6c3b65b94a7b1d09a627f369890",
+  "targeted_native": {
+    "numpy25": {
+      "passed": 3025,
+      "skipped": 0,
+      "python": "3.12.11 (main, Aug 18 2025, 19:02:39) [Clang 20.1.4 ]",
+      "numpy": "2.5.4",
+      "source_sha256": "9a8198744a9f930978d969aaeda53fb9385ff628bdeb36f99a144329342e8487"
+    },
+    "numpy126": {
+      "passed": 3022,
+      "skipped": 3,
+      "python": "3.10.19 (main, Nov 19 2025, 22:41:43) [Clang 21.1.4 ]",
+      "numpy": "1.26.4",
+      "source_sha256": "ac508e7eead42ec11861c0f2c645616616dd74948fc96558539996a53bc6b260"
+    }
+  },
+  "full_node_wasm_sdk": {
+    "exit_code": 0,
+    "passed": 12212,
+    "skipped": 0,
+    "failures": [],
+    "expected_passed": 12212,
+    "source_version": "0.80.0",
+    "numpy": "2.2.5",
+    "status": "passed_full_node_wasm_sdk",
+    "pyodide": "0.29.4",
+    "plan_sha256": "4c906885dbb06dd8d0f96879e0d2763b5cd265f964e05be4fa1f65b2c24e6e9e"
+  },
+  "exploratory_scans": {
+    "340": {
+      "status": "completed_exploratory_scan",
+      "numpy": "2.2.5",
+      "rows": [
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.026583208000000358,
+                  "seconds": 0.002044862153846181
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025569207999999843,
+                  "seconds": 0.0019668621538461418
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.02494525000000003,
+                  "seconds": 0.0017818035714285735
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025262208000000008,
+                  "seconds": 0.0019432467692307698
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.024839541999999604,
+                  "seconds": 0.0017742529999999718
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025488332999999752,
+                  "seconds": 0.001960640999999981
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025551166999999708,
+                  "seconds": 0.001965474384615362
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.026281666000000037,
+                  "seconds": 0.0020216666153846184
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025732541999999636,
+                  "seconds": 0.0018380387142856883
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.026277708999999927,
+                  "seconds": 0.002021362230769225
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.02820237499999978,
+                  "seconds": 0.0020144553571428414
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.03287424999999988,
+                  "seconds": 0.0025287884615384526
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.03135804199999992,
+                  "seconds": 0.002239860142857137
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.026278542000000016,
+                  "seconds": 0.002021426307692309
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.02655750000000001,
+                  "seconds": 0.002042884615384616
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.02647491699999982,
+                  "seconds": 0.001891065499999987
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.026175792000000087,
+                  "seconds": 0.0020135224615384683
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.02586495799999966,
+                  "seconds": 0.0019896121538461277
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0020353749999999504
+              },
+              {
+                "count": 30,
+                "elapsed": 0.05933300000000008
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0022169999999999135
+              },
+              {
+                "count": 28,
+                "elapsed": 0.05517666599999993
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0023004580000001162
+              },
+              {
+                "count": 27,
+                "elapsed": 0.0508671249999999
+              }
+            ]
+          },
+          "aa_ratio": 0.9905780571266263,
+          "packed_over_original": 0.9111026957092263,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 2.0215464615384637,
+            "A1": 1.9901923076923047,
+            "B": 1.8645521071428377
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025607500000000005,
+                  "seconds": 0.0019698076923076926
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025914666000000253,
+                  "seconds": 0.0019934358461538657
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025223791000000162,
+                  "seconds": 0.0018016993571428688
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025204709000000047,
+                  "seconds": 0.001938823769230773
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025607540999999845,
+                  "seconds": 0.0018291100714285604
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.02535895900000007,
+                  "seconds": 0.0019506891538461591
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.026432209000000206,
+                  "seconds": 0.002033246846153862
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025373666000000128,
+                  "seconds": 0.0019518204615384714
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.02597554199999985,
+                  "seconds": 0.0018553958571428466
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.024422207999999834,
+                  "seconds": 0.0018786313846153719
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.024529750000000128,
+                  "seconds": 0.001752125000000009
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.024996666999999917,
+                  "seconds": 0.001922820538461532
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.026290417000000232,
+                  "seconds": 0.0018778869285714453
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.024720499999999923,
+                  "seconds": 0.001901576923076917
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.026299791000000017,
+                  "seconds": 0.0020230608461538476
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.026101291999999887,
+                  "seconds": 0.0018643779999999918
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.024713166999999814,
+                  "seconds": 0.0019010128461538318
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.02498987500000016,
+                  "seconds": 0.0019222980769230892
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.002074832999999998
+              },
+              {
+                "count": 29,
+                "elapsed": 0.05724845800000011
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0019075420000000953
+              },
+              {
+                "count": 32,
+                "elapsed": 0.06418320899999985
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0019709589999998833
+              },
+              {
+                "count": 31,
+                "elapsed": 0.05830070799999998
+              }
+            ]
+          },
+          "aa_ratio": 1.0090575229106544,
+          "packed_over_original": 0.9470049218142595,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 1.9308221538461523,
+            "A1": 1.9720625000000125,
+            "B": 1.8422529642857035
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.027203583000000364,
+                  "seconds": 0.0034004478750000455
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.02870579200000023,
+                  "seconds": 0.0035882240000000287
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027082374999999992,
+                  "seconds": 0.002083259615384615
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.026587083999999983,
+                  "seconds": 0.003323385499999998
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02512375000000011,
+                  "seconds": 0.0019325961538461623
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.027224665999999953,
+                  "seconds": 0.003403083249999994
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.027036665999999876,
+                  "seconds": 0.0033795832499999845
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.0271177090000001,
+                  "seconds": 0.0033897136250000126
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02697758299999986,
+                  "seconds": 0.0020751986923076816
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.02758683400000006,
+                  "seconds": 0.0034483542500000075
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027140542000000156,
+                  "seconds": 0.002087734000000012
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.02727383300000019,
+                  "seconds": 0.003409229125000024
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.026731750000000165,
+                  "seconds": 0.0020562884615384744
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.027440665999999947,
+                  "seconds": 0.0034300832499999934
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.02702333300000026,
+                  "seconds": 0.0033779166250000325
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027481874999999878,
+                  "seconds": 0.002113990384615375
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.026755249999999897,
+                  "seconds": 0.003344406249999987
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.02774091700000003,
+                  "seconds": 0.003467614625000004
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0030382920000002756
+              },
+              {
+                "count": 20,
+                "elapsed": 0.06681091699999975
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.003371958999999869
+              },
+              {
+                "count": 18,
+                "elapsed": 0.057398499999999686
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.002327415999999971
+              },
+              {
+                "count": 26,
+                "elapsed": 0.05172683400000011
+              }
+            ]
+          },
+          "aa_ratio": 1.004243837187916,
+          "packed_over_original": 0.6109214683974784,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 3.404838500000035,
+            "A1": 3.391333249999989,
+            "B": 2.079229153846148
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.027627209000000263,
+                  "seconds": 0.0023022674166666888
+                },
+                "A1": {
+                  "count": 12,
+                  "elapsed": 0.026154416999999874,
+                  "seconds": 0.0021795347499999895
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02613929199999987,
+                  "seconds": 0.002010714769230759
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.0264708339999995,
+                  "seconds": 0.0022059028333332917
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027040167000000004,
+                  "seconds": 0.0020800128461538466
+                },
+                "A1": {
+                  "count": 12,
+                  "elapsed": 0.025412332999999343,
+                  "seconds": 0.002117694416666612
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 12,
+                  "elapsed": 0.026118792000000113,
+                  "seconds": 0.0021765660000000095
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.025814582999999836,
+                  "seconds": 0.002151215249999986
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02594175000000032,
+                  "seconds": 0.001995519230769255
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 12,
+                  "elapsed": 0.026020749999999815,
+                  "seconds": 0.0021683958333333178
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.026686917000000143,
+                  "seconds": 0.00205283976923078
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.025824124999999754,
+                  "seconds": 0.0021520104166666463
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.026886708000000148,
+                  "seconds": 0.002068208307692319
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.02688808300000023,
+                  "seconds": 0.0022406735833333524
+                },
+                "A1": {
+                  "count": 12,
+                  "elapsed": 0.026380375000000456,
+                  "seconds": 0.002198364583333371
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027062665999999957,
+                  "seconds": 0.0020817435384615354
+                },
+                "A1": {
+                  "count": 12,
+                  "elapsed": 0.026876915999999973,
+                  "seconds": 0.0022397429999999976
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.026490500000000416,
+                  "seconds": 0.0022075416666667014
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0023544590000001975
+              },
+              {
+                "count": 26,
+                "elapsed": 0.05828349999999993
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0021557080000000894
+              },
+              {
+                "count": 28,
+                "elapsed": 0.06115120800000007
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.002191082999999594
+              },
+              {
+                "count": 28,
+                "elapsed": 0.055147332999999854
+              }
+            ]
+          },
+          "aa_ratio": 0.9943658679727561,
+          "packed_over_original": 0.9352772791955041,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 2.2067222499999968,
+            "A1": 2.1780503749999998,
+            "B": 2.060524038461549
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.027421374999999415,
+                  "seconds": 0.0022851145833332844
+                },
+                "A1": {
+                  "count": 11,
+                  "elapsed": 0.024184125000000556,
+                  "seconds": 0.0021985568181818686
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02718308299999972,
+                  "seconds": 0.002091006384615363
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.026439833000000412,
+                  "seconds": 0.002203319416666701
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027502208999999667,
+                  "seconds": 0.0021155545384615127
+                },
+                "A1": {
+                  "count": 11,
+                  "elapsed": 0.025172375000000358,
+                  "seconds": 0.00228839772727276
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 11,
+                  "elapsed": 0.02583266700000042,
+                  "seconds": 0.002348424272727311
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.028086250000000312,
+                  "seconds": 0.0023405208333333594
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027698874999999568,
+                  "seconds": 0.002130682692307659
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 11,
+                  "elapsed": 0.02499287500000058,
+                  "seconds": 0.0022720795454545984
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.025477999999999668,
+                  "seconds": 0.0019598461538461284
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.026080958000000543,
+                  "seconds": 0.002173413166666712
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02642012500000046,
+                  "seconds": 0.002032317307692343
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.026016499999999887,
+                  "seconds": 0.002168041666666657
+                },
+                "A1": {
+                  "count": 11,
+                  "elapsed": 0.023983459000000096,
+                  "seconds": 0.0021803144545454634
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.0261703329999996,
+                  "seconds": 0.0020131025384615077
+                },
+                "A1": {
+                  "count": 11,
+                  "elapsed": 0.02320395899999994,
+                  "seconds": 0.002109450818181813
+                },
+                "A0": {
+                  "count": 12,
+                  "elapsed": 0.025718041999999386,
+                  "seconds": 0.0021431701666666156
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0020564169999994775
+              },
+              {
+                "count": 30,
+                "elapsed": 0.06724483400000025
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0021637920000001643
+              },
+              {
+                "count": 28,
+                "elapsed": 0.06562595800000004
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0018899589999996635
+              },
+              {
+                "count": 32,
+                "elapsed": 0.06478208399999996
+              }
+            ]
+          },
+          "aa_ratio": 1.004518778913413,
+          "packed_over_original": 0.9262265463477724,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 2.1883662916667066,
+            "A1": 2.2353181818182333,
+            "B": 2.0616618461538527
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.027871374999999254,
+                  "seconds": 0.003483921874999907
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.027442792000000438,
+                  "seconds": 0.0034303490000000547
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.027403167000000117,
+                  "seconds": 0.002107935923076932
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.027617042000000147,
+                  "seconds": 0.0034521302500000184
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.028438915999999814,
+                  "seconds": 0.002187608923076909
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.028322541000000534,
+                  "seconds": 0.0035403176250000667
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.029080125000000123,
+                  "seconds": 0.0036350156250000154
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.028971792000000107,
+                  "seconds": 0.0036214740000000134
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.028464082999999363,
+                  "seconds": 0.002189544846153797
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.028809042000000673,
+                  "seconds": 0.003601130250000084
+                },
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.028583666000000285,
+                  "seconds": 0.0021987435384615605
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.02931308399999999,
+                  "seconds": 0.0036641354999999987
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.028578207999999883,
+                  "seconds": 0.0021983236923076833
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.029830124999999263,
+                  "seconds": 0.003728765624999908
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.02864629099999938,
+                  "seconds": 0.0035807863749999225
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 13,
+                  "elapsed": 0.02880695799999966,
+                  "seconds": 0.00221591984615382
+                },
+                "A1": {
+                  "count": 8,
+                  "elapsed": 0.029198208999999586,
+                  "seconds": 0.0036497761249999483
+                },
+                "A0": {
+                  "count": 8,
+                  "elapsed": 0.028193125000000485,
+                  "seconds": 0.0035241406250000606
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.003192292000000485
+              },
+              {
+                "count": 19,
+                "elapsed": 0.06346633300000004
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.003327792000000329
+              },
+              {
+                "count": 19,
+                "elapsed": 0.06311350000000004
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.00200699999999987
+              },
+              {
+                "count": 30,
+                "elapsed": 0.06248229199999944
+              }
+            ]
+          },
+          "aa_ratio": 0.9941810416084765,
+          "packed_over_original": 0.6048236502413704,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 3.572807312500037,
+            "A1": 3.5909583125000033,
+            "B": 2.19393426923074
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029158333000000702,
+                  "seconds": 0.014579166500000351
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.030013499999999915,
+                  "seconds": 0.015006749999999958
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027830958000000017,
+                  "seconds": 0.013915479000000008
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.030430791999999762,
+                  "seconds": 0.015215395999999881
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02955454199999963,
+                  "seconds": 0.014777270999999814
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.03027254100000043,
+                  "seconds": 0.015136270500000215
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.03046504099999936,
+                  "seconds": 0.01523252049999968
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029279417000000585,
+                  "seconds": 0.014639708500000292
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026663832999999748,
+                  "seconds": 0.013331916499999874
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028314416999999814,
+                  "seconds": 0.014157208499999907
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.025959541999999836,
+                  "seconds": 0.012979770999999918
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02799070799999992,
+                  "seconds": 0.01399535399999996
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026744791999999684,
+                  "seconds": 0.013372395999999842
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029431416999999627,
+                  "seconds": 0.014715708499999813
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028556916999999515,
+                  "seconds": 0.014278458499999758
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027460333000000503,
+                  "seconds": 0.013730166500000252
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.030582332999999906,
+                  "seconds": 0.015291166499999953
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029989291000000584,
+                  "seconds": 0.014994645500000292
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013927666999999921
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07064266599999947
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.014219833999999487
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07221470799999974
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.013184833000000395
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07083720799999949
+              }
+            ]
+          },
+          "aa_ratio": 1.015669999663775,
+          "packed_over_original": 0.9215527865765325,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 14.677708500000053,
+            "A1": 15.071510250000086,
+            "B": 13.551281250000047
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02915354200000042,
+                  "seconds": 0.01457677100000021
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.029081791999999496,
+                  "seconds": 0.014540895999999748
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02620258299999989,
+                  "seconds": 0.013101291499999945
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029323625000000852,
+                  "seconds": 0.014661812500000426
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02640550000000008,
+                  "seconds": 0.01320275000000004
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028647832999999956,
+                  "seconds": 0.014323916499999978
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.027918333999999767,
+                  "seconds": 0.013959166999999884
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02786795799999986,
+                  "seconds": 0.01393397899999993
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.028645709000000075,
+                  "seconds": 0.014322854500000037
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.029164375000000575,
+                  "seconds": 0.014582187500000288
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02523433300000022,
+                  "seconds": 0.01261716650000011
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029284416000000313,
+                  "seconds": 0.014642208000000156
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02799233299999937,
+                  "seconds": 0.013996166499999685
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.03079362500000027,
+                  "seconds": 0.015396812500000134
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028558207999999752,
+                  "seconds": 0.014279103999999876
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02758191700000001,
+                  "seconds": 0.013790958500000006
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.0323205419999999,
+                  "seconds": 0.01616027099999995
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02830200000000005,
+                  "seconds": 0.014151000000000025
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013663082999999965
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07198062500000013
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.01506045899999986
+              },
+              {
+                "count": 4,
+                "elapsed": 0.05942645899999999
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.013394874999999473
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06543787499999976
+              }
+            ]
+          },
+          "aa_ratio": 0.9967198749160693,
+          "packed_over_original": 0.9047578310302236,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 14.609489500000183,
+            "A1": 14.432406249999863,
+            "B": 13.496854250000023
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.049058125000000175,
+                  "seconds": 0.024529062500000087
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04918583300000101,
+                  "seconds": 0.024592916500000506
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027274167000001626,
+                  "seconds": 0.013637083500000813
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04921320899999948,
+                  "seconds": 0.02460660449999974
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.028627457999998995,
+                  "seconds": 0.014313728999999498
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04962408400000129,
+                  "seconds": 0.024812042000000645
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04989637499999944,
+                  "seconds": 0.02494818749999972
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.05095000000000027,
+                  "seconds": 0.025475000000000136
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.028821332999999782,
+                  "seconds": 0.014410666499999891
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04948495900000083,
+                  "seconds": 0.024742479500000414
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026677207999998842,
+                  "seconds": 0.013338603999999421
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04915345900000112,
+                  "seconds": 0.02457672950000056
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026724416999998724,
+                  "seconds": 0.013362208499999362
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04810170799999902,
+                  "seconds": 0.02405085399999951
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04904133399999999,
+                  "seconds": 0.024520666999999996
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02759420900000009,
+                  "seconds": 0.013797104500000046
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.0484843330000011,
+                  "seconds": 0.02424216650000055
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.047338583000000156,
+                  "seconds": 0.023669291500000078
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.025245749999999845
+              },
+              {
+                "count": 3,
+                "elapsed": 0.07468516700000016
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.024349665999999104
+              },
+              {
+                "count": 3,
+                "elapsed": 0.07297291600000122
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.014036666000000864
+              },
+              {
+                "count": 5,
+                "elapsed": 0.0690571250000005
+              }
+            ]
+          },
+          "aa_ratio": 1.0075465304958051,
+          "packed_over_original": 0.5608174638687952,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 24.552896000000324,
+            "A1": 24.66769800000046,
+            "B": 13.71709400000043
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.031103124999999565,
+                  "seconds": 0.015551562499999783
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.030426041000000126,
+                  "seconds": 0.015213020500000063
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026751083999998926,
+                  "seconds": 0.013375541999999463
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.030744290999999535,
+                  "seconds": 0.015372145499999768
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027794666000000134,
+                  "seconds": 0.013897333000000067
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.03078429199999988,
+                  "seconds": 0.01539214599999994
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.0314667919999998,
+                  "seconds": 0.0157333959999999
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.03136791600000066,
+                  "seconds": 0.01568395800000033
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027880375000000512,
+                  "seconds": 0.013940187500000256
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.031386584000001605,
+                  "seconds": 0.015693292000000802
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02610875000000057,
+                  "seconds": 0.013054375000000285
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02944216699999913,
+                  "seconds": 0.014721083499999565
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026735957999999727,
+                  "seconds": 0.013367978999999863
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.030410417000000578,
+                  "seconds": 0.015205208500000289
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.03121499999999955,
+                  "seconds": 0.015607499999999774
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027044959000001256,
+                  "seconds": 0.013522479500000628
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.03111862499999951,
+                  "seconds": 0.015559312499999756
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02903729100000163,
+                  "seconds": 0.014518645500000815
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013933332999998882
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07538237500000022
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.014371709000000621
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07281695800000065
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.013474333999999644
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06827908300000018
+              }
+            ]
+          },
+          "aa_ratio": 1.0148048090069826,
+          "packed_over_original": 0.8877995328583685,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 15.288677000000028,
+            "A1": 15.583406249999765,
+            "B": 13.449010750000046
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.031680000000001485,
+                  "seconds": 0.015840000000000742
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.033177332999999365,
+                  "seconds": 0.016588666499999682
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.029842416999999344,
+                  "seconds": 0.014921208499999672
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.031729541000000694,
+                  "seconds": 0.015864770500000347
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.028244374999999877,
+                  "seconds": 0.014122187499999939
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02960054200000073,
+                  "seconds": 0.014800271000000365
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.030565292000000355,
+                  "seconds": 0.015282646000000177
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028111499999999623,
+                  "seconds": 0.014055749999999811
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.0259660420000003,
+                  "seconds": 0.01298302100000015
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028616791999999336,
+                  "seconds": 0.014308395999999668
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026383042000000856,
+                  "seconds": 0.013191521000000428
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028875124999999002,
+                  "seconds": 0.014437562499999501
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.025911083000000446,
+                  "seconds": 0.012955541500000223
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028740875000000443,
+                  "seconds": 0.014370437500000222
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.029960499999999612,
+                  "seconds": 0.014980249999999806
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026030374999999495,
+                  "seconds": 0.013015187499999747
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.029067832999999155,
+                  "seconds": 0.014533916499999577
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02992858300000023,
+                  "seconds": 0.014964291500000115
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.014824583000001113
+              },
+              {
+                "count": 5,
+                "elapsed": 0.08086416599999957
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.015967250000000988
+              },
+              {
+                "count": 4,
+                "elapsed": 0.06271904199999945
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.014096792000000136
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07051341699999902
+              }
+            ]
+          },
+          "aa_ratio": 1.0167443245117156,
+          "packed_over_original": 0.9076178355314166,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 14.700926999999808,
+            "A1": 14.890260500000085,
+            "B": 13.103354250000088
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.02561174999999949,
+                  "seconds": 0.02561174999999949
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.02515954100000073,
+                  "seconds": 0.02515954100000073
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02552208300000025,
+                  "seconds": 0.012761041500000125
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.02200387499999934,
+                  "seconds": 0.02200387499999934
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.027184249999999466,
+                  "seconds": 0.013592124999999733
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.023049541000000673,
+                  "seconds": 0.023049541000000673
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.024397667000000567,
+                  "seconds": 0.024397667000000567
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.026280665999999897,
+                  "seconds": 0.026280665999999897
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.029636332999999127,
+                  "seconds": 0.014818166499999563
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.025496207999999854,
+                  "seconds": 0.025496207999999854
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.0294792079999997,
+                  "seconds": 0.01473960399999985
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.0255202919999995,
+                  "seconds": 0.0255202919999995
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.029026249999999365,
+                  "seconds": 0.014513124999999683
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.02594004200000022,
+                  "seconds": 0.02594004200000022
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.02687679200000126,
+                  "seconds": 0.02687679200000126
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.030435874999998447,
+                  "seconds": 0.015217937499999223
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.025757959000001662,
+                  "seconds": 0.025757959000001662
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.027641499999999652,
+                  "seconds": 0.027641499999999652
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.024444291000000007
+              },
+              {
+                "count": 3,
+                "elapsed": 0.0865063750000008
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.025731791000000115
+              },
+              {
+                "count": 3,
+                "elapsed": 0.07646529199999996
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.014197207999998795
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07033083399999995
+              }
+            ]
+          },
+          "aa_ratio": 0.9906999851492682,
+          "packed_over_original": 0.5616651099026863,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 25.775895999999854,
+            "A1": 25.32787450000029,
+            "B": 14.626364499999767
+          }
+        },
+        {
+          "size": 512,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.10603554200000076,
+                  "seconds": 0.10603554200000076
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.10631133300000073,
+                  "seconds": 0.10631133300000073
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.09656545900000069,
+                  "seconds": 0.09656545900000069
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.1108352090000011,
+                  "seconds": 0.1108352090000011
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.09423941700000071,
+                  "seconds": 0.09423941700000071
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.10504458299999975,
+                  "seconds": 0.10504458299999975
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.10605287500000138,
+                  "seconds": 0.10605287500000138
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.10926037499999985,
+                  "seconds": 0.10926037499999985
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.09961674999999914,
+                  "seconds": 0.09961674999999914
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.10651429199999995,
+                  "seconds": 0.10651429199999995
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.09758558400000084,
+                  "seconds": 0.09758558400000084
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.10792016699999962,
+                  "seconds": 0.10792016699999962
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.10301337499999974,
+                  "seconds": 0.10301337499999974
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.11612395899999939,
+                  "seconds": 0.11612395899999939
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.10866958400000115,
+                  "seconds": 0.10866958400000115
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.09579387500000003,
+                  "seconds": 0.09579387500000003
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.10976570899999949,
+                  "seconds": 0.10976570899999949
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.10966704199999988,
+                  "seconds": 0.10966704199999988
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.10428337499999962
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.10584254100000123
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.09742458400000054
+              }
+            ]
+          },
+          "aa_ratio": 0.9788082647666043,
+          "packed_over_original": 0.8956685012871501,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 109.46370849999987,
+            "A1": 106.41281250000034,
+            "B": 97.07552150000076
+          }
+        },
+        {
+          "size": 64,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 62,
+                  "elapsed": 0.026039749999998918,
+                  "seconds": 0.000419995967741918
+                },
+                "A1": {
+                  "count": 61,
+                  "elapsed": 0.025281333000000572,
+                  "seconds": 0.0004144480819672225
+                },
+                "B": {
+                  "count": 60,
+                  "elapsed": 0.025089041999999395,
+                  "seconds": 0.00041815069999998994
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 62,
+                  "elapsed": 0.02537708300000041,
+                  "seconds": 0.0004093077903225873
+                },
+                "B": {
+                  "count": 60,
+                  "elapsed": 0.024767167000000256,
+                  "seconds": 0.00041278611666667095
+                },
+                "A1": {
+                  "count": 61,
+                  "elapsed": 0.02553704099999976,
+                  "seconds": 0.0004186400163934387
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 61,
+                  "elapsed": 0.025390625,
+                  "seconds": 0.00041623975409836063
+                },
+                "A0": {
+                  "count": 62,
+                  "elapsed": 0.026667208000000997,
+                  "seconds": 0.00043011625806453223
+                },
+                "B": {
+                  "count": 60,
+                  "elapsed": 0.02477054199999884,
+                  "seconds": 0.00041284236666664736
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 61,
+                  "elapsed": 0.025417708999999178,
+                  "seconds": 0.0004166837540983472
+                },
+                "B": {
+                  "count": 60,
+                  "elapsed": 0.024981999999999616,
+                  "seconds": 0.00041636666666666024
+                },
+                "A0": {
+                  "count": 62,
+                  "elapsed": 0.02571333300000056,
+                  "seconds": 0.00041473117741936387
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 60,
+                  "elapsed": 0.024697832999999392,
+                  "seconds": 0.00041163054999998985
+                },
+                "A0": {
+                  "count": 62,
+                  "elapsed": 0.026609167000000156,
+                  "seconds": 0.0004291801129032283
+                },
+                "A1": {
+                  "count": 61,
+                  "elapsed": 0.02622266600000067,
+                  "seconds": 0.00042987977049181427
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 60,
+                  "elapsed": 0.02533266699999892,
+                  "seconds": 0.0004222111166666487
+                },
+                "A1": {
+                  "count": 61,
+                  "elapsed": 0.026198500000001346,
+                  "seconds": 0.0004294836065573991
+                },
+                "A0": {
+                  "count": 62,
+                  "elapsed": 0.02685745900000036,
+                  "seconds": 0.000433184822580651
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0004847080000001114
+              },
+              {
+                "count": 124,
+                "elapsed": 0.0505418750000004
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0004359580000006247
+              },
+              {
+                "count": 138,
+                "elapsed": 0.057132750000000954
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0004213340000003285
+              },
+              {
+                "count": 143,
+                "elapsed": 0.059642334000001185
+              }
+            ]
+          },
+          "aa_ratio": 0.9965430115223266,
+          "packed_over_original": 0.9851369222744717,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 0.42458804032257313,
+            "A1": 0.4176618852458929,
+            "B": 0.4146045166666538
+          }
+        }
+      ],
+      "all_aa_passed": true,
+      "runtime_adopted": false,
+      "scope": "One fresh Node/Pyodide process;14 full forward/two-VJP/copy flows. Dyadic finite numerical controls only. No full library, exceptional-value, layout or application qualification.",
+      "pyodide": "0.29.4",
+      "plan_sha256": "6139f00854e7806d946e0ccb12050b35cfeb5623412ad9412bf2a0ea3bf912da"
+    },
+    "344": {
+      "status": "completed_exploratory_scan",
+      "numpy": "2.2.5",
+      "rows": [
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026079833999999913,
+                  "seconds": 0.001738655599999994
+                },
+                "A1": {
+                  "count": 15,
+                  "elapsed": 0.027161916000000064,
+                  "seconds": 0.0018107944000000042
+                },
+                "B": {
+                  "count": 16,
+                  "elapsed": 0.027719625000000025,
+                  "seconds": 0.0017324765625000016
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.027517916999999947,
+                  "seconds": 0.0018345277999999964
+                },
+                "B": {
+                  "count": 16,
+                  "elapsed": 0.027161709000000034,
+                  "seconds": 0.0016976068125000021
+                },
+                "A1": {
+                  "count": 15,
+                  "elapsed": 0.024862125000000068,
+                  "seconds": 0.0016574750000000046
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 15,
+                  "elapsed": 0.025891166000000077,
+                  "seconds": 0.0017260777333333384
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026051374999999988,
+                  "seconds": 0.0017367583333333324
+                },
+                "B": {
+                  "count": 16,
+                  "elapsed": 0.025600666999999966,
+                  "seconds": 0.0016000416874999979
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 15,
+                  "elapsed": 0.02624016600000001,
+                  "seconds": 0.0017493444000000007
+                },
+                "B": {
+                  "count": 16,
+                  "elapsed": 0.02648858399999998,
+                  "seconds": 0.0016555364999999989
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026675084000000293,
+                  "seconds": 0.0017783389333333528
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 16,
+                  "elapsed": 0.026497582999999825,
+                  "seconds": 0.001656098937499989
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.02653679100000028,
+                  "seconds": 0.0017691194000000188
+                },
+                "A1": {
+                  "count": 15,
+                  "elapsed": 0.02677154199999965,
+                  "seconds": 0.0017847694666666433
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 16,
+                  "elapsed": 0.025489749999999756,
+                  "seconds": 0.0015931093749999847
+                },
+                "A1": {
+                  "count": 15,
+                  "elapsed": 0.02508616599999991,
+                  "seconds": 0.0016724110666666606
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026379334000000032,
+                  "seconds": 0.0017586222666666688
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0019415000000000404
+              },
+              {
+                "count": 31,
+                "elapsed": 0.05228250000000001
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.001725457999999902
+              },
+              {
+                "count": 35,
+                "elapsed": 0.058808082999999955
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0016789580000000637
+              },
+              {
+                "count": 36,
+                "elapsed": 0.05727154199999984
+              }
+            ]
+          },
+          "aa_ratio": 0.9887729942329868,
+          "packed_over_original": 0.928154940210258,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 1.7638708333333437,
+            "A1": 1.7377110666666695,
+            "B": 1.655817718749994
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.025837082999999872,
+                  "seconds": 0.0017224721999999915
+                },
+                "A1": {
+                  "count": 16,
+                  "elapsed": 0.02858337500000019,
+                  "seconds": 0.0017864609375000118
+                },
+                "B": {
+                  "count": 17,
+                  "elapsed": 0.02807529200000003,
+                  "seconds": 0.001651487764705884
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026746458000000306,
+                  "seconds": 0.0017830972000000204
+                },
+                "B": {
+                  "count": 17,
+                  "elapsed": 0.027894041000000147,
+                  "seconds": 0.0016408259411764793
+                },
+                "A1": {
+                  "count": 16,
+                  "elapsed": 0.034650666999999746,
+                  "seconds": 0.002165666687499984
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 16,
+                  "elapsed": 0.03281158299999998,
+                  "seconds": 0.0020507239374999986
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.02713829199999962,
+                  "seconds": 0.0018092194666666412
+                },
+                "B": {
+                  "count": 17,
+                  "elapsed": 0.028177417000000204,
+                  "seconds": 0.0016574951176470708
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 16,
+                  "elapsed": 0.02778483399999976,
+                  "seconds": 0.001736552124999985
+                },
+                "B": {
+                  "count": 17,
+                  "elapsed": 0.02783304100000006,
+                  "seconds": 0.0016372377058823564
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026381584000000124,
+                  "seconds": 0.0017587722666666749
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 17,
+                  "elapsed": 0.02789383400000034,
+                  "seconds": 0.0016408137647059024
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026090750000000273,
+                  "seconds": 0.0017393833333333515
+                },
+                "A1": {
+                  "count": 16,
+                  "elapsed": 0.028137332999999654,
+                  "seconds": 0.0017585833124999783
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 17,
+                  "elapsed": 0.027823290999999806,
+                  "seconds": 0.0016366641764705768
+                },
+                "A1": {
+                  "count": 16,
+                  "elapsed": 0.02784266699999982,
+                  "seconds": 0.0017401666874999888
+                },
+                "A0": {
+                  "count": 15,
+                  "elapsed": 0.026308250000000033,
+                  "seconds": 0.0017538833333333355
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0018633340000002718
+              },
+              {
+                "count": 33,
+                "elapsed": 0.055427541999999885
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0016669579999999407
+              },
+              {
+                "count": 36,
+                "elapsed": 0.059307458000000146
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0015748329999998312
+              },
+              {
+                "count": 39,
+                "elapsed": 0.06066908300000007
+              }
+            ]
+          },
+          "aa_ratio": 1.0240938707464728,
+          "packed_over_original": 0.9320320005386559,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 1.7563278000000053,
+            "A1": 1.7725221249999952,
+            "B": 1.6408198529411908
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.025129791999999984,
+                  "seconds": 0.0027921991111111094
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.02575087499999995,
+                  "seconds": 0.002861208333333328
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.02565749999999989,
+                  "seconds": 0.0017104999999999926
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.02508650000000001,
+                  "seconds": 0.00278738888888889
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.02513741600000019,
+                  "seconds": 0.001675827733333346
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.0259278329999999,
+                  "seconds": 0.002880870333333322
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.026699207999999697,
+                  "seconds": 0.002966578666666633
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.027010250000000013,
+                  "seconds": 0.0030011388888888904
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.026451041000000064,
+                  "seconds": 0.0017634027333333377
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.025745124999999813,
+                  "seconds": 0.002860569444444424
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.026279000000000163,
+                  "seconds": 0.0017519333333333442
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.026133916000000035,
+                  "seconds": 0.0029037684444444484
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.026830417000000217,
+                  "seconds": 0.0017886944666666812
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.026939875000000058,
+                  "seconds": 0.002993319444444451
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.02667333400000027,
+                  "seconds": 0.0029637037777778077
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.025807667000000034,
+                  "seconds": 0.0017205111333333356
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.026450542000000077,
+                  "seconds": 0.0029389491111111196
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.026828334000000176,
+                  "seconds": 0.0029809260000000196
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0028833750000001324
+              },
+              {
+                "count": 21,
+                "elapsed": 0.0603871250000001
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.002980208999999956
+              },
+              {
+                "count": 21,
+                "elapsed": 0.061641292000000014
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0018376660000001266
+              },
+              {
+                "count": 33,
+                "elapsed": 0.05630524999999986
+              }
+            ]
+          },
+          "aa_ratio": 0.9892951882210728,
+          "packed_over_original": 0.5993899709153557,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 2.942347222222234,
+            "A1": 2.909909722222221,
+            "B": 1.73622223333334
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float32",
+          "layout": "broadcast",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.028537041999999957,
+                  "seconds": 0.0020383601428571397
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.028294750000000146,
+                  "seconds": 0.002021053571428582
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.027261415999999983,
+                  "seconds": 0.0018174277333333321
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027463250000000272,
+                  "seconds": 0.001961660714285734
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.025734124999999608,
+                  "seconds": 0.0017156083333333071
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.02674429200000006,
+                  "seconds": 0.0019103065714285755
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.027318958999999587,
+                  "seconds": 0.0019513542142856849
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.02598420899999976,
+                  "seconds": 0.0018560149285714114
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.025038834000000065,
+                  "seconds": 0.0016692556000000045
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.026111874999999785,
+                  "seconds": 0.0018651339285714133
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.02660204200000038,
+                  "seconds": 0.001773469466666692
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027847874999999966,
+                  "seconds": 0.001989133928571426
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.026612583000000356,
+                  "seconds": 0.0017741722000000238
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.02695829200000066,
+                  "seconds": 0.001925592285714333
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.025908458000000856,
+                  "seconds": 0.001850604142857204
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.02458799999999961,
+                  "seconds": 0.001639199999999974
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.027042165999999312,
+                  "seconds": 0.0019315832857142365
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027433000000000263,
+                  "seconds": 0.001959500000000019
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0019407079999997912
+              },
+              {
+                "count": 31,
+                "elapsed": 0.058852874999999916
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0019856659999999415
+              },
+              {
+                "count": 31,
+                "elapsed": 0.05953262499999967
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0017434160000000531
+              },
+              {
+                "count": 35,
+                "elapsed": 0.06194366699999998
+              }
+            ]
+          },
+          "aa_ratio": 0.9797871161025289,
+          "packed_over_original": 0.8915956921259303,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 1.9605803571428764,
+            "A1": 1.920944928571406,
+            "B": 1.7445388999999996
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.02587358300000009,
+                  "seconds": 0.0019902756153846223
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025574708999999807,
+                  "seconds": 0.0019672853076922927
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025815624999999898,
+                  "seconds": 0.001843973214285707
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025686792000000125,
+                  "seconds": 0.0019759070769230867
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025434957999999952,
+                  "seconds": 0.001816782714285711
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025684833999999768,
+                  "seconds": 0.0019757564615384437
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025880332999999922,
+                  "seconds": 0.0019907948461538403
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025491791999999514,
+                  "seconds": 0.0019609070769230396
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025610707999999427,
+                  "seconds": 0.0018293362857142448
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.02575549999999982,
+                  "seconds": 0.001981192307692294
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025201499999999655,
+                  "seconds": 0.0018001071428571183
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.025881167000000538,
+                  "seconds": 0.0019908590000000414
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.024116292000000428,
+                  "seconds": 0.0017225922857143164
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.024068458000000348,
+                  "seconds": 0.0018514198461538729
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.024691999999999936,
+                  "seconds": 0.0018993846153846105
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.024982916999999993,
+                  "seconds": 0.001784494071428571
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.025127374999999397,
+                  "seconds": 0.0019328749999999535
+                },
+                "A0": {
+                  "count": 13,
+                  "elapsed": 0.02516274999999979,
+                  "seconds": 0.0019355961538461376
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.002100083000000197
+              },
+              {
+                "count": 29,
+                "elapsed": 0.05831270799999988
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0023653330000001915
+              },
+              {
+                "count": 26,
+                "elapsed": 0.05204749999999958
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0019569170000002245
+              },
+              {
+                "count": 31,
+                "elapsed": 0.05590183300000007
+              }
+            ]
+          },
+          "aa_ratio": 0.9992589630623847,
+          "packed_over_original": 0.9242132529749707,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 1.968407076923063,
+            "A1": 1.971520884615368,
+            "B": 1.8084449285714146
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.026998125000000428,
+                  "seconds": 0.0019284375000000306
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.024638707999999454,
+                  "seconds": 0.0018952852307691887
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.026662208999999493,
+                  "seconds": 0.0017774805999999663
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027934082999999887,
+                  "seconds": 0.001995291642857135
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.027478582999999723,
+                  "seconds": 0.0018319055333333148
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.02608279199999952,
+                  "seconds": 0.0020063686153845785
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.026227750000000327,
+                  "seconds": 0.002017519230769256
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.028459167000000285,
+                  "seconds": 0.002032797642857163
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.028331458000000254,
+                  "seconds": 0.0018887638666666836
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.027085834000000197,
+                  "seconds": 0.0020835256923077074
+                },
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.028873707999999887,
+                  "seconds": 0.0019249138666666591
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.029324415999999687,
+                  "seconds": 0.0020946011428571204
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.028861957999999355,
+                  "seconds": 0.0019241305333332903
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.029455165999999977,
+                  "seconds": 0.002103940428571427
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.02698054200000044,
+                  "seconds": 0.0020754263076923417
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 15,
+                  "elapsed": 0.028139290999999567,
+                  "seconds": 0.0018759527333333044
+                },
+                "A1": {
+                  "count": 13,
+                  "elapsed": 0.023823541999999698,
+                  "seconds": 0.0018325801538461306
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.026046000000000014,
+                  "seconds": 0.0018604285714285723
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.001904083000000334
+              },
+              {
+                "count": 32,
+                "elapsed": 0.06140137499999998
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0019079579999994323
+              },
+              {
+                "count": 32,
+                "elapsed": 0.06230179100000033
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0019003749999999542
+              },
+              {
+                "count": 32,
+                "elapsed": 0.057101416999999266
+              }
+            ]
+          },
+          "aa_ratio": 0.9894656620934117,
+          "packed_over_original": 0.9203544395623122,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 2.014044642857149,
+            "A1": 2.0119439230769176,
+            "B": 1.882358299999994
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.027894208999999393,
+                  "seconds": 0.003099356555555488
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.026934458000000383,
+                  "seconds": 0.0029927175555555983
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025140708000000345,
+                  "seconds": 0.0017957648571428817
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.027177834000000622,
+                  "seconds": 0.0030197593333334024
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025241999999999543,
+                  "seconds": 0.0018029999999999674
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.028526416000000054,
+                  "seconds": 0.0031696017777777838
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.028763582999999926,
+                  "seconds": 0.0031959536666666586
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.02880395799999924,
+                  "seconds": 0.0032004397777776936
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.027585124999999877,
+                  "seconds": 0.0019703660714285626
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.028533165999999888,
+                  "seconds": 0.0031703517777777654
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.027339624999999756,
+                  "seconds": 0.0019528303571428398
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.027580417000000246,
+                  "seconds": 0.0030644907777778053
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.026123208000000453,
+                  "seconds": 0.001865943428571461
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.027471665999999395,
+                  "seconds": 0.003052407333333266
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.02712625000000024,
+                  "seconds": 0.0030140277777778047
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.02519733400000046,
+                  "seconds": 0.0017998095714286042
+                },
+                "A1": {
+                  "count": 9,
+                  "elapsed": 0.026120541999999247,
+                  "seconds": 0.0029022824444443606
+                },
+                "A0": {
+                  "count": 9,
+                  "elapsed": 0.027225374999999552,
+                  "seconds": 0.003025041666666617
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.002958332999999591
+              },
+              {
+                "count": 21,
+                "elapsed": 0.06300354199999969
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.003020124999999929
+              },
+              {
+                "count": 20,
+                "elapsed": 0.06098741600000057
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0017844999999994116
+              },
+              {
+                "count": 34,
+                "elapsed": 0.06225358400000047
+              }
+            ]
+          },
+          "aa_ratio": 0.993012373120328,
+          "packed_over_original": 0.6041848422961935,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 3.0584490555555353,
+            "A1": 3.0918147777777945,
+            "B": 1.834471714285714
+          }
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "layout": "broadcast",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.026718208999999327,
+                  "seconds": 0.001908443499999952
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.027153249999999574,
+                  "seconds": 0.0019395178571428267
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.02561379200000058,
+                  "seconds": 0.0018295565714286127
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027104125000000145,
+                  "seconds": 0.001936008928571439
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025343041000000177,
+                  "seconds": 0.001810217214285727
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.027144125000000408,
+                  "seconds": 0.0019388660714286005
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.02701879199999979,
+                  "seconds": 0.0019299137142856995
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027062250000000176,
+                  "seconds": 0.0019330178571428697
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025549749999999705,
+                  "seconds": 0.0018249821428571217
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.027063791999999864,
+                  "seconds": 0.0019331279999999903
+                },
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025656459000000353,
+                  "seconds": 0.0018326042142857396
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.02603754200000008,
+                  "seconds": 0.0018598244285714344
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.024874791999999424,
+                  "seconds": 0.001776770857142816
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.027261000000000202,
+                  "seconds": 0.0019472142857143002
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.027414042000000194,
+                  "seconds": 0.001958145857142871
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 14,
+                  "elapsed": 0.025753958000000132,
+                  "seconds": 0.001839568428571438
+                },
+                "A1": {
+                  "count": 14,
+                  "elapsed": 0.02712287499999988,
+                  "seconds": 0.0019373482142857057
+                },
+                "A0": {
+                  "count": 14,
+                  "elapsed": 0.026949667000000233,
+                  "seconds": 0.001924976214285731
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0019396670000002558
+              },
+              {
+                "count": 31,
+                "elapsed": 0.05861804199999998
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0018712909999996086
+              },
+              {
+                "count": 33,
+                "elapsed": 0.06275679200000006
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0018492080000003241
+              },
+              {
+                "count": 33,
+                "elapsed": 0.05909033300000033
+              }
+            ]
+          },
+          "aa_ratio": 1.006020523200878,
+          "packed_over_original": 0.9498710545438963,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 1.9289970357143005,
+            "A1": 1.938107142857153,
+            "B": 1.8272693571428673
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.025869583999999612,
+                  "seconds": 0.012934791999999806
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.0255226249999998,
+                  "seconds": 0.0127613124999999
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03506199999999993,
+                  "seconds": 0.011687333333333308
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02410695900000004,
+                  "seconds": 0.01205347950000002
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03333224999999995,
+                  "seconds": 0.011110749999999983
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02395083300000067,
+                  "seconds": 0.011975416500000335
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.024423459000000314,
+                  "seconds": 0.012211729500000157
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.025497541000000012,
+                  "seconds": 0.012748770500000006
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03471516699999988,
+                  "seconds": 0.011571722333333293
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.025183083000000828,
+                  "seconds": 0.012591541500000414
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.034477542000000305,
+                  "seconds": 0.011492514000000101
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02545583299999965,
+                  "seconds": 0.012727916499999825
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.0347637909999996,
+                  "seconds": 0.0115879303333332
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.024236000000000146,
+                  "seconds": 0.012118000000000073
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02495429099999935,
+                  "seconds": 0.012477145499999676
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03530020799999978,
+                  "seconds": 0.011766735999999925
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.025717707999999284,
+                  "seconds": 0.012858853999999642
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02636954200000119,
+                  "seconds": 0.013184771000000595
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013194083000000134
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06972395799999997
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.014046708000000407
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06755970900000019
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0120111249999999
+              },
+              {
+                "count": 5,
+                "elapsed": 0.05935274999999951
+              }
+            ]
+          },
+          "aa_ratio": 0.9879367563156911,
+          "packed_over_original": 0.9056157404793613,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 12.738343499999916,
+            "A1": 12.534343500000045,
+            "B": 11.579826333333246
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 3,
+                  "elapsed": 0.036886208999998615,
+                  "seconds": 0.012295402999999538
+                },
+                "A1": {
+                  "count": 3,
+                  "elapsed": 0.03957675000000016,
+                  "seconds": 0.013192250000000053
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.035817584000000124,
+                  "seconds": 0.011939194666666708
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 3,
+                  "elapsed": 0.0393472500000005,
+                  "seconds": 0.013115750000000167
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.035814000000000235,
+                  "seconds": 0.011938000000000079
+                },
+                "A1": {
+                  "count": 3,
+                  "elapsed": 0.03823841699999875,
+                  "seconds": 0.012746138999999582
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 3,
+                  "elapsed": 0.03814645799999994,
+                  "seconds": 0.012715485999999979
+                },
+                "A0": {
+                  "count": 3,
+                  "elapsed": 0.03977662500000001,
+                  "seconds": 0.013258875000000003
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03798354200000098,
+                  "seconds": 0.012661180666666993
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 3,
+                  "elapsed": 0.04043220799999858,
+                  "seconds": 0.013477402666666194
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03493454100000015,
+                  "seconds": 0.01164484700000005
+                },
+                "A0": {
+                  "count": 3,
+                  "elapsed": 0.038328915999999325,
+                  "seconds": 0.012776305333333108
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03458949999999916,
+                  "seconds": 0.011529833333333054
+                },
+                "A0": {
+                  "count": 3,
+                  "elapsed": 0.03773141599999974,
+                  "seconds": 0.01257713866666658
+                },
+                "A1": {
+                  "count": 3,
+                  "elapsed": 0.03765479099999958,
+                  "seconds": 0.012551596999999859
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03385283300000097,
+                  "seconds": 0.01128427766666699
+                },
+                "A1": {
+                  "count": 3,
+                  "elapsed": 0.03764412499999992,
+                  "seconds": 0.01254804166666664
+                },
+                "A0": {
+                  "count": 3,
+                  "elapsed": 0.03755129199999985,
+                  "seconds": 0.012517097333333282
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.012111208000000317
+              },
+              {
+                "count": 5,
+                "elapsed": 0.061658833999999274
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.012547375000000471
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06086270900000024
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.011073666999999787
+              },
+              {
+                "count": 6,
+                "elapsed": 0.06646895799999974
+              }
+            ]
+          },
+          "aa_ratio": 1.0002206821007904,
+          "packed_over_original": 0.9140851627869644,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 12.676721999999844,
+            "A1": 12.73081249999978,
+            "B": 11.791423500000064
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04527150000000013,
+                  "seconds": 0.022635750000000066
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04119458300000112,
+                  "seconds": 0.02059729150000056
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.034893957999999614,
+                  "seconds": 0.011631319333333204
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04118483299999909,
+                  "seconds": 0.020592416499999544
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03581695799999984,
+                  "seconds": 0.011938985999999948
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04297841700000049,
+                  "seconds": 0.021489208500000245
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04310108299999982,
+                  "seconds": 0.02155054149999991
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04196354199999952,
+                  "seconds": 0.02098177099999976
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.0362465830000005,
+                  "seconds": 0.012082194333333499
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04054299999999955,
+                  "seconds": 0.020271499999999776
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03353241699999998,
+                  "seconds": 0.011177472333333327
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04068195800000041,
+                  "seconds": 0.020340979000000203
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03583920899999882,
+                  "seconds": 0.011946402999999606
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04345687499999862,
+                  "seconds": 0.02172843749999931
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.041953041999999385,
+                  "seconds": 0.020976520999999693
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03396816600000108,
+                  "seconds": 0.01132272200000036
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.0428910000000009,
+                  "seconds": 0.02144550000000045
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04229783400000109,
+                  "seconds": 0.021148917000000544
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.021670166999999907
+              },
+              {
+                "count": 3,
+                "elapsed": 0.06726408299999953
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.02223804199999968
+              },
+              {
+                "count": 3,
+                "elapsed": 0.06425316700000039
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.01196125000000059
+              },
+              {
+                "count": 6,
+                "elapsed": 0.07202645899999993
+              }
+            ]
+          },
+          "aa_ratio": 1.0053039196650306,
+          "packed_over_original": 0.5496550522410046,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 21.065344000000152,
+            "A1": 21.21101050000007,
+            "B": 11.785152666666576
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "layout": "broadcast",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02848291699999983,
+                  "seconds": 0.014241458499999915
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.027993125000000063,
+                  "seconds": 0.013996562500000032
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03633075000000119,
+                  "seconds": 0.012110250000000397
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027072583000000705,
+                  "seconds": 0.013536291500000353
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03438891699999935,
+                  "seconds": 0.011462972333333118
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028814291999999853,
+                  "seconds": 0.014407145999999926
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028637666999999922,
+                  "seconds": 0.014318833499999961
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027497000000000327,
+                  "seconds": 0.013748500000000163
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03465604099999986,
+                  "seconds": 0.01155201366666662
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028453666999999072,
+                  "seconds": 0.014226833499999536
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03600149999999935,
+                  "seconds": 0.012000499999999784
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02756862500000068,
+                  "seconds": 0.01378431250000034
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03544683400000004,
+                  "seconds": 0.011815611333333345
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027003667000000675,
+                  "seconds": 0.013501833500000338
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02686141599999914,
+                  "seconds": 0.01343070799999957
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.036418957999998725,
+                  "seconds": 0.012139652666666242
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028714250000000163,
+                  "seconds": 0.014357125000000082
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028510166000000225,
+                  "seconds": 0.014255083000000113
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013558291000000722
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07335845800000129
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.014786207999998524
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07225570800000014
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.011714250000000703
+              },
+              {
+                "count": 6,
+                "elapsed": 0.07266583300000029
+              }
+            ]
+          },
+          "aa_ratio": 1.0196307610130741,
+          "packed_over_original": 0.8509767457997259,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 13.766406250000252,
+            "A1": 14.272833499999749,
+            "B": 11.908055666666565
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028418166999999883,
+                  "seconds": 0.014209083499999942
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028866541999999384,
+                  "seconds": 0.014433270999999692
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03707700000000003,
+                  "seconds": 0.012359000000000009
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04730516599999923,
+                  "seconds": 0.023652582999999616
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03893170899999987,
+                  "seconds": 0.01297723633333329
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.029423124999999217,
+                  "seconds": 0.014711562499999609
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02932033399999945,
+                  "seconds": 0.014660166999999724
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02945220800000037,
+                  "seconds": 0.014726104000000184
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03956037500000065,
+                  "seconds": 0.013186791666666883
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.027845000000001008,
+                  "seconds": 0.013922500000000504
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03863579200000089,
+                  "seconds": 0.01287859733333363
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028677625000000262,
+                  "seconds": 0.014338812500000131
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03816370900000088,
+                  "seconds": 0.012721236333333627
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027919416000001362,
+                  "seconds": 0.013959708000000681
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02840950000000042,
+                  "seconds": 0.01420475000000021
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03873462500000002,
+                  "seconds": 0.012911541666666674
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028483791999999397,
+                  "seconds": 0.014241895999999699
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029131166000000874,
+                  "seconds": 0.014565583000000437
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.012663542000000305
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06792195799999945
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.013963084000000237
+              },
+              {
+                "count": 5,
+                "elapsed": 0.0682935829999991
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.01285091699999974
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06074908399999934
+              }
+            ]
+          },
+          "aa_ratio": 0.9866498561112351,
+          "packed_over_original": 0.8909561503201044,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 14.452197750000284,
+            "A1": 14.337583499999695,
+            "B": 12.895069500000151
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "F",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.025743083000000055,
+                  "seconds": 0.012871541500000028
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.026076375000000596,
+                  "seconds": 0.013038187500000298
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.034503416999999814,
+                  "seconds": 0.011501138999999938
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027259208000000257,
+                  "seconds": 0.013629604000000128
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03791054099999869,
+                  "seconds": 0.012636846999999563
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.028332167000000297,
+                  "seconds": 0.014166083500000148
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02786200000000072,
+                  "seconds": 0.01393100000000036
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027844250000001125,
+                  "seconds": 0.013922125000000563
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03728491699999914,
+                  "seconds": 0.01242830566666638
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.026574874999999665,
+                  "seconds": 0.013287437499999832
+                },
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.0372935409999986,
+                  "seconds": 0.012431180333332867
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.02717937499999934,
+                  "seconds": 0.01358968749999967
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.04769620799999963,
+                  "seconds": 0.015898735999999875
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.029255374999999972,
+                  "seconds": 0.014627687499999986
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.027973917000000625,
+                  "seconds": 0.013986958500000313
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 3,
+                  "elapsed": 0.03717479200000007,
+                  "seconds": 0.012391597333333356
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02800799999999981,
+                  "seconds": 0.014003999999999905
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027427624999999622,
+                  "seconds": 0.013713812499999811
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013137915999999805
+              },
+              {
+                "count": 5,
+                "elapsed": 0.0696559170000004
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.013806374999999704
+              },
+              {
+                "count": 5,
+                "elapsed": 0.0692807920000007
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.012665457999998964
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06143466600000025
+              }
+            ]
+          },
+          "aa_ratio": 1.006792165483212,
+          "packed_over_original": 0.9091680790984513,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 13.67170824999997,
+            "A1": 13.958979250000336,
+            "B": 12.429742999999624
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "stride",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.046981290999999814,
+                  "seconds": 0.023490645499999907
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04691416699999884,
+                  "seconds": 0.02345708349999942
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.026714291999999418,
+                  "seconds": 0.013357145999999709
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04798895800000125,
+                  "seconds": 0.023994479000000624
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02567041700000061,
+                  "seconds": 0.012835208500000306
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04691395800000109,
+                  "seconds": 0.023456979000000544
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04676504100000045,
+                  "seconds": 0.023382520500000226
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04503358300000038,
+                  "seconds": 0.02251679150000019
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02415662499999982,
+                  "seconds": 0.01207831249999991
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.04473174999999863,
+                  "seconds": 0.022365874999999313
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.024579250000000386,
+                  "seconds": 0.012289625000000193
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.04533216699999976,
+                  "seconds": 0.02266608349999988
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02555808300000173,
+                  "seconds": 0.012779041500000865
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.0474564579999992,
+                  "seconds": 0.0237282289999996
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.048092249999999837,
+                  "seconds": 0.024046124999999918
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02597016600000046,
+                  "seconds": 0.01298508300000023
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.045842791000000105,
+                  "seconds": 0.022921395500000052
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.044176416000000884,
+                  "seconds": 0.022088208000000442
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.02442045799999981
+              },
+              {
+                "count": 3,
+                "elapsed": 0.06818874999999913
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.02242124999999895
+              },
+              {
+                "count": 3,
+                "elapsed": 0.06667454100000114
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.012054708000000858
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06417283299999887
+              }
+            ]
+          },
+          "aa_ratio": 1.0059843184082848,
+          "packed_over_original": 0.5403809378788014,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 23.078364499999893,
+            "A1": 23.419749750000385,
+            "B": 12.807125000000585
+          }
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "layout": "broadcast",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028060749999999857,
+                  "seconds": 0.014030374999999928
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02763608299999909,
+                  "seconds": 0.013818041499999545
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02393074999999989,
+                  "seconds": 0.011965374999999945
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028334875000000537,
+                  "seconds": 0.014167437500000268
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.022863000000000966,
+                  "seconds": 0.011431500000000483
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.027843832999998597,
+                  "seconds": 0.013921916499999298
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.02874350000000092,
+                  "seconds": 0.01437175000000046
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.028985374999999536,
+                  "seconds": 0.014492687499999768
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02516612500000015,
+                  "seconds": 0.012583062500000075
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.029063332999999858,
+                  "seconds": 0.014531666499999929
+                },
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02583300000000044,
+                  "seconds": 0.01291650000000022
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.027652957999999117,
+                  "seconds": 0.013826478999999559
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.023068499999999048,
+                  "seconds": 0.011534249999999524
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.026684665999999524,
+                  "seconds": 0.013342332999999762
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.026601749999999313,
+                  "seconds": 0.013300874999999657
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 2,
+                  "elapsed": 0.02424312499999992,
+                  "seconds": 0.01212156249999996
+                },
+                "A1": {
+                  "count": 2,
+                  "elapsed": 0.0279317499999987,
+                  "seconds": 0.01396587499999935
+                },
+                "A0": {
+                  "count": 2,
+                  "elapsed": 0.0276657500000006,
+                  "seconds": 0.0138328750000003
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.013364624999999464
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06955658399999898
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.014786750000000737
+              },
+              {
+                "count": 5,
+                "elapsed": 0.07365295900000035
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.012964208999999727
+              },
+              {
+                "count": 5,
+                "elapsed": 0.06558487499999899
+              }
+            ]
+          },
+          "aa_ratio": 0.9942740108725542,
+          "packed_over_original": 0.8663602589479089,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 13.931625000000114,
+            "A1": 13.943895749999324,
+            "B": 12.043468749999953
+          }
+        },
+        {
+          "size": 512,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.09816604099999893,
+                  "seconds": 0.09816604099999893
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.09665749999999917,
+                  "seconds": 0.09665749999999917
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.08258229200000144,
+                  "seconds": 0.08258229200000144
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.09461712499999919,
+                  "seconds": 0.09461712499999919
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.08691037499999865,
+                  "seconds": 0.08691037499999865
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.09293495800000073,
+                  "seconds": 0.09293495800000073
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.09490625000000108,
+                  "seconds": 0.09490625000000108
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.09341095799999977,
+                  "seconds": 0.09341095799999977
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.08419137499999962,
+                  "seconds": 0.08419137499999962
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.09434687499999939,
+                  "seconds": 0.09434687499999939
+                },
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.08471641600000268,
+                  "seconds": 0.08471641600000268
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.09427325000000053,
+                  "seconds": 0.09427325000000053
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.0864471249999994,
+                  "seconds": 0.0864471249999994
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.09651533299999926,
+                  "seconds": 0.09651533299999926
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.09859262499999843,
+                  "seconds": 0.09859262499999843
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 1,
+                  "elapsed": 0.09358841699999942,
+                  "seconds": 0.09358841699999942
+                },
+                "A1": {
+                  "count": 1,
+                  "elapsed": 0.09554087500000108,
+                  "seconds": 0.09554087500000108
+                },
+                "A0": {
+                  "count": 1,
+                  "elapsed": 0.09706437499999865,
+                  "seconds": 0.09706437499999865
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.09881825000000077
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.09830899999999687
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.08641529200000164
+              }
+            ]
+          },
+          "aa_ratio": 0.9927068677972205,
+          "packed_over_original": 0.8999635395234202,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 95.56622899999923,
+            "A1": 95.22356250000108,
+            "B": 85.58177050000104
+          }
+        },
+        {
+          "size": 64,
+          "dtype": "float32",
+          "layout": "C",
+          "raw": [
+            {
+              "order": [
+                "A0",
+                "A1",
+                "B"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 65,
+                  "elapsed": 0.023307917000000344,
+                  "seconds": 0.0003585833384615438
+                },
+                "A1": {
+                  "count": 65,
+                  "elapsed": 0.023617542000000213,
+                  "seconds": 0.00036334680000000327
+                },
+                "B": {
+                  "count": 66,
+                  "elapsed": 0.024177707999999853,
+                  "seconds": 0.00036632890909090685
+                }
+              }
+            },
+            {
+              "order": [
+                "A0",
+                "B",
+                "A1"
+              ],
+              "samples": {
+                "A0": {
+                  "count": 65,
+                  "elapsed": 0.023730875000001816,
+                  "seconds": 0.0003650903846154126
+                },
+                "B": {
+                  "count": 66,
+                  "elapsed": 0.024091625000000505,
+                  "seconds": 0.00036502462121212886
+                },
+                "A1": {
+                  "count": 65,
+                  "elapsed": 0.023741707999999306,
+                  "seconds": 0.0003652570461538355
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "A0",
+                "B"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 65,
+                  "elapsed": 0.024148708000002017,
+                  "seconds": 0.00037151858461541564
+                },
+                "A0": {
+                  "count": 65,
+                  "elapsed": 0.02519941599999953,
+                  "seconds": 0.00038768332307691586
+                },
+                "B": {
+                  "count": 66,
+                  "elapsed": 0.025305708000001204,
+                  "seconds": 0.00038341981818183643
+                }
+              }
+            },
+            {
+              "order": [
+                "A1",
+                "B",
+                "A0"
+              ],
+              "samples": {
+                "A1": {
+                  "count": 65,
+                  "elapsed": 0.025557834000000668,
+                  "seconds": 0.00039319744615385645
+                },
+                "B": {
+                  "count": 66,
+                  "elapsed": 0.026081042000001275,
+                  "seconds": 0.00039516730303032233
+                },
+                "A0": {
+                  "count": 65,
+                  "elapsed": 0.02551254100000122,
+                  "seconds": 0.00039250063076924955
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A0",
+                "A1"
+              ],
+              "samples": {
+                "B": {
+                  "count": 66,
+                  "elapsed": 0.02611454199999841,
+                  "seconds": 0.00039567487878785465
+                },
+                "A0": {
+                  "count": 65,
+                  "elapsed": 0.024575332999997812,
+                  "seconds": 0.0003780820461538125
+                },
+                "A1": {
+                  "count": 65,
+                  "elapsed": 0.025341583000003,
+                  "seconds": 0.0003898705076923538
+                }
+              }
+            },
+            {
+              "order": [
+                "B",
+                "A1",
+                "A0"
+              ],
+              "samples": {
+                "B": {
+                  "count": 66,
+                  "elapsed": 0.02589879199999956,
+                  "seconds": 0.0003924059393939327
+                },
+                "A1": {
+                  "count": 65,
+                  "elapsed": 0.025571834000000848,
+                  "seconds": 0.0003934128307692438
+                },
+                "A0": {
+                  "count": 65,
+                  "elapsed": 0.025981083999997878,
+                  "seconds": 0.00039970898461535195
+                }
+              }
+            }
+          ],
+          "calibration": {
+            "A0": [
+              {
+                "count": 1,
+                "elapsed": 0.0005330420000007052
+              },
+              {
+                "count": 113,
+                "elapsed": 0.043210750000000075
+              },
+              {
+                "count": 157,
+                "elapsed": 0.06066608300000098
+              }
+            ],
+            "A1": [
+              {
+                "count": 1,
+                "elapsed": 0.0004135830000002727
+              },
+              {
+                "count": 146,
+                "elapsed": 0.05621641699999813
+              }
+            ],
+            "B": [
+              {
+                "count": 1,
+                "elapsed": 0.0004067499999997892
+              },
+              {
+                "count": 148,
+                "elapsed": 0.05647199999999941
+              }
+            ]
+          },
+          "aa_ratio": 1.001115908440513,
+          "packed_over_original": 1.0033069647170558,
+          "aa_passed": true,
+          "median_ms": {
+            "A0": 0.3828826846153642,
+            "A1": 0.3806945461538847,
+            "B": 0.3879128787878846
+          }
+        }
+      ],
+      "negative_controls": [
+        {
+          "size": 128,
+          "dtype": "float32",
+          "external_import_rejected": true,
+          "private_kernel_checked": true
+        },
+        {
+          "size": 128,
+          "dtype": "float64",
+          "external_import_rejected": true,
+          "private_kernel_checked": true
+        },
+        {
+          "size": 256,
+          "dtype": "float32",
+          "external_import_rejected": true,
+          "private_kernel_checked": true
+        },
+        {
+          "size": 256,
+          "dtype": "float64",
+          "external_import_rejected": true,
+          "private_kernel_checked": true
+        }
+      ],
+      "all_aa_passed": true,
+      "runtime_adopted": false,
+      "scope": "One fresh Node/Pyodide process;18 full forward/two-VJP/copy flows plus4 negative-stride external rejection/private-kernel controls. Dyadic finite numerical controls only. No full library, exceptional-value, layout or application qualification.",
+      "pyodide": "0.29.4",
+      "plan_sha256": "feaab4fad19700901a1268b251ea619375e86f08b57ade39730fbc7ead9499c3"
+    }
+  },
+  "last_scan_groups": {
+    "strided": {
+      "rows": 4,
+      "candidate_over_original_range": [
+        0.5403809378788014,
+        0.6041848422961935
+      ]
+    },
+    "broadcast": {
+      "rows": 4,
+      "candidate_over_original_range": [
+        0.8509767457997259,
+        0.9498710545438963
+      ]
+    },
+    "dense_c_f": {
+      "rows": 9,
+      "candidate_over_original_range": [
+        0.8909561503201044,
+        0.9320320005386559
+      ]
+    },
+    "below_dispatch": {
+      "rows": 1,
+      "candidate_over_original_range": [
+        1.0033069647170558,
+        1.0033069647170558
+      ]
+    }
+  },
+  "failed_attempt": {
+    "iteration": 343,
+    "reason": "Harness tried timing an unsupported negative-stride external array import. Four partial measured rows and the exception are retained.344 explicitly checks rejection and private kernels without timing this unsupported public input."
+  },
+  "decision": "Keep candidate isolated. Qualify wider rectangular/threshold flows, repeated fresh Chrome/Node timing, allocation/lifetime and current application/package before adoption. Native CPU normal routing and batched kernels are unchanged.",
+  "production_runtime_changed": false,
+  "main_adopted": false,
+  "ci_triggered": false,
+  "goal_status": "active"
+}

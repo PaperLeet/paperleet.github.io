@@ -1,0 +1,11 @@
+--- a/packages/stridetorch/src/stridetorch/_matmul.py
++++ b/packages/stridetorch/src/stridetorch/_matmul.py
+@@ -35,7 +35,7 @@
+     # Let einsum choose its fast traversal. Passing order='C' disables that
+     # traversal on WASM even for C-order results. Normalize only the output
+     # so transposed/strided inputs still preserve matmul's C-order contract.
+-    return np.ascontiguousarray(np.einsum('ik,kj->ij', a, b, optimize=False))
++    return np.ascontiguousarray(np.einsum('ik,jk->ij', np.ascontiguousarray(a), np.ascontiguousarray(b.T), optimize=False))
+ 
+ 
+ def _unique_values(value, batch_only=False):

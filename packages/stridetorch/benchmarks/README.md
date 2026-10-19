@@ -518,3 +518,11 @@ baseline and all ratios are recorded in
 [0.80 validation record](../../../docs/validation/torch-runtime-0.80-qualification.md).
 Retain new norm HVP costs, known numerical differences and A/A controls when
 interpreting those measurements.
+
+Later investigations retain the same measured-runtime distinction:
+
+- [Matched 0.80 CPU/WASM versus explicit WebGPU whole calls](../../../docs/validation/torch-runtime-webgpu-whole-call-0.80.md),
+  including transfers, both VJPs and owned CPU snapshots.
+- [An isolated packed-row WASM matrix candidate](../../../docs/validation/torch-runtime-matmul-packed-rows-candidate.md),
+  with full Node SDK and two NumPy matrix gates; broader performance and
+  integration qualification remain pending.
