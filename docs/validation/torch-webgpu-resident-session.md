@@ -143,3 +143,19 @@ six-process campaigns, transfer traces and replay dependencies. The archive
 has 504 files, 172 unique payloads and SHA-256
 `c423effe0ff2d72f0178ba223aca8948013da3c5be922e7ba85f3324ed09177b`.
 The runtime improvement goal remains active.
+
+## Main adoption
+
+Commit `4880ee6476f2c606cc79d83a33a9bd998b814d6a` adopts the qualified
+experimental resident session on main. The remote commit's ten feature files,
+66 runtime resources, 183 active exports, seven release policies and all 206
+package inputs were verified directly from its Git tree. Eight checks passed
+after integrating the then-current frontend changes. The default CPU/WASM
+runtime remains 0.83.0; GPU dispatch remains opt-in developer code.
+
+The guarded ordinary push created no workflow run for this commit. Pages still
+uses the legacy `gh-pages` branch. No tag, publication or deployment was made.
+The [main adoption receipt](../../packages/stridetorch/benchmarks/results/resident-session-main-adoption.json)
+and its [raw evidence](../../packages/stridetorch/benchmarks/results/resident-session-main-adoption-harness.tar.gz)
+record the remote verification and push checks, including the initial integration
+hold for a separately reviewed frontend package-script addition.

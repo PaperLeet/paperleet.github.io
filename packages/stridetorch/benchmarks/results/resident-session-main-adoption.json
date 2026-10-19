@@ -1,0 +1,51 @@
+{
+  "status": "verified_main_experimental_resident_session_without_ci",
+  "adopted_commit": "4880ee6476f2c606cc79d83a33a9bd998b814d6a",
+  "verified_remote_sha": "4880ee6476f2c606cc79d83a33a9bd998b814d6a",
+  "verified_utc": "2026-10-19T22:37:39.953624+00:00",
+  "remote_tree": "aaf56fabfa3b4047848ce66266c41f7587076e8a",
+  "prototype_source_sha256": "4fc504e40ac4d2419537e265771beeff4dcea31140bc9e1d4392db6fbea09ed9",
+  "prototype_and_own_files_verified_from_remote": true,
+  "qualified_runtime_version": "0.83.0",
+  "default_runtime_unchanged": true,
+  "runtime_resources_verified": 66,
+  "export_identities_verified": 183,
+  "release_policies_verified": 7,
+  "package_inputs_verified": 206,
+  "own_delta": [
+    "docs/validation/torch-webgpu-resident-session.md",
+    "packages/stridetorch/benchmarks/results/resident-session-harness.tar.gz",
+    "packages/stridetorch/benchmarks/results/resident-session.json",
+    "packages/stridetorch/benchmarks/webgpu_rpc/README.md",
+    "packages/stridetorch/benchmarks/webgpu_rpc/check-program.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/matrix_client.py",
+    "packages/stridetorch/benchmarks/webgpu_rpc/plan-program.mjs",
+    "packages/stridetorch/benchmarks/webgpu_rpc/resident_bridge.py",
+    "packages/stridetorch/benchmarks/webgpu_rpc/test_resident_bridge.py",
+    "packages/stridetorch/benchmarks/webgpu_rpc/torch_bridge.py"
+  ],
+  "workflow_runs_for_adopted_commit": 0,
+  "pages_source": {
+    "branch": "gh-pages",
+    "path": "/"
+  },
+  "ordinary_guarded_push": true,
+  "mandatory_wrapper_unchanged": true,
+  "successful_push_seconds": 12.734715041005984,
+  "successful_push_log_sha256": "8b80c697d1df902fc1246cd5fe736f346f502822287481c69fdaa226bba68ad8",
+  "experimental_resident_session_on_main": true,
+  "production_gpu_dispatch_enabled": false,
+  "resident_torch_gpu_storage": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/resident-session-main-adoption-harness.tar.gz",
+    "sha256": "8e36c1242929da810e49e6b79f313ebb197d5f98acadfd69c71fe63744e0d4d3",
+    "bytes": 1068733,
+    "files": 47,
+    "all_payloads_verified": true
+  }
+}
