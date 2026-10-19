@@ -477,14 +477,14 @@
 }
 .community-feed-toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 15px;
   min-height: 44px;
   margin-bottom: 19px;
 }
 .community-feed-toolbar > .social-tabs { flex-shrink: 0; }
-.community-feed-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; flex: 0 1 465px; min-width: 0; margin-left: auto; }
+.community-feed-controls { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 12px; flex: 0 1 465px; min-width: 0; margin-left: auto; }
 .social-tabs {
   display: flex;
   align-items: center;
