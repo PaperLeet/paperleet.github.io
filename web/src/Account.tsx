@@ -83,6 +83,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
   providers: NonNullable<AccountCapabilities["oauth_providers"]>; returnTo?: string; loginError?: string; emailLoginAvailable?: boolean;
 }) {
   const { t } = useI18n();
+  const { capabilities } = useAccount();
   const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
   const failures: Record<string, string> = {
     identity: t("未能完成身份验证，请重新选择账号。若此邮箱曾使用其他登录方式注册，请使用原来的登录方式。", "We could not verify this sign-in. Choose an account again. If this email was registered with another sign-in method, use the original method."),
@@ -129,6 +130,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
         })}
       </div>
       <p className="signin-provider-note">{t('Google 和 Microsoft 均支持个人、学校及企业账号。', 'Personal, school and work Google or Microsoft accounts are welcome.')}</p>
+      <p className="signin-provider-note signin-community-policy">{capabilities?.community_open_publishing===true?t('学校／企业认证为选填；未认证也可登录、练习、发帖和回复。','School/company verification is optional. You can sign in, practice, post and reply without it.'):t('未认证也可登录练习和浏览；发帖与回复权限会在登录后显示。','You can sign in, practice and browse without affiliation verification. Your posting and replying access is shown after sign-in.')}</p>
       {emailLoginAvailable === true && <section className="email-login-alternative" aria-labelledby="email-login-title">
         <h2 id="email-login-title"><span>{t('使用邮箱验证码登录', 'Sign in with an email code')}</span></h2>
         <SignIn enabled compact workEmailRegistration onChooseProvider={provider => void signIn(provider)} providers={providers} />
