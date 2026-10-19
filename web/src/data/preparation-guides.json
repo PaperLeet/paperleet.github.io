@@ -1583,6 +1583,30 @@
             "en": "First check k=1, k=V, ties, row sums and excluded entries. Deterministic probability checks should not depend on whether one random sample happens to look close."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "large-temperature-support",
+          "question": {
+            "zh": "固定 k<V 时，把正温度不断增大，会恢复全词表均匀分布吗？",
+            "en": "With fixed k<V, does increasing a positive temperature approach a uniform distribution over the entire vocabulary?"
+          },
+          "hint": {
+            "zh": "不会。正温度不改变本题按 logits 与索引决定的 k 个候选；温度趋大时，理想实数下只在这些候选上趋于均匀，其余仍为零。k=1 时任何合法温度都给出同一 one-hot。这里讨论极限，不是把无穷温度传给要求有限输入的接口。",
+            "en": "No. Positive temperature preserves the exercise’s logit/index ranking and its k selected candidates. In the real-arithmetic large-temperature limit, only those candidates approach equal probabilities; excluded entries stay zero. For k=1 every valid temperature gives the same one-hot result. This is a limit argument, not permission to pass an infinite temperature."
+          }
+        },
+        {
+          "id": "candidate-versus-positive-support",
+          "question": {
+            "zh": "要求恰好选择 k 个候选，是否意味着返回张量必须恰好有 k 个严格正数？",
+            "en": "Does selecting exactly k candidates require the returned tensor to contain exactly k strictly positive values?"
+          },
+          "hint": {
+            "zh": "要区分排名选中的候选与浮点结果的非零位置。实数 softmax 对有限候选给正概率，但指数计算或最终转回输入 dtype 可能让极小概率变成零。候选规则应按稳定排名核对，不能仅靠非零计数判定；被排除项仍须严格为零，并检查行和与目标概率。",
+            "en": "Distinguish selected ranks from nonzero floating-point outputs. Real-valued softmax assigns positive mass to finite selected logits, but exponentiation or the final dtype conversion can underflow tiny probabilities to zero. Check candidate membership using the stable ranking rather than a nonzero count alone. Excluded entries must still be exactly zero; also check normalization and target probabilities."
+          }
+        }
       ]
     },
     {
@@ -4130,6 +4154,30 @@
             "en": "Compare fixed uniforms with a scalar oracle and inspect subsequent and global RNG draws. Check excluded tokens and target frequencies separately from exact interval boundaries."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "vocabulary-permutation-coupling",
+          "question": {
+            "zh": "固定没有并列值的核分布并置换词表后，相同的均匀随机数一定抽到映射回来的同一个 token 吗？",
+            "en": "After permuting a nucleus distribution without ties, must the same uniform draw select the same token after mapping IDs back?"
+          },
+          "hint": {
+            "zh": "不一定。正确置换并映射回编号后，边缘分布应相同；但本题按原词表顺序排列 CDF 区间，置换会移动区间，相同 u 可落到不同 token 上。固定随机数的逐次对应与分布正确性是两种检验；不要为追求对应而返回排序名次。",
+            "en": "Not necessarily. Permuting probabilities and mapping IDs back preserves the marginal distribution, but this exercise places CDF intervals in vocabulary order. A permutation moves those intervals, so the same u can select a different token. Coupled per-draw equality and distributional correctness are different checks; returning a sorted rank does not solve the distinction."
+          }
+        },
+        {
+          "id": "finished-row-rng-policy",
+          "question": {
+            "zh": "把单步抽样接入生成循环后，继续为已结束的行抽样与只抽活跃行，会影响什么？",
+            "en": "When this single-step sampler is used in a generation loop, what changes if finished rows still draw versus sampling only active rows?"
+          },
+          "hint": {
+            "zh": "两种调用策略会消耗不同数量或布局的随机数，从而影响后续 token 的可复现性。应由生成循环明确 EOS、活跃行顺序和 RNG 推进策略；本题仍是每个输入行一次独立 float64 均匀数的单步接口，不实现 EOS。分别检查停止规则与随机数流，也不要假设不同后端的种子能保证逐 token 相同。",
+            "en": "The calling policies consume different numbers or layouts of random draws and can change later reproducibility. The generation loop must define EOS handling, active-row order and RNG advancement. This exercise remains a single-step interface with one independent float64 uniform per input row; it does not implement EOS. Check stopping and RNG advancement separately, without assuming seeds imply token-wise equality across backends."
+          }
+        }
       ]
     },
     {
@@ -4170,6 +4218,30 @@
           "hint": {
             "zh": "放入两轮回答、相邻不同会话以及中间 padding，再分别左右截断。保留切片的第一项没有预测前驱；不要凭空补出 EOS。",
             "en": "Use two response turns, adjacent distinct conversations and an internal padding gap, then truncate on either side. The retained first token has no predecessor; never invent an EOS token."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "single-shift-loss-bridge",
+          "question": {
+            "zh": "把 assistant_target_mask 交给已有的 SFT 损失时，是否要先把掩码左移一位？",
+            "en": "Should assistant_target_mask be shifted left before passing it to the existing SFT loss?"
+          },
+          "hint": {
+            "zh": "不要。它标记原序列中的目标 token；本题第零列为 false。将其作为 response_mask 时，已有损失内部只对齐一次 logits[:, :-1]、tokens[:, 1:] 与 mask[:, 1:]。再预先移位会把监督目标错开，也可能遗漏由最后一个 user token 预测的回答首 token。",
+            "en": "No. It marks target tokens in the original sequence, with a false first column. Used as response_mask, the existing loss internally aligns logits[:, :-1], tokens[:, 1:] and mask[:, 1:] once. Shifting beforehand misaligns supervision and can lose the first response token predicted from the last user token."
+          }
+        },
+        {
+          "id": "unequal-dialogue-token-means",
+          "question": {
+            "zh": "两个 microbatch 的合法回答 token 数不同，能直接平均各自的 SFT 平均损失吗？",
+            "en": "Can two microbatch mean SFT losses be averaged directly when they contain different numbers of valid assistant targets?"
+          },
+          "hint": {
+            "zh": "若要得到整批的逐目标 token 平均，应同时保留每份均值与合法目标数，按目标数加权再除以总数；不能把会话条数当成 token 数。这里的掩码与 attention_mask 决定哪些目标有效，零目标批次不增加分母。优化器更新次数与梯度累积策略属于调用方，掩码函数仍只返回 bool 元数据。",
+            "en": "For a full-batch mean over target tokens, retain each local mean and its valid-target count, weight by those counts and divide by the total. Conversation counts are not token counts. This mask and attention_mask determine valid targets; an empty-target batch adds no denominator. Optimizer steps and gradient accumulation belong to the caller; the mask function still returns only boolean metadata."
           }
         }
       ]
@@ -4214,6 +4286,30 @@
             "en": "The first cases test differentiable zero and unconstrained directions. Conflicting tasks expose the retention/adaptation tradeoff, not a universal guarantee against forgetting."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "snapshot-storage-alias",
+          "question": {
+            "zh": "在 PyTorch 调用方只用 theta.detach() 保存 anchor，后续原地更新 theta 时，旧快照一定不变吗？",
+            "en": "If a PyTorch caller saves anchor using only theta.detach(), must that snapshot stay unchanged after later in-place theta updates?"
+          },
+          "hint": {
+            "zh": "不一定。PyTorch 的 detach 断开梯度图，但仍共享存储；保存历史解时还要复制数据，避免后续更新移动锚点。不要把冻结梯度和冻结数值混为一谈。保存独立历史快照是调用方的责任，本题只读取已经给定的 anchor 与 Fisher，不替调用方维护训练历史。",
+            "en": "No. PyTorch detach disconnects gradients but shares storage. A historical solution also needs copied data so later updates cannot move its anchor. Freezing gradients and freezing values are different responsibilities. Saving an independent history belongs to the caller; this exercise only reads supplied anchor/Fisher snapshots and does not manage training history."
+          }
+        },
+        {
+          "id": "two-task-quadratic-merge",
+          "question": {
+            "zh": "两个历史任务的 EWC 强度相同，能把 Fisher 相加、锚点取平均后直接替代两个惩罚吗？",
+            "en": "With equal EWC strength for two historical tasks, can their penalties be replaced by adding Fishers and averaging anchors?"
+          },
+          "hint": {
+            "zh": "锚点必须逐坐标按 Fisher 加权，不能简单平均。配方可得到以该加权锚点为中心的二次项，再加一个与当前 theta 无关的常数；省略常数可保留当前参数的梯度，却通常改变返回的惩罚值。Fisher 总和为零的坐标无约束，不能盲目相除。本题并未实现多任务合并，仍须返回题面规定的单快照惩罚。",
+            "en": "Anchors require coordinate-wise Fisher weighting, not an ordinary average. Completing the square gives a quadratic around that weighted anchor plus a theta-independent constant. Dropping the constant preserves theta gradients but generally changes the penalty value. Coordinates with zero total Fisher are unconstrained and cannot be divided blindly. Multi-task consolidation remains outside this exercise’s single-snapshot penalty interface."
+          }
+        }
       ]
     },
     {
@@ -4254,6 +4350,30 @@
           "hint": {
             "zh": "单任务只保留 ACC，其他指标为零。正 BWT 是允许的；不要整矩阵归约，也不要把未使用的未来任务值或 baseline[0] 混入计算。",
             "en": "With one task, only ACC is nonzero. Positive BWT is valid; avoid whole-matrix reductions and do not read unused future-task entries or baseline[0]."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "initialization-baseline-protocol",
+          "question": {
+            "zh": "把 baseline 换成各任务单独训练后的准确率，FWT 仍表示相对初始化的正向迁移吗？",
+            "en": "If baseline is replaced by independently trained task accuracies, does FWT still measure forward transfer relative to initialization?"
+          },
+          "hint": {
+            "zh": "不再是同一指标。题面与 GEM 使用开始训练任何任务之前的固定基线；换基线会改变 FWT 的参照和数值，但给定同一 scores 时 ACC、BWT 与峰值遗忘不依赖 baseline。比较模型时应保持任务、评估集和基线协议一致，不能用已训练任务的能力冒充初始化基线。",
+            "en": "No: the reference has changed. The exercise and GEM use a fixed baseline measured before learning any task. Replacing it changes FWT’s meaning and value; for unchanged scores, ACC, BWT and peak forgetting do not use baseline. Compare models with the same tasks, evaluation sets and baseline protocol instead of substituting learned-task performance for initialization."
+          }
+        },
+        {
+          "id": "task-versus-example-weighting",
+          "question": {
+            "zh": "各任务测试样本数不相等时，本题的 ACC 是否等于把全部测试样本放在一起算的准确率？",
+            "en": "When test-set sizes differ by task, is this exercise’s ACC the same as accuracy over all pooled test examples?"
+          },
+          "hint": {
+            "zh": "通常不同。本题对最终一行的各任务准确率等权平均，每个任务贡献相同；汇总样本准确率则按各任务样本数加权。若项目需要后者，必须另外保留样本计数并清楚说明协议，不能悄悄改变此函数的归约。聚合分数还应与每任务表现一起阅读，避免较大的测试集掩盖旧任务退化。",
+            "en": "Usually not. The exercise equally averages task accuracies in the final row, giving every task the same weight. Pooled accuracy weights by test-set sizes. A project needing that statistic must retain sample counts and state the different protocol rather than silently changing this function’s reduction. Read aggregate scores alongside per-task results so larger test sets do not hide regressions on old tasks."
           }
         }
       ]

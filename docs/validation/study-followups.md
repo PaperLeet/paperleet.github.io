@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Sixty-four bilingual follow-up questions extend thirty-two maintained study guides:
+Seventy-four bilingual follow-up questions extend thirty-seven maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -40,6 +40,11 @@ Sixty-four bilingual follow-up questions extend thirty-two maintained study guid
 | retrieval/semantic_ids | Greedy versus jointly optimal reconstruction; chunk-local collision counters | README frozen residual encoding, lowest-index ties and complete-tuple occurrence order |
 | retrieval/generative_retrieval | Prefix-local logit-shift invariance; catalog-only renormalization can reverse order | README full-vocabulary log-softmax, global beam pruning and original-score lookup |
 
+| foundations/top_k_sampling | Large-temperature retained support; selected ranks versus floating-point nonzero probabilities | README exact-k ranking, finite temperature, float64 intermediates and final dtype |
+| foundations/top_p_draw | Vocabulary permutation versus fixed-draw coupling; finished-row RNG policy outside the single-step interface | README vocabulary-order CDF, per-row uniform contract and EOS scope |
+| foundations/multiturn_sft_mask | Single-shift loss bridge; valid-target-weighted microbatch means | README target-position metadata and existing SFT loss conventions |
+| finetuning/ewc | Independent historical snapshots; Fisher-weighted quadratic merging and its additive constant | README fixed snapshots, single-task penalty and original EWC objective; PyTorch detach storage documentation |
+| foundations/continual_metrics | Initialization baseline versus learned-task reference; equal-task versus pooled-example accuracy | README/GEM matrix protocol and equal-task reduction |
 
 These are editorial discussions based on the repository exercise statements.
 They are not presented as reported interview questions, frequency counts or a
@@ -61,7 +66,7 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all sixty-four questions, malformed/duplicate/oversized and legacy content shapes,
+all seventy-four questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
@@ -152,3 +157,25 @@ the pinned [SASRec objective](https://github.com/kang205/SASRec/blob/e3738967fdd
 [ColBERT](https://arxiv.org/html/2004.12832), and
 [TIGER](https://arxiv.org/html/2305.05065). Local README interfaces control
 normalizations, tie rules, epsilon behavior and teaching boundaries.
+
+
+The generation/continual-learning expansion adds ten discussions in five formerly
+unenriched modules, completing follow-up coverage for the maintained
+`generation-continual-basics` path. All64 earlier follow-ups,267 core prompts and89
+guide identities remain unchanged as parsed objects. The limit, finite-precision,
+CDF-coupling, single-shift, weighted-mean and quadratic-completion discussions are
+editorial derivations from the local contracts. EOS orchestration, snapshot
+management, historical-task consolidation and alternative metric protocols are
+explicit extensions for discussion; this wave does not implement them or change
+grading, sampling streams, account data or numerical runtime behavior.
+
+Background was checked against [Transformers generation configuration](https://huggingface.co/docs/transformers/main/en/main_classes/text_generation),
+[the nucleus-sampling paper](https://arxiv.org/abs/1904.09751),
+[TRL assistant-only loss and label shifting](https://huggingface.co/docs/trl/sft_trainer),
+[the EWC objective](https://arxiv.org/html/1612.00796v2#S2.E3),
+[PyTorch detach storage semantics](https://docs.pytorch.org/docs/2.14/generated/torch.Tensor.detach.html),
+and [GEM evaluation metrics](https://papers.neurips.cc/paper/2017/file/f87522788a2be2d171666752f97ddebb-Paper.pdf).
+The exact-k ties, original-vocabulary inverse CDF, target-mask alignment and
+nonnegative peak-forgetting convention remain PaperLeet-specific contracts.
+No new numerical execution, training result or reported interview frequency is
+claimed; the actual deferred reader checks both languages for every added item.
