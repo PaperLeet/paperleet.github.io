@@ -14,7 +14,7 @@ import {revealReadingTarget} from './readingViewport';
 import './company-targets.css';
 
 type TargetStore=ReturnType<typeof createCompanyTargetStore>;
-type ContextValue={canAct?:()=>boolean;available:boolean;owner:string;state:CompanyTargetsState;store?:TargetStore;heading:RefObject<HTMLElement|null>;open:()=>void};
+type ContextValue={directoryOnly:boolean;setDirectoryOnly:(only:boolean)=>void;canAct?:()=>boolean;available:boolean;owner:string;state:CompanyTargetsState;store?:TargetStore;heading:RefObject<HTMLElement|null>;open:()=>void};
 const empty:CompanyTargetsState={loading:false,error:'',accountError:false,pending:{}};
 const Context=createContext<ContextValue|undefined>(undefined),subscribe=()=>()=>{},getEmpty=()=>empty;
 const changeKey='paperleet.company-targets.changed';
@@ -24,6 +24,9 @@ export function CompanyTargetsProvider({enabled,children,canAct}:{enabled:boolea
  const open=()=>{const node=heading.current;if(active()&&controlIsActive(node)&&node&&node.parentElement?.tagName==='DETAILS'){(node.parentElement as HTMLDetailsElement).open=true;node.focus({preventScroll:true});revealReadingTarget(node,'nearest');}};
  const account=useAccount(),available=enabled&&!account.loading&&account.capabilities?.interview_company_targets===true;
  const owner=available&&account.user&&(!account.user.status||account.user.status==='active')?account.user.id:'';
+ const [directoryView,setDirectoryView]=useState({owner:'',only:false});
+ const directoryOnly=!!owner&&directoryView.owner===owner&&directoryView.only;
+ function setDirectoryOnly(only:boolean){if(active()&&owner)setDirectoryView({owner,only});}
  const store=useMemo(()=>owner?createCompanyTargetStore(owner,(body,signal)=>socialApi('account/interview-companies',body,signal),()=>{
   try{localStorage.setItem(changeKey,JSON.stringify({owner,nonce:crypto.randomUUID()}));}catch{/* Focus refresh remains available without browser storage. */}
  }):undefined,[owner]);
@@ -34,7 +37,12 @@ export function CompanyTargetsProvider({enabled,children,canAct}:{enabled:boolea
   window.addEventListener('focus',refresh);window.addEventListener('storage',storage);
   return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('storage',storage);store.stop();};
  },[store,owner]);
- return <Context.Provider value={{available,owner,state,store,heading,open,canAct:active}}>{children}</Context.Provider>;
+ return <Context.Provider value={{available,owner,state,store,heading,open,canAct:active,directoryOnly,setDirectoryOnly}}>{children}</Context.Provider>;
+}
+/** Read the existing account store; directory views never start another request. */
+export function useCompanyTargetsDirectory(owner:string){
+ const context=useContext(Context);
+ return context?.available&&!!context.owner&&context.owner===owner?{state:context.state,open:context.open,only:context.directoryOnly,setOnly:context.setDirectoryOnly}:undefined;
 }
 export function companyTargetHref(filters:InterviewFilters,company:string){return interviewHref({...filters,company,view:'companies',q:'',page:1,queue:'',saved:false});}
 export function CompanyTargetButton({company,returnTo,canAct}:{company:string;returnTo:string;canAct?:()=>boolean}){

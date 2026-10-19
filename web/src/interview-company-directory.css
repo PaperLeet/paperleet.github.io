@@ -47,3 +47,14 @@
 @media(max-width:420px){.company-directory-toolbar{align-items:stretch}.company-directory-toolbar>p{flex-basis:100%}.company-directory-toolbar select{min-width:0}.interview-company-entry>.interview-company-card{padding:18px}}
 @media(prefers-reduced-motion:no-preference){.interview-company-entry,.company-directory-actions>:is(a,button),.company-directory-toolbar select{transition:background-color .15s,border-color .15s,color .15s}}
 @media(forced-colors:active){.company-directory-actions>.company-target-button[aria-pressed=true]{outline:2px solid Highlight;outline-offset:-3px}}
+
+.company-directory-controls{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px 16px;min-width:0}
+.company-directory-toolbar .company-directory-target-toggle{min-height:44px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text-secondary);cursor:pointer}
+.company-directory-target-toggle input[type=checkbox]{appearance:auto;flex:none;width:16px;height:16px;min-width:16px;min-height:16px;margin:0;padding:0;accent-color:var(--accent);cursor:pointer}
+.company-directory-target-toggle input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.company-directory-target-toggle input:disabled{cursor:not-allowed}
+.company-directory-target-toggle>small{display:grid;place-items:center;min-width:23px;padding:1px 5px;border-radius:5px;background:var(--surface2);font-size:var(--type-meta);font-variant-numeric:tabular-nums}
+.company-directory-toolbar .company-directory-target-toggle[data-selected=true]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.company-directory-target-state>div{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 16px}
+@media(max-width:620px){.company-directory-controls{flex-basis:100%;justify-content:space-between}.company-directory-toolbar .company-directory-target-toggle{flex:1 1 auto}.company-directory-controls>label:last-child{flex:1 1 200px}.company-directory-controls select{flex:1;min-width:0}}
+@media(forced-colors:active){.company-directory-target-toggle[data-selected=true]{outline:2px solid Highlight;outline-offset:-3px}}
