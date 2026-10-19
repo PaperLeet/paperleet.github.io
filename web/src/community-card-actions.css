@@ -133,3 +133,16 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-editor .panel-title h3 { margin:0; font-size:var(--type-body); }
 .card-comment-edit-notice { display:flex; align-items:center; flex-wrap:wrap; gap:8px; color:var(--green); font-size:var(--type-small); line-height:1.7; }
 .card-comment-edited { display:inline-flex; flex-wrap:wrap; gap:5px; color:var(--text-secondary); }
+
+.card-comment-search{display:grid;gap:7px;margin:14px 0;min-width:0}
+.card-comment-search>.community-query{width:100%;min-width:0}
+.card-comment-search>p{margin:0;color:var(--text-secondary);font-size:var(--type-meta);line-height:1.6}
+.card-comment-search-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;color:var(--text-secondary);font-size:var(--type-small)}
+.card-comment-search-summary button,.card-comments-empty>.text-button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);font:inherit;font-size:var(--type-small)}
+.card-comments-empty>p{margin:0 0 8px}
+.card-comment-results .reply-search-context{margin-block:10px;padding:12px;font-size:var(--type-small)}
+.card-comment-results .reply-search-heading button,.card-comment-results .reply-search-full{min-height:44px}
+.card-comment-results .reply-search-full-body>.translated-reply{font-size:var(--type-body);line-height:1.75}
+
+.card-comment-search .community-query :is(input,button){min-height:44px}
+.card-comment-search .community-query button{min-width:44px}

@@ -8,6 +8,9 @@ import {useI18n} from './i18n';
 import {DateLabel,SocialError,SocialNotice,errorMessage,socialApi,useAccount} from './social';
 import CommunityAuthor from './CommunityAuthor';
 import InlineCommentBody from './InlineCommentBody';
+import CardCommentSearch from './CardCommentSearch';
+import ReplySearchContext from './ReplySearchContext';
+import {FeatureBoundary} from './deferredFeature';
 import ReplyEditor from './ReplyEditor';
 import {canEditReply,type ReplyEditOrigin,type ReplyEditConfirmation} from './replyEdits';
 import MarkdownEditor,{type MarkdownEditorView} from './MarkdownEditor';
@@ -59,9 +62,10 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const [saved,setSaved]=useState(true),[preview,setPreview]=useState(false),[writing,setWriting]=useState(false),[focusTick,setFocusTick]=useState(0);
   const [publication,setPublication]=useState(()=>readPublication(tabDraftStorage(),owner,'reply',initial.id));
   const current=useRef(draft),mounted=useRef(true),working=useRef(false),readVersion=useRef(0),request=useRef<AbortController|undefined>(undefined);
+  const commentSearch=useRef<HTMLInputElement>(null);
   const textarea=useRef<HTMLTextAreaElement>(null),toggle=useRef<HTMLButtonElement>(null),composePrompt=useRef<HTMLButtonElement>(null);
   const card=useRef<HTMLDivElement>(null),shareHref=location.href,sharing=useRef({owner,accountLoading,href:shareHref});sharing.current={owner,accountLoading,href:shareHref};
-  const canShare=()=>mounted.current&&!sharing.current.accountLoading&&sharing.current.owner===owner&&sharing.current.href===shareHref&&location.href===shareHref&&!!card.current?.isConnected&&!card.current.closest('[hidden],[aria-hidden="true"]');
+  const canShare=()=>mounted.current&&!sharing.current.accountLoading&&sharing.current.owner===owner&&sharing.current.href===shareHref&&location.href===shareHref&&!!card.current?.isConnected&&!card.current.closest('[hidden],[aria-hidden="true"],[inert]');
   const editorView=useRef<MarkdownEditorView|undefined>(undefined);
   const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string;source:string;selection?:ReplyQuoteSelection;atEnd?:boolean}|undefined>(undefined),formId=fieldId+'-form';
   const closing=useRef<{opener:HTMLElement;href:string}|undefined>(undefined);
@@ -259,24 +263,27 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('.card-reply-form,input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
       event.preventDefault();event.stopPropagation();dismissComments(active);
     }}>
-      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
+      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||(detail?.replies.length||0)<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
+      {detail&&(detail.replies.length>0||replies.query)&&<CardCommentSearch title={post.title} list={replies} total={detail.replies.length} controls={regionId+'-list'} canAct={canShare} inputRef={commentSearch}/>}
+      <div id={regionId+'-list'} className="card-comment-results" aria-busy={loading||undefined}>
       {loading&&<p role="status">{t('正在加载评论…','Loading comments…')}</p>}
       {loadError&&<div><SocialNotice error={loadError}/><button type="button" className="text-button" disabled={!!busy} onClick={()=>void load()}>{t('重试加载评论','Retry loading comments')}</button></div>}
       {!loading&&!loadError&&detail&&<>
-        {replies.total?<ol id={regionId+'-list'} className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
+        {replies.total?<ol className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
           <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/><ReplyAuthorNavigation list={replies} replyId={row.id} disabled={!!busy}/>{row.updated_at&&row.updated_at!==row.created_at&&<span className="card-comment-edited">{t('已编辑','Edited')} <DateLabel value={row.updated_at}/></span>}</div>
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading||!!replyEdit} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
-          <TranslatedReply reply={row}>{body=><InlineCommentBody body={row.body} displayBody={body}/>}</TranslatedReply>
+          {replies.query?<ReplySearchContext reply={row} list={replies} lazy canAct={canShare}><FeatureBoundary fallback={<><p className="inline-reading-error" role="status">{t('格式暂不可用，以下为原文。收起后可重新展开。','Formatting is unavailable. Original text is shown below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{row.body}</pre></>}><TranslatedReply reply={row}/></FeatureBoundary></ReplySearchContext>:<TranslatedReply reply={row}>{body=><InlineCommentBody body={row.body} displayBody={body}/>}</TranslatedReply>}
           <div className="card-comment-links"><AppLink href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</AppLink>
             {owner&&<button type="button" disabled={!!replyEdit||!!busy||accountLoading} onClick={()=>{edit({parentId:row.id});setWriting(true);setPreview(false);focusReply();}}>{t('回复','Reply')}</button>}{owner&&<button type="button" disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} aria-label={t(`引用${row.author.anonymous?'匿名用户':row.author.display_name||'用户'}的评论`,`Quote comment from ${row.author.anonymous?'Anonymous':row.author.display_name||'user'}`)} onClick={()=>quoteComment(row)}><Quote size={12} aria-hidden="true"/>{t('引用','Quote')}</button>}
             {canEditReply(row,owner)&&<button type="button" data-card-edit-reply={row.id} aria-controls={fieldId+'-edit'} aria-expanded={replyEdit?.id===row.id&&open} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} onClick={event=>startReplyEdit(row,event.currentTarget)}><PenLine size={12} aria-hidden="true"/>{t('编辑评论','Edit comment')}</button>}
             <DiscussionLink key={`reply-share:${accountLoading}`} postId={post.id} replyId={row.id} returnTo={returnTo} compact showReplyLink={false} name={row.author.anonymous?t('匿名用户','Anonymous'):row.author.display_name} disabled={accountLoading} canAct={canShare}/>
             <ReplyReadingReturn list={replies} replyId={row.id}/>
           </div>
-        </li>;})}</ol>:<p className="card-comments-empty">{t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}</p>}
+        </li>;})}</ol>:<div className="card-comments-empty" role="status">{replies.query?<><p>{t('没有匹配的评论','No matching comments')}</p><button type="button" className="text-button" disabled={replies.disabled} onClick={event=>{if(replies.disabled||!canShare())return;if(document.activeElement===event.currentTarget)commentSearch.current?.focus({preventScroll:true});replies.chooseQuery('');}}>{t('清空评论搜索','Clear comment search')}</button></>:t('还没有评论，来聊聊你的想法。','No comments yet. Share your thoughts.')}</div>}
         {replies.total>replies.shown.length&&<button type="button" className="card-more-comments" disabled={accountLoading||!!replyEdit} onClick={replies.showMore}><ChevronDown size={14}/>{t('再展开','Show')} {Math.min(3,replies.total-replies.shown.length)} {t('条评论','more comments')}</button>}
       </>}
+      </div>
       {quoteNotice&&<div className="reply-quote-notice card-reply-quote-notice" role="status"><span>{quoteNotice==='added'?t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'):quoteNotice==='exists'?t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'):quoteNotice==='length'?t('引用会超过评论长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the comment limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This comment could not be quoted. You can still reply directly.')}</span>{(quoteNotice==='added'||quoteNotice==='exists')&&quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} onClick={undoQuote}>{t('撤销引用','Undo quote')}</button>}</div>}
       {editedReply&&<p className="card-comment-edit-notice" role="status">{t('评论修改已保存。','Comment changes saved.')} {replies.byId.has(editedReply)&&<button type="button" className="text-button" onClick={event=>revealComment(editedReply,event.currentTarget)}>{t('查看修改的评论','View updated comment')}</button>}</p>}
       {accountLoading?<p className="card-account-checking" role="status">{t('正在确认账号，评论草稿已保留…','Checking your account. Your comment draft is kept…')}</p>:owner&&user?<>
