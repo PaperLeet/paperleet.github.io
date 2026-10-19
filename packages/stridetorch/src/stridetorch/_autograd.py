@@ -77,12 +77,21 @@ def binary_result(data, source, original_other, other, a, b, operation, left, ri
         return value
     context = _state._tensor_reverse_context
     left_vjp = right_vjp = None
+    selective_binary = saves_tensors and not reverse and operation in (np.multiply, np.divide)
     if context is None or not context.reverse_active:
         if saves_tensors:
             if left_needed:
-                left_vjp = lambda g: _ops.unbroadcast(left(g, a, b), a.shape)
+                if selective_binary:
+                    left_shape = a.shape
+                    left_vjp = lambda g: _ops.unbroadcast(left(g, None, b), left_shape)
+                else:
+                    left_vjp = lambda g: _ops.unbroadcast(left(g, a, b), a.shape)
             if right_needed:
-                right_vjp = lambda g: _ops.unbroadcast(right(g, a, b), b.shape)
+                if selective_binary and operation is np.multiply:
+                    right_shape = b.shape
+                    right_vjp = lambda g: _ops.unbroadcast(right(g, a, None), right_shape)
+                else:
+                    right_vjp = lambda g: _ops.unbroadcast(right(g, a, b), b.shape)
         else:
             if left_needed:
                 left_shape = a.shape
@@ -99,7 +108,7 @@ def binary_result(data, source, original_other, other, a, b, operation, left, ri
         parents = ((_graph.node_for(other), right_vjp, other.dtype),)
     value._requires_grad = True
     if saves_tensors:
-        if not reverse and operation in (np.multiply, np.divide):
+        if selective_binary:
             # These pullbacks never read the public output. Save only the
             # input storages actually used by active derivative branches.
             counters = set()

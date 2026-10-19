@@ -6,6 +6,13 @@ reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
 existing browser adapter. Core API fixes and performance improvements are
 developed here and checked against independent native PyTorch results.
 
+Version **0.83** is a development candidate that releases unused operand arrays
+from ordinary multiplication and direct-division pullbacks. Gradient arithmetic,
+saved-value guards and higher-order rules retain their qualified 0.82 behavior.
+The [development record](../../docs/validation/torch-runtime-0.83-development.md)
+separates measured allocation/timing scope from application integration, which
+remains pending. Production WebGPU remains disabled.
+
 Version **0.81** packs contiguous reduction rows for eligible 2D WASM matrix
 products. Representative complete forward/gradient flows improve while native
 CPU BLAS routing and public APIs retain their existing behavior. The
@@ -2161,7 +2168,7 @@ See the [0.80 qualification record](../../docs/validation/torch-runtime-0.80-qua
 for exact baselines, numerical boundaries, package isolation, GPU experiment
 scope and current application-adoption status.
 
-### Gradient clipping (0.82, in development)
+### Gradient clipping (0.82)
 
 `torch.nn.utils.clip_grad_norm_`, `clip_grad_value_` and the deprecated
 `clip_grad_norm` alias are available through ordinary `torch` imports, including
