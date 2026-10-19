@@ -5,7 +5,7 @@ import {readInterviewRoute,interviewHref} from './interviewNavigation';
 export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title';
 export type LibraryPageSize = 20 | 50 | 100;
 export type PaperRegistryView={query:string;category:string;sort:LibrarySort;page:number};
-export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort; company?:string; company_days?:string; page?:number; page_size?:LibraryPageSize };
+export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort; view?:'modules'; company?:string; company_days?:string; page?:number; page_size?:LibraryPageSize };
 export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
 export const routePath = (route: string) => route.split('?')[0];
 const practicePath = /^(?:[1-9]\d*|(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
@@ -37,7 +37,7 @@ export function libraryTags(papers: Paper[], category = 'all'): string[] {
 
 export function readLibraryRoute(route: string): { collectionId?: string; filters: LibraryFilters } | undefined {
   const value = parts(route);
-  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state', 'sort','company','company_days','page','page_size'])) return;
+  if (!value || !only(value.params, ['q', 'category', 'tag', 'difficulty', 'runtime', 'state', 'sort','view','company','company_days','page','page_size'])) return;
   const collectionId = /^(?:collections|lists)\/([a-z0-9_-]+)$/.exec(value.path)?.[1];
   if (value.path && (!collectionId || !paperCollections.some(collection => collection.id === collectionId))) return;
   const filters = { query: value.params.get('q') || '', category: value.params.get('category') || 'all', tag: value.params.get('tag') || 'all',
@@ -48,11 +48,13 @@ export function readLibraryRoute(route: string): { collectionId?: string; filter
   const company=value.params.get('company'),days=value.params.get('company_days');
   if(company!==null&&!/^[a-z][a-z0-9-]{0,39}$/.test(company)||days!==null&&(!company||!['30','90','365','all'].includes(days)))return;
   const companyScope=company?{company,...(days&&days!=='365'?{company_days:days}:{})}:{};
+  const view=value.params.get('view');
+  if(view!==null&&!['papers','modules'].includes(view))return;
   const sort = value.params.get('sort');
   if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)) return;
   const page=value.params.get('page')??'1',size=value.params.get('page_size')??'20';
   if(!/^[1-9]\d{0,4}$/.test(page)||+page>10000||!['20','50','100'].includes(size))return;
-  return { collectionId, filters:{...filters,...companyScope,...(sort&&sort!=='default'?{sort:sort as LibrarySort}:{}),...(+page>1?{page:+page}:{}),...(size!=='20'?{page_size:+size as LibraryPageSize}:{})} };
+  return { collectionId, filters:{...filters,...companyScope,...(view==='modules'?{view:'modules' as const}:{}),...(sort&&sort!=='default'?{sort:sort as LibrarySort}:{}),...(+page>1?{page:+page}:{}),...(size!=='20'?{page_size:+size as LibraryPageSize}:{})} };
 }
 
 export function libraryHref(collectionId: string | undefined, filters: LibraryFilters): string {
@@ -62,6 +64,7 @@ export function libraryHref(collectionId: string | undefined, filters: LibraryFi
   if (filters.query) params.set('q', filters.query);
   for (const key of ['category', 'tag', 'difficulty', 'runtime', 'state'] as const) if (filters[key] !== 'all') params.set(key, filters[key]);
   if (filters.sort && filters.sort !== 'default') params.set('sort', filters.sort);
+  if(filters.view)params.set('view',filters.view);
   if(filters.company)params.set('company',filters.company);
   if(filters.company_days&&filters.company_days!=='365')params.set('company_days',filters.company_days);
   if(page!==1)params.set('page',String(page));

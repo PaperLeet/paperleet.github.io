@@ -4,6 +4,9 @@ import zlib from 'node:zlib';
 import {loadEnv} from 'vite';
 
 const manifest = JSON.parse(fs.readFileSync('dist/.vite/manifest.json', 'utf8'));
+const brandAsset=Object.values(manifest).find(entry=>entry.src==='src/assets/brand-mark.svg');
+assert(brandAsset?.file.endsWith('.svg'),'The static brand mark must remain an external SVG asset');
+assert.deepEqual(fs.readFileSync('dist/'+brandAsset.file),fs.readFileSync('src/assets/brand-mark.svg'),'The emitted brand mark preserves its source geometry');
 const initial = new Set();
 function visit(key) {
   if (initial.has(key)) return;

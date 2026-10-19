@@ -62,3 +62,13 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .collections-heading{min-height:44px}.paper-library .collection-controls button{width:44px;height:44px}.library-collections-placeholder{height:212px;margin-bottom:28px;border-radius:10px;background:var(--surface2)}
 
 @media(max-width:520px){.paper-library .library-toolbar .filter-bar[data-expanded=true]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.paper-library .library-toolbar .filter-bar>.select-wrap{width:auto}.paper-library .library-toolbar .filter-bar>.select-wrap:first-child{grid-column:1/-1}.paper-library .library-result-actions{flex:1 1 100%;justify-content:space-between;margin-left:0}.paper-library .library-result-actions .library-sort{flex:1;min-width:0}.paper-library .library-sort select{max-width:none;width:100%;min-width:0}.paper-library .library-result-summary{line-height:1.8}}
+
+.paper-library .library-view-switch{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--line);border-radius:var(--control-radius);background:var(--surface2)}
+.paper-library .library-view-switch button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 12px;border-radius:7px;color:var(--muted);font-size:var(--type-small);white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s}
+.paper-library .library-view-switch button:hover{color:var(--text);background:var(--surface)}
+.paper-library .library-view-switch button[aria-pressed=true]{color:var(--accent);background:var(--surface);box-shadow:0 1px 3px #00000012}
+.paper-library .library-view-switch button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.paper-library .library-module-source{display:block;margin-top:5px;color:var(--muted);font-size:var(--type-small);line-height:1.5}
+@media(pointer:coarse){.paper-library .library-view-switch button{min-height:44px}}
+@media(max-width:520px){.paper-library .library-view-switch{flex:1 1 100%}.paper-library .library-view-switch button{flex:1}.paper-library .library-result-actions{flex-shrink:1;min-width:0}}
+@media(prefers-reduced-motion:reduce){.paper-library .library-view-switch button{transition:none}}
