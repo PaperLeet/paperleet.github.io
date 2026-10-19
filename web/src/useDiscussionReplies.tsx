@@ -1,5 +1,5 @@
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
-import {ArrowLeft,ChevronDown,UserRound} from 'lucide-react';
+import {ArrowLeft,ArrowUp,ArrowDown,ChevronDown,UserRound} from 'lucide-react';
 import type {Reply} from './communityDiscussion';
 import {useI18n} from './i18n';
 import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,keepReadingTriggerVisible,type ReadingAnchor} from './readingViewport';
@@ -39,6 +39,10 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
   return (left<right?-1:left>right?1:0)*(order==='oldest'?1:-1);
  }),[replies,order]);
  const byId=useMemo(()=>new Map(replies.map(reply=>[reply.id,reply])),[replies]);
+ const authorReplies=useMemo(()=>authorId?ordered.filter(reply=>reply.author.id===authorId):EMPTY,[ordered,authorId]);
+ const authorPositions=useMemo(()=>new Map(authorReplies.map((reply,index)=>[reply.id,{index,previous:authorReplies[index-1]?.id,next:authorReplies[index+1]?.id}])),[authorReplies]);
+ const authorVisit=useRef<object>(undefined),visit={href:typeof location==='undefined'?'':location.href};authorVisit.current=visit;
+
  const searching=!!query,terms=useMemo(()=>replySearchTerms(query),[query]);
  const searchIndex=useMemo(()=>searching?new Map(replies.map(reply=>[reply.id,replySearchText(reply)])):undefined,[replies,searching]);
  const matched=useMemo(()=>ordered.filter(reply=>(!authorOnly||reply.author.id===authorId)&&(!searchIndex||matchesReplySearch(searchIndex.get(reply.id)||'',terms))),[ordered,authorOnly,authorId,searchIndex,terms]);
@@ -116,6 +120,11 @@ export function useDiscussionReplies({replies=EMPTY,authorId,linkedReply,disable
    const rows=order===value.order?ordered:[...ordered].reverse(),wanted=replySearchTerms(value.query),filtered=rows.filter(row=>(!value.authorOnly||row.author.id===authorId)&&(!value.query||matchesReplySearch(replySearchText(row),wanted))),index=anchor?filtered.findIndex(row=>row.id===anchor):-1;
    clearReadingReturn();setOrder(value.order);setAuthorOnly(value.authorOnly);setQuery(value.query);setLimit(Math.min(Math.max(replies.length,batchSize),Math.max(batchSize,value.limit,Math.ceil((index+1)/batchSize)*batchSize)));setRestored({request,query:value.query,expanded:expanded.map(row=>({...row}))});return true;
   },
+  authorCount:authorReplies.length,firstAuthorReply:authorReplies[0]?.id,authorPosition:(id:string)=>authorPositions.get(id),
+  seekAuthorReply(id:string,trigger:HTMLElement){
+   if(disabled||authorVisit.current!==visit||typeof location==='undefined'||location.href!==visit.href||!root.current?.isConnected||!trigger.isConnected||!root.current.contains(trigger)||!!trigger.closest('[hidden],[aria-hidden="true"],details:not([open])')||!authorPositions.has(id))return;
+   reveal(id,trigger);
+  },
   firstMatch:matched[0]?.id,matchPosition:(id:string)=>matchPositions.get(id),
   seekSearchReply(id:string){if(disabled||!query)return;const position=matchPositions.get(id);if(!position)return;clearReadingReturn();setLimit(value=>Math.max(value,Math.ceil((position.index+1)/batchSize)*batchSize));setJump({...intent(),kind:'focus',id});},
   returnToOrigin(){if(disabled||!previous||previous.href!==location.href)return;setJump({...intent(),kind:'back',origin:previous});},
@@ -135,10 +144,26 @@ export function ReplyReadingNotice({list}:{list:ReturnType<typeof useDiscussionR
  const {t}=useI18n();
  return list.notice?<p className="reply-reading-notice" role="status">{list.notice==='restored'?t('已返回刚才的阅读位置。','Returned to your previous reading position.'):t('原位置已不可用，已返回评论列表。','The original position is unavailable. You are back at the replies.')}</p>:null;
 }
+/** Reading-only navigation uses the public per-thread author identity, including anonymous aliases. */
+export function ReplyAuthorJump({list,disabled=false}:{list:ReturnType<typeof useDiscussionReplies>;disabled?:boolean}){
+ const {t}=useI18n();
+ if(!list.firstAuthorReply)return null;
+ return <button type="button" className="reply-author-jump" disabled={disabled||list.disabled} data-author-reply-jump title={t('按当前排序定位全部楼主回复；可返回原来的筛选与位置。','Read all author replies in the current order, then return to your filters and position.')} onClick={event=>{if(!disabled&&list.firstAuthorReply)list.seekAuthorReply(list.firstAuthorReply,event.currentTarget);}}><UserRound size={14} aria-hidden="true"/>{t('定位楼主回复','Read author replies')}<small>{list.authorCount}</small><ArrowDown size={14} aria-hidden="true"/></button>;
+}
+export function ReplyAuthorNavigation({list,replyId,disabled=false}:{list:ReturnType<typeof useDiscussionReplies>;replyId:string;disabled?:boolean}){
+ const {t}=useI18n(),position=list.authorPosition(replyId),locked=disabled||list.disabled;
+ if(!position||list.authorCount<2)return null;
+ return <div className="reply-author-navigation" role="group" aria-label={t(`楼主回复导航，第 ${position.index+1} 条，共 ${list.authorCount} 条`,`Author reply navigation, ${position.index+1} of ${list.authorCount}`)}>
+  <span>{t('楼主','Author')} {position.index+1} / {list.authorCount}</span>
+  <button type="button" disabled={locked} aria-disabled={locked||!position.previous} aria-label={t('上一条楼主回复','Previous author reply')} title={t('按当前回复排序跳转，保留返回位置。','Follow the current reply order and keep your return position.')} onClick={event=>{if(!locked&&position.previous)list.seekAuthorReply(position.previous,event.currentTarget);}}><ArrowUp size={15} aria-hidden="true"/></button>
+  <button type="button" disabled={locked} aria-disabled={locked||!position.next} aria-label={t('下一条楼主回复','Next author reply')} title={t('按当前回复排序跳转，保留返回位置。','Follow the current reply order and keep your return position.')} onClick={event=>{if(!locked&&position.next)list.seekAuthorReply(position.next,event.currentTarget);}}><ArrowDown size={15} aria-hidden="true"/></button>
+ </div>;
+}
 export function ReplyListControls({list,disabled}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean}){
  const {t}=useI18n(),help=useId();
  return <div className="discussion-reply-controls">
   <button type="button" aria-pressed={list.authorOnly} disabled={disabled} onClick={()=>list.chooseAuthor(!list.authorOnly)}><UserRound size={14} aria-hidden="true"/>{t('只看楼主','Author only')}</button>
+  <ReplyAuthorJump list={list} disabled={disabled}/>
   <select aria-label={t('回复排序','Sort replies')} value={list.order} disabled={disabled} onChange={event=>list.chooseOrder(event.target.value as Order)}><option value="oldest">{t('最早回复','Oldest first')}</option><option value="newest">{t('最新回复','Newest first')}</option></select>
   <span role="status">{t(`显示 ${list.shown.length} / ${list.total} 条回复`,`${list.shown.length} of ${list.total} replies shown`)}</span>
   {list.query&&list.firstMatch&&<button type="button" className="discussion-reply-first-match" disabled={disabled} onClick={()=>{if(list.firstMatch)list.seekSearchReply(list.firstMatch);}}>{t('跳到首条匹配','Go to first match')}</button>}

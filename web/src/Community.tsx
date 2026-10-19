@@ -40,7 +40,7 @@ import SolutionReadingCard from './SolutionReadingCard';
 import CommunityFeedFilters from './CommunityFeedFilters';
 import CommunityFeedPeriod from './CommunityFeedPeriod';
 import {useWritingDisclosure,type WritingPanelProps} from './useWritingDisclosure';
-import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
+import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorNavigation} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
 import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
@@ -1209,6 +1209,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                     <CommunityAuthor user={r.author} compact/>
                     {r.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}
                     <DateLabel value={r.created_at} />
+                    <ReplyAuthorNavigation list={replyList} replyId={r.id}/>
                     <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={providedReturnTo}/>
                     {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
                     {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={event=>{replyEditOrigin.current={opener:event.currentTarget,href:location.href};setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}

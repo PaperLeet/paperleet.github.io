@@ -22,7 +22,7 @@ import {tabDraftStorage} from './communityDrafts';
 import {clearPublishedReplyDraft,hasReplyDraft,readReplyDraft,sameReplyDraft,writeReplyDraft,type ReplyDraft} from './replyDrafts';
 import {clearPublication,preparePublication,readPublication,replyPublication,samePublication,type PublicationReceipt} from './publicationRequests';
 import {withConfirmedReply,withConfirmedReplyEdit,type Post,type PostDetail,type Reply} from './communityDiscussion';
-import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
+import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorJump,ReplyAuthorNavigation} from './useDiscussionReplies';
 import {postPreview} from './postExcerpt';
 import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
 import './reply-quotes.css';
@@ -103,7 +103,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     field.scrollTop=view.selection.scroll;field.scrollLeft=view.selection.left||0;
   },[open,writing,preview,accountLoading,focusTick]);
   const rowIdPrefix=regionId+'-reply-';
-  const replies=useDiscussionReplies({replies:detail?.replies,disabled:loading||accountLoading||accountRecovery||!!loadError||!!replyEdit,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'start'});
+  const replies=useDiscussionReplies({replies:detail?.replies,authorId:detail?.author.id||post.author.id,disabled:loading||accountLoading||accountRecovery||!!loadError||!!replyEdit,batchSize:3,initialOrder:'newest',rowIdPrefix,revealBlock:'start'});
   function revealComment(id:string,trigger:HTMLElement){replies.reveal(id,trigger);}
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;readVersion.current++;request.current?.abort();};},[]);
   useEffect(()=>{
@@ -255,13 +255,13 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('.card-reply-form,input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
       event.preventDefault();event.stopPropagation();dismissComments(active);
     }}>
-      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
+      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||replies.total<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select><ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
       {loading&&<p role="status">{t('正在加载评论…','Loading comments…')}</p>}
       {loadError&&<div><SocialNotice error={loadError}/><button type="button" className="text-button" disabled={!!busy} onClick={()=>void load()}>{t('重试加载评论','Retry loading comments')}</button></div>}
       {!loading&&!loadError&&detail&&<>
         {replies.total?<ol id={regionId+'-list'} className="card-comment-list">{replies.shown.map(row=>{const parent=row.parent_id?replies.byId.get(row.parent_id):undefined;return <li key={row.id} id={rowIdPrefix+row.id} tabIndex={-1} data-card-reply={row.id} data-discussion-reply={row.id} data-comment-located={replies.revealed===row.id||undefined}>
-          <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/>{row.updated_at&&row.updated_at!==row.created_at&&<span className="card-comment-edited">{t('已编辑','Edited')} <DateLabel value={row.updated_at}/></span>}</div>
+          <div className="card-comment-meta"><CommunityAuthor user={row.author} compact/>{row.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}<DateLabel value={row.created_at}/><ReplyAuthorNavigation list={replies} replyId={row.id} disabled={!!busy}/>{row.updated_at&&row.updated_at!==row.created_at&&<span className="card-comment-edited">{t('已编辑','Edited')} <DateLabel value={row.updated_at}/></span>}</div>
           {row.parent_id&&(parent?<CommentReference parent={parent} disabled={accountLoading||!!replyEdit} onReveal={trigger=>revealComment(parent.id,trigger)}/>:<span className="card-comment-context unavailable">{t('原评论已删除或暂不可用','The original comment is deleted or unavailable')}</span>)}
           <TranslatedReply reply={row}>{body=><InlineCommentBody body={row.body} displayBody={body}/>}</TranslatedReply>
           <div className="card-comment-links"><AppLink href={communityPostHref(post.id,returnTo,row.id)}>{t('在帖子中查看','View in discussion')}</AppLink>
