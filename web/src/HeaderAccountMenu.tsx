@@ -60,7 +60,7 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
   const identity=<><span className="account-menu-identity-avatar">{user?<Avatar user={user} size={46}/>:<UserRound size={22}/>}</span><span><b>{user?user.display_name:t('访客工作区','Guest workspace')}</b><small>{user?`@${user.username}`:t('偏好和游客草稿自动保存在当前浏览器','Preferences and guest drafts save in this browser')}</small></span>{user&&<ChevronRight size={16}/>}</>;
   return <>
     {user?<AppLink className="account-menu-identity" href={hostedAppHref(profileHref(user))} onClick={onClose}>{identity}</AppLink>:<div className="account-menu-identity">{identity}</div>}
-    {!user&&hostedAppAvailable&&<AppLink className="account-menu-signin button" href={hostedAppHref(signInHref(returnTo))} onClick={onClose}>{loading?t('正在检查登录状态…','Checking sign-in…'):t('登录账号','Sign in')}<ChevronRight size={14}/></AppLink>}
+    {!user&&hostedAppAvailable&&<AppLink className="account-menu-signin button" href={hostedAppHref(signInHref(returnTo))} onClick={onClose}>{loading?t('正在检查登录状态…','Checking sign-in…'):t('免费注册 / 登录','Join free / Sign in')}<ChevronRight size={14}/></AppLink>}
     <div className="account-menu-shortcuts">
       {user?<AppLink href={hostedAppHref(profileHref(user))} onClick={onClose}><UserRound size={21}/><span>{t('个人主页','My profile')}</span></AppLink>:<button type="button" disabled={!backupReady||!onBackup} onClick={()=>{onClose();onBackup?.();}}><Download size={21}/><span>{t('代码备份','Code backups')}</span></button>}
       <AppLink href="#/achievements" onClick={onClose}><Award size={22}/><span>{t('学习勋章','Achievements')}</span></AppLink>
@@ -79,6 +79,6 @@ export function AccountMenuContent({user,loading,onClose,returnTo='',theme='ligh
       {user&&<AppLink className="account-menu-row" href={hostedAppHref('#/account')} onClick={onClose}><ShieldCheck size={16}/><span>{t('账号与隐私','Account & privacy')}</span><ChevronRight size={14}/></AppLink>}
       {user&&onBackup&&<button type="button" className="account-menu-row" disabled={!backupReady} onClick={()=>{onClose();onBackup();}}><Download size={16}/><span>{t('代码备份','Code backups')}</span><ChevronRight size={14}/></button>}
     </div>
-    {user?<AccountLogout/>:<p className="account-menu-footnote">{t('开始练习无需登录','You can practice without signing in')}</p>}
+    {user?<AccountLogout/>:<p className="account-menu-footnote">{hostedAppAvailable ? t('登录后保存提交、同步账号草稿，积累学习勋章。','Sign in to save submissions, sync account drafts and earn achievements.') : t('开始练习无需登录','You can practice without signing in')}</p>}
   </>;
 }

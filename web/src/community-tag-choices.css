@@ -1,0 +1,6 @@
+.community-tag-choice-controls { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px 16px; margin-top:14px; color:var(--muted); font-size:var(--type-small); line-height:1.7; }
+.community-tag-choice-controls>div { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.community-tag-choice-controls button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font-size:var(--type-small); line-height:1.6; }
+.community-tag-choice-controls button:not([aria-disabled=true]):not(:disabled):hover { border-color:var(--accent); color:var(--accent); background:var(--surface2); }
+.community-tag-choice-controls button[aria-disabled=true] { color:var(--muted); cursor:default; }
+.community-tag-choice-controls :is(button,[tabindex]):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }

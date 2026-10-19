@@ -10,3 +10,6 @@
 @media(pointer:coarse) { :is(.community-page,.profile-page) .community-pagination > button { min-height:44px; min-width:44px; } }
 
 .community-pagination > button:hover:not(:disabled) { color:var(--accent); background:var(--surface2); }
+
+.community-feed-page-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px}
+.community-feed-page-actions .button{min-height:44px;max-width:100%;white-space:normal}

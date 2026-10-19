@@ -1,11 +1,13 @@
 import {useDeferredValue,useId,useLayoutEffect,useRef,useState} from 'react';
 import type {RefObject} from 'react';
-import {Bold,Italic,Code,SquareCode,List,ListOrdered,Heading2,Quote,Link,SquareFunction,Undo2,LoaderCircle,ListTree,ChevronDown} from 'lucide-react';
+import {Bold,Italic,Code,SquareCode,List,ListOrdered,Heading2,Quote,Link,SquareFunction,Undo2,LoaderCircle,ListTree,ChevronDown,Table2} from 'lucide-react';
 import CommunityMarkdown,{CommunityFormatHelp} from './CommunityMarkdown';
 import {useI18n} from './i18n';
 import {formatMarkdown,type MarkdownEdit,type MarkdownFormat} from './markdownFormatting';
 import './markdown-editor.css';
 import './markdown-sections.css';
+import './markdown-table-insert.css';
+import {insertMarkdownTable,tableSourceOffset,type TableColumns} from './markdownTableInsert';
 import {deferredFeature} from './deferredFeature';
 import {revealReadingTarget} from './readingViewport';
 import {writingDomOffset,writingSectionScroll,type WritingSection} from './writingSections';
@@ -37,12 +39,14 @@ export default function MarkdownEditor(props:Props){
 function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,modeLabel,rows=10,maxLength,disabled=false,placeholder,textareaRef,viewStateRef,id,describedBy,autoFocus=false,sectionNavigation=false,submitShortcut=false,busy=false,scopeKey}:Props){
   const {t,locale}=useI18n(),generatedId=useId(),ownField=useRef<HTMLTextAreaElement>(null);
   const field=textareaRef||ownField,locked=disabled||busy;
+  const tablePicker=useRef<HTMLDetailsElement>(null),tableSummary=useRef<HTMLElement>(null),tableRoute=useRef<string>(undefined);
+  useLayoutEffect(()=>{if((locked||preview)&&tablePicker.current)tablePicker.current.open=false;},[locked,preview]);
   const [operation,setOperation]=useState<(MarkdownEdit&{selection:Selection})>();
   const [error,setError]=useState('');
   const [tick,setTick]=useState(0);
   const [livePreview,setLivePreview]=useState(()=>viewStateRef?.current?.scopeKey===scopeKey&&viewStateRef?.current?.value===value&&viewStateRef.current.livePreview===true);
   const deferredValue=useDeferredValue(value),paired=!preview&&livePreview;
-  const pending=useRef<{opener:Element|null;selection:Selection;value:string}>(undefined);
+  const pending=useRef<{opener:Element|null;selection:Selection;value:string;href?:string}>(undefined);
   const lastValue=useRef(value);lastValue.current=value;
   const live=useRef({disabled:locked,preview,submitShortcut,paired});live.current={disabled:locked,preview,submitShortcut,paired};
   const savedSelection=useRef<Selection>(undefined);
@@ -67,7 +71,7 @@ function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,mode
   useLayoutEffect(()=>{
     const request=pending.current;if(!request||preview)return;pending.current=undefined;
     const undoLostFocus=document.activeElement===document.body&&request.opener instanceof HTMLElement&&request.opener.matches('button:disabled');
-    if(locked||value!==request.value||(document.activeElement!==request.opener&&!undoLostFocus))return;
+    if(locked||value!==request.value||(request.href!==undefined&&globalThis.location?.href!==request.href)||(document.activeElement!==request.opener&&!undoLostFocus))return;
     const textarea=field.current;if(!textarea)return;
     textarea.focus({preventScroll:true});textarea.setSelectionRange(request.selection.start,request.selection.end,request.selection.direction);textarea.scrollTop=request.selection.scroll;textarea.scrollLeft=request.selection.left||0;
   },[value,preview,locked,tick,field]);
@@ -85,7 +89,7 @@ function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,mode
     };
   },[field,viewStateRef,scopeKey]);
   const selection=():Selection=>({start:field.current?.selectionStart??value.length,end:field.current?.selectionEnd??value.length,direction:field.current?.selectionDirection,scroll:field.current?.scrollTop||0,left:field.current?.scrollLeft||0});
-  function restore(next:Selection,nextValue:string){pending.current={opener:document.activeElement,selection:next,value:nextValue};setTick(current=>current+1);}
+  function restore(next:Selection,nextValue:string,href?:string){pending.current={opener:document.activeElement,selection:next,value:nextValue,href};setTick(current=>current+1);}
   function format(kind:MarkdownFormat){
     if(live.current.disabled||live.current.preview)return;
     const original=selection(),edit=formatMarkdown(lastValue.current,kind,original.start,original.end,maxLength,locale==='en');
@@ -93,8 +97,26 @@ function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,mode
     setError('');setOperation({...edit,selection:original});onChange(edit.after);
     restore({start:edit.start,end:edit.end,scroll:original.scroll,left:original.left},edit.after);
   }
+  function insertTable(columns:TableColumns){
+    const textarea=field.current;
+    if(live.current.disabled||live.current.preview||!tablePicker.current?.open||tableRoute.current!==globalThis.location?.href||!textarea?.isConnected||textarea.closest('[hidden],[aria-hidden="true"]')||textarea.value!==lastValue.current.replace(/\r\n?/g,'\n'))return;
+    const original=selection(),result=insertMarkdownTable(lastValue.current,columns,tableSourceOffset(lastValue.current,original.start),maxLength,locale==='en');
+    tablePicker.current.open=false;textarea.focus({preventScroll:true});
+    if(!result.ok){
+      restore(original,lastValue.current,globalThis.location?.href);
+      setError(result.reason==='length'
+        ?t('插入表格会超过长度上限，请精简内容后重试。','This table would exceed the length limit. Shorten the text and try again.')
+        :t('请将光标放在普通段落中，或代码、公式和现有表格之外，再插入表格。','Move the cursor to plain prose or outside code, math and existing tables, then insert the table.'));
+      return;
+    }
+    const {edit}=result;setError('');setOperation({...edit,selection:original});
+    // Capture focus before notifying the owner so a newer focus request wins.
+    restore({start:writingDomOffset(edit.after,edit.start),end:writingDomOffset(edit.after,edit.end),direction:'forward',scroll:original.scroll,left:original.left},edit.after,globalThis.location?.href);
+    onChange(edit.after);
+  }
   function changeMode(next:'write'|'preview'|'live'){
     if(locked)return;
+    if(tablePicker.current)tablePicker.current.open=false;
     if(next==='preview'){savedSelection.current=selection();previewValue.current=value;}
     else if(!preview)restore(selection(),value);
     else if(savedSelection.current&&previewValue.current===value)restore(savedSelection.current,value);
@@ -111,6 +133,16 @@ function ScopedMarkdownEditor({value,onChange,preview,onPreviewChange,label,mode
     </div>
     <div className="markdown-format-tools" role="group" aria-label={t('正文格式工具','Text formatting')} hidden={preview}>
       {tools.map(([kind,Icon,zh,en,shortcut])=><button key={kind} type="button" disabled={locked} title={t(zh,en)+(shortcut?` (⌘ / Ctrl + ${shortcut})`:'')} aria-label={t(zh,en)} aria-keyshortcuts={shortcut?`Control+${shortcut.toLowerCase()} Meta+${shortcut.toLowerCase()}`:undefined} onMouseDown={event=>event.preventDefault()} onClick={()=>format(kind)}><Icon size={16} aria-hidden="true"/></button>)}
+      <details ref={tablePicker} className="markdown-table-picker" onKeyDown={event=>{
+        if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||!event.currentTarget.open)return;
+        event.preventDefault();event.stopPropagation();event.currentTarget.open=false;tableSummary.current?.focus({preventScroll:true});
+      }}>
+        <summary ref={tableSummary} aria-disabled={locked||undefined} onClick={event=>{if(live.current.disabled||live.current.preview){event.preventDefault();return;}if(!tablePicker.current?.open)tableRoute.current=globalThis.location?.href;}}><Table2 size={16} aria-hidden="true"/>{t('表格','Table')}<ChevronDown size={13} aria-hidden="true"/></summary>
+        <div className="markdown-table-presets" role="group" aria-label={t('插入表格','Insert table')}>
+          <div>{([2,3,4] as const).map(columns=><button type="button" key={columns} disabled={locked} onClick={()=>insertTable(columns)}><Table2 size={16} aria-hidden="true"/>{t(`${columns} 列`,`${columns} columns`)}</button>)}</div>
+          <p>{t('插入 2 行空白数据，并选中首个表头。已选文字会保留。','Insert two empty rows, then edit the selected first header. Selected text is kept.')}</p>
+        </div>
+      </details>
       <button type="button" className="markdown-format-undo" disabled={locked||!canUndo} onMouseDown={event=>event.preventDefault()} onClick={()=>{
         if(!operation||live.current.disabled||lastValue.current!==operation.after)return;
         onChange(operation.before);restore(operation.selection,operation.before);setOperation(undefined);setError('');

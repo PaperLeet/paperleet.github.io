@@ -16,8 +16,8 @@ export function ModuleNavigator({ current, modules: paperModules, allModules, sa
   const scoped=progress?.modules.some(module=>module.id===current.id)?progress:undefined;
   const batch=interviewPracticeBatch(returnTo,allModules||paperModules,saved,current);
   const modules=batch?.modules||scoped?.modules||paperModules;
-  const company=!!readLibraryRoute(returnTo||'')?.filters.company;
-  const heading=company?t('当前公司练习','Current company practice'):batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):t('本篇论文','This paper');
+  const library=readLibraryRoute(returnTo||''),company=!!library?.filters.company,direct=library?.filters.view==='modules'&&!course;
+  const heading=company?t('当前公司练习','Current company practice'):direct?t('当前题目列表','Current exercise list'):batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):t('本篇论文','This paper');
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -39,7 +39,7 @@ export function ModuleNavigator({ current, modules: paperModules, allModules, sa
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
   }, [open]);
   useEffect(()=>setOpen(false),[current.id,returnTo]);
-  if(company&&(!scopeReady||index<0))return <div className="module-batch-unavailable" role="status">{!scopeReady?t('公司练习范围尚未确认，仍可编辑与运行当前题目。','Company scope is unconfirmed. You can edit and run this module.'):t('当前题目不在最新筛选范围，仍可继续编辑。','This module is outside the latest scope and remains editable.')}<AppLink href={returnTo}>{t('返回公司练习','Back to company practice')}</AppLink></div>;
+  if((company||direct)&&(!scopeReady||index<0))return <div className="module-batch-unavailable" role="status">{!scopeReady?company?t('公司练习范围尚未确认，仍可编辑与运行当前题目。','Company scope is unconfirmed. You can edit and run this module.'):t('正在确认列表进度，仍可编辑与运行当前题目。','Checking list progress. You can edit and run this module.'):t('当前题目不在最新筛选范围，仍可继续编辑。','This module is outside the latest scope and remains editable.')}<AppLink href={returnTo}>{company?t('返回公司练习','Back to company practice'):t('返回题目列表','Back to exercise list')}</AppLink></div>;
   if(batch&&!batch.currentIncluded)return <div className="module-batch-unavailable" role="status">{t('这组练习已调整，仍可继续编辑当前题目。','This practice batch has changed. Your current module remains editable.')}<AppLink href={returnTo}>{t('返回准备列表','Return to preparation')}</AppLink></div>;
   return <div className="problem-navigation module-navigator" ref={root} onBlur={(event) => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false); }}>
     <button className="icon-button" aria-label={t("上一个模块", "Previous module")} disabled={index <= 0} onClick={() => { appLocation.hash = withLibraryContext(modules[index - 1].number, returnTo).slice(1); }}><ChevronLeft size={15} /></button>

@@ -1,6 +1,6 @@
 import {appLocation, publicHref, registerCatalogRoutes} from './appLocation';
 import AppLink from './AppLink';
-import {deferredFeature} from './deferredFeature';
+import {deferredFeature,FeatureRetry} from './deferredFeature';
 import EditorToolsFallback from './EditorToolsFallback';
 import RetainedReadingPane from './RetainedReadingPane';
 import {useReadingTab} from './useReadingTab';
@@ -28,11 +28,8 @@ import {
   Maximize2,
   Minimize2,
   Code2,
-  FileCode2,
-  FlaskConical,
   LockKeyhole,
   Loader2,
-  MessageCircle,
   Play,
   Terminal,
   X,
@@ -46,11 +43,11 @@ import { decodeProblemHash } from "./reports";
 import { LocaleProvider, useI18n } from "./i18n";
 import { AccountNav, AccountProvider, profileHref, useAccount } from "./social";
 import { usePracticeWorkspace } from "./PracticeWorkspace";
-import { BrowserRunProgress } from "./BrowserRunProgress";
+import {BrowserRunProgressFrame} from './BrowserRunProgressFrame';
 import Brand from "./Brand";
 import RepositoryLink from "./RepositoryLink";
 import { OnlinePresence } from "./deferredPages";
-import CommunitySubmissions from "./CommunitySubmissions";
+
 import { BilingualText } from "./BilingualText";
 import { getProblemStats, useProblemStats } from "./ProblemStats";
 import { ResizableSplit } from "./deferredPages";
@@ -78,8 +75,12 @@ import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libra
 import "./community.css";
 
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
+const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
+const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
 const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
+const panelIconPlaceholder=({size=14}:import('./WorkspacePanelIcon').WorkspacePanelIconProps)=><svg width={size} height={size} aria-hidden="true" focusable="false"/>;
+const WorkspacePanelIcon=deferredFeature(()=>import('./WorkspacePanelIcon'),['',''],{loading:panelIconPlaceholder,failure:panelIconPlaceholder});
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -193,8 +194,13 @@ function Workspace() {
     setLabView(view);
     selectReadingTab("lab");
   }
-  function changeCatalogView(href:string){
+  const catalogPageNavigation=useRef<string>(undefined);
+  function changeCatalogView(href:string,paging=false){
     if(!readLibraryRoute(href)&&!readPaperRegistryRoute(href))return;
+    if(paging){
+      catalogPageNavigation.current=decodeProblemHash(href);
+      try{appLocation.hash=href;return;}catch{catalogPageNavigation.current=undefined;}
+    }
     try{history.replaceState(history.state,'',publicHref(href));}catch{/* Explicit return links work when history writes are blocked. */}
     setId(decodeProblemHash(href));
   }
@@ -250,19 +256,19 @@ function Workspace() {
   const progressReady = practice.ready && !practice.loading && learning.ready;
   const practiceReturn = libraryView ? libraryHref(libraryView.collectionId, libraryView.filters) : libraryReturn;
   const scopeView=libraryView||returningLibrary;
-  const company=scopeView?.filters.company||'',companyDays=scopeView?.filters.company_days||'365';
+  const company=scopeView?.filters.company||'',companyDays=scopeView?.filters.company_days||'365',directLibrary=scopeView?.filters.view==='modules'&&!returningCollection,listPractice=!!company||directLibrary;
   const [companyData,setCompanyData]=useState<LibraryCompanyData>(),[companyRetry,setCompanyRetry]=useState(0);
   const identity=JSON.stringify([user?.id,accountLoading,company,companyDays,companyRetry]),generation=useRef({identity,revision:0});
   if(generation.current.identity!==identity)generation.current={identity,revision:generation.current.revision+1};
   const companyKey=identity+generation.current.revision;
   const companyScope={scope:companyKey,data:companyData,retry:()=>setCompanyRetry(value=>value+1),reload:()=>{void loadCatalog();setCompanyRetry(value=>value+1);}};
   const companyReady=!company||companyData?.scope===companyKey&&companyData.phase==='ready';
-  const practiceScope = selectLibraryPractice(papers, problems, learningSaved, scopeView, companyReady?companyData?.ids:undefined);
+  const practiceScope = selectLibraryPractice(papers, problems, learningSaved, scopeView, companyReady?companyData?.ids:undefined,locale);
   const scopedSiblings = siblingModules.filter(module => practiceScope.problems.some(candidate => candidate.id === module.id));
   const idlePracticeLabel = !companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!practiceScope.problems.some(module => !module.module.optional) ? t("当前范围暂无核心模块", "No core modules in this view") : practiceReturn && practiceReturn !== "#" ? t("本范围核心模块已完成", "Core modules complete in this view") : t("核心模块已完成", "Core modules complete");
-  const resumeProblem = progressReady && companyReady ? (selectedPaper&&!company ? recommendPractice(scopedSiblings, learningSaved, !!courseCollection) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
+  const resumeProblem = progressReady && companyReady ? (selectedPaper&&!listPractice ? recommendPractice(scopedSiblings, learningSaved, !!courseCollection) : undefined) || recommendPractice(practiceScope.problems, learningSaved) : undefined;
   const nextProblem = problem && progressReady && companyReady
-    ? nextPractice(problem, (company?practiceScope.problems:siblingModules).map(module => module.id), practiceScope.problems, learningSaved)
+    ? nextPractice(problem, (listPractice?practiceScope.problems:siblingModules).map(module => module.id), practiceScope.problems, learningSaved)
     : undefined;
   const browser = useBrowserJudge(practice.owner);
   const queueReady = !publicSite && practice.ready && !practice.loading && problems.length > 0 && (!hosted || !!user);
@@ -331,7 +337,7 @@ function Workspace() {
     : practice.error
       ? t('工作区同步失败，请先重试同步。', 'Workspace sync failed. Retry syncing first.')
     : learning.failed
-      ? t('请先重试保存本机学习记录，再重新加载。', 'Retry saving browser learning progress before reloading.')
+      ? t('请先重试保存本机学习记录，再重新加载。', 'Retry saving your learning progress before reloading.')
     : !practice.ready || practice.loading || !learning.ready
       ? t('正在加载工作区，完成后可重新加载页面。', 'Wait for the workspace to finish loading before reloading.')
     : practice.pending || practice.saving || learning.saving
@@ -362,8 +368,8 @@ function Workspace() {
     void loadCatalog();
     let previous=getId();
     const h = () => {
-      const next=getId(),sameProfile=sameProfilePage(previous,next);previous=next;setId(next);
-      if(sameProfile)return;
+      const next=getId(),before=routePath(previous),after=routePath(next),sameProfile=sameProfilePage(previous,next),listFilters=before===after&&(after==='interviews'||after==='community'||!!topicIdFromRoute(after)),paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
+      if(sameProfile||paging||listFilters)return;
       setTab("description");
       setRightTab("code");
       setMobilePane("read");
@@ -507,7 +513,7 @@ function Workspace() {
   ];
   const webReadme = problem?.readme.replace(
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
-    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」在浏览器执行，通过后解锁坑点。登录后 Submit 可保存解答和结果到「我的提交」。", "Write code on the right, then Run tests in your browser to unlock Notes. Sign in and Submit to save your solution and server result in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
+    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」，通过后解锁坑点。注册或登录后提交，可保存解答和成绩到「我的提交」。", "Write code on the right, then Run tests to unlock Notes. Join or sign in, then Submit to save your solution and results in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
   );
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
@@ -598,13 +604,13 @@ function Workspace() {
           setId(decodeProblemHash(href));
         }} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
-        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={achievementsReturn} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前浏览器工作区','Current browser workspace')} />
+        <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={achievementsReturn} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前练习工作区','Current practice workspace')} />
       ) : settingsPage ? (
         <SettingsPage theme={theme} onTheme={selectTheme} returnTo={settingsReturn.current}
           onBackup={() => setBackupOpen(true)}
           backupReady={practice.owner !== 'unresolved' && problems.length > 0}
           accountHref={user ? hostedAppHref('#/account') : undefined}
-          workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前浏览器工作区', 'Current browser workspace')} />
+          workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前练习工作区', 'Current practice workspace')} />
       ) : interviewPage ? (
         <Interviews route={id} papers={papers} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
       ) : path === 'paper-registry' ? (
@@ -698,10 +704,10 @@ function Workspace() {
           <div className="workspace-toolbar">
             <AppLink
               className="back-link"
-              href={company?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              href={listPractice?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
             >
               <ArrowLeft size={15} />
-              {company?t("公司练习","Company practice"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
+              {company?t("公司练习","Company practice"):directLibrary?t("题目列表","Exercise list"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
                 ? `${selectedPaper.number}. ${selectedPaper.short_title}`
                 : t("论文题库", "Papers")}
             </AppLink>
@@ -733,7 +739,7 @@ function Workspace() {
               setLayoutRequest({horizontal:{ratio}});
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse} current={problem} modules={company?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady} returnTo={libraryReturn} />}
+            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
@@ -770,13 +776,13 @@ function Workspace() {
                         onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                       >
                         {key === "description" ? (
-                          <FileCode2 size={14} />
+                          <WorkspacePanelIcon name="file" size={14} />
                         ) : key === "result" ? (
                           <Terminal size={14} />
                         ) : key === "lab" ? (
-                          <FlaskConical size={14} />
+                          <WorkspacePanelIcon name="lab" size={14} />
                         ) : key === "discussion" ? (
-                          <MessageCircle size={14} />
+                          <WorkspacePanelIcon name="discussion" size={14} />
                         ) : key === "notes" &&
                           !notesUnlocked ? (
                           <LockKeyhole size={12} />
@@ -848,7 +854,7 @@ function Workspace() {
                         className="lab-callout"
                         onClick={() => openLab(problem.vizData?.kind === "toy_experiment" ? "auto" : "concept")}
                       >
-                        <FlaskConical size={21} />
+                        <WorkspacePanelIcon name="lab" size={21} />
                         <span>
                           <b>{problem.vizData?.kind === "toy_experiment" ? t("查看核心算法实验", "Explore the core experiment") : t("把公式放进实验台", "Explore the formulas")}</b>
                           <small>
@@ -880,8 +886,8 @@ function Workspace() {
                   {preparingRun && !browser.active && !judge.active && <p className="practice-notice" role="status">{t("正在准备运行…", "Preparing your run…")}</p>}
                   {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || completedBrowserReport) && <div className="browser-judge-panel">
                     {browser.active && (browserHere
-                      ? <BrowserRunProgress progress={browser.progress || { stage: browser.stage || 'loading' }} onStop={browser.stop} />
-                      : <div role="status">{t("另一道题正在浏览器运行", "Another module is running in the browser")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
+                      ? <BrowserRunProgressFrame onStop={browser.stop}><BrowserRunProgressBody progress={browser.progress || { stage: browser.stage || 'loading' }}/></BrowserRunProgressFrame>
+                      : <div role="status">{t("另一道题正在运行", "Another module is running")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
                     {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
                     {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
@@ -905,11 +911,11 @@ function Workspace() {
                   {practice.error && <div className="practice-notice" role="alert">
                     <span>{practice.error}</span>
                     <button disabled={practice.saving} onClick={practice.retry}>
-                      {browserWorkspace ? t('重试本机保存','Retry browser save') : t("重试同步", "Retry sync")}
+                      {browserWorkspace ? t('重试本机保存','Retry saving progress') : t("重试同步", "Retry sync")}
                     </button>
                   </div>}
                   {runCancelled && <div className="practice-notice" role="status">{browserRunStopped
-                    ? t('浏览器运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Browser run stopped. No new result was produced. Your code is preserved and you can run it again.')
+                    ? t('运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Run stopped. No new result was produced. Your code is preserved and you can run it again.')
                     : t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
                   {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
                     <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
@@ -994,7 +1000,7 @@ function Workspace() {
                   {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
                     onEdit={openEditor} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={inCourse} current={problem} problems={company?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
+                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={inCourse&&!directLibrary} current={problem} problems={listPractice?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
                   </WorkspaceTestResults>}
                   </div>
                   </div>
@@ -1022,7 +1028,7 @@ function Workspace() {
                   aria-selected={rightTab === "lab"}
                   onClick={() => setRightTab("lab")}
                 >
-                  <FlaskConical size={14} />
+                  <WorkspacePanelIcon name="lab" size={14} />
                   {t("实验台", "Lab")}
                 </button>
                 {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
@@ -1040,7 +1046,7 @@ function Workspace() {
                   <div className="editor-code-panel" id="problem-code-panel">
                   <div className="editor-tools">
                     <span className="editor-filename">
-                      <FileCode2 size={13} />
+                      <WorkspacePanelIcon name="file" size={13} />
                       solution.py
                     </span>
                     <div>

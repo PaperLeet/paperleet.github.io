@@ -4,6 +4,9 @@ import zlib from 'node:zlib';
 import {loadEnv} from 'vite';
 
 const manifest = JSON.parse(fs.readFileSync('dist/.vite/manifest.json', 'utf8'));
+const brandAsset=Object.values(manifest).find(entry=>entry.src==='src/assets/brand-mark.svg');
+assert(brandAsset?.file.endsWith('.svg'),'The static brand mark must remain an external SVG asset');
+assert.deepEqual(fs.readFileSync('dist/'+brandAsset.file),fs.readFileSync('src/assets/brand-mark.svg'),'The emitted brand mark preserves its source geometry');
 const initial = new Set();
 function visit(key) {
   if (initial.has(key)) return;
@@ -12,7 +15,7 @@ function visit(key) {
   for (const dependency of manifest[key].imports || []) visit(dependency);
 }
 visit('index.html');
-for (const key of ['src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
+for (const key of ['src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
   // Rollup can use generated keys when deferred pages also share static imports.
   const sharedPage=key==='src/Community.tsx'?'Community':key==='src/DraftCenter.tsx'?'DraftCenter':undefined;
   const candidates=manifest[key]?[[key,manifest[key]]]:sharedPage?Object.entries(manifest).filter(([,entry])=>entry.name===sharedPage&&entry.isDynamicEntry):[];
@@ -77,6 +80,10 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('creat
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Snapshot for this company and report publication period')), 'Company row evidence and actions must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('My linked practice')), 'Company preparation progress must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Some filters are unavailable')), 'Interview filter support UI must remain deferred');
+for(const name of ['LibraryPagination','LibraryCollections','LibraryResultControls','CommunitySubmissions','BrowserRunProgress']){
+ const entry='src/'+name+'.tsx';
+ assert(manifest[entry]?.isDynamicEntry&&!initial.has(entry), `${name} must remain deferred independently of the first usable library list`);
+}
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);

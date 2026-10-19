@@ -9,7 +9,7 @@ import InterviewCompanySources from './InterviewCompanySources';
 import InterviewSourcePreview from './InterviewSourcePreview';
 import {interviewSourceHref} from './interviewSourcePreviewModel';
 import {rolePreparationPaths} from './interviewPreparation';
-import {interviewHref,type InterviewFilters,type InterviewStudyState} from './interviewNavigation';
+import {interviewHref,readInterviewRoute,type InterviewFilters,type InterviewStudyState} from './interviewNavigation';
 import {interviewPracticeHref} from './interviewPracticeBatch';
 import InterviewPracticeGroup,{InterviewGroupToggle,useInterviewPracticeGroup} from './InterviewPracticeGroup';
 import {interviewConceptMatch,matchingInterviewCompanies,type InterviewMatchField} from './interviewSearch';
@@ -20,25 +20,27 @@ import {keepReadingTriggerVisible} from './readingViewport';
 import {status,type Problem,type Saved} from './types';
 import type {ReactNode} from 'react';
 import './interview-ranking.css';
+import {readEvidenceOrder,keepEvidenceOrder,orderInterviewEvidence,latestQuestionPublication,type EvidenceOrder} from './interviewEvidenceOrder';
 
 type PracticeFilter=InterviewStudyState;
-type Props={filters:InterviewFilters;questions:InterviewSummary['questions'];problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;catalogError?:string;onRetryProgress?:()=>void;onRetryCatalog?:()=>void;onClearSearch:()=>void;emptyAction?:ReactNode;owner?:string;accountLoading?:boolean;contextAvailable?:boolean;sourceReturn?:{id:number;concept:string};onSourceReturnReady?:(id:number)=>void;onSourceReturnPending?:(id:number)=>void;onSourceReturnCancel?:(id:number)=>void};
+type Props={filters:InterviewFilters;questions:InterviewSummary['questions'];problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;catalogError?:string;onRetryProgress?:()=>void;onRetryCatalog?:()=>void;onClearSearch:()=>void;onRecover?:(update:Partial<InterviewFilters>,trigger:HTMLButtonElement)=>void;emptyAction?:ReactNode;owner?:string;accountLoading?:boolean;contextAvailable?:boolean;sourceReturn?:{id:number;concept:string};onSourceReturnReady?:(id:number)=>void;onSourceReturnPending?:(id:number)=>void;onSourceReturnCancel?:(id:number)=>void};
 
-export default function InterviewQuestionRanking({filters,questions,problems,saved,ready:loaded,error,catalogError,onRetryProgress,onRetryCatalog,onClearSearch,emptyAction,owner='guest',accountLoading=false,contextAvailable=false,sourceReturn,onSourceReturnReady,onSourceReturnPending,onSourceReturnCancel}:Props){
+export default function InterviewQuestionRanking({filters,questions,problems,saved,ready:loaded,error,catalogError,onRetryProgress,onRetryCatalog,onClearSearch,onRecover,emptyAction,owner='guest',accountLoading=false,contextAvailable=false,sourceReturn,onSourceReturnReady,onSourceReturnPending,onSourceReturnCancel}:Props){
  const {t,locale}=useI18n(),listId=useId(),countId=useId();
  const list=useRef<HTMLDivElement>(null),compactControl=useRef<HTMLButtonElement>(null),cancelledReturn=useRef<number>(undefined);
  const activeReturn=sourceReturn&&cancelledReturn.current!==sourceReturn.id?sourceReturn:undefined;
+ const [evidenceOrder,setEvidenceOrder]=useState(readEvidenceOrder);
  const source=questions.length?'reports':'curated';
  const curated=source==='curated';
  const scope=interviewHref(filters);
- const [selection,setSelection]=useState<{scope:string;source:typeof source;value:PracticeFilter;limit:number;retained:number}>({scope,source,value:filters.study,limit:6,retained:6});
+ const [selection,setSelection]=useState<{scope:string;source:typeof source;value:PracticeFilter;limit:number;retained:number;kept?:string[]}>({scope,source,value:filters.study,limit:6,retained:6});
  const ready=loaded&&!error;
  const selected=selection.scope===scope&&selection.source===source?selection.value:filters.study;
- const choose=(value:PracticeFilter)=>{setSelection({scope,source,value,limit:6,retained:6});appLocation.hash=interviewHref({...filters,study:value,queue:'',page:1}).slice(1);};
+ const choose=(value:PracticeFilter,trigger?:HTMLButtonElement)=>{if(onRecover&&trigger){onRecover({study:value},trigger);return;}setSelection({scope,source,value,limit:6,retained:6});appLocation.hash=interviewHref({...filters,study:value,queue:'',page:1}).slice(1);};
  const byId=new Map(problems.map(problem=>[problem.id,problem]));
  const paths=filters.concept?interviewCatalog.paths:rolePreparationPaths(filters.role);
  const curatedIds=[...new Set(paths.flatMap(path=>path.modules))].filter(id=>!filters.concept||id===filters.concept);
- const concepts:{id:string;evidence?:InterviewSummary['questions'][number]}[]=curated?curatedIds.map(id=>({id})):questions.map(evidence=>({id:evidence.problem_id,evidence}));
+ const concepts:{id:string;evidence?:InterviewSummary['questions'][number]}[]=curated?curatedIds.map(id=>({id})):orderInterviewEvidence(questions,evidenceOrder).map(evidence=>({id:evidence.problem_id,evidence}));
  const unavailable=concepts.filter(row=>!byId.has(row.id)).length;
  const title=(problem:Problem)=>locale==='en'?problem.translations?.en?.title||problem.title:problem.title;
  const query=filters.q.trim();
@@ -63,22 +65,31 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  const shownLimit=Math.max(limit,returnIndex+1),shown=matching.slice(0,shownLimit);
  const moreCount=Math.min(6,matching.length-shown.length);
  const retainedLimit=selection.scope===scope&&selection.source===source&&selection.value===selected?Math.max(selection.retained,shownLimit):shownLimit;
- const retained=matching.slice(0,retainedLimit),expanded=shown.length>6;
+ const kept=selection.scope===scope&&selection.source===source?selection.kept:undefined;
+ const retained=matching.filter((row,index)=>index<retainedLimit||kept?.includes(row.id)),expanded=shown.length>6;
  const intent=useWorkspaceIntent(JSON.stringify([owner,accountLoading,scope,source,active,matching.map(row=>row.id)]));
  const revealFocus=useRef<{target:string;claim:()=>boolean}>(undefined);
  function expand(count:number){
   if(count<=shown.length)return;
   revealFocus.current={target:`interview-ranked-${encodeURIComponent(matching[shown.length].id)}`,claim:intent.create()};
-  setSelection({scope,source,value:selected,limit:count,retained:Math.max(retainedLimit,count)});
+  setSelection({scope,source,value:selected,limit:count,retained:Math.max(retainedLimit,count),kept});
  }
  function compact(){
   if(!expanded)return;
   if(activeReturn&&cancelledReturn.current!==activeReturn.id){cancelledReturn.current=activeReturn.id;onSourceReturnCancel?.(activeReturn.id);}
   revealFocus.current={target:compactControl.current?.id||'',claim:intent.create()};
-  setSelection({scope,source,value:selected,limit:6,retained:retainedLimit});
+  setSelection({scope,source,value:selected,limit:6,retained:retainedLimit,kept});
+ }
+ function chooseEvidenceOrder(value:EvidenceOrder){
+  const current=readInterviewRoute(appLocation.hash);
+  if(!['contributors','recent'].includes(value)||curated||accountLoading||value===evidenceOrder||!list.current?.isConnected||list.current.closest('[hidden],[aria-hidden="true"]')||!current||interviewHref(current)!==scope)return;
+  if(activeReturn){cancelledReturn.current=activeReturn.id;onSourceReturnCancel?.(activeReturn.id);}
+  intent.cancel();revealFocus.current=undefined;
+  setSelection({scope,source,value:selected,limit:6,retained:6,kept:retained.map(row=>row.id)});
+  setEvidenceOrder(value);keepEvidenceOrder(value);
  }
  // Keep an origin beyond the compact first page mounted after the return is consumed.
- useLayoutEffect(()=>{if(returnIndex>=limit)setSelection({scope,source,value:selected,limit:returnIndex+1,retained:Math.max(retainedLimit,returnIndex+1)});},[returnIndex,limit,scope,source,selected,retainedLimit]);
+ useLayoutEffect(()=>{if(returnIndex>=limit)setSelection({scope,source,value:selected,limit:returnIndex+1,retained:Math.max(retainedLimit,returnIndex+1),kept});},[returnIndex,limit,scope,source,selected,retainedLimit]);
  const returnReady=useRef(onSourceReturnReady);returnReady.current=onSourceReturnReady;
  useEffect(()=>{
   if(activeReturn&&returnIndex<0&&(curated||(!unavailable||!!problems.length||!!catalogError)&&(selected==='all'||ready||!!error)))returnReady.current?.(activeReturn.id);
@@ -101,32 +112,34 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
   {unknownCriteria>0&&<p className="interview-progress-status" role="status">{t(`${unknownCriteria} 个知识点缺少当前筛选所需的练习信息，暂未计入结果。清除难度与时长条件可继续查看其来源。`,`${unknownCriteria} concepts lack the metadata needed for these practice filters and are not included. Clear difficulty and duration to read their sources.`)}</p>}
   {!!rows.length&&<>
    <div className="interview-ranking-toolbar">
-    <div><b>{curated?t('把准备变成可见进度','Make your preparation visible'):t('把高频变成准备进度','Turn concepts into preparation')}</b><p>{curated?t('按学习状态选择练习，自测、实现，再用测试验证。','Choose a learning state, explain your answer and verify it through code.'):t('筛选你的学习状态；榜单仍按社区分享者人数排序。','Filter your learning state; the ranking keeps its community contributor order.')}</p></div>
+    <div><b>{curated?t('把准备变成可见进度','Make your preparation visible'):evidenceOrder==='recent'?t('跟进最近分享的知识点','Follow recently shared concepts'):t('把高频变成准备进度','Turn concepts into preparation')}</b><p>{curated?t('按学习状态选择练习，自测、实现，再用测试验证。','Choose a learning state, explain your answer and verify it through code.'):evidenceOrder==='recent'?t('按最近关联面经的发布时间浏览；同一时间沿用分享者排序。','Browse by the latest linked report publication; ties keep contributor order.'):t('筛选你的学习状态；榜单仍按社区分享者人数排序。','Filter your learning state; the ranking keeps its community contributor order.')}</p></div>
     {progressResolved&&!(query&&unavailable)&&!unknownCriteria&&<div className="interview-ranking-completion"><span>{t('已通过','Passed')} <b>{counts.done} / {rows.length}</b></span><progress aria-label={t('当前知识点练习进度','Practice progress for these concepts')} value={counts.done} max={rows.length}/></div>}
    </div>
    {!ready&&<p className="interview-progress-status" role="status">{error?curated?t('学习进度暂不可用，仍可自测和打开练习。','Learning progress is unavailable. Study prompts and practice remain available.'):t('学习进度暂不可用。仍可查看来源、自测和打开练习。','Learning progress is unavailable. Sources, study prompts and practice remain available.'):t('正在读取学习进度，暂不按状态筛选。','Loading learning progress before filtering by state.')} {error&&onRetryProgress&&<button type="button" className="text-button" onClick={onRetryProgress}>{t('重试学习进度','Retry learning progress')}</button>}</p>}
-   <div className="interview-ranking-filters" role="group" aria-label={t('按学习状态筛选知识点','Filter concepts by learning state')}>{(['all','todo','started','done'] as const).map(value=><button key={value} type="button" disabled={value!=='all'&&!progressResolved} aria-pressed={selected===value} onClick={()=>choose(value)}><span>{value==='all'?t('全部知识点','All concepts'):stateLabel(value)}</span><small>{value==='all'||progressResolved?counts[value]:'—'}</small></button>)}</div>
+   {!curated&&<label className="interview-evidence-order"><span>{t('知识点排序','Concept order')}</span><select aria-label={t('知识点排序','Concept order')} aria-controls={listId} value={evidenceOrder} disabled={accountLoading} onChange={event=>chooseEvidenceOrder(event.target.value as EvidenceOrder)}><option value="contributors">{t('分享者人数','Contributors')}</option><option value="recent">{t('最新分享','Latest reports')}</option></select><small>{evidenceOrder==='recent'?t('按公开面经发布时间；缺少日期的知识点排在最后。','Uses public report publication time; undated concepts come last.'):t('按公开面经分享者人数浏览；日期用于查看来源新近程度。','Ranks by public report contributors; dates show publication recency.')}</small></label>}
+   <div className="interview-ranking-filters" role="group" aria-label={t('按学习状态筛选知识点','Filter concepts by learning state')}>{(['all','todo','started','done'] as const).map(value=><button key={value} type="button" disabled={value!=='all'&&!progressResolved} aria-pressed={selected===value} onClick={event=>choose(value,event.currentTarget)}><span>{value==='all'?t('全部知识点','All concepts'):stateLabel(value)}</span><small>{value==='all'||progressResolved?counts[value]:'—'}</small></button>)}</div>
    {resume&&<AppLink className="interview-ranking-resume" href={practice(resume)}><span><Clock3 size={17}/><span><b>{status(resume,saved[resume.id])==='started'?t('继续当前范围的草稿','Resume a draft in this view'):t('开始当前范围的练习','Start practicing in this view')}</b><small>{title(resume)}</small></span></span><ArrowRight size={16}/></AppLink>}
-   <p id={countId} className="interview-ranking-result-count" role="status">{selected!=='all'&&!progressResolved?t('正在等待学习进度，筛选条件已保留。','Waiting for learning progress. Your filter is kept.'):t(`显示 ${shown.length} / ${matching.length} 个知识点`,`Showing ${shown.length} of ${matching.length} ${matching.length===1?'concept':'concepts'}`)}{selected!=='all'&&<button type="button" className="text-button" onClick={()=>choose('all')}>{t('显示全部状态','Show all learning states')}</button>}</p>
+   <p id={countId} className="interview-ranking-result-count" role="status">{selected!=='all'&&!progressResolved?t('正在等待学习进度，筛选条件已保留。','Waiting for learning progress. Your filter is kept.'):t(`显示 ${shown.length} / ${matching.length} 个知识点`,`Showing ${shown.length} of ${matching.length} ${matching.length===1?'concept':'concepts'}`)}{selected!=='all'&&<button type="button" className="text-button" onClick={event=>choose('all',event.currentTarget)}>{t('显示全部状态','Show all learning states')}</button>}</p>
   </>}
   {(candidates.length>0||group.numbers.length>0||!!filters.queue||!!group.change)&&<InterviewPracticeGroup group={group} onRetryCatalog={onRetryCatalog}/>}
   {matching.length>6&&<div className="interview-ranking-display" role="group" aria-label={t('知识点列表显示','Concept list display')}><button type="button" aria-controls={listId} aria-describedby={countId} aria-disabled={shown.length===matching.length} onClick={()=>expand(matching.length)}>{t(`展开全部 ${matching.length} 个`,`Show all ${matching.length}`)}</button><button ref={compactControl} id={`${listId}-compact`} type="button" aria-controls={listId} aria-describedby={countId} aria-disabled={!expanded} onClick={compact}>{t('只显示前 6 个','Show first 6')}</button></div>}
   {shown.length?<div id={listId} className="interview-ranking-list">{retained.map(({id,evidence,problem,matches,rank,state},index)=>{
    const name=problem?title(problem):id;
    const sources=interviewSourceHref(filters,id);
-   const heading=`interview-ranked-${encodeURIComponent(id)}`;
+   const heading=`interview-ranked-${encodeURIComponent(id)}`,latest=evidence?latestQuestionPublication(evidence):undefined;
    return <article key={id} className="interview-ranking-row" aria-labelledby={heading} hidden={index>=shown.length}>
-    <span className="interview-rank" aria-label={curated?t('编辑推荐练习','Curated exercise'):t(`社区排序第 ${rank} 位`,`Community rank ${rank}`)}>{curated?<BookOpen size={14}/>:String(rank).padStart(2,'0')}</span>
+    <span className="interview-rank" aria-label={curated?t('编辑推荐练习','Curated exercise'):evidenceOrder==='recent'?t(`分享时间排序第 ${rank} 位`,`Report recency position ${rank}`):t(`社区排序第 ${rank} 位`,`Community rank ${rank}`)}>{curated?<BookOpen size={14}/>:String(rank).padStart(2,'0')}</span>
     <div className="interview-ranking-copy"><div className="interview-ranking-title">{problem?<AppLink id={heading} href={practice(problem)}>{name}</AppLink>:<b id={heading} tabIndex={-1}>{name}</b>}{problem&&<span className={`interview-ranking-state ${state||''}`}>{state==='done'?<CheckCircle2 size={12}/>:state==='started'?<Clock3 size={12}/>:null}{stateLabel(state)}</span>}</div>
      {!!matches.length&&<p className="interview-search-match"><span>{t('匹配：','Matched: ')}</span>{matches.map(matchLabel).join(' · ')}{matches.includes('paper')&&problem?.paper?.title&&<span className="interview-search-paper">{problem.paper.title}</span>}{evidence&&matches.includes('goal')&&problem&&<span className="interview-search-paper">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</span>}</p>}
      {problem&&<p className="interview-ranking-module-meta">{[({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[problem.difficulty],problem.estimated_minutes?`${problem.estimated_minutes} min`:''].filter(Boolean).join(' · ')}</p>}
+     {evidence&&(latest!==undefined||evidenceOrder==='recent')&&<p className="interview-ranking-latest"><Clock3 size={13} aria-hidden="true"/>{latest!==undefined?<>{t('最新关联分享','Latest linked report')} <time dateTime={new Date(latest).toISOString()}>{new Date(latest).toISOString().slice(0,10)}</time></>:t('分享日期暂不可用','Publication date unavailable')}</p>}
      {evidence?<InterviewCompanySources companies={evidence.companies} problemId={id} name={name} filters={filters}/>:problem&&<p className="interview-curated-goal">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</p>}
     </div>
     <div className="interview-ranking-actions">{!evidence&&<small className="interview-curated-label">{t('编辑推荐','Curated practice')}</small>}{problem?<><AppLink className="button subtle" href={practice(problem)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}<ArrowRight size={13}/></AppLink><InterviewGroupToggle problem={problem} name={name} group={group}/></>:<small>{t('练习暂不可用','Practice unavailable')}</small>}</div>
     {evidence&&<InterviewSourcePreview concept={id} name={name} reports={evidence.reports} contributors={evidence.contributors} sourceHref={sources} returnTo={scope} owner={owner} accountLoading={accountLoading} contextAvailable={contextAvailable} returnId={activeReturn?.concept===id?activeReturn.id:undefined} onReturnReady={onSourceReturnReady} onReturnPending={onSourceReturnPending} onReturnCancel={onSourceReturnCancel}/>}
     {problem&&<PreparationGuide problemId={problem.id} practiceHref={practice(problem)}/>}
    </article>;
-  })}</div>:criteriaActive&&searched.length>0&&!rows.length?<div className="interview-empty"><BookOpen size={27}/><h3>{t('没有符合难度与时长的知识点','No concepts match this difficulty and duration')}</h3><p>{t('可以放宽本列表的练习条件，继续查看当前公司、搜索与学习状态下的知识点。','Relax the practice filters to keep browsing concepts within the current company, search and learning state.')}</p><AppLink className="button subtle" href={interviewHref({...filters,difficulty:'',max_minutes:'',queue:'',page:1})}>{t('清除难度与时长','Clear difficulty and duration')}</AppLink></div>:<div className="interview-empty"><BookOpen size={27}/><h3>{rows.length?t('当前状态下没有知识点','No concepts with this learning state'):filters.q&&unavailable?t('练习信息未齐，搜索暂不完整','Search is waiting for practice details'):filters.q?t('没有匹配的知识点','No matching concepts'):t('当前范围暂无编辑推荐练习','No curated exercises in this view')}</h3><p>{rows.length?curated?t('可以切换学习状态，继续准备其他知识点。','Switch learning states to prepare another concept.'):t('可以切换学习状态，继续阅读来源面经或准备其他知识点。','Switch learning states to read the source experiences or prepare another concept.'):filters.q&&unavailable?curated?t('清除搜索可浏览编辑题单，或重试加载练习信息后再搜索。','Clear search to browse the curated exercises, or retry practice details before searching again.'):t('清除搜索可阅读已汇总的全部来源，或重试加载练习信息后再搜索。','Clear search to read all available sources, or retry practice details before searching again.'):t('可以调整岗位或知识点筛选，或继续浏览下方的准备路径。','Adjust the role or concept filters, or browse the preparation paths below.')}</p>{rows.length?<button type="button" className="button subtle" onClick={()=>choose('all')}>{t('显示全部状态','Show all learning states')}</button>:filters.q?<button type="button" className="button subtle" onClick={onClearSearch}>{t('清空搜索','Clear search')}</button>:emptyAction}</div>}
+  })}</div>:criteriaActive&&searched.length>0&&!rows.length?<div id={listId} className="interview-empty"><BookOpen size={27}/><h3>{t('没有符合难度与时长的知识点','No concepts match this difficulty and duration')}</h3><p>{t('可以放宽本列表的练习条件，继续查看当前公司、搜索与学习状态下的知识点。','Relax the practice filters to keep browsing concepts within the current company, search and learning state.')}</p>{onRecover?<button type="button" className="button subtle" onClick={event=>onRecover({difficulty:'',max_minutes:''},event.currentTarget)}>{t('清除难度与时长','Clear difficulty and duration')}</button>:<AppLink className="button subtle" href={interviewHref({...filters,difficulty:'',max_minutes:'',queue:'',page:1})}>{t('清除难度与时长','Clear difficulty and duration')}</AppLink>}</div>:<div id={listId} className="interview-empty"><BookOpen size={27}/><h3>{rows.length?t('当前状态下没有知识点','No concepts with this learning state'):filters.q&&unavailable?t('练习信息未齐，搜索暂不完整','Search is waiting for practice details'):filters.q?t('没有匹配的知识点','No matching concepts'):t('当前范围暂无编辑推荐练习','No curated exercises in this view')}</h3><p>{rows.length?curated?t('可以切换学习状态，继续准备其他知识点。','Switch learning states to prepare another concept.'):t('可以切换学习状态，继续阅读来源面经或准备其他知识点。','Switch learning states to read the source experiences or prepare another concept.'):filters.q&&unavailable?curated?t('清除搜索可浏览编辑题单，或重试加载练习信息后再搜索。','Clear search to browse the curated exercises, or retry practice details before searching again.'):t('清除搜索可阅读已汇总的全部来源，或重试加载练习信息后再搜索。','Clear search to read all available sources, or retry practice details before searching again.'):t('可以调整岗位或知识点筛选，或继续浏览下方的准备路径。','Adjust the role or concept filters, or browse the preparation paths below.')}</p>{rows.length?<button type="button" className="button subtle" onClick={event=>choose('all',event.currentTarget)}>{t('显示全部状态','Show all learning states')}</button>:filters.q?<button type="button" className="button subtle" onClick={onClearSearch}>{t('清空搜索','Clear search')}</button>:emptyAction}</div>}
   {matching.length>6&&<div className="interview-ranking-display interview-ranking-footer" role="group" aria-label={t('继续浏览知识点','Continue browsing concepts')}>{moreCount>0&&<button type="button" className="interview-ranking-more" aria-controls={listId} aria-describedby={countId} onClick={()=>expand(shown.length+6)}>{t(`再显示 ${moreCount} 个知识点`,`Show ${moreCount} more ${moreCount===1?'concept':'concepts'}`)}<ArrowRight size={14} aria-hidden="true"/></button>}<button type="button" aria-controls={listId} aria-describedby={countId} aria-disabled={!expanded} onClick={compact}>{t('只显示前 6 个','Show first 6')}</button></div>}
  </div>;
 }

@@ -1,7 +1,7 @@
 import { status } from './types';
 import type { Paper, Problem, Saved } from './types';
 import { paperCollections, papersInCollection } from './paperCollections';
-import { normalizeLibraryFilters, sameLibraryTag, type LibraryFilters } from './libraryNavigation';
+import { normalizeLibraryFilters, sortLibraryPapers, sameLibraryTag, type LibraryFilters } from './libraryNavigation';
 import { parseArxivUrl } from './arxivLinks';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
@@ -11,11 +11,12 @@ export function paperModules(paper: Paper, problems: Problem[]) {
     return problem ? [problem] : [];
   });
 }
-export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all", runtime = "all") {
+export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all", runtime = "all", moduleNumbers = false) {
   const normalized = query.trim().toLowerCase();
   const terms = normalized.split(/\s+/);
   const reference = normalized ? (parseArxivUrl(normalized.replace(/[?#].*$/, '')) ||
     parseArxivUrl(`https://arxiv.org/abs/${normalized.replace(/^arxiv:\s*/, '')}`)) : undefined;
+  const moduleNumber=moduleNumbers&&/^[1-9]\d*$/.test(normalized)?Number(normalized):undefined;
   const referenceId = reference?.arxivId.replace(/v\d+$/, '');
   const paperReference = paper.arxiv || parseArxivUrl(paper.url)?.arxivId;
   const paperText = [paper.number, paper.id, paper.title, paper.short_title, paper.summary, paper.summary_en,
@@ -27,7 +28,7 @@ export function matchingPaperModules(paper: Paper, problems: Problem[], query = 
     const moduleText = [problem.title, problem.translations?.en?.title, problem.module.goal, problem.module.goal_en]
       .join(" ").toLowerCase();
     const moduleMatches = terms.every(term => paperText.includes(term) || moduleText.includes(term));
-    return (difficulty === "all" || problem.difficulty === difficulty) && (paperMatches || moduleMatches) &&
+    return (difficulty === "all" || problem.difficulty === difficulty) && (moduleNumber===undefined?paperMatches||moduleMatches:problem.number===moduleNumber) &&
       (runtime === "all" || (runtime === "browser") === !!problem.browser_judge);
   });
 }
@@ -44,14 +45,14 @@ export function paperProgress(paper: Paper, { problems, saved }: Practice) {
 
 
 /** Use the same collection and filters for library cards and every practice entry point. */
-export function selectLibraryPractice(papers: Paper[], problems: Problem[], saved: Record<string, Saved>, view?: { collectionId?: string; filters: LibraryFilters }, companyModules?:ReadonlySet<string>) {
+export function selectLibraryPractice(papers: Paper[], problems: Problem[], saved: Record<string, Saved>, view?: { collectionId?: string; filters: LibraryFilters }, companyModules?:ReadonlySet<string>,locale='zh') {
   if (!view) return { papers, problems };
   const collection = paperCollections.find(collection => collection.id === view.collectionId);
   const listed = papersInCollection(papers, collection);
   const filters = normalizeLibraryFilters(view.filters, listed);
   if(filters.company&&!companyModules)return {papers:[],problems:[]};
-  const matching=(paper:Paper)=>matchingPaperModules(paper,problems,filters.query,filters.difficulty,filters.runtime).filter(problem=>!filters.company||companyModules!.has(problem.id));
-  const moduleStatus=collection?.kind==='course'||!!filters.company;
+  const matching=(paper:Paper)=>matchingPaperModules(paper,problems,filters.query,filters.difficulty,filters.runtime,filters.view==='modules').filter(problem=>!filters.company||companyModules!.has(problem.id));
+  const moduleStatus=collection?.kind==='course'||!!filters.company||filters.view==='modules';
   const visible = listed.filter(paper =>
     (filters.category === 'all' || paper.category === filters.category) &&
     matching(paper).length > 0 &&
@@ -60,5 +61,11 @@ export function selectLibraryPractice(papers: Paper[], problems: Problem[], save
   const modules = visible.flatMap(matching)
     .filter(problem => !moduleStatus || filters.state === 'all' || status(problem, saved[problem.id]) === filters.state);
   if(filters.company){const rank=new Map([...companyModules!].map((id,index)=>[id,index]));modules.sort((a,b)=>(rank.get(a.id)??Infinity)-(rank.get(b.id)??Infinity));}
+  else if(filters.view==='modules'&&collection?.kind!=='course'){
+    if(filters.sort==='title'){const title=(p:Problem)=>locale==='en'?p.translations?.en?.title||p.title:p.title;modules.sort((a,b)=>title(a).localeCompare(title(b),locale==='en'?'en':'zh-CN',{numeric:true})||a.number-b.number);}
+    else if(filters.sort==='newest'||filters.sort==='oldest'){const rank=new Map(sortLibraryPapers(visible,filters.sort).flatMap(p=>p.module_ids).map((id,index)=>[id,index]));modules.sort((a,b)=>rank.get(a.id)!-rank.get(b.id)!);}
+    else modules.sort((a,b)=>a.number-b.number);
+  }
+
   return { papers: visible.filter(paper => modules.some(problem => paper.module_ids.includes(problem.id))), problems: modules };
 }

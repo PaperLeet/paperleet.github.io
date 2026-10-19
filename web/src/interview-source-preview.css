@@ -25,3 +25,10 @@
 .interview-source-preview :is(a,button):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 @media(max-width:600px) { .interview-source-panel,.interview-source-item { padding:12px; } .interview-source-panel-heading { flex-direction:column; gap:6px; } }
 @media(pointer:coarse) { .interview-source-toolbar :is(a,button),.interview-source-panel-heading button { min-height:44px; } }
+
+.interview-source-excerpt .post-excerpt { margin:0; font-size:var(--type-body); line-height:1.85; }
+.interview-source-excerpt .inline-comment-content { min-width:0; }
+.interview-source-excerpt .inline-post-body.is-open { padding-top:4px; }
+.interview-source-reading-footer { display:flex; justify-content:flex-end; margin-top:16px; padding-top:12px; border-top:1px solid var(--line); }
+.interview-source-reading-footer button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:8px 12px; border-radius:8px; color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; }
+.interview-source-reading-footer button:hover { background:var(--surface); color:var(--accent); }

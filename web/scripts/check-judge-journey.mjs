@@ -43,7 +43,7 @@ try {
   const { BrowserResultActions }=await server.ssrLoadModule('/src/BrowserResultActions.tsx');
   const props={...ready,problem:attention,report,onSignIn(){},onVerify(){},onRefresh(){},onLab(){}};
   const guest=renderToString(React.createElement(BrowserResultActions,{...props,signedIn:false}));
-  assert(guest.includes('登录后提交') && guest.includes('游客草稿自动保存在当前浏览器') && !guest.includes('提交并保存解答'));
+  assert(guest.includes('注册 / 登录后提交') && guest.includes('游客草稿自动保存在当前浏览器') && !guest.includes('提交并保存解答'));
   const changed=renderToString(React.createElement(BrowserResultActions,{...props,sourceState:'changed'}));
   assert(changed.includes('代码已改变') && changed.includes('disabled=""'));
   const offline=renderToString(React.createElement(BrowserResultActions,{...props,online:false}));

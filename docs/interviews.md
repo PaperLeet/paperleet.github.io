@@ -51,7 +51,7 @@ deferred and the existing initial-JavaScript budgets remain unchanged.
 
 Company cards open a preparation overview with that company's official resources,
 community experiences and report-based concept ranking. The resource library contains
-17 entries covering 16 companies. It distinguishes interview guides from careers
+20 entries covering 16 companies. It distinguishes interview guides from careers
 portals. Career entries link to official role/application information and make no claim
 about specific interview rounds or question frequency. DeepSeek's recruitment entry
 is linked from its official home page. Sources have a review date; recruiters remain

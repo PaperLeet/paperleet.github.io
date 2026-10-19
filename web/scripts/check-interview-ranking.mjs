@@ -4,6 +4,7 @@ import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 import {readFileSync} from 'node:fs';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
+const reveals=[];dom.window.HTMLElement.prototype.scrollIntoView=function(options){reveals.push({node:this,options});};
 const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__rankingFixture:undefined};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
@@ -49,7 +50,7 @@ try{
  let progressRetries=0,catalogRetries=0,searchClears=0;
  const props={filters,questions,problems,saved,ready:true,onRetryProgress:()=>progressRetries++,onRetryCatalog:()=>catalogRetries++,onClearSearch:()=>searchClears++};
  let setFixtureLocale;function LocaleControl(){const {setLocale}=useI18n();setFixtureLocale=setLocale;return React.createElement('button',{onClick:()=>setLocale('zh')},'Change locale');}
- const render=async(Component,extra={})=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(LocaleControl),React.createElement(Component,{...props,...extra})));});
+ const render=async(Component,extra={})=>act(async()=>{if(Component===Hub&&extra.route!==undefined)window.history.replaceState(null,'','#/'+extra.route.replace(/^#\/?/,''));if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(LocaleControl),React.createElement(Component,{...props,...extra})));});
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
  const filter=label=>[...document.querySelectorAll('.interview-ranking-filters button')].find(button=>button.querySelector('span').textContent===label);
  const rows=()=>[...document.querySelectorAll('.interview-ranking-row')];
@@ -122,7 +123,7 @@ try{
  const clear=document.querySelector('.interview-search button[aria-label="Clear search"]');clear.focus();await click(clear);assert.equal(document.activeElement,searchInput,'Clearing search restores keyboard focus to the input');assert.equal(searchInput.value,'');assert.deepEqual(readInterviewRoute(location.hash),hubFilters,'Clear only the query, retaining company, role, time and study context');
  await render(Hub,{route:interviewHref({...hubFilters,view:'companies',company:'',q:'Ｇｏｏｇｌｅ DeepMind'}).slice(2),progressReady:true});assert.equal(document.querySelectorAll('.interview-company-card').length,1);assert(document.querySelector('.interview-company-card').textContent.includes('Google'));assert.equal(document.querySelector('.interview-search input').getAttribute('aria-label'),'Search companies');
  await render(Hub,{route:interviewHref(hubFilters).slice(2),progressReady:true});
- await click(filter('Passed'));assert.equal(rows().length,1);
+ const resultsHeading=document.querySelector('.interview-section-intro'),beforeRecovery=reveals.length;await click(filter('Passed'));await render(Hub,{route:location.hash.replace(/^#\/?/,''),progressReady:true});assert.equal(rows().length,1);assert(document.activeElement===resultsHeading);assert(reveals.slice(beforeRecovery).some(row=>row.node===resultsHeading));
  globalThis.__rankingFixture.account={user:{id:'bob'}};
  await render(Hub,{route:interviewHref(hubFilters).slice(2),saved:{},progressReady:false});
  assert.equal(rows().length,4);assert.equal(filter('All concepts').getAttribute('aria-pressed'),'true');assert(!document.querySelector('.interview-ranking-completion'));

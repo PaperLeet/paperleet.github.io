@@ -13,7 +13,7 @@
 .community-tag-picker-search>svg { flex:none; color:var(--muted); }
 .community-tag-picker-search>input[type=search] { flex:1; width:100%; min-width:0; height:42px; border:0; margin:0; padding:8px 0; background:transparent; color:var(--text); font:inherit; font-size:var(--type-small); }
 .community-tag-picker-search>button { display:grid; place-items:center; flex:none; min-width:36px; min-height:36px; border-radius:6px; color:var(--muted); }
-.community-tag-picker-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:8px; max-height:280px; overflow:auto; overscroll-behavior:contain; scrollbar-gutter:stable; }
+.community-tag-picker-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:8px; }
 .community-tag-picker-options:has(>.community-tag-picker-option) { padding:5px; margin:-5px; }
 .community-tag-picker-option { min-width:0; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
 .community-tag-picker-option:has(input:checked) { color:var(--accent); border-color:var(--accent); background:color-mix(in srgb,var(--accent) 5%,var(--surface)); }
@@ -33,7 +33,7 @@
 .community-tag-picker:focus-visible,.community-tag-picker :is(input,button):focus-visible,.community-tag-picker-option:focus-within,.community-post-tags a:focus-visible,.community-taxonomy-status>button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 .community-tag-picker-search:focus-within { border-color:var(--accent); }
 @media(pointer:coarse) { .community-tag-picker :is(label,button,input[type=search]),.community-post-tags a,.community-taxonomy-status>button { min-height:44px; } }
-@media(max-width:520px) { .community-tag-picker { padding:12px; } .community-tag-picker-options { grid-template-columns:1fr; max-height:260px; } }
+@media(max-width:520px) { .community-tag-picker { padding:12px; } .community-tag-picker-options { grid-template-columns:1fr; } }
 
 .community-tag-persistence-notice { padding:10px 12px; border-radius:7px; background:var(--surface2); color:var(--muted); font-size:var(--type-small); line-height:1.8; }
 
@@ -42,3 +42,5 @@
 .community-tag-picker:disabled { opacity:.7; }
 .community-tag-picker-option:has(input:disabled)>label { cursor:not-allowed; }
 .community-tag-picker-option:has(input:disabled):not(:has(input:checked)) { color:var(--muted); background:var(--surface2); }
+
+.community-tag-picker [data-tag-option]:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }

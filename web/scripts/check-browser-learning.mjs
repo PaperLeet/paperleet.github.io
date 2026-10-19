@@ -117,9 +117,9 @@ export async function checkBrowserLearning(server) {
     for(const english of [false,true])for(const count of [1,2]){
       globalThis.localStorage={getItem:()=>english?'en':'zh'};
       const html=renderToString(React.createElement(LocaleProvider,null,React.createElement(BrowserLearningNotice,{count,failed:true,saving:false,onRetry(){}})));
-      assert(html.includes(english?'account results and statistics still require server verification':'账号成绩与统计仍需服务端确认'));
+      assert(html.includes(english?'Submit your solutions to record account results and statistics':'提交后才能计入账号成绩与统计'));
       assert(html.includes(english?'Retry saving progress':'重试保存学习记录')&&html.includes('role="alert"'));
-      if(english)assert(html.includes(`${count} ${count === 1 ? 'module' : 'modules'} passed`));
+      if(english)assert(html.includes(`passed ${count} ${count === 1 ? 'module' : 'modules'}`));
     }
   }finally{if(originalStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=originalStorage;}
   console.log('PASS browser learning: durable full-suite history across runtime/test updates, strict current reports, projection-only milestones, native authority, owner isolation, source safety, concurrent saves, stale dismissal and quota rollback');

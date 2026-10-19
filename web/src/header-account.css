@@ -10,6 +10,9 @@ html { scrollbar-gutter:stable; }
 .topbar .nav-inner > nav > :is(a,button):hover:not(:disabled) { color:var(--text); background:color-mix(in srgb,var(--text) 3%,transparent); }
 .topbar .nav-inner > nav > :is(a,button):focus-visible { outline-offset:-5px; border-radius:6px; }
 .account-menu { position:relative; flex:none; }
+.header-signin-cta { display:inline-flex; align-items:center; justify-content:center; flex:none; min-height:36px; padding:6px 12px; border-radius:8px; background:var(--primary-bg); color:var(--primary-text); font-size:var(--type-small); font-weight:600; white-space:nowrap; }
+.header-signin-cta:hover { filter:brightness(1.08); }
+.header-signin-cta:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 .account-menu-trigger { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid transparent; border-radius:50%; background:transparent; padding:3px; flex:none; }
 .account-menu-trigger:hover, .account-menu-trigger[aria-expanded="true"] { background:var(--surface2); border-color:var(--line); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 7%,transparent); }
 .account-menu-trigger .social-avatar { flex:none; }
@@ -46,6 +49,8 @@ a.account-menu-identity:hover { background:var(--surface2); }
 .account-menu-error { padding:6px 12px; color:var(--red); font-size:var(--type-meta); line-height:1.6; overflow-wrap:anywhere; }
 .account-menu-footnote { padding:8px 12px 2px; margin:0; color:var(--muted); font-size:var(--type-caption); text-align:center; line-height:1.7; }
 @media (max-width:600px) {
+  .header-signin-cta { padding-inline:8px; font-size:var(--type-meta); }
+  .topbar .nav-actions { flex-wrap:wrap; justify-content:flex-end; min-width:0; max-width:calc(100vw - 70px); padding-block:4px; }
   .topbar .nav-inner > nav > :is(a,button) { padding-inline:10px; }
   .topbar .nav-inner > nav > .active::after { left:10px; right:10px; }
   .account-menu-panel { top:calc(100% + 8px); }

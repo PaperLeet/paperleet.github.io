@@ -1,0 +1,11 @@
+# Community table reading
+
+Community Markdown renders GFM tables as native tables inside a dedicated horizontal viewport. Header alignment, rows, inline code, formulas, links and safe image alternatives remain ordinary Markdown content. This shared renderer serves discussions, solutions, interview reading and writing previews.
+
+After a table exceeds the available width, a compact reading bar explains horizontal navigation and offers left/right controls. The viewport becomes a labelled keyboard stop; native scrolling and reading shortcuts remain available. Controls move only their own table, clamp to the current measured bounds and honor reduced motion. Edge controls use aria-disabled and read current geometry before moving, keeping the focused button mounted and inert at an edge. Once shown, the bar stays mounted if a wider window fits the table, explains that all columns are visible and keeps both controls unavailable. This keeps focused controls available as the window width changes.
+
+A coalesced observer measures both the table and its viewport, with a window-resize fallback. Content and translation updates also recheck bounds. Hidden-pane reopening can restore the controls. Measurement does not move the table, page, workspace pane or editing focus. Cleanup disconnects observers and cancels pending frames; late callbacks cannot restart work. Separate tables keep separate native horizontal positions.
+
+The actual SSR/StrictMode Markdown regression checks safe semantic output, header alignment, code/math/escaped cells, controlled overflow and scroll bounds, reduced motion, native keys, stable locale/focus/fit behavior, several tables, hidden panes, stale observer cleanup and an actual live MarkdownEditor preview inside a form. Table actions do not submit or modify the source, private code, caret, scroll, route or stored drafts. Existing inline-source, Markdown, reading and writing regressions remain required. These checks use controlled geometry and do not establish physical browser layout, native wheel/focus behavior or screen-reader behavior.
+
+The change adds no service schema, API, dependency or numerical-runtime input. Full numerical execution evidence remains bound to its original commits.

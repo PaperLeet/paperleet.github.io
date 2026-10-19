@@ -36,6 +36,26 @@ try {
     }
   }
   assert.equal(libraryHref(undefined, emptyLibraryFilters()), '#');
+  assert.equal(libraryHref(undefined,readLibraryRoute('#/?view=papers').filters),'#','The default paper view has no extra URL field');
+  for(const collectionId of [undefined,'llm-basics','diffusion'])for(const company of [undefined,'google']){
+    const filters={...emptyLibraryFilters(),view:'modules',page:2,page_size:50,query:'attention & mask',...(company?{company,company_days:'90'}:{})},href=libraryHref(collectionId,filters);
+    assert.deepEqual(readLibraryRoute(href),{collectionId,filters});assert.equal(libraryHref(collectionId,readLibraryRoute(href).filters),href);
+    const practice=withLibraryContext(22,href);assert.equal(libraryReturnHref(practice),href);assert.equal(accountReturnHref(decodeProblemHash(signInHref(practice))),practice);assert.equal(libraryContinuation(practice),practice.slice(2));
+  }
+  for(const suffix of ['view=unknown','view=','view=MODULES','view=modules&view=papers','view=modules&code=secret','view=modules&owner=alice'])assert.equal(readLibraryRoute('#/?'+suffix),undefined);
+  const allExercises=selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute('#/?view=modules'));
+  assert.equal(allExercises.problems.length,catalog.problems.length);assert.equal(new Set(allExercises.problems.map(p=>p.id)).size,catalog.problems.length);
+  const numbered=catalog.problems.find(p=>p.number===22);assert(numbered);assert.deepEqual(selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute('#/?view=modules&q=22')).problems.map(p=>p.id),[numbered.id],'An exact number searches exercise numbers in the direct exercise view');
+
+  for(const collection of [undefined,'llm-basics','diffusion'])for(const page of [1,2,10000])for(const page_size of [20,50,100]){
+    const filters={...emptyLibraryFilters(),query:'attention & mask',company:'google',company_days:'90',page,page_size},href=libraryHref(collection,filters),parsed=readLibraryRoute(href);
+    assert.equal(parsed.filters.page,page===1?undefined:page);assert.equal(parsed.filters.page_size,page_size===20?undefined:page_size);assert.equal(libraryHref(parsed.collectionId,parsed.filters),href);
+    const practice=withLibraryContext(22,href);assert.equal(libraryReturnHref(practice),href);assert.equal(accountReturnHref(decodeProblemHash(signInHref(practice))),practice);assert.equal(libraryContinuation(practice),practice.slice(2));
+    assert.deepEqual(selectLibraryPractice(catalog.papers,catalog.problems,{}, {filters:{...filters,company:undefined,company_days:undefined}}),selectLibraryPractice(catalog.papers,catalog.problems,{}, {filters:{...filters,company:undefined,company_days:undefined,page:undefined,page_size:undefined}}),'Paging never narrows the full practice scope');
+  }
+  for(const query of ['page=0','page=-1','page=01','page=1.5','page=10001','page=2&page=3','page_size=0','page_size=25','page_size=50&page_size=100','page=NaN'])assert.equal(readLibraryRoute('#/?'+query),undefined);
+  for(const page of [0,-1,1.5,Infinity,10001])assert.throws(()=>libraryHref(undefined,{...emptyLibraryFilters(),page}));
+  assert.equal(libraryHref(undefined,{...emptyLibraryFilters(),page:1,page_size:20}),'#');
   for (const sort of ['newest', 'oldest', 'title']) {
     const filters = { ...emptyLibraryFilters(), query: 'attention', sort };
     const view = libraryHref('llm-basics', filters);
@@ -147,6 +167,11 @@ try {
     const acceptedFor = problem => ({ problem: problem.id,
       tests: Object.entries(problem.tests).flatMap(([layer,count])=>Array.from({length:count},(_,i)=>({id:`${layer}_${i}`,layer,passed:true}))),
       summary: Object.fromEntries(Object.entries(problem.tests).map(([layer,count])=>[layer,[count,count]])) });
+    const grouped=catalog.papers.find(p=>p.module_ids.filter(id=>!catalog.problems.find(m=>m.id===id).module.optional).length>1);assert(grouped);
+    const firstCore=catalog.problems.find(p=>grouped.module_ids.includes(p.id)&&!p.module.optional),partlySaved={[firstCore.id]:{report:acceptedFor(firstCore)}};
+    const doneExercise=selectLibraryPractice(catalog.papers,catalog.problems,partlySaved,readLibraryRoute('#/?view=modules&state=done'));assert.deepEqual(doneExercise.problems.map(p=>p.id),[firstCore.id]);
+    assert(!selectLibraryPractice(catalog.papers,catalog.problems,partlySaved,readLibraryRoute('#/?state=done')).papers.some(p=>p.id===grouped.id),'Paper completion remains based on all core modules');
+    const direct=JSDOM.fragment(render(PaperLibrary,{...catalog,saved:partlySaved,route:'?view=modules&state=done'}));assert.equal(direct.querySelectorAll('[data-module-id]').length,1);assert.equal(direct.querySelector('[data-module-id]').dataset.moduleId,firstCore.id);assert(direct.querySelector('.library-module-source').textContent.includes(grouped.short_title));assert.equal(libraryReturnHref(direct.querySelector('[data-module-id]').getAttribute('href')),libraryHref(undefined,{...emptyLibraryFilters(),view:'modules',state:'done'}));
     for (const query of bibliographyQueries) {
       const results = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query }) });
       assert(results.includes('data-paper-id="transformer"'), 'Bibliography queries render the linked paper in both languages');
@@ -243,7 +268,7 @@ try {
     const escaped = render(PaperLibrary, { ...catalog, saved: {}, route: libraryHref(undefined, { ...emptyLibraryFilters(), query: '<script>alert(1)</script>' }) });
     assert(escaped.includes('&lt;script&gt;') && !escaped.includes('<script>'));
   }
-  const cache = new Map([['paperleet.library.positions.v1', JSON.stringify([
+  const cache = new Map([['paperleet.library.positions.v2', JSON.stringify([
     ['#/collections/diffusion', { y: 800, anchor: { id: 'ddpm', top: 150 } }],
     ['javascript:alert(1)', { y: 2 }], ['#/?q=bad', { y: -5 }],
   ])]]);
@@ -253,9 +278,9 @@ try {
   assert.equal(readLibraryPosition('javascript:alert(1)'), undefined);
   assert.equal(readLibraryPosition('#/?q=bad'), undefined);
   rememberLibraryPosition('#/?q=second', { y: 200 });
-  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v1')).length, 2, 'Saving after reload must retain other hydrated positions');
+  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v2')).length, 2, 'Saving after reload must retain other hydrated positions');
   for (let i = 0; i < 20; i++) rememberLibraryPosition('#/?q=' + i, { y: i });
-  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v1')).length, 8);
+  assert.equal(JSON.parse(cache.get('paperleet.library.positions.v2')).length, 8);
   assert.equal(readLibraryPosition('#/?q=0'), undefined);
   assert.deepEqual(readLibraryPosition('#/?q=19'), { y: 19 });
   rememberLibraryPosition('#/?q=19', { y: Infinity });

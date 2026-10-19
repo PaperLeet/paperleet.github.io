@@ -49,8 +49,10 @@ try {
   assert(route.includes('difficulty=E'));
   assert.equal(find('.difficulty-summary.E').getAttribute('aria-pressed'), 'true');
   assert.equal(find('[aria-label="模块难度筛选"]').value, 'E', 'Sidebar and toolbar use the same URL state');
+  assert.equal(find('[aria-label="模块难度筛选"]').parentElement.dataset.active,'true','Active filter emphasis follows the actual URL state');
   await click(find('.difficulty-summary.E'));
   assert.equal(find('[aria-label="模块难度筛选"]').value, 'all');
+  assert(!find('[aria-label="模块难度筛选"]').parentElement.hasAttribute('data-active'),'Clearing a filter also clears its emphasis');
   assert(!find('.library-help-card'), 'The generic practice guide card is removed');
   assert(!document.body.textContent.includes('查看使用指南'), 'Practice recommendations have no generic guide action');
   const setItem = dom.window.Storage.prototype.setItem;

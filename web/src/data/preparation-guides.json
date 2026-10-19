@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-17",
+  "reviewed_on": "2026-10-19",
   "modules": [
     {
       "id": "architecture/attention",
@@ -40,6 +40,30 @@
           "hint": {
             "zh": "分别使用两个可手算的 key、全屏蔽行和未来 value 扰动。前缀平均实验只覆盖特定的教学行为。",
             "en": "Use two hand-computable keys, a fully masked row and a perturbation of future values. Prefix averaging checks a specific teaching behavior."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "cache-alignment",
+          "question": {
+            "zh": "如果 Q 比 K 短，题目提供的因果 mask 能直接用于带历史缓存的解码吗？",
+            "en": "If Q is shorter than K, can the provided causal mask be used directly for decoding with a historical cache?"
+          },
+          "hint": {
+            "zh": "本题采用左上对齐，只允许键下标 j 不大于查询下标 i。缓存解码中的新 query 往往有非零绝对起点；先写出希望可见的键，再判断是否需要扩展位置偏移接口，不能默认为右下对齐。",
+            "en": "This exercise uses top-left alignment, allowing key j only when j <= query i. New queries in cached decoding often start at a nonzero absolute position. Write down the visible keys before extending the position-offset interface; do not assume bottom-right alignment."
+          }
+        },
+        {
+          "id": "weights-memory",
+          "question": {
+            "zh": "接口要求返回完整 weights 时，为什么短序列实验不能证明实现适合长序列的显存预算？",
+            "en": "When the interface returns full weights, why does a short-sequence experiment not establish suitability for a long-sequence memory budget?"
+          },
+          "hint": {
+            "zh": "单看返回权重就有 B×H×Q×K 个元素，还要考虑精度与训练中间量。将 Q、K 同时扩大时先计算输出体积；本题的正确性和教学实验不等于优化注意力内核的内存评测。",
+            "en": "The returned weights alone contain B×H×Q×K elements, before dtype size and training intermediates. Calculate their size as Q and K grow together. Correctness and this teaching experiment do not constitute a memory benchmark for an optimized attention kernel."
           }
         }
       ]
@@ -82,6 +106,30 @@
           "hint": {
             "zh": "构造逐头不同的可见位置，加入全屏蔽行和非恒等输出投影；再检查所有输入与投影矩阵的梯度。",
             "en": "Use head-specific visibility, a fully masked row and a non-identity output projection, then inspect gradients for inputs and projection matrices."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "projection-orientation",
+          "question": {
+            "zh": "四个投影矩阵都是 [D,D]，为什么仅检查形状仍可能漏掉错误转置？怎样设计对照？",
+            "en": "Why can shape checks miss a wrong transpose when all four projections are [D,D], and what comparison exposes it?"
+          },
+          "hint": {
+            "zh": "方阵的两个乘法方向都可能通过形状检查。本题按 x @ w 使用权重；选择非对称、非恒等的投影，逐步核对 query、key、value 和输出投影的数值，不要把其他模块的 [out,in] 布局直接搬来。",
+            "en": "Both orientations of a square matrix can pass shape checks. This interface uses x @ w. Use non-symmetric, non-identity projections and check query, key, value and output projections independently instead of importing another module’s [out,in] convention."
+          }
+        },
+        {
+          "id": "masked-head-output",
+          "question": {
+            "zh": "只把一个头的某个 query 全部屏蔽，能否断言最终输出中对应的一段特征也必为零？",
+            "en": "If one head is fully masked for a query, must the corresponding final output feature segment be zero?"
+          },
+          "hint": {
+            "zh": "该头在拼接前的输出为零，但稠密 w_o 会混合不同头的特征，其他头仍可能影响这段最终输出。区分逐头结果与最终投影结果；本题没有 bias，因此同一 query 的所有头都被屏蔽时，最终输出才保证为零。",
+            "en": "That head is zero before concatenation, but a dense w_o mixes features from other heads into final output coordinates. Distinguish per-head values from projected output. With no bias in this exercise, masking every head for the query guarantees zero final output."
           }
         }
       ]
@@ -127,6 +175,30 @@
             "en": "The normalized part is zero for constant or single-feature inputs. With nonzero epsilon, unit affine parameters do not guarantee output variance exactly one."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "epsilon-scale-check",
+          "question": {
+            "zh": "输入乘以正数 a 后，固定 epsilon 为什么不是严格尺度不变？怎样构造更准确的对照？",
+            "en": "Why is scaling input by a positive a not exactly invariant with fixed epsilon, and what gives a stronger check?"
+          },
+          "hint": {
+            "zh": "方差会乘以 a²，而固定 epsilon 不会。将输入与 epsilon 分别改为 a*x 和 a²*epsilon、保持仿射参数不变，在实数算术下可恢复同一结果；实际比较仍需考虑浮点误差。极小方差更容易暴露把 epsilon 放错位置的错误。",
+            "en": "Variance scales by a² while fixed epsilon does not. Compare a*x with a²*epsilon and unchanged affine parameters to recover the identity in real arithmetic; allow for floating-point error in practice. Tiny variance makes incorrect epsilon placement easier to detect."
+          }
+        },
+        {
+          "id": "residual-branch-grads",
+          "question": {
+            "zh": "对相互独立的 x 与子层输出 s，post-LN 的两条相加分支应接收到怎样的局部梯度？",
+            "en": "For independent inputs x and sublayer output s, what local gradients should the two post-LN addition branches receive?"
+          },
+          "hint": {
+            "zh": "在 LN(x+s) 中，两条独立分支接收同一个对相加结果的上游梯度。分别检查它们，能发现 detach 或遗漏分支；若 s 本身由 x 算出，x 的总梯度还包含经过子层的间接路径，不能再简单比较两个总梯度。",
+            "en": "For LN(x+s), independent branches receive the same gradient with respect to their sum. Check both to expose a detached or omitted branch. If s is computed from x, x also receives an indirect sublayer contribution, so the two total gradients need not match."
+          }
+        }
       ]
     },
     {
@@ -168,6 +240,30 @@
           "hint": {
             "zh": "先核对 k=D 与全量版本一致，再区分固定 epsilon 下的近似尺度关系和同步缩放 epsilon 的恒等式。",
             "en": "First check that k=D matches the full version. Separate approximate scaling with fixed epsilon from the identity obtained when epsilon is scaled too."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "prefix-order",
+          "question": {
+            "zh": "只统计前 k 个特征时，交换特征顺序为什么可能改变归一化尺度，而全量 RMS 不会？",
+            "en": "Why can reordering features change the normalization scale when only the first k features are used, while full RMS is unchanged?"
+          },
+          "hint": {
+            "zh": "全量平方和对坐标排列不变，前缀选取却会换掉参与统计的坐标。用 k=1 和 [1,100] 交换位置比较；权重也按同样顺序排列，再区分统计选择的变化与普通输出置换。",
+            "en": "The full sum of squares is permutation-invariant, but selecting a prefix changes which coordinates enter the statistic. Compare k=1 for [1,100] and its reversal, permuting weights consistently. Separate the changed statistic selection from an ordinary output permutation."
+          }
+        },
+        {
+          "id": "token-independence",
+          "question": {
+            "zh": "怎样设计两个 token 的反例，发现实现错误地把 batch 或 token 轴也放进了归一化统计？",
+            "en": "How can a two-token counterexample reveal accidental normalization across batch or token axes?"
+          },
+          "hint": {
+            "zh": "保留一个 token 不变，只修改另一个 token 的数值；前者的输出不应因此改变。本题每个 token 只沿最后一个特征轴计算尺度，同时保留所有前导轴，不能先把整个输入摊平。",
+            "en": "Keep one token fixed while changing only the other token; the first output must not change. This exercise computes each token scale along its final feature axis and preserves leading axes. Flattening the whole input violates that independence."
           }
         }
       ]
@@ -254,6 +350,30 @@
             "en": "Incorrect directions or frequencies may still preserve norms. Test a hand-computed rotation, relative inner products and appended keys with their absolute positions."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "coordinate-layout",
+          "question": {
+            "zh": "把相邻坐标配对改成前半与后半配对，为什么仅检查范数仍可能发现不了接口不一致？",
+            "en": "If adjacent-coordinate pairing is replaced with first-half/second-half pairing, why might norm checks miss the interface mismatch?"
+          },
+          "hint": {
+            "zh": "两种布局都可以构造正交旋转，所以都可能保范数。本题输入明确要求相邻配对。完整模型若改用另一布局，需要同步处理投影后的坐标排列及已有缓存，并用独立手算结果核对。",
+            "en": "Both layouts can define orthogonal rotations and preserve norms. This exercise explicitly requires adjacent pairs. A full model using another layout must also account for projected-coordinate ordering and existing caches, checked against an independent hand calculation."
+          }
+        },
+        {
+          "id": "batch-position-scope",
+          "question": {
+            "zh": "一个 batch 内每个样本的位置都不同，直接传入 [B,L] 的 positions 是否仍符合本题契约？",
+            "en": "If each example in a batch has different positions, does passing positions shaped [B,L] still satisfy this exercise contract?"
+          },
+          "hint": {
+            "zh": "本题的 positions 是 [L]，相位广播到全部 batch 和 head。不同样本的独立位置或打包序列需要先扩展接口与对应验证，不能让偶然的广播结果代替定义清楚的形状约定。",
+            "en": "Here positions has shape [L], with phases shared across batch and heads. Per-example positions or packed sequences require an explicit interface extension and matching checks. An accidental broadcast is not a substitute for a defined shape contract."
+          }
+        }
       ]
     },
     {
@@ -295,6 +415,30 @@
           "hint": {
             "zh": "检查初始更新是否为零，再分析乘积对两侧因子的导数；最后用合并前后的前向一致性验证。",
             "en": "Check whether the initial update is zero, then differentiate the product with respect to each factor. Finally compare merged and unmerged forward results."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "factorized-forward",
+          "question": {
+            "zh": "先形成 B@A 再乘输入，与先算 x@A.T 再乘 B.T，在形状和中间量上有什么取舍？",
+            "en": "What shape and intermediate-size tradeoffs distinguish forming B@A first from computing x@A.T followed by B.T?"
+          },
+          "hint": {
+            "zh": "先写出 [out,in] 的增量与 [...,r] 的低秩中间量。两种乘法结合方式对应同一数学映射，但中间存储和浮点舍入可能不同；保持所有前导维度、alpha/r 缩放及输入和 adapter 的梯度。",
+            "en": "Compare an [out,in] update with a [...,r] low-rank intermediate. The associations express the same mathematical map, but storage and floating-point rounding may differ. Preserve leading dimensions, alpha/r scaling, and gradients for the input and adapters."
+          }
+        },
+        {
+          "id": "merged-double-count",
+          "question": {
+            "zh": "已经把增量合并进 W 后，又保留原 adapter 调用 lora_linear，会发生什么？",
+            "en": "What happens if the update is already merged into W but the original adapters are still passed to lora_linear?"
+          },
+          "hint": {
+            "zh": "前向会再次加上同一个低秩分支，导致增量被计算两次。分别比较未合并前向和使用独立合并权重的普通线性前向；不要修改原始 W，并确认 bias 只加一次。",
+            "en": "The forward adds the same low-rank branch again, counting the update twice. Compare the unmerged forward with an ordinary linear forward using an independent merged weight. Leave the original W untouched and include bias exactly once."
           }
         }
       ]
@@ -381,6 +525,30 @@
           "hint": {
             "zh": "参考分数固定，策略分数保留导数，返回奖励 detach。可分别扰动四个输入并检查极大正负边际。",
             "en": "Reference scores are fixed, policy scores retain derivatives and returned rewards are detached. Perturb each input and test very large positive and negative margins."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "sequence-sum",
+          "question": {
+            "zh": "chosen 与 rejected 的回答长度不一样，把序列 log-prob 改成 token 平均值后还是本题目标吗？",
+            "en": "If chosen and rejected responses have different lengths, does replacing sequence log-prob sums with token means preserve this objective?"
+          },
+          "hint": {
+            "zh": "本题辅助函数对回答 token 的 log-prob 求和，并排除 prompt 与 padding。逐条除以不同长度会改变偏好边际，通常不能用同一个 beta 缩放还原；这是目标约定的改变，不只是数值实现优化。",
+            "en": "The provided helper sums response-token log-prob and excludes prompt and padding. Dividing each response by a different length changes the preference margin and generally cannot be undone by a single beta rescaling. That changes the objective convention rather than merely optimizing its numerical implementation."
+          }
+        },
+        {
+          "id": "shared-score-offset",
+          "question": {
+            "zh": "给同一偏好对的两个策略分数都加同一个常数，loss 与两个诊断奖励应如何变化？",
+            "en": "If the same constant is added to both policy scores in a preference pair, how should the loss and two diagnostic rewards change?"
+          },
+          "hint": {
+            "zh": "策略分数之差不变，所以相对参考的偏好边际和 loss 不变；两个奖励各平移 beta 乘该常数，奖励差不变。分别检查 loss 与返回奖励，避免把“差值不变”误写成“所有诊断数值不变”。",
+            "en": "The policy-score difference is unchanged, so the reference-adjusted margin and loss are unchanged. Both rewards shift by beta times the constant, leaving their difference fixed. Check loss and returned rewards separately; invariant differences do not imply invariant diagnostic values."
           }
         }
       ]
@@ -683,6 +851,30 @@
             "en": "With zero gradient and history, only decay remains. Multiple steps check state propagation, while tiny gradients expose epsilon-placement errors."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "zero-current-gradient",
+          "question": {
+            "zh": "当前梯度为零但旧一阶动量非零时，为什么不能直接断言这一步只剩权重衰减？",
+            "en": "Why does a zero current gradient not imply a decay-only step when the old first moment is nonzero?"
+          },
+          "hint": {
+            "zh": "先代入更新式：m_t=beta1*m_old，v_t=beta2*v_old。只要保留的动量仍非零，自适应更新项就可能继续起作用。只有同时检查当前梯度、历史状态和参数约定后，才能使用“只剩衰减”的简化结论。",
+            "en": "Substitute into the recurrence: m_t=beta1*m_old and v_t=beta2*v_old. A surviving first moment can still drive the adaptive update. Check the current gradient, history and parameter settings before using the decay-only simplification."
+          }
+        },
+        {
+          "id": "raw-state-recurrence",
+          "question": {
+            "zh": "怎样用常数梯度的两步对照，发现把偏差校正后的动量错误地当成下一步状态？",
+            "en": "How can two steps with a constant gradient expose carrying bias-corrected moments as optimizer state?"
+          },
+          "hint": {
+            "zh": "从零状态开始、使用固定非零梯度时，校正后的一阶和二阶动量分别是 g 与 g²，但要返回的原始累计量仍随步数变化。把原始累计量传给下一步，再重新做当步偏差校正；可先关闭 weight_decay，单独排查重复校正。",
+            "en": "Starting from zero moments with a constant nonzero gradient, corrected moments are g and g², while the raw running moments still change with the step. Carry raw moments forward and apply that step’s correction separately. Set weight_decay to zero first to isolate an accidental second correction."
+          }
+        }
       ]
     },
     {
@@ -982,6 +1174,30 @@
             "en": "Check all four gradient regions and the negative-mean convention. Clipping defines a surrogate objective; the toy bandit’s KL threshold is not a universal hard bound."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "zero-loss-live-gradient",
+          "question": {
+            "zh": "新旧 log-prob 完全相同，且 advantage 的均值为零，就能断定 PPO 策略梯度也为零吗？",
+            "en": "If new and old log-probabilities agree and advantages average to zero, must the PPO policy gradient vanish?"
+          },
+          "hint": {
+            "zh": "只看核心 clipped_surrogate，令 clip_eps>0、两项固定 advantage 为 (1,-1)，比率都为 1。loss 为零，但对两个独立 new_logp 分量的导数为 (-1/2,+1/2)。均值抵消了数值，没有消除各项的导数；再经过策略参数的链式法则才得到参数梯度。辅助 KL 此时为零，也不能据此宣布收敛。",
+            "en": "Use the core clipped_surrogate with positive clip_eps, fixed advantages (1,-1), and both ratios equal to one. The loss is zero, but its derivatives with respect to the two independent new_logp entries are (-1/2,+1/2). Values cancel; their individual derivatives do not. Apply the policy parameterization’s chain rule separately. A zero auxiliary KL at this point also does not establish convergence."
+          }
+        },
+        {
+          "id": "zero-width-clipping",
+          "question": {
+            "zh": "把 clip_eps 设为零，是不是就能冻结策略？请在比率不等于 1 的地方给出反例。",
+            "en": "Does setting clip_eps to zero freeze the policy? Give a counterexample away from ratio one."
+          },
+          "hint": {
+            "zh": "此时截断分支固定为 A，但仍需与 r*A 取较小值。A>0 且 r<1 时，损失仍为 -r*A；A<0 且 r>1 时也保留未截断分支。对 new_logp 的导数仍是 -r*A/B。零宽区间只使有利方向的奖励饱和，并不把所有方向的梯度都截断；r=1 的分支交点不要拿来讨论唯一导数。",
+            "en": "The clipped branch becomes A, but the surrogate still takes min(r*A,A). With A>0 and r<1, or A<0 and r>1, the unclipped branch remains active. Its derivative with respect to new_logp is -r*A/B. A zero-width interval saturates improvement in the favorable direction; it does not suppress every direction. Avoid claiming a unique derivative at the branch intersection r=1."
+          }
+        }
       ]
     },
     {
@@ -1023,6 +1239,30 @@
           "hint": {
             "zh": "奖励驱动的 advantage 为零，但非零 KL 系数仍可产生更新。旧策略和参考策略固定，诊断量 detach，别把两种梯度混为一谈。",
             "en": "Reward-driven advantages vanish, but a nonzero KL coefficient can still cause updates. Old/reference policies are fixed and diagnostics are detached; separate these gradient sources."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "reward-units-and-epsilon",
+          "question": {
+            "zh": "同组奖励改成 a*r+b（a>0），GRPO advantage 是否严格不变？epsilon 在哪里破坏了这个结论？",
+            "en": "If grouped rewards become a*r+b with a>0, are GRPO advantages exactly invariant? Where does epsilon matter?"
+          },
+          "hint": {
+            "zh": "组内平移 b 会在减均值时消失；样本标准差变为 a*s。启用缩放时得到 a*(r-mean)/(a*s+eps)，等于 (r-mean)/(s+eps/a)，固定非零 eps 时一般不严格相同，小方差组尤其明显。关闭 scale_std 则 advantage 直接乘 a。全相等的奖励仍中心化为零；不要据此推断带 KL 的总更新也为零。",
+            "en": "The offset b cancels under centering, and sample standard deviation becomes a*s. With scaling enabled, the result is a*(r-mean)/(a*s+eps), equivalently (r-mean)/(s+eps/a). A fixed nonzero epsilon prevents exact scale invariance, especially for small-variance groups. With scale_std disabled, advantages scale by a. Equal rewards still center to zero, without implying that a KL-regularized total update vanishes."
+          }
+        },
+        {
+          "id": "empty-responses-and-diagnostics",
+          "question": {
+            "zh": "保持原有 advantage 和有效分数不变，追加一组全 padding 回答，为什么 loss 会变而三个诊断量可以不变？",
+            "en": "Keeping existing advantages and valid scores fixed, why can appending an all-padding response group change the loss but leave diagnostics unchanged?"
+          },
+          "hint": {
+            "zh": "loss 先按每个回答的有效长度平均，再按全部 N 个回答平均；追加 G 个空回答后，原有 loss 和对应梯度乘 N/(N+G)。新回答贡献零，但仍占回答分母。kl_mean、clipfrac、ratio_mean 用有效 token 数作分母，原有效数据不变时它们不变。条件是原 advantage 已固定，不重新打乱或计算原奖励组；全 batch 为空时三个诊断按题面返回零。",
+            "en": "The loss averages valid tokens per response, then all N responses. Appending G empty responses scales the existing loss and its gradients by N/(N+G): empty responses contribute zero but still count in that denominator. kl_mean, clipfrac, and ratio_mean instead use valid-token counts, so unchanged valid data leaves them unchanged. Keep the existing supplied advantages fixed rather than regrouping rewards. An entirely empty batch has zero diagnostics by contract."
           }
         }
       ]
@@ -1577,6 +1817,30 @@
             "en": "Perturb one token and check that other outputs stay fixed, then independently compare gradients for the input and all four parameters. The nonlinear synthetic regression also exposes a purely linear two-layer implementation."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "closed-gate-bias",
+          "question": {
+            "zh": "若一个 token 的所有隐藏预激活都严格小于零，它的输出和梯度贡献应怎样变化？",
+            "en": "If all hidden preactivations of one token are strictly negative, what happens to its output and gradient contributions?"
+          },
+          "hint": {
+            "zh": "该 token 的 ReLU 隐藏值为零，输出仍是 b2；它对 x、w1、b1 和 w2 的梯度贡献为零，但对 b2 仍可有贡献。参数跨 token 共享，其他 token 可能产生非零总梯度；不要把单个 token 的关闭门误判成整个参数都没有梯度。",
+            "en": "Its ReLU hidden vector is zero, so the output is still b2. Its contributions to x, w1, b1 and w2 gradients are zero, while b2 can receive an upstream contribution. Shared parameters may still receive nonzero totals from other tokens; one closed token does not disable the whole parameter gradient."
+          }
+        },
+        {
+          "id": "token-permutation",
+          "question": {
+            "zh": "共享同一套 FFN 参数是否意味着不同 token 输出相同？打乱 token 顺序应满足什么关系？",
+            "en": "Does sharing FFN parameters make different tokens produce the same output, and what should a token permutation do?"
+          },
+          "hint": {
+            "zh": "共享的是函数与参数，不是输入或隐藏激活。对 token 做排列，输出应随同样的排列重排；不同输入仍可能得到不同结果。将这个关系与只扰动一个 token 的对照结合，可排查沿 token 维求和、平均或错误合并轴。",
+            "en": "The function and parameters are shared, not inputs or hidden activations. Permuting tokens should permute outputs the same way, while different inputs can produce different values. Combine this check with a one-token perturbation to expose token-axis reductions or incorrectly merged axes."
+          }
+        }
       ]
     },
     {
@@ -1618,6 +1882,30 @@
           "hint": {
             "zh": "先手算 H=4、G=2 的头映射与投影均值，再对照逐头实现及梯度。实验只衡量合成输出误差与缓存元素；论文转换后还进行训练，不要求误差随 G 单调变化。",
             "en": "Hand-check head mapping and projection means at H=4,G=2, then compare with independent per-head values and gradients. The experiment measures synthetic output error and cache elements. The paper additionally trains after conversion; error need not vary monotonically with G."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "decode-mask-alignment",
+          "question": {
+            "zh": "读取历史 KV 时，为什么直接构造 [1,K] 的下三角掩码可能屏蔽掉本应可见的键？",
+            "en": "Why can a lower-triangular [1,K] mask hide valid keys when reading a KV cache?"
+          },
+          "hint": {
+            "zh": "Q=1 只说明本次有一个 query，不说明它处在整个序列的第一个位置。如果它位于所有缓存键之后，这些键在因果关系下都可见。应依据真实位置构造掩码；本题不会自动推断缓存对齐。",
+            "en": "Q=1 means one query in this call, not the first position of the full sequence. If it follows all cached keys, every cached key is causally visible. Build visibility from actual positions; this interface does not infer cache alignment."
+          }
+        },
+        {
+          "id": "kv-capacity-scope",
+          "question": {
+            "zh": "计算时把共享 KV 展开到 H 个头，还能直接把 G/H 当成整个实现的内存或速度比例吗？",
+            "en": "If computation expands shared KV to H heads, does G/H describe total memory or runtime?"
+          },
+          "hint": {
+            "zh": "G/H 只描述持久保留的 K/V 元素数。query、[B,H,Q,K] 注意力权重和计算用临时展开不在该统计中。先区分缓存、工作区与测量范围，再讨论峰值内存或速度；本题的容量实验不提供端到端性能结论。",
+            "en": "G/H counts only persistent K/V elements. Queries, [B,H,Q,K] attention weights and temporary expanded tensors are outside that count. Separate cache, workspace and measurement scope before discussing peak memory or speed; the capacity experiment does not establish end-to-end performance."
           }
         }
       ]
@@ -1662,6 +1950,30 @@
             "en": "Compare with independent dense attention across single-key tiles, short tail tiles and blocks exceeding sequence length; check state reuse. The teaching experiment measures numerical agreement and theoretical tile elements, not production-kernel memory or speed."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "merge-disjoint-tile-states",
+          "question": {
+            "zh": "两个不重叠的非空键分块已分别得到 (m,l,u)，怎样不重读 score 就合并？改变块顺序有什么影响？",
+            "en": "How can states (m,l,u) from two disjoint nonempty key blocks merge without rereading scores? What happens if block order changes?"
+          },
+          "hint": {
+            "zh": "令 M=max(m1,m2)，a=exp(m1-M)、b=exp(m2-M)，新状态为 (M,a*l1+b*l2,a*u1+b*u2)，对 u 的行缩放要扩展末维。它们共用同一指数基准，最后才求 u/l 和 M+log(l)。实数运算中块划分与顺序不改变结果，浮点舍入允许微小差异；不能重复计入同一键块，也不能提前把 u 当归一化输出。",
+            "en": "Use M=max(m1,m2), a=exp(m1-M), and b=exp(m2-M). The merged state is (M,a*l1+b*l2,a*u1+b*u2), broadcasting row scales over the value dimension. Both states now share an exponential reference; normalize only at the end with u/l and M+log(l). Partition and order are equivalent in real arithmetic, with floating-point rounding differences allowed. Do not count overlapping keys twice or treat u as an already normalized output."
+          }
+        },
+        {
+          "id": "row-shift-output-and-lse",
+          "question": {
+            "zh": "每个 query 的全部 score 同加一个常数，attention 输出和 log-sum-exp 为什么会有不同变化？",
+            "en": "Why do attention output and log-sum-exp react differently when every score in one query row receives the same constant?"
+          },
+          "hint": {
+            "zh": "同一行所有分块都加有限常数 c，且新 score 保持有限时，最终 m 变为 m+c，l 与 u 不变，所以 output 不变而 LSE 增加 c。把 c 看作可求导的共享行偏移，output 对它的导数为零，LSE 对它的导数为一。这个方向能检查 LSE 的梯度路径是否被误 detach；仅比较归一化 output 会漏掉该错误。本题不包含 mask 或全屏蔽行。",
+            "en": "Add one finite c to every block in a row, keeping shifted scores finite. The final m becomes m+c, while l and u stay unchanged: output is invariant and LSE increases by c. For a differentiable shared row offset, output has derivative zero and LSE derivative one. This direction can expose an accidentally detached LSE path that output-only comparisons miss. The exercise does not include masking or all-masked rows."
+          }
+        }
       ]
     },
     {
@@ -1702,6 +2014,30 @@
           "hint": {
             "zh": "令 r=V=0、next_V=2、gamma=0.9：终止与截断应分别得到 0 和 1.8。改变下一 episode 的奖励不应影响结束点之前的 A；T=N=1 也不压缩轴。",
             "en": "With zero r and V, next_V=2 and gamma=.9, termination gives zero and truncation 1.8. Changing the next episode cannot affect earlier A; T=N=1 still keeps both axes."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "rollout-split-carry",
+          "question": {
+            "zh": "一段未结束的 rollout 切成两段，分别调用本题函数再拼接，为什么未必等于整段计算？",
+            "en": "Why can splitting an unfinished rollout into two calls and concatenating their outputs differ from one full GAE call?"
+          },
+          "hint": {
+            "zh": "本题每次调用都从 A_T=0 开始。若切点没有 terminated/truncated，左段末步原本还应加上 gamma*lambda*A_右段首步；独立调用丢掉了这项及其向前传播。末状态 next_values 只负责 TD 残差中的 bootstrap，不能代替未来残差的 carry。只有相应 carry 为零、gamma*lambda 为零或切点确实结束等情形才相同；现有接口没有传入 carry 的参数。",
+            "en": "Each call starts with A_T=0. At a split without termination or truncation, the last left-hand step should also receive gamma*lambda times the first right-hand advantage. Separate calls discard that contribution and its propagation backward. The final next_values supplies the residual’s value bootstrap, not the future-residual carry. Equality requires that carry or gamma*lambda to vanish, an actual ending, or another cancellation. The current interface has no incoming-carry parameter."
+          }
+        },
+        {
+          "id": "explicit-next-value-consistency",
+          "question": {
+            "zh": "lambda=1 时，为什么“中间价值项会抵消”还依赖显式 next_values 与下一行 values 一致？",
+            "en": "At lambda one, why does telescoping also require explicit next_values to agree with the following values row?"
+          },
+          "hint": {
+            "zh": "取两步、无结束标记，记 g=gamma、n_t=next_values[t]。递推给出 returns[0]=r0+g*r1+g²*n1+g*(n0-V1)。只有 n0=V1 时，多余项才消失。接口逐步接收 next_values，不能无条件换成滚动后的 values；自动重置后的新 episode 观测也不能冒充截断前真实末状态。先检查时间对齐，再讨论 Monte Carlo 端点。",
+            "en": "For two steps with no ending, write g=gamma and n_t=next_values[t]. The recurrence yields returns[0]=r0+g*r1+g²*n1+g*(n0-V1). The extra term disappears when n0=V1. Because next_values is supplied per step, replacing it blindly with shifted values changes the contract. An auto-reset observation also cannot replace the true final state at truncation. Check temporal alignment before invoking the Monte Carlo endpoint."
           }
         }
       ]
@@ -1745,6 +2081,30 @@
           "hint": {
             "zh": "固定 max_len，改变另一条零 advantage 回答的长度，目标回答梯度应不变。logp 保留梯度，旧/参考分数和 advantage 固定；三个诊断按有效 token 平均并 detach，全空时为零。",
             "en": "Hold max_len fixed and vary another zero-advantage response length: target gradients must stay unchanged. Keep logp gradients, freeze old/reference scores and advantages; detach valid-token diagnostics and return zeros when empty."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "uneven-microbatch-aggregation",
+          "question": {
+            "zh": "固定同一个 max_len 后，两个大小不同的 microbatch 怎样合并 loss？三个诊断量也按回答数加权吗？",
+            "en": "With one fixed max_len, how should unequal microbatches combine losses? Do diagnostics use the same response-count weights?"
+          },
+          "hint": {
+            "zh": "先在原有完整奖励组上准备好 advantage，再只切分 loss 输入。若回答数为 N1、N2，合并 loss 为 (N1*L1+N2*L2)/(N1+N2)，不能简单平均两个 loss；梯度累加也应使用这些权重。诊断量则按各块有效 token 数加权，全空块的权重为零。所有块必须使用同一固定生成上限，且不在切分后重算被切断的奖励组。",
+            "en": "Prepare advantages on the original complete reward groups, then partition only the loss inputs. For N1 and N2 responses, the combined loss is (N1*L1+N2*L2)/(N1+N2), rather than an equal mean of microbatch losses; use those weights for gradient accumulation too. Combine diagnostics by valid-token counts, giving an empty block zero weight. Every block must share the same fixed generation limit, without recomputing reward groups cut by the partition."
+          }
+        },
+        {
+          "id": "reward-scale-versus-kl",
+          "question": {
+            "zh": "只中心化奖励时，把奖励乘正数 a，却保持 beta 不变，会怎样改变策略项与 KL 的相对权重？",
+            "en": "With centered-only rewards, how does multiplying rewards by a positive a while holding beta fixed change the policy/KL balance?"
+          },
+          "hint": {
+            "zh": "advantage 和截断策略项都乘 a，参考分数与 KL 项本身不变，因此总 loss 通常不是原 loss 的 a 倍，a>1 时奖励相对 KL 的作用增强，0<a<1 时则减弱。若同时令 beta 乘 a，且固定分数、mask 与分母，总 loss 及 logp 梯度才整体乘 a；这仍不等于任意优化器的一步参数更新都严格乘 a。本题保留 KL 的教学默认值，别与原文零 KL 配置混用。",
+            "en": "Centered advantages and the clipped policy term scale by a; fixed reference scores and the KL term itself do not. The total loss therefore generally does not scale uniformly, so reward becomes stronger relative to KL for a>1 and weaker for 0<a<1. Scaling beta by a as well makes loss and logp gradients scale by a for fixed scores, mask, and denominator. That does not imply every optimizer’s parameter update scales identically. Keep this exercise’s retained-KL convention separate from the paper’s zero-KL setting."
           }
         }
       ]

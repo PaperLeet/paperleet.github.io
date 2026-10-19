@@ -2,6 +2,8 @@ import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import AffiliationVerification from "./AffiliationVerification";
 import AffiliationBadge from "./AffiliationBadge";
+import { useLoginSecurity } from './LoginSecurity';
+import type { LoginSecurity } from './LoginSecurity';
 import PublishingAffiliationNotice from './PublishingAffiliationNotice';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -13,6 +15,7 @@ import {
   Mail,
   ShieldCheck,
   KeyRound,
+  Github,
   UserRound,
 } from "lucide-react";
 import { useI18n } from "./i18n";
@@ -84,7 +87,7 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
 }) {
   const { t } = useI18n();
   const { capabilities } = useAccount();
-  const anyEmail = capabilities?.email_login_policy === "any_email";
+  const security = useLoginSecurity();
   const [busy, setBusy] = useState<string>(), [error, setError] = useState("");
   const failures: Record<string, string> = {
     identity: t("未能完成身份验证，请重新选择账号。若此邮箱曾使用其他登录方式注册，请使用原来的登录方式。", "We could not verify this sign-in. Choose an account again. If this email was registered with another sign-in method, use the original method."),
@@ -93,49 +96,56 @@ export function OrganizationSignIn({ providers, returnTo, loginError, emailLogin
     unavailable: t("登录服务暂时不可用，请稍后重试。", "The sign-in service is temporarily unavailable. Please try again shortly."),
     rate_limited: t("登录尝试过于频繁，请稍后重试。", "Too many sign-in attempts. Please try again shortly."),
   };
-  async function signIn(provider: "google" | "microsoft") {
+  async function signIn(provider: "google" | "microsoft" | "github") {
     if (busy) return;
     setBusy(provider); setError("");
     try {
-      const result = await socialApi<{ url: string }>(`account/oauth/${provider}/start`, { return_to: returnTo || "#/" });
+      const result = await socialApi<{ url: string }>(`account/oauth/${provider}/start`, { return_to: returnTo || "#/", ...security.payload() });
       const target = new URL(result.url);
-      const expected = provider === "google" ? "https://accounts.google.com" : "https://login.microsoftonline.com";
+      const expected = { google: "https://accounts.google.com", microsoft: "https://login.microsoftonline.com", github: "https://github.com" }[provider];
       if (target.origin !== expected) throw new Error("The sign-in service returned an invalid destination.");
       location.assign(target.href);
     } catch (e) { setError(errorMessage(e)); setBusy(undefined); }
+    finally { security.reset(); }
   }
-  return <><div className="account-grid">
-    <section className="social-panel login-card">
-      <h1>{t("登录 PaperLeet", "Sign in to PaperLeet")}</h1>
-      <p className="social-description">{t("使用 Google 或 Microsoft 账号登录，首次登录将创建 PaperLeet 账号，无需接收本站验证码。", "Sign in with Google or Microsoft. Your first sign-in creates a PaperLeet account without an emailed code from us.")}</p>
+  return <div className="signin-layout">
+    <aside className="signin-story" aria-label={t('你的学习档案', 'Your learning profile')}>
+      <span className="signin-eyebrow">PaperLeet · {t('从理解到实现', 'From insight to implementation')}</span>
+      <h2>{t('让每一次理解，\n都留下记录。', 'Turn your insights\ninto lasting progress.')}</h2>
+      <p>{t('保存解答，积累成就。下一次打开，从上次的进步继续。', 'Keep your solutions, build your achievements, and pick up where you left off.')}</p>
+      <ul className="login-benefits">
+        <li><Check size={17} aria-hidden="true"/><span>{t('回看每次正式提交的代码与测试结果', 'Revisit submitted code and test results')}</span></li>
+        <li><Check size={17} aria-hidden="true"/><span>{t('同步账号草稿，换设备继续练习', 'Sync account drafts across devices')}</span></li>
+        <li><Check size={17} aria-hidden="true"/><span>{t('积累学习勋章，建立自己的研究档案', 'Earn achievements and build your learning profile')}</span></li>
+      </ul>
+      <span className="signin-story-note">{t('免费加入 · 以实践加深理解', 'Free to join · Learn by implementing')}</span>
+    </aside>
+    <section className="signin-methods social-panel login-card" aria-labelledby="signin-title">
+      <header><h1 id="signin-title">{t('登录或创建账号', 'Sign in or create an account')}</h1>
+        <p className="social-description">{t('选择一种方式继续，首次登录自动注册。', 'Choose how to continue. New here? Your account is created automatically.')}</p></header>
       {(error || (loginError && failures[loginError])) && <SocialNotice error={error || failures[loginError!]} />}
+      {security.widget}
       <div className="organization-login-buttons" aria-busy={Boolean(busy)}>
-        {(["google", "microsoft"] as const).map(provider => {
+        {(["google", "microsoft", ...(providers.some(item => item.id === "github") ? ["github" as const] : [])] as const).map(provider => {
           const available = providers.some(item => item.id === provider && item.available);
-          return <button key={provider} type="button" className="organization-login-button" disabled={!available || Boolean(busy)} onClick={() => void signIn(provider)}>
-            {provider === "google" ? <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.89-1.74 2.98-4.3 2.98-7.36Z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.41l-3.24-2.51c-.9.6-2.05.96-3.38.96-2.6 0-4.81-1.76-5.6-4.12H3.05v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.4 13.92a6 6 0 0 1 0-3.84V7.49H3.05a10 10 0 0 0 0 9.02l3.35-2.59Z"/><path fill="#EA4335" d="M12 5.96c1.47 0 2.79.51 3.83 1.51l2.87-2.87A9.62 9.62 0 0 0 12 2a10 10 0 0 0-8.95 5.49l3.35 2.59A5.99 5.99 0 0 1 12 5.96Z"/></svg> : <svg viewBox="0 0 21 21" width="20" height="20" aria-hidden="true"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M11 0h10v10H11z"/><path fill="#00a4ef" d="M0 11h10v10H0z"/><path fill="#ffb900" d="M11 11h10v10H11z"/></svg>}
-            <span>{busy === provider ? t("正在前往登录…", "Opening sign-in…") : provider === "google" ? t("使用 Google 登录", "Sign in with Google") : t("使用 Microsoft 登录", "Sign in with Microsoft")}</span>
+          return <button key={provider} type="button" className="organization-login-button" disabled={!available || Boolean(busy) || !security.ready} onClick={() => void signIn(provider)}>
+            {provider === "github" ? <Github size={20} aria-hidden="true"/> : provider === "google" ? <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.89-1.74 2.98-4.3 2.98-7.36Z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.41l-3.24-2.51c-.9.6-2.05.96-3.38.96-2.6 0-4.81-1.76-5.6-4.12H3.05v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.4 13.92a6 6 0 0 1 0-3.84V7.49H3.05a10 10 0 0 0 0 9.02l3.35-2.59Z"/><path fill="#EA4335" d="M12 5.96c1.47 0 2.79.51 3.83 1.51l2.87-2.87A9.62 9.62 0 0 0 12 2a10 10 0 0 0-8.95 5.49l3.35 2.59A5.99 5.99 0 0 1 12 5.96Z"/></svg> : <svg viewBox="0 0 21 21" width="20" height="20" aria-hidden="true"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M11 0h10v10H11z"/><path fill="#00a4ef" d="M0 11h10v10H0z"/><path fill="#ffb900" d="M11 11h10v10H11z"/></svg>}
+            <span>{busy === provider ? t("正在前往登录…", "Opening sign-in…") : provider === "google" ? t("使用 Google 登录", "Sign in with Google") : provider === "github" ? t("使用 GitHub 登录", "Sign in with GitHub") : t("使用 Microsoft 登录", "Sign in with Microsoft")}</span>
             {!available && <small>{t("尚未启用", "Not enabled yet")}</small>}
           </button>;
         })}
       </div>
-      <p className="social-description">{anyEmail ? emailLoginAvailable === true ? t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用，也可使用个人邮箱接收验证码登录。", "School, company and personal Google/Microsoft accounts can register and get access immediately. You can also sign in with a code sent to your personal email.") : t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用。", "School, company and personal Google/Microsoft accounts can register and get access immediately.") : t("学校、企业和个人 Google／Microsoft 账号均可注册并立即使用。邮箱验证码登录仍限学校／已审核企业邮箱。", "School, company and personal Google/Microsoft accounts can register and get access immediately. Email code sign-in remains limited to school and reviewed company email addresses.")}</p>
+      <p className="signin-provider-note">{t('Google 和 Microsoft 均支持个人、学校及企业账号。', 'Personal, school and work Google or Microsoft accounts are welcome.')}</p>
+      <p className="signin-provider-note signin-community-policy">{capabilities?.community_open_publishing===true?t('学校／企业认证为选填；未认证也可登录、练习、发帖和回复。','School/company verification is optional. You can sign in, practice, post and reply without it.'):t('未认证也可登录练习和浏览；发帖与回复权限会在登录后显示。','You can sign in, practice and browse without affiliation verification. Your posting and replying access is shown after sign-in.')}</p>
+      {emailLoginAvailable === true && <section className="email-login-alternative" aria-labelledby="email-login-title">
+        <h2 id="email-login-title"><span>{t('使用邮箱验证码登录', 'Sign in with an email code')}</span></h2>
+        <SignIn enabled compact workEmailRegistration loginSecurity={security} onChooseProvider={provider => void signIn(provider)} providers={providers} />
+      </section>}
+      <p className="signin-privacy"><ShieldCheck size={14} aria-hidden="true"/><span>{t('完整邮箱保持私密。请在公共设备上使用后退出登录。', 'Your full email stays private. Sign out when using a shared device.')}</span></p>
     </section>
-    <aside className="social-panel login-card">
-      <h2>{t("哪些邮箱可以使用？", "Which accounts work?")}</h2>
-      <p className="social-description">{t("Google Workspace 和 Microsoft 365／Entra 管理的学校、企业账号自动认证邮箱归属。个人 Gmail、Outlook 等账号可在账号设置中补充学校／企业邮箱认证。部分机构可能要求管理员批准应用。", "Managed Google Workspace and Microsoft 365/Entra school/company accounts automatically verify their affiliation. Personal Gmail, Outlook and similar accounts can verify a school/company email in account settings. Some organizations require administrator approval.")}</p>
-      <p className="social-description">{capabilities?.community_open_publishing===true?t("学校／企业认证为选填；未认证也可登录、练习、发帖和回复。", "School/company verification is optional. You can sign in, practice, post and reply without it."):t("未认证也可登录练习和浏览；发帖与回复权限会在登录后显示。", "You can sign in, practice and browse without affiliation verification. Your posting and replying access is shown after sign-in.")}</p>
-      <p className="social-description">{t("登录通过 Google 或 Microsoft 完成。已认证的学校或公司名称会公开展示，完整邮箱保持私密。邮箱归属认证不代表学校或雇主对个人身份的背书。", "Sign-in is handled by Google or Microsoft. Verified school/company names are public; full email addresses stay private. Mailbox affiliation is not an endorsement by a school or employer.")}</p>
-      {emailLoginAvailable === true && <p className="social-description">{anyEmail ? t("下方验证码入口支持 Gmail、QQ、Outlook 等个人邮箱。", "The email-code option below supports personal addresses such as Gmail, QQ and Outlook.") : t("学校使用其他邮件系统时，可以通过下方邮箱验证码入口登录。公司邮箱需先审核域名。完整邮箱不会出现在公开主页。", "Schools using other email systems can use the email-code option below. Company domains require review first. Your full email stays private.")}</p>}
-      <p className="account-fineprint">{t("登录后会自动保持登录；连续 90 天未使用、主动退出或账号权限被撤销时，需要重新登录。请勿在公共电脑上保留登录。", "Sign-in is renewed while you use PaperLeet. After 90 days of inactivity, signing out, or access revocation, you must sign in again. Sign out on shared computers.")}</p>
-    </aside>
-  </div>
-    {emailLoginAvailable === true && <details className="email-login-alternative">
-      <summary>{anyEmail ? t("使用邮箱验证码登录", "Sign in with an email code") : t("使用学校／已审核公司邮箱验证码登录", "Use a school / reviewed company email code")}</summary>
-      <SignIn enabled={emailLoginAvailable === true} workEmailRegistration onChooseProvider={provider => void signIn(provider)} providers={providers} />
-    </details>}
-  </>;
+  </div>;
 }
+
 export function TestSignIn({ enabled }: { enabled: boolean }) {
   const { t } = useI18n();
   const { setUser, health } = useAccount();
@@ -258,7 +268,7 @@ export function TestSignIn({ enabled }: { enabled: boolean }) {
 }
 export function EmailQuotaNotice({ email, waitlistAvailable, onChooseProvider, providers = [] }: {
   email: string; waitlistAvailable: boolean;
-  onChooseProvider?: (provider: "google" | "microsoft") => void;
+  onChooseProvider?: (provider: "google" | "microsoft" | "github") => void;
   providers?: NonNullable<AccountCapabilities["oauth_providers"]>;
 }) {
   const { t } = useI18n();
@@ -282,20 +292,22 @@ export function EmailQuotaNotice({ email, waitlistAvailable, onChooseProvider, p
         {joined ? t("已加入 waitlist", "On the waitlist") : joining ? t("正在登记…", "Joining…") : t("加入 waitlist", "Join waitlist")}
       </button>}
       {onChooseProvider && providers.filter(provider => provider.available).map(provider => <button className="button" type="button" key={provider.id} onClick={() => onChooseProvider(provider.id)}>
-        {provider.id === "google" ? t("使用 Google 登录", "Sign in with Google") : t("使用 Microsoft 登录", "Sign in with Microsoft")}
+        {provider.id === "google" ? t("使用 Google 登录", "Sign in with Google") : provider.id === "github" ? t("使用 GitHub 登录", "Sign in with GitHub") : t("使用 Microsoft 登录", "Sign in with Microsoft")}
       </button>)}
     </div>
     {error && <SocialNotice error={error} />}
   </div>;
 }
 
-export function SignIn({ enabled, workEmailRegistration = false, onChooseProvider, providers = [] }: {
-  enabled: boolean; workEmailRegistration?: boolean;
-  onChooseProvider?: (provider: "google" | "microsoft") => void;
+export function SignIn({ enabled, compact = false, workEmailRegistration = false, onChooseProvider, providers = [], loginSecurity }: {
+  loginSecurity?: LoginSecurity;
+  enabled: boolean; compact?: boolean; workEmailRegistration?: boolean;
+  onChooseProvider?: (provider: "google" | "microsoft" | "github") => void;
   providers?: NonNullable<AccountCapabilities["oauth_providers"]>;
 }) {
   const { t, locale } = useI18n();
   const { setUser, capabilities } = useAccount();
+  const security = useLoginSecurity(loginSecurity);
   const anyEmail = capabilities?.email_login_policy === "any_email";
   const [email, setEmail] = useState(""),
     [code, setCode] = useState(""),
@@ -334,7 +346,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
     setError("");
     setMessage("");
     try {
-      const result = await socialApi<{ sent: boolean; oauth_recommended?: boolean; challenge?: string; retry_after?: number }>("account/send-code", { email: email.trim(), prefer_email: confirmed });
+      const result = await socialApi<{ sent: boolean; oauth_recommended?: boolean; challenge?: string; retry_after?: number }>("account/send-code", { email: email.trim(), prefer_email: confirmed, ...security.payload() });
       if (result.oauth_recommended) { setRecommend(true); return; }
       if (!result.sent) throw new Error(t("验证码未发送，请稍后重试。", "The code was not sent. Please try again."));
       setChallenge(result.challenge || "");
@@ -356,6 +368,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           ? t("邮箱服务暂时不可用，请稍后重试，或使用 Google／Microsoft 登录。", "Email sign-in is temporarily unavailable. Try again later, or use Google/Microsoft.")
           : errorMessage(e));
     } finally {
+      security.reset();
       setBusy(false);
     }
   }
@@ -368,18 +381,21 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
         email: email.trim(),
         code: code.trim(),
         challenge,
+        ...security.payload(),
       });
       setUser(data.user);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
+      security.reset();
       setBusy(false);
     }
   }
   return (
-    <div className="account-grid">
-      <section className="social-panel login-card">
-        <h1>{t("加入研究者社区", "Join the community")}</h1>
+    <div className={compact ? "email-login-compact" : "account-grid"}>
+      <section className={compact ? "login-card" : "social-panel login-card"}>
+        {!loginSecurity && security.widget}
+        {!compact && <><h1>{t("加入研究者社区", "Join the community")}</h1>
         <p className="social-description">
           {anyEmail ? t("使用邮箱验证码注册／登录 PaperLeet，个人邮箱也可使用。", "Register or sign in to PaperLeet with an email code. Personal email addresses are welcome.") : t(
             "使用学校邮箱或已审核的公司邮箱接收验证码，注册／登录 PaperLeet。",
@@ -399,6 +415,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
             {t("无需邀请码：edu.cn 学校邮箱可直接发送；.edu 优先使用 Google／Microsoft，也可继续收取验证码。其他学校和公司邮箱需审核域名。Gmail、QQ、Outlook 等个人邮箱不支持验证码。", "No invitation needed: send directly to edu.cn school addresses. For .edu, try Google/Microsoft first, or continue with a code. Other school and company domains require review. Personal services such as Gmail, QQ and Outlook cannot use email codes.")}
           </SocialNotice>
         )}
+        </>}
         {!enabled && (
           <SocialNotice>
             {t(
@@ -421,6 +438,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
         >
           <label>
             {anyEmail ? t("登录邮箱", "Sign-in email") : t("学校／公司邮箱", "School / company email")}
+            {compact && !anyEmail && <small className="signin-email-policy">{t("学校或已审核企业邮箱可用；个人账号可使用上方 Google / Microsoft。", "Use a school or reviewed work email, or choose Google / Microsoft above for a personal account.")}</small>}
             <input
               type="email"
               autoComplete="email"
@@ -459,7 +477,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
               />
             </label>
           )}
-          <button className="button" type="submit" disabled={busy || !enabled || (!sent && remaining > 0)}>
+          <button className="button" type="submit" disabled={busy || !enabled || !security.ready || (!sent && remaining > 0)}>
             {busy ? (
               <span className="spinner" />
             ) : sent ? (
@@ -488,7 +506,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
               </button>
               <button
                 type="button"
-                disabled={busy || remaining > 0}
+                disabled={busy || !security.ready || remaining > 0}
                 onClick={() => void sendCode()}
               >
                 {remaining > 0 ? t(`${remaining} 秒后可重发`, `Resend in ${remaining}s`) : t("重新发送", "Resend code")}
@@ -500,13 +518,13 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           <h2 id="email-login-recommendation">{t("建议使用学校的 Google／Microsoft 登录", "Try your school's Google / Microsoft sign-in")}</h2>
           <p>{t(".edu 学校通常提供组织账号登录，无需等待邮件。若学校使用其他邮件系统，你也可以继续发送验证码。", ".edu schools often support organization sign-in without waiting for email. If your school uses another mail system, you can continue with an email code.")}</p>
           <div className="email-login-dialog-actions">
-            {onChooseProvider && providers.filter(provider => provider.available).map(provider => <button className="button" type="button" key={provider.id} onClick={() => { setRecommend(false); onChooseProvider(provider.id); }}>{provider.id === "google" ? t("使用 Google 登录", "Sign in with Google") : t("使用 Microsoft 登录", "Sign in with Microsoft")}</button>)}
+            {onChooseProvider && providers.filter(provider => provider.available).map(provider => <button className="button" type="button" key={provider.id} onClick={() => { setRecommend(false); onChooseProvider(provider.id); }}>{provider.id === "google" ? t("使用 Google 登录", "Sign in with Google") : provider.id === "github" ? t("使用 GitHub 登录", "Sign in with GitHub") : t("使用 Microsoft 登录", "Sign in with Microsoft")}</button>)}
             <button className="button subtle" type="button" onClick={() => { setRecommend(false); setPreferEmail(true); void sendCode(true); }}>{t("仍然发送邮箱验证码", "Continue with email code")}</button>
             <button className="text-button" type="button" onClick={() => setRecommend(false)}>{t("返回", "Back")}</button>
           </div>
         </dialog>
         <p className="account-fineprint">
-          {anyEmail ? t("验证码 10 分钟有效，只能使用一次。已有 Google／Microsoft 账户请继续使用原方式登录，暂不自动合并不同登录方式。昵称和头像会公开，完整邮箱保持私密。", "Codes expire in 10 minutes and work once. If you already use Google/Microsoft, continue with that method; sign-in identities are not automatically merged. Your display name and avatar are public; your full email stays private.") : workEmailRegistration ? t(
+          {compact ? t("验证码 10 分钟内有效。已有账号请使用原来的登录方式，不同方式不会自动合并。", "Codes expire in 10 minutes. Already have an account? Use your original sign-in method; different methods are not automatically merged.") : anyEmail ? t("验证码 10 分钟有效，只能使用一次。已有 Google／Microsoft 账户请继续使用原方式登录，暂不自动合并不同登录方式。昵称和头像会公开，完整邮箱保持私密。", "Codes expire in 10 minutes and work once. If you already use Google/Microsoft, continue with that method; sign-in identities are not automatically merged. Your display name and avatar are public; your full email stays private.") : workEmailRegistration ? t(
             "验证码 10 分钟有效，只能使用一次。已有 Google／Microsoft 账户请继续使用原方式登录，暂不自动合并不同登录方式。昵称、头像和所属学校或公司名称会公开，完整邮箱保持私密。",
             "Codes expire in 10 minutes and work once. If you already use Google/Microsoft, continue with that method; sign-in identities are not automatically merged. Your display name, avatar and school or company name are public; your full email stays private.",
           ) : t(
@@ -515,7 +533,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           )}
         </p>
       </section>
-      <aside className="account-aside">
+      {!compact && <aside className="account-aside">
         <div className="social-panel">
           <ShieldCheck size={27} className="accent-icon" />
           <h3>{t("学校／公司邮箱验证", "School / company email verification")}</h3>
@@ -527,7 +545,7 @@ export function SignIn({ enabled, workEmailRegistration = false, onChooseProvide
           </p>
         </div>
         {!anyEmail && <InstitutionRequest openRegistration={workEmailRegistration} />}
-      </aside>
+      </aside>}
     </div>
   );
 }
@@ -860,8 +878,8 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
                       "Show your problem totals, daily activity, recent accepted problems, and account achievements. Turn this off to keep them and featured achievements visible only to you. Code, drafts, and detailed judge reports always stay private.",
                     )
                   : t(
-                      "此开关控制账号判题统计与勋章的公开展示。本地浏览器练习记录不会自动上传；代码和详细报告始终私有。",
-                      "Controls public statistics and achievements from saved account submissions. Browser-only practice is not uploaded automatically. Code and detailed reports always stay private.",
+                      "此开关控制账号判题统计与勋章的公开展示。本机练习记录不会自动上传；代码和详细报告始终私有。",
+                      "Controls public statistics and achievements from saved account submissions. Practice results are not uploaded automatically. Code and detailed reports always stay private.",
                     )}
               </small>
             </span>

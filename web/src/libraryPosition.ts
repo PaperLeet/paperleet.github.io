@@ -2,7 +2,7 @@ import {appLocation} from './appLocation';
 import { libraryHref, readLibraryRoute } from './libraryNavigation';
 
 type Position = { y: number; count?: number; anchor?: { id: string; top: number } };
-const key = 'paperleet.library.positions.v1', limit = 8;
+const key = 'paperleet.library.positions.v2', limit = 8;
 const memory = new Map<string, Position>();
 let hydrated = false;
 function canonical(href: string) {
@@ -44,8 +44,8 @@ export function readLibraryPosition(href: string): Position | undefined {
 }
 
 /** Optional enhancement; install only while this exact library view is mounted. */
-export function watchLibraryPosition(href: string, restore: boolean, windowed?: {ids: string[]; reveal: (count: number) => void}) {
-  let stopped = false, frame: number | undefined, observer: IntersectionObserver | undefined;
+export function watchLibraryPosition(href: string, restore: boolean, origin={y:window.scrollY,active:document.activeElement}) {
+  let stopped = false, frame: number | undefined, interrupted=false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const here = () => canonical(appLocation.hash) === href;
   const rows = () => Array.from(document.querySelectorAll<HTMLElement>('[data-paper-id],[data-module-id]'));
@@ -61,26 +61,16 @@ export function watchLibraryPosition(href: string, restore: boolean, windowed?: 
     anchorId = rowId(row);
     rememberLibraryPosition(href, { y: Math.max(0, scrollY), count: candidates.length, ...(row ? { anchor: { id: rowId(row)!, top: row.getBoundingClientRect().top } } : {}) });
   }
-  if (position && windowed) {
-    const anchorIndex = position.anchor ? windowed.ids.indexOf(position.anchor.id) : -1;
-    windowed.reveal(Math.min(windowed.ids.length, Math.max(20, position.count || 0, Math.ceil((anchorIndex + 1) / 20) * 20)));
-  }
-  // Allow the restored batch to commit before measuring its anchor or observing the sentinel.
+  const interrupt=()=>{interrupted=true;};
+  const events=['pointerdown','wheel','touchstart','keydown','input'] as const;
+  for(const event of events)document.addEventListener(event,interrupt,{capture:true,passive:true});
+  // Restore only this page, yielding to newer typing, focus or scrolling.
   frame = requestAnimationFrame(() => {
     frame = requestAnimationFrame(() => {
       if (stopped || !here()) return;
-      if (position) {
+      if (position&&!interrupted&&window.scrollY===origin.y&&document.activeElement===origin.active&&!origin.active?.closest('input,textarea,select,[contenteditable="true"]')) {
         const row = position.anchor && rows().find(element => rowId(element) === position.anchor!.id);
-        scrollTo(0, Math.max(0, row && position.anchor ? scrollY + row.getBoundingClientRect().top - position.anchor.top : position.y));
-      }
-      const sentinel = document.querySelector('.library-load-more');
-      if (windowed && sentinel && typeof IntersectionObserver !== 'undefined') {
-        observer = new IntersectionObserver(entries => {
-          if (!stopped && here() && entries.some(entry => entry.isIntersecting)) {
-            windowed.reveal(Math.min(windowed.ids.length, rows().length + 20));
-          }
-        }, {rootMargin: '0px 0px 200px 0px'});
-        observer.observe(sentinel);
+        if(!position.anchor||row)scrollTo(0, Math.max(0, row && position.anchor ? scrollY + row.getBoundingClientRect().top - position.anchor.top : position.y));
       }
     });
   });
@@ -93,5 +83,5 @@ export function watchLibraryPosition(href: string, restore: boolean, windowed?: 
   window.addEventListener('scroll', scroll, { passive: true });
   window.addEventListener('pagehide', hide);
   document.addEventListener('click', click, true);
-  return () => { stopped = true; observer?.disconnect(); clearTimeout(timer); if (frame !== undefined) cancelAnimationFrame(frame); window.removeEventListener('scroll', scroll); window.removeEventListener('pagehide', hide); document.removeEventListener('click', click, true); };
+  return () => { stopped = true; clearTimeout(timer); if (frame !== undefined) cancelAnimationFrame(frame); for(const event of events)document.removeEventListener(event,interrupt,true);window.removeEventListener('scroll', scroll); window.removeEventListener('pagehide', hide); document.removeEventListener('click', click, true); };
 }

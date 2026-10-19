@@ -185,7 +185,7 @@ try {
   assert.equal(calls.stops,1);
   await settle(()=>!action('Run tests').disabled);
   assert(resultSelected(),'Stopping tests keeps feedback in the selected Result tab');
-  assert(find('#problem-results-panel').textContent.includes('Browser run stopped'),'The browser AbortError is shown inline');
+  assert(find('#problem-results-panel').textContent.includes('Run stopped'),'The browser AbortError is shown inline');
   assert.equal(find('.workspace-result-heading > span').textContent,'Stopped','An intentional stop is distinct from a failed run');
   assert.equal(find('#problem-results-panel [role="alert"]'),null,'Stopping is a neutral status, not an error announcement');
   assert(find('.run-recovery button[data-retry-run]'),'The result panel offers a direct retry after stopping');

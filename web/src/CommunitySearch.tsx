@@ -6,12 +6,20 @@ import './community-search.css';
 const bounded=(value:string)=>Array.from(value).slice(0,200).join('');
 const normalized=(value:string)=>bounded(value).replace(/[\u0000-\u001f\u007f]/g,' ').trim();
 
-export default function CommunitySearch({applied,onApply,label,placeholder,disabled=false,className='community-search',describedBy,inputRef,resetScope}:{applied:string;onApply:(query:string)=>void;label?:string;placeholder?:string;disabled?:boolean;className?:string;describedBy?:string;inputRef?:RefObject<HTMLInputElement|null>;resetScope?:string}){
+export default function CommunitySearch({applied,onApply,label,placeholder,disabled=false,className='community-search',describedBy,inputRef,resetScope,readingRevision}:{applied:string;onApply:(query:string)=>void;label?:string;placeholder?:string;disabled?:boolean;className?:string;describedBy?:string;inputRef?:RefObject<HTMLInputElement|null>;resetScope?:string;readingRevision?:number}){
  const {t}=useI18n(),hint=useId(),fallback=useRef<HTMLInputElement>(null),composing=useRef(false),imeEnter=useRef(false);
  const input=inputRef||fallback;
  const [query,setQuery]=useState(applied);
+ const previousView=useRef({applied,resetScope,readingRevision});
  const pending=query!==applied&&normalized(query)!==applied;
- useEffect(()=>{setQuery(applied);composing.current=false;imeEnter.current=false;},[applied,resetScope]);
+ useEffect(()=>{
+  const previous=previousView.current;previousView.current={applied,resetScope,readingRevision};
+  // Only temporary reading navigation retains pending input. Leaving the scope,
+  // applying a search or restoring a saved view still adopts the caller's query.
+  // Retaining the value also leaves the native selection and horizontal scroll intact.
+  if(resetScope===previous.resetScope&&readingRevision!==undefined&&readingRevision!==previous.readingRevision&&normalized(query)!==previous.applied)return;
+  setQuery(applied);composing.current=false;imeEnter.current=false;
+ },[applied,resetScope,readingRevision]);
  useEffect(()=>{if(disabled){composing.current=false;imeEnter.current=false;}},[disabled]);
  function change(value:string,transient=composing.current){
   if(disabled)return;
@@ -43,7 +51,7 @@ export default function CommunitySearch({applied,onApply,label,placeholder,disab
    onKeyDown={event=>{
     const ime=composing.current||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229;
     if(event.key==='Enter'){imeEnter.current=ime;return;}
-    if(event.key==='Escape'&&!ime&&query){event.preventDefault();event.stopPropagation();clear();}
+    if(event.key==='Escape'&&!ime&&!event.repeat&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&query){event.preventDefault();event.stopPropagation();clear();}
    }} onKeyUp={event=>{if(event.key==='Enter')imeEnter.current=false;}} onBlur={()=>{imeEnter.current=false;}}/>
   {!!query&&<button type="button" disabled={disabled} className="community-search-clear" aria-label={t('清空搜索','Clear search')} title={t('清空搜索','Clear search')} onClick={clear}><X size={16} aria-hidden="true"/></button>}
   <button type="submit" className="community-search-submit" disabled={disabled} aria-label={t('搜索','Search')} onPointerDown={()=>{if(!composing.current)imeEnter.current=false;}}>{t('搜索','Search')}</button>

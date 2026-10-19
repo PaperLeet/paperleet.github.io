@@ -46,7 +46,8 @@ try{
  assert(document.getElementById(original.getAttribute('aria-describedby')).textContent.includes('Enter to search; Escape to clear'));
  const code=document.querySelector('[aria-label="Practice code"]');code.setSelectionRange(3,9,'backward');code.scrollTop=91;code.scrollLeft=17;
  await edit('An unapplied query 😀');assert.equal(requests.length,calls);field().focus();let escaped=0;const escape=event=>{if(event.key==='Escape')escaped++;};window.addEventListener('keydown',escape);
- const cancel=await key('keydown','Escape');assert(cancel.defaultPrevented);assert.equal(escaped,0);assert.equal(field().value,'');assert.equal(document.activeElement,original);assert.equal(location.href,originalHref);assert.equal(requests.length,calls);assert.equal(state().page,3);
+ for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{shiftKey:true},{repeat:true}]){const event=await key('keydown','Escape',extra);assert(!event.defaultPrevented);assert.equal(field().value,'An unapplied query 😀');assert.equal(requests.length,calls);assert.equal(location.href,originalHref);}
+ escaped=0;const cancel=await key('keydown','Escape');assert(cancel.defaultPrevented);assert.equal(escaped,0);assert.equal(field().value,'');assert.equal(document.activeElement,original);assert.equal(location.href,originalHref);assert.equal(requests.length,calls);assert.equal(state().page,3);
  const emptyEscape=await key('keydown','Escape');assert(!emptyEscape.defaultPrevented);assert.equal(escaped,1);window.removeEventListener('keydown',escape);
  await edit('Do not apply this');await click(clear());assert.equal(location.href,originalHref);assert.equal(requests.length,calls);assert.equal(document.activeElement,original);
  // IME confirmation remains native and cannot also submit a feed query.

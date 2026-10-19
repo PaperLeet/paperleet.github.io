@@ -40,7 +40,7 @@ import SolutionReadingCard from './SolutionReadingCard';
 import CommunityFeedFilters from './CommunityFeedFilters';
 import CommunityFeedPeriod from './CommunityFeedPeriod';
 import {useWritingDisclosure,type WritingPanelProps} from './useWritingDisclosure';
-import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice} from './useDiscussionReplies';
+import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorNavigation} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
 import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
@@ -84,7 +84,7 @@ import ProfileProgress from "./ProfileProgress";
 import ProfileAchievements from "./ProfileAchievements";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
-import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, solutionsHref, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
+import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, MAX_COMMUNITY_PAGE, solutionsHref, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
 import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
 import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft, writeReplyDraft, type ReplyDraft } from "./replyDrafts";
 import {
@@ -113,6 +113,7 @@ import PostReport from './PostReport';
 import {readReportHistory} from './reportHistoryNavigation';
 import CommunityCardActions from './CommunityCardActions';
 import CommunitySearch from './CommunitySearch';
+import FeedSearchEmpty from './FeedSearchEmpty';
 import Pagination from './CommunityPagination';
 import {revealReadingTarget,keepReadingTriggerVisible} from './readingViewport';
 import RelatedModuleSearch from './RelatedModuleSearch';
@@ -623,6 +624,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const offset = (page - 1) * PAGE_SIZE;
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, tag?tagsAvailable:undefined, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
+  const searchInput=useRef<HTMLInputElement>(null);
   const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
@@ -630,6 +632,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     [retry, setRetry] = useState(0);
   const writing=useWritingDisclosure(JSON.stringify([user?.id,draftScope]));
   const pending = loading || data.requestKey !== requestKey;
+  const emptyPage=!pending&&page>1&&!data.items.length,pageCount=Math.max(1,Math.ceil(data.total/PAGE_SIZE)),lastPage=Math.min(MAX_COMMUNITY_PAGE,pageCount),viewLocation=appLocation.hash;
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
@@ -639,6 +642,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   function choose(change: Partial<CommunityFeedState>) {
     const next={...filters,page:1,...change,...(embedded?{solutions}:{})};
     if(embedded)setLocalFilters(next);else appLocation.hash = communityFeedHref(topicId,next);
+  }
+  function changePage(next:number,trigger?:HTMLElement){
+    const root=feedList.current,current=readCommunityFeed(appLocation.hash);
+    if(!Number.isSafeInteger(next)||next<1||next>MAX_COMMUNITY_PAGE||next===page||pending||accountLoading||error||!feedAccessReady||sortingUnavailable||solutionUnavailable||periodUnavailable||tagUnavailable)return;
+    if(!root?.isConnected||root.closest('[hidden],[aria-hidden="true"]')||trigger&&(!root.contains(trigger)||!trigger.isConnected||trigger.closest('[hidden],[aria-hidden="true"]')))return;
+    if(embedded?appLocation.hash!==viewLocation:!current||communityFeedHref(current.topicId,current.state)!==returnTo)return;
+    root.focus({preventScroll:true});revealReadingTarget(root);choose({page:next});
   }
   const solutionReading=useSolutionReadingNavigation({enabled:embedded&&solutions&&!!onCode&&solutionAvailable&&!accountLoading,scope:JSON.stringify([user?.id||'guest',topicId,{...filters,page:undefined}]),page,generation:data.generation,ready:!pending&&!error&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,failed:!!error,total:data.total,items:data.items,root:feedList,toolbar,onPage:page=>choose({page})});
   useEffect(() => {
@@ -657,7 +667,6 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   }, [category, locale]);
   useEffect(() => {
     let live = true;
-    let redirected = false;
     const generation=++resultGeneration.current;
     const controller = new AbortController();
     setLoading(true);
@@ -697,13 +706,6 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
         if(days&&data?.days!==days)throw Error(t('暂时无法确认发布时间筛选，请重试。','Could not confirm the publication period. Please retry.'));
         if(embedded&&!solutions&&data&&Array.isArray(data.items)&&((topicId&&data.items.some(post=>post.problem_id!==topicId))||(data.solutions!==undefined&&data.solutions!==false)))throw Error(t('暂时无法确认本题讨论的范围，请重试。','Could not confirm the discussion scope for this problem. Please retry.'));
         if (!data || !Array.isArray(data.items) || !Number.isSafeInteger(data.total) || data.total < 0 || (sort && data.sort !== sort) || (solutions && (data.solutions!==true || data.items.some(post=>post.solution!==true || !post.problem_id || (topicId && post.problem_id!==topicId))))) throw Error(t('暂时无法确认讨论列表的排序，请重试。','Could not confirm the discussion order. Please retry.'));
-        const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
-        if (page > lastPage) {
-          redirected = true;
-          if(embedded){setLocalFilters(previous=>({...previous,page:lastPage}));return;}
-          location.replace(communityFeedHref(topicId, { category, ...(tag?{tag}:{}), following, ...(solutions?{solutions:true}:{}), ...(saved ? {saved:true} : {}), ...(sort ? {sort} : {}), ...(days?{days}:{}), search, page: lastPage }));
-          return;
-        }
         setData({ ...data, requestKey,generation });
       })
       .catch((e) => {
@@ -712,7 +714,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
       .finally(() => {
         clearTimeout(timer);
         if(!live)return;live=false;
-        if (!redirected) setLoading(false);
+        setLoading(false);
       });
     return () => {
       live = false; clearTimeout(timer); controller.abort();
@@ -795,7 +797,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             <div className="community-feed-controls">
               {!embedded&&<CommunityTopicBrowser key={returnTo} from={returnTo} topics={topics} loading={catalogLoading} error={catalogError} reload={reloadCatalog}/>}
               <TaxonomyStatus/><CommunityTagBrowser value={tag} onChange={tag=>choose({tag})}/>
-              <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
+              <CommunitySearch key={accountLoading?'checking-account':user?.id||'guest'} inputRef={searchInput} resetScope={JSON.stringify([topicId,solutions,category])} applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
               {sortingAvailable && <label className="community-sort" htmlFor={sortId}><Settings2 size={14} aria-hidden="true"/><span>{t('排序','Sort')}</span><select id={sortId} aria-label={t('排序','Sort')} value={sort || 'latest'} onChange={event=>choose({sort:event.target.value==='latest'?undefined:event.target.value as 'active'|'top'})}>
                 <option value="latest">{saved?t('最近收藏','Recently saved'):t('最新发布','Newest posts')}</option><option value="active">{t('最近活跃','Recently active')}</option><option value="top">{t('最多赞','Most liked')}</option>
@@ -854,6 +856,13 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               >
                 <JoinPrompt returnTo={returnTo} />
               </Empty>
+            ) : emptyPage ? (
+              <div className="community-feed-page-recovery"><Empty title={t('这一页已没有内容','This page has no posts')}>
+                <p>{data.total?t(`当前范围共 ${pageCount} 页。内容可能已更新，返回有效页继续阅读，搜索和筛选会保留。`,`This view has ${pageCount} pages. Content may have changed; return to an available page with your search and filters kept.`):t('当前范围暂时没有内容。返回第一页重新查看，搜索和筛选会保留。','No content remains in this view. Return to the first page with your search and filters kept.')}</p>
+                <div className="community-feed-page-actions"><button type="button" className="button" onClick={event=>changePage(1,event.currentTarget)}>{t('返回第一页','Return to first page')}</button>{lastPage>1&&lastPage!==page&&<button type="button" className="button subtle" onClick={event=>changePage(lastPage,event.currentTarget)}>{t('返回最后一页','Open last page')}</button>}</div>
+              </Empty></div>
+            ) : !data.items.length && !!search.trim() ? (
+              <FeedSearchEmpty kind={solutions?'solutions':'discussions'} saved={saved} onClear={()=>{searchInput.current?.focus({preventScroll:true});if(searchInput.current)revealReadingTarget(searchInput.current);choose({search:''});}} onReview={()=>{toolbar.current?.focus({preventScroll:true});if(toolbar.current)revealReadingTarget(toolbar.current);}}/>
             ) : !data.items.length ? (
               <Empty
                 title={
@@ -887,9 +896,9 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.region!=='highlights'&&reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
             )}
           </div>
-          {!pending && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && (
+          {!pending && !emptyPage && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && !tagUnavailable && (
             <Pagination key={requestKey} offset={offset} total={data.total} count={data.items.length} label={solutions?t('题解分页','Solution pages'):t('讨论分页','Discussion pages')}
-              onChange={next=>{if(next===offset)return;const target=feedList.current;if(target){target.focus({preventScroll:true});revealReadingTarget(target);}choose({page:next/PAGE_SIZE+1});}}/>
+              onChange={next=>changePage(next/PAGE_SIZE+1)}/>
           )}
         </section>
       </div>
@@ -1205,6 +1214,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                     <CommunityAuthor user={r.author} compact/>
                     {r.author.id===post.author.id&&<span className="reply-author-badge">{t('楼主','Author')}</span>}
                     <DateLabel value={r.created_at} />
+                    <ReplyAuthorNavigation list={replyList} replyId={r.id}/>
                     <DiscussionLink key={r.id} postId={id} replyId={r.id} returnTo={providedReturnTo}/>
                     {r.updated_at&&r.updated_at!==r.created_at&&<span>{t('已编辑','Edited')} <DateLabel value={r.updated_at}/></span>}
                     {canEditReply(r,owner)&&<button id={`edit-reply-${r.id}`} type="button" className="text-button" disabled={busy||loading||!!editingReply} onClick={event=>{replyEditOrigin.current={opener:event.currentTarget,href:location.href};setEditingReply(r.id);setReplyEdited(undefined);}}>{t('编辑回复','Edit reply')}</button>}

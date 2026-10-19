@@ -22,7 +22,7 @@ export function ProblemStats({ stats, loading = false }: { stats?: ProblemStatis
     title={stats ? t("仅统计正式提交；人数按账号去重，通过率 = 通过提交 / 全部提交。", "Full submissions only. User counts are unique; acceptance = accepted / total submissions.") : loading ? t("正在加载统计", "Loading statistics") : t("统计暂不可用", "Statistics unavailable")}>
     {metrics.map(([key, label, value]) => <div key={key} data-stat={key}><dt>{label}</dt><dd>{value}</dd></div>)}
   </dl>;
-  return stats ? content : <details className="stats-availability"><summary>{loading ? t("正在加载统计…", "Loading statistics…") : t("公开统计暂不可用", "Public statistics unavailable")}</summary><p>{t("统计仅包含服务端确认的正式提交；本机练习进度仍会保留。", "Statistics include server-verified submissions. Your browser learning progress is still saved.")}</p>{content}</details>;
+  return stats ? content : <details className="stats-availability"><summary>{loading ? t("正在加载统计…", "Loading statistics…") : t("公开统计暂不可用", "Public statistics unavailable")}</summary><p>{t("统计仅包含服务端确认的正式提交；本机练习进度仍会保留。", "Statistics include server-verified submissions. Your practice progress is still saved on this device.")}</p>{content}</details>;
 }
 
 export function ProblemStatsSummary({ stats }: { stats?: ProblemStatistics }) {

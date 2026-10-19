@@ -398,6 +398,39 @@
       "description_en": "Use the official careers entry to check responsibilities, requirements and how to apply; confirm interview arrangements for your specific role.",
       "checked": "2026-10-15",
       "kind": "careers"
+    },
+    {
+      "id": "amazon-sde-ii",
+      "company": "amazon",
+      "name": "Amazon SDE II 官方面试准备",
+      "name_en": "Amazon SDE II interview preparation",
+      "url": "https://www.amazon.jobs/content/en/how-we-hire/sde-ii-interview-prep",
+      "description": "按官方章节复习编码、系统设计与行为案例，再与招聘团队确认对应岗位的具体安排。",
+      "description_en": "Review the official sections on coding, system design and behavioral examples, then confirm role-specific arrangements with the recruiting team.",
+      "checked": "2026-10-18",
+      "kind": "guide"
+    },
+    {
+      "id": "amazon-sde-iii",
+      "company": "amazon",
+      "name": "Amazon 高级软件工程师官方准备",
+      "name_en": "Amazon senior SDE interview preparation",
+      "url": "https://www.amazon.jobs/content/en/how-we-hire/sde-iii-interview-prep",
+      "description": "面向高级软件工程岗位，结合官方的编码、系统设计和项目行为案例准备材料组织复习。",
+      "description_en": "Prepare for senior software-engineering roles with the official coding, system design and behavioral preparation material.",
+      "checked": "2026-10-18",
+      "kind": "guide"
+    },
+    {
+      "id": "microsoft-research-careers",
+      "company": "microsoft",
+      "name": "Microsoft Research 研究岗位与实习入口",
+      "name_en": "Microsoft Research careers and internships",
+      "url": "https://www.microsoft.com/en-us/research/careers/",
+      "description": "查看研究实习、博士后与全职研究岗位说明，并从官方入口了解实验室和开放职位。",
+      "description_en": "Explore research internships, postdoctoral and full-time opportunities, with official links to research labs and open roles.",
+      "checked": "2026-10-18",
+      "kind": "careers"
     }
   ],
   "paths": [

@@ -1,0 +1,15 @@
+[
+  {
+    "title": "Source code and boundary discussion",
+    "body": "```python\npublic_result_0 = 0\npublic_result_1 = 1\npublic_result_2 = 2\npublic_result_3 = 3\npublic_result_4 = 4\npublic_result_5 = 5\npublic_result_6 = 6\npublic_result_7 = 7\npublic_result_8 = 8\npublic_result_9 = 9\npublic_result_10 = 10\npublic_result_11 = 11\npublic_result_12 = 12\npublic_result_13 = 13\npublic_result_14 = 14\npublic_result_15 = 15\npublic_result_16 = 16\npublic_result_17 = 17\npublic_result_18 = 18\npublic_result_19 = 19\npublic_result_20 = 20\npublic_result_21 = 21\npublic_result_22 = 22\npublic_result_23 = 23\npublic_result_24 = 24\npublic_result_25 = 25\npublic_result_26 = 26\npublic_result_27 = 27\npublic_result_28 = 28\npublic_result_29 = 29\npublic_result_30 = 30\npublic_result_31 = 31\n```"
+  },
+  {
+    "title": "Anonymous formula reasoning",
+    "body": "$$\nL = \\sum_{i=1}^{n} x_i^2\n$$",
+    "anonymous": true
+  },
+  {
+    "title": "Table and structured experience",
+    "body": "# Interview reflection\n\nA clear explanation of tensor shapes and failure cases.\n\n| Case | Result |\n| --- | --- |\n| Empty batch | Checked |\n\n## Verification\n\nOnly public source material belongs here.\n\n<script>window.SOURCE_READER_UNSAFE = true</script>\n\n[Unsafe](javascript:alert(1))\n\n![External source](https://remote-source.invalid/image.png)"
+  }
+]

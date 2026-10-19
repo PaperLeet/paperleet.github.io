@@ -3,13 +3,17 @@ import {companyComparisonLearning} from './companyComparisonLearningModel';
 import {interviewPracticeHref} from './interviewPracticeBatch';
 import AppLink from './AppLink';
 import {matchesInterviewContext} from './interviewContext';
-import {useId,useMemo,useRef,useState} from 'react';
+import {useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ArrowLeftRight,ChevronDown,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import {interviewCatalog,type InterviewSummary} from './interviewModels';
 import {interviewHref,type InterviewFilters} from './interviewNavigation';
 import {compareInterviewCompanies,comparisonRows,companyComparisonPair,type CompanyComparisonView} from './interviewCompanyComparisonModel';
 import OrganizationLogo from './OrganizationLogo';
+import CompanyChoiceSearch from './CompanyChoiceSearch';
+import {matchesInterviewCompany} from './interviewSearch';
+import {useWorkspaceIntent} from './useWorkspaceIntent';
+import {keepReadingTriggerVisible} from './readingViewport';
 import type {Problem,Saved} from './types';
 import InterviewPracticeGroup,{InterviewGroupToggle,useInterviewPracticeGroup} from './InterviewPracticeGroup';
 import './interview-company-comparison.css';
@@ -20,16 +24,17 @@ const PAGE_SIZE=12;
 
 /** Compare the same public summary; the URL restores choices without extra requests or storage. */
 export default function InterviewCompanyComparison({owner='guest',filters,summary,loading,error,problems=EMPTY_PROBLEMS,catalogError,onRetryCatalog,saved=EMPTY_SAVED,progressReady=false,progressError,onRetryProgress,onChange}:Props){
- const {t,locale}=useI18n(),id=useId(),heading=useRef<HTMLElement>(null),leftInput=useRef<HTMLSelectElement>(null);
+ const {t,locale}=useI18n(),id=useId(),heading=useRef<HTMLElement>(null),leftInput=useRef<HTMLSelectElement>(null),table=useRef<HTMLDivElement>(null),compactControl=useRef<HTMLButtonElement>(null);
  // Keep an applied local choice mounted until the hash router observes its URL.
  // A later back/shared route then owns the choice, rather than reviving the prior pair.
- const [selection,setSelection]=useState<{scope?:string;pending?:{next?:string};pair:{left:string;right:string};open:boolean}>(()=>({scope:filters.compare,pair:companyComparisonPair(filters.compare),open:!!filters.compare}));
+ const [selection,setSelection]=useState<{scope?:string;pending?:{next?:string};pair:{left:string;right:string};open:boolean;query:string}>(()=>({scope:filters.compare,pair:companyComparisonPair(filters.compare),open:!!filters.compare,query:''}));
  let current=selection;
  if(selection.scope!==filters.compare){
-  current=selection.pending&&selection.pending.next===filters.compare?{scope:filters.compare,pair:selection.pair,open:selection.open}:{scope:filters.compare,pair:companyComparisonPair(filters.compare),open:!!filters.compare};
+  current=selection.pending&&selection.pending.next===filters.compare?{scope:filters.compare,pair:selection.pair,open:selection.open,query:selection.query}:{scope:filters.compare,pair:companyComparisonPair(filters.compare),open:!!filters.compare,query:''};
   setSelection(current);
  }
  const {open,pair}=current;
+ const companies=interviewCatalog.companies.filter(company=>matchesInterviewCompany(company,current.query));
  const view:CompanyComparisonView=filters.comparison||'shared';
  const scope=JSON.stringify([pair.left,pair.right,filters.role,filters.stage,filters.outcome,filters.days,filters.location,filters.month_from,filters.month_to,filters.concept,view]);
  const [shown,setShown]=useState({scope:'',limit:PAGE_SIZE});
@@ -42,6 +47,15 @@ export default function InterviewCompanyComparison({owner='guest',filters,summar
  const learningById=new Map(learning.items.map(item=>[item.row.id,item]));
  const displayScope=scope+':'+filters.study,limit=shown.scope===displayScope?shown.limit:PAGE_SIZE;
  const applied=filters.compare===`${pair.left},${pair.right}`;
+ const intent=useWorkspaceIntent(JSON.stringify([owner,open,displayScope,pair.left,pair.right,rows.map(row=>row.id)]));
+ const reveal=useRef<{row?:string;claim:()=>boolean}|undefined>(undefined);
+ function expand(){if(limit>=rows.length)return;reveal.current={row:rows[limit].id,claim:intent.create()};setShown({scope:displayScope,limit:Math.min(rows.length,limit+PAGE_SIZE)});}
+ function compact(){if(limit<=PAGE_SIZE)return;reveal.current={claim:intent.create()};setShown({scope:displayScope,limit:PAGE_SIZE});}
+ useLayoutEffect(()=>{
+  const request=reveal.current;if(!request)return;reveal.current=undefined;
+  const target=request.row?Array.from(table.current?.querySelectorAll<HTMLTableRowElement>('tr[data-comparison-concept]')||[]).find(row=>row.dataset.comparisonConcept===request.row)?.querySelector<HTMLElement>('th a'):compactControl.current;
+  if(target?.isConnected&&!target.closest('[hidden]')&&request.claim()){target.focus({preventScroll:true});keepReadingTriggerVisible(target,100);if(request.row)target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}else intent.cancel();
+ },[limit,displayScope,open]);
  const candidates=rows.flatMap(row=>{const problem=byId.get(row.id);return problem?[problem]:[];});
  const group=useInterviewPracticeGroup({filters,source:'reports',selectionScope:JSON.stringify([scope,filters.queue]),problems,candidates,filterPending:!compare||!applied||!problems.length||!!catalogError||learning.pending,pendingReason:!compare||!applied?'sources':!problems.length||catalogError?'catalog':'progress',saved,ready:learningReady,owner});
  const sourceHref=(company:string,concept=filters.concept)=>interviewHref({...filters,company,concept,view:'reports',q:'',saved:false,queue:'',page:1});
@@ -49,24 +63,25 @@ export default function InterviewCompanyComparison({owner='guest',filters,summar
   if(value&&(!interviewCatalog.companies.some(row=>row.id===value)||value===pair[side==='left'?'right':'left']))return;
   applyPair({...pair,[side]:value});
  }
- function applyPair(next:{left:string;right:string}){
+ function applyPair(next:{left:string;right:string},query=current.query){
   const compare=next.left&&next.right?`${next.left},${next.right}`:undefined;
-  setSelection({scope:filters.compare,pending:compare!==filters.compare?{next:compare}:undefined,pair:next,open:true});setShown({scope:'',limit:PAGE_SIZE});
+  setSelection({scope:filters.compare,pending:compare!==filters.compare?{next:compare}:undefined,pair:next,open:true,query});setShown({scope:'',limit:PAGE_SIZE});
   if(compare!==filters.compare)onChange({compare,comparison:compare?filters.comparison:undefined});
  }
  const counts=(company:string,reports:number,contributors:number,concept=filters.concept)=><AppLink href={sourceHref(company,concept)} aria-label={t(`阅读${label(company)}${concept?'与此知识点相关的':''} ${reports} 篇来源面经，来自 ${contributors} 位分享者`,`Read ${reports} ${label(company)} source ${reports===1?'report':'reports'}${concept?' for this concept':''}, from ${contributors} ${contributors===1?'contributor':'contributors'}`)}>{t(`${reports} 篇面经 · ${contributors} 位分享者`,`${reports} ${reports===1?'report':'reports'} · ${contributors} ${contributors===1?'contributor':'contributors'}`)}</AppLink>;
  return <details className="company-comparison" open={open} onToggle={event=>{
   const expanded=event.currentTarget.open;
-  if(!expanded&&event.currentTarget.querySelector('.company-comparison-content')?.contains(document.activeElement))heading.current?.focus({preventScroll:true});
+  if(!expanded&&event.currentTarget.querySelector('.company-comparison-content')?.contains(document.activeElement)&&heading.current){heading.current.focus({preventScroll:true});keepReadingTriggerVisible(heading.current,100);}
   setSelection(previous=>previous.open===expanded?previous:{...previous,open:expanded});
  }}>
   <summary ref={heading}><ArrowLeftRight size={17} aria-hidden="true"/><span>{t('对比公司知识点','Compare company concepts')}</span><ChevronDown size={16} aria-hidden="true"/></summary>
   {open&&<div className="company-comparison-content">
-   <p id={`${id}-help`}>{t('选择两家公司，对照当前岗位、轮次、结果、知识点与时间范围内的公开面经。公司名称搜索不限制对比选择。','Choose two companies to compare public reports within the current role, stage, outcome, concept and period. The company-name search does not limit these choices.')}</p>
+   <p id={`${id}-help`}>{t('选择两家公司，对照当前岗位、轮次、结果、知识点与时间范围内的公开面经。页面顶部的公司搜索不会限制对比范围。','Choose two companies to compare public reports within the current role, stage, outcome, concept and period. The page-level company search does not restrict the comparison.')}</p>
+   <CompanyChoiceSearch value={current.query} count={companies.length} statusId={`${id}-company-matches`} onChange={query=>setSelection(previous=>({...previous,query}))}/>
    <div className="company-comparison-controls" role="group" aria-describedby={`${id}-help`} aria-label={t('公司对比选择','Company comparison choices')}>
-    {(['left','right'] as const).map(side=><label key={side}><span>{side==='left'?t('第一家公司','First company'):t('第二家公司','Second company')}</span><select ref={side==='left'?leftInput:undefined} value={pair[side]} onChange={event=>choose(side,event.target.value)}><option value="">{t('选择公司','Choose a company')}</option>{interviewCatalog.companies.map(company=><option key={company.id} value={company.id} disabled={company.id===pair[side==='left'?'right':'left']}>{locale==='en'?company.name_en:company.name}</option>)}</select></label>)}
+    {(['left','right'] as const).map(side=><label key={side}><span>{side==='left'?t('第一家公司','First company'):t('第二家公司','Second company')}</span><select ref={side==='left'?leftInput:undefined} value={pair[side]} aria-describedby={`${id}-company-matches`} onChange={event=>choose(side,event.target.value)}><option value="">{t('选择公司','Choose a company')}</option>{pair[side]&&!companies.some(company=>company.id===pair[side])&&<optgroup label={t('已选公司','Selected company')}><option value={pair[side]}>{label(pair[side])}</option></optgroup>}{companies.map(company=><option key={company.id} value={company.id} disabled={company.id===pair[side==='left'?'right':'left']}>{locale==='en'?company.name_en:company.name}</option>)}</select></label>)}
     <button type="button" className="company-comparison-swap" disabled={!selected} onClick={()=>{applyPair({left:pair.right,right:pair.left});}}><ArrowLeftRight size={16} aria-hidden="true"/>{t('交换','Swap')}</button>
-    <button type="button" className="text-button" disabled={!pair.left&&!pair.right} onClick={()=>{applyPair({left:'',right:''});leftInput.current?.focus({preventScroll:true});}}><X size={15} aria-hidden="true"/>{t('清空对比','Clear comparison')}</button>
+    <button type="button" className="text-button" disabled={!pair.left&&!pair.right} onClick={()=>{applyPair({left:'',right:''},'');leftInput.current?.focus({preventScroll:true});}}><X size={15} aria-hidden="true"/>{t('清空对比','Clear comparison')}</button>
    </div>
    {!selected?<p className="company-comparison-status" role="status">{t('选择两家不同的公司后显示对比。','Select two different companies to see their comparison.')}</p>:loading?<p className="company-comparison-status" role="status">{t('正在读取当前范围的面经统计…','Loading report counts for the current filters…')}</p>:!summary||error?<p className="company-comparison-status" role="status">{error?t('当前统计暂不可用，已保留公司选择。可使用页面的重试入口，或切换筛选。','Counts are unavailable. Your company choices are kept. Use the page retry control or change the filters.'):t('暂时没有可供对比的面经统计。已保留选择，请先确认页面的账号与统计状态。','Report counts are not available for comparison yet. Your choices are kept; check the page account and statistics status.')}</p>:!compare?<p className="company-comparison-status" role="status">{t('暂时无法确认公司对比数据，请重试统计。','The company comparison could not be confirmed. Retry the counts.')}</p>:<>
     <div className="company-comparison-totals">{[compare.left,compare.right].map(company=><div key={company.company}><h3><OrganizationLogo id={company.company} size={24}/>{label(company.company)}</h3>{company.reports?counts(company.company,company.reports,company.contributors):<span>{t('当前范围暂无公开面经','No public reports in this view')}</span>}</div>)}</div>
@@ -75,10 +90,10 @@ export default function InterviewCompanyComparison({owner='guest',filters,summar
     {!!catalogError&&(!applied||!publicRows.length)&&<p className="company-comparison-status" role="status">{t('题库名称暂不可用，仍可按知识点标识查看来源面经。','Catalog names are unavailable. Concept identifiers still link to source reports.')}{onRetryCatalog&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</p>}
     {applied&&publicRows.length>0&&<CompanyComparisonLearning value={learning} selected={filters.study} ready={learningReady} error={progressError} catalogError={catalogError} onChoose={study=>{onChange({study});setShown({scope:'',limit:PAGE_SIZE});}} onRetryProgress={onRetryProgress} onRetryCatalog={onRetryCatalog}/>}
     {applied&&<div className="company-comparison-practice"><p>{t('把当前对比范围内的知识点加入练习组，按自己的顺序连续练习。','Add concepts from this comparison to a batch and practice in your own order.')}</p>{progressError&&!publicRows.length&&<p role="status">{t('练习进度暂不可用，仍可编辑练习组；恢复同步后显示完成情况。','Practice progress is unavailable. You can still edit the batch; completion appears after sync recovers.')}{onRetryProgress&&<button type="button" className="text-button" onClick={onRetryProgress}>{t('重试进度','Retry progress')}</button>}</p>}<InterviewPracticeGroup group={group} onRetryCatalog={onRetryCatalog}/></div>}
-    {rows.length?<><div className="company-comparison-table" role="region" tabIndex={0} aria-label={t('公司知识点对比表，可横向滚动','Company concept comparison table, horizontally scrollable')}><table><thead><tr><th scope="col">{t('知识点与练习','Concept & practice')}</th><th scope="col">{label(pair.left)}</th><th scope="col">{label(pair.right)}</th></tr></thead><tbody>{rows.slice(0,limit).map(row=>{
+    {rows.length?<><div className="company-comparison-table" id={`${id}-table`} ref={table} role="region" tabIndex={0} aria-label={t('公司知识点对比表，可横向滚动','Company concept comparison table, horizontally scrollable')}><table><thead><tr><th scope="col">{t('知识点与练习','Concept & practice')}</th><th scope="col">{label(pair.left)}</th><th scope="col">{label(pair.right)}</th></tr></thead><tbody>{rows.slice(0,limit).map(row=>{
      const problem=byId.get(row.id),state=learningById.get(row.id)?.state,title=problem?(locale==='en'?problem.translations?.en?.title||problem.title:problem.title):row.id;
      return <tr key={row.id} data-comparison-concept={row.id}><th scope="row"><AppLink href={interviewHref({...filters,view:'questions',company:'',concept:row.id,q:'',saved:false,study:'all',queue:'',page:1})}>{problem&&<small>{problem.number}.</small>} {title}</AppLink>{problem&&applied&&<div className="company-comparison-row-practice"><span className={'company-comparison-state '+(state||'unknown')} data-comparison-state={state||'unknown'}>{state==='done'?t('已通过','Passed'):state==='started'?t('进行中','In progress'):state==='todo'?t('未开始','Not started'):t('状态待确认','State unconfirmed')}</span><AppLink data-comparison-practice={problem.id} href={interviewPracticeHref(problem,filters,candidates)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}</AppLink><InterviewGroupToggle problem={problem} name={title} group={group}/></div>}</th>{(['left','right'] as const).map(side=><td key={side}>{row[side]?counts(pair[side],row[side]!.reports,row[side]!.contributors,row.id):<span className="company-comparison-no-mentions">{t('未见提及','No mentions')}</span>}</td>)}</tr>;
-    })}</tbody></table></div><div className="company-comparison-more"><span role="status">{t(`已显示 ${Math.min(limit,rows.length)} / ${rows.length} 个知识点`,`Showing ${Math.min(limit,rows.length)} of ${rows.length} concepts`)}</span>{rows.length>PAGE_SIZE&&<button type="button" onClick={()=>setShown({scope:displayScope,limit:limit<rows.length?limit+PAGE_SIZE:PAGE_SIZE})}>{limit<rows.length?t(`再显示 ${Math.min(PAGE_SIZE,rows.length-limit)} 个`,`Show ${Math.min(PAGE_SIZE,rows.length-limit)} more`):t(`只显示前 ${PAGE_SIZE} 个`,`Show first ${PAGE_SIZE}`)}</button>}</div></>:<p className="company-comparison-status" role="status">{learning.pending?t('正在等待题目与学习状态确认，当前筛选已保留。','Waiting for exercise details and learning states with your filter kept.'):publicRows.length>0&&filters.study!=='all'?t('已载入题目中没有匹配的学习状态，可显示全部状态或选择其他状态。','No loaded exercises match this learning state. Show all learning states or choose another.'):view==='shared'?t('当前样本没有共同提及的知识点，可切换到全部知识点。','No concepts are mentioned by both in this sample. Try all concepts.'):view==='different'?t('当前关联知识点都被双方提及。','Every linked concept in this sample is mentioned by both.'):t('当前范围尚无这两家公司的关联知识点。','No linked concepts for these companies in the current view.')}</p>}
+    })}</tbody></table></div><div className="company-comparison-more"><span id={`${id}-visible`} role="status">{t(`已显示 ${Math.min(limit,rows.length)} / ${rows.length} 个知识点`,`Showing ${Math.min(limit,rows.length)} of ${rows.length} concepts`)}</span>{rows.length>PAGE_SIZE&&<div role="group" aria-label={t('浏览对比知识点','Browse comparison concepts')}>{limit<rows.length&&<button type="button" aria-controls={`${id}-table`} aria-describedby={`${id}-visible`} onClick={expand}>{t(`再显示 ${Math.min(PAGE_SIZE,rows.length-limit)} 个`,`Show ${Math.min(PAGE_SIZE,rows.length-limit)} more`)}</button>}<button type="button" ref={compactControl} aria-controls={`${id}-table`} aria-describedby={`${id}-visible`} aria-disabled={limit<=PAGE_SIZE} onClick={compact}>{t(`只显示前 ${PAGE_SIZE} 个`,`Show first ${PAGE_SIZE}`)}</button></div>}</div></>:<p className="company-comparison-status" role="status">{learning.pending?t('正在等待题目与学习状态确认，当前筛选已保留。','Waiting for exercise details and learning states with your filter kept.'):publicRows.length>0&&filters.study!=='all'?t('已载入题目中没有匹配的学习状态，可显示全部状态或选择其他状态。','No loaded exercises match this learning state. Show all learning states or choose another.'):view==='shared'?t('当前样本没有共同提及的知识点，可切换到全部知识点。','No concepts are mentioned by both in this sample. Try all concepts.'):view==='different'?t('当前关联知识点都被双方提及。','Every linked concept in this sample is mentioned by both.'):t('当前范围尚无这两家公司的关联知识点。','No linked concepts for these companies in the current view.')}</p>}
    </>}
   </div>}
  </details>;

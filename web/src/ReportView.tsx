@@ -64,7 +64,7 @@ export default function ReportView({
             {report.error
               ? t("判题未完成", "Run incomplete")
               : (accepted ?? isPassed(problem, report))
-                ? sourceState !== "current" ? t("上次测试通过", "Previous tests passed") : report.runtime === "browser-numpy-wasm" ? t("浏览器通过", "Browser tests passed") : "Accepted"
+                ? sourceState !== "current" ? t("上次测试通过", "Previous tests passed") : report.runtime === "browser-numpy-wasm" ? t("测试通过", "Tests passed") : "Accepted"
                 : allPassed
                   ? t("所选测试通过", "Selected tests passed")
                   : t(`${total - passed} 项测试需要修正`,`${total - passed} tests need attention`)}

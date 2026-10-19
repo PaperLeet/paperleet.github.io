@@ -110,7 +110,7 @@ export default function WorkspaceBackup({ owner, problems, saved, backups, confl
     <div className="backup-dialog-heading"><h2 id={titleId}>{t('代码备份与恢复', 'Code backup and restore')}</h2>
       <button ref={closeButton} className="button subtle" type="button" onClick={close}>{t('关闭', 'Close')}</button>
     </div>
-    <p>{owner.startsWith('user:') ? t('当前账号工作区', 'Current account workspace') : t('当前浏览器工作区', 'Current browser workspace')}</p>
+    <p>{owner.startsWith('user:') ? t('当前账号工作区', 'Current account workspace') : t('当前练习工作区', 'Current practice workspace')}</p>
     <p>{t('导出当前已加载的草稿、冲突版本与可恢复版本。备份包含完整代码，请妥善保存。', 'Export loaded drafts, conflicting source and recoverable versions. The backup contains complete code; keep it somewhere safe.')}</p>
     {!ready && <p role="status">{t('工作区尚未完整加载，此时备份只包含已加载的代码；完整加载后可再次导出。', 'The workspace is not fully loaded. This backup includes only loaded source; export again after loading finishes.')}</p>}
     <button className="button subtle" type="button" disabled={owner === 'unresolved'} onClick={exportCode}>{t('下载代码备份', 'Download code backup')}</button>

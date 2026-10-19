@@ -79,7 +79,7 @@ try {
     const html = render(props);
     assert.equal((html.match(/class="achievement-card"/g)||[]).length,15);
     assert(html.includes('href="#/22"') && html.includes('aria-pressed="true"') && html.includes('<progress'));
-    assert(html.includes(en ? 'Learning achievements' : '学习勋章') && html.includes(en ? 'Browser passes are local learning feedback' : '浏览器通过记录属于本机学习反馈'));
+    assert(html.includes(en ? 'Learning achievements' : '学习勋章') && html.includes(en ? 'These records stay on this device' : '这些记录保存在此设备'));
     const loading = render({...props,ready:false,saved:all});
     assert(loading.includes('aria-busy="true"') && !loading.includes('class="achievement-card"'),'Do not display previous-account rewards while the next workspace loads');
     assert(render({...props,ready:false,error:'Catalog unavailable'}).includes('role="alert"'));
@@ -118,7 +118,7 @@ try {
     assert.throws(() => readPublicAchievements(publicData,'bob'));
     assert.throws(() => readPublicAchievements({...publicData,pinned_ids:['all-core']},'alice'));
     const signed = renderElement(AchievementCollectionView,{progress:syncedModel,returnTo:'#',workspaceName:'Alice',onRetry(){},user:{username:'alice'},featured:null});
-    assert(signed.includes(en ? 'server-verified passes' : '服务端的完整测试通过记录') && signed.includes('href="#/u/alice"'));
+    assert(signed.includes(en ? 'complete-suite passes from saved submissions' : '正式提交的完整测试通过记录') && signed.includes('href="#/u/alice"'));
   }
   console.log('PASS achievements: 15 bilingual medals, complete-suite evidence, immutable grades, account-only evidence, owner validation, bounded ordered pins, catalog award retention, private/public profile projections, accessible showcase and notification baselines');
 } finally {
