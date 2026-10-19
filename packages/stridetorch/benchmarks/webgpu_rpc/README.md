@@ -158,3 +158,63 @@ latency measurement. Earlier raw NumPy CPU baselines do not establish a speedup
 over the improved Torch CPU path. See the
 [0.80 qualification record](../../../../docs/validation/torch-runtime-0.80-qualification.md)
 before drawing any GPU routing or performance conclusion.
+
+## Explicit Tensor matmul offload
+
+`torch_bridge.py` adds an opt-in `MatmulOffload` prototype. With ordinary
+StrideTorch Tensor operands, it returns a CPU Tensor whose forward and active
+first-order matrix pullbacks use the existing GPU program service. Standard
+`autograd.grad`, `backward`, hooks, retained graphs and optimizers can consume
+the result. It does not replace `torch.matmul` or create a GPU Tensor device.
+The host setup and JSPI entry requirements above still apply; load
+`matrix_client.py` and `torch_bridge.py` alongside the installed library.
+
+```python
+from stridetorch import torch
+from torch_bridge import MatmulOffload
+
+offload = MatmulOffload()
+x = torch.ones(256, 256, requires_grad=True)
+w = torch.ones(256, 256, requires_grad=True)
+output = offload(x, w)
+output.square().mean().backward()
+```
+
+The GPU route covers finite float32 2D matrices within conservative numerical
+range and unchanged host work/memory bounds. It submits only requested
+pullbacks and partitions programs when the sum of their work exceeds one
+program's MAC limit. No GPU handles survive a call. Reusing input CPU Tensors
+does not cache their values on the GPU; snapshots, uploads, readback and checks
+remain part of every GPU call.
+
+`no_grad`, forward/higher-order AD transforms, other dtypes, vectors, batches,
+empty matrices and exceptional numerical ranges use the existing CPU operation.
+Backward explicitly invoked with grad recording disabled also uses CPU
+pullbacks. These routes do not suspend. GPU transport errors propagate without
+a silent CPU retry. This prototype depends on private 0.83 graph interfaces and
+is not yet a stable independent-package API.
+
+Before suspension it captures required input values, identities, metadata and
+storage versions. After each GPU program it checks versions and value bits,
+including raw NumPy writes and signed-zero changes. It also checks the backward
+seed and global AD mode before publishing results. NumPy shared-storage writes
+between forward and backward use the current backward factors, matching native
+CPU matmul behavior. Tracked writes to saved factors retain ordinary graph
+version checks. A module-level gate rejects reentrant offload calls; this does
+not serialize arbitrary Python callbacks or establish general task isolation.
+
+Native transport/numerical/AD regression checks require NumPy, pytest and native
+Torch for independent controls:
+
+```sh
+PYTHONPATH=packages/stridetorch/src python -B -m pytest \
+  packages/stridetorch/benchmarks/webgpu_rpc/test_torch_bridge.py -q
+```
+
+The actual Chrome probe compares 51 value/gradient cases with native Torch
+2.6/2.14, runs five optimizer steps and checks 19 state/lifecycle controls.
+A matched three-process comparison includes actual autograd, all snapshots and
+three owned CPU outputs. See the
+[Tensor offload report](../../../../docs/validation/torch-webgpu-tensor-offload.md)
+for results and remaining boundaries. Small matrices remain slower on GPU;
+these measurements do not define a general automatic dispatch threshold.

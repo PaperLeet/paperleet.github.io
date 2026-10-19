@@ -1,0 +1,399 @@
+{
+  "status": "qualified_explicit_tensor_matmul_offload_prototype",
+  "canonical_cpu_version": "0.83.0",
+  "source_sha256": "f7cb57084191430d907f7502b6249413d98c933a7dd4fb91bcf6fa556818c2e6",
+  "tests_sha256": "3eb648435f9ea0b4c0c3e816c85f6fe7ec61c846ddba173a1e73a72546cf0628",
+  "native": {
+    "numpy25": {
+      "tests": 86,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "numpy126": {
+      "tests": 86,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "actual_chrome": {
+    "browser": "155.0.8059.82",
+    "gpu_info": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false,
+      "secure_context": true
+    },
+    "worker": {
+      "secure_context": false,
+      "origin": "null",
+      "gpu_exposed": false,
+      "pyodide": "0.29.4"
+    },
+    "cases": 51,
+    "controls": [
+      {
+        "kind": "five_step_optimizer_with_nonleaf_transposed_weight",
+        "passed": true
+      },
+      {
+        "kind": "forward_input",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_view_alias",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_activity",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_mode",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_reentry",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "backward_operand_mutation",
+        "passed": true
+      },
+      {
+        "kind": "backward_seed_mutation",
+        "passed": true
+      },
+      {
+        "kind": "no_grad_cpu_route_does_not_suspend_or_expose_temporary_mode",
+        "passed": true,
+        "callback": {
+          "stage": "after_no_grad",
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 0
+      },
+      {
+        "kind": "jvp_cpu_fallback",
+        "passed": true,
+        "gpu_programs": 0
+      },
+      {
+        "kind": "hvp_cpu_fallback",
+        "passed": true,
+        "gpu_programs": 0
+      },
+      {
+        "kind": "float64_cpu_fallback",
+        "passed": true,
+        "gpu_programs": 0
+      },
+      {
+        "kind": "real_backward_accumulation_output_hook_and_retain_grad",
+        "passed": true
+      },
+      {
+        "kind": "retained_graph_fresh_gradient_buffers_and_consumption",
+        "passed": true
+      },
+      {
+        "kind": "forward_raw",
+        "passed": true
+      },
+      {
+        "kind": "backward_operand_raw",
+        "passed": true
+      },
+      {
+        "kind": "backward_seed_raw",
+        "passed": true
+      },
+      {
+        "kind": "signed_zero_raw",
+        "passed": true
+      },
+      {
+        "kind": "numpy_changes_between_calls_use_current_backward_values",
+        "passed": true
+      }
+    ],
+    "independent_native_oracles": [
+      "2.6.0",
+      "2.14.1"
+    ],
+    "rtol": 1e-05,
+    "atol": 1e-06,
+    "host_disposals": [
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 7340096,
+          "submitted": 123,
+          "completed": 123,
+          "closed": true
+        }
+      }
+    ]
+  },
+  "latency": {
+    "status": "analyzed_preplanned_actual_autograd_gpu_whole_call_campaign",
+    "version": "0.83.0",
+    "prototype_source_sha256": "f7cb57084191430d907f7502b6249413d98c933a7dd4fb91bcf6fa556818c2e6",
+    "processes": 3,
+    "contexts": 12,
+    "rows": [
+      {
+        "shape": [
+          37,
+          53,
+          29
+        ],
+        "aggregate_aa_ratio": 1.0005258304494649,
+        "aggregate_paired_aa_ratio": 0.9996651350969757,
+        "aggregate_gpu_ratio": 17.223016211604147,
+        "aggregate_paired_gpu_ratio": 17.262136468154857,
+        "all_preplanned_controls_passed": true,
+        "measured_gpu_benefit": false,
+        "cpu_median_ms": 0.09095826893354021,
+        "gpu_median_ms": 1.5671875000000044,
+        "minimum_batch_ms": 39.09999999999947,
+        "individual_flags": [],
+        "paired_gpu_ratio_range": [
+          17.1527877040849,
+          17.290847479784915
+        ]
+      },
+      {
+        "shape": [
+          64,
+          64,
+          64
+        ],
+        "aggregate_aa_ratio": 1.0000286163972116,
+        "aggregate_paired_aa_ratio": 1.0008592049490346,
+        "aggregate_gpu_ratio": 5.00313276719137,
+        "aggregate_paired_gpu_ratio": 5.00304121420333,
+        "all_preplanned_controls_passed": true,
+        "measured_gpu_benefit": false,
+        "cpu_median_ms": 0.34884393063583885,
+        "gpu_median_ms": 1.7453124999999985,
+        "minimum_batch_ms": 44.599999999999085,
+        "individual_flags": [],
+        "paired_gpu_ratio_range": [
+          4.8863038973289274,
+          5.049509208055085
+        ]
+      },
+      {
+        "shape": [
+          256,
+          256,
+          256
+        ],
+        "aggregate_aa_ratio": 0.9960845732184901,
+        "aggregate_paired_aa_ratio": 0.9952977825021518,
+        "aggregate_gpu_ratio": 0.49435059850095225,
+        "aggregate_paired_gpu_ratio": 0.49468582402635436,
+        "all_preplanned_controls_passed": true,
+        "measured_gpu_benefit": true,
+        "cpu_median_ms": 10.641666666666733,
+        "gpu_median_ms": 5.260714285714333,
+        "minimum_batch_ms": 41.00000000000037,
+        "individual_flags": [],
+        "paired_gpu_ratio_range": [
+          0.4914927469755168,
+          0.525418506726927
+        ]
+      },
+      {
+        "shape": [
+          512,
+          512,
+          512
+        ],
+        "aggregate_aa_ratio": 0.9999999999999888,
+        "aggregate_paired_aa_ratio": 1.0006257802746552,
+        "aggregate_gpu_ratio": 0.20926616915422713,
+        "aggregate_paired_gpu_ratio": 0.2119013545110053,
+        "all_preplanned_controls_passed": true,
+        "measured_gpu_benefit": true,
+        "cpu_median_ms": 79.45000000000047,
+        "gpu_median_ms": 16.674999999999997,
+        "minimum_batch_ms": 60.20000000000003,
+        "individual_flags": [],
+        "paired_gpu_ratio_range": [
+          0.20803551373379234,
+          0.21288562291181745
+        ]
+      }
+    ],
+    "individual_flags": [],
+    "normal_gc": true,
+    "cpu_tensor_inputs_reused_but_no_gpu_residency": true,
+    "all_input_copies_and_guard_scans_and_transfers_and_actual_autograd_included": true,
+    "returned_owned_cpu_arrays": 3,
+    "all_default_quotas_unchanged": true,
+    "automatic_dispatch_enabled": false,
+    "resident_torch_gpu_storage": false,
+    "general_device_threshold_qualified": false,
+    "production_changed": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "repository_checks": {
+    "status": "passed_repository_prototype_tests_and_existing_host_protocol_checks",
+    "repo_tests": {
+      "tests": 86,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "command": [
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "packages/stridetorch/benchmarks/webgpu_rpc/test_torch_bridge.py",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-541/repo-tests.xml"
+    ],
+    "seconds": 4.695198791996518,
+    "log_sha256": "2efa32af48cd1b861f7447d6e628ff6b12d464be02d59366b4f5fa8a84c916fe",
+    "protocol_checks": {
+      "protocol": {
+        "exit_code": 0,
+        "log_sha256": "635b9f5fa9c2e09870e3c0384879b88d0de91b8c222aecd7b8c5991013eaea8a"
+      },
+      "program": {
+        "exit_code": 0,
+        "log_sha256": "10ead1ba2aa492cd9d6ba62a9a2a39c260629c8cf215ffed13c8b40cb1310e62"
+      },
+      "primitive": {
+        "exit_code": 0,
+        "log_sha256": "fd15e1e602dca60199c40105ce363111f9628b89ca1bfd01c171633c0421257d"
+      },
+      "cancel-drain": {
+        "exit_code": 0,
+        "log_sha256": "9095b6728285e1aec803f31d47fbfcac914bedd2e629e43424176b92e2f4c964"
+      }
+    },
+    "prototype_source_sha256": "f7cb57084191430d907f7502b6249413d98c933a7dd4fb91bcf6fa556818c2e6",
+    "canonical_runtime_resources_unchanged": 66,
+    "production_webgpu_enabled": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "preserved_initial_failures": {
+    "status": "initial_native_gate_failed",
+    "tests": 76,
+    "passed": 74,
+    "failures": 2,
+    "source_sha256": "76cd7e02c80e6027d727afef1b5e384ce2a346e0f0e0e39a3d508622495b2cf3",
+    "test_sha256": "2d853c8cc6a12d06704447092e0d8fa61202dcd4d9159f04100607831550c791",
+    "junit_sha256": "a2fd09fc777a8b570e49b39a88f99bcdcedb99f790d52c01b7d3e5076d0ed607",
+    "causes": [
+      "Test attempted unsupported direct nonleaf in-place syntax instead of a detached output alias",
+      "Hand-derived HVP expectation was 16 rather than 8"
+    ],
+    "production_changed": false
+  },
+  "corrections": [
+    {
+      "previous_stage": 532,
+      "prototype_source_unchanged": true,
+      "failed_invocation_retained": true,
+      "changes": [
+        "Use detached output storage alias for mutation test",
+        "Compute HVP expectation with independent native Torch",
+        "Preserve and assert actual C/F/sliced source strides"
+      ]
+    },
+    {
+      "previous_stage": 534,
+      "reason": "Code inspection found stale forward snapshots could diverge from native matmul when NumPy shared storage changes between forward and backward; version-only wait guards also miss NumPy writes",
+      "fixes": [
+        "Read current required factors at backward entry after original version checks",
+        "Check input/seed bytes as well as storage versions during hidden waits, including signed zero",
+        "Release obsolete forward copies and reuse one owned backward seed across both VJPs"
+      ],
+      "previous_actual_gpu_gate": 535,
+      "previous_actual_gpu_passed": true,
+      "previous_cases_did_not_cover_this_boundary": true
+    }
+  ],
+  "native_oracle_cases_include_numerical_training": true,
+  "default_gpu_limits_unchanged": true,
+  "canonical_runtime_resources_unchanged": 66,
+  "active_export_identities_unchanged": 183,
+  "no_grad_and_transforms_use_non_suspending_cpu_route": true,
+  "required_values_snapshotted_before_each_wait": true,
+  "raw_numpy_writes_during_waits_checked_bitwise": true,
+  "current_shared_values_used_between_forward_and_backward": true,
+  "automatic_dispatch_enabled": false,
+  "resident_torch_gpu_storage": false,
+  "stable_public_package_api": false,
+  "general_gpu_threshold_qualified": false,
+  "default_runtime_changed": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "negative_control": {
+    "status": "confirmed_five_numpy_regressions_fail_on_original_prototype",
+    "exit_code": 1,
+    "totals": {
+      "tests": 5,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    },
+    "source_path": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-534/torch_bridge.py",
+    "source_sha256": "76cd7e02c80e6027d727afef1b5e384ce2a346e0f0e0e39a3d508622495b2cf3",
+    "new_test_source_sha256": "3eb648435f9ea0b4c0c3e816c85f6fe7ec61c846ddba173a1e73a72546cf0628",
+    "scope": "Expected negative control, not a passing original implementation; corrected537/538 are separate",
+    "production_changed": false
+  },
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/webgpu-tensor-offload-harness.tar.gz",
+    "sha256": "f3dc8c25b1d4c727be9560ea01c258177c8a5fc04696e33fc5eedf2c38a4bed5",
+    "files": 374,
+    "unique_payloads": 142,
+    "bytes": 4710445,
+    "all_payloads_verified": true
+  }
+}
