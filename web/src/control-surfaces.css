@@ -87,3 +87,14 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .paper-result-group>.problem-row:focus-visible{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
 .paper-library .paper-info strong{font-weight:550}
 @media(prefers-reduced-motion:reduce){.paper-library .paper-categories button{transition:none}}
+
+/* Optional sortable headings retain the same fixed table grid as their text fallback. */
+.paper-library .library-column-sort{display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;max-width:100%;min-height:44px;padding:5px 4px;border-radius:6px;color:var(--text-secondary);font:inherit;text-align:start;cursor:pointer}
+.paper-library .library-column-sort>svg{flex:none;color:var(--muted)}
+.paper-library .library-column-sort:hover{color:var(--accent);background:var(--surface)}
+.paper-library .library-column-sort[aria-pressed=true]{color:var(--accent);font-weight:600;background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.paper-library .library-column-sort[aria-pressed=true]>svg{color:var(--accent)}
+.paper-library .library-column-sort:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+.library-column-short{display:none}
+@media(max-width:700px){.paper-library .library-column-sort.paper-year{display:none}.paper-library .library-column-sort[data-sort-column=difficulty] .library-column-label{display:none}.paper-library .library-column-short{display:inline}}

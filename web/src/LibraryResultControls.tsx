@@ -1,4 +1,4 @@
-import {ArrowDownWideNarrow,BookOpen,Code2,List,Rows3,X} from 'lucide-react';
+import {ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Code2,List,Rows3,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import type {LibraryFilters,LibrarySort} from './libraryNavigation';
 export type Props = {hasFilters:boolean; moduleView:boolean; company:string; course?:boolean; sort:LibrarySort; density:'comfortable'|'compact'; onClear:()=>void; onSort:(sort:LibrarySort)=>void; onDensity:(density:'comfortable'|'compact')=>void;onView?:(view:'papers'|'modules')=>void};
@@ -20,4 +20,17 @@ export function LibraryActiveFilters({filters,categoryLabel,onChange}:{filters:L
         ].filter(item=>item.value).map(item=><button type="button" key={item.id} aria-label={t(`移除筛选：${item.label}`,`Remove filter: ${item.label}`)} onClick={()=>onChange(item.patch)}>{item.label}<X size={12} aria-hidden="true" /></button>)}
       </div>
  );
+}
+
+export type LibraryHeaderProps={moduleView:boolean;company:string;course?:boolean;sort:LibrarySort;listId:string;onSort:(sort:LibrarySort)=>void};
+const sortNames:Record<LibrarySort,[string,string]>={default:['编号顺序','Number order'],newest:['来源最新','Newest source first'],oldest:['来源最早','Oldest source first'],title:['名称 A–Z','Title A–Z'],difficulty:['简单优先','Easy first'],'difficulty-desc':['困难优先','Hard first'],duration:['用时短优先','Short time first'],'duration-desc':['用时长优先','Long time first']};
+/** Optional column controls reuse the existing local ordering contract and native select. */
+export function LibraryTableHeaders({moduleView,company,course,sort,listId,onSort}:LibraryHeaderProps){
+ const {t}=useI18n(),direct=moduleView&&!company&&!course;
+ function column(field:string,label:[string,string],orders:[LibrarySort,...LibrarySort[]]){
+  const index=orders.indexOf(sort),active=index>=0,next=active?orders[index+1]||'default':orders[0],descending=sort==='newest'||sort.endsWith('-desc');
+  const name=t(...label),current=active?t(...sortNames[sort]):t('未按此列排序','Not ordered by this column'),action=t(...sortNames[next]),description=t(`${name}：${current}。切换为${action}。`,`${name}: ${current}. Switch to ${action}.`),Icon=active?descending?ArrowDown:ArrowUp:ArrowUpDown;
+  return <button key={field} type="button" className={'library-column-sort'+(field==='duration'||field==='year'?' paper-year':'')} data-sort-column={field} aria-pressed={active} aria-controls={listId} aria-label={description} title={description} onClick={()=>onSort(next)}><span className="library-column-label">{name}</span>{field==='difficulty'&&<span className="library-column-short" aria-hidden="true">{t('难度','Level')}</span>}<Icon size={13} aria-hidden="true"/></button>;
+ }
+ return <><span>{t('状态','Status')}</span>{!moduleView||direct?column('title',moduleView?['练习','Module']:['论文','Paper'],['title']):<span>{t('练习','Module')}</span>}{!moduleView?column('year',['年份','Year'],['newest','oldest']):direct?column('duration',['用时','Time'],['duration','duration-desc']):<span className="paper-year">{t('用时','Time')}</span>}{direct?column('difficulty',['难度','Difficulty'],['difficulty','difficulty-desc']):<span>{moduleView?t('难度','Difficulty'):t('已通过 / 模块','Solved / Modules')}</span>}<span/></>;
 }
