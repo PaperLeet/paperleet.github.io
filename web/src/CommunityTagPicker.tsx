@@ -1,8 +1,11 @@
-import {useId,useRef,useState} from 'react';
-import {Search,X} from 'lucide-react';
+import {useId,useRef} from 'react';
+import {X} from 'lucide-react';
 import {useI18n} from './i18n';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
-import {matchingCommunityTags} from './communityTagBrowsing';
+import {useCommunityTagChoices} from './useCommunityTagChoices';
+import {COMMUNITY_TAG_PAGE_SIZE} from './communityTagBrowsing';
+import CommunityTagChoiceControls from './CommunityTagChoiceControls';
+import CommunityTagSearch from './CommunityTagSearch';
 import './community-taxonomy.css';
 
 export function TaxonomyStatus({writing=false,onRetryStart}:{writing?:boolean;onRetryStart?:()=>void}){
@@ -12,10 +15,12 @@ export function TaxonomyStatus({writing=false,onRetryStart}:{writing?:boolean;on
 }
 type ExistingTag={id:string;zh:string;en:string};
 export default function CommunityTagPicker({value,onChange,disabled=false,existingTags=[],mode='create'}:{value:string[];onChange:(value:string[])=>void;disabled?:boolean;existingTags?:readonly ExistingTag[];mode?:'create'|'edit'}){
- const {t}=useI18n(),taxonomy=useCommunityTaxonomy(),[query,setQuery]=useState(''),fieldset=useRef<HTMLFieldSetElement>(null),search=useRef<HTMLInputElement>(null),chips=useRef(new Map<string,HTMLButtonElement>()),latest=useRef(value),composing=useRef(false),hint=useId();
+ const {t}=useI18n(),taxonomy=useCommunityTaxonomy(),fieldset=useRef<HTMLFieldSetElement>(null),search=useRef<HTMLInputElement>(null),chips=useRef(new Map<string,HTMLButtonElement>()),latest=useRef(value),hint=useId(),listId=useId(),statusId=useId();
  latest.current=value;
+ const choices=useCommunityTagChoices(taxonomy.data.tags,value,taxonomy.supported&&!disabled);
+ const {query,setQuery}=choices;
  if(!taxonomy.supported&&!value.length)return null;
- const rows=matchingCommunityTags(taxonomy.data.tags,query,value),existing=new Set(existingTags.map(tag=>tag.id));
+ const existing=new Set(existingTags.map(tag=>tag.id));
  const tagName=(id:string)=>{const tag=taxonomy.data.tags.find(row=>row.id===id)||existingTags.find(row=>row.id===id);return tag?t(tag.zh,tag.en):id;};
  function change(next:string[]){latest.current=next;onChange(next);}
  function remove(id:string,opener?:HTMLElement){
@@ -23,12 +28,12 @@ export default function CommunityTagPicker({value,onChange,disabled=false,existi
   if(opener&&document.activeElement===opener){const target=chips.current.get(current[index+1]||current[index-1])||search.current||(!taxonomy.supported?fieldset.current?.closest('form')?.querySelector<HTMLElement>('textarea'):undefined)||fieldset.current;target?.focus({preventScroll:true});}
   change(current.filter(item=>item!==id));
  }
- function toggle(id:string){
-  if(disabled)return;const current=latest.current;if(current.includes(id)){remove(id);return;}
+ function toggle(id:string,opener?:HTMLElement){
+  if(disabled)return;const current=latest.current;if(current.includes(id)){remove(id,taxonomy.data.tags.some(tag=>tag.id===id&&tag.enabled)?undefined:opener);return;}
   if(!taxonomy.supported||!taxonomy.ready||current.length>=5||!taxonomy.data.tags.some(tag=>tag.id===id&&tag.enabled))return;
   change([...current,id]);
  }
- function clearSearch(){setQuery('');search.current?.focus({preventScroll:true});}
+ function clearSearch(){if(disabled)return;setQuery('');search.current?.focus({preventScroll:true});}
  return <div className="community-taxonomy-field">
   <TaxonomyStatus writing onRetryStart={()=>fieldset.current?.focus({preventScroll:true})}/>
   {!taxonomy.supported&&mode!=='edit'&&<p className="community-taxonomy-status" role="status">{t('此服务暂不支持保存标签，当前选择仍保留在草稿。','This service cannot save tags. Your selection is kept in the draft.')}</p>}
@@ -42,12 +47,13 @@ export default function CommunityTagPicker({value,onChange,disabled=false,existi
     </div>;})}
    </div>}
    {taxonomy.supported&&<>
-    {(taxonomy.data.tags.length>12||query)&&<div className="community-tag-picker-search"><Search size={16} aria-hidden="true"/><input ref={search} type="search" maxLength={100} aria-label={t('查找社区标签','Find community tags')} value={query} onChange={event=>setQuery(event.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={event=>{if(event.key==='Escape'&&query&&!composing.current&&!event.nativeEvent.isComposing&&event.keyCode!==229){event.preventDefault();event.stopPropagation();clearSearch();}}} placeholder={t('搜索名称、标识或说明','Search names, identifiers or descriptions')}/>{query&&<button type="button" aria-label={t('清空标签选择搜索','Clear tag picker search')} onClick={clearSearch}><X size={15} aria-hidden="true"/></button>}</div>}
-    <div className="community-tag-picker-options">{rows.map(tag=>{const description=hint+'-'+tag.id;return <div className="community-tag-picker-option" key={tag.id} data-tag-choice={tag.id}>
-     <label><input type="checkbox" checked={value.includes(tag.id)} disabled={!value.includes(tag.id)&&(!taxonomy.ready||!tag.enabled||value.length>=5)} aria-describedby={tag.description?description:undefined} onChange={()=>toggle(tag.id)}/><span>{t(tag.zh,tag.en)}{!tag.enabled&&<small> · {t('已停用','Paused')}</small>}</span></label>
+    {(taxonomy.data.tags.length>COMMUNITY_TAG_PAGE_SIZE||query)&&<CommunityTagSearch value={query} onChange={setQuery} inputRef={search} disabled={disabled} label={t('查找社区标签','Find community tags')} clearLabel={t('清空标签选择搜索','Clear tag picker search')} placeholder={t('搜索名称、标识或说明','Search names, identifiers or descriptions')} className="community-tag-picker-search" statusId={statusId}/>}
+    <div id={listId} ref={choices.root} className="community-tag-picker-options">{choices.visible.map(tag=>{const description=hint+'-'+tag.id;return <div className="community-tag-picker-option" key={tag.id} data-tag-choice={tag.id} data-tag-option={tag.id} tabIndex={-1} role="group" aria-label={t(tag.zh,tag.en)}>
+     <label><input type="checkbox" checked={value.includes(tag.id)} disabled={!value.includes(tag.id)&&(!taxonomy.ready||!tag.enabled||value.length>=5)} aria-describedby={tag.description?description:undefined} onChange={event=>toggle(tag.id,event.currentTarget)}/><span>{t(tag.zh,tag.en)}{!tag.enabled&&<small> · {t('已停用','Paused')}</small>}</span></label>
      {tag.description&&<small id={description}>{tag.description}</small>}
     </div>;})}</div>
-    {!rows.length&&<p className="community-tag-picker-empty">{query?t('没有匹配的标签，已选项仍保留在上方。','No tags match. Selected tags remain above.'):taxonomy.ready?t('暂时没有可选标签。','No tags are available yet.'):t('配置读取后可继续选择，当前已选项可以移除。','More choices appear after settings load. You can remove current selections.')}{query&&<button type="button" className="text-button" onClick={clearSearch}>{t('清空搜索','Clear search')}</button>}</p>}
+    <CommunityTagChoiceControls shown={choices.visible.length} total={choices.rows.length} more={choices.more} expanded={choices.expanded} listId={listId} statusId={statusId} compactRef={choices.compactControl} onMore={choices.expand} onCompact={choices.compact}/>
+    {!choices.rows.length&&<p className="community-tag-picker-empty">{query?t('没有匹配的标签，已选项仍保留在上方。','No tags match. Selected tags remain above.'):taxonomy.ready?t('暂时没有可选标签。','No tags are available yet.'):t('配置读取后可继续选择，当前已选项可以移除。','More choices appear after settings load. You can remove current selections.')}{query&&<button type="button" className="text-button" onClick={clearSearch}>{t('清空搜索','Clear search')}</button>}</p>}
    </>}
   </fieldset>
  </div>;
