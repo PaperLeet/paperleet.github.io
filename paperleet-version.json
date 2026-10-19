@@ -1,16 +1,1 @@
-{
-  "source_revision": "85b697166e3ee1eb93d5da40de856419b3594654",
-  "build_method": "local-validated-static-release",
-  "built_at": "2026-10-19T05:52:13.474453+00:00",
-  "runtime_version": "0.77.0",
-  "artifact_inventory_sha256": "3e00b4370d5bcea1fd549089ce460f150c9262343ae637761e96a5e07b7ff39f",
-  "inventory_excludes": [
-    "paperleet-version.json",
-    ".git"
-  ],
-  "validation": {
-    "frontend_pass_groups": 414,
-    "build_variants": 4,
-    "static_routes": 166
-  }
-}
+{"source_revision": "8dc52c101e7ea48845a00fe0a2d3bb770f19e5ec", "build_method": "locally-qualified-static-release", "built_at": "2026-10-19T10:27:33.056068+00:00", "qualification_sha256": "dab54c6cb112e57064d4b2e8da2057edddaa2b099d95f74870c37518d90d7e96", "inventory_sha256": "162b68aa8e5811affeb4b6d84c29da73937f850a9a96e4ff82673ee76bf53809"}
