@@ -28,11 +28,8 @@ import {
   Maximize2,
   Minimize2,
   Code2,
-  FileCode2,
-  FlaskConical,
   LockKeyhole,
   Loader2,
-  MessageCircle,
   Play,
   Terminal,
   X,
@@ -82,6 +79,8 @@ const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<type
 const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
 const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
+const panelIconPlaceholder=({size=14}:import('./WorkspacePanelIcon').WorkspacePanelIconProps)=><svg width={size} height={size} aria-hidden="true" focusable="false"/>;
+const WorkspacePanelIcon=deferredFeature(()=>import('./WorkspacePanelIcon'),['',''],{loading:panelIconPlaceholder,failure:panelIconPlaceholder});
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -369,8 +368,8 @@ function Workspace() {
     void loadCatalog();
     let previous=getId();
     const h = () => {
-      const next=getId(),sameProfile=sameProfilePage(previous,next),paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
-      if(sameProfile||paging)return;
+      const next=getId(),sameProfile=sameProfilePage(previous,next),interviewFilters=routePath(previous)==='interviews'&&routePath(next)==='interviews',paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
+      if(sameProfile||paging||interviewFilters)return;
       setTab("description");
       setRightTab("code");
       setMobilePane("read");
@@ -777,13 +776,13 @@ function Workspace() {
                         onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                       >
                         {key === "description" ? (
-                          <FileCode2 size={14} />
+                          <WorkspacePanelIcon name="file" size={14} />
                         ) : key === "result" ? (
                           <Terminal size={14} />
                         ) : key === "lab" ? (
-                          <FlaskConical size={14} />
+                          <WorkspacePanelIcon name="lab" size={14} />
                         ) : key === "discussion" ? (
-                          <MessageCircle size={14} />
+                          <WorkspacePanelIcon name="discussion" size={14} />
                         ) : key === "notes" &&
                           !notesUnlocked ? (
                           <LockKeyhole size={12} />
@@ -855,7 +854,7 @@ function Workspace() {
                         className="lab-callout"
                         onClick={() => openLab(problem.vizData?.kind === "toy_experiment" ? "auto" : "concept")}
                       >
-                        <FlaskConical size={21} />
+                        <WorkspacePanelIcon name="lab" size={21} />
                         <span>
                           <b>{problem.vizData?.kind === "toy_experiment" ? t("查看核心算法实验", "Explore the core experiment") : t("把公式放进实验台", "Explore the formulas")}</b>
                           <small>
@@ -1029,7 +1028,7 @@ function Workspace() {
                   aria-selected={rightTab === "lab"}
                   onClick={() => setRightTab("lab")}
                 >
-                  <FlaskConical size={14} />
+                  <WorkspacePanelIcon name="lab" size={14} />
                   {t("实验台", "Lab")}
                 </button>
                 {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
@@ -1047,7 +1046,7 @@ function Workspace() {
                   <div className="editor-code-panel" id="problem-code-panel">
                   <div className="editor-tools">
                     <span className="editor-filename">
-                      <FileCode2 size={13} />
+                      <WorkspacePanelIcon name="file" size={13} />
                       solution.py
                     </span>
                     <div>

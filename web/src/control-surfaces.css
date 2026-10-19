@@ -18,14 +18,15 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .library-toolbar :is(.search,.select-wrap){border:1px solid var(--line);border-radius:var(--control-radius);background:var(--surface);transition:border-color .15s,box-shadow .15s}
 .paper-library .library-toolbar :is(.search,.select-wrap):focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--control-focus)}
 .paper-library .library-toolbar :is(.search input,.select-wrap select):focus-visible{outline:none}
-.paper-library .library-toolbar .search input{line-height:1.6;min-height:40px;min-width:0;color:var(--text)}
+.paper-library .library-toolbar .search{height:auto;min-height:46px}
+.paper-library .library-toolbar .search input{line-height:1.6;min-height:44px;min-width:0;color:var(--text)}
 .paper-library .library-toolbar .search>svg{flex-shrink:0}
 .paper-library .library-toolbar .search:focus-within>svg{color:var(--accent)}
-.paper-library .library-toolbar .select-wrap{position:relative;padding:0;min-width:0;width:128px;flex:1 1 128px}
-.paper-library .library-toolbar .select-wrap select{width:100%;max-width:none;min-width:0;min-height:42px;padding:8px 28px 8px 12px;border-radius:var(--control-radius);text-overflow:ellipsis}
+.paper-library .library-toolbar .select-wrap{position:relative;height:auto;min-height:46px;padding:0;min-width:0;width:128px;flex:1 1 128px}
+.paper-library .library-toolbar .select-wrap select{width:100%;max-width:none;min-width:0;min-height:44px;padding:8px 28px 8px 12px;border-radius:var(--control-radius);text-overflow:ellipsis}
 .paper-library .library-toolbar .select-wrap>svg{position:absolute;right:10px;pointer-events:none}
 .paper-library :is(.select-wrap,.library-sort)[data-active=true]{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent) 7%,var(--surface));color:var(--accent)}
-.paper-library .search-clear{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;border-radius:6px;color:var(--muted);flex-shrink:0}
+.paper-library .search-clear{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border-radius:6px;color:var(--muted);flex-shrink:0}
 .paper-library .search-clear:hover{background:var(--surface2);color:var(--text)}
 .paper-library .search input::-webkit-search-cancel-button{-webkit-appearance:none}
 .paper-library .library-results{gap:12px;flex-wrap:wrap;padding:14px 2px;font-size:var(--type-small)}
@@ -72,3 +73,17 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 @media(pointer:coarse){.paper-library .library-view-switch button{min-height:44px}}
 @media(max-width:520px){.paper-library .library-view-switch{flex:1 1 100%}.paper-library .library-view-switch button{flex:1}.paper-library .library-result-actions{flex-shrink:1;min-width:0}}
 @media(prefers-reduced-motion:reduce){.paper-library .library-view-switch button{transition:none}}
+
+/* Clear affordances across the shared reading and account surfaces. */
+:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea):hover:not(:disabled):not(:focus-visible):not([aria-invalid=true]){border-color:var(--text-secondary)}
+:where(.paper-library,.social-page,.profile-page,.settings-page,.community-page,.interview-hub) :is(input,textarea)::placeholder{color:var(--muted)}
+.button:not(:disabled):focus-visible{outline:2px solid var(--accent);outline-offset:4px;box-shadow:0 0 0 4px var(--surface)}
+:where(.paper-library,.profile-page,.settings-page,.social-page) .text-button{border-radius:var(--control-radius);text-underline-offset:4px}
+:where(.paper-library,.profile-page,.settings-page,.social-page) .text-button:hover{color:var(--accent);text-decoration:underline}
+.paper-library .library-toolbar :is(.search,.select-wrap):hover:not(:focus-within){border-color:var(--text-secondary)}
+.paper-library .library-toolbar :is(.random-problem,.library-filter-toggle){min-height:46px}
+.paper-library .paper-categories button{min-height:44px;transition:background-color .15s,color .15s}
+.paper-library .paper-categories button>span:not(.bilingual-text){padding:1px 7px;border-radius:20px;background:color-mix(in srgb,currentColor 9%,transparent);opacity:1}
+.paper-library .paper-result-group>.problem-row:focus-visible{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.paper-library .paper-info strong{font-weight:550}
+@media(prefers-reduced-motion:reduce){.paper-library .paper-categories button{transition:none}}
