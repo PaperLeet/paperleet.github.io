@@ -25,7 +25,6 @@ import {
   Check,
   CheckCircle2,
   Code2,
-  LockKeyhole,
   Loader2,
   Play,
   Terminal,
@@ -782,7 +781,7 @@ function Workspace() {
                           <WorkspacePanelIcon name="discussion" size={14} />
                         ) : key === "notes" &&
                           !notesUnlocked ? (
-                          <LockKeyhole size={12} />
+                          <WorkspacePanelIcon name="lock" size={12}/>
                         ) : null}
                         {label}
                       </button>
@@ -799,7 +798,7 @@ function Workspace() {
                   !notesUnlocked ? (
                     <div className="empty-state">
                       <div className="empty-icon">
-                        <LockKeyhole size={25} />
+                        <WorkspacePanelIcon name="lock" size={25}/>
                       </div>
                       <h3>
                         {t(

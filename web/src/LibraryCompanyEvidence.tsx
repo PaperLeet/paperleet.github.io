@@ -11,8 +11,9 @@ import type {LibraryCompanyData,LibraryCompanyScope,LibraryCompanyToolsProps} fr
 import type {Problem} from './types';
 import './library-company.css';
 import LibraryCompanyRowTools from './LibraryCompanyRowTools';
+import LibraryExerciseCompanies from './LibraryExerciseCompanies';
 export {LibraryCompanyRowTools};
-export function LibraryCompanyTools(props:LibraryCompanyToolsProps){return 'problem' in props?<LibraryCompanyRowTools {...props}/>:'scope' in props?<LibraryCompanyStatus {...props}/>:<LibraryCompanyControls {...props}/>;}
+export function LibraryCompanyTools(props:LibraryCompanyToolsProps){return 'problem' in props?props.companyScope?<LibraryCompanyRowTools {...props}/>:<LibraryExerciseCompanies {...props}/>:'scope' in props?<LibraryCompanyStatus {...props}/>:<LibraryCompanyControls {...props}/>;}
 
 /** Confirm the complete selected public cohort before it can direct practice. */
 export function readLibraryCompanyEvidence(summary:InterviewSummary|undefined,problems:Problem[],company:string,days:string){

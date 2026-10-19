@@ -188,7 +188,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <span className={`difficulty ${module.difficulty}`}>{({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[module.difficulty]}</span>
             <ChevronRight size={16} aria-hidden="true" />
           </AppLink>
-          {company&&companyScope&&<CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={companyScope}/>}
+          <CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={company?companyScope:undefined}/>
         </div>) : filtered.slice(offset,offset+size).map((paper) => {
           const progress = paperProgress(paper, practice);
           const matching = matchingPaperModules(paper,problems,query,diff);
