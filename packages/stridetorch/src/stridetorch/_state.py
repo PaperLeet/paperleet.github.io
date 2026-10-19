@@ -26,3 +26,6 @@ _hvp_active = False
 _functional_jvp_active = False
 
 _full_forward_graph_active = False
+
+# Private HVP-only tensor pullback context; ordinary nodes retain no new fields.
+_tensor_reverse_context = None

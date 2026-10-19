@@ -4,6 +4,21 @@ import numpy as np
 from . import _errors, _tensor_hooks
 
 
+class _LogicalZero:
+    """A constant-zero cotangent, with no storage or user tensor references.
+
+    Only validated constant derivatives emit this marker. Ordinary zero arrays
+    continue through numerical pullbacks, preserving their IEEE behavior.
+    """
+    __slots__ = ()
+
+    def __array__(self, *args, **kwargs):
+        raise RuntimeError('A logical-zero cotangent must be materialized at its boundary')
+
+
+LOGICAL_ZERO = _LogicalZero()
+
+
 class NumericalScope:
     """Batch kernel error handling; user hooks retain their mutable policy."""
     def __enter__(self):
@@ -32,6 +47,9 @@ class NumericalScope:
 
 
 class Node:
+    # Undeclared rules receive a materialized array, preserving None and
+    # deliberately numerical-zero pullbacks. Validated algebra opts in below.
+    _logical_zero_passthrough = False
     __slots__ = ('_parents', 'joint', 'versions', 'shape', 'dtype',
                  'callbacks', 'saved', 'released')
 
@@ -46,6 +64,12 @@ class Node:
             if self.joint is None:
                 self._parents = tuple((parent, None, dtype) for parent, _, dtype in self._parents)
             self.joint, self.versions, self.released = None, (), True
+
+
+class ZeroPreservingNode(Node):
+    """An explicit cotangent rule; no additional instance storage."""
+    __slots__ = ()
+    _logical_zero_passthrough = True
 
 
 class _StoppedView:
@@ -117,6 +141,8 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
         parents = node._parents
         leaf = not parents
         if leaf:
+            if gradient is LOGICAL_ZERO:
+                gradient = np.zeros(node.shape, dtype=node.dtype)
             owner = node
             hook_gradient = None
             update = accumulate and owner.requires_grad and (targets is None or key in targets)
@@ -132,13 +158,26 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
             hook_gradient = None
             if callbacks.hooks:
                 apply = _tensor_hooks.apply if scope is None else scope.callback
-                gradient, hook_gradient = apply(gradient, callbacks.hooks, owner if retained else None)
+                if gradient is LOGICAL_ZERO:
+                    # Hooks observe a real Tensor. Identity/None hooks preserve
+                    # the logical zero if its shared storage was not mutated;
+                    # replacing it with a new Tensor uses that numerical value.
+                    from . import _tensor
+                    materialized = np.zeros(node.shape, dtype=node.dtype)
+                    counter = _tensor.storage_version(materialized)
+                    version = counter.version
+                    gradient, hook_gradient = apply(materialized, callbacks.hooks, owner if retained else None)
+                    if hook_gradient is not None and hook_gradient._storage is counter and counter.version == version:
+                        gradient = LOGICAL_ZERO
+                else:
+                    gradient, hook_gradient = apply(gradient, callbacks.hooks, owner if retained else None)
             elif retained:
-                owner._accumulate_gradient(gradient)
+                owner._accumulate_gradient(np.zeros(node.shape, dtype=node.dtype) if gradient is LOGICAL_ZERO else gradient)
         else:
             owner = None
         if not accumulate and (leaf or targets is not None and key in targets or owner is not None and owner.retains_grad):
-            derivatives[key] = hook_gradient if (leaf or node.callbacks is not None) and hook_gradient is not None else gradient
+            returned = hook_gradient if (leaf or node.callbacks is not None) and hook_gradient is not None else gradient
+            derivatives[key] = np.zeros(node.shape, dtype=node.dtype) if returned is LOGICAL_ZERO else returned
         if leaf:
             continue
         execute_target = accumulate and targets is not None and key in targets
@@ -149,17 +188,33 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
             raise RuntimeError('Trying to backward through the graph a second time: saved tensors were freed; use retain_graph=True')
         if node.versions and any(counter.version != version for counter, version in node.versions):
             raise _errors.BrowserUnsupported('A tensor saved for backward was modified in-place; this graph requires the server')
+        if gradient is LOGICAL_ZERO and not node._logical_zero_passthrough:
+            gradient = np.zeros(node.shape, dtype=node.dtype)
+        if gradient is LOGICAL_ZERO:
+            # Keep version checks, target pruning, callbacks and graph release.
+            # Do not run numerical kernels with an artificial materialized zero.
+            for parent, _, _ in edges:
+                parent_key = id(parent)
+                if parent_key not in pending:
+                    pending[parent_key] = LOGICAL_ZERO
+            if not retain_graph and node.saved:
+                node.release()
+            continue
         if node.joint is None:
             for parent, vjp, dtype in edges:
                 value = vjp(gradient)
                 # None is an unused edge; a zero array is still a real gradient.
                 if value is None:
                     continue
-                incoming = np.asarray(value, dtype=dtype)
                 if needed is not None and id(parent) not in needed:
                     continue
                 parent_key = id(parent)
-                pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
+                if value is LOGICAL_ZERO:
+                    if parent_key not in pending:
+                        pending[parent_key] = LOGICAL_ZERO
+                    continue
+                incoming = np.asarray(value, dtype=dtype)
+                pending[parent_key] = incoming if parent_key not in pending or pending[parent_key] is LOGICAL_ZERO else pending[parent_key] + incoming
         else:
             backward, active = node.joint[:2]
             needs = active
@@ -176,11 +231,15 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
                 for (parent, _, dtype), value in zip(parents, values):
                     if value is None:
                         raise RuntimeError('A joint VJP omitted a required input gradient')
+                    parent_key = id(parent)
+                    if value is LOGICAL_ZERO:
+                        if parent_key not in pending:
+                            pending[parent_key] = LOGICAL_ZERO
+                        continue
                     incoming = np.asarray(value, dtype=dtype)
                     if incoming.shape != parent.shape:
                         raise RuntimeError('A joint VJP gradient shape must match its input')
-                    parent_key = id(parent)
-                    pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
+                    pending[parent_key] = incoming if parent_key not in pending or pending[parent_key] is LOGICAL_ZERO else pending[parent_key] + incoming
             else:
                 parent_index = 0
                 for index, value in enumerate(values):
@@ -192,11 +251,15 @@ def _execute(order, roots, seeds, needed, retain_graph, targets, accumulate, sco
                     parent_index += 1
                     if needed is not None and id(parent) not in needed:
                         continue
+                    parent_key = id(parent)
+                    if value is LOGICAL_ZERO:
+                        if parent_key not in pending:
+                            pending[parent_key] = LOGICAL_ZERO
+                        continue
                     incoming = np.asarray(value, dtype=dtype)
                     if incoming.shape != parent.shape:
                         raise RuntimeError('A joint VJP gradient shape must match its input')
-                    parent_key = id(parent)
-                    pending[parent_key] = incoming if parent_key not in pending else pending[parent_key] + incoming
+                    pending[parent_key] = incoming if parent_key not in pending or pending[parent_key] is LOGICAL_ZERO else pending[parent_key] + incoming
             del backward, values
             value = incoming = None
         if not retain_graph and node.saved:

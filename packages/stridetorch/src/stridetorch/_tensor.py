@@ -192,7 +192,7 @@ class Tensor:
     def clone(self, *, memory_format=None):
         fmt = _conversion.memory_format(memory_format)
         data = self._data.copy(order='C' if fmt is _conversion.MemoryFormat.contiguous_format else 'K')
-        return _autograd.result(data, (self, lambda g: g), saves_tensors=False)
+        return _autograd.result(data, (self, lambda g: g), saves_tensors=False, zero_passthrough=True)
     def cpu(self, memory_format=None):
         if memory_format is None or memory_format is _conversion.MemoryFormat.preserve_format:
             return self
@@ -424,6 +424,9 @@ class Tensor:
 
     def _binary(self, other, op, left, right, *, saves_tensors=True, floating=False, subtract=False, reverse=False):
         other, a, b, dtype = _arithmetic.operands(self, other, floating=floating, subtract=subtract)
+        # Native zero cotangents survive addition and scalar multiplication/division.
+        # Tensor-valued multiplicative operands remain undeclared pending controls.
+        zero_passthrough = op in (np.add, np.multiply) or other is None and (op is np.divide or op is np.subtract and not reverse)
         if dtype.kind == 'u' and dtype.itemsize > 1 and (op in (np.add, np.subtract) or subtract):
             raise _errors.BrowserUnsupported('This unsigned arithmetic kernel requires the server')
         with np.errstate(all='ignore'):
@@ -439,13 +442,13 @@ class Tensor:
         if not saves_tensors:
             left_shape, right_shape = a.shape, b.shape
             left_edge = (self, lambda g: _ops.unbroadcast(left(g,None,None),left_shape))
-            if other is None: return _autograd.result(data, left_edge, saves_tensors=False)
+            if other is None: return _autograd.result(data, left_edge, saves_tensors=False, zero_passthrough=zero_passthrough)
             return _autograd.result(data, left_edge,
-                (other, lambda g: _ops.unbroadcast(right(g,None,None),right_shape)), saves_tensors=False)
+                (other, lambda g: _ops.unbroadcast(right(g,None,None),right_shape)), saves_tensors=False, zero_passthrough=zero_passthrough)
         left_edge = (self, lambda g: _ops.unbroadcast(left(g,a,b),a.shape))
-        if other is None: return _autograd.result(data, left_edge)
+        if other is None: return _autograd.result(data, left_edge, zero_passthrough=zero_passthrough)
         return _autograd.result(data, left_edge,
-            (other, lambda g: _ops.unbroadcast(right(g,a,b),b.shape)))
+            (other, lambda g: _ops.unbroadcast(right(g,a,b),b.shape)), zero_passthrough=zero_passthrough)
     def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g, saves_tensors=False)
     __radd__ = __add__
     def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g, saves_tensors=False, subtract=True)
@@ -529,8 +532,8 @@ class Tensor:
             # Keep native saved-self behavior without materializing data ** 1.
             derivative = lambda g: g * (2 * self._data)
         else:
-            derivative = lambda g: g * (exponent * self._data ** (exponent - 1))
-        return _autograd.result(original_data ** exponent, (self, derivative))
+            derivative = lambda g: g * (exponent * _arithmetic.scalar_power_values(self._data, exponent - 1))
+        return _autograd.result(_arithmetic.scalar_power_values(original_data, exponent), (self, derivative), zero_passthrough=exponent != 0)
     def __rpow__(self, base):
         if type(base) not in (int, float) or not math.isfinite(base) or base <= 0 or self.dtype not in (np.dtype('float32'), np.dtype('float64')):
             raise _errors.BrowserUnsupported('Scalar-base power requires a positive finite real base and float32/float64 exponents')
@@ -556,7 +559,7 @@ class Tensor:
     def exp(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).exp()
         data = np.exp(self._data)
-        return _autograd.result(data, (self, lambda g: g * data))
+        return _autograd.result(data, (self, lambda g: g * data), zero_passthrough=True)
     def log(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).log()
         original_data = self._data
@@ -683,7 +686,7 @@ class Tensor:
         original_data = self._data
         original_shape = self.shape
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
-        return _autograd.view_result(original_data.reshape(shape),self,lambda g:g.reshape(original_shape))
+        return _autograd.view_result(original_data.reshape(shape),self,lambda g:g.reshape(original_shape), zero_passthrough=True)
     def view(self, *shape, **kwargs):
         original_data = self._data
         original_shape = original_data.shape
@@ -710,7 +713,7 @@ class Tensor:
         if data is None:
             args = _layout.arguments(shape, kwargs)
             data = _layout.view(original_data, *args)
-        return _autograd.view_result(data,self,lambda g:g.reshape(original_shape))
+        return _autograd.view_result(data,self,lambda g:g.reshape(original_shape), zero_passthrough=True)
     def view_as(self, other):
         if not isinstance(other, Tensor): raise TypeError('view_as requires a Tensor')
         return self.view(other.shape)
@@ -753,7 +756,7 @@ class Tensor:
         step=original_data.itemsize if axis==self.ndim else original_data.strides[axis]*original_shape[axis]
         strides=(*original_data.strides[:axis],step,*original_data.strides[axis:])
         value=_layout.metadata_view(original_data,shape,strides,original_data.reshape(shape))
-        return _autograd.view_result(value,self,lambda g:g.reshape(original_shape))
+        return _autograd.view_result(value,self,lambda g:g.reshape(original_shape), zero_passthrough=True)
     def squeeze(self, dim=_layout.UNSPECIFIED_DIM):
         original_data = self._data
         original_shape = self.shape
@@ -766,7 +769,7 @@ class Tensor:
             dims=tuple(_layout.dimension(v,self.ndim) for v in dims)
             if len(set(dims))!=len(dims):raise RuntimeError('Squeeze dimensions must be unique')
             axes=tuple(v for v in dims if self.ndim and original_shape[v]==1)
-        return _autograd.view_result(np.squeeze(original_data,axis=axes),self,lambda g:g.reshape(original_shape))
+        return _autograd.view_result(np.squeeze(original_data,axis=axes),self,lambda g:g.reshape(original_shape), zero_passthrough=True)
     def permute(self, *dims, **kwargs):
         dims=_layout.permutation(dims,kwargs,self.ndim)
         return _autograd.view_result(self._data.transpose(dims),self,lambda g:g.transpose(_layout.inverse_permutation(dims)))
@@ -840,7 +843,7 @@ class Tensor:
                 for axis in sorted(dims): g = np.expand_dims(g, axis)
             return np.broadcast_to(g, original_shape)
         if dtype is None and original_data.dtype.kind in 'biu': dtype = np.int64
-        return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False)
+        return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False, zero_passthrough=True)
     def mean(self, dim=_layout.UNSPECIFIED_DIM, keepdim=_layout.UNSPECIFIED_DIM, *, dtype=None):
         requested, keepdim = _reductions.arguments(dim,keepdim,name='mean')
         target = self.dtype if dtype is None else np.dtype(dtype)

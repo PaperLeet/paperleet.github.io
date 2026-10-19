@@ -7,7 +7,7 @@ import numpy as np
 
 from . import _arithmetic, _graph, _layout, _tensor
 
-def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
+def result(data, *edges, saved=(), saves_tensors=True, versioned=None, zero_passthrough=False):
     single = len(edges) == 1
     if single:
         node, vjp = edges[0]
@@ -31,13 +31,15 @@ def result(data, *edges, saved=(), saves_tensors=True, versioned=None):
             counters = {node._storage for node in operands}
         else:
             counters = ()
-        value._grad_node = _graph.Node(value, parents, saved=saves_tensors,
+        node_type = _graph.ZeroPreservingNode if zero_passthrough else _graph.Node
+        value._grad_node = node_type(value, parents, saved=saves_tensors,
                                       versions=tuple((counter, counter.version) for counter in counters))
-    return value
+    context = _state._tensor_reverse_context
+    return context.wrap(value) if context is not None else value
 
 
 
-def view_result(data, parent, backward):
+def view_result(data, parent, backward, *, zero_passthrough=False):
     """One-input metadata pullback, including reshape's possible storage copy.
 
     These rules save only shape/index metadata. They never retain operand
@@ -54,14 +56,16 @@ def view_result(data, parent, backward):
         if value.dtype.kind=='c':
             raise _errors.BrowserUnsupported('Complex autograd requires the server')
         value._requires_grad=True
-        value._grad_node=_graph.Node(value,((_graph.node_for(parent),backward,parent.dtype),),saved=False)
+        node_type = _graph.ZeroPreservingNode if zero_passthrough else _graph.Node
+        value._grad_node=node_type(value,((_graph.node_for(parent),backward,parent.dtype),),saved=False)
     elif shared:
         value._requires_grad=None
         value._no_grad_view=True
-    return value
+    context = _state._tensor_reverse_context
+    return context.wrap(value) if context is not None else value
 
 
-def joint_result(data, inputs, backward, *, saved=(), versioned=None, prune_inputs=False):
+def joint_result(data, inputs, backward, *, saved=(), versioned=None, prune_inputs=False, zero_passthrough=False):
     """Internal multi-input VJP, evaluated once per backward traversal.
 
     ``backward(seed, needs)`` returns one entry per input, using None only for
@@ -87,7 +91,8 @@ def joint_result(data, inputs, backward, *, saved=(), versioned=None, prune_inpu
     operands = (value, *inputs, *saved) if versioned is None else versioned
     counters = {node._storage for node in operands}
     value._requires_grad = True
-    value._grad_node = _graph.Node(value, parents, saved=True,
+    node_type = _graph.ZeroPreservingNode if zero_passthrough else _graph.Node
+    value._grad_node = node_type(value, parents, saved=True,
         versions=tuple((counter, counter.version) for counter in counters),
         joint=(backward, needs, True) if prune_inputs else (backward, needs))
     return value
@@ -650,29 +655,44 @@ def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
             if any(isinstance(item, ForwardTensor) or item.dtype.kind == 'c' for item in vectors):
                 raise _errors.BrowserUnsupported('Complex or forward-AD HVP vectors require the server')
             seeds = tuple(item.detach().to(dtype=argument.dtype) for item, argument in zip(vectors, arguments))
-        previous = _state._functional_ad_active
-        previous_hvp = _state._hvp_active
-        previous_full = _state._full_forward_graph_active
-        _state._functional_ad_active = True
-        _state._hvp_active = True
-        _state._full_forward_graph_active = True
+        from . import _higher_order
+        context = _higher_order.Context()
+        previous_context = _state._tensor_reverse_context
+        if previous_context is not None:
+            raise _errors.BrowserUnsupported('Nested tensor reverse contexts require the server')
+        _state._tensor_reverse_context = context
+        arguments = tuple(context.wrap(item) for item in arguments)
         try:
-            output, tangent = jvp(func, arguments, seeds)
+            previous = _state._functional_ad_active
+            previous_hvp = _state._hvp_active
+            previous_full = _state._full_forward_graph_active
+            _state._functional_ad_active = True
+            _state._hvp_active = True
+            _state._full_forward_graph_active = True
+            try:
+                output, tangent = jvp(func, arguments, seeds)
+            finally:
+                _state._functional_ad_active = previous
+                _state._hvp_active = previous_hvp
+                _state._full_forward_graph_active = previous_full
+            if not isinstance(output, _tensor.Tensor) or output.numel() != 1:
+                raise RuntimeError('Functional HVP requires a Tensor output with one element')
+            if context.can_reverse(output):
+                with _graph.NumericalScope():
+                    gradients = context.hvp(output, arguments, seeds, strict)
+            elif output.requires_grad and tangent.requires_grad:
+                gradients = autograd_grad(tangent, arguments, allow_unused=True)
+            else:
+                gradients = (None,) * len(arguments)
+            if strict and any(item is None for item in gradients):
+                raise RuntimeError('An HVP Jacobian is independent of an input in strict mode')
+            values = tuple(_tensor.Tensor(np.zeros_like(argument._data)) if value is None else value.detach()
+                           for argument, value in zip(arguments, gradients))
+            return output.detach(), values if inputs_tuple else values[0]
+
         finally:
-            _state._functional_ad_active = previous
-            _state._hvp_active = previous_hvp
-            _state._full_forward_graph_active = previous_full
-        if not isinstance(output, _tensor.Tensor) or output.numel() != 1:
-            raise RuntimeError('Functional HVP requires a Tensor output with one element')
-        if output.requires_grad and tangent.requires_grad:
-            gradients = autograd_grad(tangent, arguments, allow_unused=True)
-        else:
-            gradients = (None,) * len(arguments)
-        if strict and any(item is None for item in gradients):
-            raise RuntimeError('An HVP Jacobian is independent of an input in strict mode')
-        values = tuple(_tensor.Tensor(np.zeros_like(argument._data)) if value is None else value.detach()
-                       for argument, value in zip(arguments, gradients))
-        return output.detach(), values if inputs_tuple else values[0]
+            _state._tensor_reverse_context = previous_context
+            context.clear()
 
 
 def functional_jacobian(func, inputs, create_graph=False, strict=False,

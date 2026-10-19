@@ -36,7 +36,7 @@ else:raise AssertionError('Schedules unexpectedly accepted autograd')
 assert abs(float(x.square().numpy().sum())-.05)<1e-6
 assert 'stridetorch._api' not in sys.modules and 'stridetorch._tensor' not in sys.modules
 '''
-    subprocess.run([sys.executable,'-I','-c',script,str(tmp_path)],cwd=tmp_path,check=True,capture_output=True,text=True)
+    subprocess.run([sys.executable,'-I','-B','-c',script,str(tmp_path)],cwd=tmp_path,check=True,capture_output=True,text=True)
 
 
 @pytest.mark.parametrize('profile', ['autograd', 'schedules'])
@@ -79,7 +79,7 @@ x=torch.tensor([2.,3.],requires_grad=True); x.square().sum().backward()
 assert x.grad.tolist()==[4.,6.]
 assert all(sys.modules[name] is value for name, value in before.items())
 '''
-    result = subprocess.run([sys.executable, '-c', script], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, '-B', '-c', script], capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
@@ -149,7 +149,7 @@ x = torch.tensor([[2., 3.]], requires_grad=True)
 F.linear(x, torch.ones(1, 2)).square().sum().backward()
 assert x.grad.tolist() == [[10., 10.]]
 '''
-    result = subprocess.run([sys.executable, '-c', script], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, '-B', '-c', script], capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
 
 

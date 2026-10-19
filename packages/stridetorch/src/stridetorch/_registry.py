@@ -6,6 +6,8 @@ import weakref
 from collections import namedtuple
 
 
+_EMPTY_IMPLEMENTATION_KEYWORDS = frozenset()
+
 OperatorCapability = namedtuple('OperatorCapability', 'reverse forward unsupported_keywords signature')
 _operator_names = weakref.WeakKeyDictionary()
 
@@ -64,13 +66,14 @@ class OperatorRegistry:
         prefix, attribute = name.rsplit('.', 1)
         signature = inspect.signature(function)
         unsupported_keywords = tuple(unsupported_keywords)
-        implementation_keywords = frozenset(implementation_keywords)
+        implementation_keywords = frozenset(implementation_keywords) if implementation_keywords else _EMPTY_IMPLEMENTATION_KEYWORDS
         if not implementation_keywords.issubset(unsupported_keywords):
             raise ValueError('Implementation keywords must declare their unsupported boundary')
         if not implementation_keywords.issubset(signature.parameters):
             raise ValueError('Implementation keywords must have explicit function parameters')
         capability = OperatorCapability(reverse, forward, tuple(unsupported_keywords), str(signature))
         self.capabilities[name] = capability
+        option_names = tuple(keyword for keyword in unsupported_keywords if keyword not in implementation_keywords)
         validated_patterns = None
 
         @functools.wraps(function)
@@ -79,8 +82,7 @@ class OperatorRegistry:
             # Some operators validate an option's type before reporting their
             # unsupported mode. Keep those options in the bound implementation
             # call while retaining the public capability restriction.
-            options = {keyword: kwargs.pop(keyword) for keyword in capability.unsupported_keywords
-                       if keyword in kwargs and keyword not in implementation_keywords}
+            options = {keyword: kwargs.pop(keyword) for keyword in option_names if keyword in kwargs} if option_names else None
             # Binding validates argument structure only. Keep values and AD state
             # out of this bounded cache, and run their guards on every call.
             pattern = (len(args), tuple(kwargs))
@@ -91,8 +93,9 @@ class OperatorRegistry:
                 # Retain only ordinary keyword names, never such user objects.
                 if len(validated_patterns) < 32 and all(type(keyword) is str for keyword in kwargs):
                     validated_patterns.add(pattern)
-            for keyword, value in options.items():
-                if value is not None: raise _errors.BrowserUnsupported(f'{name} argument {keyword} requires the server')
+            if options:
+                for keyword, value in options.items():
+                    if value is not None: raise _errors.BrowserUnsupported(f'{name} argument {keyword} requires the server')
             if _state._jvp_active and not capability.forward and contains_tensor((args, kwargs), lambda v: isinstance(v, _autograd.ForwardTensor)):
                 raise _errors.BrowserUnsupported(f'{name} has no validated forward-mode rule; use the server')
             if capability.reverse == 'unsupported' and _state._grad_enabled and contains_tensor((args, kwargs), lambda v: v.requires_grad):

@@ -251,3 +251,34 @@ def reflected_number_divide(owner, other):
     # storage is saved; the private inverse array is released with this VJP.
     def backward(g): return (g * scalar) * -(inverse * inverse)
     return _autograd.result(data, (owner, backward), versioned=())
+
+
+def scalar_power_values(source, exponent):
+    """Keep public storage arithmetic; use scalar opmath in Tensor pullbacks."""
+    if source.dtype == np.dtype('float16') and isinstance(exponent, np.floating):
+        # A NumPy scalar must not promote a half Tensor's result storage.
+        exponent = float(exponent)
+    if source.dtype not in (np.dtype('float32'), np.dtype('float64')) or not isinstance(exponent, (int, float, np.integer, np.floating, bool, np.bool_)):
+        return source ** exponent
+    if exponent in (.5, -.5, -1, 2, 3, -2):
+        output = np.empty_like(source)
+        if exponent == .5:
+            return np.sqrt(source, out=output)
+        if exponent == -.5:
+            np.sqrt(source, out=output)
+            return np.reciprocal(output, out=output)
+        if exponent == -1:
+            return np.reciprocal(source, out=output)
+        if exponent == 2:
+            return np.multiply(source, source, out=output)
+        if exponent == 3:
+            np.multiply(source, source, out=output)
+            return np.multiply(output, source, out=output)
+        np.multiply(source, source, out=output)
+        return np.reciprocal(output, out=output)
+    context = _state._tensor_reverse_context
+    if source.dtype == np.dtype('float32') and context is not None and context.reverse_active:
+        output = np.empty_like(source)
+        np.power(source, np.float64(exponent), out=output, dtype=np.float64)
+        return output
+    return source ** exponent

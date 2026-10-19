@@ -1850,8 +1850,10 @@ assert value.item() == 35.
 assert product.tolist() == [12., 18.]
 ```
 
-The implementation combines a forward direction with a reverse pass, without
-constructing a dense Hessian. Normalization statistics and matrix factors stay
+The existing implementation combines a forward direction with a reverse pass,
+without constructing a dense Hessian. Version 0.79's vector-norm graphs use
+three reverse traversals when every active pullback has a recorded Tensor rule;
+other existing graphs retain their previous method. Normalization statistics and matrix factors stay
 differentiable on this HVP path; the existing native-compatible JVP rules keep
 their saved-statistic/factor behavior. Training BatchNorm may update its own
 buffers once. Determinants use an adjugate path near singularity and compute
@@ -2077,3 +2079,45 @@ tangent. Integer affine results reject active floating gradients; `no_grad`
 inference remains available. Empty matmul JVP retains its forward-selected
 kernel's dtype rules. The [iteration 81 record](../../docs/validation/torch-runtime-iteration-81.md)
 adds complete Node/Chrome SDK and isolated installed-wheel qualification.
+
+### Vector norms (0.79 development candidate)
+
+`torch.linalg.vector_norm(x, ord=2, dim=None, keepdim=False, *, dtype=None,
+out=None)` performs direct NumPy reductions, with analytical real reverse AD,
+direct JVP, functional JVP and functional HVP. It accepts selected or multiple
+dimensions, empty axis lists, scalar/strided input, real orders including zero
+and positive/negative infinity, and non-narrowing dtype conversion. Complex and
+half inputs retain inference support and their existing autograd boundaries.
+Non-None output buffers remain unsupported.
+
+Constant sign derivatives preserve logical-zero cotangents separately from
+numerical zero arrays and unused gradients. Validated rules propagate these
+zeros while retaining mutation guards, hooks and graph-lifetime behavior;
+undeclared rules materialize the cotangent at their boundary.
+
+For supported vector-norm HVP graphs, private scoped Tensor pullbacks follow
+native reverse evaluation order. Recorded rules cover elementwise arithmetic,
+powers, reciprocal, exponential, sine/cosine, tanh, absolute value, ReLU, shape
+changes and sums. The callback still executes once. Caller-owned tensor types
+and gradient buffers remain unchanged; temporary graph owners are released on
+success and failure. This does not enable public `autograd.grad(create_graph=True)`
+or differentiable HVP outputs, and unrecorded existing graphs retain their old
+HVP path. Complete application, minimum-NumPy, installed-package and performance
+qualification is still required for this development candidate.
+
+Float32 public scalar powers retain their storage-precision arithmetic. Only
+private Tensor pullbacks inside a recorded norm HVP use double scalar exponent
+opmath, through a buffered ufunc loop writing into a float32 output. This does
+not retain a full double-sized result array. Float32/64 square, cube, square root,
+reciprocal square root and reciprocal expressions use one private result buffer.
+NumPy scalar exponents preserve half-Tensor result storage.
+
+The compatibility target remains native Torch 2.6.0. Torch 2.14 changes some
+empty and mixed-dtype matrix contracts; those differences remain explicit.
+Floating-point results are not bitwise portable across NumPy, native CPU Torch
+and WASM. One retained float32 large-input norm case differs by one ULP before
+sine, causing a large phase/HVP difference. Native equivalent expressions and a
+controlled native replay reproduce the WASM result. This variance and the
+remaining exceptional scalar-power differences are not hidden by changing the
+original point-comparison gates. This is still a development candidate; full
+application and performance qualification and main adoption remain pending.
