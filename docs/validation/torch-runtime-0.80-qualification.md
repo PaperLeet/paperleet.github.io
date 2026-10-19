@@ -125,8 +125,8 @@ matrices, both cold inputs and resident handles. Read-only inputs, repeated
 calls and output independence are checked against native Torch 2.6 and 2.14.
 
 The real Chrome fixture completed 48 whole forward/VJP calls through the opaque
-Python Worker and a bounded host GPU service. It submitted/completed 42 GPU
-programs via 120 RPC requests and returned to zero live handles/allocations;
+Python Worker and a bounded host GPU service. It recorded 42 GPU queue
+submission/completion events via 120 RPC requests and returned to zero live handles/allocations;
 peak tracked GPU allocation was 7,340,096 bytes. The adapter reported Apple
 Metal 3 with `fallback=false`; this does not establish results for other devices.
 The opaque worker retains
