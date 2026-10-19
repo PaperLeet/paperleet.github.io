@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Eighty-six bilingual follow-up questions extend forty-three maintained study guides:
+One hundred and two bilingual follow-up questions extend fifty-one maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -52,6 +52,15 @@ Eighty-six bilingual follow-up questions extend forty-three maintained study gui
 | architecture/residual_block | First-step gradients with zero W2; identity-valued trainable shortcut versus parameter-free identity | README post-addition ReLU, right-multiplied weights and zero-second-layer toy initialization |
 | architecture/batch_norm | Microbatch/EMA composition; fixed inference folding into a preceding linear map | README batch/spatial moments, new-batch momentum convention and detached inference buffers |
 | representation/vae | Zero noise changes the estimator and gradient paths; expected ELBO bound versus a single draw | README caller-supplied noise, analytic KL, single-sample likelihood term and toy limits |
+| architecture/dropout | Consecutive independent masks; preserved activation means versus squared losses | README explicit keep masks, inverted scaling and variance |
+| foundations/bert_mlm | Visible corruption versus supervision; valid-label-weighted microbatch means | README selected sites, original-token labels, no shift and valid-target mean |
+| representation/gan | Common logit offsets versus stationary loss; jointly minimizing fake-logit losses | README independent binary objectives, separate means and caller gradient ownership |
+| diffusion/schedules | Marginal samples versus joint trajectories; composing forward betas | README closed-form marginals, independent forward increments and cumulative products |
+| diffusion/param_conversion | Rotation energy and its sign blind spot; normalization premise | README normalized standard-deviation coefficients and division-free inverse |
+| diffusion/ddpm_sampling | Posterior coefficients are not normalized interpolation weights; paired variance choices | README analytic Gaussian posterior, per-row times and final-noise masking |
+| diffusion/ddim | Equal-coefficient identity and denoiser blind spot; eta-one coarse transitions | README cumulative-coefficient update and adjacent posterior variance |
+| diffusion/flow_matching | Time sampling versus reparameterization; conflicting conditional pairs | README linear path, physical-time derivative and all-element MSE |
+
 
 These are editorial discussions based on the repository exercise statements.
 They are not presented as reported interview questions, frequency counts or a
@@ -212,3 +221,41 @@ accepted soft targets do not become binary Bernoulli events. Inference folding a
 requantized adapter deployment remain discussion topics, not newly implemented
 interfaces. No numerical run, packed-memory benchmark, training claim, grading
 change or reported interview frequency is introduced.
+
+
+The generative-foundations expansion adds sixteen bilingual follow-ups in eight
+previously unenriched guides. All86 earlier follow-ups,267 core prompts and89
+guide identities remain identical as parsed objects. The five basic diffusion
+modules in the training path now each have a discussion pair; the optimizer and
+few-step/distillation extensions are separate maintained topics. These are
+editorial preparation questions, without claims of company provenance or measured
+interview frequency.
+
+Primary background was checked against [DDPM equations4,6,7 and Algorithm2](https://arxiv.org/html/2006.11239v2),
+[Improved DDPM noise schedules](https://arxiv.org/html/2102.09672v1#S3.SS2),
+[DDIM equations12,16 and accelerated generation](https://arxiv.org/html/2010.02502v4#S4),
+[Progressive Distillation AppendixD](https://arxiv.org/html/2202.00512v2#A4),
+[Flow Matching equations9,22,23](https://arxiv.org/html/2210.02747v2#S4),
+[BERT selected targets and replacement strategy](https://arxiv.org/html/1810.04805v2#S3.SS1),
+[GAN objectives and alternating updates](https://arxiv.org/html/1406.2661v1#S3),
+and [Dropout sections9–10](https://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf).
+The examples and algebraic checks are original derivations from the local
+exercise contracts, with both statement languages reviewed.
+
+The derivations keep their premises explicit. Shared-noise diffusion covariance
+conditions on fixed clean data and uses distinct interior cumulative alphas;
+correct marginals alone do not specify a Markov coupling. Consecutive dropout
+masks need independence, positive keep probabilities and no intervening operator.
+The dropout MSE example fixes scalar input and target. GAN common-offset and
+joint-loss examples use the specified class means; the latter treats fake logits
+as independent variables and is not a GAN convergence argument. Rotation energy
+does not detect a whole-vector v sign reversal; rescaled nonunit coefficients are
+a discussion outside the normalized contract. Equal-coefficient DDIM is an
+algebraic identity away from numerical floors and cannot establish denoiser
+accuracy. Eta-one posterior equivalence is an adjacent, shared-prediction/noise,
+no-clipping one-step comparison, not a skipped-chain composition guarantee.
+The CFM collision is a fixed two-example, one-coordinate calculation for a shared
+deterministic per-example model; its minimum is not a global data-distribution
+bound. Reparameterizing an integration clock is distinct from changing the
+sampling density of the original time. No new numerical execution, grading
+rule, solver implementation, training result or benchmark is introduced.
