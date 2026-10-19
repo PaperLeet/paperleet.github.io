@@ -70,7 +70,8 @@ try {
   assert(organization.includes("尚未启用") && organization.includes("disabled="));
   assert(organization.includes('type="email"') && !organization.includes('type="password"'));
   assert(organization.includes("edu.cn") && organization.includes("仍然发送邮箱验证码"));
-  assert(organization.includes("90 天"));
+  assert(!organization.includes("Which accounts work?") && !organization.includes("哪些邮箱可以使用？"));
+  assert(organization.includes('class="email-login-compact"') && organization.indexOf('class="email-login-alternative"') < organization.indexOf('class="signin-privacy"'));
   const oauthOnly = renderToString(React.createElement(OrganizationSignIn, {
     providers: [{ id: "google", available: true }], emailLoginAvailable: false,
   }));
@@ -80,7 +81,7 @@ try {
     providers: [{ id: "google", available: true }, { id: "microsoft", available: true }],
   }));
   assert(quota.includes("加入 waitlist") && quota.includes("使用 Google 登录") && quota.includes("使用 Microsoft 登录"));
-  assert(organization.includes("此次登录已过期") && organization.includes("均可注册并立即使用") && !organization.includes("会进入等待名单"));
+  assert(organization.includes("此次登录已过期") && organization.includes("均支持个人、学校及企业账号") && !organization.includes("会进入等待名单"));
   assert(!organization.includes("其他个人账号不开放注册"));
   assert.equal(accountReturnHref("account/error/expired/22"), "#/22");
   assert.equal(accountReturnHref("account/error/identity/https://evil.test"), undefined);
