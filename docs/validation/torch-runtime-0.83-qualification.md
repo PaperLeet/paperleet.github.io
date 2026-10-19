@@ -123,6 +123,12 @@ merge/metadata records and replay dependencies. The archive contains 763 files,
 `9282d423e72f9433cd4e2fa5a7ad49cbb2b55ac1356ee0c438ecb106823f7cc5`.
 The [development record](torch-runtime-0.83-development.md) remains historical.
 
-Main adoption is pending a fresh remote/release-chain audit and guarded
-ordinary push. No tag, workflow dispatch, publication or deployment is
-requested. The continuing runtime improvement goal remains active.
+Main adopted commit `7e4e8a500f3cb3a875964be08c03254d9c126d57`. The
+[remote adoption receipt](../../packages/stridetorch/benchmarks/results/qualification-0.83-main-adoption.json)
+verifies all 66 runtime resources, 183 active export identities and seven
+release-policy files from that same remote commit. It observes zero workflow
+runs for the adopted SHA and confirms Pages still serves `gh-pages` rather
+than main. Its verified raw archive preserves the late frontend checks, the
+rejected stale-remote attempt and the successful guarded ordinary push.
+No tag, workflow dispatch, publication or deployment was requested. The
+continuing runtime improvement goal remains active.
