@@ -4,6 +4,11 @@ An isolated candidate packs both matrix operands into contiguous reduction rows
 before the existing eligible 2D WASM `einsum`. This is a promising optimization;
 it has **not** replaced the supported runtime or been adopted on main.
 
+The [subsequent six-process and memory qualification](torch-runtime-matmul-packed-rows-qualification.md)
+selects this exact candidate for integration and records the remaining package
+and application gates. Its repeated measurements supersede the preliminary
+timing estimates below.
+
 The numerical source is 0.80 with exactly one changed file, `_matmul.py`.
 The existing dtype, size and exceptional-range guards stay in place, as do the
 normal native CPU route and batched matrix implementation. The candidate replaces

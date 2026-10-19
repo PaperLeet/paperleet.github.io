@@ -526,3 +526,8 @@ Later investigations retain the same measured-runtime distinction:
 - [An isolated packed-row WASM matrix candidate](../../../docs/validation/torch-runtime-matmul-packed-rows-candidate.md),
   with full Node SDK and two NumPy matrix gates; broader performance and
   integration qualification remain pending.
+- [Repeated packed-row qualification](../../../docs/validation/torch-runtime-matmul-packed-rows-qualification.md)
+  adds three fresh Node and three fresh Chrome processes, the full Chrome SDK,
+  per-kernel/full-call allocation scopes and actual WASM copy-lifetime checks.
+  The candidate is selected for integration; package/application adoption gates
+  remain pending.
