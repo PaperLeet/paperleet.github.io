@@ -1,6 +1,7 @@
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import AffiliationVerification from "./AffiliationVerification";
+import AccountIdentitySettings from './AccountIdentitySettings';
 import AffiliationBadge from "./AffiliationBadge";
 import { useLoginSecurity } from './LoginSecurity';
 import type { LoginSecurity } from './LoginSecurity';
@@ -645,7 +646,7 @@ function InstitutionRequest({ openRegistration, forAffiliation = false }: { open
 }
 export function ProfileSettings({ user }: { user: AccountUser }) {
   const { t, locale } = useI18n();
-  const { setUser, health } = useAccount();
+  const { setUser, health, capabilities } = useAccount();
   const [name, setName] = useState(user.display_name),
     [username, setUsername] = useState(user.username),
     [bio, setBio] = useState(user.bio || "");
@@ -934,8 +935,9 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
             </button>
             <p className="account-fineprint">{t("活跃使用自动保持登录；连续 90 天未使用需重新登录。退出会立即撤销服务器上的登录凭据。", "Active use keeps you signed in. Sign in again after 90 days of inactivity. Signing out immediately revokes the server session.")}</p>
           </section>
-          {!user.is_test_user && <AffiliationVerification user={user} />}
-          {!user.is_test_user && !user.affiliation && <InstitutionRequest openRegistration forAffiliation />}
+          {!user.is_test_user && capabilities?.account_identity_management && <AccountIdentitySettings user={user} />}
+          {!user.is_test_user && <AffiliationVerification key={user.id} user={user} />}
+          {!user.is_test_user && (!user.affiliation || capabilities?.account_identity_management) && <InstitutionRequest openRegistration forAffiliation />}
           <section className="social-panel">
             <h3>{t("公开预览", "Public preview")}</h3>
             <div className="profile-preview">

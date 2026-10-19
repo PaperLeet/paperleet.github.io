@@ -1,0 +1,19 @@
+.account-login-methods h3,.account-affiliations h3 { display:flex; align-items:center; gap:7px; }
+.account-login-methods>p,.account-affiliations>p,.affiliation-editor p { color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; }
+.account-method-list { list-style:none; margin:18px 0; padding:0; }
+.account-method-list>li { display:grid; gap:6px; padding:14px 0; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+.account-method-list>li>span { color:var(--muted); font-size:var(--type-small); }
+.account-method-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.identity-confirm { padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); }
+.identity-confirm .text-button { margin-left:12px; }
+.affiliation-editor { margin-top:12px; border:1px solid var(--line); border-radius:10px; }
+.affiliation-editor summary { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:14px; cursor:pointer; }
+.affiliation-editor summary strong { min-width:0; overflow-wrap:anywhere; }
+.affiliation-editor summary span { flex:none; color:var(--muted); font-size:var(--type-meta); }
+.affiliation-editor form { padding:0 14px 14px; }
+.affiliation-editor small { color:var(--muted); }
+.affiliation-history { margin-top:20px; text-align:left; }
+.affiliation-history h3 { font-size:var(--type-small); }
+.affiliation-history ul { list-style:none; padding:0; margin:0; }
+.affiliation-history li { display:grid; gap:5px; padding:12px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.affiliation-history li span,.affiliation-history small,.affiliation-history p { color:var(--muted); font-size:var(--type-meta); line-height:1.6; }
