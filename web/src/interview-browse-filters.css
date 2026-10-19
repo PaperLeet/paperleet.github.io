@@ -1,0 +1,24 @@
+.interview-primary-filters{grid-template-columns:repeat(3,minmax(0,1fr))}
+.interview-selects>label{display:grid;align-content:start;gap:6px;min-width:0;color:var(--text-secondary);font-size:var(--type-small)}
+.interview-selects>label>span{line-height:1.5}
+.interview-selects>label>select{min-height:44px;font-family:inherit;color:var(--text)}
+.interview-more-filters{border:1px solid var(--line);border-radius:10px;background:var(--surface);min-width:0}
+.interview-more-filters>summary{display:flex;align-items:center;flex-wrap:wrap;gap:8px;list-style:none;min-height:44px;padding:10px 12px;cursor:pointer;font-size:var(--type-small);color:var(--text-secondary);border-radius:9px}
+.interview-more-filters>summary::-webkit-details-marker{display:none}
+.interview-more-filters>summary>svg{flex:none}
+.interview-more-filters>summary>svg:last-child{margin-left:auto;transition:transform .16s ease}
+.interview-more-filters[open]>summary>svg:last-child{transform:rotate(180deg)}
+.interview-more-filters>summary:hover{background:var(--surface2);color:var(--text)}
+.interview-more-filters>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.interview-more-filters>summary>small{padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--accent);font-size:inherit;font-variant-numeric:tabular-nums}
+.interview-more-filters>summary>.interview-filter-draft{color:var(--text-secondary)}
+.interview-more-filter-content{padding:4px 14px 12px}
+.interview-secondary-filters:empty{display:none}
+.interview-context-filters.interview-context-embedded{margin:16px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;padding-top:14px}
+.interview-context-embedded>h3{margin:0 0 8px;font-size:var(--type-small);font-weight:600;color:var(--text-secondary)}
+.interview-context-filters.interview-context-embedded>form{padding:0}
+.interview-more-filter-content>footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+.interview-more-filter-content>footer>span{font-size:var(--type-small);color:var(--muted);line-height:1.65}
+.interview-more-filter-content>footer>button{flex:none;min-height:44px;font-size:var(--type-small)}
+@media(max-width:600px){.interview-primary-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.interview-primary-filters>label:last-child:nth-child(3){grid-column:1/-1}.interview-more-filter-content>footer{align-items:flex-start;flex-direction:column}.interview-more-filter-content>footer>button{align-self:flex-end}}
+@media(prefers-reduced-motion:reduce){.interview-more-filters>summary>svg:last-child{transition:none}}
