@@ -30,7 +30,7 @@ def test_shared_interview_taxonomy_and_preparation_paths_are_publishable():
     official = {'www.amazon.jobs', 'careers.microsoft.com', 'openai.com', 'www.google.com',
                 'deepmind.google', 'www.nvidia.com', 'www.anthropic.com', 'www.apple.com',
                 'jobs.bytedance.com', 'talent.alibaba.com', 'careers.tencent.com', 'talent.baidu.com',
-                'zhaopin.meituan.com', 'zhaopin.kuaishou.cn', 'www.deepseek.com', 'x.ai', 'www.tesla.com'}
+                'zhaopin.meituan.com', 'zhaopin.kuaishou.cn', 'www.deepseek.com', 'x.ai', 'www.tesla.com', 'www.microsoft.com'}
     assert len({row['id'] for row in catalog['resources']}) == len(catalog['resources'])
     assert len({row['company'] for row in catalog['resources']}) >= 16
     for row in catalog['resources']:
