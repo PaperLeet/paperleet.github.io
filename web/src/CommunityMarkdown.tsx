@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import CommunityCodeBlock from './CommunityCodeBlock';
+import CommunityTable from './CommunityTable';
 export {default as CommunityCodeBlock} from './CommunityCodeBlock';
 import { useI18n } from './i18n';
 import {headingAnchor,markdownOutline} from './markdownOutline';
@@ -26,6 +27,7 @@ export function CommunityFormatHelp() {
 }
 
 const components = {
+  table: ({children}: {children?:ReactNode}) => <CommunityTable>{children}</CommunityTable>,
   a: ({ href, children,className }: { href?: string; children?: ReactNode;className?:string }) => className==='practice-mention-link'
     ? <AppLink href={href} className={className} data-reading-link="practice">{children}</AppLink>
     : <AppLink href={href} target="_blank" rel="noopener noreferrer nofollow">{children}</AppLink>,

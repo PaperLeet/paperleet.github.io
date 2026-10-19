@@ -1,0 +1,20 @@
+.community-table-reader { min-width:0; max-width:100%; margin:18px 0; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface); }
+.community-table-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--surface2); }
+.prose .community-table-toolbar > p { margin:0; color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; }
+.community-table-toolbar p > span { display:block; color:var(--muted); font-size:var(--type-meta); }
+.community-table-toolbar > div { display:flex; flex:none; gap:5px; }
+.community-table-toolbar button { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text); }
+.community-table-toolbar button:hover:not([aria-disabled=true]) { color:var(--accent); border-color:var(--accent); }
+.community-table-toolbar button[aria-disabled=true] { opacity:.4; cursor:default; }
+.community-table-scroll { min-width:0; max-width:100%; overflow-x:auto; }
+.community-table-scroll:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
+.prose .community-table-reader .community-table-scroll > table { display:table; width:max-content; min-width:100%; max-width:none; margin:0; overflow:visible; border-collapse:separate; border-spacing:0; }
+.prose .community-table-reader :is(th,td) { max-width:32rem; border:0; border-right:1px solid var(--line); border-bottom:1px solid var(--line); padding:10px 14px; overflow-wrap:anywhere; }
+.prose .community-table-reader tr > :last-child { border-right:0; }
+.prose .community-table-reader tbody tr:last-child > td { border-bottom:0; }
+.prose .community-table-reader th { font-weight:600; }
+.community-table-reader[data-scroll-before] .community-table-scroll { box-shadow:inset 10px 0 10px -12px var(--text-secondary); }
+.community-table-reader[data-scroll-after] .community-table-scroll { box-shadow:inset -10px 0 10px -12px var(--text-secondary); }
+.community-table-reader[data-scroll-before][data-scroll-after] .community-table-scroll { box-shadow:inset 10px 0 10px -12px var(--text-secondary),inset -10px 0 10px -12px var(--text-secondary); }
+@media(max-width:480px) { .community-table-toolbar { padding:8px; gap:8px; } .community-table-toolbar p > span { max-width:210px; } .prose .community-table-reader :is(th,td) { padding:9px 12px; } }
+@media(pointer:coarse) { .community-table-toolbar button { width:44px; height:44px; } }
