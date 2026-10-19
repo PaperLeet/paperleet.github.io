@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-17",
+  "reviewed_on": "2026-10-19",
   "modules": [
     {
       "id": "architecture/attention",
@@ -40,6 +40,30 @@
           "hint": {
             "zh": "分别使用两个可手算的 key、全屏蔽行和未来 value 扰动。前缀平均实验只覆盖特定的教学行为。",
             "en": "Use two hand-computable keys, a fully masked row and a perturbation of future values. Prefix averaging checks a specific teaching behavior."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "cache-alignment",
+          "question": {
+            "zh": "如果 Q 比 K 短，题目提供的因果 mask 能直接用于带历史缓存的解码吗？",
+            "en": "If Q is shorter than K, can the provided causal mask be used directly for decoding with a historical cache?"
+          },
+          "hint": {
+            "zh": "本题采用左上对齐，只允许键下标 j 不大于查询下标 i。缓存解码中的新 query 往往有非零绝对起点；先写出希望可见的键，再判断是否需要扩展位置偏移接口，不能默认为右下对齐。",
+            "en": "This exercise uses top-left alignment, allowing key j only when j <= query i. New queries in cached decoding often start at a nonzero absolute position. Write down the visible keys before extending the position-offset interface; do not assume bottom-right alignment."
+          }
+        },
+        {
+          "id": "weights-memory",
+          "question": {
+            "zh": "接口要求返回完整 weights 时，为什么短序列实验不能证明实现适合长序列的显存预算？",
+            "en": "When the interface returns full weights, why does a short-sequence experiment not establish suitability for a long-sequence memory budget?"
+          },
+          "hint": {
+            "zh": "单看返回权重就有 B×H×Q×K 个元素，还要考虑精度与训练中间量。将 Q、K 同时扩大时先计算输出体积；本题的正确性和教学实验不等于优化注意力内核的内存评测。",
+            "en": "The returned weights alone contain B×H×Q×K elements, before dtype size and training intermediates. Calculate their size as Q and K grow together. Correctness and this teaching experiment do not constitute a memory benchmark for an optimized attention kernel."
           }
         }
       ]
@@ -170,6 +194,30 @@
             "en": "First check that k=D matches the full version. Separate approximate scaling with fixed epsilon from the identity obtained when epsilon is scaled too."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "prefix-order",
+          "question": {
+            "zh": "只统计前 k 个特征时，交换特征顺序为什么可能改变归一化尺度，而全量 RMS 不会？",
+            "en": "Why can reordering features change the normalization scale when only the first k features are used, while full RMS is unchanged?"
+          },
+          "hint": {
+            "zh": "全量平方和对坐标排列不变，前缀选取却会换掉参与统计的坐标。用 k=1 和 [1,100] 交换位置比较；权重也按同样顺序排列，再区分统计选择的变化与普通输出置换。",
+            "en": "The full sum of squares is permutation-invariant, but selecting a prefix changes which coordinates enter the statistic. Compare k=1 for [1,100] and its reversal, permuting weights consistently. Separate the changed statistic selection from an ordinary output permutation."
+          }
+        },
+        {
+          "id": "token-independence",
+          "question": {
+            "zh": "怎样设计两个 token 的反例，发现实现错误地把 batch 或 token 轴也放进了归一化统计？",
+            "en": "How can a two-token counterexample reveal accidental normalization across batch or token axes?"
+          },
+          "hint": {
+            "zh": "保留一个 token 不变，只修改另一个 token 的数值；前者的输出不应因此改变。本题每个 token 只沿最后一个特征轴计算尺度，同时保留所有前导轴，不能先把整个输入摊平。",
+            "en": "Keep one token fixed while changing only the other token; the first output must not change. This exercise computes each token scale along its final feature axis and preserves leading axes. Flattening the whole input violates that independence."
+          }
+        }
       ]
     },
     {
@@ -254,6 +302,30 @@
             "en": "Incorrect directions or frequencies may still preserve norms. Test a hand-computed rotation, relative inner products and appended keys with their absolute positions."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "coordinate-layout",
+          "question": {
+            "zh": "把相邻坐标配对改成前半与后半配对，为什么仅检查范数仍可能发现不了接口不一致？",
+            "en": "If adjacent-coordinate pairing is replaced with first-half/second-half pairing, why might norm checks miss the interface mismatch?"
+          },
+          "hint": {
+            "zh": "两种布局都可以构造正交旋转，所以都可能保范数。本题输入明确要求相邻配对。完整模型若改用另一布局，需要同步处理投影后的坐标排列及已有缓存，并用独立手算结果核对。",
+            "en": "Both layouts can define orthogonal rotations and preserve norms. This exercise explicitly requires adjacent pairs. A full model using another layout must also account for projected-coordinate ordering and existing caches, checked against an independent hand calculation."
+          }
+        },
+        {
+          "id": "batch-position-scope",
+          "question": {
+            "zh": "一个 batch 内每个样本的位置都不同，直接传入 [B,L] 的 positions 是否仍符合本题契约？",
+            "en": "If each example in a batch has different positions, does passing positions shaped [B,L] still satisfy this exercise contract?"
+          },
+          "hint": {
+            "zh": "本题的 positions 是 [L]，相位广播到全部 batch 和 head。不同样本的独立位置或打包序列需要先扩展接口与对应验证，不能让偶然的广播结果代替定义清楚的形状约定。",
+            "en": "Here positions has shape [L], with phases shared across batch and heads. Per-example positions or packed sequences require an explicit interface extension and matching checks. An accidental broadcast is not a substitute for a defined shape contract."
+          }
+        }
       ]
     },
     {
@@ -295,6 +367,30 @@
           "hint": {
             "zh": "检查初始更新是否为零，再分析乘积对两侧因子的导数；最后用合并前后的前向一致性验证。",
             "en": "Check whether the initial update is zero, then differentiate the product with respect to each factor. Finally compare merged and unmerged forward results."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "factorized-forward",
+          "question": {
+            "zh": "先形成 B@A 再乘输入，与先算 x@A.T 再乘 B.T，在形状和中间量上有什么取舍？",
+            "en": "What shape and intermediate-size tradeoffs distinguish forming B@A first from computing x@A.T followed by B.T?"
+          },
+          "hint": {
+            "zh": "先写出 [out,in] 的增量与 [...,r] 的低秩中间量。两种乘法结合方式对应同一数学映射，但中间存储和浮点舍入可能不同；保持所有前导维度、alpha/r 缩放及输入和 adapter 的梯度。",
+            "en": "Compare an [out,in] update with a [...,r] low-rank intermediate. The associations express the same mathematical map, but storage and floating-point rounding may differ. Preserve leading dimensions, alpha/r scaling, and gradients for the input and adapters."
+          }
+        },
+        {
+          "id": "merged-double-count",
+          "question": {
+            "zh": "已经把增量合并进 W 后，又保留原 adapter 调用 lora_linear，会发生什么？",
+            "en": "What happens if the update is already merged into W but the original adapters are still passed to lora_linear?"
+          },
+          "hint": {
+            "zh": "前向会再次加上同一个低秩分支，导致增量被计算两次。分别比较未合并前向和使用独立合并权重的普通线性前向；不要修改原始 W，并确认 bias 只加一次。",
+            "en": "The forward adds the same low-rank branch again, counting the update twice. Compare the unmerged forward with an ordinary linear forward using an independent merged weight. Leave the original W untouched and include bias exactly once."
           }
         }
       ]
@@ -381,6 +477,30 @@
           "hint": {
             "zh": "参考分数固定，策略分数保留导数，返回奖励 detach。可分别扰动四个输入并检查极大正负边际。",
             "en": "Reference scores are fixed, policy scores retain derivatives and returned rewards are detached. Perturb each input and test very large positive and negative margins."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "sequence-sum",
+          "question": {
+            "zh": "chosen 与 rejected 的回答长度不一样，把序列 log-prob 改成 token 平均值后还是本题目标吗？",
+            "en": "If chosen and rejected responses have different lengths, does replacing sequence log-prob sums with token means preserve this objective?"
+          },
+          "hint": {
+            "zh": "本题辅助函数对回答 token 的 log-prob 求和，并排除 prompt 与 padding。逐条除以不同长度会改变偏好边际，通常不能用同一个 beta 缩放还原；这是目标约定的改变，不只是数值实现优化。",
+            "en": "The provided helper sums response-token log-prob and excludes prompt and padding. Dividing each response by a different length changes the preference margin and generally cannot be undone by a single beta rescaling. That changes the objective convention rather than merely optimizing its numerical implementation."
+          }
+        },
+        {
+          "id": "shared-score-offset",
+          "question": {
+            "zh": "给同一偏好对的两个策略分数都加同一个常数，loss 与两个诊断奖励应如何变化？",
+            "en": "If the same constant is added to both policy scores in a preference pair, how should the loss and two diagnostic rewards change?"
+          },
+          "hint": {
+            "zh": "策略分数之差不变，所以相对参考的偏好边际和 loss 不变；两个奖励各平移 beta 乘该常数，奖励差不变。分别检查 loss 与返回奖励，避免把“差值不变”误写成“所有诊断数值不变”。",
+            "en": "The policy-score difference is unchanged, so the reference-adjusted margin and loss are unchanged. Both rewards shift by beta times the constant, leaving their difference fixed. Check loss and returned rewards separately; invariant differences do not imply invariant diagnostic values."
           }
         }
       ]
