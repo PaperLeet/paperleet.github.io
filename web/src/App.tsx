@@ -368,8 +368,8 @@ function Workspace() {
     void loadCatalog();
     let previous=getId();
     const h = () => {
-      const next=getId(),sameProfile=sameProfilePage(previous,next),interviewFilters=routePath(previous)==='interviews'&&routePath(next)==='interviews',paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
-      if(sameProfile||paging||interviewFilters)return;
+      const next=getId(),before=routePath(previous),after=routePath(next),sameProfile=sameProfilePage(previous,next),listFilters=before===after&&(after==='interviews'||after==='community'||!!topicIdFromRoute(after)),paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
+      if(sameProfile||paging||listFilters)return;
       setTab("description");
       setRightTab("code");
       setMobilePane("read");
