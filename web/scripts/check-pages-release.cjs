@@ -105,7 +105,12 @@ async function denied(edit,pattern) {const f=fixture();edit(f);await assert.reje
   const pagesBuild=workflow.split('      - name: Build public site\n')[1].split('\n      - ')[0];
   const buildEnv=step=>step.split('        env:\n')[1].split('        run:')[0].trim();
   assert.equal(buildEnv(productionBuild),buildEnv(pagesBuild),'Quality and publication builds must use the same deployment variables');
-  assert.match(productionBuild,/working-directory: web/);assert.match(productionBuild,/run: npm run build/);
+  assert.match(productionBuild,/working-directory: web/);assert.match(productionBuild,/npm run build/);
+  assert.match(productionBuild,/pages-build-metadata.cjs write/);
+  assert.match(pagesBuild,/pages-build-metadata.cjs verify/);
+  assert(!/npm ci|npm run build|pip install/.test(workflow), "Publishing must reuse the exact tested production artifact without rebuilding");
+  assert.match(workflow,/run-id: \$\{\{ steps\.release\.outputs\.quality_run \}\}/);
+  assert.match(ci,/include-hidden-files: true/);
   const pilot=ci.split('  pilot:\n')[1];assert.match(pilot,/needs: \[native, infrastructure, browser-wasm\]/);
   const shell=pilot.split('        run: |\n')[1].replace(/^ {10}/gm,'');
   const success={NATIVE_RESULT:'success',INFRASTRUCTURE_RESULT:'success',WASM_RESULT:'success'};

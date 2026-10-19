@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: paperleet-quality-${{ github.sha }}
+  cancel-in-progress: true
 jobs:
   native:
     runs-on: ubuntu-latest
@@ -22,6 +25,8 @@ jobs:
         run: node web/scripts/check-release-request.cjs
       - name: Validate Pages release gating
         run: node web/scripts/check-pages-release.cjs
+      - name: Validate reusable production artifact
+        run: node web/scripts/check-pages-build-metadata.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -58,7 +63,9 @@ jobs:
           VITE_API_ORIGIN: ${{ vars.PAPERLEET_MAIN_SITE_ENABLED == '1' && 'https://app.paperleet.com' || '' }}
           VITE_HOSTED_APP_AVAILABLE: '1'
           VITE_HOSTED_APP_URL: https://app.paperleet.com
-        run: npm run build
+        run: |
+          npm run build
+          node scripts/pages-build-metadata.cjs write dist "$GITHUB_SHA"
       - name: Validate production asset retention
         run: |
           python web/scripts/check-pages-assets.py
@@ -72,6 +79,9 @@ jobs:
         with:
           name: paperleet-web
           path: web/dist/
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
   infrastructure:
     runs-on: ubuntu-latest
     timeout-minutes: 30
