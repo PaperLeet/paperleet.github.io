@@ -1,4 +1,5 @@
 import {appLocation} from './appLocation';
+import {controlIsActive} from './activeControls';
 import AppLink from './AppLink';
 import {useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
 import {ArrowRight,BookOpen,CheckCircle2,Clock3,RefreshCw} from 'lucide-react';
@@ -21,7 +22,7 @@ import {keepReadingTriggerVisible} from './readingViewport';
 import {status,type Problem,type Saved} from './types';
 import type {ReactNode} from 'react';
 import './interview-ranking.css';
-import {readEvidenceOrder,keepEvidenceOrder,orderInterviewEvidence,latestQuestionPublication,type EvidenceOrder} from './interviewEvidenceOrder';
+import {readEvidenceOrder,keepEvidenceOrder,orderInterviewEvidence,latestQuestionPublication,isEvidenceOrder,type EvidenceOrder} from './interviewEvidenceOrder';
 
 type PracticeFilter=InterviewStudyState;
 type Props={filters:InterviewFilters;questions:InterviewSummary['questions'];problems:Problem[];saved:Record<string,Saved>;ready:boolean;error?:string;catalogError?:string;onRetryProgress?:()=>void;onRetryCatalog?:()=>void;onClearSearch:()=>void;onRecover?:(update:Partial<InterviewFilters>,trigger:HTMLButtonElement)=>void;emptyAction?:ReactNode;owner?:string;accountLoading?:boolean;contextAvailable?:boolean;sourceReturn?:{id:number;concept:string};onSourceReturnReady?:(id:number)=>void;onSourceReturnPending?:(id:number)=>void;onSourceReturnCancel?:(id:number)=>void};
@@ -32,7 +33,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  const activeReturn=sourceReturn&&cancelledReturn.current!==sourceReturn.id?sourceReturn:undefined;
  const [evidenceOrder,setEvidenceOrder]=useState(readEvidenceOrder);
  const source=questions.length?'reports':'curated';
- const curated=source==='curated';
+ const curated=source==='curated',practiceOrder=evidenceOrder==='difficulty'||evidenceOrder==='duration';
  const scope=interviewHref(filters);
  const [selection,setSelection]=useState<{scope:string;source:typeof source;value:PracticeFilter;limit:number;retained:number;kept?:string[]}>({scope,source,value:filters.study,limit:6,retained:6});
  const ready=loaded&&!error;
@@ -41,7 +42,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
  const byId=new Map(problems.map(problem=>[problem.id,problem]));
  const paths=filters.concept?interviewCatalog.paths:rolePreparationPaths(filters.role);
  const curatedIds=[...new Set(paths.flatMap(path=>path.modules))].filter(id=>!filters.concept||id===filters.concept);
- const concepts:{id:string;evidence?:InterviewSummary['questions'][number]}[]=curated?curatedIds.map(id=>({id})):orderInterviewEvidence(questions,evidenceOrder).map(evidence=>({id:evidence.problem_id,evidence}));
+ const concepts:{id:string;evidence?:InterviewSummary['questions'][number]}[]=curated?curatedIds.map(id=>({id})):orderInterviewEvidence(questions,evidenceOrder,byId).map(evidence=>({id:evidence.problem_id,evidence}));
  const unavailable=concepts.filter(row=>!byId.has(row.id)).length;
  const title=(problem:Problem)=>locale==='en'?problem.translations?.en?.title||problem.title:problem.title;
  const query=filters.q.trim();
@@ -81,9 +82,9 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
   revealFocus.current={target:compactControl.current?.id||'',claim:intent.create()};
   setSelection({scope,source,value:selected,limit:6,retained:retainedLimit,kept});
  }
- function chooseEvidenceOrder(value:EvidenceOrder){
+ function chooseEvidenceOrder(value:EvidenceOrder,trigger:HTMLSelectElement){
   const current=readInterviewRoute(appLocation.hash);
-  if(!['contributors','recent'].includes(value)||curated||accountLoading||value===evidenceOrder||!list.current?.isConnected||list.current.closest('[hidden],[aria-hidden="true"]')||!current||interviewHref(current)!==scope)return;
+  if(!isEvidenceOrder(value)||curated||accountLoading||value===evidenceOrder||!controlIsActive(trigger)||!controlIsActive(list.current)||!list.current?.contains(trigger)||!current||interviewHref(current)!==scope)return;
   if(activeReturn){cancelledReturn.current=activeReturn.id;onSourceReturnCancel?.(activeReturn.id);}
   intent.cancel();revealFocus.current=undefined;
   setSelection({scope,source,value:selected,limit:6,retained:6,kept:retained.map(row=>row.id)});
@@ -113,11 +114,11 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
   {unknownCriteria>0&&<p className="interview-progress-status" role="status">{t(`${unknownCriteria} 个知识点缺少当前筛选所需的练习信息，暂未计入结果。清除难度与时长条件可继续查看其来源。`,`${unknownCriteria} concepts lack the metadata needed for these practice filters and are not included. Clear difficulty and duration to read their sources.`)}</p>}
   {!!rows.length&&<>
    <div className="interview-ranking-toolbar">
-    <div><b>{curated?t('把准备变成可见进度','Make your preparation visible'):evidenceOrder==='recent'?t('跟进最近分享的知识点','Follow recently shared concepts'):t('把高频变成准备进度','Turn concepts into preparation')}</b><p>{curated?t('按学习状态选择练习，自测、实现，再用测试验证。','Choose a learning state, explain your answer and verify it through code.'):evidenceOrder==='recent'?t('按最近关联面经的发布时间浏览；同一时间沿用分享者排序。','Browse by the latest linked report publication; ties keep contributor order.'):t('筛选你的学习状态；榜单仍按社区分享者人数排序。','Filter your learning state; the ranking keeps its community contributor order.')}</p></div>
+    <div><b>{curated?t('把准备变成可见进度','Make your preparation visible'):practiceOrder?t('按练习节奏安排知识点','Plan your practice order'):evidenceOrder==='recent'?t('跟进最近分享的知识点','Follow recently shared concepts'):t('把高频变成准备进度','Turn concepts into preparation')}</b><p>{curated?t('按学习状态选择练习，自测、实现，再用测试验证。','Choose a learning state, explain your answer and verify it through code.'):practiceOrder?t('依据题目难度或预计用时安排练习；社区分享数据与来源保持原样。','Use exercise difficulty or estimated time to plan practice. Community counts and sources are kept.'):evidenceOrder==='recent'?t('按最近关联面经的发布时间浏览；同一时间沿用分享者排序。','Browse by the latest linked report publication; ties keep contributor order.'):t('筛选你的学习状态；榜单仍按社区分享者人数排序。','Filter your learning state; the ranking keeps its community contributor order.')}</p></div>
     {progressResolved&&!(query&&unavailable)&&!unknownCriteria&&<div className="interview-ranking-completion"><span>{t('已通过','Passed')} <b>{counts.done} / {rows.length}</b></span><progress aria-label={t('当前知识点练习进度','Practice progress for these concepts')} value={counts.done} max={rows.length}/></div>}
    </div>
    {!ready&&<p className="interview-progress-status" role="status">{error?curated?t('学习进度暂不可用，仍可自测和打开练习。','Learning progress is unavailable. Study prompts and practice remain available.'):t('学习进度暂不可用。仍可查看来源、自测和打开练习。','Learning progress is unavailable. Sources, study prompts and practice remain available.'):t('正在读取学习进度，暂不按状态筛选。','Loading learning progress before filtering by state.')} {error&&onRetryProgress&&<button type="button" className="text-button" onClick={onRetryProgress}>{t('重试学习进度','Retry learning progress')}</button>}</p>}
-   {!curated&&<label className="interview-evidence-order"><span>{t('知识点排序','Concept order')}</span><select aria-label={t('知识点排序','Concept order')} aria-controls={listId} value={evidenceOrder} disabled={accountLoading} onChange={event=>chooseEvidenceOrder(event.target.value as EvidenceOrder)}><option value="contributors">{t('分享者人数','Contributors')}</option><option value="recent">{t('最新分享','Latest reports')}</option></select><small>{evidenceOrder==='recent'?t('按公开面经发布时间；缺少日期的知识点排在最后。','Uses public report publication time; undated concepts come last.'):t('按公开面经分享者人数浏览；日期用于查看来源新近程度。','Ranks by public report contributors; dates show publication recency.')}</small></label>}
+   {!curated&&<label className="interview-evidence-order"><span>{t('知识点排序','Concept order')}</span><select aria-label={t('知识点排序','Concept order')} aria-controls={listId} value={evidenceOrder} disabled={accountLoading} onChange={event=>chooseEvidenceOrder(event.target.value as EvidenceOrder,event.currentTarget)}><option value="contributors">{t('分享者人数','Contributors')}</option><option value="recent">{t('最新分享','Latest reports')}</option><optgroup label={t('安排练习','Plan practice')}><option value="difficulty">{t('简单优先','Easy first')}</option><option value="duration">{t('用时短优先','Short time first')}</option></optgroup></select><small>{practiceOrder?evidenceOrder==='difficulty'?t('按简单、中等、困难排列；同难度沿用分享者排序，缺少难度的知识点排在最后。','Easy, medium, then hard; ties keep contributor order. Unknown difficulty comes last.'):t('按单题预计用时从短到长；同用时沿用分享者排序，缺少用时的知识点排在最后。','Shortest estimated time first; ties keep contributor order. Unknown time comes last.'):evidenceOrder==='recent'?t('按公开面经发布时间；缺少日期的知识点排在最后。','Uses public report publication time; undated concepts come last.'):t('按公开面经分享者人数浏览；日期用于查看来源新近程度。','Ranks by public report contributors; dates show publication recency.')}</small></label>}
    <div className="interview-ranking-filters" role="group" aria-label={t('按学习状态筛选知识点','Filter concepts by learning state')}>{(['all','todo','started','done'] as const).map(value=><button key={value} type="button" disabled={value!=='all'&&!progressResolved} aria-pressed={selected===value} onClick={event=>choose(value,event.currentTarget)}><span>{value==='all'?t('全部知识点','All concepts'):stateLabel(value)}</span><small>{value==='all'||progressResolved?counts[value]:'—'}</small></button>)}</div>
    {resume&&<AppLink className="interview-ranking-resume" href={practice(resume)}><span><Clock3 size={17}/><span><b>{status(resume,saved[resume.id])==='started'?t('继续当前范围的草稿','Resume a draft in this view'):t('开始当前范围的练习','Start practicing in this view')}</b><small>{title(resume)}</small></span></span><ArrowRight size={16}/></AppLink>}
    <p id={countId} className="interview-ranking-result-count" role="status">{selected!=='all'&&!progressResolved?t('正在等待学习进度，筛选条件已保留。','Waiting for learning progress. Your filter is kept.'):t(`显示 ${shown.length} / ${matching.length} 个知识点`,`Showing ${shown.length} of ${matching.length} ${matching.length===1?'concept':'concepts'}`)}{selected!=='all'&&<button type="button" className="text-button" onClick={event=>choose('all',event.currentTarget)}>{t('显示全部状态','Show all learning states')}</button>}</p>
@@ -129,7 +130,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
    const sources=interviewSourceHref(filters,id);
    const heading=`interview-ranked-${encodeURIComponent(id)}`,latest=evidence?latestQuestionPublication(evidence):undefined;
    return <article key={id} className="interview-ranking-row" aria-labelledby={heading} hidden={index>=shown.length}>
-    <span className="interview-rank" aria-label={curated?t('编辑推荐练习','Curated exercise'):evidenceOrder==='recent'?t(`分享时间排序第 ${rank} 位`,`Report recency position ${rank}`):t(`社区排序第 ${rank} 位`,`Community rank ${rank}`)}>{curated?<BookOpen size={14}/>:String(rank).padStart(2,'0')}</span>
+    <span className="interview-rank" aria-label={curated?t('编辑推荐练习','Curated exercise'):practiceOrder?t(`练习顺序第 ${rank} 位`,`Practice order position ${rank}`):evidenceOrder==='recent'?t(`分享时间排序第 ${rank} 位`,`Report recency position ${rank}`):t(`社区排序第 ${rank} 位`,`Community rank ${rank}`)}>{curated?<BookOpen size={14}/>:String(rank).padStart(2,'0')}</span>
     <div className="interview-ranking-copy"><div className="interview-ranking-title">{problem?<AppLink id={heading} href={practice(problem)}>{name}</AppLink>:<b id={heading} tabIndex={-1}>{name}</b>}{problem&&<span className={`interview-ranking-state ${state||''}`}>{state==='done'?<CheckCircle2 size={12}/>:state==='started'?<Clock3 size={12}/>:null}{stateLabel(state)}</span>}</div>
      {!!matches.length&&<p className="interview-search-match"><span>{t('匹配：','Matched: ')}</span>{matches.map(matchLabel).join(' · ')}{matches.includes('paper')&&problem?.paper?.title&&<span className="interview-search-paper">{problem.paper.title}</span>}{evidence&&matches.includes('goal')&&problem&&<span className="interview-search-paper">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</span>}</p>}
      {problem&&<p className="interview-ranking-module-meta">{[({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[problem.difficulty],problem.estimated_minutes?`${problem.estimated_minutes} min`:''].filter(Boolean).join(' · ')}</p>}

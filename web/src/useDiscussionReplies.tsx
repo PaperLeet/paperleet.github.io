@@ -5,6 +5,7 @@ import {useI18n} from './i18n';
 import {captureReadingAnchor,restoreReadingAnchor,revealReadingTarget,keepReadingTriggerVisible,type ReadingAnchor} from './readingViewport';
 import './discussion-replies.css';
 import CommunitySearch from './CommunitySearch';
+import {controlIsActive} from './activeControls';
 import {matchesReplySearch,replySearchQuery,replySearchTerms,replySearchText} from './replySearch';
 import type {DiscussionView,DiscussionExpansion} from './discussionPracticeReturn';
 
@@ -160,16 +161,21 @@ export function ReplyAuthorNavigation({list,replyId,disabled=false}:{list:Return
   <button type="button" disabled={locked} aria-disabled={locked||!position.next} aria-label={t('下一条楼主回复','Next author reply')} title={t('按当前回复排序跳转，保留返回位置。','Follow the current reply order and keep your return position.')} onClick={event=>{if(!locked&&position.next)list.seekAuthorReply(position.next,event.currentTarget);}}><ArrowDown size={15} aria-hidden="true"/></button>
  </div>;
 }
-export function ReplyListControls({list,disabled}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean}){
+/** Filters use only the public author identity; draft/search/order state stays local. */
+export function ReplyAuthorFilter({list,disabled=false,controls,canAct}:{list:ReturnType<typeof useDiscussionReplies>;disabled?:boolean;controls?:string;canAct?:()=>boolean}){
+ const {t}=useI18n();
+ return <button type="button" className="reply-author-filter" data-author-reply-filter aria-controls={controls} aria-pressed={list.authorOnly} disabled={disabled||list.disabled} title={t('只筛选楼主的公开回复，保留当前排序和搜索。','Filter public author replies while keeping the current order and search.')} onClick={event=>{if(disabled||list.disabled||!controlIsActive(event.currentTarget)||!controlIsActive(list.root.current)||canAct?.()===false)return;list.chooseAuthor(!list.authorOnly);}}><UserRound size={14} aria-hidden="true"/>{t('只看楼主','Author only')}<small aria-label={t(`${list.authorCount} 条楼主回复`,`${list.authorCount} author replies`)}>{list.authorCount}</small></button>;
+}
+export function ReplyListControls({list,disabled,canAct}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean;canAct?:()=>boolean}){
  const {t}=useI18n(),help=useId();
  return <div className="discussion-reply-controls">
-  <button type="button" aria-pressed={list.authorOnly} disabled={disabled} onClick={()=>list.chooseAuthor(!list.authorOnly)}><UserRound size={14} aria-hidden="true"/>{t('只看楼主','Author only')}</button>
+  <ReplyAuthorFilter list={list} disabled={disabled} canAct={canAct}/>
   <ReplyAuthorJump list={list} disabled={disabled}/>
   <select aria-label={t('回复排序','Sort replies')} value={list.order} disabled={disabled} onChange={event=>list.chooseOrder(event.target.value as Order)}><option value="oldest">{t('最早回复','Oldest first')}</option><option value="newest">{t('最新回复','Newest first')}</option></select>
   <span role="status">{t(`显示 ${list.shown.length} / ${list.total} 条回复`,`${list.shown.length} of ${list.total} replies shown`)}</span>
   {list.query&&list.firstMatch&&<button type="button" className="discussion-reply-first-match" disabled={disabled} onClick={()=>{if(list.firstMatch)list.seekSearchReply(list.firstMatch);}}>{t('跳到首条匹配','Go to first match')}</button>}
   <div className="discussion-reply-search"><CommunitySearch applied={list.query} readingRevision={list.searchReadingRevision} onApply={list.chooseQuery} disabled={disabled} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
-  <p id={help} className="discussion-reply-search-help">{t('搜索本帖全部公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search all public replies in this discussion. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.')}</p>
+  <p id={help} className="discussion-reply-search-help">{list.authorOnly?t('仅搜索楼主的公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search public author replies only. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.'):t('搜索本帖全部公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search all public replies in this discussion. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.')}</p>
  </div>;
 }
 export function MoreReplies({list,disabled}:{list:ReturnType<typeof useDiscussionReplies>;disabled:boolean}){

@@ -1,9 +1,11 @@
 import type {InterviewSummary} from './interviewModels';
-export type EvidenceOrder='contributors'|'recent';
+import type {Problem} from './types';
+export type EvidenceOrder='contributors'|'recent'|'difficulty'|'duration';
+export function isEvidenceOrder(value:unknown):value is EvidenceOrder{return value==='contributors'||value==='recent'||value==='difficulty'||value==='duration';}
 const key='paperleet.interview.question-order.v1';
 let memory:EvidenceOrder='contributors';
-export function readEvidenceOrder():EvidenceOrder{try{const value=sessionStorage.getItem(key);return value==='recent'||value==='contributors'?value:memory;}catch{return memory;}}
-export function keepEvidenceOrder(value:EvidenceOrder){if(value!=='contributors'&&value!=='recent')return;memory=value;try{sessionStorage.setItem(key,value);}catch{/* Reading order remains available for this page session. */}}
+export function readEvidenceOrder():EvidenceOrder{try{const value=sessionStorage.getItem(key);return isEvidenceOrder(value)?value:memory;}catch{return memory;}}
+export function keepEvidenceOrder(value:EvidenceOrder){if(!isEvidenceOrder(value))return;memory=value;try{sessionStorage.setItem(key,value);}catch{/* Reading order remains available for this page session. */}}
 
 /** Source timestamps are report publication times in UTC, never interview dates. */
 export function sourcePublicationTime(value:unknown):number|undefined{
@@ -19,7 +21,12 @@ export function latestQuestionPublication(row:InterviewSummary['questions'][numb
  }
  return latest;
 }
-export function orderInterviewEvidence(rows:InterviewSummary['questions'],order:EvidenceOrder){
+/** Practice ordering changes presentation only; source counts and contributor ties stay intact. */
+export function orderInterviewEvidence(rows:InterviewSummary['questions'],order:EvidenceOrder,problems?:ReadonlyMap<string,Pick<Problem,'difficulty'|'estimated_minutes'>>){
  if(order==='contributors')return rows;
+ if(order==='difficulty'||order==='duration'){
+  const value=(id:string)=>{const problem=problems?.get(id);if(order==='difficulty')return problem?.difficulty==='E'?0:problem?.difficulty==='M'?1:problem?.difficulty==='H'?2:undefined;const minutes=problem?.estimated_minutes;return typeof minutes==='number'&&Number.isFinite(minutes)&&minutes>0?minutes:undefined;};
+  return rows.map((row,index)=>({row,index,value:value(row.problem_id)})).sort((a,b)=>a.value===undefined?b.value===undefined?a.index-b.index:1:b.value===undefined?-1:a.value-b.value||a.index-b.index).map(value=>value.row);
+ }
  return rows.map((row,index)=>({row,index,stamp:latestQuestionPublication(row)})).sort((a,b)=>a.stamp===undefined?b.stamp===undefined?a.index-b.index:1:b.stamp===undefined?-1:b.stamp-a.stamp||a.index-b.index).map(value=>value.row);
 }

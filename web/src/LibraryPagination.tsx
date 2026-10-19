@@ -17,10 +17,12 @@ export default function LibraryPagination({page,size,total,modules,listId,compac
  const {t}=useI18n(),pages=Math.max(1,Math.ceil(total/size)),valid=page>=1&&page<=pages,start=(page-1)*size+1,end=Math.min(page*size,total);
  if(!total)return null;
  const numbers=libraryPageNumbers(page,pages);
+ const pageSize=<label className="library-page-size"><span>{t('每页','Per page')}</span><select aria-label={t('每页显示数量','Results per page')} aria-controls={listId} value={size} onChange={event=>{if(active())onSize(Number(event.target.value) as LibraryPageSize);}}>{([20,50,100] as const).map(value=><option key={value} value={value}>{value}</option>)}</select></label>;
  const previous=<button type="button" data-pagination-control="" className="library-page-arrow" aria-label={t('上一页','Previous page')} aria-controls={listId} title={t('上一页','Previous page')} disabled={!valid||page===1} onClick={()=>choose(page-1)}><ChevronLeft size={17} aria-hidden="true"/>{!compact&&<span className="library-page-arrow-label">{t('上一页','Previous')}</span>}</button>;
  const next=<button type="button" data-pagination-control="" className="library-page-arrow" aria-label={t('下一页','Next page')} aria-controls={listId} title={t('下一页','Next page')} disabled={!valid||page>=pages} onClick={()=>choose(page+1)}>{!compact&&<span className="library-page-arrow-label">{t('下一页','Next')}</span>}<ChevronRight size={17} aria-hidden="true"/></button>;
  return <nav ref={root} className={`library-pagination${compact?' library-pagination-compact':''}`} aria-label={labels?t(...labels.nav):compact?t('题库快捷翻页','Quick library pages'):t('题库分页','Library pages')}>
   {!compact&&<p className="library-page-range" role="status" aria-atomic="true">{valid?<>{t('显示','Showing')} <b>{start}–{end}</b> / {total} {labels?t(...labels.count):modules?t('道题','modules'):t('篇论文','papers')}</>:t(`第 ${page} 页已超出范围 · 共 ${pages} 页`,`Page ${page} is unavailable · ${pages} pages`)}</p>}
+  {compact&&pageSize}
   <div className="library-page-buttons" data-wide={String(pages).length>5||undefined} onKeyDown={focusPaginationButton}>{previous}{compact?(pages>1?<PageJump key={page} page={page} maxPage={pages} onChange={choose} canAct={active} label={labels?t(...labels.jump):t('快捷跳转题库页码','Quick jump to library page')} controls={listId} className="library-quick-jump"/>:<span className="library-page-current" aria-current={valid?'page':undefined}>{valid?`${page} / ${pages}`:t('页码已失效','Page unavailable')}</span>):numbers.map((n,index)=>{
    if(n==='gap'){
     const before=numbers[index-1] as number,after=numbers[index+1] as number;
@@ -30,6 +32,6 @@ export default function LibraryPagination({page,size,total,modules,listId,compac
    }
    return <button type="button" data-pagination-control="" className="library-page-number" key={n} aria-label={t(`第 ${n} 页`,`Page ${n}`)} aria-controls={listId} aria-current={n===page?'page':undefined} onClick={()=>{if(n!==page)choose(n);}}>{n}</button>;
   })}{!compact&&<span className="library-page-mobile-current" aria-current={valid?'page':undefined}>{valid?t(`第 ${page} / ${pages} 页`,`Page ${page} of ${pages}`):t('选择有效页码','Choose an available page')}</span>}{next}</div>
-  {!compact&&<div className="library-page-options"><label className="library-page-size"><span>{t('每页','Per page')}</span><select aria-label={t('每页显示数量','Results per page')} aria-controls={listId} value={size} onChange={event=>{if(active())onSize(Number(event.target.value) as LibraryPageSize);}}>{([20,50,100] as const).map(value=><option key={value} value={value}>{value}</option>)}</select></label>{pages>1&&<PageJump key={page} page={page} maxPage={pages} onChange={choose} canAct={active} label={labels?t(...labels.jump):t('跳转题库页码','Jump to library page')} controls={listId}/>}</div>}
+  {!compact&&<div className="library-page-options">{pageSize}{pages>1&&<PageJump key={page} page={page} maxPage={pages} onChange={choose} canAct={active} label={labels?t(...labels.jump):t('跳转题库页码','Jump to library page')} controls={listId}/>}</div>}
  </nav>;
 }

@@ -1213,7 +1213,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 {t("回复", "Replies")} <span>{post.counts.replies}</span>
               </h2>
             </div>
-            {post.replies.length>0&&<ReplyListControls list={replyList} disabled={repliesLocked}/>}
+            {post.replies.length>0&&<ReplyListControls list={replyList} disabled={repliesLocked} canAct={()=>mounted.current&&post.id===id&&controlIsActive(practiceReading.root.current)&&communityContinuation(appLocation.hash)===postHref(id,providedReturnTo,replyTarget).slice(2)}/>}
             <ReplyReadingNotice list={replyList}/><ReplyReadingReturn list={replyList}/>
             {replyList.shown.length ? (
               replyList.shown.map((r) => (
