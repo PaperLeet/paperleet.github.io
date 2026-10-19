@@ -108,6 +108,30 @@
             "en": "Use head-specific visibility, a fully masked row and a non-identity output projection, then inspect gradients for inputs and projection matrices."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "projection-orientation",
+          "question": {
+            "zh": "四个投影矩阵都是 [D,D]，为什么仅检查形状仍可能漏掉错误转置？怎样设计对照？",
+            "en": "Why can shape checks miss a wrong transpose when all four projections are [D,D], and what comparison exposes it?"
+          },
+          "hint": {
+            "zh": "方阵的两个乘法方向都可能通过形状检查。本题按 x @ w 使用权重；选择非对称、非恒等的投影，逐步核对 query、key、value 和输出投影的数值，不要把其他模块的 [out,in] 布局直接搬来。",
+            "en": "Both orientations of a square matrix can pass shape checks. This interface uses x @ w. Use non-symmetric, non-identity projections and check query, key, value and output projections independently instead of importing another module’s [out,in] convention."
+          }
+        },
+        {
+          "id": "masked-head-output",
+          "question": {
+            "zh": "只把一个头的某个 query 全部屏蔽，能否断言最终输出中对应的一段特征也必为零？",
+            "en": "If one head is fully masked for a query, must the corresponding final output feature segment be zero?"
+          },
+          "hint": {
+            "zh": "该头在拼接前的输出为零，但稠密 w_o 会混合不同头的特征，其他头仍可能影响这段最终输出。区分逐头结果与最终投影结果；本题没有 bias，因此同一 query 的所有头都被屏蔽时，最终输出才保证为零。",
+            "en": "That head is zero before concatenation, but a dense w_o mixes features from other heads into final output coordinates. Distinguish per-head values from projected output. With no bias in this exercise, masking every head for the query guarantees zero final output."
+          }
+        }
       ]
     },
     {
@@ -149,6 +173,30 @@
           "hint": {
             "zh": "常数或单特征输入的归一化部分为零。非零 epsilon 下，单位仿射参数并不保证输出方差恰好为一。",
             "en": "The normalized part is zero for constant or single-feature inputs. With nonzero epsilon, unit affine parameters do not guarantee output variance exactly one."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "epsilon-scale-check",
+          "question": {
+            "zh": "输入乘以正数 a 后，固定 epsilon 为什么不是严格尺度不变？怎样构造更准确的对照？",
+            "en": "Why is scaling input by a positive a not exactly invariant with fixed epsilon, and what gives a stronger check?"
+          },
+          "hint": {
+            "zh": "方差会乘以 a²，而固定 epsilon 不会。将输入与 epsilon 分别改为 a*x 和 a²*epsilon、保持仿射参数不变，在实数算术下可恢复同一结果；实际比较仍需考虑浮点误差。极小方差更容易暴露把 epsilon 放错位置的错误。",
+            "en": "Variance scales by a² while fixed epsilon does not. Compare a*x with a²*epsilon and unchanged affine parameters to recover the identity in real arithmetic; allow for floating-point error in practice. Tiny variance makes incorrect epsilon placement easier to detect."
+          }
+        },
+        {
+          "id": "residual-branch-grads",
+          "question": {
+            "zh": "对相互独立的 x 与子层输出 s，post-LN 的两条相加分支应接收到怎样的局部梯度？",
+            "en": "For independent inputs x and sublayer output s, what local gradients should the two post-LN addition branches receive?"
+          },
+          "hint": {
+            "zh": "在 LN(x+s) 中，两条独立分支接收同一个对相加结果的上游梯度。分别检查它们，能发现 detach 或遗漏分支；若 s 本身由 x 算出，x 的总梯度还包含经过子层的间接路径，不能再简单比较两个总梯度。",
+            "en": "For LN(x+s), independent branches receive the same gradient with respect to their sum. Check both to expose a detached or omitted branch. If s is computed from x, x also receives an indirect sublayer contribution, so the two total gradients need not match."
           }
         }
       ]
@@ -801,6 +849,30 @@
           "hint": {
             "zh": "零梯度且历史为零时只剩解耦衰减；多步核对状态传递，极小梯度特别适合检查 epsilon 的位置。",
             "en": "With zero gradient and history, only decay remains. Multiple steps check state propagation, while tiny gradients expose epsilon-placement errors."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "zero-current-gradient",
+          "question": {
+            "zh": "当前梯度为零但旧一阶动量非零时，为什么不能直接断言这一步只剩权重衰减？",
+            "en": "Why does a zero current gradient not imply a decay-only step when the old first moment is nonzero?"
+          },
+          "hint": {
+            "zh": "先代入更新式：m_t=beta1*m_old，v_t=beta2*v_old。只要保留的动量仍非零，自适应更新项就可能继续起作用。只有同时检查当前梯度、历史状态和参数约定后，才能使用“只剩衰减”的简化结论。",
+            "en": "Substitute into the recurrence: m_t=beta1*m_old and v_t=beta2*v_old. A surviving first moment can still drive the adaptive update. Check the current gradient, history and parameter settings before using the decay-only simplification."
+          }
+        },
+        {
+          "id": "raw-state-recurrence",
+          "question": {
+            "zh": "怎样用常数梯度的两步对照，发现把偏差校正后的动量错误地当成下一步状态？",
+            "en": "How can two steps with a constant gradient expose carrying bias-corrected moments as optimizer state?"
+          },
+          "hint": {
+            "zh": "从零状态开始、使用固定非零梯度时，校正后的一阶和二阶动量分别是 g 与 g²，但要返回的原始累计量仍随步数变化。把原始累计量传给下一步，再重新做当步偏差校正；可先关闭 weight_decay，单独排查重复校正。",
+            "en": "Starting from zero moments with a constant nonzero gradient, corrected moments are g and g², while the raw running moments still change with the step. Carry raw moments forward and apply that step’s correction separately. Set weight_decay to zero first to isolate an accidental second correction."
           }
         }
       ]
@@ -1697,6 +1769,30 @@
             "en": "Perturb one token and check that other outputs stay fixed, then independently compare gradients for the input and all four parameters. The nonlinear synthetic regression also exposes a purely linear two-layer implementation."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "closed-gate-bias",
+          "question": {
+            "zh": "若一个 token 的所有隐藏预激活都严格小于零，它的输出和梯度贡献应怎样变化？",
+            "en": "If all hidden preactivations of one token are strictly negative, what happens to its output and gradient contributions?"
+          },
+          "hint": {
+            "zh": "该 token 的 ReLU 隐藏值为零，输出仍是 b2；它对 x、w1、b1 和 w2 的梯度贡献为零，但对 b2 仍可有贡献。参数跨 token 共享，其他 token 可能产生非零总梯度；不要把单个 token 的关闭门误判成整个参数都没有梯度。",
+            "en": "Its ReLU hidden vector is zero, so the output is still b2. Its contributions to x, w1, b1 and w2 gradients are zero, while b2 can receive an upstream contribution. Shared parameters may still receive nonzero totals from other tokens; one closed token does not disable the whole parameter gradient."
+          }
+        },
+        {
+          "id": "token-permutation",
+          "question": {
+            "zh": "共享同一套 FFN 参数是否意味着不同 token 输出相同？打乱 token 顺序应满足什么关系？",
+            "en": "Does sharing FFN parameters make different tokens produce the same output, and what should a token permutation do?"
+          },
+          "hint": {
+            "zh": "共享的是函数与参数，不是输入或隐藏激活。对 token 做排列，输出应随同样的排列重排；不同输入仍可能得到不同结果。将这个关系与只扰动一个 token 的对照结合，可排查沿 token 维求和、平均或错误合并轴。",
+            "en": "The function and parameters are shared, not inputs or hidden activations. Permuting tokens should permute outputs the same way, while different inputs can produce different values. Combine this check with a one-token perturbation to expose token-axis reductions or incorrectly merged axes."
+          }
+        }
       ]
     },
     {
@@ -1738,6 +1834,30 @@
           "hint": {
             "zh": "先手算 H=4、G=2 的头映射与投影均值，再对照逐头实现及梯度。实验只衡量合成输出误差与缓存元素；论文转换后还进行训练，不要求误差随 G 单调变化。",
             "en": "Hand-check head mapping and projection means at H=4,G=2, then compare with independent per-head values and gradients. The experiment measures synthetic output error and cache elements. The paper additionally trains after conversion; error need not vary monotonically with G."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "decode-mask-alignment",
+          "question": {
+            "zh": "读取历史 KV 时，为什么直接构造 [1,K] 的下三角掩码可能屏蔽掉本应可见的键？",
+            "en": "Why can a lower-triangular [1,K] mask hide valid keys when reading a KV cache?"
+          },
+          "hint": {
+            "zh": "Q=1 只说明本次有一个 query，不说明它处在整个序列的第一个位置。如果它位于所有缓存键之后，这些键在因果关系下都可见。应依据真实位置构造掩码；本题不会自动推断缓存对齐。",
+            "en": "Q=1 means one query in this call, not the first position of the full sequence. If it follows all cached keys, every cached key is causally visible. Build visibility from actual positions; this interface does not infer cache alignment."
+          }
+        },
+        {
+          "id": "kv-capacity-scope",
+          "question": {
+            "zh": "计算时把共享 KV 展开到 H 个头，还能直接把 G/H 当成整个实现的内存或速度比例吗？",
+            "en": "If computation expands shared KV to H heads, does G/H describe total memory or runtime?"
+          },
+          "hint": {
+            "zh": "G/H 只描述持久保留的 K/V 元素数。query、[B,H,Q,K] 注意力权重和计算用临时展开不在该统计中。先区分缓存、工作区与测量范围，再讨论峰值内存或速度；本题的容量实验不提供端到端性能结论。",
+            "en": "G/H counts only persistent K/V elements. Queries, [B,H,Q,K] attention weights and temporary expanded tensors are outside that count. Separate cache, workspace and measurement scope before discussing peak memory or speed; the capacity experiment does not establish end-to-end performance."
           }
         }
       ]

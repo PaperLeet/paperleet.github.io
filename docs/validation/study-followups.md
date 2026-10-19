@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Ten bilingual follow-up questions extend five maintained study guides:
+Twenty bilingual follow-up questions extend ten maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -9,6 +9,11 @@ Ten bilingual follow-up questions extend five maintained study guides:
 | architecture/rms_norm | Prefix statistics under a feature permutation; token independence | README formulas, prefix selection and per-token scope |
 | finetuning/lora | Factorized forward intermediates; accidental double application after merging | README formula, adapter shapes, merge and input-preservation contract |
 | rl/dpo | Sequence sums versus means; shared score offsets and diagnostic reward shifts | README objective, sequence aggregation and reference-adjusted rewards |
+| architecture/gqa | Cached-query mask alignment; persistent KV capacity versus temporary computation storage | README explicit mask alignment and cache-count scope |
+| architecture/multihead_attention | Non-symmetric projection orientation; one masked head versus dense output mixing | README x @ w convention, per-head masking and bias-free output projection |
+| architecture/layer_norm | Positive scaling with epsilon; independent residual-branch gradients | README normalization formula, scaling identity and post-LN interface |
+| architecture/positionwise_ffn | Closed ReLU gates with surviving output bias; token permutation versus shared parameters | README two affine layers, ReLU and position independence |
+| optimization/adamw | Zero current gradient with nonzero history; raw state under constant gradients | README moment recurrence, one-based bias correction and functional state contract |
 
 These are editorial discussions based on the repository exercise statements.
 They are not presented as reported interview questions, frequency counts or a
@@ -30,10 +35,21 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all ten questions, malformed/duplicate/oversized and legacy content shapes,
+all twenty questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
 and private editor/selection/scroll/storage continuity. Production builds check
 initial asset budgets and static route integrity. No physical browser layout,
 numerical SDK execution, service mutation or deployment is claimed.
+
+The latest content expansion changes only ten new follow-ups in five guides; all
+previous follow-ups, core prompts, source paths and function identities remain
+byte-equivalent as parsed objects. Both statement languages were reviewed.
+No numerical run is needed or claimed for these editorial discussion prompts.
+
+Learning-state and criteria-empty concept results now retain the same result
+region ID that the sort control identifies. The existing Show all learning states
+action restores visible rows; the relationship remains valid while no rows match.
+An actual StrictMode regression first reproduced the missing target and checks
+its recovery without changing filters, chronology or private editor data.
