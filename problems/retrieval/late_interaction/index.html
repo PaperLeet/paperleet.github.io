@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Preserve per-token matching evidence and optimize positive/negative document ranking with a stable pairwise loss. Supplied projected token vectors, cosine MaxSim and pairwise…">
+    <title>ColBERT: ColBERT: Token-Level MaxSim and Pairwise Ranking in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/retrieval/late_interaction/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/retrieval/late_interaction/">
+    <meta property="og:title" content="ColBERT: ColBERT: Token-Level MaxSim and Pairwise Ranking in Python | PaperLeet">
+    <meta property="og:description" content="Preserve per-token matching evidence and optimize positive/negative document ranking with a stable pairwise loss. Supplied projected token vectors, cosine MaxSim and pairwise…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="ColBERT: ColBERT: Token-Level MaxSim and Pairwise Ranking in Python | PaperLeet">
+    <meta name="twitter:description" content="Preserve per-token matching evidence and optimize positive/negative document ranking with a stable pairwise loss. Supplied projected token vectors, cosine MaxSim and pairwise…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>ColBERT: Token-Level MaxSim and Pairwise Ranking</h1><p><a href="/papers/colbert/">ColBERT</a> · SIGIR 2020 · Medium · 30 minutes</p><p>Preserve per-token matching evidence and optimize positive/negative document ranking with a stable pairwise loss.</p><p>Supplied projected token vectors, cosine MaxSim and pairwise softmax; no BERT encoder, tokenizer or ANN index training.</p><h2>Functions to implement</h2><ul><li><code>maxsim_scores(query: Tensor, documents: Tensor, query_mask=None, document_mask=None) -&gt; Tensor</code></li><li><code>pairwise_loss(positive: Tensor, negative: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>ColBERT: Token-Level MaxSim and Pairwise Ranking</h1>
+<h2>1. Problem</h2>
+<p>A single pooled vector can collapse distinct token bags into the same direction. ColBERT keeps separate query/document token vectors and delays their interaction until scoring. Implement its cosine MaxSim core and paired ranking objective on supplied projected vectors. No encoder download, BERT training or GPU is required.</p>
+<h2>2. Core equations</h2>
+<h3>Return requirements</h3>
+<h4><code>maxsim_scores</code> (required)</h4>
+<p>Return one floating <code>Tensor</code> <code>[B,N]</code>, all pairs of B queries and N documents, preserving their shared dtype/device. Max over valid document tokens, then sum retained query-token evidence; do not average query tokens or return aligned-pair scores. All-masked documents score -inf; empty/fully masked queries score zero against valid documents. Keep both encoding gradients, with exact max ties routed to the first valid document token and masked gradients zero; do not mutate inputs.</p>
+<h4><code>pairwise_loss</code> (required)</h4>
+<p>Return one scalar floating <code>Tensor</code>, shape <code>()</code>, of the score dtype/device, averaging the negative log-softmax probability of the positive over B nonempty score pairs. Retain gradients to both <code>[B]</code> score inputs. Do not return a per-pair vector, detach, convert to a Python float or mutate inputs.</p>
+<h4><code>_checked_masks</code> (provided)</h4>
+<p>Provided helper: return <code>(query_mask, document_mask)</code>, two Boolean <code>Tensor</code>s of shapes <code>[B,Q]</code> and <code>[N,L]</code> on the encoding device. A supplied valid mask is returned unchanged; each None becomes an all-True mask. Reject invalid dimensions/dtype/device with <code>ValueError</code>. No input mutation or differentiable output.</p>
+<h4><code>_check_pairs</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when positive and negative are matching, nonempty 1D float32/float64 score tensors on one device. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h3>Formula and conventions</h3>
+<p>Normalize each vector with <code>eps=1e-12</code>, then match every kept query position to its best kept document position:</p>
+<p>$$\widehat{x}=\frac{x}{\max(|x|<em>2,\epsilon)},\qquad S</em>{b,n}=\sum_{i:,m^q_{b,i}}\max_{j:,m^d_{n,j}}\widehat{q}<em>{b,i}^{\mathsf T}\widehat{d}</em>{n,j}.$$</p>
+<p>For a finite positive/negative score pair, the negative log-softmax of the positive simplifies to a stable scalar loss:</p>
+<p>$$\mathcal L=\frac1B\sum_b\log\left(1+\exp(S_b^- - S_b^+)\right).$$</p>
+<p>These correspond to normalized encodings in §3.2 and cosine scoring / pairwise training in §3.3, equation 3 of the <a href="https://arxiv.org/abs/2004.12832">original paper</a>.</p>
+<h2>3. Equations to code</h2>
+<p><code>maxsim_scores(query, documents, query_mask=None, document_mask=None)</code> returns all query/document combinations, not aligned pairs. For two query axis vectors, a document containing both axes scores 2; one blended vector scores $\sqrt2$. Normalize every token separately, reduce the <strong>document token</strong> dimension with max, then sum the <strong>query token</strong> dimension.</p>
+<p><code>pairwise_loss(positive, negative)</code> returns the mean loss of the supplied <code>[B]</code> pairs. Avoid directly exponentiating a large margin. <code>_checked_masks</code> and <code>_check_pairs</code> are supplied validation helpers; the two core functions are yours to implement.</p>
+<h2>4. Contract and paper boundaries</h2>
+<ul>
+<li>Finite CPU float32/float64 inputs <code>query[B,Q,D]</code>, <code>documents[N,L,D]</code> share dtype/device. Return <code>[B,N]</code>, preserve floating dtype/device, support noncontiguous inputs and retain gradients to <strong>both</strong> token encodings. Do not mutate any input.</li>
+<li>Masks are Boolean <code>[B,Q]</code> and <code>[N,L]</code>; <strong>True means keep</strong>. Omitted masks keep every position. A document's padded positions must never win a maximum, including when all real similarities are negative.</li>
+<li>The paper's <code>[MASK]</code> <strong>query augmentation</strong> positions participate in scoring. <code>query_mask=False</code> here means absent batching positions, not all BERT <code>[MASK]</code> positions. There is no tokenizer or marker filtering in this task; callers supply encoded positions and masks.</li>
+<li>B/N/Q may be zero; physical L and D are positive. A valid document gets zero from an empty/fully masked query. An all-masked document always scores <code>-inf</code>, including with an empty query. This invalid-document convention is a teaching extension. Its excluded gradients must be finite zeros.</li>
+<li><code>max(dim)</code> routes an exact tie to the first valid document token, matching PyTorch; this gradient convention is explicit rather than paper-specified. Scaling invariance applies when norms remain above epsilon.</li>
+<li>Pair scores are finite, nonempty, same-dtype/device <code>[B]</code>; return a scalar. Gradients must reach both positive and negative scores. The supplied validators reject malformed shapes/masks and incompatible dtypes.</li>
+<li>This implements the cosine variant. It does not implement the paper's squared-L2 alternative, BERT, projection training, query augmentation generation, punctuation filtering, ANN indexing or MS MARCO evaluation.</li>
+</ul>
+<h2>5. Interactive experiment</h2>
+<p>Lab contains four synthetic two-token queries and eight fixed documents. Each labeled positive keeps two separate axis vectors; its negative has their blended vector. These document pairs have exactly the same normalized mean direction, making the pooling limitation explicit without claiming a general benchmark advantage.</p>
+<p><strong>My run results</strong> calls your scorer and loss for all 120 Adam updates to the query vectors. It plots loss and positive-minus-negative margins, checks an independent Python scalar cosine oracle, and reports Recall@1 against the supplied four toy labels. Initial retrieval selects the blended negatives; the maintained target is all four relevant documents after optimization. This is query-vector optimization on synthetic data, not fine-tuning BERT or reproducing paper metrics. Reference plots remain separate from your actual T3 artifacts.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further reading</h2>
+<p>Compare CLIP's single-vector contrastive matching, ColBERT's multi-vector late interaction and TIGER's generated semantic IDs in the Retrieval collection. These are different retrieval mechanisms; only the selected teaching cores are covered here.</p></section><p><a href="https://arxiv.org/abs/2004.12832">Read paper · arXiv:2004.12832</a></p><h2>Related exercises</h2><ul><li><a href="/papers/colbert/">All ColBERT exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

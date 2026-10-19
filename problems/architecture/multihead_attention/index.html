@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Project inputs into separate head subspaces, attend independently, concatenate, and output-project. Implement only multi_head_attention; the attention kernel and two-head…">
+    <title>Transformer: Multi-Head Attention in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/architecture/multihead_attention/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/architecture/multihead_attention/">
+    <meta property="og:title" content="Transformer: Multi-Head Attention in Python | PaperLeet">
+    <meta property="og:description" content="Project inputs into separate head subspaces, attend independently, concatenate, and output-project. Implement only multi_head_attention; the attention kernel and two-head…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Transformer: Multi-Head Attention in Python | PaperLeet">
+    <meta name="twitter:description" content="Project inputs into separate head subspaces, attend independently, concatenate, and output-project. Implement only multi_head_attention; the attention kernel and two-head…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Multi-Head Attention</h1><p><a href="/papers/transformer/">Transformer</a> · NeurIPS 2017 · Medium · 20 minutes</p><p>Project inputs into separate head subspaces, attend independently, concatenate, and output-project.</p><p>Implement only multi_head_attention; the attention kernel and two-head routing experiment are supplied.</p><h2>Functions to implement</h2><ul><li><code>multi_head_attention(query: Tensor, key: Tensor, value: Tensor, w_q: Tensor, w_k: Tensor, w_v: Tensor, w_o: Tensor, num_heads: int, mask: Tensor | None=None) -&gt; tuple[Tensor, Tensor]</code></li></ul><section aria-label="Problem description"><h1>Multi-Head Attention</h1>
+<p>One head routes information using one projected feature space. Multiple heads can retrieve different information from the same tokens. Implement the projection and assembly of <a href="https://arxiv.org/html/1706.03762v7#S3.SS2.SSS2">Attention Is All You Need, §3.2.2 and Figure 2</a>. The authors' original code is part of <a href="https://github.com/tensorflow/tensor2tensor">Tensor2Tensor</a>.</p>
+<h2>Your core module</h2>
+<h3>Return requirements</h3>
+<h4><code>multi_head_attention</code> — Required</h4>
+<p>Return <code>(output, weights)</code> in that order: floating tensors <code>[B,Q,D]</code> and <code>[B,H,Q,K]</code>, where B is batch size, Q/K query/key lengths, D model width and H=num_heads. output has already concatenated heads and applied w_o; weights retain each head rather than averaging heads. Preserve input dtype/device and gradients to query/key/value and all four projection matrices. Fully masked query rows are zero; do not mutate inputs.</p>
+<h4><code>attention_kernel</code> — Provided</h4>
+<p>Return <code>(output, weights)</code> as floating tensors <code>[B,H,Q,Dv]</code> and <code>[B,H,Q,K]</code>: B batch size, H heads, Q/K query/key lengths and Dv value width. Weights sum to one over visible keys; a fully masked row has zero output and weights. Preserve the input dtype/device and q/k/v autograd with finite gradients for masked rows. This helper returns per-head values before concatenation/output projection and does not mutate inputs.</p>
+<h3>Formula and conventions</h3>
+<p>Implement <code>multi_head_attention</code>. The stable scaled attention function <code>attention_kernel</code> is supplied in the editor, so this module can be completed independently of the scaled attention exercise. Focus on input projections, splitting heads, passing the mask, concatenating head outputs, and the final projection.</p>
+<p>$$
+\operatorname{head}_i=\operatorname{Attention}(QW_i^Q,KW_i^K,VW_i^V),\qquad
+\operatorname{MultiHead}(Q,K,V)=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_H)W^O.
+$$</p>
+<p>| Input/output | Convention |
+|---|---|
+| <code>query</code>, <code>key</code>, <code>value</code> | <code>[B,Q,D]</code>, <code>[B,K,D]</code>, <code>[B,K,D]</code>; query and key lengths may differ |
+| <code>w_q</code>, <code>w_k</code>, <code>w_v</code>, <code>w_o</code> | <code>[D,D]</code>; use <code>x @ w</code>, the paper's orientation, not <code>nn.Linear.weight</code> orientation |
+| <code>num_heads</code> | Positive integer dividing <code>D</code>; each head has width <code>D/H</code> |
+| Head assignment | Consecutive projected feature slices belong to consecutive heads |
+| <code>mask</code> | Optional boolean mask broadcastable to <code>[B,H,Q,K]</code>; <code>True</code> means visible |
+| Returned output, weights | <code>[B,Q,D]</code>, <code>[B,H,Q,K]</code>; weights remain separate for each head |
+| Fully masked row | Zero weights and output, including finite zero gradients for that row |
+| Scope | Finite tensors with a shared floating dtype/device; no biases or dropout; preserve autograd and inputs |</p>
+<p>Keep the axes explicit: project <code>[B,Q,D]</code>, reshape to <code>[B,Q,H,D/H]</code>, then transpose to <code>[B,H,Q,D/H]</code>. After attention, transpose the head axis back before flattening the last two dimensions. A reshape alone changes which features belong to each query. Cross-attention uses queries from one sequence and keys/values from another.</p>
+<p>The fully masked convention is a PaperLeet extension for padding robustness. The supplied kernel handles it. No residual connection or normalization belongs inside this function; those are separate Transformer components.</p>
+<h2>Toy experiment</h2>
+<p>Two queries read three tokens through two heads. The first query's first head prefers key 0; its second head prefers key 2. The supplied experiment computes exact probabilities from the constructed logits, then checks concatenation and a nontrivial output projection. Its charts show each head's key weights and the resulting feature vector against the analytic target.</p>
+<p><strong>Provenance:</strong> PaperLeet teaching adaptation of the paper's multi-head operator. The small synthetic example is not an experiment reported in the paper, and no training or dataset download is required. T3 executes the submitted function; the reference preview is labeled separately.</p>
+<h2>Validation</h2>
+<p>T0 checks the cross-attention interface and input preservation. T1 uses an independent per-head projection oracle with PyTorch's attention operator. T2 checks broadcast and head-specific masks, fully masked rows, all seven input/parameter gradients, noncontiguous inputs, the one-head limit, and causal isolation. T3 checks the two-head routing experiment. Typical mistakes are reusing the query projection for keys, dropping the mask, merging the wrong axes, and forgetting the output projection.</p></section><p><a href="https://arxiv.org/abs/1706.03762">Read paper · arXiv:1706.03762</a></p><h2>Related exercises</h2><ul><li><a href="/problems/architecture/attention/">Scaled Dot-Product Attention</a></li><li><a href="/problems/architecture/layer_norm/">LayerNorm and Add &amp; Norm</a></li><li><a href="/problems/architecture/positional_encoding/">Sinusoidal Positional Encoding</a></li><li><a href="/problems/architecture/positionwise_ffn/">Position-wise Feed-Forward Network</a></li><li><a href="/papers/transformer/">All Transformer exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

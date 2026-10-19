@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement teacher-response SKL, student-response SRKL and the paired Eq.2 loss. Fixed coefficients and full conditional vocabularies; responses are supplied, retaining the…">
+    <title>DistiLLM-2: DistiLLM-2 Two-source Asymmetric Distillation in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/finetuning/distillm2/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/finetuning/distillm2/">
+    <meta property="og:title" content="DistiLLM-2: DistiLLM-2 Two-source Asymmetric Distillation in Python | PaperLeet">
+    <meta property="og:description" content="Implement teacher-response SKL, student-response SRKL and the paired Eq.2 loss. Fixed coefficients and full conditional vocabularies; responses are supplied, retaining the…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="DistiLLM-2: DistiLLM-2 Two-source Asymmetric Distillation in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement teacher-response SKL, student-response SRKL and the paired Eq.2 loss. Fixed coefficients and full conditional vocabularies; responses are supplied, retaining the…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>DistiLLM-2 Two-source Asymmetric Distillation</h1><p><a href="/papers/distillm-2/">DistiLLM-2</a> · ICML 2025 Oral · Medium · 35 minutes</p><p>Implement teacher-response SKL, student-response SRKL and the paired Eq.2 loss.</p><p>Fixed coefficients and full conditional vocabularies; responses are supplied, retaining the 1/(2B) reduction.</p><h2>Functions to implement</h2><ul><li><code>skew_kl(teacher_logits: Tensor, student_logits: Tensor, alpha: float) -&gt; Tensor</code></li><li><code>skew_reverse_kl(teacher_logits: Tensor, student_logits: Tensor, alpha: float) -&gt; Tensor</code></li><li><code>distillm2_loss(teacher_t: Tensor, student_t: Tensor, mask_t: Tensor, teacher_s: Tensor, student_s: Tensor, mask_s: Tensor, alpha_t: float=0.1, alpha_s: float=0.1, beta: float=0.5) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>DistiLLM-2 Two-source Asymmetric Distillation</h1>
+<p>Implement the asymmetric objective from <a href="https://arxiv.org/html/2503.07067v2">DistiLLM-2 v2, §2.2 and Eq. (2)</a>. The teacher and student are evaluated on <strong>two different response sources</strong>: teacher responses (<code>_t</code>) and student responses (<code>_s</code>).</p>
+<h2>Functions</h2>
+<h3>Return requirements</h3>
+<h4><code>skew_kl</code> — Required</h4>
+<p>Return one floating Tensor shaped <code>[...]</code> from logits <code>[...,V]</code>, where V is vocabulary size and every leading position/batch axis is retained. Each entry is the vocabulary-summed skew forward KL at that position; do not average positions. Preserve logits' dtype/device and student gradients while freezing teacher logits. alpha=1 gives zero with a valid zero student gradient; do not mutate inputs.</p>
+<h4><code>skew_reverse_kl</code> — Required</h4>
+<p>Return one floating Tensor <code>[...]</code> for logits <code>[...,V]</code>: V is vocabulary size, and leading position/batch axes are unchanged. Each entry is the vocabulary-summed skew reverse KL; there is no position or batch reduction. Preserve dtype/device and student gradients, freeze teacher logits and leave inputs unchanged. alpha=1 returns zero with a valid zero student gradient.</p>
+<h4><code>distillm2_loss</code> — Required</h4>
+<p>Return one zero-dimensional floating Tensor (<code>shape == ()</code>), not a Python number. Sum masked token divergences for each source, weight the teacher-response sum by 1-beta and student-response sum by beta, then divide by 2B (B is the shared batch size); do not divide by token count. Empty/all-masked sources contribute zero. Preserve the shared floating dtype/device and gradients to both student branches only; teacher branches are frozen and masked positions have zero gradients. Inputs remain unchanged.</p>
+<h4><code>_coefficient</code> — Provided helper</h4>
+<p>Return None after checking that the Python coefficient is finite and in [0,1]. Raise ValueError on failure; no normalized coefficient or Tensor is returned.</p>
+<h4><code>_log_pair</code> — Provided helper</h4>
+<p>Return <code>(teacher_log_probs, student_log_probs)</code>, a Python tuple of floating tensors with the same <code>[...,V]</code> shapes/dtype/device as the paired logits; V is vocabulary size. These are log probabilities, with no vocabulary reduction. Teacher values are detached; student values retain autograd. Validate alpha and equal nonempty vocabulary layouts without changing inputs.</p>
+<h4><code>_log_mix</code> — Provided helper</h4>
+<p>Return one floating Tensor with the input log-probability shape <code>[...,V]</code>, containing the log of the alpha-weighted probability mixture (alpha for log_a, 1-alpha for log_b). Preserve dtype/device and existing gradient paths; the helper does not independently detach either input. Endpoint alpha=0 returns log_b; alpha=1 returns log_a with a retained zero-gradient path to log_b. Inputs are not modified.</p>
+<h3>Formula and conventions</h3>
+<p>For teacher probabilities <code>p = softmax(teacher_logits)</code> and student probabilities <code>q = softmax(student_logits)</code>, implement per-position vocabulary divergences:</p>
+<p>$$\mathrm{SKL}<em>\alpha(p,q)=\sum_v p_v\log\frac{p_v}{\alpha p_v+(1-\alpha)q_v},$$
+$$\mathrm{SRKL}</em>\alpha(p,q)=\sum_v q_v\log\frac{q_v}{(1-\alpha)p_v+\alpha q_v}.$$</p>
+<ol>
+<li><code>skew_kl(teacher_logits, student_logits, alpha)</code> returns <code>[...]</code> from equal-shaped <code>[..., V]</code> logits.</li>
+<li><code>skew_reverse_kl(...)</code> has the same interface, but the reversed source and mixture above.</li>
+<li><code>distillm2_loss(teacher_t, student_t, mask_t, teacher_s, student_s, mask_s, alpha_t=.1, alpha_s=.1, beta=.5)</code> returns a scalar:</li>
+</ol>
+<p>$$L=\frac{(1-\beta)\sum_{b,t}m^t_{bt},\mathrm{SKL}<em>{\alpha_t}(p^t</em>{bt},q^t_{bt})+\beta\sum_{b,t}m^s_{bt},\mathrm{SRKL}<em>{\alpha_s}(p^s</em>{bt},q^s_{bt})}{2B}.$$</p>
+<p>Each pair has shape <code>[B,T,V]</code>; the two sources may have different <code>T</code> and <code>V</code> but share nonzero <code>B</code>. Masks are boolean <code>[B,T]</code>, with <code>True</code> for response tokens. Sum tokens and vocabulary, then divide by <code>2B</code>, <strong>not by valid-token count</strong>. An empty/all-masked response contributes zero. Coefficients are finite and in <code>[0,1]</code>. Vocabulary is nonempty; logits are finite, same dtype/device in each pair. Preserve float32/float64, strided inputs and input values. Both student branches retain autograd; teacher logits are frozen. Stable log-space helpers and validation are supplied. No model loading or response generation is required.</p>
+<h2>Toy experiment</h2>
+<p>Optimize two separate sets of synthetic three-token-vocabulary distributions with your loss. T3 plots the actual objective and both divergences over 60 updates. This is a <strong>teaching adaptation</strong> of the two-source objective; it does not reproduce the paper's long-tail Figure 1 data or a language-model benchmark. Coefficients stay fixed. This exercise uses full conditional-vocabulary KL at each supplied context and pins the <code>1/(2B)</code> factor printed in Eq. (2); see the notes for the scope boundary.</p></section><p><a href="https://arxiv.org/html/2503.07067v2">Read paper · arXiv:2503.07067v2</a></p><h2>Related exercises</h2><ul><li><a href="/papers/distillm-2/">All DistiLLM-2 exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

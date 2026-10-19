@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement scaled dot-product attention and visibility masking with a multi-head tensor layout. Implement only scaled_dot_product_attention; causal_mask and the prefix-average…">
+    <title>Transformer: Scaled Dot-Product Attention in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/architecture/attention/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/architecture/attention/">
+    <meta property="og:title" content="Transformer: Scaled Dot-Product Attention in Python | PaperLeet">
+    <meta property="og:description" content="Implement scaled dot-product attention and visibility masking with a multi-head tensor layout. Implement only scaled_dot_product_attention; causal_mask and the prefix-average…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Transformer: Scaled Dot-Product Attention in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement scaled dot-product attention and visibility masking with a multi-head tensor layout. Implement only scaled_dot_product_attention; causal_mask and the prefix-average…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Scaled Dot-Product Attention</h1><p><a href="/papers/transformer/">Transformer</a> · NeurIPS 2017 · Easy · 15 minutes</p><p>Implement scaled dot-product attention and visibility masking with a multi-head tensor layout.</p><p>Implement only scaled_dot_product_attention; causal_mask and the prefix-average experiment are provided.</p><h2>Functions to implement</h2><ul><li><code>scaled_dot_product_attention(q: Tensor, k: Tensor, v: Tensor, mask: Tensor | None=None) -&gt; tuple[Tensor, Tensor]</code></li></ul><section aria-label="Problem description"><h1>Scaled Dot-Product Attention</h1>
+<p>The Transformer routes information from value vectors according to query/key compatibility. Implement the operator in <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need, §3.2.1, Eq. (1)</a>. The author's original implementation is part of <a href="https://github.com/tensorflow/tensor2tensor">Tensor2Tensor</a>.</p>
+<h2>Your core module</h2>
+<h3>Return requirements</h3>
+<h4><code>scaled_dot_product_attention</code> — Required</h4>
+<p>Return the Python tuple <code>(output, weights)</code>, both floating tensors: <code>output[B,H,Q,Dv]</code> contains value aggregates and <code>weights[B,H,Q,K]</code> contains attention probabilities. B is batch size, H head count, Q/K query/key lengths, and Dv value width. Each nonempty allowed-key row sums to one; fully masked rows have exactly zero weights and output. Preserve the inputs' dtype/device and gradients through q/k/v; masked rows have finite zero gradients. Do not modify inputs.</p>
+<h4><code>causal_mask</code> — Provided</h4>
+<p>Return one <code>torch.bool</code> Tensor <code>[Q,K]</code>, where Q=query_length and K=key_length; rows are queries and columns are keys. An entry is True exactly when the key index is at most the query index (upper-left alignment). Use the requested device. This visibility mask has no gradients.</p>
+<h3>Formula and conventions</h3>
+<p>Implement <code>scaled_dot_product_attention</code>. The <code>causal_mask</code> helper and synthetic experiment are supplied. Inputs already contain projected, split heads; projection layers, positional encoding, feed-forward blocks, and complete language-model training are outside this module.</p>
+<p>$$
+S=QK^\top/\sqrt{d_k},\qquad A=\operatorname{softmax}_{\mathrm{keys}}(S+M),\qquad O=AV.
+$$</p>
+<p>The mask contribution is zero for visible positions and minus infinity elsewhere. Compute stable softmax along the <strong>key</strong> axis, separately for each query and head. Return both <code>O</code> and <code>A</code> so the experiment can show where information came from.</p>
+<p>| Input/output | Convention |
+|---|---|
+| <code>q</code>, <code>k</code>, <code>v</code> | <code>[B,H,Q,D]</code>, <code>[B,H,K,D]</code>, <code>[B,H,K,Dv]</code> |
+| <code>mask</code> | Optional boolean tensor broadcastable to <code>[B,H,Q,K]</code>; <code>True</code> allows attention |
+| Output, weights | <code>[B,H,Q,Dv]</code>, <code>[B,H,Q,K]</code>; preserve dtype and device |
+| Fully masked query | Exact zero output and weights, finite zero gradients |
+| Causal alignment | Upper-left: key position <code>j</code> is allowed when <code>j &lt;= i</code> |
+| Scope | Finite inputs, no dropout; <code>D</code> and <code>Dv</code> need not match |</p>
+<p>An all-masked row needs an explicit convention: applying softmax directly to a row of minus infinity gives NaNs. Set that row's logits to a finite placeholder before softmax, then zero the forbidden weights. This padding behavior is a PaperLeet extension to the paper's formula.</p>
+<h2>Example</h2>
+<p>With query <code>[2,0,0,0]</code> and keys <code>[1,0,0,0]</code>, <code>[0,0,0,0]</code>, the scaled scores are <code>[1,0]</code>. Their weights are approximately <code>[0.7311,0.2689]</code>. A mask <code>[True,False]</code> instead produces weights <code>[1,0]</code>.</p>
+<h2>Toy experiment</h2>
+<p>The supplied <strong>prefix averaging</strong> experiment sets all query/key vectors to zero. A causal mask then makes each query average exactly the values seen so far. Changing future values by 1000 must leave earlier outputs unchanged. Results include the attention matrix, actual/expected prefix means, and future leakage.</p>
+<p><strong>Provenance:</strong> PaperLeet teaching adaptation of the paper's attention and masking equations, not an original paper experiment. It uses six scalar values and no training or external data. T3 calls the submitted implementation; the reference lab preview is labeled separately.</p>
+<h2>Validation</h2>
+<p>T0 checks shapes and input preservation. T1 derives a two-key result analytically. T2 checks broadcast masks, empty rows, permutation and shift invariance, independent gradients, and causal isolation. T3 runs the prefix-average experiment. Typical errors are forgetting the square-root scale, ignoring the mask, and normalizing over queries.</p>
+<p>Implement the required function in the editor and run all four test layers. Completing this module covers the paper's attention operator, not the complete Transformer.</p></section><p><a href="https://arxiv.org/abs/1706.03762">Read paper · arXiv:1706.03762</a></p><h2>Related exercises</h2><ul><li><a href="/problems/architecture/multihead_attention/">Multi-Head Attention</a></li><li><a href="/problems/architecture/layer_norm/">LayerNorm and Add &amp; Norm</a></li><li><a href="/problems/architecture/positional_encoding/">Sinusoidal Positional Encoding</a></li><li><a href="/problems/architecture/positionwise_ffn/">Position-wise Feed-Forward Network</a></li><li><a href="/papers/transformer/">All Transformer exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

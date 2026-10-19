@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Propagate collaborative signals through a user-item graph and differentiate the aggregation including the initial layer. Symmetric normalization of a dense bipartite graph,…">
+    <title>LightGCN: LightGCN: Normalized Bipartite Graphs and Collaborative Propagation in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/retrieval/lightgcn/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/retrieval/lightgcn/">
+    <meta property="og:title" content="LightGCN: LightGCN: Normalized Bipartite Graphs and Collaborative Propagation in Python | PaperLeet">
+    <meta property="og:description" content="Propagate collaborative signals through a user-item graph and differentiate the aggregation including the initial layer. Symmetric normalization of a dense bipartite graph,…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="LightGCN: LightGCN: Normalized Bipartite Graphs and Collaborative Propagation in Python | PaperLeet">
+    <meta name="twitter:description" content="Propagate collaborative signals through a user-item graph and differentiate the aggregation including the initial layer. Symmetric normalization of a dense bipartite graph,…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>LightGCN: Normalized Bipartite Graphs and Collaborative Propagation</h1><p><a href="/papers/lightgcn/">LightGCN</a> · SIGIR 2020 · Medium · 30 minutes</p><p>Propagate collaborative signals through a user-item graph and differentiate the aggregation including the initial layer.</p><p>Symmetric normalization of a dense bipartite graph, linear multi-hop propagation and uniform layer averaging; BPR loss and tiny training loop are provided.</p><h2>Functions to implement</h2><ul><li><code>normalized_bipartite_graph(interactions: Tensor, dtype=None) -&gt; Tensor</code></li><li><code>lightgcn_embeddings(initial: Tensor, normalized_graph: Tensor, layers: int=2) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>LightGCN: Normalized Bipartite Graphs and Collaborative Propagation</h1>
+<p>A user-item history defines a bipartite graph. Users who observed the same item can exchange signals through two graph steps. Implement the graph and propagation core from <a href="https://arxiv.org/abs/2002.02126">LightGCN</a>, then inspect a small synthetic training run.</p>
+<h2>1. Symmetric graph normalization</h2>
+<p><code>normalized_bipartite_graph(interactions, dtype=None)</code> takes Boolean <code>[U,I]</code> histories and returns a floating <code>[N,N]</code> graph, <code>N=U+I</code>. Users precede items; IDs start at zero with no padding. The default is float32; explicit float64 is also supported. Preserve the input device.</p>
+<p>$$
+A=\begin{bmatrix}0&amp;R\R^\top&amp;0\end{bmatrix},\qquad
+\widehat A=D^{-1/2}AD^{-1/2},\qquad D_{vv}=\sum_w A_{vw}.
+$$</p>
+<p>An observed edge has weight <code>1/sqrt(degree_user*degree_item)</code> in both directions. Do not add self loops. Isolated rows and columns stay zero; clamping degrees to at least one avoids division by zero without creating edges. Support empty user/item axes, all-empty graphs and strided histories. Preserve input values.</p>
+<h2>2. Linear propagation and layer aggregation</h2>
+<h3>Return requirements</h3>
+<h4><code>normalized_bipartite_graph</code> (required)</h4>
+<p>Return one floating <code>Tensor</code> <code>[N,N]</code>, N=U+I for interaction shape <code>[U,I]</code>, with users before items on both axes. Use float32 when dtype is None, otherwise the requested float32/float64, on the interaction device. This is the symmetric normalized adjacency, not embeddings: no self-loops, isolated rows/columns zero, including empty axes. No input mutation or gradients from Boolean history.</p>
+<h4><code>lightgcn_embeddings</code> (required)</h4>
+<p>Return one floating <code>Tensor</code> <code>[N,D]</code>, preserving initial embedding dtype/device, equal to the uniform mean of layers 0 through K=<code>layers</code> (K+1 terms). Depth zero returns initial values; N=0 is valid. Keep gradients through both initial embeddings and a differentiable graph, not just the final layer. No input mutation or detached output.</p>
+<h4><code>_check_graph</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when interactions is Boolean <code>[U,I]</code> and dtype is explicitly float32 or float64 (the caller resolves None to float32). Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h4><code>_check_propagation</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when initial <code>[N,D]</code>, D&gt;0, and graph <code>[N,N]</code> are finite matching float32/float64 tensors and layers is a nonnegative non-Boolean Python integer. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h3>Formula and conventions</h3>
+<p><code>lightgcn_embeddings(initial, normalized_graph, layers=2)</code> takes <code>[N,D]</code> initial embeddings and an <code>[N,N]</code> graph, with <code>D&gt;0</code> and matching float32/float64 dtype and device. Depth is a nonnegative Python integer; Boolean depth is rejected.</p>
+<p>$$
+E^{(0)}=E_0,\qquad E^{(k+1)}=\widehat A E^{(k)},\qquad
+E=\frac{1}{K+1}\sum_{k=0}^K E^{(k)}.
+$$</p>
+<p>Preserve output shape, dtype and device. Depth zero returns the initial values; zero nodes are valid. Each step is only a graph multiplication. There are no feature transforms, activations or implicit self loops. The paper permits general layer weights; this exercise uses its experimental uniform weights.</p>
+<p>The initial layer is included, so an isolated node retains <code>E0/(K+1)</code>. Keep gradients through both differentiable tensor inputs and support strided layouts without mutation. Validation accepts any finite square operator of the matching dtype/device; tests also use general operators to check derivatives. The supplied training loop holds the graph fixed and learns <strong>only E0</strong>.</p>
+<h2>3. Two-hop collaborative influence</h2>
+<p>A user's signal travels through a shared item to another user. A popular shared item contributes less. Hand-computed two-hop coefficients, independent scalar loops, finite differences, linear superposition and node relabeling test distinct properties of this operation.</p>
+<h2>4. Actual training experiment</h2>
+<p>Four synthetic users observe <code>{0,1}</code>, <code>{1,2}</code>, <code>{3,4}</code> and the empty set. Item 5 is unobserved. Users 0 and 1 share item 1; user 3 and item 5 are isolated. A <code>10×3</code> initial table supplies 30 trainable entries. Propagate twice and average layers 0, 1 and 2.</p>
+<p>The provided loop enumerates all 24 positive/unobserved triples and performs 160 actual Adam updates:</p>
+<p>$$
+L=\frac{1}{24}\sum_{(u,i,j)}\operatorname{softplus}\left(-e_u^\top(e_i-e_j)\right)
++0.001\lVert E_0\rVert_F^2.
+$$</p>
+<p>Scores use the aggregated vectors; regularization applies once to the complete initial table. Equation 15 sums its data term, whereas this exercise averages it; <code>l2=lambda_paper/24</code> converts the coefficient to this convention. The stable BPR objective and training loop are supplied.</p>
+<p>Charts show the measured loss trajectory and three active users' item scores. Pair accuracy and Recall@2 are training metrics; the empty-history user is excluded from Recall. Counting conflicting item-pair directions gives any single global item-score ordering a strict pair-accuracy upper bound of <code>17/24</code>. This is a counting bound, not a measured baseline model.</p>
+<p>This is a <strong>PaperLeet teaching adaptation</strong> with a tiny dense graph, fixed synthetic histories, full-batch updates and one initial-table prior. It does not reproduce sparse large-scale training, real datasets or held-out paper Recall/NDCG. The CPU/WASM browser judge needs no GPU, account, weights or external API. Unsupported custom PyTorch APIs retain the native judge path.</p>
+<h2>5. Sources and next steps</h2>
+<p>The <a href="https://arxiv.org/pdf/2002.02126">paper</a>, Sections 3.1.1–3.1.3, Equations 3–8 specify propagation and aggregation; Section 3.2.3, Equations 13–14 analyze two-hop influence; Section 3.3, Equation 15 defines the objective. See the <a href="https://github.com/kuandeng/LightGCN">authors' implementation</a> for sparse graph training. Compare BPR's pairwise objective, SASRec's sequence model and TIGER's generated retrieval IDs.</p></section><p><a href="https://arxiv.org/abs/2002.02126">Read paper · arXiv:2002.02126</a></p><h2>Related exercises</h2><ul><li><a href="/papers/lightgcn/">All LightGCN exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

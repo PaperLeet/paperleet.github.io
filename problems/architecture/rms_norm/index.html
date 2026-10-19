@@ -1,0 +1,163 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement RMSNorm without mean centering and pRMSNorm with a first-k-feature scale estimate. Complete two normalization functions with explicit k and epsilon inside the square…">
+    <title>RMSNorm: RMSNorm and Partial Feature Statistics in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/architecture/rms_norm/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/architecture/rms_norm/">
+    <meta property="og:title" content="RMSNorm: RMSNorm and Partial Feature Statistics in Python | PaperLeet">
+    <meta property="og:description" content="Implement RMSNorm without mean centering and pRMSNorm with a first-k-feature scale estimate. Complete two normalization functions with explicit k and epsilon inside the square…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="RMSNorm: RMSNorm and Partial Feature Statistics in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement RMSNorm without mean centering and pRMSNorm with a first-k-feature scale estimate. Complete two normalization functions with explicit k and epsilon inside the square…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>RMSNorm and Partial Feature Statistics</h1><p><a href="/papers/rmsnorm/">RMSNorm</a> · NeurIPS 2019 · Easy · 20 minutes</p><p>Implement RMSNorm without mean centering and pRMSNorm with a first-k-feature scale estimate.</p><p>Complete two normalization functions with explicit k and epsilon inside the square root; prefix-bias and offset experiments are supplied.</p><h2>Functions to implement</h2><ul><li><code>rms_norm(x: Tensor, weight: Tensor, eps: float = 1e-5) -&gt; Tensor</code></li><li><code>partial_rms_norm(x: Tensor, weight: Tensor, k: int, eps: float = 1e-5) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>RMSNorm and Partial Feature Statistics</h1>
+<h2>1. Problem</h2>
+<h3>Return requirements</h3>
+<h4><code>rms_norm</code> — Required</h4>
+<p>Return one floating Tensor with x's full <code>[...,D]</code> shape, where D is feature width and all leading batch/token axes are preserved. Return scaled normalized features, not the RMS statistic. Preserve x's dtype/device and gradients to x and weight without changing inputs.</p>
+<h4><code>partial_rms_norm</code> — Required</h4>
+<p>Return one floating Tensor <code>[...,D]</code>, preserving all D features and all leading dimensions even though only the first k features determine the normalization scale. D is feature width. Preserve dtype/device and gradients to x and weight, including the dependence of every output on the prefix statistic. Do not detach the statistic or modify inputs.</p>
+<h3>Formula and conventions</h3>
+<p>Implement <code>rms_norm</code> and <code>partial_rms_norm</code>. Explore what changes when normalization keeps the mean, and when its scale estimate sees only part of each token. No Transformer model is needed.</p>
+<p>The primary source is <a href="https://arxiv.org/abs/1910.07467">Root Mean Square Layer Normalization</a>, Equation (4) and Section 5, by Biao Zhang and Rico Sennrich, NeurIPS 2019.</p>
+<h2>2. Core formula</h2>
+<p>For a vector with $D$ features, this exercise uses:</p>
+<p>$$
+s_D(x)=\sqrt{\frac1D\sum_{j=1}^D x_j^2+\varepsilon},\qquad
+y_i=\frac{x_i}{s_D(x)}w_i.
+$$</p>
+<p>The partial variant replaces only the statistic; it still returns every feature:</p>
+<p>$$
+s_k(x)=\sqrt{\frac1k\sum_{j=1}^k x_j^2+\varepsilon},\qquad
+y_i=\frac{x_i}{s_k(x)}w_i,\quad i=1,\ldots,D.
+$$</p>
+<p>Do not subtract the mean or add a learned bias. Apply <code>weight</code> after normalization; it must not change the denominator.</p>
+<h2>3. Formula to code</h2>
+<p>Reduce squared values over the last dimension and keep that dimension for broadcasting. For pRMSNorm, the denominator uses <code>x[..., :k]</code> while the numerator uses all of <code>x</code>. Keep the statistic differentiable: a loss on suffix outputs can still affect prefix inputs through the shared denominator.</p>
+<p>A hand calculation: <code>[-3,4,12]</code> has full mean square $169/3$, while its first two features have mean square $25/2$. Setting <code>k=D</code> recovers full normalization.</p>
+<h2>4. Exercise contract</h2>
+<p>| Item | Contract |
+| --- | --- |
+| Inputs | <code>x [..., D]</code>, <code>weight [D]</code>, $D\ge1$, matching floating dtype/device |
+| Precision | Finite float32/float64; retain shape, precision, device and gradients; no input mutation |
+| Epsilon | Positive and inside the square root: <code>sqrt(mean_square + eps)</code> |
+| Partial statistic | Explicit integer <code>k</code> in $[1,D]$; invalid values and bool raise <code>ValueError</code> |
+| Scope | Implement both functions with tensor operations rather than a normalization API |</p>
+<p>The paper's main formula omits numerical stabilization. The authors' 2019 PyTorch code adds epsilon outside RMS; this exercise chooses epsilon inside the square root. They differ for small inputs. Passing <code>k</code> explicitly avoids the percentage-rounding differences between the paper and code.</p>
+<h2>5. Interactive view and experiment</h2>
+<p>The supplied experiment compares two eight-feature rows: a balanced prefix and a low-energy prefix with a larger suffix. Increase <code>k</code> and inspect deviation from full normalization. Error need not decrease monotonically for arbitrary inputs; equality is required at <code>k=D</code>.</p>
+<p>A second chart adds offsets and plots output mean and RMS. With positive epsilon, scaling inputs alone does not give exact scale invariance. Scaling inputs by $a&gt;0$ and epsilon by $a^2$ does preserve outputs exactly.</p>
+<p><strong>Provenance:</strong> a training-free PaperLeet teaching adaptation. It does not reproduce translation benchmarks or hardware speedups. Tests and submitted-run charts call your functions; reference previews are labeled separately.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further study</h2>
+<p>T0 covers interfaces, precision, strided inputs and empty batches; T1 uses hand calculations; T2 checks zero inputs, token independence, scale identities, a library oracle, analytical gradients and finite differences; T3 evaluates the actual submitted prefix-bias and offset experiment.</p>
+<p>Compare with the LayerNorm module: the normalized part of a constant vector becomes zero there but remains nonzero here. Derive the partial Jacobian and identify which inputs can influence other outputs through the scale statistic.</p></section><p><a href="https://arxiv.org/abs/1910.07467">Read paper · arXiv:1910.07467</a></p><h2>Related exercises</h2><ul><li><a href="/papers/rmsnorm/">All RMSNorm exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

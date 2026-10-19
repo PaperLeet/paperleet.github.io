@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Construct implicit positive and negative policies from one trainable velocity and optimize both with probabilistic rewards. Implement the Eq. (5) training core; forward noising…">
+    <title>DiffusionNFT: DiffusionNFT Positive and Negative Flow Matching in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion/diffusion_nft/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion/diffusion_nft/">
+    <meta property="og:title" content="DiffusionNFT: DiffusionNFT Positive and Negative Flow Matching in Python | PaperLeet">
+    <meta property="og:description" content="Construct implicit positive and negative policies from one trainable velocity and optimize both with probabilistic rewards. Implement the Eq. (5) training core; forward noising…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="DiffusionNFT: DiffusionNFT Positive and Negative Flow Matching in Python | PaperLeet">
+    <meta name="twitter:description" content="Construct implicit positive and negative policies from one trainable velocity and optimize both with probabilistic rewards. Implement the Eq. (5) training core; forward noising…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>DiffusionNFT Positive and Negative Flow Matching</h1><p><a href="/papers/diffusion-nft/">DiffusionNFT</a> · ICLR 2026 Oral · Medium · 25 minutes</p><p>Construct implicit positive and negative policies from one trainable velocity and optimize both with probabilistic rewards.</p><p>Implement the Eq. (5) training core; forward noising and tiny training scaffolding are supplied. Image reward models, online rollouts and EMA updates are excluded.</p><h2>Functions to implement</h2><ul><li><code>implicit_velocities(current: Tensor, old: Tensor, beta: float) -&gt; tuple[Tensor, Tensor]</code></li><li><code>nft_loss(current: Tensor, old: Tensor, target: Tensor, rewards: Tensor, beta: float) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>DiffusionNFT Positive and Negative Flow Matching</h1>
+<h2>1. Exercise goal</h2>
+<p>Implement <a href="https://arxiv.org/html/2509.16117v1#S3.SS2">DiffusionNFT Eq. (5)</a>.</p>
+<h2>2. Interfaces and returns</h2>
+<h3>Return requirements</h3>
+<h4><code>implicit_velocities</code> (required)</h4>
+<p>Return the tuple (positive, negative), in that order. Both are Tensors matching current shape [B,...] and dtype/device; B is batch size and trailing axes are feature dimensions. Keep both branches differentiable through current, detach old inside the function, and leave inputs unchanged.</p>
+<h4><code>nft_loss</code> (required)</h4>
+<p>Return a scalar Tensor of shape (), with current dtype/device. Sum squared errors over all non-batch coordinates within each example, then average over B examples; do not average over all elements. Gradients flow only into current; old, target and rewards are stopped. Do not mutate inputs.</p>
+<h4>Provided local helpers</h4>
+<ul>
+<li><code>_check_velocity</code>: Provided: return Python None when velocities and beta satisfy the contract, not a boolean or a validated tensor. Invalid inputs raise ValueError. Validation only: leave inputs and their gradient settings unchanged. No returned tensor shape or dtype/device applies.</li>
+</ul>
+<h3>Equations and interface notes</h3>
+<p>One trainable velocity <code>v_current</code> implicitly represents two policies around a frozen rollout velocity <code>v_old</code>:</p>
+<p>$$
+v^+=(1-\beta)v_{old}+\beta v_{current},\qquad
+v^-=(1+\beta)v_{old}-\beta v_{current}.
+$$</p>
+<p>For a forward-process velocity target <code>v</code> and an optimality probability <code>r</code> in <code>[0,1]</code>, optimize</p>
+<p>$$
+\mathcal L=\operatorname{mean}_{b}\left[r_b|v_b^+-v_b|_2^2+(1-r_b)|v_b^--v_b|_2^2\right].
+$$</p>
+<p>Use <strong>beta</strong>, not its reciprocal, in the implicit branches. Negative examples train the negative branch with a nonnegative squared error; they are not a negative-weight MSE.</p>
+<h3>Implement</h3>
+<p>| Function | Inputs | Outputs |
+|---|---|---|
+| <code>implicit_velocities(current, old, beta)</code> | Same-shaped <code>(B,...)</code> velocities and positive finite beta | Positive and negative velocities, in that order |
+| <code>nft_loss(current, old, target, rewards, beta)</code> | Three matching velocities and <code>(B,)</code> rewards | Scalar loss |</p>
+<p>Sum squared errors over <strong>all non-batch coordinates</strong>, then average over examples. This fixes the convention for image or token-shaped features. Rewards are already normalized probabilities; do not clip, normalize, or broadcast them across different samples. Validation is supplied, with nonempty CPU float32/float64 inputs.</p>
+<p>Gradients must flow only into <code>current</code>. Detach <code>old</code> inside <code>implicit_velocities</code>; detach <code>target</code> and <code>rewards</code> inside <code>nft_loss</code>, even if those inputs accidentally require gradients. Preserve input values and dtype/device.</p>
+<p>Forward noising, rollout data and training loops are provided scaffolding. The toy uses <code>x_t=(1-t)*x0+t*noise</code>, so its velocity target is <code>noise-x0</code>. Online rollout generation, reward models and old-policy EMA updates are outside this module.</p>
+<h2>Toy: positive, negative and neutral examples</h2>
+<p><strong>Provenance: teaching adaptation.</strong> A fixed two-dimensional forward-process minibatch has five rewards: <code>0</code>, <code>0.25</code>, <code>0.5</code>, <code>0.75</code>, <code>1</code>. Optimize its velocity outputs with your loss and compare with the independently derived quadratic optimum:</p>
+<p>$$
+v_{current}^*=v_{old}+\frac{2r-1}{\beta}(v-v_{old}).
+$$</p>
+<p>Positive and negative examples move in opposite directions; a neutral example stays at the old velocity. Charts show loss convergence and the per-reward velocity trajectory. This deliberately small output-space experiment does not claim online policy improvement or image-generation benchmark reproduction.</p>
+<p>T0 checks contracts; T1 uses independent scalar formulas and endpoint rewards; T2 checks analytic gradients, frozen context, neutral anchoring, reflection symmetry, feature reduction and closed-form optima. T3 trains with your submitted functions and records the charts. The preview uses the reference implementation.</p></section><p><a href="https://arxiv.org/abs/2509.16117">Read paper · arXiv:2509.16117</a></p><h2>Related exercises</h2><ul><li><a href="/papers/diffusion-nft/">All DiffusionNFT exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

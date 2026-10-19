@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Draw vocabulary token IDs from nucleus probabilities using an inverse CDF. The nucleus probability helper is provided; implement per-row sampling, random-stream ownership and…">
+    <title>Nucleus Sampling: Top-p: Draw Tokens from the Nucleus in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/foundations/top_p_draw/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/foundations/top_p_draw/">
+    <meta property="og:title" content="Nucleus Sampling: Top-p: Draw Tokens from the Nucleus in Python | PaperLeet">
+    <meta property="og:description" content="Draw vocabulary token IDs from nucleus probabilities using an inverse CDF. The nucleus probability helper is provided; implement per-row sampling, random-stream ownership and…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Nucleus Sampling: Top-p: Draw Tokens from the Nucleus in Python | PaperLeet">
+    <meta name="twitter:description" content="Draw vocabulary token IDs from nucleus probabilities using an inverse CDF. The nucleus probability helper is provided; implement per-row sampling, random-stream ownership and…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Top-p: Draw Tokens from the Nucleus</h1><p><a href="/papers/nucleus-sampling/">Nucleus Sampling</a> · ICLR 2020 · Easy · 20 minutes</p><p>Draw vocabulary token IDs from nucleus probabilities using an inverse CDF.</p><p>The nucleus probability helper is provided; implement per-row sampling, random-stream ownership and vocabulary indexing.</p><h2>Functions to implement</h2><ul><li><code>sample_top_p(logits: Tensor, p: float, temperature: float, generator: torch.Generator) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Top-p: Draw Tokens from the Nucleus</h1>
+<h2>Problem</h2>
+<p>Implement <code>sample_top_p(logits, p, temperature, generator)</code> to return one vocabulary token ID per row. The supplied <code>nucleus_probs</code> handles temperature, stable softmax, nucleus selection and renormalization. Your task completes the path from logits to actual sampled tokens.</p>
+<p>Read <a href="https://arxiv.org/abs/1904.09751">Holtzman et al., ICLR 2020, §3.1, Eqs. (2–3)</a>. The paper defines the nucleus and its normalized distribution. The inverse-CDF method and exact random-stream contract below are teaching choices, not claims that the paper mandates this implementation.</p>
+<h2>Core equations</h2>
+<p>For vocabulary-order nucleus probabilities q, form C_i = sum_{j&lt;=i} q_j and divide every C_i by the final C entry. Draw u uniformly in [0,1), then return the smallest vocabulary index i satisfying C_i &gt; u. Each token owns the half-open interval [C_{i-1}, C_i). Zero-mass intervals never select a token.</p>
+<h2>From equations to code</h2>
+<p>Call the provided helper, build the CDF along the last axis, normalize it by its final entry, and use one independent uniform per row. The number of CDF entries &lt;= u is the selected vocabulary ID. Never return a sorted probability rank.</p>
+<p>For q=[0,.5,0,.5], u=0 selects token 1; u=.5 selects token 3. The supplied helper uses the shortest nonempty prefix reaching cumulative mass &gt;=p, ties favoring smaller vocabulary IDs. With four equal logits and p=.5, only IDs 0 and 1 remain.</p>
+<h2>Contract</h2>
+<ul>
+<li>Finite float32/64 CPU logits <code>[...,V]</code>, V&gt;=1; empty leading dimensions are allowed. Finite scalar 0&lt;p&lt;=1 and temperature&gt;0.</li>
+<li>Return int64 IDs with shape <code>logits.shape[:-1]</code>, on CPU. A single vector returns a scalar tensor. Do not modify inputs; no derivatives are required.</li>
+<li><code>nucleus_probs</code> is provided in the starter and returns float64 probabilities in original vocabulary order. Keep that helper unchanged.</li>
+<li>Consume exactly <code>torch.rand(logits.shape[:-1], dtype=torch.float64, generator=generator)</code> once. The caller provides a CPU <code>torch.Generator</code>. Do not reseed, replace it with the global generator, or reuse a single draw across rows. An empty batch consumes no draws.</li>
+<li>Normalize the float64 CDF by its last entry to make its endpoint exactly 1. Select using strict C_i&gt;u, including at exact interval boundaries.</li>
+<li>The exact stream is an exercise convention. Other correct categorical algorithms can use different random draws; this task deliberately practices inverse-CDF sampling.</li>
+<li>EOS, multi-step generation, NaN/Inf logits and temperature=0 are outside this single-token exercise.</li>
+</ul>
+<h2>Interactive experiment</h2>
+
+<p>The plot shows 8192 tokens drawn by your function from synthetic logits, seed 42. It compares observed frequencies with an independently specified target [0,2/3,0,1/3]. Excluded tokens must never appear. Frequency error must be below .04; deterministic boundary tests remain exact. This is a small sampling experiment, not a text-quality benchmark.</p>
+<h2>Run</h2>
+<pre><code class="language-sh">paperleet test foundations/top_p_draw --impl problems/foundations/top_p_draw/solution.py
+</code></pre>
+<p>Use the starter in the workspace. T0 checks shape/dtype, T1 an independent scalar oracle, T2 stream ownership, boundaries and input preservation, and T3 actual learner sampling. Browser CPU/WASM uses the same suite and mutants.</p>
+<h2>Further practice</h2>
+<p>Compare with the existing Top-p probability exercise (#89). Explain why sorting is needed to find the nucleus but the final draw must still return the original vocabulary ID. Then describe how a generation loop would stop different batch rows at EOS.</p></section><p><a href="https://arxiv.org/abs/1904.09751">Read paper · arXiv:1904.09751</a></p><h2>Related exercises</h2><ul><li><a href="/papers/nucleus-sampling/">All Nucleus Sampling exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

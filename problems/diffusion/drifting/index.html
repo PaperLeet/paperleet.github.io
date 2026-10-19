@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement the distance-kernel drifting field and its stop-gradient target; train a generator with one-pass inference. Implement drift_field, drifting_loss. toy.py provides the…">
+    <title>Drifting Models: Drifting: Pairwise Field and Frozen Targets in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion/drifting/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion/drifting/">
+    <meta property="og:title" content="Drifting Models: Drifting: Pairwise Field and Frozen Targets in Python | PaperLeet">
+    <meta property="og:description" content="Implement the distance-kernel drifting field and its stop-gradient target; train a generator with one-pass inference. Implement drift_field, drifting_loss. toy.py provides the…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Drifting Models: Drifting: Pairwise Field and Frozen Targets in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement the distance-kernel drifting field and its stop-gradient target; train a generator with one-pass inference. Implement drift_field, drifting_loss. toy.py provides the…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Drifting: Pairwise Field and Frozen Targets</h1><p><a href="/papers/drifting/">Drifting Models</a> · arXiv 2026 · Hard · 35 minutes</p><p>Implement the distance-kernel drifting field and its stop-gradient target; train a generator with one-pass inference.</p><p>Implement drift_field, drifting_loss. toy.py provides the training and visualization scaffold.</p><h2>Functions to implement</h2><ul><li><code>drift_field(generated: Tensor, positive: Tensor, temperature: float = .2) -&gt; Tensor</code></li><li><code>drifting_loss(generated: Tensor, positive: Tensor, temperature: float = .2) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>18. Drifting: Pairwise Field and Frozen Targets</h1>
+<h2>1. Exercise goal</h2>
+<p>Implement the distance-kernel drifting field and its stop-gradient target; train a generator with one-pass inference.</p>
+<h2>2. Interfaces and returns</h2>
+<h3>Return requirements</h3>
+<h4><code>drift_field</code> (required)</h4>
+<p>Return drifting vectors as a Tensor [N,D], matching generated shape and floating dtype/device; N counts generated samples and D features. The M positive samples do not add an output axis. Each row is one generated sample field, not an [N,N+M] affinity matrix. This function does not detach; drifting_loss handles frozen targets.</p>
+<h4><code>drifting_loss</code> (required)</h4>
+<p>Return a floating scalar Tensor of shape (), matching generated dtype/device. Average MSE over all N generated samples and D features. Stop the entire generated+field target; only the left-hand generated receives gradients, and positive receives none. Leave inputs unchanged.</p>
+<h4>Provided local helpers</h4>
+<ul>
+<li><code>_time</code>: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.</li>
+</ul>
+<h3>Equations and interface notes</h3>
+<h3>Contract</h3>
+<ul>
+<li><code>drift_field(generated: Tensor, positive: Tensor, temperature: float = .2) -&gt; Tensor</code></li>
+<li><code>drifting_loss(generated: Tensor, positive: Tensor, temperature: float = .2) -&gt; Tensor</code></li>
+</ul>
+<p>The field uses exp(-Euclidean distance/temperature), masks generated self-pairs, normalizes by sqrt(row_mass*column_mass), and combines positive and negative weighted centers with their opposite group masses. This selects the official toy variant, not a generic attraction-only field. The whole g+V target is frozen; removing this detach can preserve the scalar loss while making the gradient zero. One-step means generator inference, not one training update.</p>
+<h2>Runnable experiment</h2>
+<p><strong>Provenance: Official toy adaptation.</strong> Adapts the authors’ Swiss-roll/checkerboard notebook. Reduced from noise32→3×256, batch2048, 2000 steps to noise8→2×48, generated96/positive128, 260 steps and temperature .2 for CPU grading. No pretrained features, CFG, or image benchmarks. Paper Figure 3 is a separate bimodal experiment.</p>
+<p>The T3 test runs your submitted implementation, saves points/curves/metrics, and uses fixed seed 42. <code>toy.py</code> contains the provided experiment. It does not download models or datasets. These exercises reproduce selected mechanisms, not full image benchmark results.</p>
+<h2>Sources</h2>
+<ul>
+<li>https://arxiv.org/abs/2602.04770</li>
+<li>https://github.com/lambertae/lambertae.github.io/blob/a7fa4baae52abbab2aaeb57136d557caee79ff39/projects/drifting/notebooks/drifting_model_demo.ipynb</li>
+<li>https://github.com/lambertae/drifting/tree/8861066430db11d2fb0858d042c7845b99df49f1</li>
+</ul>
+<p>Anchors: arXiv v2 §3 drifting field and fixed-point loss; §5.1 Figure 3 bimodal toy; Official notebook compute_drift and drifting_loss.</p>
+<p>Numerical adaptation: compute the doubly normalized kernel with logsumexp rather than the notebook’s exp/product clamp. This preserves the mathematical normalized affinity when raw exponentials underflow and intentionally removes its absolute 1e-12 product floor. Empty sample sets and nonpositive/nonfinite temperature are rejected.</p></section><p><a href="https://arxiv.org/abs/2602.04770">Read paper · arXiv:2602.04770</a></p><h2>Related exercises</h2><ul><li><a href="/papers/drifting/">All Drifting Models exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

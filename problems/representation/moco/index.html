@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Combine query-only contrastive gradients, a momentum key encoder and a cross-batch circular dictionary. Three core functions and a supplied 12-step synthetic linear-encoder SGD…">
+    <title>MoCo: MoCo Momentum Encoder and Negative Dictionary in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/moco/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/moco/">
+    <meta property="og:title" content="MoCo: MoCo Momentum Encoder and Negative Dictionary in Python | PaperLeet">
+    <meta property="og:description" content="Combine query-only contrastive gradients, a momentum key encoder and a cross-batch circular dictionary. Three core functions and a supplied 12-step synthetic linear-encoder SGD…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="MoCo: MoCo Momentum Encoder and Negative Dictionary in Python | PaperLeet">
+    <meta name="twitter:description" content="Combine query-only contrastive gradients, a momentum key encoder and a cross-batch circular dictionary. Three core functions and a supplied 12-step synthetic linear-encoder SGD…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>MoCo Momentum Encoder and Negative Dictionary</h1><p><a href="/papers/moco/">MoCo</a> · CVPR 2020 · Medium · 35 minutes</p><p>Combine query-only contrastive gradients, a momentum key encoder and a cross-batch circular dictionary.</p><p>Three core functions and a supplied 12-step synthetic linear-encoder SGD lab; no image encoder, distributed BN or paper benchmark reproduction.</p><h2>Functions to implement</h2><ul><li><code>moco_loss(query: Tensor, key: Tensor, queue: Tensor, temperature: float = .07) -&gt; Tensor</code></li><li><code>momentum_update(query: Tensor, key: Tensor, momentum: float = .999) -&gt; Tensor</code></li><li><code>enqueue(queue: Tensor, keys: Tensor, pointer: int) -&gt; tuple[Tensor, int]</code></li></ul><section aria-label="Problem description"><h1>MoCo: momentum encoder and negative dictionary</h1>
+<p>Implement <code>moco_loss</code>, <code>momentum_update</code> and <code>enqueue</code>, based on <a href="https://arxiv.org/html/1911.05722v3">MoCo</a>, Equations 1–2 and Algorithm 1.</p>
+<h2>1. One positive and K dictionary negatives</h2>
+<p><code>query</code> and <code>key</code> have matching <code>[B,D]</code> shape; <code>queue</code> is <code>[K,D]</code>, with B,K,D&gt;=1. Inputs share finite float32/float64 dtype/device, including strided views. Normalize each row by <code>max(L2 norm,1e-12)</code>; zero rows remain zero.</p>
+<p>For query i, key i is its only positive; all K dictionary rows are negatives. Other current-batch keys are not implicitly negatives. Divide normalized dot products by temperature and return the scalar batch mean:</p>
+<p>$$L=\frac1B\sum_i\left[\operatorname{logsumexp}(s_i^+,s_{i,0}^-,\ldots,s_{i,K-1}^-)-s_i^+\right].$$</p>
+<p>The denominator includes the positive. Preserve dtype/device and inputs. Temperature must be a finite positive Python int/float, excluding bool and Tensor; supplied helpers validate the contract. Keep query gradients through normalization, but detach both key and queue, whose gradients must be None. Use stable logsumexp.</p>
+<p>With q=k=[1,0] and queue=[[-1,0],[0,1]], loss is <code>log(1+exp(-2/T)+exp(-1/T))</code>. Identical nonzero representations give <code>log(K+1)</code>.</p>
+<h2>2. Momentum encoder</h2>
+<p><code>momentum_update(query,key,momentum=.999)</code> operates on encoder parameters:</p>
+<p>$$\theta_k^{new}=m\theta_k+(1-m)\theta_q.$$</p>
+<p>Accept matching finite float32/float64 tensors of arbitrary shape, including scalars and empty tensors, and a finite Python coefficient in [0,1], excluding bool/Tensor. Return independent detached storage; never mutate or alias inputs. m=0 copies query and m=1 freezes key. The frozen endpoint is an explicit exercise extension; the paper uses m&lt;1 during training.</p>
+<h2>3. Circular dictionary</h2>
+<p><code>enqueue(queue,keys,pointer)</code> accepts <code>[K,D]</code> old dictionary and <code>[B,D]</code> new keys, K,D&gt;=1 and B&gt;=0, including B&gt;K. Require matching finite floating dtype/device and an exact Python int pointer in [0,K), excluding bool.</p>
+<p>Normalize and detach incoming rows, sequentially overwrite from pointer with wraparound, and return <code>(independent detached dictionary,(pointer+B)%K)</code>. Leave both inputs unchanged. An empty batch returns a copy with the same pointer. Multiple wraps must preserve the last K sequential writes.</p>
+<p>Row-major <code>[K,D]</code> layout and arbitrary-batch wraparound are teaching interface choices, rather than a verbatim copy of the original project's queue representation.</p>
+<h2>4. Comparison with SimCLR</h2>
+<p>SimCLR builds candidates from both current views and differentiates both. MoCo uses a historical dictionary and differentiates only queries. EMA slows key-encoder changes while FIFO expires older representations. Cache this step's keys before updating either encoder; enqueue those keys after EMA, without recomputing them.</p>
+<h2>5. Actual CPU experiment</h2>
+<p>The supplied experiment uses six fixed paired 4D features, a 4×3 query linear encoder (12 trainable scalars), an initially equal key encoder, and five dictionary entries. Twelve actual SGD steps use batch=2, lr=.05, m=.8 and T=.3: encode q/k → detached-key loss → query SGD → key EMA → enqueue cached keys.</p>
+<p>An independent Python scalar objective and central finite differences drive a separate complete parameter/EMA/dictionary trajectory. Compare every state at every step. Charts show actual batch loss, encoder parameter distance and queue pointer; no monotonic-loss or fabricated accuracy threshold is imposed. Further tests cover query finite differences, both detached branches, hand denominators, invariances, empty/oversized batches, multiple wraps and storage independence.</p>
+<p>This original PaperLeet synthetic teaching adaptation has no images, ResNet, augmentation pipeline, distributed shuffling BN or downstream evaluation, and makes no paper-performance reproduction claim. No GPU, account, data download or pretrained weights are required.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p></section><p><a href="https://arxiv.org/abs/1911.05722">Read paper · arXiv:1911.05722</a></p><h2>Related exercises</h2><ul><li><a href="/papers/moco/">All MoCo exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

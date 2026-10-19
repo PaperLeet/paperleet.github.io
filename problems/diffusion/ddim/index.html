@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement one DDIM update, combining the clean prediction, direction, and stochastic variance correctly. Implement ddim_step only. Timestep selection and sampling are provided;…">
+    <title>DDIM: DDIM Subsequence Update in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion/ddim/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion/ddim/">
+    <meta property="og:title" content="DDIM: DDIM Subsequence Update in Python | PaperLeet">
+    <meta property="og:description" content="Implement one DDIM update, combining the clean prediction, direction, and stochastic variance correctly. Implement ddim_step only. Timestep selection and sampling are provided;…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="DDIM: DDIM Subsequence Update in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement one DDIM update, combining the clean prediction, direction, and stochastic variance correctly. Implement ddim_step only. Timestep selection and sampling are provided;…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>DDIM Subsequence Update</h1><p><a href="/papers/ddim/">DDIM</a> · ICLR 2021 · Medium · 20 minutes</p><p>Implement one DDIM update, combining the clean prediction, direction, and stochastic variance correctly.</p><p>Implement ddim_step only. Timestep selection and sampling are provided; inversion is an optional exploration helper.</p><h2>Functions to implement</h2><ul><li><code>ddim_step(x_t: Tensor, eps_pred: Tensor, ab_t: Tensor, ab_prev: Tensor, eta: float, noise: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>DDIM Subsequence Update</h1>
+<h2>1. What the paper solves</h2>
+<p>DDPM's training objective specifies noisy marginal distributions at each time without uniquely determining sampling trajectories. DDIM uses this freedom to reuse an existing noise predictor and generate samples in fewer denoising steps.</p>
+<p>Implement only <code>ddim_step</code>, the paper’s central update across a timestep subsequence. Timestep selection and the full sampling loop are supplied. Inversion helpers and visualizations remain available for optional exploration.</p>
+<h2>2. Core equations</h2>
+<h3>Return requirements</h3>
+<h4><code>ddim_step</code> (required)</h4>
+<p>Return the sample Tensor at the less noisy destination, matching x_t shape [B,...] and floating dtype/device; B is batch size and trailing axes are sample dimensions. Do not return the clean prediction or coefficients. eta=0 removes dependence on noise; ab_prev=1 returns the clean endpoint. This step does not itself stop gradients.</p>
+<h4><code>ddim_timesteps</code> (provided)</h4>
+<p>Return a torch.long Tensor of shape [num_steps] (CPU by default here), containing strictly descending discrete indices starting at T-1. Each entry corresponds to one model call. The final clean boundary is not an extra entry, and index 0 need not occur. The output has no gradients.</p>
+<h4><code>ddim_sample</code> (provided)</h4>
+<p>With return_traj=False, return final samples as a Tensor [B,...], matching x_T shape and dtype/device. With True, return the tuple (samples, trajectory) in that order. trajectory is a Tensor [num_steps+1,B,...]: entry 0 copies x_T, each following entry is one update, and the last equals samples. Both outputs are gradient-free; x_T is unchanged.</p>
+<h4><code>ddim_invert</code> (provided)</h4>
+<p>Return the inverted noisy endpoint Tensor with x0 shape [B,...] and dtype/device, at the selected schedule maximum index T-1. Return only the endpoint, not a trajectory. Leave x0 unchanged; the output is gradient-free. Discrete inversion is approximate, not a promise of bitwise sampling reversibility.</p>
+<h3>Equations and interface notes</h3>
+<p>Let the current cumulative signal be $a=\bar\alpha_t$ and the previous sampling time's cumulative signal be $b=\bar\alpha_{\mathrm{prev}}$, with $b\ge a$. Reconstruct the clean prediction, then combine a deterministic direction and random noise:</p>
+<p>$$\hat x_0=\frac{x_t-\sqrt{1-a}\hat\epsilon}{\sqrt a},\qquad\sigma=\eta\sqrt{\frac{1-b}{1-a}}\sqrt{1-\frac ab}.$$</p>
+<p>$$x_{\mathrm{prev}}=\sqrt b\hat x_0+\sqrt{1-b-\sigma^2}\hat\epsilon+\sigma z.$$</p>
+<p>Sample tensors have shape <code>[B,D]</code>; a and b may be scalars or broadcastable to the sample shape. At eta=0, initial noise uniquely determines the trajectory. At eta=1 with adjacent timesteps, the stochastic variance equals the DDPM posterior variance. Subtract the stochastic variance from the direction term to avoid adding too much total noise. See <a href="https://arxiv.org/abs/2010.02502">DDIM Equations 12 and 16</a> for the update and eta parameterization.</p>
+<p>Set b=1 on the final update to reach the true clean endpoint. A point distribution provides a strong check: with perfect x0 predictions, both one step and fifty steps should arrive exactly at the point.</p>
+<h2>3. From equations to code</h2>
+<p>Implement only <code>ddim_step(x_t, eps_pred, ab_t, ab_prev, eta, noise)</code>:</p>
+<pre><code class="language-text">Recover x0 from the current ab_t and epsilon prediction
+Compute sigma from the current and target cumulative coefficients
+Subtract sigma² from the direction variance
+Combine the clean prediction, epsilon direction, and supplied noise
+</code></pre>
+<p>Return the shape and dtype of <code>x_t</code>. <code>ab_t</code> and <code>ab_prev</code> broadcast to the sample. The final clean endpoint uses <code>ab_prev=1</code>, eliminating both the direction and random terms. With <code>eta=0</code>, the result is independent of the supplied noise.</p>
+<p><code>ddim_timesteps</code> and <code>ddim_sample</code> are provided. The sampler calls your <code>ddim_step</code> for each pair of times and can return a <code>[n+1,B,D]</code> trajectory including both endpoints. <code>ddim_invert</code> is also supplied for optional round-trip experiments; you do not need to implement it.</p>
+<h2>4. Conventions</h2>
+<p>| Item | This exercise | diffusers DDIMScheduler |
+| --- | --- | --- |
+| Trailing step spacing | Integer spacing T//n | Uses real-valued T/n before rounding |
+| When T is divisible by n | The two sequences agree | The two sequences agree |
+| Other options | Fixed trailing spacing only | Also supports leading and linspace |
+| Clean boundary | Final b=1 | Controlled by set_alpha_to_one |</p>
+<p>The original exercise checked this comparison against the <a href="https://github.com/huggingface/diffusers/blob/main/src/diffusers/schedulers/scheduling_ddim.py">official scheduler source</a> on 2026-10-13. Follow this exercise's definition when T is not divisible by n.</p>
+<h2>5. Interactive visualizations</h2>
+
+<p>Choose an eta and step-count combination. Play trajectories from the same initial noise and compare final MMD to inspect the relationship between randomness and computation.</p>
+
+<p>Choose a data point and step count to inspect inverted noise, reconstructed positions, and round-trip error. A finer time grid usually brings the reconstruction closer to the original sample.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p>The supplied inversion is a first-order approximation. Its first call from the clean endpoint uses index zero; later calls evaluate epsilon at the current state and time. At finite step counts, it is generally not the exact algebraic inverse of a nonlinear sampling map. Compare round-trip errors in the visualization without implementing additional code. For few-step error, see <a href="https://arxiv.org/abs/2202.00512">Progressive Distillation</a>.</p></section><p><a href="https://arxiv.org/abs/2010.02502">Read paper · arXiv:2010.02502</a></p><h2>Related exercises</h2><ul><li><a href="/papers/ddim/">All DDIM exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

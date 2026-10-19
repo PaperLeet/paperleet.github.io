@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement a boundary-preserving consistency function, stop-gradient pair loss, and EMA target update. Implement consistency_function, consistency_loss, update_ema. toy.py…">
+    <title>Consistency Models: Consistency Models: Boundary and Teacher Targets in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion/consistency/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion/consistency/">
+    <meta property="og:title" content="Consistency Models: Consistency Models: Boundary and Teacher Targets in Python | PaperLeet">
+    <meta property="og:description" content="Implement a boundary-preserving consistency function, stop-gradient pair loss, and EMA target update. Implement consistency_function, consistency_loss, update_ema. toy.py…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Consistency Models: Consistency Models: Boundary and Teacher Targets in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement a boundary-preserving consistency function, stop-gradient pair loss, and EMA target update. Implement consistency_function, consistency_loss, update_ema. toy.py…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Consistency Models: Boundary and Teacher Targets</h1><p><a href="/papers/consistency/">Consistency Models</a> · ICML 2023 · Medium · 35 minutes</p><p>Implement a boundary-preserving consistency function, stop-gradient pair loss, and EMA target update.</p><p>Implement consistency_function, consistency_loss, update_ema. toy.py provides the training and visualization scaffold.</p><h2>Functions to implement</h2><ul><li><code>consistency_function(model, noisy: Tensor, sigma: Tensor, sigma_min: float = .002, sigma_data: float = .5) -&gt; Tensor</code></li><li><code>consistency_loss(prediction: Tensor, target_prediction: Tensor) -&gt; Tensor</code></li><li><code>update_ema(online, target, decay: float = .95) -&gt; None</code></li></ul><section aria-label="Problem description"><h1>21. Consistency Models: Boundary and Teacher Targets</h1>
+<h2>1. Exercise goal</h2>
+<p>Implement a boundary-preserving consistency function, stop-gradient pair loss, and EMA target update.</p>
+<h2>2. Interfaces and returns</h2>
+<h3>Return requirements</h3>
+<h4><code>consistency_function</code> (required)</h4>
+<p>Return the consistency prediction Tensor with the same [B, ...] shape as noisy; B is batch size and trailing axes are sample coordinates. Preserve floating dtype/device and model gradients. Samples at sigma=sigma_min must equal the input. Do not detach the prediction.</p>
+<h4><code>consistency_loss</code> (required)</h4>
+<p>Return a floating scalar Tensor of shape (), matching prediction dtype/device. Average squared error over the batch and all coordinates, not a per-example vector or Python float. Keep prediction gradients and stop target_prediction gradients inside the function.</p>
+<h4><code>update_ema</code> (required)</h4>
+<p>Return Python None. Update target parameters in place under torch.no_grad(), retaining each parameter shape and dtype/device. Leave online parameters unchanged. This interface updates parameters only, not buffers, and does not return a replacement model.</p>
+<h4><code>teacher_euler</code> (provided)</h4>
+<p>Return one teacher sample Tensor at next_sigma, with noisy shape [B, ...] and floating dtype/device. B is batch size and trailing axes are sample dimensions. The supplied no_grad decorator makes the output gradient-free. Do not mutate inputs or return a trajectory.</p>
+<h4>Provided local helpers</h4>
+<ul>
+<li><code>_time</code>: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.</li>
+</ul>
+<h3>Equations and interface notes</h3>
+<h3>Contract</h3>
+<ul>
+<li><code>consistency_function(model, noisy: Tensor, sigma: Tensor, sigma_min: float = .002, sigma_data: float = .5) -&gt; Tensor</code></li>
+<li><code>consistency_loss(prediction: Tensor, target_prediction: Tensor) -&gt; Tensor</code></li>
+<li><code>update_ema(online, target, decay: float = .95) -&gt; None</code></li>
+<li><code>teacher_euler(noisy: Tensor, denoised: Tensor, sigma: Tensor, next_sigma: Tensor) -&gt; Tensor</code> (provided)</li>
+</ul>
+<p>At sigma_min the function must be exactly the identity, regardless of network output. The model receives c_in*x and the original sigma; this exercise supplies raw sigma conditioning instead of the official embedding. The skip/output coefficients follow the official boundary parameterization. The lower-noise teacher/EMA branch is frozen. The supplied Euler helper uses decreasing positive noise scales. This is consistency distillation with a teacher, not the separate teacher-free consistency-training algorithm.</p>
+<h2>Runnable experiment</h2>
+<p><strong>Provenance: PaperLeet teaching adaptation.</strong> A point-data teacher makes its probability-flow Euler step exact. Small MLP distillation exercises the boundary and target routing without pretrained models. Half the training pairs use a positive adjacent noise level sigma/2, so the EMA network affects the target; the other half anchor the exact sigma_min boundary.</p>
+<p>The T3 test runs your submitted implementation, saves points/curves/metrics, and uses fixed seed 42. <code>toy.py</code> contains the provided experiment. It does not download models or datasets. These exercises reproduce selected mechanisms, not full image benchmark results.</p>
+<h2>Sources</h2>
+<ul>
+<li>https://arxiv.org/abs/2303.01469</li>
+<li>https://github.com/openai/consistency_models/blob/e32b69ee436d518377db86fb2127a3972d0d8716/cm/karras_diffusion.py</li>
+</ul>
+<p>Anchors: arXiv v1 §3 consistency function boundary parameterization; §4 consistency distillation and EMA target; Official get_scalings_for_boundary_condition.</p></section><p><a href="https://arxiv.org/abs/2303.01469">Read paper · arXiv:2303.01469</a></p><h2>Related exercises</h2><ul><li><a href="/papers/consistency/">All Consistency Models exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

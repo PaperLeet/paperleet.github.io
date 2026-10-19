@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement feature normalization, learnable temperature, and the symmetric image-text contrastive objective. Implement contrastive_logits and clip_loss; paired-vector training…">
+    <title>CLIP: Symmetric Contrastive Learning in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/clip/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/clip/">
+    <meta property="og:title" content="CLIP: Symmetric Contrastive Learning in Python | PaperLeet">
+    <meta property="og:description" content="Implement feature normalization, learnable temperature, and the symmetric image-text contrastive objective. Implement contrastive_logits and clip_loss; paired-vector training…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="CLIP: Symmetric Contrastive Learning in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement feature normalization, learnable temperature, and the symmetric image-text contrastive objective. Implement contrastive_logits and clip_loss; paired-vector training…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Symmetric Contrastive Learning</h1><p><a href="/papers/clip/">CLIP</a> · ICML 2021 · Easy · 15 minutes</p><p>Implement feature normalization, learnable temperature, and the symmetric image-text contrastive objective.</p><p>Implement contrastive_logits and clip_loss; paired-vector training is provided, without training full image/text encoders.</p><h2>Functions to implement</h2><ul><li><code>contrastive_logits(image_features: Tensor, text_features: Tensor, logit_scale: Tensor) -&gt; Tensor</code></li><li><code>clip_loss(image_features: Tensor, text_features: Tensor, logit_scale: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Symmetric Contrastive Learning</h1>
+<p><a href="https://arxiv.org/abs/2103.00020">CLIP: Learning Transferable Visual Models From Natural Language Supervision</a> learns a shared space from matched images and text. Figure 3 gives the contrastive training objective; §2.5 describes temperature initialization and scale clipping. The author's released model implementation is <a href="https://github.com/openai/CLIP">openai/CLIP</a>.</p>
+<h2>Your core module</h2>
+<h3>Return requirements</h3>
+<h4><code>contrastive_logits</code> (required)</h4>
+<p>Return one floating <code>Tensor</code> of shape <code>[B,B]</code>: row i is image i and column j is text j; B is the paired batch size. Preserve feature dtype/device and both encoder gradients, plus the gradient of scalar <code>logit_scale</code> below its cap (zero above the cap). Return scores, not probabilities, a tuple or a reduced loss; leave inputs unchanged.</p>
+<h4><code>clip_loss</code> (required)</h4>
+<p>Return one scalar floating <code>Tensor</code>, shape <code>()</code>, with the feature dtype/device. It is the average of image-to-text and text-to-image batch-mean cross-entropies. Keep both feature gradients and the unclipped temperature gradient; do not detach or convert to a Python float. Leave inputs unchanged.</p>
+<h3>Formula and conventions</h3>
+<p>Implement <code>contrastive_logits</code> and <code>clip_loss</code>. Image and text encoder outputs are supplied as <code>[B,D]</code> tensors. Normalize each row, form all pairwise similarities, and train both retrieval directions. Pair <code>i</code> matches pair <code>i</code>; the remaining examples in the batch act as negatives.</p>
+<p>$$
+\bar i=i/|i|_2,\quad \bar t=t/|t|_2,\quad
+S=\min(e^s,100),\bar i\bar t^\top,
+$$
+$$
+L=\tfrac12\big[\operatorname{CE}(S,\operatorname{arange}(B))+
+\operatorname{CE}(S^\top,\operatorname{arange}(B))\big].
+$$</p>
+<p><code>s</code> is a scalar <strong>log inverse temperature</strong>, not the temperature itself. This exercise enforces the paper's cap of 100 in the forward function by clipping in log space before exponentiating. This remains finite even when a supplied <code>s</code> is extremely large. Below the cap, preserve its gradient; above the cap, its gradient is zero.</p>
+<p>| Item | Convention |
+|---|---|
+| Features | Same batch size and width, floating tensors <code>[B,D]</code>; encoders already ran |
+| Normalization | Rowwise L2 norm with epsilon <code>1e-12</code>; a zero row stays zero |
+| Positives | Diagonal matched pairs; batch is nonempty |
+| <code>contrastive_logits</code> | <code>[B,B]</code>, rows images and columns text |
+| <code>clip_loss</code> | Scalar mean of both directional mean cross-entropies |
+| Gradients | Both feature tensors and the unclipped scalar <code>logit_scale</code> |</p>
+<p>The released repository primarily supports pretrained-model inference; this exercise specifies the paper's training loss and clipping behavior explicitly. No image or text encoder implementation is required.</p>
+<h2>Example</h2>
+<p>For two matched orthogonal unit vectors and <code>s=log(2)</code>, logits equal <code>2I</code>. Both directions have loss <code>log(1+exp(-2))</code>, approximately 0.1269. A nonsymmetric similarity matrix generally has different image-to-text and text-to-image losses, so testing only identical features would miss a one-direction bug.</p>
+<h2>Toy experiment</h2>
+<p>The provided experiment optimizes eight pairs of random 8-dimensional vectors and a learnable temperature for 80 steps. It records loss, cosine similarities and retrieval accuracy in both directions. The experiment calls the submitted loss, while retrieval is independently evaluated from the learned normalized features.</p>
+<p><strong>Provenance:</strong> PaperLeet teaching adaptation of Figure 3, using trainable vectors instead of large image/text encoders. It does not reproduce CLIP pretraining or zero-shot benchmarks. No datasets or weights are downloaded. T3 requires both retrieval accuracies to reach 1 and final loss below .05.</p>
+<h2>Validation</h2>
+<p>T0 checks one pair and zero-feature stability; T1 derives the orthogonal example; T2 verifies the independently derived symmetric loss, feature-scale invariance, pair permutation, temperature behavior and all gradients. T3 trains paired retrieval. Known incorrect variants omit normalization, remove one direction, misuse the log scale or omit its cap.</p></section><p><a href="https://arxiv.org/abs/2103.00020">Read paper · arXiv:2103.00020</a></p><h2>Related exercises</h2><ul><li><a href="/papers/clip/">All CLIP exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

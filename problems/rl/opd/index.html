@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Sample from the student and distill full-vocabulary feedback at the same prefixes. GKD with lambda=1 and explicit forward/reverse KL; a supplied three-token Markov LM replaces…">
+    <title>GKD · On-policy Distillation: On-policy Distillation at Student Prefixes in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/rl/opd/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/rl/opd/">
+    <meta property="og:title" content="GKD · On-policy Distillation: On-policy Distillation at Student Prefixes in Python | PaperLeet">
+    <meta property="og:description" content="Sample from the student and distill full-vocabulary feedback at the same prefixes. GKD with lambda=1 and explicit forward/reverse KL; a supplied three-token Markov LM replaces…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="GKD · On-policy Distillation: On-policy Distillation at Student Prefixes in Python | PaperLeet">
+    <meta name="twitter:description" content="Sample from the student and distill full-vocabulary feedback at the same prefixes. GKD with lambda=1 and explicit forward/reverse KL; a supplied three-token Markov LM replaces…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>On-policy Distillation at Student Prefixes</h1><p><a href="/papers/gkd/">GKD · On-policy Distillation</a> · ICLR 2024 · Medium · 35 minutes</p><p>Sample from the student and distill full-vocabulary feedback at the same prefixes.</p><p>GKD with lambda=1 and explicit forward/reverse KL; a supplied three-token Markov LM replaces large language models.</p><h2>Functions to implement</h2><ul><li><code>sample_student(transition_logits: Tensor, batch_size: int, length: int, generator: torch.Generator) -&gt; tuple[Tensor, Tensor]</code></li><li><code>distillation_loss(student_logits: Tensor, teacher_logits: Tensor, mask: Tensor, direction: str='reverse') -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>On-policy Distillation at Student Prefixes</h1>
+<p>Sample from the student and distill full-vocabulary feedback at the same prefixes.</p>
+<p>Paper: <a href="https://arxiv.org/abs/2306.13649v3">On-policy Distillation of Language Models: Learning from Self-Generated Mistakes</a>. Anchors: Section 3, Algorithm 1: GKD and student data fraction lambda; Section 3, Eqs. (2–4): token divergences on student-generated prefixes; Appendix A.7: forward/reverse KL interpretation (separate conceptual example).</p>
+<h2>Selected core</h2>
+<h3>Return requirements</h3>
+<p>Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape <code>()</code>, not a Python <code>float</code>.</p>
+<h4><code>sample_student</code> · Required</h4>
+<p>Return <code>(tokens, prefixes)</code>, a tuple of two <code>torch.long</code> Tensors of shape <code>[batch_size, length]</code>, on <code>transition_logits.device</code>, with no gradients. <code>tokens</code> contains sampled IDs in <code>[0, V-1]</code>; <code>prefixes[:, 0]</code> is the BOS ID <code>V</code> and <code>prefixes[:, 1:] == tokens[:, :-1]</code>. Sampling uses the supplied generator. Do not return probabilities or log-probabilities.</p>
+<h4><code>distillation_loss</code> · Required</h4>
+<p>Return one floating scalar Tensor <code>loss</code>, shape <code>()</code>, for logits <code>[B, L, V]</code>. Sum KL across the vocabulary <code>V</code>, then average only valid tokens selected by <code>[B, L]</code> mask. <code>reverse</code> means KL(student || teacher); <code>forward</code> means KL(teacher || student). Keep student gradients, freeze teacher logits; empty masks produce graph-connected zero. Preserve the input floating dtype/device.</p>
+<h3>Formula and conventions</h3>
+<p>GKD with lambda=1 and explicit forward/reverse KL; a supplied three-token Markov LM replaces large language models.</p>
+<p>$$
+L=\mathbb E_{y\sim p_S}[\frac1{|y|}\sum_t D_{KL}(p_S(\cdot|y_{&lt;t})\Vert p_T(\cdot|y_{&lt;t}))]
+$$</p>
+<ul>
+<li><code>sample_student(transition_logits: Tensor, batch_size: int, length: int, generator: torch.Generator) -&gt; tuple[Tensor, Tensor]</code></li>
+<li><code>distillation_loss(student_logits: Tensor, teacher_logits: Tensor, mask: Tensor, direction: str='reverse') -&gt; Tensor</code></li>
+</ul>
+<h2>Contract and experiment</h2>
+<p>Implement <code>sample_student</code> and <code>distillation_loss</code>. The sampling table has shape <code>[V+1,V]</code>; row <code>V</code> is BOS and row <code>k</code> is the distribution after token <code>k</code>. Return <code>(tokens, prefixes)</code>, both <code>[B,L]</code> integer tensors. The first prefix is BOS; every subsequent prefix is the previous sampled token. Use the supplied generator and categorical sampling at temperature 1, without a gradient through discrete sampling. Sequences have fixed length and no EOS in this toy.</p>
+<p>The loss inputs are <code>[B,L,V]</code> logits evaluated for <strong>both models at those same student-generated prefixes</strong>, plus <code>[B,L]</code> binary mask. <code>reverse</code> means KL(student || teacher); <code>forward</code> means KL(teacher || student). Sum over the entire vocabulary, average only valid tokens, freeze the teacher, and use log-softmax. All-padding gives differentiable zero. Padded logits may be nonfinite and must be neutralized before log-softmax. Valid logits are finite.</p>
+<p>This is the lambda=1 GKD variant. It is not sampled-token OPD, a policy-gradient estimator, or teacher-generated training data. The supplied training loop learns four conditional distributions with a three-token model. Its evaluation metric is mean forward KL over all four states, while the training objective is reverse KL on fresh student prefixes.</p>
+<h2>Toy provenance</h2>
+<p><strong>PaperLeet teaching adaptation.</strong> PaperLeet fixed-length categorical Markov model, not the original T5 or Gaussian-mixture experiment. The test harness calls your submitted functions and records the resulting metrics and curves. The Lab's static preview comes from the reference; your Run/Submit artifacts come from your code. The experiment and test scaffolding are supplied in <code>experiment.py</code> and <code>tests/</code>.</p>
+<h2>Sources and verification</h2>
+<p><a href="https://github.com/huggingface/trl/blob/main/trl/experimental/gkd/gkd_trainer.py">TRL implementation (independent of the paper authors; not the reference for this exercise)</a>. All exercise implementations and synthetic data are written for PaperLeet. The paper link pins the version used for the formulas.</p>
+<p>T0 checks contracts, T1 compares with the reference, T2 checks mathematical and gradient properties, and T3 runs the toy through your implementation. Implement the starter functions in the online editor, then Run or Submit. The official large-model training system is not required.</p></section><p><a href="https://arxiv.org/abs/2306.13649v3">Read paper · arXiv:2306.13649v3</a></p><h2>Related exercises</h2><ul><li><a href="/papers/gkd/">All GKD · On-policy Distillation exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

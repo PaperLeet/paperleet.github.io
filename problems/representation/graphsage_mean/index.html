@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Aggregate sampled neighborhood features and generate embeddings for unseen nodes with shared weights. Implement masked means and Algorithm 1 synchronous sampled hops; sampling…">
+    <title>GraphSAGE: GraphSAGE: Sampled Neighborhood Means and Inductive Encoding in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/graphsage_mean/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/graphsage_mean/">
+    <meta property="og:title" content="GraphSAGE: GraphSAGE: Sampled Neighborhood Means and Inductive Encoding in Python | PaperLeet">
+    <meta property="og:description" content="Aggregate sampled neighborhood features and generate embeddings for unseen nodes with shared weights. Implement masked means and Algorithm 1 synchronous sampled hops; sampling…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="GraphSAGE: GraphSAGE: Sampled Neighborhood Means and Inductive Encoding in Python | PaperLeet">
+    <meta name="twitter:description" content="Aggregate sampled neighborhood features and generate embeddings for unseen nodes with shared weights. Implement masked means and Algorithm 1 synchronous sampled hops; sampling…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>GraphSAGE: Sampled Neighborhood Means and Inductive Encoding</h1><p><a href="/papers/graphsage/">GraphSAGE</a> · NIPS 2017 · Medium · 30 minutes</p><p>Aggregate sampled neighborhood features and generate embeddings for unseen nodes with shared weights.</p><p>Implement masked means and Algorithm 1 synchronous sampled hops; sampling tables, validation and small inductive classification training are supplied.</p><h2>Functions to implement</h2><ul><li><code>masked_neighbor_mean(features: Tensor, neighbors: Tensor, valid: Tensor) -&gt; Tensor</code></li><li><code>graphsage_encode(features: Tensor, neighbors, masks, weights, eps: float=1e-12) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>GraphSAGE: Sampled Neighborhood Means and Inductive Encoding</h1>
+<h2>1. Problem</h2>
+<p>Implement the mean aggregator and synchronous encoder from <a href="https://arxiv.org/abs/1706.02216">Inductive Representation Learning on Large Graphs</a>, Hamilton, Ying and Leskovec, NIPS 2017. Follow Algorithm 1, lines 4–7, with the mean operator of Section 3.3. The model learns shared transformations of features and neighborhoods, so those weights can encode nodes absent during training.</p>
+<h3>Return requirements</h3>
+<p><code>masked_neighbor_mean(features, neighbors, valid)</code> returns <code>[N,D]</code> neighbor means. <code>graphsage_encode(features, neighbors, masks, weights, eps=1e-12)</code> returns <code>[N,D_last]</code> embeddings, or the input for zero hops. Preserve dtype, device, all input values, and gradients to features and every weight. Validation helpers are supplied; retain their calls and implement the two TODO bodies.</p>
+<h2>2. Core formula</h2>
+<p>For sampled slots $S_k(v)$ and previous-hop features $h^{k-1}$:</p>
+<p>$$
+m_v^k=\frac{1}{|S_k(v)|}\sum_{u\in S_k(v)}h_u^{k-1},\quad
+z_v^k=\operatorname{ReLU}\left([h_v^{k-1}\Vert m_v^k]W_k\right),\quad
+h_v^k=\frac{z_v^k}{\max(|z_v^k|_2,\varepsilon)}.
+$$</p>
+<p>Here weights use the row-vector layout <code>[2*Din,Dout]</code>. Concatenate <strong>own features first</strong>, neighbor means second. Normalize over output features independently for each node, after every hop. All nodes at hop $k$ read hop $k-1$; updating nodes in place would introduce dependence on node order.</p>
+<h2>3. Formula to code</h2>
+<p>Each hop supplies its own index table <code>[N,S]</code> and Boolean mask of the same shape. Sanitize masked IDs <strong>before</strong> gathering: a masked slot may contain <code>99</code> or <code>-99</code>. Sum only valid slots and divide by their count, clamped to at least one. Duplicate IDs count repeatedly because slots describe samples, not a set. An empty neighborhood returns a zero context, while the own-feature branch still contributes.</p>
+<p>For features <code>[[1,2],[-3,4],[5,-2]]</code>, sampled rows <code>[1,1,pad]</code>, <code>[0,2,pad]</code>, and <code>[pad,pad,pad]</code> produce means <code>[[-3,4],[3,0],[0,0]]</code>. Do not implicitly add a self-loop or remove duplicates. A node contributes to its neighbor branch only when its own ID is explicitly sampled.</p>
+<h2>4. Exercise contract</h2>
+<p>| Input | Contract |
+| --- | --- |
+| Features | Finite float32/float64 <code>[N,D]</code>, <code>N&gt;=0</code>, <code>D&gt;0</code> |
+| Sampling | A list/tuple of integer int32/int64 <code>[N,S_k]</code> tables; valid IDs are in <code>[0,N)</code> |
+| Masks | One Boolean <code>[N,S_k]</code> table per hop; masked IDs are ignored |
+| Weights | One finite <code>[2*Din,Dout]</code> matrix per hop, <code>Dout&gt;0</code>, matching feature dtype/device |
+| Depth | Equal lengths for sampling, masks and weights; zero hops is the identity |
+| Epsilon | Finite positive scalar, excluding bool; denominator is <code>max(norm,eps)</code> |</p>
+<p>Strided tensors, zero nodes, zero sampled slots and all-masked rows are supported. Keep autograd connected through every aggregation and normalization. Inputs must remain unchanged.</p>
+<p><strong>Scope:</strong> this is Algorithm 1 with a mean aggregator and ReLU at each hop. Equation (2) is a different GCN-style variant that averages the node together with neighbors. The authors' TensorFlow implementation also has configurable projection/concatenation and final-layer activation choices; matching that entire implementation is outside this exercise. Fixed sampled tables, padding, empty-neighborhood behavior and epsilon stabilization are explicit teaching extensions.</p>
+<h2>5. Experiment</h2>
+<p>Train two shared encoder layers and a linear classifier: 80 parameters, 100 real Adam updates. All supervised query nodes have identical zero features; their balanced labels can be inferred from their anchor neighborhoods. A feature-only classifier can achieve at most 50% on these queries.</p>
+<p>Freeze the learned weights and evaluate a distinct graph with new anchor features, a new node permutation, and 18 nodes instead of the training graph's 14. Charts show actual training loss, query accuracy, and frozen-model accuracy on both graphs. Submitted-run charts call your encoder; reference previews use the supplied reference.</p>
+<p>This is a small synthetic teaching experiment. It uses no learned node-ID lookup, original benchmark data, pretrained model, GPU, or PyG. Its accuracy is not a paper benchmark result.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further study</h2>
+<p>T0 checks contracts and empty inputs. T1 is hand-computed. T2 compares independent scalar calculations, gradients, sampling/node permutations, and per-hop normalization. T3 trains and evaluates your encoder on two different synthetic graphs.</p>
+<p>Why does neighbor order not matter while sampling multiplicity does? How does a detached neighbor mean change gradients to earlier hops? Explain why learning a separate embedding for each training node would prevent the same inductive transfer.</p></section><p><a href="https://arxiv.org/abs/1706.02216">Read paper · arXiv:1706.02216</a></p><h2>Related exercises</h2><ul><li><a href="/papers/graphsage/">All GraphSAGE exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement the linear conditional path, target velocity, and conditional Flow Matching loss. Implement interpolate, cfm_target, and cfm_loss. Time sampling, the Euler solver,…">
+    <title>Flow Matching: Conditional Path and Velocity Regression in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion/flow_matching/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion/flow_matching/">
+    <meta property="og:title" content="Flow Matching: Conditional Path and Velocity Regression in Python | PaperLeet">
+    <meta property="og:description" content="Implement the linear conditional path, target velocity, and conditional Flow Matching loss. Implement interpolate, cfm_target, and cfm_loss. Time sampling, the Euler solver,…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Flow Matching: Conditional Path and Velocity Regression in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement the linear conditional path, target velocity, and conditional Flow Matching loss. Implement interpolate, cfm_target, and cfm_loss. Time sampling, the Euler solver,…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Conditional Path and Velocity Regression</h1><p><a href="/papers/flow-matching/">Flow Matching</a> · ICLR 2023 · Medium · 20 minutes</p><p>Implement the linear conditional path, target velocity, and conditional Flow Matching loss.</p><p>Implement interpolate, cfm_target, and cfm_loss. Time sampling, the Euler solver, and the test training loop are provided.</p><h2>Functions to implement</h2><ul><li><code>interpolate(x0: Tensor, x1: Tensor, t: Tensor) -&gt; Tensor</code></li><li><code>cfm_target(x0: Tensor, x1: Tensor) -&gt; Tensor</code></li><li><code>cfm_loss(model: Callable[[Tensor, Tensor], Tensor], x1: Tensor, x0: Tensor, t: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Conditional Path and Velocity Regression</h1>
+<h2>1. What the paper solves</h2>
+<p>Flow Matching learns a time-dependent velocity field that transports noise into data through an ordinary differential equation. Its conditional training objective regresses a directly computable velocity, without simulating an entire generation trajectory on every training step.</p>
+<p>This module selects the linear conditional path and its CFM objective. Implement only <code>interpolate</code>, <code>cfm_target</code>, and <code>cfm_loss</code>; time sampling, the Euler solver, test model, and training loop are supplied.</p>
+<h2>2. Core equations</h2>
+<h3>Return requirements</h3>
+<h4><code>sample_t</code> (provided)</h4>
+<p>Return times as a Tensor [B], B=batch, with one value strictly inside (0,1) per example. Use the PyTorch default floating dtype (float32 here) and default CPU; this helper has no dtype/device argument. The output is gradient-free, not a scalar or [B,1] tensor.</p>
+<h4><code>interpolate</code> (required)</h4>
+<p>Return an interpolated sample Tensor [B,...], matching x0/x1 shape and preserving the documented matching floating dtype/device and gradients. B is batch size; trailing axes are arbitrary sample dimensions. Broadcast t [B] per example without changing output shape. t=0 is the noise endpoint and t=1 the data endpoint.</p>
+<h4><code>cfm_target</code> (required)</h4>
+<p>Return the conditional velocity Tensor with x0/x1 shape [B,...] and dtype/device. Each element is a sample coordinate; do not sum or average. This is a velocity target, not an interpolated sample. The function does not itself stop input gradients.</p>
+<h4><code>cfm_loss</code> (required)</h4>
+<p>Return a floating scalar Tensor of shape (), using sample/model-output dtype/device. Average squared velocity error over the batch and every non-batch coordinate, not a per-example error vector. Preserve model training gradients; this interface does not additionally detach inputs or targets.</p>
+<h4><code>euler_sample</code> (provided)</h4>
+<p>With return_traj=False, return t=1 samples as a Tensor matching x0 shape [B,...] and dtype/device. With True, return (samples, trajectory) in that order; trajectory is a Tensor [num_steps+1,B,...], beginning with a copy of x0, followed by updates in integration order and ending at samples. Outputs are gradient-free, x0 is unchanged, and model evaluations use left endpoints t&lt;1.</p>
+<h3>Equations and interface notes</h3>
+<p>In this exercise, x0 is noise and x1 is data. Both have shape <code>[B,D]</code>; time t has shape <code>[B]</code>, with a separate interpolation weight for each sample:</p>
+<p>$$x_t=(1-t)x_0+tx_1,\qquad u=x_1-x_0,\qquad\mathcal L=\operatorname{mean}<em>{b,d}\left(v</em>\theta(x_t,t)-u\right)^2.$$</p>
+<p>The conditional velocity u is the displacement between a pair of endpoints, but the network sees only the current position and time. Different endpoint pairs can reach the same position, so the network learns an average conditional velocity. Even an optimal network generally has nonzero training loss: irreducible variance is not an implementation error. See <a href="https://arxiv.org/html/2210.02747v2">Flow Matching Equations 5, 9, 22, and 23</a> for gradient equivalence and linear conditional paths.</p>
+<p>A point distribution is a special case: $v^*(x,t)=(\mu-x)/(1-t)$. Substituting the interpolated position gives a constant target velocity, zero oracle loss, and exact arrival at the data point in one Euler step. Marginal trajectories for general mixtures can curve, making multiple integration steps useful.</p>
+<h2>3. From equations to code</h2>
+<p>Implement three functions around the same training objective:</p>
+<pre><code class="language-text">interpolate: broadcast t [B] to [B,...] and construct the noise-to-data path
+cfm_target: return the path’s derivative with respect to time
+cfm_loss: evaluate model(x,t) at the result of interpolate
+Average the squared elementwise error against cfm_target
+</code></pre>
+<p><code>interpolate</code> and <code>cfm_target</code> preserve endpoint shape and dtype. <code>cfm_loss</code> returns a scalar, averages over the batch and every coordinate, and preserves gradients to model parameters.</p>
+<p><code>sample_t</code> and <code>euler_sample</code> are provided. The test harness manages the model, optimizer, and training loop, calling your <code>cfm_loss</code> during training. Time sampling is uniform by default; the helper’s logit-normal option is available for later comparison.</p>
+<h2>4. Conventions</h2>
+<p>| Item | This module’s convention |
+| --- | --- |
+| Endpoints | <code>x0</code> is noise; <code>x1</code> is data |
+| Time | <code>t</code> has shape <code>[B]</code> and runs from 0 to 1 |
+| Conditional path | The paper’s conditional OT path with zero terminal noise |
+| Pairing | Independent noise and data |
+| Loss reduction | Mean over the batch and every coordinate |
+| Test model | <code>model(x,t)</code> returns a velocity with the same shape as x |</p>
+<p>Regression against conditional targets learns the marginal velocity field, without solving an ODE for each training example.</p>
+<h2>5. Interactive visualizations</h2>
+
+<p>Play the particle flow and move through time to inspect velocity arrows at current positions. Change Euler step counts to compare straight oracle paths with learned curved trajectories.</p>
+
+<p>Toggle the reversed-sampling bug to see the same model generate incorrect results. Compare the loss curve to understand why decreasing training loss alone does not establish correct sampling.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p>The supplied Euler solver integrates forward in time, evaluating at left endpoints to avoid the point oracle’s singularity at t=1:</p>
+<p>$$x_{k+1}=x_k+\frac1n v_\theta(x_k,k/n),\quad k=0,\ldots,n-1.$$</p>
+<p>For optional exploration, read <a href="https://arxiv.org/abs/2209.03003">Rectified Flow</a> on recoupling and <a href="https://arxiv.org/html/2403.03206v1">SD3 Equation 13</a> on reversed time conventions and nonuniform time sampling. These comparisons add no required functions to this module.</p></section><p><a href="https://arxiv.org/abs/2210.02747">Read paper · arXiv:2210.02747</a></p><h2>Related exercises</h2><ul><li><a href="/papers/flow-matching/">All Flow Matching exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

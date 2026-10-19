@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Mask object trajectories across time, preserve first-frame identity anchors, and implement masked-history plus future prediction against frozen targets. Object slots,…">
+    <title>Causal-JEPA: Causal-JEPA Object Trajectory Masking in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/world_models/causal_jepa/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/world_models/causal_jepa/">
+    <meta property="og:title" content="Causal-JEPA: Causal-JEPA Object Trajectory Masking in Python | PaperLeet">
+    <meta property="og:description" content="Mask object trajectories across time, preserve first-frame identity anchors, and implement masked-history plus future prediction against frozen targets. Object slots,…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Causal-JEPA: Causal-JEPA Object Trajectory Masking in Python | PaperLeet">
+    <meta name="twitter:description" content="Mask object trajectories across time, preserve first-frame identity anchors, and implement masked-history plus future prediction against frozen targets. Object slots,…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Causal-JEPA Object Trajectory Masking</h1><p><a href="/papers/causal-jepa/">Causal-JEPA</a> · arXiv 2026 · Medium · 30 minutes</p><p>Mask object trajectories across time, preserve first-frame identity anchors, and implement masked-history plus future prediction against frozen targets.</p><p>Object slots, projection weights and time embeddings are supplied; implement input assembly and losses without training an image encoder or full transformer.</p><h2>Functions to implement</h2><ul><li><code>object_mask_inputs(history: Tensor, masked_slots: Tensor, anchor_projection: Tensor, time_embeddings: Tensor, mask_token: Tensor) -&gt; tuple[Tensor, Tensor]</code></li><li><code>masked_prediction_loss(predictions: Tensor, targets: Tensor, history_length: int, masked_slots: Tensor) -&gt; tuple[Tensor, Tensor, Tensor]</code></li></ul><section aria-label="Problem description"><h1>Causal-JEPA Object Trajectory Masking</h1>
+<p><a href="https://arxiv.org/html/2602.11389v2">Causal-JEPA</a> masks selected object trajectories across a history window. The first observed frame remains visible as an identity anchor. A predictor recovers masked history and predicts every future object state from the remaining context.</p>
+<p>Implement the object-only input assembly and learning objective. Frozen object slots and all projection/embedding parameters are supplied; no image encoder or Transformer is required.</p>
+<p>| Function | Inputs | Outputs |
+|---|---|---|
+| <code>object_mask_inputs(history, masked_slots, anchor_projection, time_embeddings, mask_token)</code> | <code>(B,H,S,D)</code>, bool <code>(B,S)</code>, <code>(D,D)</code>, <code>(T,D)</code>, <code>(D,)</code> | Predictor inputs <code>(B,T,S,D)</code> and bool target mask <code>(B,T,S)</code> |
+| <code>masked_prediction_loss(predictions, targets, history_length, masked_slots)</code> | Matching <code>(B,T,S,D)</code>, integer H, bool <code>(B,S)</code> | <code>(total, history_loss, future_loss)</code> |</p>
+<p>Require <code>T&gt;H&gt;=1</code>. <code>masked_slots=True</code> selects an object whose post-anchor history is hidden. Batch-specific masks are a deterministic extension of the official code's shared selection.</p>
+<h2>Input construction</h2>
+<h3>Return requirements</h3>
+<h4><code>object_mask_inputs</code> (required)</h4>
+<p>Return <code>(inputs, target_mask)</code>, exactly two Tensors: floating inputs <code>[B,T,S,D]</code> and Boolean target_mask <code>[B,T,S]</code>. B is batch size, T total history+future frames, S object slots and D latent width; H history frames satisfy T&gt;H&gt;=1. True marks prediction targets: selected non-anchor history slots and every future slot; frame zero is never a target. Preserve history dtype/device and gradients through visible history, anchors and parameters; the mask has no gradient. Do not mutate inputs.</p>
+<h4><code>masked_prediction_loss</code> (required)</h4>
+<p>Return <code>(total, history_loss, future_loss)</code>, three scalar floating <code>Tensor</code>s of shape <code>()</code> with prediction dtype/device. History and future each use their own all-selected-element MSE mean; total is their sum, not their average. If no non-anchor history is selected, history_loss is a differentiable zero. Keep prediction gradients only at supervised positions and detach targets internally. Leave inputs unchanged.</p>
+<h4><code>_float_tensor</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when x is a finite, nonempty float32/float64 Tensor with rank ndim. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h4><code>_mask</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when masked_slots is a Boolean Tensor of exactly <code>[batch,slots]</code> on the requested device. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h3>Formula and conventions</h3>
+<p>At time zero, <strong>every object remains visible</strong>. During times <code>1...H-1</code>, only selected objects are masked. Every object is masked at times <code>H...T-1</code>.</p>
+<p>Visible token <code>(b,t,s)</code> is <code>history[b,t,s] + time_embeddings[t]</code>. A masked token is the identity query</p>
+<p>$$q_{b,t,s}=history_{b,0,s}W^T+time_t+mask_token.$$</p>
+<p>Use the first frame, never the object's hidden current value. The official <code>id_projector</code> is affine; its shared bias is absorbed into the supplied <code>mask_token</code> here, so the query is algebraically equivalent. Temporal embeddings are shared across objects. There is no object-index positional embedding.</p>
+<p>Return a bool target mask even when a query happens numerically to equal a visible value. Mask membership is a structural decision, not a tensor inequality. Inputs must not be modified, and input assembly retains gradients through visible history, anchors and supplied parameters. Freezing the image encoder is handled by the caller.</p>
+<h2>Joint masked objective</h2>
+<p>Detach <code>targets</code> inside the loss. Follow the paper's masked-token indicator in Eq. (5), with separately normalized history/future components:</p>
+<ol>
+<li>Mean squared error across the selected history tokens at times <code>1...H-1</code>, including all their feature elements.</li>
+<li>Mean squared error across <strong>all</strong> future tokens at times <code>H...T-1</code>.</li>
+</ol>
+<p>Return their sum and both components. Do not average them together or use one common denominator. If no history tokens are selected, return a differentiable zero for that component. The anchor and visible history must not contribute to history loss. Auxiliary action/proprioception tokens are outside this object-only interface.</p>
+<p>The released CLEVRER training loop also supervises selected slots at the visible anchor frame. This exercise follows the paper's masked-token indicator and excludes that frame; it is not an exact reproduction of that training loop.</p>
+<p>All floating tensors are finite float32/float64 with matching dtype/device. Validators are supplied. For <code>H=3,T=5</code> and one of two objects selected, the target mask for the selected object is <code>[0,1,1,1,1]</code>; the other object's mask is <code>[0,0,0,1,1]</code>.</p>
+<h2>Toy: reconstruct a coupled object</h2>
+<p><strong>Teaching adaptation.</strong> Sixteen synthetic two-object sequences expose one object's motion while hiding the other object's post-anchor trajectory. Your input assembler feeds a supplied linear probe, and your loss trains it to recover history and predict future. Charts show the two loss components and the reconstructed trajectory. A separate perturbation adds 100 to hidden history and verifies that predictor inputs remain unchanged.</p>
+<p>This isolates observability and objective design. It does not reproduce CLEVRER/Push-T, train a vision model, or establish causal identification. T3 uses the submitted functions; the reference preview uses the solution.</p></section><p><a href="https://arxiv.org/abs/2602.11389">Read paper · arXiv:2602.11389</a></p><h2>Related exercises</h2><ul><li><a href="/papers/causal-jepa/">All Causal-JEPA exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

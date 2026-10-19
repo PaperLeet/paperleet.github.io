@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Match a standard Gaussian through sliced empirical characteristic functions while retaining feature gradients. Given unit projection directions and a positive quadrature grid,…">
+    <title>LeJEPA: LeJEPA Sliced Gaussian Regularization in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/sigreg/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/sigreg/">
+    <meta property="og:title" content="LeJEPA: LeJEPA Sliced Gaussian Regularization in Python | PaperLeet">
+    <meta property="og:description" content="Match a standard Gaussian through sliced empirical characteristic functions while retaining feature gradients. Given unit projection directions and a positive quadrature grid,…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="LeJEPA: LeJEPA Sliced Gaussian Regularization in Python | PaperLeet">
+    <meta name="twitter:description" content="Match a standard Gaussian through sliced empirical characteristic functions while retaining feature gradients. Given unit projection directions and a positive quadrature grid,…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>LeJEPA Sliced Gaussian Regularization</h1><p><a href="/papers/lejepa/">LeJEPA</a> · arXiv 2025 · Medium · 30 minutes</p><p>Match a standard Gaussian through sliced empirical characteristic functions while retaining feature gradients.</p><p>Given unit projection directions and a positive quadrature grid, implement Epps-Pulley statistics and their slice mean. Direction sampling, encoders, multiview prediction and distributed communication are supplied or outside scope.</p><h2>Functions to implement</h2><ul><li><code>epps_pulley(projected: Tensor, t: Tensor) -&gt; Tensor</code></li><li><code>sigreg_loss(features: Tensor, directions: Tensor, t: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>LeJEPA Sliced Gaussian Regularization</h1>
+<p>Implement SIGReg from <a href="https://arxiv.org/html/2511.08544v1">LeJEPA, Sections 4.2.3 and 5.1</a>. Project embeddings onto unit directions, compare each empirical characteristic function with the standard normal target, then average the statistics across slices. This checks distribution shape beyond its first two moments.</p>
+<h2>Implementation requirements</h2>
+<h3>Return requirements</h3>
+<h4><code>epps_pulley</code> (required)</h4>
+<p>Return one floating <code>Tensor</code> <code>[M]</code>, one N-scaled Epps-Pulley statistic for each of M projection columns in <code>projected[N,M]</code>. Integrate out the quadrature-node axis; do not average the M slices here. Preserve dtype/device and gradients to projected samples, detach fixed nodes t, and leave inputs unchanged.</p>
+<h4><code>sigreg_loss</code> (required)</h4>
+<p>Return one scalar floating <code>Tensor</code>, shape <code>()</code>, equal to the mean of the M slice statistics for features <code>[N,D]</code> and directions <code>[D,M]</code>. Preserve feature dtype/device and gradients; both directions and quadrature nodes t are detached constants. Do not further divide by N, detach features or mutate inputs.</p>
+<h4><code>_check_projected</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when projected <code>[N,M]</code> is finite nonempty float32/float64 and matching nodes t <code>[K]</code>, K&gt;=2, start at zero and strictly increase. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h4><code>_check_features</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when features <code>[N,D]</code> and nodes pass validation and finite matching directions <code>[D,M]</code> have unit-length columns. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h3>Formula and conventions</h3>
+<p>For projections $P=XA\in\mathbb R^{N\times M}$ and frequencies $t_k\ge0$,</p>
+<p>$$
+\hat c_{mk}=\frac1N\sum_n\cos(t_kP_{nm}),\quad
+\hat s_{mk}=\frac1N\sum_n\sin(t_kP_{nm}),\quad
+\phi_k=e^{-t_k^2/2},
+$$</p>
+<p>$$
+E_{mk}=\left[(\hat c_{mk}-\phi_k)^2+\hat s_{mk}^2\right]\phi_k,\quad
+T_m=2N\sum_{k=0}^{K-2}\frac{t_{k+1}-t_k}{2}(E_{m,k+1}+E_{mk}),\quad
+L=\operatorname{mean}_m T_m.
+$$</p>
+<h2>Implement</h2>
+<p>| Function | Output |
+|---|---|
+| <code>epps_pulley(projected,t)</code> | One statistic per slice, shape <code>(M,)</code> |
+| <code>sigreg_loss(features,directions,t)</code> | Scalar mean across slices |</p>
+<p><code>features</code> has shape <code>(N,D)</code>, <code>directions</code> has shape <code>(D,M)</code> with unit-length columns, and <code>t</code> is a strictly increasing vector of at least two nodes starting at zero. <code>N,D,M&gt;=1</code>. All inputs share float32/float64 dtype and device. Supplied validators cover these conditions; preserve inputs and dtype/device.</p>
+<p>Use the actual grid spacings, including nonuniform grids. The usual supplied grid has 17 nodes on <code>[0,3]</code>. Doubling the positive-half integral accounts for its negative half. The Gaussian factor is used both as the target characteristic function and as the integration window. Include the sine term, multiply by <code>N</code>, then average over slices.</p>
+<p>Directions and quadrature nodes are fixed scaffolding: detach them internally. Keep gradients through features and projected samples. Do not center, standardize, whiten or detach features; the target is specifically <code>N(0,I)</code>. This exercise supplies the directions instead of sampling them, making the harness deterministic.</p>
+<p>All-zero features have a positive statistic and <strong>zero gradient</strong>. Nearby nonconstant features can have a direction of descent. Neither a finite set of slices nor finite quadrature nodes guarantees identification of every possible distribution.</p>
+<h2>Toy: beyond matching moments</h2>
+<p><strong>Teaching adaptation.</strong> Optimize 64 distorted 2D embeddings using 16 fixed slices. Compare Gaussian quantiles and balanced <code>{-1,+1}</code> samples after giving both exactly zero mean and unit population variance: their characteristic functions still differ. Plots show the submitted loss, independent feature diagnostics and one projected characteristic function. No encoder or full LeJEPA multiview objective is trained.</p>
+<p>T1 compares against scalar complex arithmetic on the full symmetric grid. T2 checks gradients, fixed geometry, stationary collapse, joint rotations, sample-count scaling and target mean/scale. T3 executes your functions in the toy and checks the final loss against an independent full-grid oracle. Preview charts use the reference solution.</p></section><p><a href="https://arxiv.org/abs/2511.08544">Read paper · arXiv:2511.08544</a></p><h2>Related exercises</h2><ul><li><a href="/papers/lejepa/">All LeJEPA exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

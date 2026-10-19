@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Compute accuracy, forward/backward transfer and peak forgetting from a stage-by-task evaluation matrix. Implement GEM's three evaluation metrics plus an explicit…">
+    <title>Continual Learning Metrics · GEM: Continual Learning: Evaluation Matrices and Forgetting in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/foundations/continual_metrics/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/foundations/continual_metrics/">
+    <meta property="og:title" content="Continual Learning Metrics · GEM: Continual Learning: Evaluation Matrices and Forgetting in Python | PaperLeet">
+    <meta property="og:description" content="Compute accuracy, forward/backward transfer and peak forgetting from a stage-by-task evaluation matrix. Implement GEM's three evaluation metrics plus an explicit…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Continual Learning Metrics · GEM: Continual Learning: Evaluation Matrices and Forgetting in Python | PaperLeet">
+    <meta name="twitter:description" content="Compute accuracy, forward/backward transfer and peak forgetting from a stage-by-task evaluation matrix. Implement GEM's three evaluation metrics plus an explicit…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Continual Learning: Evaluation Matrices and Forgetting</h1><p><a href="/papers/gem/">Continual Learning Metrics · GEM</a> · NeurIPS 2017 · Easy · 20 minutes</p><p>Compute accuracy, forward/backward transfer and peak forgetting from a stage-by-task evaluation matrix.</p><p>Implement GEM's three evaluation metrics plus an explicit peak-forgetting extension; not GEM gradient projection or a complete continual-learning algorithm.</p><h2>Functions to implement</h2><ul><li><code>continual_metrics(scores: Tensor, baseline: Tensor) -&gt; dict[str, Tensor]</code></li></ul><section aria-label="Problem description"><h1>96. Continual Learning: Evaluation Matrices and Forgetting</h1>
+<h2>1. Problem</h2>
+<p>Current-task accuracy alone cannot show whether sequential training preserves previous abilities. GEM evaluates tasks after each training stage and organizes the results into an evaluation matrix. Read <a href="https://papers.nips.cc/paper/2017/file/f87522788a2be2d171666752f97ddebb-Paper.pdf">Section 2, Equations (2)–(4)</a>.</p>
+<p>Implement one evaluation function using supplied scores and initialization baselines. No GEM optimizer, gradient projection or prerequisite exercise is needed. The provided experiment genuinely trains a small classifier sequentially and calls your function after each stage.</p>
+<pre><code class="language-python">continual_metrics(scores: Tensor, baseline: Tensor) -&gt; dict[str, Tensor]
+</code></pre>
+<h2>2. Core equations</h2>
+<p>Use <strong>zero-based</strong> indexing. Train <code>T&gt;=1</code> tasks in order <code>0,1,...,T-1</code>.</p>
+<ul>
+<li><code>scores[i,j] = R[i,j]</code> is accuracy on <strong>task j's test set after training task i</strong>, shape <code>[T,T]</code>. Rows are completed training stages; columns are evaluated tasks.</li>
+<li><code>baseline[j] = b[j]</code> is task j's accuracy <strong>before training any task</strong>, shape <code>[T]</code>. Do not reset this baseline at each stage.</li>
+</ul>
+<p>For <code>T&gt;1</code>:</p>
+<p>[
+\mathrm{ACC}=\frac1T\sum_{j=0}^{T-1}R_{T-1,j},\qquad
+\mathrm{BWT}=\frac1{T-1}\sum_{j=0}^{T-2}(R_{T-1,j}-R_{j,j}),
+]
+[
+\mathrm{FWT}=\frac1{T-1}\sum_{j=1}^{T-1}(R_{j-1,j}-b_j).
+]</p>
+<p>These three metrics follow GEM. Positive BWT means later training improved earlier tasks relative to their just-learned scores. Positive FWT means earlier training improved a not-yet-trained task over initialization.</p>
+<p>This exercise additionally defines <strong>nonnegative peak forgetting</strong> for comparison; it is not one of GEM's Equations (2)–(4):</p>
+<p>[
+\mathrm{forgetting}=\frac1{T-1}\sum_{j=0}^{T-2}
+\left(\max_{j\le i\le T-1}R_{i,j}-R_{T-1,j}\right).
+]</p>
+<p>The peak begins when task j has been learned and <strong>includes the final stage</strong>, making the drop nonnegative. The final task has no subsequent training and contributes to neither BWT nor forgetting.</p>
+<p>Return exactly the keys <code>acc</code>, <code>bwt</code>, <code>fwt</code>, <code>forgetting</code>, each containing a scalar Tensor of shape <code>()</code>. For <code>T=1</code>, return <code>R[0,0]</code> for <code>acc</code> and zero for the other three metrics.</p>
+<h2>3. From equations to code</h2>
+<p>Identify the relevant cells first: ACC uses the final row; BWT compares old-task diagonal cells with that row; FWT uses the first superdiagonal; forgetting uses each old task's history starting at its diagonal. Compute per-task differences before taking the specified equal-task averages.</p>
+<p>For example:</p>
+<pre><code class="language-text">R = [[0.5, 0.2, NaN],
+     [0.9, 0.6, 0.3],
+     [0.7, 0.8, 0.9]]
+b = [NaN, 0.1, 0.15]
+</code></pre>
+<p>The results are <code>acc=0.8, bwt=0.2, fwt=0.125, forgetting=0.1</code>. Task 0 improves from its just-learned score of 0.5 to 0.7, but also falls by 0.2 from an intermediate peak of 0.9. Positive BWT can therefore coexist with positive peak forgetting.</p>
+<h2>4. Conventions</h2>
+<p>| Item | Contract |
+| --- | --- |
+| Inputs | Matching CPU float32/float64 tensors; <code>T&gt;=1</code> |
+| Used values | Finite accuracies and baselines in <code>[0,1]</code> |
+| Unused cells | <code>R[i,j]</code> where <code>j&gt;i+1</code>, plus <code>b[0]</code>, may be NaN |
+| Future-task evaluations | FWT needs <code>R[j-1,j]</code>; earlier future-task cells must not affect metrics |
+| Reduction | Equal task weighting, not example-count weighting or a whole-matrix average |
+| Outputs | Four scalar Tensors preserving input dtype/device |
+| Side effects | Preserve inputs and keep no state across calls; no gradient requirement |</p>
+<p>Inputs satisfy these shape/value rules; general validation is not required. Comparing only peaks strictly before the final stage and allowing negative drops is another possible convention, but differs from this exercise's explicit nonnegative definition.</p>
+<p>In real projects, separate training, validation and test data. Report stage-wise test performance without using test scores to select hyperparameters. Turns from the same conversation or related source examples should not leak across train/test splits. These are evaluation-design reminders, not attributes this function must infer.</p>
+<h2>5. Interactive view and measured experiment</h2>
+<p><a href="#viz-sequential_evaluation">Explore sequential evaluation</a>. A two-weight logistic classifier learns three synthetic binary tasks whose label directions differ, deliberately creating interference. Each task has 64 training inputs and 80 separate test inputs. Training uses zero initialization and 36 full-batch SGD updates per task at learning rate 0.8. Circle grids are deterministic; no RNG is used.</p>
+<p>Updates read only training data. After every stage, predictions on the held-out grid produce a row of R, and your <code>continual_metrics</code> computes the displayed metrics. The untrained model provides the baseline; independent scalar formulas verify the results. T3 requires current-task accuracy of at least 0.9 and final peak forgetting above 0.25 for this deliberately conflicting stream. These thresholds apply only to this tiny experiment.</p>
+<p>This demonstrates evaluation, not GEM optimization, replay, LLM training or paper-benchmark performance. Passing does not establish that a model has solved forgetting.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p>Explain how models with similar final accuracy can have different BWT/FWT, and why peak forgetting is not simply negative BWT. Then read GEM Section 3's memory-gradient constraints and compare them with EWC parameter constraints and replay. These are methods to explore, not assumptions about your own project.</p></section><p><a href="https://arxiv.org/abs/1706.08840">Read paper · arXiv:1706.08840</a></p><h2>Related exercises</h2><ul><li><a href="/papers/gem/">All Continual Learning Metrics · GEM exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

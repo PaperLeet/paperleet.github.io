@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Distinguish population variance for training normalization from unbiased running estimates, then implement frozen-statistics inference. Complete a pure function returning…">
+    <title>BatchNorm: BatchNorm: Batch Moments, Moving Estimates and Inference in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/architecture/batch_norm/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/architecture/batch_norm/">
+    <meta property="og:title" content="BatchNorm: BatchNorm: Batch Moments, Moving Estimates and Inference in Python | PaperLeet">
+    <meta property="og:description" content="Distinguish population variance for training normalization from unbiased running estimates, then implement frozen-statistics inference. Complete a pure function returning…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="BatchNorm: BatchNorm: Batch Moments, Moving Estimates and Inference in Python | PaperLeet">
+    <meta name="twitter:description" content="Distinguish population variance for training normalization from unbiased running estimates, then implement frozen-statistics inference. Complete a pure function returning…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>BatchNorm: Batch Moments, Moving Estimates and Inference</h1><p><a href="/papers/batchnorm/">BatchNorm</a> · ICML 2015 · Medium · 30 minutes</p><p>Distinguish population variance for training normalization from unbiased running estimates, then implement frozen-statistics inference.</p><p>Complete a pure function returning output and next statistics; affine training and inference-independence experiments are supplied, without reproducing ImageNet results.</p><h2>Functions to implement</h2><ul><li><code>batch_norm(x: Tensor, weight: Tensor, bias: Tensor, running_mean: Tensor, running_var: Tensor, training: bool = True, momentum: float = 0.1, eps: float = 1e-5) -&gt; tuple[Tensor, Tensor, Tensor]</code></li></ul><section aria-label="Problem description"><h1>BatchNorm: Batch Moments, Moving Estimates and Inference</h1>
+<h2>1. What problem does the paper solve?</h2>
+<p>Batch Normalization introduces differentiable minibatch normalization and learned scale/shift. Training and inference use different sources of statistics. Implement <a href="https://arxiv.org/html/1502.03167v3#S3">Algorithms 1–2 and Section 3.2</a> in a pure function. The title's internal-covariate-shift motivation is historical; this exercise does not establish a causal explanation of BN's effectiveness.</p>
+<h2>2. Core equations and return contract</h2>
+<p>For each channel, reduce the batch and all spatial positions, with <code>m = N * product(spatial)</code>:</p>
+<p>$$\mu_B=\frac1m\sum_i x_i,\quad v_B=\frac1m\sum_i(x_i-\mu_B)^2,\quad y_i=\gamma\frac{x_i-\mu_B}{\sqrt{v_B+\epsilon}}+\beta.$$</p>
+<p>The next estimates use the explicitly chosen EMA convention:</p>
+<p>$$\mu'=(1-a)\mu_{run}+a\mu_B,\quad v'=(1-a)v_{run}+a\frac{m}{m-1}v_B.$$</p>
+<p>Implement <code>batch_norm(...) -&gt; (y, next_mean, next_var)</code>. Input is <code>[N,C,*spatial]</code>, rank at least two; affine parameters and buffers are <code>[C]</code>. Output matches the input; estimates are <code>[C]</code>. All tensors have matching float32/float64 dtype/device. Do not mutate any input. Returned estimates and inference statistics are detached; training normalization remains differentiable.</p>
+<h2>3. From equations to code</h2>
+<p>In training, compute moments over <code>(0,2,3,...)</code>. Use population variance for the output, but unbiased variance for the running estimate. Reshape channel quantities for broadcasting. In inference, use supplied running moments and return unchanged estimate values; do not recompute batch moments.</p>
+<h2>4. Exercise conventions</h2>
+<p><code>momentum=a</code> is the <strong>new batch's coefficient</strong>, not the old state's coefficient. It is finite and lies in <code>[0,1]</code>; epsilon is finite, positive and inside the square root. Training requires at least two values per channel. Inference permits a single sample or empty batch. Channel/spatial widths must be positive. Invalid shapes, counts or parameters raise <code>ValueError</code>.</p>
+<p>Unlike stateful framework layers, this exercise returns new buffers explicitly. Moving statistics must not retain computation graphs across optimizer steps. Inference must not differentiate into buffers, even if the caller supplied tensors with <code>requires_grad=True</code>.</p>
+<h2>5. Experiment</h2>
+<p>Eighty minibatches of 32 two-channel samples are drawn from a normal distribution with mean 3 and variance 4 (standard deviation 2), using seed 91. Adam with learning rate 0.08 learns scale 1.5 and shift −0.3 against an independent scalar normalization oracle; the graph also shows channel-zero moving estimates. Every output uses your implementation.</p>
+<p>The checker requires final MSE below 0.003 and affine errors below 0.04. A fixed inference sample must have identical output when its companions change. This does not reproduce ImageNet, establish an acceleration factor or rank normalization methods by model accuracy.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p>Compare BN's training dependence on other examples with the sample-local reduction of GroupNorm. Derive the fixed inference affine transform. Investigate whether small batches change the variance of estimates before drawing any claims about downstream model quality.</p></section><p><a href="https://arxiv.org/abs/1502.03167">Read paper · arXiv:1502.03167</a></p><h2>Related exercises</h2><ul><li><a href="/papers/batchnorm/">All BatchNorm exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

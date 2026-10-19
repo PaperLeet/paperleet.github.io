@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement the pessimistic clipped objective and verify gradients for both advantage signs. Implement only clipped_surrogate; value loss, entropy, normalization, and training…">
+    <title>PPO: PPO Clipped Policy Objective in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/rl/ppo_clip/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/rl/ppo_clip/">
+    <meta property="og:title" content="PPO: PPO Clipped Policy Objective in Python | PaperLeet">
+    <meta property="og:description" content="Implement the pessimistic clipped objective and verify gradients for both advantage signs. Implement only clipped_surrogate; value loss, entropy, normalization, and training…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="PPO: PPO Clipped Policy Objective in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement the pessimistic clipped objective and verify gradients for both advantage signs. Implement only clipped_surrogate; value loss, entropy, normalization, and training…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>PPO Clipped Policy Objective</h1><p><a href="/papers/ppo/">PPO</a> · arXiv 2017 · Medium · 15 minutes</p><p>Implement the pessimistic clipped objective and verify gradients for both advantage signs.</p><p>Implement only clipped_surrogate; value loss, entropy, normalization, and training are supplied.</p><h2>Functions to implement</h2><ul><li><code>clipped_surrogate(new_logp: Tensor, old_logp: Tensor, advantages: Tensor, clip_eps: float=0.2) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>PPO Clipped Policy Objective</h1>
+<h2>1. What the paper solves</h2>
+<p>Training for multiple epochs on the same trajectories can move the policy far from the distribution that collected them. PPO uses a pessimistic clipped surrogate to support simple first-order updates. See <a href="https://arxiv.org/pdf/1707.06347">Equations 7 and 9</a>.</p>
+<p>Module goal: Implement the pessimistic clipped objective and verify gradients for both advantage signs. Implement only clipped_surrogate; value loss, entropy, normalization, and training are supplied. Completing this exercise completes one selected core module of the paper.</p>
+<h2>2. Core equations and task</h2>
+<h3>Return requirements</h3>
+<p>Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape <code>()</code>, not a Python <code>float</code>.</p>
+<h4><code>clipped_surrogate</code> · Required</h4>
+<p>Return one floating scalar Tensor <code>loss</code>, shape <code>()</code>: the <strong>negative batch mean</strong> of the clipped policy surrogate for <code>[B]</code> inputs. Preserve input floating dtype/device. Retain gradients through <code>new_logp</code>; freeze <code>old_logp</code> and <code>advantages</code>. Return the Tensor itself, without <code>.item()</code> or <code>.detach()</code>.</p>
+<h4><code>ppo_loss</code> · Provided</h4>
+<p>Returns a <code>dict[str, Tensor]</code> with all six keys below; every value has scalar shape <code>()</code>:</p>
+<ul>
+<li><code>loss</code>: total minimized loss, <code>pg_loss + vf_coef * v_loss - ent_coef * entropy</code>.</li>
+<li><code>pg_loss</code>: clipped policy loss; <code>v_loss</code>: half the mean value error (with optional value clipping); <code>entropy</code>: batch mean, or zero if omitted.</li>
+<li><code>approx_kl</code>: detached mean k3 KL estimate; <code>clipfrac</code>: detached fraction with <code>abs(ratio - 1) &gt; clip_eps</code>.</li>
+</ul>
+<p>The loss terms retain their current-policy/value gradients; old policy, old values, advantages and returns are fixed targets. Read the objective as <code>result["loss"]</code>, not by tuple position.</p>
+<h3>Formula and conventions</h3>
+<p>Implement only <code>clipped_surrogate(new_logp, old_logp, advantages, clip_eps=0.2)</code>. All three inputs have shape <code>[B]</code>; return one scalar policy loss to minimize. Advantages are already prepared. Detach <code>old_logp</code> and <code>advantages</code> inside this function while retaining gradients through <code>new_logp</code>.</p>
+<p>$$
+r=e^{\log\pi_\theta-\log\pi_{old}},\qquad
+L^{PG}=-\mathbb E[\min(r\hat A,\operatorname{clip}(r,1-\epsilon,1+\epsilon)\hat A)].
+$$</p>
+<p>For positive advantages, a ratio above the upper bound earns no further improvement. For negative advantages, a ratio below the lower bound earns no further improvement. Movement in the unfavorable direction still incurs a penalty. Take the smaller of the unclipped and clipped surrogate values.</p>
+<p>The starter supplies a complete <code>ppo_loss</code> adapter. It calls your function and handles advantage normalization, value clipping, entropy, and diagnostics for the existing bandit experiment. Keep that supplied code in place.</p>
+<h2>3. From equations to code</h2>
+<pre><code class="language-text">Three [B] vectors → detach old_logp and advantages
+Exponentiate the log-probability difference → ratio [B]
+Compute ratio * advantage and clipped_ratio * advantage
+Take the elementwise minimum → negative batch mean → scalar
+</code></pre>
+<p>Check all four combinations of advantage sign and ratios beyond the clipping interval. The supplied adapter consumes your scalar policy loss, so completing this function is sufficient for the full test suite.</p>
+<h2>4. Supplied training helpers and conventions</h2>
+<p>| Item | Supplied behavior |
+|---|---|
+| Advantage normalization | Sample standard deviation plus $10^{-8}$; zero standard deviation for one sample |
+| Value loss | Optional value clipping; half the maximum of the two squared errors |
+| Entropy | Optional entropy bonus; zero when absent |
+| Diagnostics | Detached <code>approx_kl = mean(r-1-log(r))</code> and <code>clipfrac</code> |</p>
+<p>Integration tests retain these established conventions. Your implementation work is the clipped policy objective. PPO clipping does not impose a strict KL bound; the bandit threshold applies to this fixed learning rate and batch.</p>
+<h2>5. Interactive visualizations</h2>
+<p><a href="#viz-clip_objective">Open the clipped objective</a>: adjust $\epsilon$, compare positive and negative advantages, and move the probability ratio to inspect gradient directions and flat regions.</p>
+<p><a href="#viz-trust_region">Open the trust-region experiment</a>: compare per-epoch KL for the reference, a ratio-clipping-only implementation, and an incorrect <code>max</code> implementation.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p><a href="../dpo/README.md">DPO</a> derives a policy objective directly from preferences. You can also study TRPO to compare constrained optimization with PPO's surrogate objective.</p></section><p><a href="https://arxiv.org/abs/1707.06347">Read paper · arXiv:1707.06347</a></p><h2>Related exercises</h2><ul><li><a href="/papers/ppo/">All PPO exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

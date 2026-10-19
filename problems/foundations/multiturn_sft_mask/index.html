@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Select assistant targets across turns while excluding padding and cross-conversation predictions. Implement one boolean mask; roles, conversation IDs and truncated sequences…">
+    <title>LLM Training &amp; Generation · 训练与生成入门: Multi-turn SFT: Assistant Targets and Conversation Boundaries in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/foundations/multiturn_sft_mask/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/foundations/multiturn_sft_mask/">
+    <meta property="og:title" content="LLM Training &amp; Generation · 训练与生成入门: Multi-turn SFT: Assistant Targets and Conversation Boundaries in Python | PaperLeet">
+    <meta property="og:description" content="Select assistant targets across turns while excluding padding and cross-conversation predictions. Implement one boolean mask; roles, conversation IDs and truncated sequences…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="LLM Training &amp; Generation · 训练与生成入门: Multi-turn SFT: Assistant Targets and Conversation Boundaries in Python | PaperLeet">
+    <meta name="twitter:description" content="Select assistant targets across turns while excluding padding and cross-conversation predictions. Implement one boolean mask; roles, conversation IDs and truncated sequences…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Multi-turn SFT: Assistant Targets and Conversation Boundaries</h1><p><a href="/papers/llm-training-generation/">LLM Training &amp; Generation · 训练与生成入门</a> ·  · Easy · 15 minutes</p><p>Select assistant targets across turns while excluding padding and cross-conversation predictions.</p><p>Implement one boolean mask; roles, conversation IDs and truncated sequences are supplied. No tokenizer, chat template or attention-mask construction.</p><h2>Functions to implement</h2><ul><li><code>assistant_target_mask(role_ids: Tensor, conversation_ids: Tensor, attention_mask: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Multi-turn SFT: Assistant Targets and Conversation Boundaries</h1>
+<h2>1. Problem</h2>
+<p>Build the target mask for several assistant turns, including when conversations share a packed row. <a href="https://huggingface.co/docs/trl/sft_trainer#train-on-assistant-messages-only">TRL documents assistant-only loss</a> and <a href="https://huggingface.co/docs/trl/sft_trainer#label-shifting-and-masking">next-token label shifting</a>. This exercise supplies structured token metadata instead of asking you to implement a tokenizer or chat template.</p>
+<p>Implement:</p>
+<pre><code class="language-python">assistant_target_mask(role_ids: Tensor, conversation_ids: Tensor,
+                      attention_mask: Tensor) -&gt; Tensor
+</code></pre>
+<p>Return a <strong>bool Tensor <code>[B,T]</code> at target positions</strong>, on the input device. It is not an attention matrix, shifted mask, token-ID array or loss. Preserve both dimensions and leave all inputs unchanged. No gradients are needed for integer/boolean metadata.</p>
+<h2>2. Core rule</h2>
+<p>Let <code>r</code>, <code>c</code> and <code>a</code> be the role, conversation ID and validity arrays. Define</p>
+<p>$$
+m_{b,0}=\mathrm{False},\qquad
+m_{b,j}=[r_{b,j}=2]\land a_{b,j}\land a_{b,j-1}\land[c_{b,j}=c_{b,j-1}],\quad j\ge1.
+$$</p>
+<p>The predecessor must exist in the same conversation, but <strong>its role need not be assistant</strong>: the last user/context position can predict the first assistant token. Return the mask without shifting it. A supplied causal loss later pairs <code>logits[:, :-1]</code>, <code>tokens[:, 1:]</code> and <code>mask[:, 1:]</code> exactly once.</p>
+<h2>3. From metadata to code</h2>
+<p>All inputs have the same <code>[B,T]</code> shape. Compare target positions with their immediate predecessors, combine the role/validity/boundary conditions, and leave the first column false. B or T may be zero; singleton dimensions remain present.</p>
+<p>For one row with all positions valid:</p>
+<pre><code class="language-text">role:          [1, 2, 2, 1, 2, 2, 2, 2]
+conversation:  [7, 7, 7, 7, 7, 7, 9, 9]
+target mask:   [F, T, T, F, T, T, F, T]
+</code></pre>
+<p>Both assistant turns in conversation 7 contribute. Position 6 begins a different packed conversation and cannot be predicted by position 5, even though both are assistant tokens.</p>
+<h2>4. Exercise conventions</h2>
+<ul>
+<li>CPU int64 <code>role_ids</code> and <code>conversation_ids</code>; bool <code>attention_mask</code>. Shapes match, with <code>B,T&gt;=0</code>. Inputs are valid; validation is not part of the required function. Strided inputs work.</li>
+<li>At valid positions roles are <strong>0=system/header</strong>, <strong>1=user</strong>, <strong>2=assistant content</strong>, <strong>3=tool</strong>. Chat headers and BOS are marked 0 by preprocessing. Valid conversation IDs are nonnegative int64, need not be consecutive, and may be reused in another batch row. All turns of a conversation share its ID; adjacent packed conversations use different IDs.</li>
+<li><code>attention_mask=True</code> means a real, retained token. Padding can appear at either end or inside a row. Metadata under padding may contain arbitrary int64 values and must not affect the result. A real token immediately after padding has no valid immediate predictor and is excluded.</li>
+<li><strong>EOS ownership is supplied</strong>, not inferred from token IDs. An EOS ending an assistant response has role 2 and is eligible under the same rule. User/tool EOS retains that turn's role. The same token ID can also serve as padding; only the validity mask distinguishes it here. An assistant EOS does not end the entire conversation or suppress later assistant turns.</li>
+<li><strong>Truncation happens before this function.</strong> At a left cut, column zero has no retained predictor, even if it is inside an assistant response. Later visible assistant targets can still contribute. At a right cut, retain eligible targets through the last visible token; do not invent an EOS or discard a partial answer merely because its EOS was cut away.</li>
+<li>Roles, EOS ownership, ID layout and the exact boundary formula are explicit PaperLeet teaching conventions. <a href="https://huggingface.co/docs/trl/reducing_memory_usage#packing">TRL's packing/truncation guide</a> motivates tracking sequence boundaries; this function does not reproduce every TRL packing strategy.</li>
+</ul>
+<p>This is a <strong>loss-target mask</strong>, not protection against attention crossing conversations. A packed model needs separate attention/position handling. The exercise does not implement that handling, chat-template parsing, tokenization or language-model training.</p>
+<h2>5. Experiment</h2>
+
+<p>The supplied experiment has two original 12-token rows, four vocabulary classes and eleven hand-labelled assistant targets. It includes several turns, assistant EOS, a packed boundary, a left-truncated assistant segment and a padding gap. Your returned mask controls 80 SGD updates of independently parameterized position logits.</p>
+<p>Charts show actual training NLL, NLL on the independently labelled targets, and one row's target mask. Correct selection learns the eleven targets while excluded predictor logits stay exactly unchanged. The initial four-way uniform NLL is <code>log(4)</code>; the accepted final target NLL is below <code>.08</code>. These are deterministic synthetic optimization results, not held-out language quality or a pretrained-model benchmark. Reference Lab previews call the solution; submitted artifacts call your function.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further work</h2>
+<p>Feed this mask into the existing <code>foundations/sft_loss_mask</code> loss as its response mask, together with the original validity mask. That function shifts targets once. Then explain separately what a tokenizer must label, what a causal loss must shift, and what a packed attention implementation must isolate. Those are distinct responsibilities.</p></section><p><a href="https://huggingface.co/learn/llm-course/chapter1/1">Read source material</a></p><h2>Related exercises</h2><ul><li><a href="/problems/foundations/next_token_loss/">Next-token Loss: Shifted Causal Targets</a></li><li><a href="/problems/foundations/sft_loss_mask/">SFT Loss Mask: Train on Response Tokens</a></li><li><a href="/problems/foundations/top_k_sampling/">Top-k: Temperature and Candidate Probabilities</a></li><li><a href="/problems/foundations/top_p_sampling/">Top-p: Cumulative Probability and Nucleus Candidates</a></li><li><a href="/problems/foundations/gradient_accumulation/">Gradient Accumulation: Valid-token Weighting</a></li><li><a href="/problems/foundations/gradient_clipping/">Global Gradient Clipping: One Norm for All Parameters</a></li><li><a href="/papers/llm-training-generation/">All LLM Training &amp; Generation · 训练与生成入门 exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

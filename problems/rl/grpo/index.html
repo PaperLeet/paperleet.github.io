@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement within-group advantages and the clipped policy objective averaged over responses. Implement the advantage and loss functions; masking helpers, diagnostics, and…">
+    <title>DeepSeekMath · GRPO: GRPO Group-Relative Policy Objective in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/rl/grpo/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/rl/grpo/">
+    <meta property="og:title" content="DeepSeekMath · GRPO: GRPO Group-Relative Policy Objective in Python | PaperLeet">
+    <meta property="og:description" content="Implement within-group advantages and the clipped policy objective averaged over responses. Implement the advantage and loss functions; masking helpers, diagnostics, and…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="DeepSeekMath · GRPO: GRPO Group-Relative Policy Objective in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement within-group advantages and the clipped policy objective averaged over responses. Implement the advantage and loss functions; masking helpers, diagnostics, and…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>GRPO Group-Relative Policy Objective</h1><p><a href="/papers/deepseekmath/">DeepSeekMath · GRPO</a> · arXiv 2024 · Medium · 30 minutes</p><p>Implement within-group advantages and the clipped policy objective averaged over responses.</p><p>Implement the advantage and loss functions; masking helpers, diagnostics, and sampling experiments are supplied.</p><h2>Functions to implement</h2><ul><li><code>grpo_advantages(rewards: Tensor, group_size: int, scale_std: bool=True, eps: float=0.0001) -&gt; Tensor</code></li><li><code>grpo_loss(logp: Tensor, old_logp: Tensor, ref_logp: Tensor, advantages: Tensor, mask: Tensor, clip_eps: float=0.2, beta: float=0.04) -&gt; tuple[Tensor, dict]</code></li></ul><section aria-label="Problem description"><h1>GRPO Group-Relative Policy Objective</h1>
+<h2>1. What the paper solves</h2>
+<p>GRPO samples a group of responses for each prompt and uses relative rewards in place of a value model, reducing the critic cost of reinforcement learning for language models. <a href="https://arxiv.org/html/2402.03300v3#S4.SS1">DeepSeekMath Section 4.1</a> presents the objective and group estimator.</p>
+<p>Module goal: Implement within-group advantages and the clipped policy objective averaged over responses. Implement the advantage and loss functions; masking helpers, diagnostics, and sampling experiments are supplied. Completing this exercise completes one selected core module of the paper.</p>
+<h2>2. Core equations and task</h2>
+<h3>Return requirements</h3>
+<p>Use the return structure below exactly; Tensor shapes include singleton dimensions. A scalar Tensor has shape <code>()</code>, not a Python <code>float</code>.</p>
+<h4><code>grpo_advantages</code> · Required</h4>
+<p>Return one floating Tensor <code>advantages</code>, shape <code>[B * G]</code>, in the original adjacent-group order (<code>B</code> prompts, <code>G = group_size</code> responses each). Preserve <code>rewards</code> dtype/device. Center within each group; divide by sample std plus <code>eps</code> only when <code>scale_std=True</code>. Do not return a <code>[B, G]</code> matrix or a scalar reduction.</p>
+<h4><code>grpo_loss</code> · Required</h4>
+<p>Return <code>(loss, stats)</code>, a two-element tuple containing a scalar Tensor and a dictionary. <code>loss</code> has shape <code>()</code>: average valid tokens within each response, then average all <code>N</code> responses for inputs <code>[N, L]</code> (<code>L</code> token positions). Empty responses contribute zero. Retain gradients to <code>logp</code>; freeze old/reference scores and advantages. The dictionary has exactly the documented fields <code>kl_mean</code>, <code>clipfrac</code>, <code>ratio_mean</code>: floating scalar Tensors of shape <code>()</code>, detached, averaged over all valid tokens. <code>clipfrac</code> counts <code>abs(ratio - 1) &gt; clip_eps</code>. With no valid tokens, all three are zero.</p>
+<h4><code>masked_logprobs</code> · Provided</h4>
+<p>Returns <code>(masked_logp, masked_old_logp, masked_ref_logp)</code> in the same order as the three score inputs. Each Tensor keeps its input's <code>[N, L]</code> shape, dtype and device, with zero at masked positions and unchanged scores elsewhere. This helper preserves active-position gradient paths; the loss caller freezes old/reference scores separately.</p>
+<h4><code>token_statistics</code> · Provided</h4>
+<p>Returns a <code>dict[str, Tensor]</code> for <code>[N, L]</code> token arrays. The dictionary has exactly the documented fields <code>kl_mean</code>, <code>clipfrac</code>, <code>ratio_mean</code>: floating scalar Tensors of shape <code>()</code>, detached, averaged over all valid tokens. <code>clipfrac</code> counts <code>abs(ratio - 1) &gt; clip_eps</code>. With no valid tokens, all three are zero.</p>
+<h3>Formula and conventions</h3>
+<p>Implement <code>grpo_advantages</code> and <code>grpo_loss</code>. Rewards have shape <code>[B*G]</code>, with each prompt's $G$ responses stored contiguously. Require $G\ge2$ and a reward count divisible by $G$. Using group mean $\bar r_g$ and sample standard deviation $s_g$:</p>
+<p>$$
+\hat A_i=\frac{r_i-\bar r_g}{s_g+\varepsilon},\qquad
+\rho_{i,t}=e^{\log\pi_{i,t}-\log\pi^{old}<em>{i,t}},\quad
+k3</em>{i,t}=e^{d_{i,t}}-d_{i,t}-1,
+\quad d=\log\pi^{ref}-\log\pi.
+$$</p>
+<p>With <code>scale_std=False</code>, subtract only the mean. Defaults are $\varepsilon=10^{-4}$ and standard-deviation <code>correction=1</code>. The three log-probability tensors and mask have shape <code>[N,L]</code>, where $N=BG$. Advantages have shape <code>[N]</code>; add a final dimension before broadcasting.</p>
+<p>$$
+L=-\frac1N\sum_i\frac1{\sum_t m_{i,t}}\sum_t m_{i,t}
+\left[\min(\rho_{i,t}\hat A_i,\operatorname{clip}(\rho_{i,t},1-c,1+c)\hat A_i)-\beta k3_{i,t}\right].
+$$</p>
+<p>Defaults are $c=0.2$ and $\beta=0.04$. An all-padding response contributes zero, but every row still counts in the response average. Return a scalar loss and <code>kl_mean, clipfrac, ratio_mean</code>. These diagnostics average over valid tokens and are detached; clipfrac counts $|\rho-1|&gt;c$.</p>
+<h2>3. From equations to code</h2>
+<pre><code class="language-text">rewards [B*G] → reshape [B,G] → subtract group mean
+Optionally divide by group standard deviation → flatten
+logp/old/ref [N,L] → detach old/ref → compute ratios and k3
+advantages [N] → [N,1] → multiply by each token's ratio
+Mask the pessimistic token objective
+Sum each row / valid row length → average over responses
+</code></pre>
+<p>The starter supplies <code>masked_logprobs(logp, old_logp, ref_logp, mask)</code> and <code>token_statistics(ratio, kl, mask, clip_eps)</code>. The first neutralizes padding; the second returns all three detached diagnostics. Call these helpers while implementing group-relative advantages, the clipped surrogate, and per-response aggregation.</p>
+<p>Isolate padding before exponentiation. Otherwise extreme log-probability differences at invalid positions can produce <code>inf*0</code>. Old and reference policies are fixed snapshots; stop their gradients even if callers pass differentiable tensors.</p>
+<h2>4. Conventions</h2>
+<p>| Item | This exercise | Common implementations |
+|---|---|---|
+| Standard deviation | Within-group sample standard deviation plus $10^{-4}$ | Same as group mode in <a href="https://github.com/huggingface/trl/blob/v0.23.1/trl/trainer/grpo_trainer.py">TRL v0.23.1</a> |
+| Aggregation | Token mean within each response, then response mean | DAPO averages over valid tokens |
+| KL | Add k3 directly to the loss | Do not first subtract KL from rewards |
+| Diagnostics | Fraction of valid-token ratios outside either bound | Some libraries count only favorable directions that actually get clipped |</p>
+<p>The inequality $e^d-d-1\ge0$ makes the token-level KL term nonnegative. Interpreting its expectation as KL also requires the appropriate sampling distribution. T3 uses a toy policy with EOS, eight groups of eight responses, and 150 training steps to learn a reward for matching the first three characters of <code>abc</code>.</p>
+<p>When all responses to a prompt receive the same reward, centered advantages are zero and should cause no reward-driven policy update. A KL term can still pull the policy toward the reference. Separate those two sources of gradients when debugging zero advantages.</p>
+<h2>5. Interactive visualizations</h2>
+<p><a href="#viz-group_advantage">Open group advantages</a>: edit one reward to see how its group changes, and toggle standard-deviation normalization to inspect reward scale.</p>
+<p><a href="#viz-token_weight_heatmap">Open the token-gradient heatmap</a>: adjust response lengths and compare per-token weights in GRPO, DAPO, and Dr. GRPO. Training plots also record reward and response length.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p><a href="../dr_grpo/README.md">Dr. GRPO</a> changes only advantage scaling and the aggregation denominator, exposing length and difficulty bias. For the KL estimator's derivation, see <a href="http://joschu.net/blog/kl-approx.html">Schulman, 2020</a>.</p></section><p><a href="https://arxiv.org/abs/2402.03300">Read paper · arXiv:2402.03300</a></p><h2>Related exercises</h2><ul><li><a href="/papers/deepseekmath/">All DeepSeekMath · GRPO exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement the distribution-matching generator gradient, paired regression, and separate fake-score update. Implement score_difference, dmd_loss, fake_score_loss. toy.py…">
+    <title>DMD: DMD: Score-Difference Distillation in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion/dmd/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion/dmd/">
+    <meta property="og:title" content="DMD: DMD: Score-Difference Distillation in Python | PaperLeet">
+    <meta property="og:description" content="Implement the distribution-matching generator gradient, paired regression, and separate fake-score update. Implement score_difference, dmd_loss, fake_score_loss. toy.py…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="DMD: DMD: Score-Difference Distillation in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement the distribution-matching generator gradient, paired regression, and separate fake-score update. Implement score_difference, dmd_loss, fake_score_loss. toy.py…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>DMD: Score-Difference Distillation</h1><p><a href="/papers/dmd/">DMD</a> · CVPR 2024 · Medium · 35 minutes</p><p>Implement the distribution-matching generator gradient, paired regression, and separate fake-score update.</p><p>Implement score_difference, dmd_loss, fake_score_loss. toy.py provides the training and visualization scaffold.</p><h2>Functions to implement</h2><ul><li><code>score_difference(real_score: Tensor, fake_score: Tensor, weight: Tensor) -&gt; Tensor</code></li><li><code>dmd_loss(generated: Tensor, gradient: Tensor, paired_target: Tensor, regression_weight: float = .1) -&gt; Tensor</code></li><li><code>fake_score_loss(model, generated: Tensor, noise: Tensor, sigma: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>19. DMD: Score-Difference Distillation</h1>
+<h2>1. Exercise goal</h2>
+<p>Implement the distribution-matching generator gradient, paired regression, and separate fake-score update.</p>
+<h2>2. Interfaces and returns</h2>
+<h3>Return requirements</h3>
+<h4><code>score_difference</code> (required)</h4>
+<p>Return one frozen gradient-target Tensor with real_score/fake_score shape [B,...] and floating dtype/device. Broadcast the B weights per example without reducing any axes. Detach the complete result, so no gradient reaches real_score, fake_score or weight.</p>
+<h4><code>dmd_loss</code> (required)</h4>
+<p>Return a scalar Tensor of shape (), using generated floating dtype/device. Both matching and paired-regression errors average over B and all coordinates; matching has a factor of 1/2. Keep the left-hand generated gradient path, but freeze the target constructed from generated-gradient and paired_target. Do not return the gradient tensor itself.</p>
+<h4><code>fake_score_loss</code> (required)</h4>
+<p>Return a floating scalar Tensor of shape (), matching generated dtype/device, averaging denoising-score error over the batch and all coordinates. Detach generated inside the function while retaining model-parameter gradients; do not detach the loss. This interface does not explicitly stop gradients through noise or sigma.</p>
+<h4>Provided local helpers</h4>
+<ul>
+<li><code>_time</code>: Provided: return t reshaped from [B] to [B,1,...,1], a Tensor with the same rank as x; B counts samples and every non-batch axis is singleton. Preserve t dtype/device (not x dtype/device) and gradients. Do not mutate inputs; the result may share storage with t.</li>
+</ul>
+<h3>Equations and interface notes</h3>
+<h3>Contract</h3>
+<ul>
+<li><code>score_difference(real_score: Tensor, fake_score: Tensor, weight: Tensor) -&gt; Tensor</code></li>
+<li><code>dmd_loss(generated: Tensor, gradient: Tensor, paired_target: Tensor, regression_weight: float = .1) -&gt; Tensor</code></li>
+<li><code>fake_score_loss(model, generated: Tensor, noise: Tensor, sigma: Tensor) -&gt; Tensor</code></li>
+</ul>
+<p>We use a VE noise convention y=x+sigma<em>noise. The fake/real inputs are scores ∇y log q_sigma and ∇y log p_sigma, not epsilon predictions. The explicit positive weight is supplied by the caller. The matching surrogate has derivative weight</em>(s_fake-s_real)/numel; target scores are frozen. DMD retains paired regression; the Gaussian toy uses MSE as a CPU proxy for the paper’s image regression metric. Fake-score DSM must not train the generator. The linked DMD2 repository implements the shared score-gradient machinery, not evidence that this exercise is DMD2.</p>
+<h2>Runnable experiment</h2>
+<p><strong>Provenance: PaperLeet teaching adaptation.</strong> A shifted 2D Gaussian generator and trainable Gaussian fake score expose score signs, gradient isolation, and paired regression. This is not the paper’s Figure 3 bimodal source code; it isolates the same distribution-matching mechanism with analytic scores.</p>
+<p>The T3 test runs your submitted implementation, saves points/curves/metrics, and uses fixed seed 42. <code>toy.py</code> contains the provided experiment. It does not download models or datasets. These exercises reproduce selected mechanisms, not full image benchmark results.</p>
+<h2>Sources</h2>
+<ul>
+<li>https://arxiv.org/abs/2311.18828</li>
+<li>https://github.com/tianweiy/DMD2/blob/8d8fa55633d47cfb81bbc7a892e7248f9518763f/main/edm/edm_guidance.py</li>
+</ul>
+<p>Anchors: arXiv v1 §3 distribution matching gradient and regression regularization; Figure 3 distribution matching illustration.</p>
+<p>The second T3 experiment and the reference preview add a <strong>Figure-3-inspired bimodal adaptation</strong>. An analytic two-Gaussian student begins with both means near the right mode. Compare real-score-only, score-difference distribution matching, and matching plus paired MSE regression. Teacher and fake scores are exact mixture scores here, so this experiment isolates generator gradients; the first Gaussian T3 separately trains the fake score. Use noise sigma 1.5→0.6 over 600 CPU updates, target centers (-1.8,0)/(1.8,0), and component std .25. Report both mode proportions and covered-mode count. These settings and curves are PaperLeet’s reimplementation, not original Figure 3 data or source code.</p></section><p><a href="https://arxiv.org/abs/2311.18828">Read paper · arXiv:2311.18828</a></p><h2>Related exercises</h2><ul><li><a href="/papers/dmd/">All DMD exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

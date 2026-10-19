@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Keep the quantized forward value while transporting encoder gradients through a frozen scaled rotation. Given the selected code, implement the gradient surrogate; codebook…">
+    <title>Rotation Trick: Rotation Trick Quantization Gradients in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/rotation_trick/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/rotation_trick/">
+    <meta property="og:title" content="Rotation Trick: Rotation Trick Quantization Gradients in Python | PaperLeet">
+    <meta property="og:description" content="Keep the quantized forward value while transporting encoder gradients through a frozen scaled rotation. Given the selected code, implement the gradient surrogate; codebook…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Rotation Trick: Rotation Trick Quantization Gradients in Python | PaperLeet">
+    <meta name="twitter:description" content="Keep the quantized forward value while transporting encoder gradients through a frozen scaled rotation. Given the selected code, implement the gradient surrogate; codebook…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Rotation Trick Quantization Gradients</h1><p><a href="/papers/rotation-trick/">Rotation Trick</a> · ICLR 2025 Oral · Medium · 30 minutes</p><p>Keep the quantized forward value while transporting encoder gradients through a frozen scaled rotation.</p><p>Given the selected code, implement the gradient surrogate; codebook learning and a full VQ-VAE are outside this module.</p><h2>Functions to implement</h2><ul><li><code>rotation_quantize(e: Tensor, q: Tensor, eps: float = 1e-8) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Rotation Trick Quantization Gradients</h1>
+<p><a href="https://arxiv.org/html/2410.06424v1">Restructuring Vector Quantization with the Rotation Trick</a>, ICLR 2025 Oral, changes the backward map of vector quantization. The selected code <code>q</code> is already provided. Implement <code>rotation_quantize(e, q, eps=1e-8)</code> so the forward result equals <code>q</code>, while the encoder receives a rotated and rescaled gradient.</p>
+<h2>Implementation requirements</h2>
+<h3>Return requirements</h3>
+<h4><code>rotation_quantize</code> (required)</h4>
+<p>Return one floating <code>Tensor</code> with the same <code>[...,D]</code> shape, dtype and device as e and q (D&gt;=2); its forward values equal q. Keep the surrogate gradient to e through the frozen scaled rotation, but no gradient to q or the rotation/scale construction. Do not detach the output, return Jacobians or mutate either input.</p>
+<h4><code>_validate</code> (provided)</h4>
+<p>Provided helper: return <code>(e_norm, q_norm)</code>, two floating Tensors of shape <code>[...,1]</code>, reducing only the final D features of e/q <code>[...,D]</code> and retaining the dimension. Preserve dtype/device and their norm gradient paths; do not mutate inputs. Raise <code>ValueError</code> for invalid shape/epsilon, near-zero norms or antiparallel pairs. This returns norms, not <code>None</code>.</p>
+<h3>Formula and conventions</h3>
+<p>Let</p>
+<p>$$u=e/\lVert e\rVert,\quad v=q/\lVert q\rVert,\quad r=(u+v)/\lVert u+v\rVert,\quad s=\lVert q\rVert/\lVert e\rVert.$$</p>
+<p>Section 4.2 gives the efficient transformation</p>
+<p>$$R=I-2rr^T+2vu^T,\qquad \widetilde q=\operatorname{sg}(sR)e.$$</p>
+<p>Apply it without materializing a <code>D×D</code> matrix. Freeze <strong>all directions and the norm ratio</strong>. For upstream column gradient <code>g</code>, the encoder gradient must be <code>s Rᵀ g</code>, and this surrogate path must not update <code>q</code>. The reconstruction-gradient path differs from the separate codebook/commitment objectives used by a complete VQ-VAE.</p>
+<h2>Contract</h2>
+<p>Inputs have identical nonempty <code>[...,D]</code> shapes with <code>D≥2</code>, finite values, shared CPU float32/float64 dtype/device, and may be noncontiguous. Preserve shape, dtype, device and input values. The supplied validation requires positive finite <code>eps</code>, both vector norms greater than <code>eps</code>, and <code>||u+v|| &gt; eps</code>.</p>
+<p>Zero vectors and exactly opposite directions do not define this construction and raise <code>ValueError</code>; do not invent a fallback gradient. Positive collinear vectors are valid: <code>q=3e</code> gives forward <code>q</code> and encoder gradient <code>3g</code>.</p>
+<p>This is a <strong>surrogate Jacobian</strong>. Finite-differencing nearest-code selection would measure a different function, so tests use independent analytic rotation matrices rather than numerical derivatives of quantization.</p>
+<h2>Toy experiment</h2>
+<p><strong>Paper-derived adaptation.</strong> Figures 2–3 motivate the quadratic <code>f(x,y)=x²+y²</code> and a set of 16 code vectors. We independently choose a 4×4 grid, sample encoder vectors on a circle, and compare your autograd gradients with STE. Charts show gradient angles and magnitudes. The original function/code count are retained; the grid, sampling and line plots are our adaptation, not a reproduction of VQ-VAE training.</p>
+<p>The preview uses the reference; T3 calls your implementation and checks the forward values, preserved angle and predicted norm scaling. <a href="https://github.com/cfifty/rotation_trick">Author code</a>.</p></section><p><a href="https://arxiv.org/html/2410.06424v1">Read paper · arXiv:2410.06424</a></p><h2>Related exercises</h2><ul><li><a href="/papers/rotation-trick/">All Rotation Trick exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

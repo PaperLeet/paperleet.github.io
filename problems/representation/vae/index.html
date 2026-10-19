@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement differentiable Gaussian sampling, analytic KL to a standard normal and a stable Bernoulli negative ELBO. Complete three functions; the supplied encoder/decoder train…">
+    <title>VAE: VAE: Reparameterization and the Bernoulli ELBO in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/vae/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/vae/">
+    <meta property="og:title" content="VAE: VAE: Reparameterization and the Bernoulli ELBO in Python | PaperLeet">
+    <meta property="og:description" content="Implement differentiable Gaussian sampling, analytic KL to a standard normal and a stable Bernoulli negative ELBO. Complete three functions; the supplied encoder/decoder train…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="VAE: VAE: Reparameterization and the Bernoulli ELBO in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement differentiable Gaussian sampling, analytic KL to a standard normal and a stable Bernoulli negative ELBO. Complete three functions; the supplied encoder/decoder train…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>VAE: Reparameterization and the Bernoulli ELBO</h1><p><a href="/papers/vae/">VAE</a> · ICLR 2014 · Medium · 30 minutes</p><p>Implement differentiable Gaussian sampling, analytic KL to a standard normal and a stable Bernoulli negative ELBO.</p><p>Complete three functions; the supplied encoder/decoder train for 120 steps on synthetic binary patterns. No MNIST or image-generation benchmark is reproduced.</p><h2>Functions to implement</h2><ul><li><code>reparameterize(mu: Tensor, logvar: Tensor, noise: Tensor) -&gt; Tensor</code></li><li><code>gaussian_kl(mu: Tensor, logvar: Tensor) -&gt; Tensor</code></li><li><code>negative_elbo(logits: Tensor, target: Tensor, mu: Tensor, logvar: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>VAE: Reparameterization and the Bernoulli ELBO</h1>
+<h2>1. What problem does the paper solve?</h2>
+<p>Auto-Encoding Variational Bayes jointly learns a probabilistic decoder and approximate posterior. Its pathwise estimator makes a sample differentiable through posterior parameters. This exercise selects the diagonal-Gaussian/Bernoulli case from <a href="https://arxiv.org/html/1312.6114v11#S3">Section 3, Equations (9)–(10), Appendices B and C.1</a>.</p>
+<h2>2. Core equations and return contracts</h2>
+<p>Write <code>logvar = log(sigma²)</code> and use caller-supplied standard-normal noise:</p>
+<p>$$z=\mu+\exp(\tfrac12\operatorname{logvar})\odot\epsilon,$$</p>
+<p>$$K_b=\tfrac12\sum_j[\mu_{bj}^2+\exp(\operatorname{logvar}<em>{bj})-1-\operatorname{logvar}</em>{bj}],$$</p>
+<p>$$L=\frac1B\sum_b\left[\sum_f(\operatorname{softplus}(\ell_{bf})-x_{bf}\ell_{bf})+K_b\right].$$</p>
+<ul>
+<li><code>reparameterize(mu, logvar, noise)</code> returns <code>[B,Z]</code>; all three inputs share that shape, with <code>Z&gt;0</code>. Do not draw noise internally.</li>
+<li><code>gaussian_kl(mu, logvar)</code> returns <strong>nonnegative</strong> KL to <code>N(0,I)</code>, with a positive sign in the loss, shape <code>[B]</code>, summed over latent dimensions.</li>
+<li><code>negative_elbo(logits, target, mu, logvar)</code> returns a scalar in nats per observation. Logits/targets share nonempty <code>[B,F]</code>, posterior batch sizes agree, and target values lie in <code>[0,1]</code>.</li>
+</ul>
+<p>Preserve matching float32/float64 dtype/device, input values and live gradients. Sampling and KL allow <code>B=0</code>; the loss requires <code>B&gt;0</code>. Incompatible shapes raise <code>ValueError</code>.</p>
+<h2>3. From equations to code</h2>
+<p>Convert log variance to <strong>standard deviation</strong> for sampling. Sum the analytic KL over <code>Z</code>. Compute Bernoulli NLL stably from logits, sum over <code>F</code>, add KL once per observation, then average the batch. This minimizes the negative lower bound; it does not maximize the expression returned by your loss function.</p>
+<h2>4. Exercise conventions</h2>
+<p>Use one posterior sample and the original KL coefficient 1, without beta weighting, annealing or clipping probabilities. Feature sums and batch means are distinct: changing either changes the reconstruction/KL tradeoff. A correct forward KL value with a detached gradient is incorrect. The supplied noise remains differentiable as an explicit tensor input, even though the experiment draws it as a constant.</p>
+<h2>5. Experiment</h2>
+<p>A linear encoder produces two means and log variances; a linear Bernoulli decoder reconstructs two complementary six-bit patterns. Adam, learning rate 0.04, performs 120 real updates with 32 observations and seed 107. Your three functions supply sampling, the loss and KL diagnostics.</p>
+<p>Charts show sampled negative ELBO, reconstruction NLL and KL. The mean of the final 20 losses must be below 80% of the initial loss, and the decomposition must agree. This is a synthetic teaching experiment, not MNIST reproduction, an exact marginal-likelihood measurement or proof of useful latent representations.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further exploration</h2>
+<p>Derive why negative ELBO bounds negative log likelihood. Compare posterior sampling to using its mean, then explain which estimator you are optimizing. The Bernoulli observation model suits this binary toy; continuous images require a separately specified likelihood.</p></section><p><a href="https://arxiv.org/abs/1312.6114">Read paper · arXiv:1312.6114</a></p><h2>Related exercises</h2><ul><li><a href="/papers/vae/">All VAE exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

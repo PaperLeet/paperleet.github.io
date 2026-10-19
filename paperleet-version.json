@@ -1,0 +1,16 @@
+{
+  "source_revision": "13340036d4769a94310b76fcedec6eafa88a6f05",
+  "build_method": "local-validated-static-release",
+  "built_at": "2026-10-18T23:49:21.358196+00:00",
+  "runtime_version": "0.77.0",
+  "artifact_inventory_sha256": "8b55ce4f017309cc4df7007c15a6c37ee8254dd0ff4d8eae065a3cf992882a30",
+  "inventory_excludes": [
+    "paperleet-version.json",
+    ".git"
+  ],
+  "validation": {
+    "frontend_pass_groups": 401,
+    "build_variants": 4,
+    "static_routes": 166
+  }
+}

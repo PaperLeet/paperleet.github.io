@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Solve shared scale and z translation exactly using weighted L1 breakpoints and depth anchors. Implement the global ROE alignment core on tiny point sets; exclude the point-map…">
+    <title>MoGe: MoGe Robust Optimal Alignment in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/moge_alignment/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/moge_alignment/">
+    <meta property="og:title" content="MoGe: MoGe Robust Optimal Alignment in Python | PaperLeet">
+    <meta property="og:description" content="Solve shared scale and z translation exactly using weighted L1 breakpoints and depth anchors. Implement the global ROE alignment core on tiny point sets; exclude the point-map…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="MoGe: MoGe Robust Optimal Alignment in Python | PaperLeet">
+    <meta name="twitter:description" content="Solve shared scale and z translation exactly using weighted L1 breakpoints and depth anchors. Implement the global ROE alignment core on tiny point sets; exclude the point-map…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>MoGe Robust Optimal Alignment</h1><p><a href="/papers/moge/">MoGe</a> · CVPR 2025 Oral · Hard · 45 minutes</p><p>Solve shared scale and z translation exactly using weighted L1 breakpoints and depth anchors.</p><p>Implement the global ROE alignment core on tiny point sets; exclude the point-map network, multi-scale spheres and camera recovery.</p><h2>Functions to implement</h2><ul><li><code>optimal_scale_1d(x: Tensor, y: Tensor, weight: Tensor, trunc: float | None = None) -&gt; tuple[Tensor, Tensor]</code></li><li><code>roe_align(prediction: Tensor, target: Tensor, mask: Tensor, trunc: float | None = None) -&gt; tuple[Tensor, Tensor]</code></li></ul><section aria-label="Problem description"><h1>MoGe Robust Optimal Alignment</h1>
+<p>Implement the robust optimal alignment (ROE) core of <a href="https://arxiv.org/abs/2410.19115">MoGe</a>. A predicted point map has an unknown shared scale and a shift along the camera's z axis. The alignment objective uses inverse target depth and coordinate-wise absolute residuals:</p>
+<h2>Implementation requirements</h2>
+<h3>Return requirements</h3>
+<h4><code>optimal_scale_1d</code> (required)</h4>
+<p>Return the Python tuple <code>(scale, loss)</code> in that order; both are detached scalar floating <code>Tensor</code>s with shape <code>()</code> and x's dtype/device. <code>loss</code> is the sum of weighted absolute residuals, individually capped when <code>trunc</code> is set, not a mean. Ties choose the smallest active scale; with no active coefficient return scale zero and its objective. Do not mutate inputs.</p>
+<h4><code>roe_align</code> (required)</h4>
+<p>Return the Python tuple <code>(scale, z_shift)</code>, two detached scalar floating <code>Tensor</code>s of shape <code>()</code> with the point-map dtype/device. <code>z_shift</code> is a scalar translation only along z, not a 3-vector; the second return is not an objective value. Fit only masked-valid points; no input mutation or solver gradient is required.</p>
+<h4><code>_check_vectors</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when x, y and nonnegative weight are finite, nonempty, matching 1D floating tensors and trunc is None or finite positive. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h4><code>_check_points</code> (provided)</h4>
+<p>Provided helper: return <code>(valid_prediction, valid_target)</code>, floating Tensors <code>[M,3]</code> in the original mask-selected order, where M is the number of True mask entries. Preserve point dtype/device and leave originals unchanged. Validate nonempty selection and positive valid target depths, raising <code>ValueError</code> on checked invalid inputs; masked-out NaNs are excluded before value validation. The helper does not itself detach; the solver callers are no_grad.</p>
+<h3>Formula and conventions</h3>
+<p>$$
+\min_{s,t}\sum_{i\in M}\sum_{d\in{x,y,z}}
+\min\left(\frac{|s\hat p_{id}+t\mathbf 1_{d=z}-p_{id}|}{p_{iz}},\tau\right).
+$$</p>
+<p>With <code>trunc=None</code>, omit the cap. The cap applies <strong>after weighting</strong> each coordinate. Rotation and x/y translation are fixed. Scale is an unconstrained real scalar for this optimization exercise.</p>
+<h2>Implement</h2>
+<p>| Function | Inputs | Outputs |
+|---|---|---|
+| <code>optimal_scale_1d(x, y, weight, trunc=None)</code> | Same-shaped nonempty 1D floating tensors; nonnegative weights | Scalar <code>scale</code>, scalar minimum objective |
+| <code>roe_align(prediction, target, mask, trunc=None)</code> | <code>(N,3)</code> point maps and Boolean <code>(N,)</code> valid mask | Scalar <code>scale</code>, scalar <code>z_shift</code> |</p>
+<p>The first function solves <code>sum(min(weight * abs(scale*x-y), trunc))</code>. A global minimum can be found among active zero-residual breakpoints <code>y[i]/x[i]</code>, where <code>x[i] != 0</code> and <code>weight[i] &gt; 0</code>. Truncation introduces additional kinks, but their slope changes cannot create a strict local minimum. For equal minimum values, choose the smallest active breakpoint; return scale zero if no coefficient is active.</p>
+<p>For point maps, enumerate a valid anchor <code>k</code> and impose <code>t = target[k,2] - s*prediction[k,2]</code>. Subtract this anchor's depth from the z coordinates only; x/y are unchanged. Each anchor reduces the full problem to the 1D solver. Select the candidate with the lowest objective. Any global minimizer is accepted for the full alignment.</p>
+<p>The supplied validation requires positive finite valid target depths and matching CPU float32/float64 tensors. Select valid points before arithmetic: masked coordinates may contain NaNs. Do not mutate inputs. Return detached scalar tensors of the input dtype/device. The official training implementation reconstructs differentiable parameters from selected anchors; that gradient path is outside this exercise.</p>
+<p>Small exact enumeration is sufficient (<code>N &lt;= 64</code> in the harness). Network prediction, multi-scale neighborhoods, and camera recovery are outside this module.</p>
+<h2>Toy: recover a corrupted point cloud</h2>
+<p><strong>Provenance: teaching adaptation.</strong> Six generated points have a known scale/z-shift and one high-leverage corrupted coordinate. Your functions produce a scale-objective curve and recovered depths. Truncated ROE recovers the inliers while untruncated fitting is distracted by the outlier. This is a new educational experiment, not a native MoGe benchmark.</p>
+<p>T0 checks contracts; T1 uses independent scalar and 2D line-arrangement oracles; T2 checks weighting, truncation order, masking, ties and scene-unit equivariance. T3 calls the submitted functions and emits the toy charts. The preview uses the reference implementation.</p>
+<p>The algorithm follows <a href="https://github.com/microsoft/MoGe/blob/74fbce054ebed49800de42d0ad0e83495065719a/moge/utils/alignment.py">the authors' <code>align</code> and <code>align_points_scale_z_shift</code></a>; the educational implementation uses direct candidate evaluation instead of production sorting/scatter kernels.</p></section><p><a href="https://arxiv.org/abs/2410.19115">Read paper · arXiv:2410.19115</a></p><h2>Related exercises</h2><ul><li><a href="/papers/moge/">All MoGe exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Select unobserved items from complete user histories and train both factor tables with differentiable pairwise preferences. Per-user candidate masks, stable BPR-MF negative log…">
+    <title>BPR: BPR: Implicit Feedback and Personalized Pairwise Ranking in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/retrieval/bpr/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/retrieval/bpr/">
+    <meta property="og:title" content="BPR: BPR: Implicit Feedback and Personalized Pairwise Ranking in Python | PaperLeet">
+    <meta property="og:description" content="Select unobserved items from complete user histories and train both factor tables with differentiable pairwise preferences. Per-user candidate masks, stable BPR-MF negative log…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="BPR: BPR: Implicit Feedback and Personalized Pairwise Ranking in Python | PaperLeet">
+    <meta name="twitter:description" content="Select unobserved items from complete user histories and train both factor tables with differentiable pairwise preferences. Per-user candidate masks, stable BPR-MF negative log…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-CcEZYndQ.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-9CQIihx9.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>BPR: Implicit Feedback and Personalized Pairwise Ranking</h1><p><a href="/papers/bpr/">BPR</a> · UAI 2009 · Medium · 30 minutes</p><p>Select unobserved items from complete user histories and train both factor tables with differentiable pairwise preferences.</p><p>Per-user candidate masks, stable BPR-MF negative log likelihood and full-table L2 prior; triple construction and tiny training loop are provided.</p><h2>Functions to implement</h2><ul><li><code>eligible_negatives(interactions: Tensor, user_ids: Tensor) -&gt; Tensor</code></li><li><code>bpr_mf_loss(user_factors: Tensor, item_factors: Tensor, triples: Tensor, l2: float=0.) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>BPR: Implicit Feedback and Personalized Pairwise Ranking</h1>
+<p>Learn a ranking for each user from observed-versus-unobserved preferences. This exercise selects the training triples and matrix-factorization objective from <a href="https://proceedings.mlr.press/r7/rendle09a.html">BPR Sections 3.2, 4.1 and 4.3.1</a>.</p>
+<h2>1. Per-user negative candidates</h2>
+<p><code>eligible_negatives(interactions, user_ids)</code> takes a Boolean <code>[U,I]</code> history and int64 <code>[B]</code> user IDs. Return Boolean <code>[B,I]</code>:</p>
+<p>$$M_{b,j}=\neg S_{u_b,j}.$$</p>
+<p>A <code>True</code> entry is unobserved by <strong>this user</strong>, making it an eligible comparison item rather than a known negative label. Exclude every item in that user's history. Preserve order and repeated users; another user's observed item remains eligible here. IDs are zero-based with <strong>no padding</strong>. Support empty batches, empty item axes, fully observed and entirely unseen users.</p>
+<h2>2. Pairwise matrix-factorization loss</h2>
+<h3>Return requirements</h3>
+<h4><code>eligible_negatives</code> (required)</h4>
+<p>Return one Boolean <code>Tensor</code> <code>[B,I]</code> on the interaction device, where B is the number of requested user IDs and I the number of items. True means that item is unobserved by that row's user. Preserve requested order and duplicate users; empty batches/items retain their empty dimensions. No gradient or input mutation.</p>
+<h4><code>bpr_mf_loss</code> (required)</h4>
+<p>Return one scalar floating <code>Tensor</code>, shape <code>()</code>, with the factor tables' dtype/device: mean pairwise loss over B triples plus the unaveraged, full-table L2 prior. Keep gradients to both user/item tables, including unselected rows in the prior. Empty triples contribute zero data loss while retaining both gradient graphs and the full prior. Do not detach, return a Python float or mutate inputs.</p>
+<h4><code>_check_mask</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when interactions is Boolean <code>[U,I]</code> and same-device user_ids is int64 <code>[B]</code> with every ID in range. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h4><code>_check_loss</code> (provided)</h4>
+<p>Provided validator: return Python <code>None</code> when finite factor tables <code>[U,D]</code>/<code>[I,D]</code>, int64 triples <code>[B,3]</code>, valid distinct positive/negative indices and nonnegative finite l2 satisfy the shared dtype/device contract. Raise <code>ValueError</code> when a checked condition fails; do not mutate inputs or return transformed tensors.</p>
+<h3>Formula and conventions</h3>
+<p><code>bpr_mf_loss(user_factors, item_factors, triples, l2=0.)</code> takes matching float32/float64 <code>[U,D]</code> and <code>[I,D]</code> factor tables, plus int64 <code>[B,3]</code> rows <code>(user, positive, unobserved)</code>, with <code>D &gt; 0</code>. Triples are already constructed. Gather their factor rows and return the scalar:</p>
+<p>$$
+x_{uij}=w_u^\top(h_i-h_j),
+$$</p>
+<p>$$
+L=\frac{1}{\max(1,B)}\sum_{(u,i,j)}\operatorname{softplus}(-x_{uij})
++\lambda\left(\sum_{u,d}W_{u,d}^2+\sum_{i,d}H_{i,d}^2\right).
+$$</p>
+<p>Use stable log-sigmoid/softplus rather than sigmoid followed by a direct log. Sum latent coordinates, average triples and retain all three selected-row gradient contributions. Repeated user/item IDs accumulate gradients. Preserve dtype, device, input values and support noncontiguous tables. Keep the supplied validation calls.</p>
+<h2>3. Global prior convention</h2>
+<p><code>l2</code> is finite and nonnegative. Penalize both <strong>complete tables</strong>, including rows not selected in this batch, exactly once with no additional factor of one half. Penalizing gathered vectors changes the objective when IDs repeat or are absent.</p>
+<p>When <code>l2=0</code>, skip the prior calculation: squared norms of unused large factors can overflow and contaminate a finite likelihood with <code>0*Inf=NaN</code>. Retain both full gradient tables through the data term.</p>
+<p>The paper's BPR-Opt sums log likelihoods. This exercise normalizes the data term and exposes the prior coefficient at that scale: for a nonempty batch, <code>l2 = lambda_paper / B</code> corresponds to dividing the summed objective by <code>B</code>. An empty batch contributes zero likelihood while retaining the complete prior and both gradient graphs.</p>
+<p>The pairwise score difference is essential. Two independent binary terms, as used in the SASRec exercise, define a different objective.</p>
+<h2>4. Verification</h2>
+<p>T0 checks shape, dtype, index validation, empty axes and unchanged inputs. T1 is hand-computable. T2 uses independent scalar likelihoods and central differences through both factor tables, repeated indices, gradients of unselected rows, batch replication, common item translation and extreme margins. Finite values and genuine gradients are required.</p>
+<h2>5. Actual training experiment</h2>
+<p>Three synthetic users like <code>{0,1}</code>, <code>{2,3}</code> and <code>{4,5}</code> respectively. Your mask supplies candidates for 24 training triples. Your objective trains all 27 factor entries for <strong>120 actual Adam updates</strong>. The charts show its loss and personalized item scores.</p>
+<p>Each cross-group item pair has opposing preferences from two users. A single global item-score order can satisfy at most half of these strict comparisons. The displayed <code>1/2</code> bound is counted from directions, not measured from a baseline model. Personalized factors must exceed it and recover all training preferences.</p>
+<p>This is a <strong>PaperLeet teaching adaptation</strong> using full batches and one global prior coefficient. It does not reproduce LearnBPR's bootstrap SGD, separate role-specific regularizers, public datasets or the paper benchmarks. Accuracy and Recall@2 are training metrics, without held-out generalization claims.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Sources and next steps</h2>
+<p>Read the <a href="https://auai.org/uai2009/papers/UAI2009_0139_48141db02b9f0b02bc7158819ebfa2c7.pdf">original paper</a>, <a href="https://proceedings.mlr.press/r7/rendle09a.html">publication record</a> or <a href="https://arxiv.org/abs/1205.2618">arXiv archive</a>. Compare with SASRec's sampled binary objective, ColBERT's paired softmax and TIGER's generated semantic IDs.</p></section><p><a href="https://arxiv.org/abs/1205.2618">Read paper · arXiv:1205.2618</a></p><h2>Related exercises</h2><ul><li><a href="/papers/bpr/">All BPR exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>
