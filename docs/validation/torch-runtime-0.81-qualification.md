@@ -147,3 +147,24 @@ contains 817 individually verified files, 18,419,933 bytes, SHA-256
 `b3fbac64965b071a4f29e5c02566ca2ceb999298216b23f1c65c2b07450597de`.
 Its external-evidence manifest links the existing core/performance/GPU archives,
 records the retained partial-backup identity and explains replay dependencies.
+
+## Final comment-search main reconciliation
+
+Upstream main advanced to `3aa2c298f4d82192c7c6191d8319d659acadabca` during
+the first upload retry. That ordinary transfer was stopped after verifying the
+expected remote was obsolete; no workflow was cancelled. The new shared search,
+reply and card UI is merged at `09c5d6b9a581b0e153f2e3766f65b670e7cdb6bb`.
+Experiment 385 passes the **entire current 204-command frontend check**, both
+complete builds, Pages/retention/generated-Worker gates and the actual Chrome
+Worker with the packed-route assertions. Core/catalog inputs and all 183 export
+identities remain unchanged; final public metadata from 366 is still current.
+The earlier 202-plus-15 scope above remains an accurate historical stage.
+
+Experiment 384 failed before frontend checks because its preparation omitted
+the catalog-count context field. Fresh 385 supplies 89 to the unchanged verifier;
+the original failure is retained. The first upload failed with curl 55 and left
+main unchanged. Both transport attempts, audits, exact grants, the corrected
+204-command run and source manifests are in the
+[main-sync archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-sync-harness.tar.gz): 86 verified files,
+3,744,761 bytes, SHA-256 `ee6299ffe7f736ed623447f9bbb51134dfcd16560192464cdb80e86b658fe27d`.
+[Machine-readable reconciliation](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-sync.json).

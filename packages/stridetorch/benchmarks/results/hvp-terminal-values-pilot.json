@@ -1,0 +1,58 @@
+{
+  "status": "promising_experimental_terminal_hvp_values_only_pilot",
+  "production_changed": false,
+  "version_literal": "0.81.0 in isolated copies; no new release version assigned",
+  "change": "Disable gradient recording only during the final third Tensor reverse; preserve first/second passes, callbacks, validation and finally restoration.",
+  "native": {
+    "numpy25_passed": 12225,
+    "numpy126_passed": 12222,
+    "numpy126_skipped": 3
+  },
+  "actual_node_pyodide_passed": 12212,
+  "terminal_failure_controls": 8,
+  "pilot": {
+    "processes": 1,
+    "full_flows": 14,
+    "norm_candidate_baseline_range": [
+      0.8721004546165164,
+      0.9099626707739854
+    ],
+    "legacy_control_range": [
+      1.0096507290129784,
+      1.0122055421557588
+    ],
+    "aa_outside_5_percent": [],
+    "scope": "CPU only; identicalbaseline/candidatevaluesbeforetiming,12balancedpermutations;notqualification"
+  },
+  "profiles": {
+    "A0": {
+      "total_calls": 527801,
+      "node_constructors": [
+        {
+          "line": 56,
+          "function": "__init__",
+          "calls": 7000
+        }
+      ]
+    },
+    "B": {
+      "total_calls": 470101,
+      "node_constructors": [
+        {
+          "line": 56,
+          "function": "__init__",
+          "calls": 4200
+        }
+      ]
+    }
+  },
+  "source_plan_sha256": "9ae91224b43d511cdd215770c10fcd2f2747f75788d8ba5562e014f5a20f985c",
+  "next": [
+    "Independent native oracle corpus including exceptional/strict/alias/mutation boundaries",
+    "Repeated CPU and actual WASM whole-HVP timing and memory/lifetime checks",
+    "Actual Chrome SDK and final package/application/export gates before adoption"
+  ],
+  "ci_triggered": false,
+  "published": false,
+  "goal_status": "active"
+}

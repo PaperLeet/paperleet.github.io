@@ -1,0 +1,30 @@
+{
+  "status": "passed_current_main_ui_reconciliation",
+  "version": "0.81.0",
+  "qualified_head": "09c5d6b9a581b0e153f2e3766f65b670e7cdb6bb",
+  "incoming_main": "3aa2c298f4d82192c7c6191d8319d659acadabca",
+  "full_frontend_commands": 204,
+  "both_builds_passed": true,
+  "actual_chrome_worker_passed": true,
+  "unchanged_core_catalog_by_identity": true,
+  "metadata_refresh_still_current": true,
+  "application_result_sha256": "44733f4cd6b390d7a1cd15ca28cfbf0f87270750b819d5fc956e1bb2e6721e8b",
+  "archive": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.81-main-sync-harness.tar.gz",
+    "files": 86,
+    "bytes": 3744761,
+    "sha256": "ee6299ffe7f736ed623447f9bbb51134dfcd16560192464cdb80e86b658fe27d",
+    "verified_all_payloads": true
+  },
+  "prior_transport_attempts": {
+    "first": "368:curl55Brokenpipe,remoteunchanged",
+    "second": "379:terminatedverifiedobsoleteGittransportafterremoteadvanced;no workflow touched"
+  },
+  "retained_harness_failure": "384:omittedcatalog_modulescontextfield;failedbeforefrontend;fresh385restores89withunchangedassertions",
+  "main_adopted": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active"
+}
