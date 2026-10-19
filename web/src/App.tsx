@@ -48,7 +48,7 @@ import { getProblemStats, useProblemStats } from "./ProblemStats";
 import { ResizableSplit } from "./deferredPages";
 import { recommendPractice, nextPractice } from "./practice-recommendation";
 import { useQueuedJudge } from "./useQueuedJudge";
-import { jobErrorText } from "./judgeJobs";
+import { jobErrorText } from "./judgeJobMessages";
 import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason } from "./browserMessages";
