@@ -7,9 +7,9 @@ import { createServer } from 'vite';
 // Render the actual App and split panels. Isolate account/runtime boundaries so
 // these interactions never contact a server, run Python, or use real drafts.
 const dom = new JSDOM('<!doctype html><div id="root"></div>', {url:'https://paperleet.test/#/1'});
-const names = ['window','document','navigator','HTMLElement','CustomEvent','localStorage','location','requestAnimationFrame','cancelAnimationFrame','ResizeObserver','fetch','IS_REACT_ACT_ENVIRONMENT','__paperleetWorkspaceActionTest'];
+const names = ['window','document','navigator','HTMLElement','CustomEvent','localStorage','location','history','requestAnimationFrame','cancelAnimationFrame','ResizeObserver','fetch','IS_REACT_ACT_ENVIRONMENT','__paperleetWorkspaceActionTest'];
 const originals = new Map(names.map(name => [name,Object.getOwnPropertyDescriptor(globalThis,name)]));
-for (const name of ['window','document','navigator','HTMLElement','CustomEvent','localStorage','location']) Object.defineProperty(globalThis,name,{value:dom.window[name],configurable:true,writable:true});
+for (const name of ['window','document','navigator','HTMLElement','CustomEvent','localStorage','location','history']) Object.defineProperty(globalThis,name,{value:dom.window[name],configurable:true,writable:true});
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 globalThis.requestAnimationFrame = callback => setTimeout(callback,0);
 globalThis.cancelAnimationFrame = clearTimeout;

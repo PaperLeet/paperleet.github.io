@@ -14,16 +14,17 @@ import {keepReadingTriggerVisible} from './readingViewport';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import OrganizationLogo from './OrganizationLogo';
 import LibraryExerciseSourcePreview from './LibraryExerciseSourcePreview';
+import LibraryExerciseFavorite from './LibraryExerciseFavorite';
 import {interviewSourceRequest} from './interviewSourcePreviewModel';
 import type {LibraryCompanyGeneralRowProps} from './libraryCompanyScope';
 import './library-exercise-companies.css';
 
 export default function LibraryExerciseCompanies(props:LibraryCompanyGeneralRowProps){
- const {user,loading}=useAccount(),view=readLibraryRoute(props.returnTo);
+ const {user,loading,capabilities}=useAccount(),view=readLibraryRoute(props.returnTo);
  if(!hostedEdition||loading||!view||view.filters.company)return null;
- return <Companies key={JSON.stringify([user?.id||'guest',props.returnTo,props.problem.id])} {...props} owner={user?.id||'guest'}/>;
+ return <Companies key={JSON.stringify([user?.id||'guest',props.returnTo,props.problem.id])} {...props} owner={user?.id||'guest'} favoriteAvailable={capabilities?.problem_bookmarks===true}/>;
 }
-function Companies({problem,returnTo,owner}:LibraryCompanyGeneralRowProps&{owner:string}){
+function Companies({problem,returnTo,owner,favoriteAvailable}:LibraryCompanyGeneralRowProps&{owner:string;favoriteAvailable:boolean}){
  const {t,locale}=useI18n(),id=useId(),root=useRef<HTMLDivElement>(null),toggle=useRef<HTMLButtonElement>(null),panel=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null);
  const [open,setOpen]=useState(false),[visited,setVisited]=useState(false),[days,setDays]=useState<ProblemInterviewPeriod>('365'),[retry,setRetry]=useState(0),[previewCompany,setPreviewCompany]=useState('');
  const scope=JSON.stringify([owner,returnTo,problem.id]),intent=useWorkspaceIntent(scope),pending=useRef<(()=>boolean)|undefined>(undefined);
@@ -43,7 +44,9 @@ function Companies({problem,returnTo,owner}:LibraryCompanyGeneralRowProps&{owner
   if(!open||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||(event.target as HTMLElement).closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
   event.preventDefault();event.stopPropagation();close();
  }}>
+  <div className="library-exercise-row-actions" role="group" aria-label={t(`${name}的题目操作`,`Exercise actions for ${name}`)} data-favorite-available={favoriteAvailable||undefined}>{favoriteAvailable&&<LibraryExerciseFavorite problemId={problem.id} problemName={name} returnTo={returnTo} showStudyLists={false} canAct={()=>!!here()}/>}
   <button ref={toggle} type="button" className="library-exercise-company-trigger" aria-expanded={open} aria-controls={id} aria-keyshortcuts={open?'Escape':undefined} aria-label={t(`查看${name}的公司来源`,`View company sources for ${name}`)} title={t('公司来源','Company sources')} onClick={()=>{if(!here())return;if(open)close();else{pending.current=intent.create();setVisited(true);setOpen(true);}}}><Building2 size={17} aria-hidden="true"/></button>
+  </div>
   <section id={id} ref={panel} className="library-exercise-company-panel" hidden={!open} aria-label={t(`${name}的公司来源`,`Company sources for ${name}`)}>{open&&<>
    <header><h3 ref={heading} tabIndex={-1}>{t('本题的公司来源','Company sources for this exercise')}</h3><button type="button" className="library-exercise-company-close" aria-label={t('收起公司来源','Collapse company sources')} onClick={close}><X size={16} aria-hidden="true"/></button></header>
    <label className="library-exercise-company-period">{t('面经发布时间','Report publication period')}<select value={days} aria-label={t(`${name}的面经发布时间`,`Report period for ${name}`)} onChange={event=>{const value=event.target.value;if(here()&&open&&problemInterviewPeriods.includes(value as ProblemInterviewPeriod)){setPreviewCompany('');setDays(value as ProblemInterviewPeriod);}}}>{[['30','近 30 天','Past 30 days'],['90','近 90 天','Past 90 days'],['365','近一年','Past year'],['all','全部时间','All time']].map(([value,zh,en])=><option key={value} value={value}>{t(zh,en)}</option>)}</select></label>

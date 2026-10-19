@@ -26,6 +26,7 @@ const bellEntry = Object.entries(manifest).find(([, entry]) => entry.name === 'I
 const environment = loadEnv('production', process.cwd());
 const onlineAccounts = environment.VITE_APP_EDITION === 'hosted' || (environment.VITE_PUBLIC_SITE === '1' && environment.VITE_HOSTED_APP_AVAILABLE === '1');
 if (onlineAccounts) {
+  assert(manifest['src/FavoritePagination.tsx']?.isDynamicEntry&&!initial.has('src/FavoritePagination.tsx'), 'Private saved-problem pagination must load independently of row bookmark controls and the library shell');
   assert(manifest['src/InboxPanel.tsx']?.isDynamicEntry && !initial.has('src/InboxPanel.tsx'), 'The notification panel must remain deferred');
   assert(bellEntry && !initial.has(bellEntry[0]), 'The notification bell must remain deferred, including when Rollup shares its icon chunk');
 } else {

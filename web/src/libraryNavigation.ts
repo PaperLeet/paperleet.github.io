@@ -115,18 +115,22 @@ export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]
   return { ...rest, category, tag, runtime: 'all',...(company?{company,...(company_days&&company_days!=='365'?{company_days}:{})}:{}) };
 }
 
-export function readFavoriteRoute(route:string):{query:string;state:string;list?:string}|undefined {
+export type FavoriteView={query:string;state:string;list?:string;page?:number;page_size?:LibraryPageSize};
+export function readFavoriteRoute(route:string):FavoriteView|undefined {
   const value=parts(route);
-  if(!value||value.path!=='favorites'||!only(value.params,['q','state','list']))return;
-  const query=value.params.get('q')||'',state=value.params.get('state')||'all';
-  const list=value.params.get('list');if(list!==null&&!/^[a-f0-9]{32}$/.test(list))return;
-  return bounded(query,200)&&['all','todo','started','done'].includes(state)?{query,state,...(list?{list}:{})}:undefined;
+  if(!value||value.path!=='favorites'||!only(value.params,['q','state','list','page','page_size']))return;
+  const list=value.params.get('list');
+  if(list!==null&&(!/^[a-f0-9]{32}$/.test(list)||value.params.has('page')||value.params.has('page_size')))return;
+  value.params.delete('list');
+  const filters=readLibraryRoute('?'+value.params)?.filters;
+  return filters?{query:filters.query,state:filters.state,...(list?{list}:{}),...(filters.page?{page:filters.page}:{}),...(filters.page_size?{page_size:filters.page_size}:{})}:undefined;
 }
-export function favoriteHref(view:{query:string;state:string;list?:string}):string {
-  const params=new URLSearchParams();if(view.query)params.set('q',view.query);if(view.state!=='all')params.set('state',view.state);
-  if(view.list)params.set('list',view.list);
-  if(view.list!==undefined&&!/^[a-f0-9]{32}$/.test(view.list))throw Error('Invalid private study-list ID');
-  return '#/favorites'+(params.size?'?'+params:'');
+export function favoriteHref(view:FavoriteView):string {
+  const params=new URLSearchParams(libraryHref(undefined,{...emptyLibraryFilters(),...view}).split('?')[1]);
+  if(view.list!==undefined)params.set('list',view.list);
+  const href='#/favorites'+(params.size?'?'+params:'');
+  if(!readFavoriteRoute(href))throw Error('Invalid saved-problem view');
+  return href;
 }
 
 /** Practice may return to one public post ID, without private or nested list context. */
