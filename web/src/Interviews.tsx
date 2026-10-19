@@ -72,8 +72,8 @@ export default function Interviews({route,problems,papers,catalogError,onRetryCa
  const feedError=(ownerMismatch?t('收藏列表与当前账号不一致，请刷新账号后重试。','This saved list does not match your account. Refresh your account and retry.'):undefined)||feed.error||(feed.data&&!validFeed?t('面经数据暂时无法读取，请重试。','The reports could not be read. Try again.'):undefined);
  const summaryError=statistics.error||(statistics.data&&!summary?t('统计数据暂时无法读取，请重试。','The statistics could not be read. Try again.'):undefined);
  const scope=interviewHref(filters),readingOwner=accountLoading?undefined:user?'account:'+user.id:'guest';
- // Directory ordering and legacy report-page numbers do not change its search scope.
- const searchScope=filters.view==='companies'?interviewHref({...filters,company_order:'catalog',page:1}):scope;
+ // Local ordering and practice filters keep pending input within the same evidence scope.
+ const searchScope=filters.view==='reports'?params.toString():summaryParams.toString();
  const record=currentReadingReturn();
  const sourceReturn=filters.view==='questions'&&record&&record.owner===readingOwner&&record.href===scope&&record.phase==='returning'&&record.concept?{id:record.id,concept:record.concept}:undefined;
  const [readySourceKey,setReadySourceKey]=useState('');

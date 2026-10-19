@@ -181,7 +181,14 @@ failed source and both failed focused results are retained.
 
 The React checklist covers stable primitive effect dependencies, existing labeled
 native controls, unchanged data requests and imports, and the existing typed
-reset-scope prop. Full frontend/type/build verification is still pending.
+reset-scope prop. A subsequent complete-App check rejected the route-based reset during local
+learning-state recovery. Search now uses the existing report/summary request
+parameters as its primitive scope. This preserves pending query, native selection
+and horizontal scroll when local ordering/practice filters change, while actual
+evidence-source changes reset to the applied query. The six original checks and
+the real App library/filter-recovery journey all pass (seven focused checks).
+The rejected route-based source and full-App failure remain retained.
+Full frontend/type/build verification is still pending.
 Remaining gates are the complete frontend check, both build profiles, generated
 Worker identity, retained
 immutable assets and an actual nested-route browser submission with matrix,

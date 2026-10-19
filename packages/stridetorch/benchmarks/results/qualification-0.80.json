@@ -3911,6 +3911,10 @@
     "322": {
       "path": "torch-iteration-322/result.json",
       "sha256": "2f9a948697585de4e4acc34666863ed64e1707605bf025743bb60a9e84d31b57"
+    },
+    "324": {
+      "path": "torch-iteration-324/progress.json",
+      "sha256": "af0c8aa11c5abccc6bba62326c91b747122acefabfa5544fa623dd32367a1512"
     }
   },
   "frontend_diagnostic": {
@@ -3931,6 +3935,13 @@
       "Measure no late scroll relative to the completed explicit recovery action",
       "Select the actual guarded recovery button"
     ],
+    "full_frontend_qualified": false
+  },
+  "frontend_evidence_scope_repairs": {
+    "result_file": "torch-iteration-326/result.json",
+    "sha256": "a62709509dc102175380836e91255633d5082429c72cb505e7d2b05a1a02376c",
+    "passed": 7,
+    "scope": "Use existing report/summary request parameters as a primitive search scope. Local ordering, practice and learning-state changes keep pending query/selection; evidence-source changes adopt the applied query.",
     "full_frontend_qualified": false
   }
 }
