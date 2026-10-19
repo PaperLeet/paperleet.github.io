@@ -1,5 +1,9 @@
 # Torch runtime 0.82 development candidate
 
+This is the historical development-stage record. The subsequent
+[0.82 qualification](torch-runtime-0.82-qualification.md) resolves the pending
+application/export/catalog gates below while preserving these original results.
+
 This candidate adds ordinary `torch.nn.utils.clip_grad_norm_`,
 `clip_grad_value_` and the deprecated `clip_grad_norm` alias, including the
 `torch.nn.utils.clip_grad` import path. Existing host alias setup remains

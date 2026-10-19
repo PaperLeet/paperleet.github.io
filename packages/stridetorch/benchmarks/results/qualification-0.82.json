@@ -1,0 +1,873 @@
+{
+  "status": "qualified_082_runtime_application_catalog_and_browser_with_scoped_main_merges",
+  "version": "0.82.0",
+  "qualified_application_head": "59dc4b00a14c5086e6100e46f6672a8d37b6d07f",
+  "cpu_head": "43c9356c8b1a6cc3e99ce72e7a12d840595dffc5",
+  "runtime_resources": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+    "_api.py": "9666e22d867fe822e6769cb07dad8bca11e75def9c894cc36e5b2be0667eb111",
+    "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "__init__.py": "0a45095346d46d56b72f18cb77e93db45086e8fe8b9b3029948c855ef1252c48",
+    "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "_arithmetic.py": "93dbdc5a799aa3366dcdc64e406a4a6a23b4dc666b4a3acf46598bfe3578f860",
+    "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "8cbfd3ac8d87500d21e700e07429e0000ca670fafd7fea1cd42cb2963db50879",
+    "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "3e3c1860d97865c727ad4a62c393f6803731b1e4a9beee7c6705bc1005d2bf1a",
+    "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "_higher_order.py": "a2fb116c9ad0ebe452e164397f15a26b059444ace6293a0d4af01e1a05fd849b",
+    "_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+  },
+  "cpu": {
+    "passed": 45932,
+    "skipped": [
+      {
+        "name": "tests.test_submissions::test_real_docker_toy_validation_and_published_artifact",
+        "reason": "Set PAPERLEET_DOCKER_HARNESS_TESTS=1 after building the submission image"
+      }
+    ],
+    "errors": 0,
+    "failures": 0
+  },
+  "native_sdk": {
+    "numpy25_passed": 12298,
+    "numpy126_passed": 12295,
+    "numpy126_existing_skips": 3
+  },
+  "wasm_sdk": {
+    "node_passed": 12285,
+    "chrome_worker_passed": 12285,
+    "failed": 0,
+    "skipped": 0,
+    "pyodide": "0.29.4",
+    "numpy": "2.2.5",
+    "isolated_version_literal": "0.81.0",
+    "version_only_difference_from_canonical": true,
+    "canonical_082_confirmed_in_actual_generated_worker": true
+  },
+  "clipping_native26_oracle_cases": 478,
+  "mixed_precision_clipping_cases_per_environment": 84,
+  "secondary_native214": {
+    "all_checks_match": 475,
+    "error_class_differences": 3,
+    "numerical_or_mutation_mismatches": 0,
+    "pinned_contract": "Torch2.6"
+  },
+  "catalog": {
+    "modules": 89,
+    "native_repeats": 3,
+    "native_test_records": 12360,
+    "wasm_modules": 89,
+    "wasm_mutants": 406,
+    "browser_budget_exceeded": []
+  },
+  "packaging": {
+    "artifacts": [
+      {
+        "path": "public-dist/stridetorch-0.82.0-py3-none-any.whl",
+        "sha256": "3650e92a6eabd2241b7dc2b1539ac05daa546aea9d02e6f9f45be1b15e522baa",
+        "runtime_resources": 66
+      },
+      {
+        "path": "private-dist/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "d4cf1d1fc759f4a6be0dc11c7844c3f9a9b0a701a8b5f0f2a5b9f437e9e60423",
+        "runtime_resources": 66
+      },
+      {
+        "path": "public-dist/stridetorch-0.82.0.tar.gz",
+        "sha256": "512b2c71a99c96df45bb510841d2ea2096e6c270b4f921ee101f02d6838a52da"
+      },
+      {
+        "path": "public-rebuild/stridetorch-0.82.0-py3-none-any.whl",
+        "sha256": "6aa0710388596777b5bf5b3fbf815d568232c88a04ac06c1e9cef6f6045a1f45",
+        "runtime_resources": 66
+      },
+      {
+        "path": "private-dist/paperleet-0.1.0.tar.gz",
+        "sha256": "47dcf8b9fe3f18ed7696368e6a56d0f530b30b8d1a39d127b59e03015a204ef3"
+      },
+      {
+        "path": "private-rebuild/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "4623e2e56397eeabd36587f1468d271dd9e3c35ee84a729f06181c97fed219d7",
+        "runtime_resources": 66
+      }
+    ],
+    "resources": 66,
+    "coinstall_both_numpy_environments": true,
+    "current_application_bytes_verified": true
+  },
+  "exports": {
+    "active_identities": 183,
+    "new_assets": 180,
+    "previous_assets_preserved": 16227,
+    "all_new_assets_reachable": true,
+    "hashes": {
+      "modules/1-2a1ffb8c04898f3fee5f.json": "2a1ffb8c04898f3fee5fa235659e2cab426c8bb1cd77d35e0ac0e16b428234b6",
+      "browser-judge/1-fa3ec060ba2b678ed317.json": "fa3ec060ba2b678ed317f529a8caf25d30374cbb18d3fcab0ed9087b767b46cd",
+      "browser-judge/runtime-ea6f421f0a2a985b0e74.json": "ea6f421f0a2a985b0e742d8649edfd296f92b3210e59ba56e467e324b63cf5bf",
+      "modules/2-4b2b83366e15b765ce2f.json": "4b2b83366e15b765ce2f41ca8b74904263a4095b9efdcf6cd8cd0f6e0c285c11",
+      "browser-judge/2-8b48dcf63199b47d2a74.json": "8b48dcf63199b47d2a749834f0337c403e269ecbb62ebc90a7a4b15d5dca5101",
+      "modules/3-d4a502e714c64b9b4c29.json": "d4a502e714c64b9b4c29cdfefc204dcfba4f37ad98364457181542c2e9ec9358",
+      "browser-judge/3-e0265e1f54445b6d7ee9.json": "e0265e1f54445b6d7ee97f070a94de5ebe4a80a26cd58ad7a41e9972b8051fe2",
+      "modules/4-083b140a63ce763e28f4.json": "083b140a63ce763e28f4e96eab0ab316edbe84f467e6b0228e1c946aedfbab35",
+      "browser-judge/4-925a8a5943eebcf99aa3.json": "925a8a5943eebcf99aa3801a00a558bdcef0884e6b8093c42f03aba3f78f5ed8",
+      "modules/5-d31bc210013a660d08aa.json": "d31bc210013a660d08aa00dbeb90e166f72bab51f5a18fd4d78c9f1763b6a007",
+      "browser-judge/5-3ca240eab612efc52dd6.json": "3ca240eab612efc52dd6687c58159dfd091e726fd1eb3a9cdcea5a90d49ecc63",
+      "modules/6-755a9f5f93bf0b62e438.json": "755a9f5f93bf0b62e438c083ad95da84098689d6d333fb7783d34315b92aabe6",
+      "browser-judge/6-075246bd3f575f0cb8c3.json": "075246bd3f575f0cb8c3ec56af61848ee45a1c4fd169af44cba3917501bafd43",
+      "browser-judge/runtime-228980405784aff0d5be.json": "228980405784aff0d5be63feaa62a7fb5e1e6647d77fc3fd6f7f3662cbcc0704",
+      "modules/7-a81206b361fa4149ec0c.json": "a81206b361fa4149ec0cb30065167cc55909d90f6b1e9675010f764a757b4dff",
+      "browser-judge/7-9d3a577e622665cd9b56.json": "9d3a577e622665cd9b564a8a4cb02c92116ba03ed7dc78db60e6c8abe043ad41",
+      "modules/8-971ba71c4de989be41e1.json": "971ba71c4de989be41e1ece249f50034aaf12924148466bd6f6d6a4d744719a6",
+      "browser-judge/8-eb169e5811b185766546.json": "eb169e5811b1857665466ca90bc2a51f70f7fcef80b52f7d39b2f7a646d1f578",
+      "modules/9-ecb13fbe5b3b5360be07.json": "ecb13fbe5b3b5360be078aa1e90a7afaab545e1204a32cfebbdabd5b0a6d14d7",
+      "browser-judge/9-5973789a4ae6912f49ad.json": "5973789a4ae6912f49ad244961aa8c3f46d0d206f60b43b50249b351a71da998",
+      "modules/10-a19ca4cb1546ca77f6a8.json": "a19ca4cb1546ca77f6a8e3e76df028925fa6d357ccd75c45e48aa3781a34d3ba",
+      "browser-judge/10-18818189a77bdb149c00.json": "18818189a77bdb149c00e37b7cd051f5ad5a3fcb9cae1f55b1a7ec42df0b09c5",
+      "modules/11-442ad28e38234c7923cf.json": "442ad28e38234c7923cf595cda940b9ffb839b189d23a5fbb2668fed18eabc79",
+      "browser-judge/11-915f1357e3b3183a4075.json": "915f1357e3b3183a40757ebc2d54f337c42eb673ef6d7471fe3ae7fad9b5608a",
+      "modules/12-ef9421788e02bb32f354.json": "ef9421788e02bb32f354b60b8a4554f59e9a9d025beee62f8762680052fccd5f",
+      "browser-judge/12-dbdd0d82b94749c2a049.json": "dbdd0d82b94749c2a049368015f759b25e69994297c34d223d7c5190d13973c9",
+      "modules/13-248976608144c2ba0e1d.json": "248976608144c2ba0e1d85f27d9529c0026582fc4c228970454f274f8a06acfd",
+      "browser-judge/13-09b85d104baeddb9ab83.json": "09b85d104baeddb9ab836eb50d32f3715ed0cbfb39e4d9ca03f6bccdd07ff6a6",
+      "modules/14-ac5c1de6c143e9cea70c.json": "ac5c1de6c143e9cea70c3fd6ed39c951c4afc319ae83fd2b0d1913c9aea5f3a7",
+      "browser-judge/14-d0401cb5ab04c640cd4a.json": "d0401cb5ab04c640cd4a1e309e3ee18fd7c8d9d0a36cefd0c370c7847151b922",
+      "modules/15-ec1b297d2609bc878c56.json": "ec1b297d2609bc878c56513e1eadfba72ed07bb3828f43d7d6c9607c420ce2a7",
+      "browser-judge/15-4afccced91fae16801da.json": "4afccced91fae16801dae677f05860278cb2c96753735aaaeee5931bc24feaea",
+      "modules/16-4a7e19169384aa851c6b.json": "4a7e19169384aa851c6bd65a9bdc832b3bdd6b5f48cce8b3bf1d530a307c84f1",
+      "browser-judge/16-f957adbcd72be2bfe860.json": "f957adbcd72be2bfe860705d520e914225f930b17b808c21fb2949bdf050f704",
+      "modules/17-a81727a10d84fb33559b.json": "a81727a10d84fb33559b4df6c2d1831747d73d62fc3eac449c8d237a012b37bf",
+      "browser-judge/17-ba30d19535c88d461693.json": "ba30d19535c88d461693774f9d90828dd6f3840a2743b991266985f852cd566f",
+      "modules/18-82f5b97a335943ef7e42.json": "82f5b97a335943ef7e426185306179096ccb335b99e1478868e01a1dbc831636",
+      "browser-judge/18-26c8a4683fa8065a2500.json": "26c8a4683fa8065a250033b7f7466f06412f6ec4f1584cbf2041351cd247bbe5",
+      "modules/19-714182dccc6131608db4.json": "714182dccc6131608db47ddb699472cd3260138f398b3e204a9f2c05bbc585bc",
+      "browser-judge/19-0de46b1b250e525f2f94.json": "0de46b1b250e525f2f942238ead31f89d4850ea8e89565271ad8bf59394ad2de",
+      "modules/20-2c0075c4379648232893.json": "2c0075c43796482328934a833bafb7cc9cb21f72630b81a3c7d5c818be118c4a",
+      "browser-judge/20-e62686c7c7f31267fb33.json": "e62686c7c7f31267fb33ddc68b656d87ecf3a0b4c90cdebe00d893c03b2ad111",
+      "modules/21-70bf6937fa9c74499f2b.json": "70bf6937fa9c74499f2b0f6d3c9757168b2822450d7277e1fbfee0feb2f360f3",
+      "browser-judge/21-a19320ce4622ba318fca.json": "a19320ce4622ba318fca917aafc2949fdb6588494d93ee18f6b20185efddb9df",
+      "modules/22-3d584a862c7d4f163ff9.json": "3d584a862c7d4f163ff9659290f12afa9d5a6c01e5a14142a3e8bf2eca6f747b",
+      "browser-judge/22-732d52df8cccc23460a1.json": "732d52df8cccc23460a14ee484f899b67c1ed0740fff7399f1c092c47fc0a36f",
+      "modules/23-91579fd8a0e931a89ff3.json": "91579fd8a0e931a89ff367155e970beb868e43e3272c308ddc88a5367b1bdac8",
+      "browser-judge/23-dd793e2cd9bd11e4f4c8.json": "dd793e2cd9bd11e4f4c82fa38fad31c291b64faf73cf68ae6bbdc7169259a95f",
+      "modules/24-d7d009a18be8451d7e33.json": "d7d009a18be8451d7e330345240ecd152c39be9b8a96cbc35bfb9804d322b219",
+      "browser-judge/24-fce6834328a1b146e8a6.json": "fce6834328a1b146e8a65c0a5ef0eac419d848379a43cdbea5646ca38df2537f",
+      "modules/25-576d62bb9ba944b21a56.json": "576d62bb9ba944b21a569e96221a32c58be02f976309e9135044c87badef53a9",
+      "browser-judge/25-31b5e66274470723ae0d.json": "31b5e66274470723ae0dacd02e0ed8597c18c29497b6698013f0986e2cc1a544",
+      "modules/26-6d880d45db8afb308875.json": "6d880d45db8afb30887542188d1b723fa7d5c9d8e367324c372a1a72cd1f384c",
+      "browser-judge/26-b7c11843735bc2e290c5.json": "b7c11843735bc2e290c56abee7d929adb6311feaddce00708d526dc8ceeeb1e4",
+      "modules/27-33523048060d26afd50b.json": "33523048060d26afd50b8cb6cfb43a149fb132dec376d64f23b9f67bbd3277f0",
+      "browser-judge/27-1cd7fa25ffd0cefcbb19.json": "1cd7fa25ffd0cefcbb19cbde71ccc6813ff886483be3217b845cac52408f9edf",
+      "modules/28-d3a0ed6549f366f7ce75.json": "d3a0ed6549f366f7ce75b7ce3f39e89e39fb4f2b59a0506368bef9d4fde74ac9",
+      "browser-judge/28-3f059020e86399610ee7.json": "3f059020e86399610ee73641305419a7165064aa11fafaef2d95bcb285404513",
+      "modules/29-5367999500bb235a2a76.json": "5367999500bb235a2a767fa2a5b73ebab3db30d384cd952c20dfa8fcf65e8513",
+      "browser-judge/29-dfaee80f53ac90eeea91.json": "dfaee80f53ac90eeea916ac32f08d35bea4ed9a2d2d8c263f8bae0261ec906a5",
+      "modules/30-99c0462a71dc06bb2c87.json": "99c0462a71dc06bb2c877674228bfcaf5c8a00328d487094e96a954c8ce18624",
+      "browser-judge/30-3e91d8b868e612d1786b.json": "3e91d8b868e612d1786b84d6db694aa9ce744e20a665917cca85b4b42737cdc3",
+      "modules/31-e729fd78d89b3b4287ab.json": "e729fd78d89b3b4287ab248ff13f158bf0e2c6dc45126b4554f3ac1c91912bb5",
+      "browser-judge/31-edef59c2cc773a26a6a3.json": "edef59c2cc773a26a6a38a222a96f315051b47b3ea102e1822f12480b30a3786",
+      "modules/32-71ab877ce2ed5259412b.json": "71ab877ce2ed5259412b67733750106403a4b94f0048d9b9f91e2c496848346a",
+      "browser-judge/32-fb3bcfb37c3b8bae6b09.json": "fb3bcfb37c3b8bae6b09fb252b56fd6ec24ee5c147fad85c552346ad0b46a76e",
+      "modules/33-d882824b19eb489f35cb.json": "d882824b19eb489f35cbcdf4c9f95e50496a6f21a9bf4260743a4ca77bef4579",
+      "browser-judge/33-6112c145d9bf9625af9f.json": "6112c145d9bf9625af9f101a6c35289a19ca200884f9c921f426c311d0e0d7fc",
+      "modules/34-26560d9bf632f370896c.json": "26560d9bf632f370896cbf5b4557f5dc3d1414670bbb65ba4359531fca051759",
+      "browser-judge/34-41bc3510b2c68fb144f0.json": "41bc3510b2c68fb144f05091ed6859e5f576fc2e1f5d32c1010c1ef8ae984f89",
+      "modules/35-9813d9537a3bcc4f008d.json": "9813d9537a3bcc4f008ded4679b83a21246f4d3abf918d82b2857d53686395f0",
+      "browser-judge/35-a8485328cd52b6f7bc40.json": "a8485328cd52b6f7bc40360addc304e4f2768d39aa38e5ffe6db1ebca002ba1f",
+      "modules/36-f078b4a65da39126bf59.json": "f078b4a65da39126bf59afec6314b5fec658fe8ca011bb50484b1b936df17138",
+      "browser-judge/36-c9dc3603706e8d24023f.json": "c9dc3603706e8d24023f1022689820891ad1e275702f30ebd423b9a264032fa4",
+      "modules/37-fb4651a97567856498da.json": "fb4651a97567856498da227dd4a03d5efda911b034b17bbfd5b417b84da87770",
+      "browser-judge/37-cf9db755a66f0860e2b1.json": "cf9db755a66f0860e2b19e11fffee44ce629f9fca860e3bac531e51469500c97",
+      "modules/38-a0c8f1dd759f79114d9d.json": "a0c8f1dd759f79114d9d9d020fa9f783979b90433554257f56193a7566ea2feb",
+      "browser-judge/38-d3e0961a19a605773d08.json": "d3e0961a19a605773d080b98259c1990228aa241a5365ac5d1d882f23d9a2b54",
+      "modules/39-bc8bdb45fbecfec62823.json": "bc8bdb45fbecfec6282305d554c424b7c5a6b6d46f4b4d811d32802ad411824e",
+      "browser-judge/39-eb0e328ebd096b570d5a.json": "eb0e328ebd096b570d5a3ae4ae541fdd73a190f863c0adc735716cb634a45c61",
+      "modules/40-4c69d71a96fd596a1a38.json": "4c69d71a96fd596a1a38b85db2c88fd695b08f1cad53b53ec311cbcaa7ec6c02",
+      "browser-judge/40-504288623285998fd08e.json": "504288623285998fd08e4c5e63e77efd2544d10a532ab79bee11f7ff2c5c4104",
+      "modules/41-f6364056b769d2f9b69f.json": "f6364056b769d2f9b69f336d73c14ae0f4a74a42e6415ad50d2eec17ccddf749",
+      "browser-judge/41-288371eab7c552be2d0d.json": "288371eab7c552be2d0d855adc3b4c3be95366bc4199efd3cc465361bc57db60",
+      "modules/42-84bf8ed7927274da463a.json": "84bf8ed7927274da463ad29bdc402c8abdb0ec0172afd09fbae81749fae057b7",
+      "browser-judge/42-494df4a0df841721616f.json": "494df4a0df841721616f5f53f3205b9ffdade4f50f4c2db5c09e1530e10b8055",
+      "modules/43-ca8d3dc2cc952504a12f.json": "ca8d3dc2cc952504a12f5fea12f7bce6d7a2e0b7fe494df73411d41cee39530c",
+      "browser-judge/43-aa5ea338af5d3118e47b.json": "aa5ea338af5d3118e47b02c06f0aed49e50acb15d45831798f5cf01d96620dc8",
+      "modules/44-3ef90a00c9d8dee8375d.json": "3ef90a00c9d8dee8375d270ed2ebc2307a58e41421c31931c489b6f7c2ba64f2",
+      "browser-judge/44-9e5cf0cf73d7226c223b.json": "9e5cf0cf73d7226c223b533162230c9c58cff8cab13cc1fa885004c8360282e7",
+      "modules/45-20e7b51f73ea847ef720.json": "20e7b51f73ea847ef7203ef46e3ee74114ab9b6be03c0e1a175417e97e613692",
+      "browser-judge/45-b731e65d24311dcf24d0.json": "b731e65d24311dcf24d0d271f8c992bd8734b2cc1b6b5f43a161081bc870c8db",
+      "modules/46-6b5708240940d11cd162.json": "6b5708240940d11cd1626558a2d5a8d9a85c6111e688e7f690160f323ecfcee6",
+      "browser-judge/46-181a0db5151c9691a048.json": "181a0db5151c9691a048685ac5037a8f52b707312690a6361d2aefee3328b2d1",
+      "modules/47-21aa7036cbb715ed4062.json": "21aa7036cbb715ed4062df481447b4bf5362c5596d4c9559344790225e0ea563",
+      "browser-judge/47-1f7eae0019b264085047.json": "1f7eae0019b264085047717e47f12dea9236e347d35d04b9f1773175383bbe6a",
+      "modules/48-087fe473ec68680f19e6.json": "087fe473ec68680f19e68266e5e86d57810e910345cc515d99d8e1306462ca59",
+      "browser-judge/48-2ebbf13d3ce062ce0f55.json": "2ebbf13d3ce062ce0f55abfa4f8874073a81706202df629cd388aa31222f6dd3",
+      "modules/49-b1ffa0891994e1d953b2.json": "b1ffa0891994e1d953b2a98e71370609fc96019a88db7066f24ff7e566b0d971",
+      "browser-judge/49-ddd3c33db146807ab361.json": "ddd3c33db146807ab361faa3dd018c8c6dbd564bdbb1d7c3b89d1dc81d1154bc",
+      "modules/50-f3b726bc53e09ab9185c.json": "f3b726bc53e09ab9185c54e96d50f247b33bf04927bc75e13225e62c715b3a44",
+      "browser-judge/50-83f8b23fac4bad296fb8.json": "83f8b23fac4bad296fb8ecf9b3ce7ad2e126036432ae58697826b3887b002bae",
+      "modules/51-291503e422be038b9775.json": "291503e422be038b97754cd3f7cf4ec465de48ee366eadc4aced4005f2a69582",
+      "browser-judge/51-6c426a0db9fdd7ed5d60.json": "6c426a0db9fdd7ed5d60f8d842dab31270d2568334af78b39b1cd26068e9e33c",
+      "modules/52-6c2e5bdd2b7500344f09.json": "6c2e5bdd2b7500344f0941f8a0f03552017f37943029190277d3d21598bdfb80",
+      "browser-judge/52-9590e79c433d6f76e0f3.json": "9590e79c433d6f76e0f35d5bea1c18f506940adad945c56692cc8890a8760ff7",
+      "modules/53-38fc4a64590c2af082cf.json": "38fc4a64590c2af082cfd06fa04bb9f4db7ab1b650ecf8d45c0f6ef784943d89",
+      "browser-judge/53-a0dbad16379cd7db02a3.json": "a0dbad16379cd7db02a30d214b5b2ce7e703a0f56acf9390c5a5f036cabdcc08",
+      "modules/54-48c3bc370fac855e3b5f.json": "48c3bc370fac855e3b5f18f189e332ab75f0404c65e1c93b186efd9ac94e0f86",
+      "browser-judge/54-52e292ccb97738c98bc1.json": "52e292ccb97738c98bc107c78675a9b474a7df9d112da065fa28fb6d1752308c",
+      "modules/55-3e14efce09a431b6a1e5.json": "3e14efce09a431b6a1e5a5dea7ff35d59255f3b4cd4fca53297b91a673e76cf6",
+      "browser-judge/55-383ba87abe50940710b7.json": "383ba87abe50940710b706fe4a3760448087c9d00446a56cc586caee6daef4db",
+      "modules/56-6f93f49e1366ba1af4bc.json": "6f93f49e1366ba1af4bc759925d202e9dfa87baf74ecf25ddd0cb3065bb45afe",
+      "browser-judge/56-14eb5b20db8439dcbbeb.json": "14eb5b20db8439dcbbeb4ba910e171561b4d4cad787e6561a0d40a55f2b69a7d",
+      "modules/57-2f1e21282c5b2ec1121a.json": "2f1e21282c5b2ec1121aa385ee7755e29c344d1786a8abde17ea0ec5a4976def",
+      "browser-judge/57-401c96cdf813e38bd994.json": "401c96cdf813e38bd994d15482e4b141377c58483afa5c3cbb7b5f630a2a30c3",
+      "modules/58-8c83a735a333f61d7e45.json": "8c83a735a333f61d7e45bc18fcfa8e00307475c13ddc2a40e0e180097b7a12b3",
+      "browser-judge/58-0151f159d0beff44557a.json": "0151f159d0beff44557a4e26b00f9947b067c57e418a948ca3c6ff50c1433676",
+      "modules/59-b0df3aee551e4acc50d7.json": "b0df3aee551e4acc50d74da249dbf64901e714b8113664cc85519a03282f59aa",
+      "browser-judge/59-87af7698de6827fd5721.json": "87af7698de6827fd5721b97bc33656e7b5d319bcf507b9230316c64ee2398222",
+      "modules/60-316d4579c253fbfa4650.json": "316d4579c253fbfa465089d03f0da29374bdbe04b5c2225807e963c08ab71709",
+      "browser-judge/60-6d66ab077216b6804847.json": "6d66ab077216b6804847e768809afc21b137a73e05c1bf19248463c9163d9dfe",
+      "modules/61-3a5ed32d560929955851.json": "3a5ed32d5609299558515bad97cef92cdb67f773f23f6b564794202f19824b1b",
+      "browser-judge/61-8177f0e8ad63ae4a78e0.json": "8177f0e8ad63ae4a78e0e97c0bed86d0a23126f7f2042b5adee96a892b9f0093",
+      "modules/62-022cf43455bac41d4abf.json": "022cf43455bac41d4abf8bb2beaa6b9b5c66a1ebc5cd8095b8b717f740fee6ad",
+      "browser-judge/62-60487c25b962150c67db.json": "60487c25b962150c67db56e9fe450f37b8e3e99cca0379b78cf25c09d7ae33a1",
+      "modules/63-5c1428c258e711ed0be0.json": "5c1428c258e711ed0be0db2478e006de8ccfadcefae86120ca5c11764b2e272b",
+      "browser-judge/63-e72a721ed48dbb16edd0.json": "e72a721ed48dbb16edd0a9600be0e1ea4855225a0aa78a3c124d779fc55ed9c8",
+      "modules/64-062581044368861f168a.json": "062581044368861f168a9b5f2718474f0b2fb5944d7982213ce7e4afc64086b4",
+      "browser-judge/64-4a491d601875e2e631f8.json": "4a491d601875e2e631f8714c471aaa1c7c443064d6c1dec98701357a7e4bb846",
+      "modules/65-19989fa50ba43bf7c0a3.json": "19989fa50ba43bf7c0a3334302515e9888b522b157275b5c8b3c1dc5e0758112",
+      "browser-judge/65-f7494210bbf8e578d090.json": "f7494210bbf8e578d0909f480e40c0cde0df01f32d7e9110168feca74c0854b2",
+      "modules/66-329c0f0421e4bd5a6fdb.json": "329c0f0421e4bd5a6fdb00db0df0a76c4bfbc835c6d3180b6239f8f14a75eba8",
+      "browser-judge/66-d99ac4a8b58e1261d723.json": "d99ac4a8b58e1261d723f6d81e46c0da6d2afab0eea18c6db458d1598530c10e",
+      "modules/67-c1151fdbc618d5b9702d.json": "c1151fdbc618d5b9702d9cf81d57589e4aa47738826350d35da639f656167040",
+      "browser-judge/67-f1ee498f126f62151c02.json": "f1ee498f126f62151c020bb020534d4e425fe36b585932a22643bf81a9d6c705",
+      "modules/68-46d46314f2fb48c1a927.json": "46d46314f2fb48c1a9276e89a421977cf1c007954414d2f70c1f367fc1dc108b",
+      "browser-judge/68-4a2bcb4fc52ae85afc09.json": "4a2bcb4fc52ae85afc09da709a5739563ea0dfa8e69aaf43e0871c0f72fc74f4",
+      "modules/69-5e0520b5a407b9c60895.json": "5e0520b5a407b9c60895a960cc9a69702fb6deb46ccbc29779644500434a328b",
+      "browser-judge/69-d9c1eb36a4f1f89e95c3.json": "d9c1eb36a4f1f89e95c37fb4822113b43d3dd659940a33eae66c7389f89913a0",
+      "modules/84-9d8d83dc850eeaa08644.json": "9d8d83dc850eeaa086446a527b8a4caeee7905cad9af410dbfbf3e5128c55d5d",
+      "browser-judge/84-edbf2472fbd736320286.json": "edbf2472fbd7363202867f7b01d1185930b6426ac8575ce8be22ba3e9aff7422",
+      "modules/85-7ab80f956bd3a28a883b.json": "7ab80f956bd3a28a883b2655b78eea65a8c1df6553a6a5f0e970f9c92b091d47",
+      "browser-judge/85-56da7565354d2b035886.json": "56da7565354d2b035886a10afa865176c06e415f726d42410ce07cc7230a357d",
+      "modules/86-5a78fedbea4eb6ea6f2a.json": "5a78fedbea4eb6ea6f2a1e8fbcc65e07a67209c323d342666e09b6432cdbfad4",
+      "browser-judge/86-1718da24c7c04864dabc.json": "1718da24c7c04864dabc066e73b817833ac0ae4c5ffc90bd7dda37cd9ca1750e",
+      "modules/87-7184d315a2bdcbb38128.json": "7184d315a2bdcbb38128268c7ef94c98b29fbc8fc4f5fd3fd2261b8ca14bbb52",
+      "browser-judge/87-e645d8a7e9bb4fb8e766.json": "e645d8a7e9bb4fb8e76633b33fdeff7a295dccbc4c175af4c1f8c965137a1d9f",
+      "modules/88-92b331e9eedb8e3b4686.json": "92b331e9eedb8e3b4686d215b4acfd36c0e14ced5d9d925cc7c2704bb2842f5b",
+      "browser-judge/88-3c1114c2dbe4b82ab110.json": "3c1114c2dbe4b82ab110548effcc16a77362d6fd1651e47642901880d86dc692",
+      "modules/89-9c52508a143d281cbc0d.json": "9c52508a143d281cbc0d8ef32f72697d139b2b97bce2d86d05f4f9a5785677c9",
+      "browser-judge/89-7a4cc1b35c011a5e7de1.json": "7a4cc1b35c011a5e7de1e5c852ff033cda7b78d3d8a80538fb52bd38079c919e",
+      "modules/90-0d33464254061aad9831.json": "0d33464254061aad983124edbb70f49a7736ef5df91451cda48a763e5222cea4",
+      "browser-judge/90-b2b800f760b394512cb8.json": "b2b800f760b394512cb872af2fb0fc6c64354729e88b6373ee8fb10b3b254180",
+      "modules/91-70ffa88f840ac735f67e.json": "70ffa88f840ac735f67edf5cf58852b393b350c14f183ec6684c6e37c0a0c7bf",
+      "browser-judge/91-2cd76da3fb237b9d087e.json": "2cd76da3fb237b9d087eaa8f1a2a219d6e4ee46f7347f5ddc5d766bb964134eb",
+      "modules/92-9bb2bf2d54f30afe3cb3.json": "9bb2bf2d54f30afe3cb3c023c6e7b17e3afbbc93dd9f8ed5e2a1648103e7510b",
+      "browser-judge/92-9a89940d073955811c14.json": "9a89940d073955811c140f0734a48dd1bb6c78d05c4d98e91c3d6d60706ff33e",
+      "modules/93-a4cbfc20cbcf0ea60d80.json": "a4cbfc20cbcf0ea60d80c62dfcf2bb2af15658c5779a6238c8ed03cba5eab8c4",
+      "browser-judge/93-d23ca6933ab9ea4a4ced.json": "d23ca6933ab9ea4a4ced5d66c27fdc385384c8436b310bcb74b6d2df9ef960b1",
+      "modules/94-5ea979083c42a3abcd04.json": "5ea979083c42a3abcd04a14e47169778542d185d7e88138abef237e83d585cef",
+      "browser-judge/94-5854d39ffb3ba23d23f7.json": "5854d39ffb3ba23d23f7df731ceacd989e3296fd461d6840e52af5afbe269c89",
+      "modules/95-f57207d5225a5d1ca578.json": "f57207d5225a5d1ca5780a6ba144b4cef0059b6ad4e02bd408a8116f51ee44dd",
+      "browser-judge/95-d62ac3e01a54dee3e069.json": "d62ac3e01a54dee3e069a7bef58a2d206588d66221a20dceb53b25303da78f4c",
+      "modules/96-6dd608dfc9775f1abde1.json": "6dd608dfc9775f1abde17b5545d596794c298b094262dc19aa77d7018552e748",
+      "browser-judge/96-9d8115da06084f5d5a67.json": "9d8115da06084f5d5a67fabee69becec3094635a1cc1786705e0835dcd36f442",
+      "modules/97-a083bfc0eabc19da2033.json": "a083bfc0eabc19da20336504976dad01d450452b774c4de3b98a705ada97d482",
+      "browser-judge/97-9045e7ddbcbe3dd581da.json": "9045e7ddbcbe3dd581dac0d457d13048032ee2fda98ebecaed8727290af7d662",
+      "modules/98-f3e0106bb8e2a94f5d19.json": "f3e0106bb8e2a94f5d19485c57420e18bc615e4ea1f83c45263a6b505b059c4e",
+      "browser-judge/98-96e8cc1c248e6457d4c2.json": "96e8cc1c248e6457d4c21d9d54bae9d871f131328a4c8fa935d6464b6a7ecba5",
+      "modules/99-efd5d35660a9f2215990.json": "efd5d35660a9f22159905f152cb4edd73a442cbef813aedb373b951f3c3c93f2",
+      "browser-judge/99-713e6cd0f86b4d9de2f1.json": "713e6cd0f86b4d9de2f13a58ca0d5ecd4db3903155a4a5c5daf1795259c3c32c",
+      "modules/100-7b8e901d328f3143ce62.json": "7b8e901d328f3143ce622d29dbc4e5c5de6a458f0ef70f0a815c2dd99b07626e",
+      "browser-judge/100-7f51792c30b560f38f0e.json": "7f51792c30b560f38f0ef272a9c3b983400277ded87433e9098c2f68610330ac",
+      "modules/101-fdaada44aeb7b993b2cb.json": "fdaada44aeb7b993b2cbd91323266682e77489511475729bd57be660f9c01370",
+      "browser-judge/101-bad3d7d69ea2dc65b2a3.json": "bad3d7d69ea2dc65b2a37aa36313f48f391d54d0701ed089965c7aa0dfa5b3ee",
+      "modules/102-7acb1acc6d35a954528d.json": "7acb1acc6d35a954528db234f2b5c09ac3422c8c3a6d56da423b18cd02ab381b",
+      "browser-judge/102-16bcf1aeaab0c35f34e3.json": "16bcf1aeaab0c35f34e3504e0cb821e19c7f7552a3e0f21d622b0023cc8fbcab",
+      "modules/103-457aed168d9e71168681.json": "457aed168d9e71168681c742d1a8e2f660a71736ca3b9dd9fba7f556ccc36287",
+      "browser-judge/103-3cc99e9d40ed08c2a56c.json": "3cc99e9d40ed08c2a56cbe5c1769aa9f1b71f8517d3b31ccd6555549169193c2",
+      "index.json": "8f51405ee668d7668e13302eab623680ed15164db29ccc88a5901a5064006480",
+      "index-v3.json": "2b83dbf6b28986cb78d9e37626818e65fea8655ca0f1f89ba3542dd12181fd68",
+      "catalog.json": "eb0852496777a6df72d57d9b26d746a0b101815ab979e2b4619ec06b61b5e83d"
+    }
+  },
+  "completed_application_receipts": [
+    {
+      "label": "merged-app-imports",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "tests/test_lightweight_torch.py",
+        "tests/test_torch_gradient_utilities.py",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-462/merged-app-tmp",
+        "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-462/merged-app.xml"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "ec2a20e553803c6d3431f26af54b290c23d10925e7de883afde6afb1f3620997"
+    },
+    {
+      "label": "native-catalog",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "-m",
+        "paperleet.cli",
+        "ci",
+        "--repeats",
+        "3",
+        "--budget",
+        "600"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "a949df1ab2ff75cbaf48a9a606645a55db3690ad318c1c51e45b1d9f4fa7184e"
+    },
+    {
+      "label": "export",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "-m",
+        "paperleet.cli",
+        "export"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "c81191c98666efc23217f5298cc60f3fc2616f3dfecaf95530f0847ea3af6500"
+    },
+    {
+      "label": "verify-export",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-462/verify-export.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "e4bb8ce37841b93adda1b8ea98a99610f6080914bb043cff713cc89aa01b12a2"
+    },
+    {
+      "label": "full-wasm",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "web/scripts/check-browser-wasm.mjs",
+        "--all"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "2b25ba5f7221c2bd1ad3143cebb082df0f4d0d61d15b92cbe327297af8a731a0"
+    },
+    {
+      "label": "full-frontend-check",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "c80dbbe060452d36fd82164f127c9eb1d2bcc8bd868a6ddc3eb6b00161003025"
+    },
+    {
+      "label": "custom-cases-wasm",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-custom-cases-wasm.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "fe2be252a67217103e607498c315b5c03585005cba1647a987e5388da5eed120"
+    },
+    {
+      "label": "wasm-driver",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "web/scripts/check-wasm-cases.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "07a89237a76cd71e9dfde55cec33f1e0523d7d9fbc8a0d70e9cea3fe8c6985d1"
+    },
+    {
+      "label": "pages-policy",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "web/scripts/check-pages-release.cjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "2d1b13db615e47c7d3de6f8509ee0e6f4ecc0fa0c89da9d79b836e0609b1eac5"
+    },
+    {
+      "label": "build",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "3305de7c998be1c0c740989aa8fd8ca87c1958e44f26f2ebf1ee1a29807fdd19"
+    },
+    {
+      "label": "pages-profile-build",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "61fe825ca31e280a7f6db5227bbba5dd676339c73de93fc166808048d27466f1"
+    },
+    {
+      "label": "pages-assets",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/check-pages-assets.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "5cceabb5d3d71bcfa3c54dd02c7938639fff522ac1b8625154bba1179bb2f71e"
+    },
+    {
+      "label": "retain-production-assets-check",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/retain-pages-assets.py",
+        "web/dist",
+        "--check"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "7978f0cf88224a5227690ba56775baf1322f16f122ad16fefe45c042b6468bec"
+    },
+    {
+      "label": "generated-worker",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-467/verify-generated-worker.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "7062cf1b309b171d177ba7851d95b69fc702d940fa95b4a03607f64ecc1faaea"
+    },
+    {
+      "label": "catalog-workbench",
+      "exit_code": 0,
+      "seconds": 1.508208990097046,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-catalog-workbench.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "1c2c7377cd356e6cd82250f606f50a18bf3207a94103b835b38ff84fabdf6aad"
+    },
+    {
+      "label": "library-pagination",
+      "exit_code": 0,
+      "seconds": 3.0367767810821533,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-pagination.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "8c5deb710bdf62ed0b5bfaf93ab5ad08ee834c0c9f4d7b6771e8659306cd9e41"
+    },
+    {
+      "label": "build",
+      "exit_code": 0,
+      "seconds": 24.048774242401123,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "8f1546c05fab055f38dc1b2d0b4acd566dd8e5f0f75067cfd17c9cb1105ed92a"
+    },
+    {
+      "label": "pages-profile-build",
+      "exit_code": 0,
+      "seconds": 25.94524908065796,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "6009f15c695fc06f72a1e09e1dd982790a758e95bcaad6786c2d7c73e57ad26d"
+    },
+    {
+      "label": "pages-assets",
+      "exit_code": 0,
+      "seconds": 0.10353922843933105,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/check-pages-assets.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "7f10a824c83136622714bc1044ef68e2e0f32cfde1033f35ec920c6dc5b63082"
+    },
+    {
+      "label": "retain-production-assets-check",
+      "exit_code": 0,
+      "seconds": 0.0946950912475586,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/retain-pages-assets.py",
+        "web/dist",
+        "--check"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "7978f0cf88224a5227690ba56775baf1322f16f122ad16fefe45c042b6468bec"
+    },
+    {
+      "label": "generated-worker",
+      "exit_code": 0,
+      "seconds": 0.040720224380493164,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-470/verify-generated-worker.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "7062cf1b309b171d177ba7851d95b69fc702d940fa95b4a03607f64ecc1faaea"
+    },
+    {
+      "label": "nested-wasm",
+      "exit_code": 0,
+      "seconds": 5.314603805541992,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-470/check-nested-wasm.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
+    },
+    {
+      "label": "inbox-notification-filters",
+      "exit_code": 0,
+      "seconds": 1.008918046951294,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-inbox-notification-filters.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "3fca9f1ad763dee8ecd40675d32b803e5f7759b68722f72039fa85dddd9cb380"
+    },
+    {
+      "label": "inbox",
+      "exit_code": 0,
+      "seconds": 0.8781721591949463,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-inbox.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "b49d8a7236061205c04d833b1a0f3887015468fe8dcf1334ba94f61e6ffaf2e3"
+    },
+    {
+      "label": "inbox-reading",
+      "exit_code": 0,
+      "seconds": 0.790092945098877,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-inbox-reading.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "4934dcddd0277f822cfa306742c73336e3f8ea09d15798c6b34495a4b458515e"
+    },
+    {
+      "label": "review-notifications",
+      "exit_code": 0,
+      "seconds": 0.7208359241485596,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-review-notifications.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "d59891aa610811e38e03b13200c10113106a432825161a4cd7df5f2be35590dd"
+    },
+    {
+      "label": "moderation-user-messages",
+      "exit_code": 0,
+      "seconds": 0.9746110439300537,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-moderation-user-messages.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "c95438882a362c328ed729cb5254aaf53d1b0775c37f5c3ba83264f37a0030ee"
+    },
+    {
+      "label": "admin-inbox",
+      "exit_code": 0,
+      "seconds": 0.9590427875518799,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-admin-inbox.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "7bdcef0a9a6b65f8bcb73882267c6de4084376e5e731d610769adc7c3c34f2ff"
+    },
+    {
+      "label": "build",
+      "exit_code": 0,
+      "seconds": 24.26982617378235,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "47423e2df50d5461fdf2238a3da1259d8d9b41168022331350484352b10d08fe"
+    },
+    {
+      "label": "pages-profile-build",
+      "exit_code": 0,
+      "seconds": 23.989147901535034,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+      "log_sha256": "0e52461447820440e3b1bb28a19c1d0d7ee38fb2c996448a9ea7350149ab948a"
+    },
+    {
+      "label": "pages-assets",
+      "exit_code": 0,
+      "seconds": 0.08676290512084961,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/check-pages-assets.py"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "418a7e2c28cbb41814e7f35773f5ecbc7d77d39995357507ab3339e48178509d"
+    },
+    {
+      "label": "retain-production-assets-check",
+      "exit_code": 0,
+      "seconds": 0.09098696708679199,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/retain-pages-assets.py",
+        "web/dist",
+        "--check"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "22a673538a7efa04d255631a8685133242baf4d2834c18dc6fb7355d077a48fe"
+    },
+    {
+      "label": "generated-worker",
+      "exit_code": 0,
+      "seconds": 0.04053235054016113,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-471/verify-generated-worker.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "7062cf1b309b171d177ba7851d95b69fc702d940fa95b4a03607f64ecc1faaea"
+    },
+    {
+      "label": "nested-wasm",
+      "exit_code": 0,
+      "seconds": 4.247443914413452,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-471/check-nested-wasm.mjs"
+      ],
+      "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+      "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
+    }
+  ],
+  "source_equivalence": {
+    "status": "qualified_computation_and_existing_application_sources_unchanged",
+    "cpu_head": "43c9356c8b1a6cc3e99ce72e7a12d840595dffc5",
+    "merged_head": "87bd55e5f3f567a471a993d1ad1fe3b0f452bf48",
+    "unchanged_previously_checked_files": 275,
+    "changed_metadata": "Onlydaily_challenges.jsonaddedtoprivatepackage-data",
+    "new_backend_files": [
+      "paperleet/daily_challenges.py",
+      "paperleet/daily_challenges.json"
+    ],
+    "new_backend_coverage": [
+      "463installedcalendarsmokeandexactwheelbytesbothNumPys",
+      "462merged-app-imports12cases",
+      "462full-frontend-checkincludesdailychallengecontract"
+    ],
+    "no_old_tests_removed": true
+  },
+  "frontend_followups": [
+    {
+      "status": "merged_frontend_only_followup",
+      "previous_qualified_head": "87bd55e5f3f567a471a993d1ad1fe3b0f452bf48",
+      "upstream": "4a44769097a3a87e8cf7ac106b1cde34430fa4b6",
+      "head": "34a96e44c401ef1350dbc35f11532e5fff7fdd3c",
+      "changed_source_files": [
+        "web/scripts/check-catalog-workbench.mjs",
+        "web/scripts/check-library-pagination.mjs",
+        "web/src/LibraryPagination.tsx",
+        "web/src/LibraryResultControls.tsx",
+        "web/src/PaperViews.tsx",
+        "web/src/control-surfaces.css",
+        "web/src/library-pagination.css"
+      ],
+      "mathematical_runtime_unchanged": true,
+      "package_inputs_unchanged": true,
+      "live_export_unchanged": true,
+      "required_current_checks": [
+        "check-catalog-workbench",
+        "check-library-pagination",
+        "bothbuildprofiles",
+        "pagesassets",
+        "realnestedWorker"
+      ],
+      "ci_triggered": false
+    },
+    {
+      "status": "merged_frontend_only_followup",
+      "previous_qualified_head": "34a96e44c401ef1350dbc35f11532e5fff7fdd3c",
+      "upstream": "6896824a9242a0e46f97cf23c248512316b64b35",
+      "head": "59dc4b00a14c5086e6100e46f6672a8d37b6d07f",
+      "changed_source_files": [
+        "docs/inbox-notification-filters.md",
+        "web/package.json",
+        "web/scripts/check-inbox-filters-http.mjs",
+        "web/scripts/check-inbox-notification-filters.mjs",
+        "web/src/InboxNotificationFilters.tsx",
+        "web/src/InboxPanel.tsx",
+        "web/src/inbox-notification-filters.css",
+        "web/src/inbox.ts",
+        "web/src/inboxListUpdate.ts",
+        "web/src/inboxNotificationQuery.ts",
+        "web/src/social.tsx"
+      ],
+      "mathematical_runtime_unchanged": true,
+      "package_inputs_unchanged": true,
+      "live_export_unchanged": true,
+      "required_current_checks": [
+        "inbox-notification-filters",
+        "inbox",
+        "inbox-reading",
+        "review-notifications",
+        "moderation-user-messages",
+        "admin-inbox",
+        "bothbuildprofiles",
+        "pagesassets",
+        "realnestedWorker"
+      ],
+      "http_fixture_script": "Requires disposable authenticated loopback; unchanged backend already CPU-qualified; not claimed as executed here",
+      "ci_triggered": false
+    }
+  ],
+  "actual_generated_worker": {
+    "status": "passed",
+    "browser": "155.0.8059.82",
+    "feedback": "Tests passed\n7 / 7 tests passed",
+    "page_errors": [],
+    "result_sha256": "cc1646fd033b0892df4dabb0da2f282089e70a301f6d95ba8cbf56a1041113fd"
+  },
+  "failed_invocations_preserved": [
+    {
+      "stage": 451,
+      "reason": "pytest tests problems has721unimplementedworkspaceexerciseerrors;allrootapptestspassed;normalfullcomposite460passed"
+    },
+    {
+      "stage": 462,
+      "reason": "customcasesdriverwrongcwd;previouscompletedCPU/catalog/export/WASM/fullfrontendchecksretained;467correctcwdpassed"
+    },
+    {
+      "stage": 467,
+      "reason": "virtualizededitoroffscreenDOMwaitbeforeWorker;468endmarkersucceededandverifiesexactruntimebytes"
+    },
+    {
+      "stage": 450,
+      "reason": "minimumenvironmentprivateinstallprecondition;451properpublicSDKpassed"
+    },
+    {
+      "stage": 452,
+      "reason": "stagedgeneratedegg-infomanifest;453correctedstagingand463currentpackagespassed"
+    }
+  ],
+  "development_evidence": "gradient-utilities-0.82-development.json",
+  "terminal_hvp_optimization_adopted": false,
+  "operand_retention_candidate_adopted": false,
+  "production_webgpu_enabled": false,
+  "new_latency_speedup_claimed": false,
+  "main_adopted": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.82-harness.tar.gz",
+    "files": 661,
+    "unique_payloads": 628,
+    "bytes": 9037207,
+    "sha256": "e867f2d80b959bf21fbc3a9a634321ee2ffaa53a0eb2a8251f30599e2725c1e9",
+    "all_payloads_verified": true
+  }
+}
