@@ -870,3 +870,27 @@ source-commit deployment was superseded and is not claimed as published.
 - See the [iteration 51 record](../../docs/validation/torch-runtime-iteration-51.md).
   Core API coverage, Multihead/Transformer modules, temporary work and persistent
   GPU-backend evaluation continue toward independent-library quality.
+
+
+## Version 0.80 qualification in progress
+
+- Fix captured-numerator reverse division and functional JVP/HVP graph barriers;
+  add 120 public regressions for branching, inactive pullbacks, caller state and
+  scoped reverse cleanup. Reuse graph-order validation within one HVP invocation.
+- Fuse primitive rule setup and cache dtype checks. Allocate selected real
+  scalar-power outputs in the first ufunc while preserving other layout routes.
+- Complete standalone CPU/minimum-NumPy/Node/Chrome SDK checks, installed public
+  and private package ownership/uninstall isolation, and native Torch coexistence.
+  Preserve the known WASM large-input norm/sine point-comparison failure.
+- Retain three-process CPU/Node/Chrome timing evidence for 24 ordinary and 12
+  HVP flows, including all norm costs. Larger scalar powers improve; small
+  polynomial HVPs remain slower than 0.77 and vector-norm curvature needs work.
+- Qualify the full current PaperLeet application, export, catalog budgets,
+  frontend and actual nested browser Worker before adopting on main. This
+  integration has not been pushed, published, tagged or deployed.
+- A bounded host WebGPU service completed matched forward/matrix-VJP controls
+  through the opaque Python Worker, including transfers and cleanup. Whole-call
+  timing, resident tensor graph/autograd integration and a demonstrated benefit
+  remain required before considering a production GPU backend.
+- See the [0.80 evidence and limits](../../docs/validation/torch-runtime-0.80-qualification.md).
+  Independent-library readiness and broader core API coverage remain active.

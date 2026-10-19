@@ -29,7 +29,7 @@ try{
    if(response==='delayed')return new Promise(resolve=>{release=resolve;});
    if(response==='mismatch')return {items:[post],total:42,sort:'latest'};
    if(response==='error')throw Error('Network unavailable');
-   if(response==='last-page')return {items:[post],total:21,sort:params.get('sort')||'latest'};
+   if(response==='last-page')return {items:Number(params.get('offset')||0)<21?[post]:[],total:21,sort:params.get('sort')||'latest'};
    return {items:[post],total:42,sort:params.get('sort')||'latest'};
  }};
  const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Locale),React.createElement(Community,{route:location.hash})));});
@@ -58,7 +58,7 @@ try{
  await choose('latest');assert(select().textContent.includes('Recently saved'));compactFeed();
  await choose('active');assert(document.querySelector('.post-card-activity').textContent.includes('Last reply'));compactFeed();
  await click(document.querySelector('#locale'));assert(select().textContent.includes('最近活跃'));compactFeed();await click(document.querySelector('#locale'));
- response='last-page';await navigate('#/community?category=papers&saved=1&sort=active&q=old&page=9');assert.deepEqual(nav.readCommunityFeed(location.hash).state,{category:'papers',following:false,saved:true,sort:'active',search:'old',page:2});await render();assert.equal(requests.at(-1).params.get('offset'),'20');assert(document.querySelector('[aria-label="Next page"]').disabled&&!document.querySelector('[aria-label="Previous page"]').disabled,'The corrected last page retains accurate navigation without a discussion-count heading');response='normal';
+ response='last-page';const beforeExpired=requests.length;await navigate('#/community?category=papers&saved=1&sort=active&q=old&page=9');assert.deepEqual(nav.readCommunityFeed(location.hash).state,{category:'papers',following:false,saved:true,sort:'active',search:'old',page:9});assert.equal(requests.length,beforeExpired+1,'An expired page must not silently request another page');assert.equal(requests.at(-1).params.get('offset'),'160');assert(document.querySelector('.community-feed-page-recovery'));assert(!document.querySelector('.community-pagination'));await click([...document.querySelectorAll('.community-feed-page-recovery button')].find(node=>node.textContent==='Open last page'));assert.deepEqual(nav.readCommunityFeed(location.hash).state,{category:'papers',following:false,saved:true,sort:'active',search:'old',page:2});assert.equal(requests.at(-1).params.get('offset'),'20');assert(document.querySelector('[aria-label="Next page"]').disabled&&!document.querySelector('[aria-label="Previous page"]').disabled,'Explicit last-page recovery retains accurate navigation without a discussion-count heading');response='normal';
  await click(document.querySelector('[aria-label="Previous page"]'));assert.equal(nav.readCommunityFeed(location.hash).state.page,1);assert.equal(requests.at(-1).params.get('offset'),'0');
  await click(document.querySelector('[aria-label="Next page"]'));assert.equal(nav.readCommunityFeed(location.hash).state.page,2);assert.equal(requests.at(-1).params.get('offset'),'20');
  const search=document.querySelector('.community-search input');

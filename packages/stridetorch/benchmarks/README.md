@@ -484,3 +484,37 @@ matmul engine. This change adds API/AD coverage; it makes no additional
 speedup claim. [Iteration 78](../../../docs/validation/torch-runtime-iteration-78.md)
 records native/full-array, strict-argument, empty-dtype and saved-storage
 controls, plus the separate experimental WebGPU error-lifecycle checks.
+## Ordinary core workloads and the 0.80 candidate
+
+`core_workloads.py` supplies 24 deterministic float32/float64 workloads: mixed
+arithmetic and scalar powers at 32/2,048 elements, forward and reverse calls,
+Linear/attention backward, strided slicing and repeated-index accumulation.
+Inputs are read-only; every invocation constructs its own Tensor wrappers and
+uses the real library's `autograd.grad` for backward flows.
+
+For example, from the repository root with NumPy installed:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=packages/stridetorch/src python -B - <<'PY'
+import importlib.util
+import stridetorch
+
+spec = importlib.util.spec_from_file_location(
+    'core_workloads', 'packages/stridetorch/benchmarks/core_workloads.py')
+workloads = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(workloads)
+case = next(item for item in workloads.specifications()
+            if item['key'] == 'float32/power2048/backward')
+invoke = workloads.flow(stridetorch, case, workloads.make_inputs(case), False)
+value, gradient = invoke()
+print(value.item(), gradient.shape, gradient.dtype)
+PY
+```
+
+This command exercises a workload; it does not reproduce the qualification
+timing protocol. The three-process balanced CPU/Node/Chrome comparison, exact
+baseline and all ratios are recorded in
+[`qualification-0.80.json`](results/qualification-0.80.json) and the
+[0.80 validation record](../../../docs/validation/torch-runtime-0.80-qualification.md).
+Retain new norm HVP costs, known numerical differences and A/A controls when
+interpreting those measurements.

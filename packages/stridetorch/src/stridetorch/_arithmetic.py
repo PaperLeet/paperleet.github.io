@@ -7,6 +7,9 @@ from . import _autograd, _defaults, _errors, _ops, _promotion, _state, _tensor
 
 _FLOAT = np.dtype('float32')
 _DOUBLE = np.dtype('float64')
+_HALF = np.dtype('float16')
+_SCALAR_POWER_DTYPES = (_FLOAT, _DOUBLE)
+_SCALAR_POWER_EXPONENT_TYPES = (int, float, np.integer, np.floating, bool, np.bool_)
 
 
 def scalar_data(number, dtype):
@@ -255,12 +258,29 @@ def reflected_number_divide(owner, other):
 
 def scalar_power_values(source, exponent):
     """Keep public storage arithmetic; use scalar opmath in Tensor pullbacks."""
-    if source.dtype == np.dtype('float16') and isinstance(exponent, np.floating):
+    if source.dtype == _HALF and isinstance(exponent, np.floating):
         # A NumPy scalar must not promote a half Tensor's result storage.
         exponent = float(exponent)
-    if source.dtype not in (np.dtype('float32'), np.dtype('float64')) or not isinstance(exponent, (int, float, np.integer, np.floating, bool, np.bool_)):
+    if source.dtype not in _SCALAR_POWER_DTYPES or not isinstance(exponent, _SCALAR_POWER_EXPONENT_TYPES):
         return source ** exponent
     if exponent in (.5, -.5, -1, 2, 3, -2):
+        if source.ndim and source.size and (source.flags.c_contiguous or source.flags.f_contiguous):
+            # Only contiguous layouts use the first ufunc to allocate the buffer.
+            # NumPy ufuncs and empty_like can choose different dense strides
+            # for broadcast/gapped views; preserve their existing allocation.
+            # Keep the scalar/empty route below: scalar ufuncs can otherwise
+            # return NumPy scalars, and empty layouts need their prior policy.
+            if exponent in (.5, -.5):
+                output = np.sqrt(source)
+                return output if exponent == .5 else np.reciprocal(output, out=output)
+            if exponent == -1:
+                return np.reciprocal(source)
+            output = np.multiply(source, source)
+            if exponent == 2:
+                return output
+            if exponent == 3:
+                return np.multiply(output, source, out=output)
+            return np.reciprocal(output, out=output)
         output = np.empty_like(source)
         if exponent == .5:
             return np.sqrt(source, out=output)
@@ -277,7 +297,7 @@ def scalar_power_values(source, exponent):
         np.multiply(source, source, out=output)
         return np.reciprocal(output, out=output)
     context = _state._tensor_reverse_context
-    if source.dtype == np.dtype('float32') and context is not None and context.reverse_active:
+    if source.dtype == _FLOAT and context is not None and context.reverse_active:
         output = np.empty_like(source)
         np.power(source, np.float64(exponent), out=output, dtype=np.float64)
         return output

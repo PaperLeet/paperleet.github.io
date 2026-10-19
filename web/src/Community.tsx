@@ -632,7 +632,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     [retry, setRetry] = useState(0);
   const writing=useWritingDisclosure(JSON.stringify([user?.id,draftScope]));
   const pending = loading || data.requestKey !== requestKey;
-  const emptyPage=!pending&&page>1&&!data.items.length,pageCount=Math.max(1,Math.ceil(data.total/PAGE_SIZE)),lastPage=Math.min(MAX_COMMUNITY_PAGE,pageCount),viewLocation=appLocation.hash;
+  const emptyPage=!pending&&page>1&&!data.items.length,pageCount=Math.max(1,Math.ceil(data.total/PAGE_SIZE)),lastPage=Math.min(MAX_COMMUNITY_PAGE,pageCount),viewLocation=typeof location==='undefined'?'':appLocation.hash;
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';

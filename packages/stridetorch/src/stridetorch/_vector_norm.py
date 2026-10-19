@@ -1,8 +1,4 @@
-"""Vector norm prototype: direct reductions and real analytical AD.
-
-This isolated module is not part of the running 0.78 candidate. Numerical,
-native, WASM and lifetime qualification must precede production integration.
-"""
+"""Vector norms with direct NumPy reductions and real analytical AD."""
 import math
 import weakref
 

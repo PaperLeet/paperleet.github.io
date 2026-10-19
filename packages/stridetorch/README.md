@@ -2080,7 +2080,7 @@ inference remains available. Empty matmul JVP retains its forward-selected
 kernel's dtype rules. The [iteration 81 record](../../docs/validation/torch-runtime-iteration-81.md)
 adds complete Node/Chrome SDK and isolated installed-wheel qualification.
 
-### Vector norms (0.79 development candidate)
+### Vector norms (introduced in 0.79)
 
 `torch.linalg.vector_norm(x, ord=2, dim=None, keepdim=False, *, dtype=None,
 out=None)` performs direct NumPy reductions, with analytical real reverse AD,
@@ -2102,15 +2102,17 @@ changes and sums. The callback still executes once. Caller-owned tensor types
 and gradient buffers remain unchanged; temporary graph owners are released on
 success and failure. This does not enable public `autograd.grad(create_graph=True)`
 or differentiable HVP outputs, and unrecorded existing graphs retain their old
-HVP path. Complete application, minimum-NumPy, installed-package and performance
-qualification is still required for this development candidate.
+HVP path. Version 0.80 has completed standalone CPU/WASM, minimum-NumPy and
+installed-package checks; its PaperLeet application integration is in progress.
 
 Float32 public scalar powers retain their storage-precision arithmetic. Only
 private Tensor pullbacks inside a recorded norm HVP use double scalar exponent
 opmath, through a buffered ufunc loop writing into a float32 output. This does
 not retain a full double-sized result array. Float32/64 square, cube, square root,
 reciprocal square root and reciprocal expressions use one private result buffer.
-NumPy scalar exponents preserve half-Tensor result storage.
+NumPy scalar exponents preserve half-Tensor result storage. Version 0.80 lets
+nonempty nonscalar C/F-contiguous real arrays allocate their result in the first
+ufunc. Other layouts retain the explicit buffer path to preserve output strides.
 
 The compatibility target remains native Torch 2.6.0. Torch 2.14 changes some
 empty and mixed-dtype matrix contracts; those differences remain explicit.
@@ -2119,5 +2121,33 @@ and WASM. One retained float32 large-input norm case differs by one ULP before
 sine, causing a large phase/HVP difference. Native equivalent expressions and a
 controlled native replay reproduce the WASM result. This variance and the
 remaining exceptional scalar-power differences are not hidden by changing the
-original point-comparison gates. This is still a development candidate; full
-application and performance qualification and main adoption remain pending.
+original point-comparison gates. Version 0.80 retains this known boundary;
+a passing standalone SDK does not imply universal native numerical parity.
+
+
+### Higher-order correctness and scalar-power efficiency (0.80 candidate)
+
+Captured Tensor numerators retain their reverse history through division in
+functional HVPs. Reverse-based functional JVP/HVP preserve `no_grad()` and view
+disconnections, isolate caller gradient buffers, and permit a callback to switch
+between polynomial and vector-norm branches. Scoped Tensor pullback recording
+visits only the actual output ancestors and releases temporary owners after
+success or failure. Public `autograd.grad(create_graph=True)` remains unsupported.
+
+Primitive arithmetic constructs its numerical reverse node and Tensor rule
+together, avoids redundant callbacks only while the scoped Tensor reverse pass
+is active, and reuses dtype descriptors. One first-gradient traversal reuses its
+validated graph order within that invocation; there is no cross-call graph cache.
+
+Against the frozen 0.77 baseline, three fresh processes in each CPU, Node WASM
+and Chrome WASM runtime measured 24 ordinary flows and 12 HVP flows. All eight
+preexisting HVP flows and all ordinary flows stayed within the 10% per-process
+regression threshold, with A/A controls within 5%. For the measured 2048-element
+scalar-power forward workload, CPU latency fell 61–67% and WASM latency fell
+50–70%. This is workload-specific evidence, not a library-wide speed claim.
+New vector-norm HVPs remain approximately 2.8–4.5 times as expensive as the old
+baseline's equivalent expression; their cost remains optimization work.
+
+See the [0.80 qualification record](../../docs/validation/torch-runtime-0.80-qualification.md)
+for exact baselines, numerical boundaries, package isolation, GPU experiment
+scope and current application-adoption status.

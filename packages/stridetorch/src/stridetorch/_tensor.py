@@ -12,6 +12,32 @@ from . import _layout, _statistics, _reductions, _matmul
 _WASM_MATMUL = sys.platform == 'emscripten'
 
 
+# These arithmetic rules have no per-operation state. Keep one callable per
+# rule; each numerical edge still captures its own operands, shape and guards.
+def _binary_identity_vjp(g, a, b):
+    return g
+
+
+def _binary_negative_vjp(g, a, b):
+    return -g
+
+
+def _binary_multiply_left_vjp(g, a, b):
+    return g * b
+
+
+def _binary_multiply_right_vjp(g, a, b):
+    return g * a
+
+
+def _binary_divide_left_vjp(g, a, b):
+    return g / b
+
+
+def _binary_divide_right_vjp(g, a, b):
+    return -g * ((a / b) / b)
+
+
 class StorageVersion:
     __slots__ = ('version', '_linked', '__weakref__')
 
@@ -241,7 +267,9 @@ class Tensor:
         if target == self.dtype and not copy:
             return self
         data = self._data.astype(target, order='C' if contiguous else 'K', copy=copy)
-        return _autograd.result(data, (self, lambda g: g), saves_tensors=False) if data.dtype.kind in 'fc' else Tensor(data)
+        _rule_value = _autograd.result(data, (self, lambda g: g), saves_tensors=False) if data.dtype.kind in 'fc' else Tensor(data)
+        _rule_context = _state._tensor_reverse_context
+        return _rule_context.unary(_rule_value, self, 'to', None) if _rule_context is not None else _rule_value
 
     def type(self, dtype=None, non_blocking=False, **kwargs):
         if dtype is None:
@@ -423,6 +451,7 @@ class Tensor:
         return value
 
     def _binary(self, other, op, left, right, *, saves_tensors=True, floating=False, subtract=False, reverse=False):
+        original_other = other
         other, a, b, dtype = _arithmetic.operands(self, other, floating=floating, subtract=subtract)
         # Native zero cotangents survive addition and scalar multiplication/division.
         # Tensor-valued multiplicative operands remain undeclared pending controls.
@@ -439,24 +468,23 @@ class Tensor:
             except ValueError as error: raise RuntimeError('Arithmetic operands have incompatible shapes') from error
         if (not _state._grad_enabled or not self.requires_grad and (other is None or not other.requires_grad)) and not isinstance(self, _autograd.ForwardTensor) and not isinstance(other, _autograd.ForwardTensor):
             return _autograd.result(data, saves_tensors=False)
-        if not saves_tensors:
-            left_shape, right_shape = a.shape, b.shape
-            left_edge = (self, lambda g: _ops.unbroadcast(left(g,None,None),left_shape))
-            if other is None: return _autograd.result(data, left_edge, saves_tensors=False, zero_passthrough=zero_passthrough)
-            return _autograd.result(data, left_edge,
-                (other, lambda g: _ops.unbroadcast(right(g,None,None),right_shape)), saves_tensors=False, zero_passthrough=zero_passthrough)
-        left_edge = (self, lambda g: _ops.unbroadcast(left(g,a,b),a.shape))
-        if other is None: return _autograd.result(data, left_edge, zero_passthrough=zero_passthrough)
-        return _autograd.result(data, left_edge,
-            (other, lambda g: _ops.unbroadcast(right(g,a,b),b.shape)), zero_passthrough=zero_passthrough)
-    def __add__(self, other): return self._binary(other, np.add, lambda g,a,b:g, lambda g,a,b:g, saves_tensors=False)
+        return _autograd.binary_result(data, self, original_other, other, a, b, op, left, right,
+                                       saves_tensors=saves_tensors,
+                                       zero_passthrough=zero_passthrough, reverse=reverse)
+
+    def __add__(self, other): return self._binary(other, np.add, _binary_identity_vjp, _binary_identity_vjp, saves_tensors=False)
     __radd__ = __add__
-    def __sub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:g, lambda g,a,b:-g, saves_tensors=False, subtract=True)
-    def __rsub__(self, other): return self._binary(other, np.subtract, lambda g,a,b:-g, lambda g,a,b:g, saves_tensors=False, subtract=True, reverse=True)
-    def __mul__(self, other): return self._binary(other, np.multiply, lambda g,a,b:g*b, lambda g,a,b:g*a)
+    def __sub__(self, other): return self._binary(other, np.subtract, _binary_identity_vjp, _binary_negative_vjp, saves_tensors=False, subtract=True)
+    def __rsub__(self, other): return self._binary(other, np.subtract, _binary_negative_vjp, _binary_identity_vjp, saves_tensors=False, subtract=True, reverse=True)
+    def __mul__(self, other): return self._binary(other, np.multiply, _binary_multiply_left_vjp, _binary_multiply_right_vjp)
     __rmul__ = __mul__
-    def __truediv__(self, other): return self._binary(other, np.divide, lambda g,a,b:g/b, lambda g,a,b:-g*((a/b)/b), floating=True)
+    def __truediv__(self, other): return self._binary(other, np.divide, _binary_divide_left_vjp, _binary_divide_right_vjp, floating=True)
     def __rtruediv__(self, other):
+        context = _state._tensor_reverse_context
+        if context is not None:
+            if isinstance(other, Tensor):
+                return Tensor.__truediv__(other, self)
+            return context.constant(other, self.dtype) / self
         if type(self) is Tensor and type(other) in (bool, int, float, complex):
             return _arithmetic.reflected_number_divide(self, other)
         return self.reciprocal() * other
@@ -464,7 +492,7 @@ class Tensor:
         source = self._data
         with np.errstate(all='ignore'):
             data = _arithmetic.reciprocal_values(source)
-        value = _autograd.result(data, (self, lambda g: g * -(data * data)), versioned=())
+        value = _autograd.result(data, (self, lambda g: g * -(data * data)), versioned=(), tensor_rule=('reciprocal', None))
         if value.requires_grad:
             # Reciprocal backward saves its output, not the input values.
             value._grad_node.versions = ((value._storage, value._storage.version),)
@@ -504,7 +532,9 @@ class Tensor:
         if self.dtype.kind in 'biu' and _ops.wrap(other).dtype.kind in 'biu' and np.any(self._data==0):
             raise RuntimeError('Integer division by zero')
         return self._binary(other,lambda a,b:np.remainder(b,a),lambda g,a,b:-g*np.floor(b/a),lambda g,a,b:g)
-    def __neg__(self): return _autograd.result(-self._data, (self, lambda g: -g), saves_tensors=False)
+    def __neg__(self):
+        value = _autograd.result(-self._data, (self, lambda g: -g), saves_tensors=False, tensor_rule=('neg', None))
+        return value
     def _inplace(self, other, operation):
         if _state._grad_enabled and (self.requires_grad or _ops.wrap(other).requires_grad):
             raise _errors.BrowserUnsupported('In-place updates of differentiable tensors require the server')
@@ -533,7 +563,9 @@ class Tensor:
             derivative = lambda g: g * (2 * self._data)
         else:
             derivative = lambda g: g * (exponent * _arithmetic.scalar_power_values(self._data, exponent - 1))
-        return _autograd.result(_arithmetic.scalar_power_values(original_data, exponent), (self, derivative), zero_passthrough=exponent != 0)
+        _rule_value = _autograd.result(_arithmetic.scalar_power_values(original_data, exponent), (self, derivative), zero_passthrough=exponent != 0, tensor_rule=('pow', exponent))
+        return _rule_value
+
     def __rpow__(self, base):
         if type(base) not in (int, float) or not math.isfinite(base) or base <= 0 or self.dtype not in (np.dtype('float32'), np.dtype('float64')):
             raise _errors.BrowserUnsupported('Scalar-base power requires a positive finite real base and float32/float64 exponents')
@@ -551,15 +583,21 @@ class Tensor:
     def sqrt(self): return self ** .5
     def abs(self):
         original_data = self._data
-        return _autograd.result(np.abs(original_data), (self, lambda g: g * np.sign(self._data)))
+        _rule_value = _autograd.result(np.abs(original_data), (self, lambda g: g * np.sign(self._data)), tensor_rule=('abs', None))
+        return _rule_value
+
     def relu(self):
         original_data = self._data
         self._real_only()
-        return _autograd.result(np.maximum(original_data, 0), (self, lambda g: np.where(original_data <= 0, 0, g)))
+        _rule_value = _autograd.result(np.maximum(original_data, 0), (self, lambda g: np.where(original_data <= 0, 0, g)), tensor_rule=('relu', None))
+        return _rule_value
+
     def exp(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).exp()
         data = np.exp(self._data)
-        return _autograd.result(data, (self, lambda g: g * data), zero_passthrough=True)
+        _rule_value = _autograd.result(data, (self, lambda g: g * data), zero_passthrough=True, tensor_rule=('exp', None))
+        return _rule_value
+
     def log(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).log()
         original_data = self._data
@@ -686,7 +724,10 @@ class Tensor:
         original_data = self._data
         original_shape = self.shape
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)): shape = tuple(shape[0])
-        return _autograd.view_result(original_data.reshape(shape),self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_value = _autograd.view_result(original_data.reshape(shape),self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_context = _state._tensor_reverse_context
+        return _rule_context.unary(_rule_value, self, 'reshape', None) if _rule_context is not None else _rule_value
+
     def view(self, *shape, **kwargs):
         original_data = self._data
         original_shape = original_data.shape
@@ -713,7 +754,10 @@ class Tensor:
         if data is None:
             args = _layout.arguments(shape, kwargs)
             data = _layout.view(original_data, *args)
-        return _autograd.view_result(data,self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_value = _autograd.view_result(data,self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_context = _state._tensor_reverse_context
+        return _rule_context.unary(_rule_value, self, 'reshape', None) if _rule_context is not None else _rule_value
+
     def view_as(self, other):
         if not isinstance(other, Tensor): raise TypeError('view_as requires a Tensor')
         return self.view(other.shape)
@@ -756,7 +800,10 @@ class Tensor:
         step=original_data.itemsize if axis==self.ndim else original_data.strides[axis]*original_shape[axis]
         strides=(*original_data.strides[:axis],step,*original_data.strides[axis:])
         value=_layout.metadata_view(original_data,shape,strides,original_data.reshape(shape))
-        return _autograd.view_result(value,self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_value = _autograd.view_result(value,self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_context = _state._tensor_reverse_context
+        return _rule_context.unary(_rule_value, self, 'reshape', None) if _rule_context is not None else _rule_value
+
     def squeeze(self, dim=_layout.UNSPECIFIED_DIM):
         original_data = self._data
         original_shape = self.shape
@@ -769,7 +816,10 @@ class Tensor:
             dims=tuple(_layout.dimension(v,self.ndim) for v in dims)
             if len(set(dims))!=len(dims):raise RuntimeError('Squeeze dimensions must be unique')
             axes=tuple(v for v in dims if self.ndim and original_shape[v]==1)
-        return _autograd.view_result(np.squeeze(original_data,axis=axes),self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_value = _autograd.view_result(np.squeeze(original_data,axis=axes),self,lambda g:g.reshape(original_shape), zero_passthrough=True)
+        _rule_context = _state._tensor_reverse_context
+        return _rule_context.unary(_rule_value, self, 'reshape', None) if _rule_context is not None else _rule_value
+
     def permute(self, *dims, **kwargs):
         dims=_layout.permutation(dims,kwargs,self.ndim)
         return _autograd.view_result(self._data.transpose(dims),self,lambda g:g.transpose(_layout.inverse_permutation(dims)))
@@ -843,7 +893,9 @@ class Tensor:
                 for axis in sorted(dims): g = np.expand_dims(g, axis)
             return np.broadcast_to(g, original_shape)
         if dtype is None and original_data.dtype.kind in 'biu': dtype = np.int64
-        return _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False, zero_passthrough=True)
+        _rule_value = _autograd.result(original_data.sum(axis=dims, keepdims=keepdim, dtype=dtype), (self, vjp), saves_tensors=False, zero_passthrough=True, tensor_rule=('sum', (dims, keepdim)))
+        return _rule_value
+
     def mean(self, dim=_layout.UNSPECIFIED_DIM, keepdim=_layout.UNSPECIFIED_DIM, *, dtype=None):
         requested, keepdim = _reductions.arguments(dim,keepdim,name='mean')
         target = self.dtype if dtype is None else np.dtype(dtype)
@@ -1141,10 +1193,14 @@ class Tensor:
     def clamp_max(self, max): return self.clamp(max=max)
     def sin(self):
         source=self.to(dtype=_defaults._float_dtype) if self.dtype.kind in 'biu' else self
-        return _autograd.result(np.sin(source._data), (source, lambda g: g * np.cos(source._data)))
+        _rule_value = _autograd.result(np.sin(source._data), (source, lambda g: g * np.cos(source._data)), tensor_rule=('sin', None))
+        return _rule_value
+
     def cos(self):
         source=self.to(dtype=_defaults._float_dtype) if self.dtype.kind in 'biu' else self
-        return _autograd.result(np.cos(source._data), (source, lambda g: -g * np.sin(source._data)))
+        _rule_value = _autograd.result(np.cos(source._data), (source, lambda g: -g * np.sin(source._data)), tensor_rule=('cos', None))
+        return _rule_value
+
     def acos(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).acos()
         original_data = self._data
@@ -1168,7 +1224,9 @@ class Tensor:
     def tanh(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).tanh()
         value = np.tanh(self._data)
-        return _autograd.result(value, (self, lambda g: g * (1 - value ** 2)))
+        _rule_value = _autograd.result(value, (self, lambda g: g * (1 - value ** 2)), tensor_rule=('tanh', None))
+        return _rule_value
+
     def rsqrt(self): return self ** -.5
     def sigmoid(self):
         if self.dtype.kind in 'biu':return self.to(dtype=_defaults._float_dtype).sigmoid()

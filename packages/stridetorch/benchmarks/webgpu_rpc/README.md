@@ -131,3 +131,22 @@ cancellation/failure races. Set `GPU_PRIMITIVE_RESULT` or
 numerical-recovery and device-destruction evidence is recorded in
 [iteration 78](../../../../docs/validation/torch-runtime-iteration-78.md).
 This remains an explicit experiment and does not add a Torch GPU device.
+## Matched Torch forward/VJP workloads
+
+`torch_workload.py` supplies a NumPy-only fixture generator and two matched
+providers. `TorchMatrixStep` runs the actual CPU library's `a @ b` and
+`autograd.grad(output, (a, b), g)`; `GpuMatrixStep` builds explicit GPU forward,
+left-VJP and right-VJP programs. Both return three independent CPU snapshots.
+The GPU provider is an experiment, not a Torch storage or autograd backend.
+
+Cases are `(37,53,29)`, 64³, 256³ and 512³, with cold and resident inputs.
+Resident setup uploads three matrices once; calls still read every result back.
+Cold mode includes all uploads. The 512³ workload uses two programs to respect
+the unchanged aggregate MAC limit, including repeated cold input uploads.
+
+The current real Chrome controls match native Torch 2.6/2.14 values, retain
+read-only inputs and release handles/allocations. These controls contain no
+latency measurement. Earlier raw NumPy CPU baselines do not establish a speedup
+over the improved Torch CPU path. See the
+[0.80 qualification record](../../../../docs/validation/torch-runtime-0.80-qualification.md)
+before drawing any GPU routing or performance conclusion.

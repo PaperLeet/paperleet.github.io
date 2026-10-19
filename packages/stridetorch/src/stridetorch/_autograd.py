@@ -7,7 +7,7 @@ import numpy as np
 
 from . import _arithmetic, _graph, _layout, _tensor
 
-def result(data, *edges, saved=(), saves_tensors=True, versioned=None, zero_passthrough=False):
+def result(data, *edges, saved=(), saves_tensors=True, versioned=None, zero_passthrough=False, tensor_rule=None):
     single = len(edges) == 1
     if single:
         node, vjp = edges[0]
@@ -34,9 +34,99 @@ def result(data, *edges, saved=(), saves_tensors=True, versioned=None, zero_pass
         node_type = _graph.ZeroPreservingNode if zero_passthrough else _graph.Node
         value._grad_node = node_type(value, parents, saved=saves_tensors,
                                       versions=tuple((counter, counter.version) for counter in counters))
-    context = _state._tensor_reverse_context
-    return context.wrap(value) if context is not None else value
+    if parents and tensor_rule is not None:
+        # Primitive callers supply one actual input edge. Its activity was
+        # just captured while constructing the node; no second flag query or
+        # generic recording dispatch is needed for this fresh Tensor.
+        assert single
+        context = _state._tensor_reverse_context
+        if context is not None:
+            source = edges[0][0]
+            operation, argument = tensor_rule
+            if operation in ('reciprocal', 'exp', 'tanh'):
+                argument = value
+            description = ('unary', operation, argument)
+            inputs, active, node = (source,), (True,), value._grad_node
+            if context.recording_primal:
+                context.pending.append((value, inputs, description, active, node))
+            else:
+                context._store_rule(value, inputs, description, active, node)
+    return value
 
+
+
+
+def binary_result(data, source, original_other, other, a, b, operation, left, right,
+                  *, saves_tensors, zero_passthrough, reverse):
+    """Construct a one/two-parent arithmetic result with one flag snapshot.
+
+    Kernels remain in Tensor._binary. Keep parent order, duplicate edges,
+    numerical pullbacks, guards and zero policy identical to generic result,
+    while reusing the same activity flags for the scoped Tensor rule.
+    """
+    if isinstance(source, ForwardTensor) or isinstance(other, ForwardTensor):
+        raise _errors.BrowserUnsupported('This operation has no validated forward-mode rule; use the server')
+    value = _tensor.Tensor(data, _metadata_owned=True)
+    if not _state._grad_enabled:
+        return value
+    left_needed = source.requires_grad
+    right_needed = other is not None and other.requires_grad
+    if value.dtype.kind == 'c' and (left_needed or right_needed):
+        raise _errors.BrowserUnsupported('Complex autograd requires the server')
+    if not left_needed and not right_needed:
+        return value
+    context = _state._tensor_reverse_context
+    left_vjp = right_vjp = None
+    if context is None or not context.reverse_active:
+        if saves_tensors:
+            if left_needed:
+                left_vjp = lambda g: _ops.unbroadcast(left(g, a, b), a.shape)
+            if right_needed:
+                right_vjp = lambda g: _ops.unbroadcast(right(g, a, b), b.shape)
+        else:
+            if left_needed:
+                left_shape = a.shape
+                left_vjp = lambda g: _ops.unbroadcast(left(g, None, None), left_shape)
+            if right_needed:
+                right_shape = b.shape
+                right_vjp = lambda g: _ops.unbroadcast(right(g, None, None), right_shape)
+    if left_needed and right_needed:
+        parents = ((_graph.node_for(source), left_vjp, source.dtype),
+                   (_graph.node_for(other), right_vjp, other.dtype))
+    elif left_needed:
+        parents = ((_graph.node_for(source), left_vjp, source.dtype),)
+    else:
+        parents = ((_graph.node_for(other), right_vjp, other.dtype),)
+    value._requires_grad = True
+    if saves_tensors:
+        counters = {value._storage, source._storage}
+        if other is not None:
+            counters.add(other._storage)
+    else:
+        counters = ()
+    node_type = _graph.ZeroPreservingNode if zero_passthrough else _graph.Node
+    value._grad_node = node_type(value, parents, saved=saves_tensors,
+                                versions=tuple((counter, counter.version) for counter in counters))
+    if context is not None:
+        operation = context.binary_operations.get(operation)
+        if operation is not None:
+            if other is None:
+                inputs = (source,)
+                description = ('scalar', original_other, operation, reverse)
+                active = (True,)
+            else:
+                if not isinstance(original_other, _tensor.Tensor) and other.dtype != source.dtype:
+                    other = context.constant(original_other, source.dtype)
+                    right_needed = False
+                inputs = (source, other)
+                description = ('binary', operation, reverse)
+                active = (left_needed, right_needed)
+            node = value._grad_node
+            if context.recording_primal:
+                context.pending.append((value, inputs, description, active, node))
+            else:
+                context._store_rule(value, inputs, description, active, node)
+    return value
 
 
 def view_result(data, parent, backward, *, zero_passthrough=False):
@@ -61,8 +151,7 @@ def view_result(data, parent, backward, *, zero_passthrough=False):
     elif shared:
         value._requires_grad=None
         value._no_grad_view=True
-    context = _state._tensor_reverse_context
-    return context.wrap(value) if context is not None else value
+    return value
 
 
 def joint_result(data, inputs, backward, *, saved=(), versioned=None, prune_inputs=False, zero_passthrough=False):
@@ -127,18 +216,18 @@ def _forward_zero_edge(tangent, primal):
 class ForwardTensor(_tensor.Tensor):
     """One forward tangent; both channels retain ordinary reverse-mode graphs."""
     def __init__(self, primal, tangent):
-        if primal.dtype not in (np.dtype('float32'), np.dtype('float64')) or tangent.shape != primal.shape:
+        if primal.dtype not in _FUNCTIONAL_JVP_REAL_DTYPES or tangent.shape != primal.shape:
             raise _errors.BrowserUnsupported('Forward mode requires matching real floating tensors')
-        # Functional JVP follows reverse-AD no_grad disconnection, unlike
-        # torch.func.jvp, which propagates tangents through no_grad regions.
-        if _state._functional_jvp_active and (not primal.requires_grad or primal._no_grad_view):
+        # Reverse-based functional JVP and HVP disconnect no_grad results.
+        # Direct torch.func.jvp still propagates forward tangents there.
+        reverse_based = _state._functional_jvp_active or _state._hvp_active
+        if reverse_based and (not primal.requires_grad or primal._no_grad_view):
             tangent = _tensor.Tensor(np.zeros_like(primal._data))
         self.__dict__ = primal.__dict__.copy()
         self._primal_value = primal
         # Direct forward AD can retain a wider tangent than its primal (for
         # example a mixed-dtype addmv bias). Reverse-based functional transforms
         # construct their cotangents in the primal output's dtype instead.
-        reverse_based = _state._functional_jvp_active or _state._hvp_active
         self._tangent_value = tangent.to(dtype=primal.dtype) if reverse_based and tangent.dtype != primal.dtype else tangent
         self._forward_level = _state._jvp_level
 
@@ -343,7 +432,7 @@ def jvp(func, primals, tangents, *, strict=False, has_aux=False):
     for p, t in zip(primals, tangents):
         if not isinstance(p, _tensor.Tensor) or not isinstance(t, _tensor.Tensor): raise _errors.BrowserUnsupported('Nested/non-tensor JVP inputs require the server')
         if isinstance(p, ForwardTensor) or isinstance(t, ForwardTensor): raise _errors.BrowserUnsupported('Escaped/nested JVP inputs require the server')
-        if p.shape != t.shape or p.dtype != t.dtype or p.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        if p.shape != t.shape or p.dtype != t.dtype or p.dtype not in _FUNCTIONAL_JVP_REAL_DTYPES:
             raise _errors.BrowserUnsupported('JVP inputs and tangents must have matching real shapes and dtypes')
     def unpack(output):
         if isinstance(output, ForwardTensor): return output._primal, output._tangent
@@ -641,7 +730,7 @@ def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
 
     with enable_grad():
         original, inputs_tuple = tensors(inputs, 'inputs')
-        if any(isinstance(item, ForwardTensor) or item.dtype not in (np.dtype('float32'), np.dtype('float64')) for item in original):
+        if any(isinstance(item, ForwardTensor) or item.dtype not in _FUNCTIONAL_JVP_REAL_DTYPES for item in original):
             raise _errors.BrowserUnsupported('Functional HVP requires real float32/float64 inputs')
         arguments = tuple(item.detach().requires_grad_(True) for item in original)
         if v is None:
@@ -661,7 +750,6 @@ def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
         if previous_context is not None:
             raise _errors.BrowserUnsupported('Nested tensor reverse contexts require the server')
         _state._tensor_reverse_context = context
-        arguments = tuple(context.wrap(item) for item in arguments)
         try:
             previous = _state._functional_ad_active
             previous_hvp = _state._hvp_active
@@ -677,9 +765,10 @@ def functional_hvp(func, inputs, v=None, create_graph=False, strict=False):
                 _state._full_forward_graph_active = previous_full
             if not isinstance(output, _tensor.Tensor) or output.numel() != 1:
                 raise RuntimeError('Functional HVP requires a Tensor output with one element')
-            if context.can_reverse(output):
+            primal_order = context.can_reverse(output)
+            if primal_order:
                 with _graph.NumericalScope():
-                    gradients = context.hvp(output, arguments, seeds, strict)
+                    gradients = context.hvp(output, arguments, seeds, strict, order=primal_order)
             elif output.requires_grad and tangent.requires_grad:
                 gradients = autograd_grad(tangent, arguments, allow_unused=True)
             else:
