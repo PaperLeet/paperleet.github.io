@@ -19,7 +19,7 @@ import PracticeMentions from './PracticeMentions';
 import {topicFromProblem} from './communityTopics';
 
 /** The feed keys cards by account and request, so confirmations cannot cross either boundary. */
-export default function InterviewReportCard({post,owner,canSave,returnTo,savedView,resumed,resumedPractice,searchQuery,problems,papers,catalogError,onRetryCatalog,onReload,onAccountRefresh}:{post:InterviewPost;owner:string;canSave:boolean;returnTo:string;savedView:boolean;resumed?:boolean;resumedPractice?:string;searchQuery?:string;problems?:Problem[];papers?:import('./types').Paper[];catalogError?:string;onRetryCatalog?:()=>void;onReload:()=>void;onAccountRefresh?:()=>Promise<void>}){
+export default function InterviewReportCard({post,owner,canSave,returnTo,savedView,resumed,resumedPractice,searchQuery,problems,papers,catalogError,onRetryCatalog,onReload,onAccountRefresh,canAct}:{canAct?:()=>boolean;post:InterviewPost;owner:string;canSave:boolean;returnTo:string;savedView:boolean;resumed?:boolean;resumedPractice?:string;searchQuery?:string;problems?:Problem[];papers?:import('./types').Paper[];catalogError?:string;onRetryCatalog?:()=>void;onReload:()=>void;onAccountRefresh?:()=>Promise<void>}){
  const {t}=useI18n(),titleId=useId();
  const query=postSearchQuery(searchQuery);
  // Search evidence belongs to original published text, independently of translation.
@@ -32,7 +32,7 @@ export default function InterviewReportCard({post,owner,canSave,returnTo,savedVi
   <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>
   <AppLink data-reading-link="title" id={titleId} className="interview-report-title" href={href}><PostSearchMatch text={translation.title} query={query}/></AppLink><TranslationNotice translation={translation}/><PracticeMentions papers={papers} topics={problems?.map(topicFromProblem)} body={post.body} returnTo={communityPostHref(post.id)}><InlinePostBody postId={post.id} body={post.body} displayBody={translation.body} query={query}/></PracticeMentions>
   <InterviewReportPractice key={post.id} questions={post.interview.questions} revealPractice={resumedPractice} problems={problems} returnTo={returnTo} catalogError={catalogError} onRetryCatalog={onRetryCatalog}/>
-  <CommunityCardActions post={post} returnTo={returnTo}>
+  <CommunityCardActions post={post} returnTo={returnTo} canAct={canAct}>
    <div className="interview-report-actions">{canSave&&typeof bookmarked==='boolean'&&<PostBookmark postId={post.id} owner={owner} bookmarked={bookmarked} enabled={canSave} returnTo={href} disabled={accountLoading} hidden={accountLoading} onChange={setBookmarked} onBusyChange={setBusy} onAccountRefresh={onAccountRefresh}/>}<AppLink data-reading-link="read" href={href}>{t('阅读复盘','Read experience')}<ArrowRight size={13}/></AppLink></div>
   </CommunityCardActions>
   {savedView&&bookmarked===false&&!busy&&<div className="interview-unsaved-notice" role="status"><span>{t('已取消收藏。你仍可以重新收藏或继续阅读；刷新后将从列表移除。','Unsaved. You can save it again or keep reading; refreshing removes it from this list.')}</span><button type="button" onClick={onReload}>{t('刷新收藏列表','Refresh saved experiences')}<RefreshCw size={12}/></button></div>}

@@ -1,3 +1,4 @@
+import {controlIsActive} from './activeControls';
 import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
 import CommunityHighlights from './CommunityHighlights';
@@ -43,7 +44,7 @@ import {useWritingDisclosure,type WritingPanelProps} from './useWritingDisclosur
 import {useDiscussionReplies,ReplyListControls,MoreReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorNavigation} from './useDiscussionReplies';
 import CommunityAuthor,{CommunityAuthorAvatar} from './CommunityAuthor';
 import PublishingIdentity from './PublishingIdentity';
-import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
+import {quotePostDraft,quoteReplyDraft,captureReplyQuoteSelection,type DraftQuote,type ReplyQuoteSelection} from './replyQuotes';
 import {insertSolutionCode,ownsSolutionCode,type SolutionCodeSource,type SolutionCodeEdit} from './solutionCodeDraft';
 import './solution-code-draft.css';
 import './solution-publication.css';
@@ -84,7 +85,7 @@ import ProfileProgress from "./ProfileProgress";
 import ProfileAchievements from "./ProfileAchievements";
 import { practiceHref, topicHref, topicTitle, type ProblemTopic } from "./communityTopics";
 import { signInHref } from "./accountNavigation";
-import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, MAX_COMMUNITY_PAGE, solutionsHref, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
+import { COMMUNITY_PAGE_SIZE as PAGE_SIZE, MAX_COMMUNITY_PAGE, communityContinuation, solutionsHref, communityFeedHref, communityPostHref, communityPostReturn, communityReplyTarget, emptyCommunityFeed, readCommunityFeed, type CommunityFeedState } from './communityNavigation';
 import { clearPublishedDraft, hasDraft, readPostDraft, tabDraftStorage, writePostDraft, type PostDraft } from "./communityDrafts";
 import { clearPublishedReplyDraft, hasReplyDraft, readReplyDraft, sameReplyDraft, writeReplyDraft, type ReplyDraft } from "./replyDrafts";
 import {
@@ -209,7 +210,7 @@ function Loading() {
     </div>
   );
 }
-function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved,searchQuery }: { post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void;searchQuery?:string }) {
+function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivity, readInPlace=false, onCode,privateProfile=false,savedView=false,onReloadSaved,searchQuery,canAct }: { canAct?:()=>boolean;post: Post; activity?: ReactNode; returnTo?: string; resumed?:boolean; showActivity?:boolean; readInPlace?:boolean; onCode?:()=>void;privateProfile?:boolean;savedView?:boolean;onReloadSaved?:()=>void;searchQuery?:string }) {
   const { t,locale } = useI18n();
   const translation=useCommunityTranslation('post',post,!!searchQuery);
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
@@ -242,7 +243,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
           <PostTags post={post} returnTo={returnTo}/>
-          <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity}>
+          <CommunityCardActions post={post} returnTo={returnTo} showActivity={showActivity} canAct={canAct}>
             <PostBookmark key={`${post.id}:${user?.id||'guest'}`} postId={post.id} owner={user?.id||''} bookmarked={bookmarked}
               enabled={capabilities?.community_bookmarks===true} returnTo={postHref(post.id,returnTo)} disabled={accountLoading} hidden={accountLoading}
               onChange={setBookmarked} onBusyChange={setBookmarkBusy} onAccountRefresh={refreshAccount}/>
@@ -895,7 +896,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 {days&&<button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t('查看不限时间','Browse all time')}</button>}
               </Empty>
             ) : (
-              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.region!=='highlights'&&reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
+              <SolutionReadingScope value={solutionReading.value}>{data.items.map((post) => <PostCard key={`${requestKey}:${data.generation}:${post.id}`} post={post} canAct={()=>!pending&&!accountLoading&&!error&&canChangeFilter()} returnTo={returnTo} showActivity={sort==='active'} resumed={reading.region!=='highlights'&&reading.resumedPost===post.id} searchQuery={search} readInPlace={embedded} onCode={onCode} savedView={saved} onReloadSaved={()=>setRetry(value=>value+1)}/>)}</SolutionReadingScope>
             )}
           </div>
           {!pending && !emptyPage && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && !tagUnavailable && (
@@ -951,7 +952,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
   const [discardReply, setDiscardReply] = useState(false);
   const [replyPreview, setReplyPreview] = useState(false);
   const replyField=useRef<HTMLTextAreaElement>(null);
-  const quoteEdit=useRef<(ReplyQuote&{selection:ReplyQuoteSelection})>(undefined);
+  const quoteEdit=useRef<(DraftQuote&{selection:ReplyQuoteSelection})>(undefined);
   const [quoteNotice,setQuoteNotice]=useState('');
   const [replyFocus,setReplyFocus]=useState<{href:string;source:string;opener:Element|null;selection?:ReplyQuoteSelection}>();
   useLayoutEffect(()=>{
@@ -999,9 +1000,19 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
     quoteEdit.current={...result.quote,selection:captureReplyQuoteSelection(field,currentDraft.current.body.length)};
     editReply(result.quote.after);setQuoteNotice(t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'));focusReply();
   }
-  function undoQuote(){
+  function currentQuoteContext(){
+    return !!user&&!accountLoading&&!busy&&!loading&&!editingPost&&!editingReply&&post?.id===id&&mounted.current&&controlIsActive(practiceReading.root.current)&&communityContinuation(appLocation.hash)===postHref(id,providedReturnTo,replyTarget).slice(2);
+  }
+  function quotePost(trigger:HTMLButtonElement){
+    if(!post||!currentQuoteContext()||!controlIsActive(trigger)||!practiceReading.root.current?.contains(trigger))return;
+    const result=quotePostDraft(currentDraft.current,id,post,locale==='en');
+    if(!result.ok){setQuoteNotice(result.reason==='exists'?t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'):result.reason==='length'?t('引用会超过回复长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the reply limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This post could not be quoted. You can still reply directly.'));focusReply();return;}
+    quoteEdit.current={...result.quote,selection:captureReplyQuoteSelection(replyField.current,currentDraft.current.body.length)};
+    editReply(result.quote.after);setQuoteNotice(t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'));focusReply();
+  }
+  function undoQuote(trigger:HTMLButtonElement){
     const operation=quoteEdit.current;
-    if(!operation||busy||loading||!sameReplyDraft(operation.after,currentDraft.current))return;
+    if(!operation||!currentQuoteContext()||!controlIsActive(trigger)||!sameReplyDraft(operation.after,currentDraft.current))return;
     editReply({body:operation.before.body,parentId:operation.before.parentId});quoteEdit.current=undefined;focusReply(operation.selection);
   }
   async function refresh() {
@@ -1191,6 +1202,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 disabled={busy||loading||accountLoading||editingPost||!!editingReply} hidden={accountLoading} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
               <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复','replies')}</button>
+              {user&&<button type="button" className="discussion-post-quote" aria-label={t('引用正文到回复草稿','Quote post into reply draft')} disabled={repliesLocked||accountLoading||editingPost} onClick={event=>quotePost(event.currentTarget)}><Quote size={15} aria-hidden="true"/>{t('引用正文','Quote post')}</button>}
               {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<AppLink className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</AppLink>}
             </div>
           </article>
@@ -1315,7 +1327,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 <button type="button" disabled={busy} onClick={() => { editReply({ body: "", parentId: undefined }); setDiscardReply(false); setReplyPreview(false); }}>{t("确认丢弃", "Discard draft")}</button>
                 <button type="button" disabled={busy} onClick={() => setDiscardReply(false)}>{t("保留草稿", "Keep draft")}</button>
               </div>}
-              {quoteNotice&&<div className="reply-quote-notice" role="status"><span>{quoteNotice}</span>{quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={busy||loading} onClick={undoQuote}>{t('撤销引用','Undo quote')}</button>}</div>}
+              {quoteNotice&&<div className="reply-quote-notice" role="status"><span>{quoteNotice}</span>{quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={busy||loading} onClick={event=>undoQuote(event.currentTarget)}>{t('撤销引用','Undo quote')}</button>}</div>}
               <PublishingAffiliationNotice/>
               <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={busy || loading} disabled={!canPublish} onRetry={() => void reply(publication?.receipt)} />
               {replyNotice && <div className="reply-publication-notice" role="status"><p>{replyNotice === 'posted'
@@ -1771,6 +1783,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                   ) : (
                     <PostCard
                       post={item.post}
+                      canAct={()=>!activityPending&&!accountLoading&&currentProfileHref()===returnTo}
                       returnTo={returnTo}
                       privateProfile={profile.viewer.is_self&&item.post.anonymous===true}
                       resumed={reading.resumedPost===item.post.id}

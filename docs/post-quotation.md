@@ -1,0 +1,13 @@
+# Quoting a post into a reply draft
+
+Community cards and full discussions offer **Quote post** next to the comment/reply action. The control inserts a bounded excerpt from the original published body and a canonical source-post link into the current account’s reply draft. The existing text and reply target are retained. It prepares a draft; publication remains a separate explicit action.
+
+The same per-account, per-post tab draft is used when moving from a feed card into the complete discussion. Undo restores the preceding draft, reply target, selection direction and both editor scroll axes when that editor was present. Undo is offered only while the quoted draft still matches the operation; later edits are retained. A card’s local quote undo remains available while comments are loading.
+
+An intact post excerpt is not inserted again after ordinary typing or a language change. An already-restored draft does not gain a fabricated undo operation. A quote that exceeds the reply length limit is refused with the draft retained. Anonymous author metadata, private profile/feed return routes, image URLs and hidden link destinations are not added to the quote. The source link identifies only the original post. Excerpts take the first 500 grapheme clusters from a bounded Markdown parse, with an ellipsis when truncated. Block code and math use a literal fence that cannot be closed by the excerpt itself; other text is Markdown-escaped.
+
+The shared quote formatter retains reply quotation behavior. Source-card context, connected/visible controls, current post route and account lifecycle are checked before preparing or undoing a draft. The existing publishing receipt and expected-account checks still control submission. Focus follows the explicit compose action and yields to a newer focus or route change. Guest card actions continue through sign-in; full-thread quotation is offered to signed-in readers.
+
+Quote controls and the card action row have 44px targets. Narrow card containers use a named quote icon with an accessible label and tooltip, while wider cards show the text label. Existing themed focus, hover and reduced-motion treatment applies.
+
+Validation covers actual React/JSDOM feed and full-thread components, safe rendered quote markup, existing reply quotations, draft/target/caret/scroll restoration, duplicate and length handling, owner/guest/hidden/retired-route cases, and explicit publication. An authenticated disposable HTTP/SQLite fixture confirms exactly one intended reply, its retained parent, and an unchanged source post, with unrelated reaction, bookmark, follow and practice tables untouched. This is component/API evidence; it does not establish physical browser layout or production behavior.

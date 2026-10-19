@@ -28,12 +28,13 @@ import {clearPublication,preparePublication,readPublication,replyPublication,sam
 import {withConfirmedReply,withConfirmedReplyEdit,type Post,type PostDetail,type Reply} from './communityDiscussion';
 import {useDiscussionReplies,ReplyReadingReturn,ReplyReadingNotice,ReplyAuthorJump,ReplyAuthorNavigation} from './useDiscussionReplies';
 import {postPreview} from './postExcerpt';
-import {quoteReplyDraft,captureReplyQuoteSelection,type ReplyQuote,type ReplyQuoteSelection} from './replyQuotes';
+import {quotePostDraft,quoteReplyDraft,captureReplyQuoteSelection,type DraftQuote,type ReplyQuoteSelection} from './replyQuotes';
+import {controlIsActive} from './activeControls';
 import './reply-quotes.css';
 import {keepReadingTriggerVisible,readingScrollRoot} from './readingViewport';
 import './community-card-actions.css';
 
-type CardProps={post:Post;returnTo?:string;showActivity?:boolean;children?:ReactNode};
+type CardProps={canAct?:()=>boolean;post:Post;returnTo?:string;showActivity?:boolean;children?:ReactNode};
 function CommentReference({parent,disabled,onReveal}:{parent:Reply;disabled:boolean;onReveal:(trigger:HTMLButtonElement)=>void}){
   const {t,locale}=useI18n();
   const name=parent.author.anonymous?t('匿名用户','Anonymous'):parent.author.display_name;
@@ -45,7 +46,7 @@ export default function CommunityCardActions(props:CardProps){
   // Account changes discard rendered private state before the next request.
   return <CardActions key={`${props.post.id}:${user?.id||'guest'}`} {...props} owner={user?.id||''} accountLoading={loading}/>;
 }
-function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,children}:CardProps&{owner:string;accountLoading:boolean}){
+function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,children,canAct}:CardProps&{owner:string;accountLoading:boolean}){
   const {t,locale}=useI18n(),{user,capabilities,refresh:refreshAccount}=useAccount(),regionId=useId(),fieldId=useId();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
   const href=communityPostHref(initial.id,returnTo),path=`community/posts/${encodeURIComponent(initial.id)}`;
@@ -54,7 +55,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const [post,setPost]=useState(initial),[detail,setDetail]=useState<PostDetail>(),[open,setOpen]=useState(false);
   const [postedId,setPostedId]=useState<string>();
   const [quoteNotice,setQuoteNotice]=useState<''|'added'|'exists'|'length'|'unavailable'>('');
-  const quoteEdit=useRef<ReplyQuote&{selection:ReplyQuoteSelection}>(undefined);
+  const quoteEdit=useRef<DraftQuote&{selection:ReplyQuoteSelection}>(undefined);
   const [loading,setLoading]=useState(false),[loadError,setLoadError]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState('');
   const [busy,setBusy]=useState<'like'|'reply'|'account'|''>(''),[pendingLike,setPendingLike]=useState<boolean>();
   const [accountRecovery,setAccountRecovery]=useState(false);
@@ -182,9 +183,19 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     quoteEdit.current={...result.quote,selection:captureReplyQuoteSelection(textarea.current,current.current.body.length)};
     edit(result.quote.after);setQuoteNotice('added');setWriting(true);setPreview(false);focusReply(undefined,true);
   }
-  function undoQuote(){
+  function quotePost(trigger:HTMLButtonElement){
+    if(replyEdit||working.current||busy||accountLoading||accountRecovery||!canShare()||canAct?.()===false||!controlIsActive(trigger))return;
+    if(!owner){appLocation.hash=signInHref(returnTo||'community');return;}
+    if(!open)expand();
+    const result=quotePostDraft(current.current,initial.id,initial,locale==='en');
+    setWriting(true);setPreview(false);
+    if(!result.ok){setQuoteNotice(result.reason);focusReply(undefined,true);return;}
+    quoteEdit.current={...result.quote,selection:captureReplyQuoteSelection(textarea.current,current.current.body.length)};
+    edit(result.quote.after);setQuoteNotice('added');focusReply(undefined,true);
+  }
+  function undoQuote(trigger:HTMLButtonElement){
     const operation=quoteEdit.current;
-    if(replyEdit||!operation||working.current||busy||loading||accountLoading||accountRecovery||!sameReplyDraft(operation.after,current.current))return;
+    if(replyEdit||!operation||working.current||busy||accountLoading||accountRecovery||!canShare()||canAct?.()===false||!controlIsActive(trigger)||!sameReplyDraft(operation.after,current.current))return;
     edit({body:operation.before.body,parentId:operation.before.parentId});quoteEdit.current=undefined;setWriting(true);setPreview(false);focusReply(operation.selection);
   }
   async function reportFailure(e:unknown){
@@ -250,6 +261,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         <Heart size={15} fill={post.viewer.liked?'currentColor':'none'}/><span>{post.counts.likes} {busy==='like'?t('确认中…','Confirming…'):t('赞','likes')}</span>
       </button>
       <button type="button" onClick={writeComment} aria-controls={regionId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery}><PenLine size={15}/>{t('写评论','Write comment')}</button>
+      <button type="button" className="card-post-quote" aria-label={t('引用正文到评论草稿','Quote post into comment draft')} title={t('将正文原文摘要加入评论草稿','Add a source-linked excerpt of the original post to your comment draft')} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery} onClick={event=>quotePost(event.currentTarget)}><Quote size={15} aria-hidden="true"/><span>{t('引用正文','Quote post')}</span></button>
       <span className="card-reposts"><Repeat2 size={13}/>{post.counts.reposts} {t('转发','reposts')}</span>
       <PostReport postId={post.id} returnTo={href} own={post.viewer.can_edit||post.author.id===owner} disabled={accountLoading||!!replyEdit||!!busy}/>
       <DiscussionLink key={`post-share:${accountLoading}`} postId={post.id} returnTo={returnTo} compact name={post.title} disabled={accountLoading} canAct={canShare}/>
@@ -284,7 +296,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         {replies.total>replies.shown.length&&<button type="button" className="card-more-comments" disabled={accountLoading||!!replyEdit} onClick={replies.showMore}><ChevronDown size={14}/>{t('再展开','Show')} {Math.min(3,replies.total-replies.shown.length)} {t('条评论','more comments')}</button>}
       </>}
       </div>
-      {quoteNotice&&<div className="reply-quote-notice card-reply-quote-notice" role="status"><span>{quoteNotice==='added'?t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'):quoteNotice==='exists'?t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'):quoteNotice==='length'?t('引用会超过评论长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the comment limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This comment could not be quoted. You can still reply directly.')}</span>{(quoteNotice==='added'||quoteNotice==='exists')&&quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery} onClick={undoQuote}>{t('撤销引用','Undo quote')}</button>}</div>}
+      {quoteNotice&&<div className="reply-quote-notice card-reply-quote-notice" role="status"><span>{quoteNotice==='added'?t('引用摘要已加入草稿，可继续编辑后发布。','A source-linked excerpt is in your draft. Edit it before posting.'):quoteNotice==='exists'?t('该引用已在草稿中，可继续编辑。','This excerpt is already in your draft. You can keep editing.'):quoteNotice==='length'?t('引用会超过评论长度上限，现有草稿已保留。请精简后再引用。','This quote would exceed the comment limit. Your draft is kept; shorten it before quoting.'):t('暂时无法生成引用，仍可直接回复。','This content could not be quoted. You can still reply directly.')}</span>{(quoteNotice==='added'||quoteNotice==='exists')&&quoteEdit.current&&sameReplyDraft(quoteEdit.current.after,draft)&&<button type="button" className="text-button" disabled={!!replyEdit||!!busy||accountLoading||accountRecovery} onClick={event=>undoQuote(event.currentTarget)}>{t('撤销引用','Undo quote')}</button>}</div>}
       {editedReply&&<p className="card-comment-edit-notice" role="status">{t('评论修改已保存。','Comment changes saved.')} {replies.byId.has(editedReply)&&<button type="button" className="text-button" onClick={event=>revealComment(editedReply,event.currentTarget)}>{t('查看修改的评论','View updated comment')}</button>}</p>}
       {accountLoading?<p className="card-account-checking" role="status">{t('正在确认账号，评论草稿已保留…','Checking your account. Your comment draft is kept…')}</p>:owner&&user?<>
       <button ref={composePrompt} type="button" className="card-comment-compose-prompt" hidden={writing||!!replyEdit} aria-expanded={false} aria-controls={formId} disabled={!!busy||accountRecovery} onClick={writeComment}><PenLine size={16} aria-hidden="true"/><span><b>{publication?t('继续处理待确认评论','Continue pending comment'):hasReplyDraft(draft)?t('继续编辑评论草稿','Continue comment draft'):t('写下你的想法…','Share your thoughts…')}</b><small>{!saved?t('草稿未能保存，请先复制内容。','Draft could not be saved. Copy it first.'):publication||hasReplyDraft(draft)?t('草稿已保留，点击继续','Your draft is kept. Pick up where you left off.'):t('无需离开当前列表','Stay in this feed')}</small></span></button>

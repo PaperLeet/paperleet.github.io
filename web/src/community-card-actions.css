@@ -146,3 +146,10 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 
 .card-comment-search .community-query :is(input,button){min-height:44px}
 .card-comment-search .community-query button{min-width:44px}
+
+.card-actions>button{min-height:44px}
+.card-actions>.card-post-quote{color:var(--text-secondary)}
+.card-actions>.card-post-quote:hover:not(:disabled){color:var(--accent);background:var(--surface2)}
+.discussion-actions>.discussion-post-quote{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 12px;border-radius:8px;color:var(--text-secondary)}
+.discussion-actions>.discussion-post-quote:hover:not(:disabled){background:var(--surface2);color:var(--accent)}
+@container post-interaction (max-width:560px){.card-actions>.card-post-quote{min-width:44px;padding-inline:10px}.card-post-quote>span{display:none}}
