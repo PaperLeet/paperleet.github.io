@@ -1,0 +1,339 @@
+{
+  "status": "functional_and_lifetime_evidence_complete_latency_and_backend_qualification_pending",
+  "baseline_version": "0.82.0",
+  "canonical_production_changes": false,
+  "main_adopted_version": "0.82.0",
+  "last_verified_main_proof_commit": "21667758ef8d5c9b7c0e2785ad973bd9fd7a0e1c",
+  "candidate_scope": "Binarymul/directdivideVJPclosuresretainonlyactualoperandvaluesandinputshapes;graphguardsandnumericalhelpersunchanged",
+  "lifetime": {
+    "native_comparisons": 72,
+    "actual_chrome_cases_per_variant": 36,
+    "representative_float64_C_chain32": {
+      "shape": [
+        64,
+        64
+      ],
+      "baseline_extra_captured_owners": 32,
+      "baseline_extra_captured_bytes": 1048576,
+      "candidate_extra_captured_owners": 0,
+      "candidate_extra_captured_bytes": 0
+    },
+    "not_rss": true,
+    "not_peak_allocation": true
+  },
+  "native_sdk": {
+    "status": "passed_full_native_sdk_and_gradient_binary_controls",
+    "results": [
+      {
+        "label": "numpy25",
+        "kind": "oracle",
+        "exit_code": 0,
+        "seconds": 0.33265018463134766,
+        "log_sha256": "d08f849fc00cd31b0f7001db9c70052df71feab465d942c8a7d31f33cef14ba5",
+        "cases": 478,
+        "status": "passed",
+        "mismatches": 0,
+        "version_differences": 0
+      },
+      {
+        "label": "numpy25",
+        "kind": "sdk",
+        "exit_code": 0,
+        "seconds": 35.0478310585022,
+        "log_sha256": "e106645c3401b1b2d3c660b961ffb6c3a874685898b023161aedde516ac6de12",
+        "totals": {
+          "tests": 12298,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "label": "numpy126",
+        "kind": "oracle",
+        "exit_code": 0,
+        "seconds": 0.5909781455993652,
+        "log_sha256": "d08f849fc00cd31b0f7001db9c70052df71feab465d942c8a7d31f33cef14ba5",
+        "cases": 478,
+        "status": "passed",
+        "mismatches": 0,
+        "version_differences": 0
+      },
+      {
+        "label": "numpy126",
+        "kind": "sdk",
+        "exit_code": 0,
+        "seconds": 52.60104513168335,
+        "log_sha256": "08445d91b3735e952a432560afd8d9e377d0f0105aa3afb9c2fa6473c3266b73",
+        "totals": {
+          "tests": 12298,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        }
+      }
+    ],
+    "production_changed": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "node_wasm": {
+    "browser_sdk_passed": 12285,
+    "additional_host_test_passes": 10,
+    "original_invocation_passed": false,
+    "host_subprocess_failures": 3,
+    "reconciliation_stage": 485,
+    "clipping_oracle_cases": 478
+  },
+  "chrome_wasm": {
+    "passed": 12285,
+    "skipped": 0,
+    "failures": 0,
+    "browser": "155.0.8059.82",
+    "version": "0.82.0"
+  },
+  "arithmetic": {
+    "cases_per_environment": 882,
+    "native_environments": 2,
+    "baseline_candidate_bitwise_identical": true,
+    "native_complete_matches_per_environment": 876,
+    "existing_precision_contexts": 6,
+    "precision_diagnostic": {
+      "status": "localized_existing_mixed_precision_differences_without_changing_tolerances",
+      "original_corpus_status_preserved": "needs_review",
+      "cases_per_environment": 882,
+      "baseline_candidate_bitwise_identical": true,
+      "complete_native_matches_per_environment": 876,
+      "existing_precision_contexts": 6,
+      "rows": [
+        {
+          "index": 644,
+          "spec": {
+            "dtype": "float64",
+            "layout": "C",
+            "shapes": [
+              [],
+              [
+                3,
+                4
+              ]
+            ],
+            "kind": "mixed",
+            "activity": "left",
+            "operation": "multiply"
+          },
+          "output_values_bitwise_equal": true,
+          "nonlinear_cotangent_dtype": "float32",
+          "nonlinear_cotangents_identical": false,
+          "native_scalar_gradient": -3.727381944656372,
+          "runtime_scalar_gradient": -3.7273824214935303,
+          "absolute_difference": 4.76837158203125e-07,
+          "fixed_native_cotangent_all_gradients_bitwise_equal": true
+        },
+        {
+          "index": 648,
+          "spec": {
+            "dtype": "float64",
+            "layout": "C",
+            "shapes": [
+              [],
+              [
+                3,
+                4
+              ]
+            ],
+            "kind": "mixed",
+            "activity": "both",
+            "operation": "multiply"
+          },
+          "output_values_bitwise_equal": true,
+          "nonlinear_cotangent_dtype": "float32",
+          "nonlinear_cotangents_identical": false,
+          "native_scalar_gradient": -3.727381944656372,
+          "runtime_scalar_gradient": -3.7273824214935303,
+          "absolute_difference": 4.76837158203125e-07,
+          "fixed_native_cotangent_all_gradients_bitwise_equal": true
+        },
+        {
+          "index": 742,
+          "spec": {
+            "dtype": "float64",
+            "layout": "F",
+            "shapes": [
+              [],
+              [
+                3,
+                4
+              ]
+            ],
+            "kind": "mixed",
+            "activity": "left",
+            "operation": "multiply"
+          },
+          "output_values_bitwise_equal": true,
+          "nonlinear_cotangent_dtype": "float32",
+          "nonlinear_cotangents_identical": false,
+          "native_scalar_gradient": -3.727381944656372,
+          "runtime_scalar_gradient": -3.7273824214935303,
+          "absolute_difference": 4.76837158203125e-07,
+          "fixed_native_cotangent_all_gradients_bitwise_equal": true
+        },
+        {
+          "index": 746,
+          "spec": {
+            "dtype": "float64",
+            "layout": "F",
+            "shapes": [
+              [],
+              [
+                3,
+                4
+              ]
+            ],
+            "kind": "mixed",
+            "activity": "both",
+            "operation": "multiply"
+          },
+          "output_values_bitwise_equal": true,
+          "nonlinear_cotangent_dtype": "float32",
+          "nonlinear_cotangents_identical": false,
+          "native_scalar_gradient": -3.727381944656372,
+          "runtime_scalar_gradient": -3.7273824214935303,
+          "absolute_difference": 4.76837158203125e-07,
+          "fixed_native_cotangent_all_gradients_bitwise_equal": true
+        },
+        {
+          "index": 840,
+          "spec": {
+            "dtype": "float64",
+            "layout": "sliced",
+            "shapes": [
+              [],
+              [
+                3,
+                4
+              ]
+            ],
+            "kind": "mixed",
+            "activity": "left",
+            "operation": "multiply"
+          },
+          "output_values_bitwise_equal": true,
+          "nonlinear_cotangent_dtype": "float32",
+          "nonlinear_cotangents_identical": false,
+          "native_scalar_gradient": -3.727381944656372,
+          "runtime_scalar_gradient": -3.7273824214935303,
+          "absolute_difference": 4.76837158203125e-07,
+          "fixed_native_cotangent_all_gradients_bitwise_equal": true
+        },
+        {
+          "index": 844,
+          "spec": {
+            "dtype": "float64",
+            "layout": "sliced",
+            "shapes": [
+              [],
+              [
+                3,
+                4
+              ]
+            ],
+            "kind": "mixed",
+            "activity": "both",
+            "operation": "multiply"
+          },
+          "output_values_bitwise_equal": true,
+          "nonlinear_cotangent_dtype": "float32",
+          "nonlinear_cotangents_identical": false,
+          "native_scalar_gradient": -3.727381944656372,
+          "runtime_scalar_gradient": -3.7273824214935303,
+          "absolute_difference": 4.76837158203125e-07,
+          "fixed_native_cotangent_all_gradients_bitwise_equal": true
+        }
+      ],
+      "interpretation": "Differencesalreadyexistinthe0.82baseline:float32nonlinearcotangentsdifferbeforethebinarypullback;withidenticalnativecotangentsallcomparedbinarygradientsmatchbitwise.Thefloat64scalargradientdoesnotmakeupstreamfloat32mathfloat64accurate.Originalstrictfloat64comparisonsremainfailed;nofullnativeparityclaim.",
+      "original_result_sha256": "17606d55410b31362d2fb3d446c32c624346759ff1d9d39f1e0ca4ac8f44420e",
+      "production_changed": false,
+      "precision_fix_adopted": false
+    },
+    "original_strict_failures_preserved": true
+  },
+  "transport": {
+    "status": "experimental_fixed_kernel_channel_observed",
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "host_adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false
+    },
+    "opaque_worker_has_gpu": false,
+    "async_entry_echo": 37,
+    "synchronous_entry_rejected": true,
+    "fixed_host_gpu_matrix_result": [
+      19,
+      22,
+      43,
+      50
+    ],
+    "unknown_operation_rejected": true,
+    "pending": 0,
+    "late_replies": 0,
+    "buffers_created": 4,
+    "buffers_destroyed": 4,
+    "no_latency_claim": true,
+    "no_tensor_backend_qualification": true,
+    "remaining": [
+      "cancellation",
+      "device-loss",
+      "timeout/late-replylifecycle",
+      "copiedarbitrarysupportedtensorinputsandownedoutputs",
+      "fallback/dtype/gradstate",
+      "whole-callcomparisonagainstcurrent0.82CPU/WASM"
+    ]
+  },
+  "failures_preserved": [
+    {
+      "stage": 478,
+      "reason": "Duplicatealiasleafsentineloverwrittenbytestsetup;479initializesdistinctleafonce"
+    },
+    {
+      "stage": 479,
+      "reason": "Strictfloat64nativecomparisonfailsinsixexistingmixedprecisioncontexts;baselinecandidatebitwiseidentical;486commoncotangentbinaryVJPsexact"
+    },
+    {
+      "stage": 480,
+      "reason": "FullnativeSDKincludes13hosttests;threeunsupportedsubprocesscasesfail;485actualcollectionreconcilesall12285unchangedbrowsercaseswithoutrepeatingtests"
+    },
+    {
+      "stage": 483,
+      "reason": "Collectionstdouttruncatedbeforeprimaryresult;485silentcollectionwritesfullprimaryfile"
+    },
+    {
+      "stage": 481,
+      "reason": "OpaqueBlobmoduleWorkerfailsbeforeloadingruntime"
+    },
+    {
+      "stage": 482,
+      "reason": "Expandeddiagnosticconfirmssamepre-runtimefailure;484classicWorkermatchesproductionandpasses"
+    }
+  ],
+  "latency_qualified": false,
+  "peak_allocation_qualified": false,
+  "production_webgpu_enabled": false,
+  "candidate_adopted": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "next": "Measurefullowned-outputflowsandallocationwithpreplannedbalancedA/Acontrols;keepcandidateisolateduntilqualification;extendfixedhostJSPIlifecycleandCPUfallback",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/operand-lifetime-jspi-followup-harness.tar.gz",
+    "files": 559,
+    "unique_payloads": 253,
+    "bytes": 1939555,
+    "sha256": "b317bd96d6a2bebae9603c2dad0d5d86ca897bd05fff89085ad3c056651477ce",
+    "all_payloads_verified": true
+  }
+}
