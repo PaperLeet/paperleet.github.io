@@ -3,12 +3,13 @@ import { calibrationDiagnostic, runtimeDiagnostic, unsupportedReport } from '../
 import { syntaxCheck } from '../public/browser-judge/syntax.mjs';
 import { loadJudgePackages } from '../public/browser-judge/packages.mjs';
 import { calibrationProof, calibrationSummary } from './browserCalibration.ts';
+import {customCasePython} from './customCasePython.ts';
 const send = globalThis.postMessage.bind(globalThis);
 let started = false;
 self.onmessage = async ({ data }) => {
   if (started) return;
   started = true;
-  const { base, bundle, source, calibrationKey = '', cachedCalibration } = data;
+  const { base, bundle, source, calibrationKey = '', cachedCalibration, customCase } = data;
   const startedAt = performance.now();
   const progress = (stage, detail = {}) => send({ type: 'progress', stage, ...detail });
   const unsupported = (reason, detail = '') => send({ type: 'unsupported', reason, detail });
@@ -30,6 +31,14 @@ self.onmessage = async ({ data }) => {
     progress('loading', { step: 'preparing' });
     py.globals.set('bundle_json', JSON.stringify(bundle));
     py.runPython(`import json, inspect\nbundle = json.loads(bundle_json)\nexec(compile(bundle['harness'], 'browser_harness.py', 'exec'))\nprepare(bundle, bundle['adapter'], '/judge')`);
+    if(customCase) {
+      runtimeStage = 'custom';
+      progress('running');
+      py.globals.set('custom_case_json',JSON.stringify(customCase));
+      const result=JSON.parse(py.runPython(customCasePython));
+      send({type:'custom_result',result});
+      return;
+    }
     py.globals.set('_browser_progress', (step, completed, total) => progress(step === 'tests' ? 'running' : 'calibrating', { step, completed, total }));
     py.globals.set('_browser_activity', (step, completed, total, index, test, layer, why, mutant) => progress(step === 'tests' ? 'running' : 'calibrating', {
       step, completed, total, activity: { index, test, layer, why, ...(mutant ? { mutant } : {}) },

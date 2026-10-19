@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "starts_on": "2026-10-19",
+  "timezone": "UTC",
+  "modules": [
+    "architecture/attention", "foundations/next_token_loss", "finetuning/lora",
+    "rl/gae", "architecture/layer_norm", "diffusion/schedules",
+    "optimization/adamw", "foundations/top_k_sampling", "architecture/rope",
+    "rl/dpo", "foundations/sft_loss_mask", "representation/clip",
+    "architecture/gqa", "diffusion/flow_matching", "foundations/gradient_clipping",
+    "rl/ppo_clip", "architecture/rms_norm", "diffusion/param_conversion",
+    "foundations/top_p_sampling", "finetuning/qlora", "representation/vicreg",
+    "architecture/multihead_attention", "rl/grpo", "diffusion/ddim",
+    "foundations/gradient_accumulation", "architecture/positional_encoding",
+    "retrieval/bpr", "diffusion/ddpm_sampling"
+  ]
+}

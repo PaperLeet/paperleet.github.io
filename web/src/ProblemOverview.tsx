@@ -1,4 +1,6 @@
 import AppLink from './AppLink';
+import {deferredFeature} from './deferredFeature';
+const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['每日挑战','daily challenge']);
 import {BookOpen, CheckCircle2, ExternalLink, FileCode2} from 'lucide-react';
 import type {Problem} from './types';
 import type {ProblemStatistics} from './ProblemStats';
@@ -22,6 +24,7 @@ export type ProblemOverviewProps = {
 export default function ProblemOverview({problem,prerequisite,returnTo,course,notesUnlocked,stats,statsLoading,onCode}:ProblemOverviewProps) {
   const {t}=useI18n();
   return <>
+    <ChallengePanels problems={[problem]} problemId={problem.id} compact/>
     <div className="problem-heading">
       <div className="heading-kicker">
         <FileCode2 size={18} />

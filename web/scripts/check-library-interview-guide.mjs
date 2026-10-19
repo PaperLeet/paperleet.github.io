@@ -33,7 +33,7 @@ try{
  let data=summary,hold=true,owner='user:'+user.id,ready=true,failed=false,progressRetries=0,route='#';
  const pass=problem=>({problem:problem.id,summary:Object.fromEntries(Object.entries(problem.tests).map(([layer,count])=>[layer,[count,count]])),tests:Object.entries(problem.tests).flatMap(([layer,count])=>Array.from({length:count},(_,i)=>({id:layer+'-'+i,layer,passed:true})))});
  let saved={[p[0].id]:{acceptedReport:pass(p[0])},[p[1].id]:{code:'',updated:'2026-10-17T00:00:00Z'}};
- globalThis.__libraryInterview={account,request(url,body,signal){assert.equal(body,undefined);assert.equal(url,'community/interviews/summary?days=365');requests.push({url,signal});return hold?new Promise((resolve,reject)=>pending.push({resolve,reject,signal})):Promise.resolve(data);}};
+ globalThis.__libraryInterview={account,request(url,body,signal){if(url.startsWith('challenges/daily?'))return Promise.resolve(null);assert.equal(body,undefined);assert.equal(url,'community/interviews/summary?days=365');requests.push({url,signal});return hold?new Promise((resolve,reject)=>pending.push({resolve,reject,signal})):Promise.resolve(data);}};
  let setLocale;function Language(){const i=useI18n();setLocale=i.setLocale;return null;}
  function App(){return h(LocaleProvider,null,h(Language),h('textarea',{id:'private-code',defaultValue:'private implementation\n😀'}),h(PracticeProgressProvider,{owner,problems:catalog.problems,saved,ready,failed,retry:()=>progressRetries++},h(PaperLibrary,{...catalog,saved,progressReady:ready,route,onFilters:href=>{route=href;historyView(href);}})));}
  function historyView(href){location.hash=href.slice(1);void render();}

@@ -1,3 +1,4 @@
+import DailyChallenges from './DailyChallenges';
 import { CheckCircle2 } from 'lucide-react';
 import { useI18n } from './i18n';
 import { status, type Problem, type Saved } from './types';
@@ -5,10 +6,11 @@ import LibraryInterviewGuide from './LibraryInterviewGuide';
 import type {LibraryCompanyScope} from './libraryCompanyScope';
 import {hostedAppAvailable} from './deployment';
 
-export default function LibraryOverview({ problems, practiceProblems=[], scopeReady=true, returnTo='#', saved, ready, difficulty, onDifficulty,companyScope,onCompanyFilter }: {
+export default function LibraryOverview({ problems, dailyProblems, practiceProblems=[], scopeReady=true, returnTo='#', saved, ready, difficulty, onDifficulty,companyScope,onCompanyFilter }: {
   companyScope?:LibraryCompanyScope;
   onCompanyFilter?:(company:string)=>void;
   problems: Problem[];
+  dailyProblems?: Problem[];
   practiceProblems?:Problem[];
   scopeReady?:boolean;
   returnTo?:string;
@@ -23,6 +25,7 @@ export default function LibraryOverview({ problems, practiceProblems=[], scopeRe
   const started = core.filter(problem => status(problem, saved[problem.id]) === 'started').length;
   const percent = ready && core.length ? Math.round(solved / core.length * 100) : 0;
   return <aside className={`library-overview${hostedAppAvailable?' has-interview-guide':''}`} aria-label={t('练习概览', 'Practice overview')}>
+    <DailyChallenges problems={dailyProblems||problems} compact/>
     <section className="library-progress-card">
       <header><h2>{t('我的进度', 'Your progress')}</h2><CheckCircle2 size={16} aria-hidden="true" /></header>
       <div className="library-progress-ring" role="img" aria-label={ready ? t(`${solved} / ${core.length} 核心模块已通过，${percent}%`, `${solved} of ${core.length} core modules solved, ${percent}%`) : t('正在加载进度', 'Loading progress')} style={{ background: `conic-gradient(var(--green) ${percent}%, var(--surface3) 0)` }}>

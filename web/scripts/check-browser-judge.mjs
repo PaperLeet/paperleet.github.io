@@ -23,7 +23,7 @@ try {
   assert(!diagnostic.includes('must not appear'));
   assert(calibrationDiagnostic({reason:'mutant_not_caught',mutant:'wrong'}).includes('mutant: wrong'));
   assert(calibrationDiagnostic({reason:'failed',reference:{error:'x'.repeat(10000),tests:Array.from({length:10},()=>({passed:false,message:'y'.repeat(10000)}))}}).length <= 4000);
-  const { runBrowserJudge } = await server.ssrLoadModule('/src/browserJudge.ts');
+  const { runBrowserJudge,runBrowserCustomCase } = await server.ssrLoadModule('/src/browserJudge.ts');
   const { parseReport } = await server.ssrLoadModule('/src/reports.ts');
   assert.equal(unsupportedReport({tests:[{unsupported_api:true,message:'typed compatibility failure'}]}),true);
   assert.equal(unsupportedReport({tests:[{unsupported_api:false,message:'AssertionError: BrowserUnsupported ImportError'}]}),false);
@@ -88,6 +88,21 @@ try {
   assert(sandbox.removed);
   assert.equal(parseReport(report).runtime, 'browser-numpy-wasm');
   assert.deepEqual(requests, ['https://paperleet.example/data/browser-judge/6-0123456789abcdef0123.json']);
+
+  // Custom output shares isolation but must never become a graded test report.
+  {
+    const request={function:'solve',args:[2],kwargs:{},expected:4};
+    const run=runBrowserCustomCase(problem,'def solve(x): return x*x',request,new AbortController().signal,()=>{});
+    const current=await nextFrame(),token=current.srcdoc.match(/const nonce = "([^"]+)"/)[1];
+    const send=payload=>{for(const fn of listeners)fn({source:current.contentWindow,data:{nonce:token,payload}});};
+    send({type:'ready'});assert.deepEqual(current.messages.at(-1).input.customCase,request);
+    send({type:'result',report});assert(!current.removed,'Custom execution cannot emit a graded suite result');
+    send({type:'custom_result',result:{ok:true,output:4,matches:true,stdout:'debug\n'}});
+    const result=await run;assert.equal(result.type,'custom_result');assert.equal(result.result.output,4);
+    assert(current.removed&&listeners.size===0);
+    const controller=new AbortController();const stopped=runBrowserCustomCase(problem,'never execute',request,controller.signal,()=>{});
+    const rejection=assert.rejects(stopped,{name:'AbortError'});await nextFrame();controller.abort();await rejection;
+  }
 
   for(const valid of [true,false]){
     const source='bad = (',syntaxStages=[];
@@ -160,6 +175,13 @@ try {
     assert.equal((await long).reason,'timeout');
     assert(longFrame.removed&&deadlines.size===0&&listeners.size===0);
     globalThis.fetch=async()=>Response.json({version:1,problem:problem.id});
+    const customTimedRun=runBrowserCustomCase(problem,'while True: pass',{function:'solve',args:[],kwargs:{}},new AbortController().signal,()=>{});
+    const customFrame=await nextFrame(),customNonce=customFrame.srcdoc.match(/const nonce = "([^"]+)"/)[1];
+    const sendCustom=payload=>{for(const fn of listeners)fn({source:customFrame.contentWindow,data:{nonce:customNonce,payload}});};
+    sendCustom({type:'ready'});sendCustom({type:'progress',stage:'running'});
+    const customDeadline=[...deadlines.values()].find(value=>value.ms===10000);
+    assert(customDeadline,'Custom user execution has a ten-second deadline');customDeadline.fn();
+    assert.equal((await customTimedRun).reason,'timeout');assert(customFrame.removed&&deadlines.size===0&&listeners.size===0);
   } finally {
     globalThis.setTimeout = nativeSetTimeout;
     globalThis.clearTimeout = nativeClearTimeout;

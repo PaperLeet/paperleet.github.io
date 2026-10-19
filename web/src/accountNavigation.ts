@@ -11,6 +11,7 @@ const loginErrors = new Set(["identity", "expired", "cancelled", "unavailable", 
 /** Allow only known shapes of local hash routes; never an external destination. */
 function returnRoute(route: string): string | undefined {
   if (route.startsWith('#')) return undefined;
+  if(/^daily-challenge(?:\?date=\d{4}-\d{2}-\d{2})?$/.test(route))return route;
   const favorites=readFavoriteRoute(route);if(favorites)return favoriteHref(favorites).slice(2);
   const profile=readProfileRoute(route);if(profile)return profileFeedHref(profile.username,profile).slice(2);
   const interviews=readInterviewRoute(route);

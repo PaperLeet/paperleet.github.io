@@ -22,7 +22,7 @@ packages = ["paperleet", "paperleet.browser", "paperleet.common", "paperleet.jud
 "paperleet._vendor.torch" = "packages/stridetorch/src/stridetorch"
 
 [tool.setuptools.package-data]
-paperleet = ["interview_catalog.json"]
+paperleet = ["interview_catalog.json", "daily_challenges.json"]
 "paperleet._vendor.torch" = ["LICENSE", "NOTICE"]
 
 [tool.pytest.ini_options]

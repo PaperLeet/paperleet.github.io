@@ -8,6 +8,7 @@ import type { Problem, Report } from './types';
 import { browserWorkerAsset, browserWorkerDigest } from './browserWorkerAsset.generated';
 import { calibrationProof, createCalibrationCache } from './browserCalibration';
 import { browserMeasurements, browserRunDetails } from './browserRunDetails';
+import {readCustomResult,type CustomCase,type CustomCaseResult} from './customCaseModel';
 import type { BrowserMeasurements, CalibrationSummary, CalibrationProof } from './browserCalibration';
 const compatibility = createCalibrationCache();
 
@@ -21,6 +22,14 @@ export { browserReason } from './browserMessages';
 
 /** Client feedback, never authority for hosted progress/rankings. */
 export async function runBrowserJudge(problem: Problem, source: string, signal: AbortSignal, progress: (stage: BrowserStage, detail?: BrowserProgress) => void, requestedAt = performance.now()): Promise<BrowserOutcome> {
+  const outcome=await runBrowserTask(problem,source,signal,progress,requestedAt);
+  return outcome.type==='custom_result'?{type:'unsupported',reason:'collection_failed'}:outcome;
+}
+export async function runBrowserCustomCase(problem:Problem,source:string,customCase:CustomCase,signal:AbortSignal,progress:(stage:BrowserStage)=>void) {
+  return runBrowserTask(problem,source,signal,progress,performance.now(),customCase);
+}
+type TaskOutcome=BrowserOutcome|{type:'custom_result';result:CustomCaseResult};
+async function runBrowserTask(problem: Problem, source: string, signal: AbortSignal, progress: (stage: BrowserStage, detail?: BrowserProgress) => void, requestedAt:number,customCase?:CustomCase): Promise<TaskOutcome> {
   if (signal.aborted) throw new DOMException('Stopped', 'AbortError');
   if (!problem.browser_judge || !globalThis.Worker || !globalThis.WebAssembly)
     return { type: 'unsupported', reason: 'unavailable' };
@@ -62,7 +71,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
     let checkedCalibration: CalibrationSummary | undefined;
     const hardDeadline = setTimeout(() => finish({ type: 'unsupported', reason: 'timeout' }), budget.total);
     let timer: ReturnType<typeof setTimeout>;
-    const finish = (outcome?: BrowserOutcome, error?: unknown) => {
+    const finish = (outcome?: TaskOutcome, error?: unknown) => {
       if (settled) return;
       settled = true;
       if(error || outcome?.type === 'unsupported' || outcome?.type === 'syntax_error') compatibility.remove(calibrationKey);
@@ -85,7 +94,10 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
       if (message?.type === 'ready' && !readySeen) {
         readySeen = true;
         granted = reuseAllowed ? compatibility.get(calibrationKey,bundle) : undefined;
-        frame.contentWindow!.postMessage({ nonce, input: { base, bundle, source, calibrationKey, cachedCalibration:granted } }, '*');
+        frame.contentWindow!.postMessage({ nonce, input: { base, bundle, source, calibrationKey, cachedCalibration:granted,customCase } }, '*');
+      } else if(message?.type==='custom_result'&&customCase&&readySeen) {
+        const result=readCustomResult(message.result);
+        finish(result?{type:'custom_result',result}:{type:'unsupported',reason:'collection_failed'});
       } else if (message?.type === 'progress') {
         const next = advanceBrowserProgress(lastProgress, message, totals);
         if (!next) return;
@@ -93,7 +105,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
         const nextPhase = ['loading', 'calibrating', 'running'].indexOf(next.stage);
         if (nextPhase > phase) {
           phase = nextPhase;
-          arm(next.stage === 'running' ? budget.run : next.stage === 'calibrating' ? budget.calibration : 90_000);
+          arm(next.stage === 'running' ? customCase?10_000:budget.run : next.stage === 'calibrating' ? budget.calibration : 90_000);
         }
         progress(next.stage, next);
       } else if (message?.type === 'calibrated' && readySeen && !calibrationSeen && phase === 1) {
@@ -110,7 +122,7 @@ export async function runBrowserJudge(problem: Problem, source: string, signal: 
         finish(diagnostic ? {type:'syntax_error',failure:{source,diagnostic}} : {type:'unsupported',reason:'collection_failed'});
       } else if (message?.type === 'unsupported') {
         finish({ type: 'unsupported', reason: String(message.reason), detail: message.detail });
-      } else if (message?.type === 'result') {
+      } else if (message?.type === 'result'&&!customCase) {
         try {
           const report = parseReport(message.report);
           if (report.problem !== problem.id || report.runtime !== 'browser-numpy-wasm') throw Error('Invalid browser report');

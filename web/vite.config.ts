@@ -14,7 +14,7 @@ function publicBrowserAssets(server: Pick<ViteDevServer, "middlewares">) {
 }
 function watchBrowserWorker(server: ViteDevServer) {
   const watched = new Set([
-    "src/browserWorker.mjs", "src/browserCalibration.ts",
+    "src/browserWorker.mjs", "src/browserCalibration.ts", "src/customCasePython.ts",
     "public/browser-judge/diagnostics.mjs", "public/browser-judge/packages.mjs", "public/browser-judge/syntax.mjs",
   ].map(path => resolve(server.config.root, path)));
   let generating = Promise.resolve();
