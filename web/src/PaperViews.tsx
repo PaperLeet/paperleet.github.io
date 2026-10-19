@@ -94,11 +94,12 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const rowKey = rowIds.join(',');
   const page=filters.page||1,size=filters.page_size||20,pageCount=Math.max(1,Math.ceil(rowIds.length/size)),offset=(page-1)*size,outOfRange=page>pageCount;
   function currentView(){
+    if(!libraryMain.current?.isConnected||libraryMain.current.closest('[hidden],[aria-hidden="true"],[inert]'))return false;
     const current=readLibraryRoute(appLocation.hash)||readLibraryRoute(appLocation.hash.split('?')[0]);
     return !!current&&libraryHref(current.collectionId,normalizeLibraryFilters(current.filters,listedPapers))===viewHref;
   }
   function changeSort(sort:import('./libraryNavigation').LibrarySort){
-    if(!libraryMain.current?.isConnected||libraryMain.current.closest('[hidden],[aria-hidden="true"]')||!currentView())return;
+    if(!currentView())return;
     change({sort});
   }
   function changeView(value:'papers'|'modules'){
@@ -128,7 +129,11 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     const next = pickRandomUnattemptedProblem(filteredModules, saved);
     if (next) appLocation.hash = withLibraryContext(next.number,viewHref).slice(1);
   }
-  function clear() { change({...emptyLibraryFilters(), sort,company:undefined,company_days:undefined}); }
+  function clear() {
+    if(!currentView())return;
+    if(libraryMain.current?.querySelector('.library-result-actions button:focus,.no-results button:focus'))searchInput.current?.focus({preventScroll:true});
+    change({...emptyLibraryFilters(), sort,company:undefined,company_days:undefined});
+  }
   const hasFilters = !!company || !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
   const nextInCollection = selectedCollection && progressReady && companyReady ? recommendPractice(filteredModules, saved, course) || filteredModules[0] : undefined;
   const nextState = nextInCollection && status(nextInCollection, saved[nextInCollection.id]);
