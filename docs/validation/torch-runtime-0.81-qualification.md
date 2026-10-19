@@ -196,3 +196,25 @@ wrapper and release guards, reusing objects without a force push.
 and [raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz): 245 verified files
 (151 unique payloads, tar hard links for identical bytes),
 2,562,527 bytes, SHA-256 `cf6a15fa23532a2ebec0eee55c73f00ac91638fb9a18494cd9ac5072bc39f519`.
+
+## Verified main adoption
+
+Main adopted 0.81 at **`ffa9d1912abd176bace4767fdb6cb6c97adcb4bc`**. The remote Git commit
+root and runtime subtree match the verified local commit. Every one of the 65
+runtime/license blobs and all 183 active export identities match the qualified
+hashes. The current code baseline passed all 204 frontend commands; the later
+append-only data delta passed its two checks, both builds and the real Worker.
+
+GitHub reports zero workflow runs for the adopted commit at the recorded
+verification time. No CI/manual workflow, tag, package publication or deployment
+was initiated. Pages remains legacy `gh-pages /`. The successful ordinary
+native push used the unchanged mandatory wrapper and fresh full source/release
+guards, with standard object negotiation; it completed in about 10.13 seconds.
+The known raw norm/sine WASM discrepancy remains and the production GPU backend
+and experimental terminal-HVP change remain disabled. The broader library goal
+continues.
+
+[Remote adoption receipt](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-adoption.json)
+and [raw audit/remote-tree archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-adoption-harness.tar.gz):
+24 verified files, 956,733 bytes, SHA-256
+`d94a915a9a5b8f9d86c82e280216ad7ca0a3cc222f2c6248b6c83544c9aacab7`.
