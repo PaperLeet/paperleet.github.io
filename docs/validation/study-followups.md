@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Twenty bilingual follow-up questions extend ten maintained study guides:
+Thirty bilingual follow-up questions extend fifteen maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -14,6 +14,12 @@ Twenty bilingual follow-up questions extend ten maintained study guides:
 | architecture/layer_norm | Positive scaling with epsilon; independent residual-branch gradients | README normalization formula, scaling identity and post-LN interface |
 | architecture/positionwise_ffn | Closed ReLU gates with surviving output bias; token permutation versus shared parameters | README two affine layers, ReLU and position independence |
 | optimization/adamw | Zero current gradient with nonzero history; raw state under constant gradients | README moment recurrence, one-based bias correction and functional state contract |
+| rl/ppo_clip | Zero surrogate loss with live log-prob gradients; zero clipping width versus freezing | README pessimistic minimum, negative batch mean and frozen targets |
+| rl/gae | Rollout partition carry; explicit next-value consistency for telescoping | README zero incoming carry, two ending masks and per-step next_values |
+| rl/grpo | Reward units with fixed epsilon; empty response groups versus token diagnostics | README sample std plus epsilon and distinct response/token denominators |
+| rl/dr_grpo | Unequal microbatch aggregation; reward scale versus retained KL | README fixed N*max_len denominator, token diagnostics and centered-only advantages |
+| architecture/flash_attention | Disjoint-state merge; row shifts change LSE but preserve output | README online unnormalized states, final u/l and m+log(l), retained LSE gradients |
+
 
 These are editorial discussions based on the repository exercise statements.
 They are not presented as reported interview questions, frequency counts or a
@@ -35,7 +41,7 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all twenty questions, malformed/duplicate/oversized and legacy content shapes,
+all thirty questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
@@ -43,8 +49,8 @@ and private editor/selection/scroll/storage continuity. Production builds check
 initial asset budgets and static route integrity. No physical browser layout,
 numerical SDK execution, service mutation or deployment is claimed.
 
-The latest content expansion changes only ten new follow-ups in five guides; all
-previous follow-ups, core prompts, source paths and function identities remain
+Each content expansion adds ten follow-ups in five previously unenriched guides.
+Previous follow-ups, core prompts, source paths and function identities remain
 byte-equivalent as parsed objects. Both statement languages were reviewed.
 No numerical run is needed or claimed for these editorial discussion prompts.
 
@@ -53,3 +59,22 @@ region ID that the sort control identifies. The existing Show all learning state
 action restores visible rows; the relationship remains valid while no rows match.
 An actual StrictMode regression first reproduced the missing target and checks
 its recovery without changing filters, chronology or private editor data.
+
+The reinforcement-learning/online-softmax expansion adds ten discussions in five
+previously unenriched guides. Content review compares all 89 parsed guides to the
+published parent, requires every prior field and twenty earlier follow-ups to be
+identical, and records both statement-language hashes. The new questions derive
+from the local contracts: sample std and epsilon, fixed old/reference targets,
+response versus valid-token denominators, explicit GAE next-values and finite
+unmasked attention scores. They do not add exercises or numerical grading rules.
+
+The supporting original papers were consulted as background: [PPO](https://arxiv.org/pdf/1707.06347),
+[GAE](https://arxiv.org/html/1506.02438v6#S3),
+[GRPO](https://arxiv.org/html/2402.03300v3#S4.SS1),
+[Dr. GRPO](https://arxiv.org/html/2503.20783v2#S3.SS2), and
+[FlashAttention](https://arxiv.org/html/2205.14135).
+The added counterexamples and algebra are editorial derivations from PaperLeet's
+stated interfaces, including its retained-KL teaching variant and zero incoming
+GAE carry, rather than claims of matching every paper implementation. No
+training run, GPU performance, true interview frequency or optimizer-scale
+invariance is inferred from these discussions.

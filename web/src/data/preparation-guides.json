@@ -1174,6 +1174,30 @@
             "en": "Check all four gradient regions and the negative-mean convention. Clipping defines a surrogate objective; the toy bandit’s KL threshold is not a universal hard bound."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "zero-loss-live-gradient",
+          "question": {
+            "zh": "新旧 log-prob 完全相同，且 advantage 的均值为零，就能断定 PPO 策略梯度也为零吗？",
+            "en": "If new and old log-probabilities agree and advantages average to zero, must the PPO policy gradient vanish?"
+          },
+          "hint": {
+            "zh": "只看核心 clipped_surrogate，令 clip_eps>0、两项固定 advantage 为 (1,-1)，比率都为 1。loss 为零，但对两个独立 new_logp 分量的导数为 (-1/2,+1/2)。均值抵消了数值，没有消除各项的导数；再经过策略参数的链式法则才得到参数梯度。辅助 KL 此时为零，也不能据此宣布收敛。",
+            "en": "Use the core clipped_surrogate with positive clip_eps, fixed advantages (1,-1), and both ratios equal to one. The loss is zero, but its derivatives with respect to the two independent new_logp entries are (-1/2,+1/2). Values cancel; their individual derivatives do not. Apply the policy parameterization’s chain rule separately. A zero auxiliary KL at this point also does not establish convergence."
+          }
+        },
+        {
+          "id": "zero-width-clipping",
+          "question": {
+            "zh": "把 clip_eps 设为零，是不是就能冻结策略？请在比率不等于 1 的地方给出反例。",
+            "en": "Does setting clip_eps to zero freeze the policy? Give a counterexample away from ratio one."
+          },
+          "hint": {
+            "zh": "此时截断分支固定为 A，但仍需与 r*A 取较小值。A>0 且 r<1 时，损失仍为 -r*A；A<0 且 r>1 时也保留未截断分支。对 new_logp 的导数仍是 -r*A/B。零宽区间只使有利方向的奖励饱和，并不把所有方向的梯度都截断；r=1 的分支交点不要拿来讨论唯一导数。",
+            "en": "The clipped branch becomes A, but the surrogate still takes min(r*A,A). With A>0 and r<1, or A<0 and r>1, the unclipped branch remains active. Its derivative with respect to new_logp is -r*A/B. A zero-width interval saturates improvement in the favorable direction; it does not suppress every direction. Avoid claiming a unique derivative at the branch intersection r=1."
+          }
+        }
       ]
     },
     {
@@ -1215,6 +1239,30 @@
           "hint": {
             "zh": "奖励驱动的 advantage 为零，但非零 KL 系数仍可产生更新。旧策略和参考策略固定，诊断量 detach，别把两种梯度混为一谈。",
             "en": "Reward-driven advantages vanish, but a nonzero KL coefficient can still cause updates. Old/reference policies are fixed and diagnostics are detached; separate these gradient sources."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "reward-units-and-epsilon",
+          "question": {
+            "zh": "同组奖励改成 a*r+b（a>0），GRPO advantage 是否严格不变？epsilon 在哪里破坏了这个结论？",
+            "en": "If grouped rewards become a*r+b with a>0, are GRPO advantages exactly invariant? Where does epsilon matter?"
+          },
+          "hint": {
+            "zh": "组内平移 b 会在减均值时消失；样本标准差变为 a*s。启用缩放时得到 a*(r-mean)/(a*s+eps)，等于 (r-mean)/(s+eps/a)，固定非零 eps 时一般不严格相同，小方差组尤其明显。关闭 scale_std 则 advantage 直接乘 a。全相等的奖励仍中心化为零；不要据此推断带 KL 的总更新也为零。",
+            "en": "The offset b cancels under centering, and sample standard deviation becomes a*s. With scaling enabled, the result is a*(r-mean)/(a*s+eps), equivalently (r-mean)/(s+eps/a). A fixed nonzero epsilon prevents exact scale invariance, especially for small-variance groups. With scale_std disabled, advantages scale by a. Equal rewards still center to zero, without implying that a KL-regularized total update vanishes."
+          }
+        },
+        {
+          "id": "empty-responses-and-diagnostics",
+          "question": {
+            "zh": "保持原有 advantage 和有效分数不变，追加一组全 padding 回答，为什么 loss 会变而三个诊断量可以不变？",
+            "en": "Keeping existing advantages and valid scores fixed, why can appending an all-padding response group change the loss but leave diagnostics unchanged?"
+          },
+          "hint": {
+            "zh": "loss 先按每个回答的有效长度平均，再按全部 N 个回答平均；追加 G 个空回答后，原有 loss 和对应梯度乘 N/(N+G)。新回答贡献零，但仍占回答分母。kl_mean、clipfrac、ratio_mean 用有效 token 数作分母，原有效数据不变时它们不变。条件是原 advantage 已固定，不重新打乱或计算原奖励组；全 batch 为空时三个诊断按题面返回零。",
+            "en": "The loss averages valid tokens per response, then all N responses. Appending G empty responses scales the existing loss and its gradients by N/(N+G): empty responses contribute zero but still count in that denominator. kl_mean, clipfrac, and ratio_mean instead use valid-token counts, so unchanged valid data leaves them unchanged. Keep the existing supplied advantages fixed rather than regrouping rewards. An entirely empty batch has zero diagnostics by contract."
           }
         }
       ]
@@ -1902,6 +1950,30 @@
             "en": "Compare with independent dense attention across single-key tiles, short tail tiles and blocks exceeding sequence length; check state reuse. The teaching experiment measures numerical agreement and theoretical tile elements, not production-kernel memory or speed."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "merge-disjoint-tile-states",
+          "question": {
+            "zh": "两个不重叠的非空键分块已分别得到 (m,l,u)，怎样不重读 score 就合并？改变块顺序有什么影响？",
+            "en": "How can states (m,l,u) from two disjoint nonempty key blocks merge without rereading scores? What happens if block order changes?"
+          },
+          "hint": {
+            "zh": "令 M=max(m1,m2)，a=exp(m1-M)、b=exp(m2-M)，新状态为 (M,a*l1+b*l2,a*u1+b*u2)，对 u 的行缩放要扩展末维。它们共用同一指数基准，最后才求 u/l 和 M+log(l)。实数运算中块划分与顺序不改变结果，浮点舍入允许微小差异；不能重复计入同一键块，也不能提前把 u 当归一化输出。",
+            "en": "Use M=max(m1,m2), a=exp(m1-M), and b=exp(m2-M). The merged state is (M,a*l1+b*l2,a*u1+b*u2), broadcasting row scales over the value dimension. Both states now share an exponential reference; normalize only at the end with u/l and M+log(l). Partition and order are equivalent in real arithmetic, with floating-point rounding differences allowed. Do not count overlapping keys twice or treat u as an already normalized output."
+          }
+        },
+        {
+          "id": "row-shift-output-and-lse",
+          "question": {
+            "zh": "每个 query 的全部 score 同加一个常数，attention 输出和 log-sum-exp 为什么会有不同变化？",
+            "en": "Why do attention output and log-sum-exp react differently when every score in one query row receives the same constant?"
+          },
+          "hint": {
+            "zh": "同一行所有分块都加有限常数 c，且新 score 保持有限时，最终 m 变为 m+c，l 与 u 不变，所以 output 不变而 LSE 增加 c。把 c 看作可求导的共享行偏移，output 对它的导数为零，LSE 对它的导数为一。这个方向能检查 LSE 的梯度路径是否被误 detach；仅比较归一化 output 会漏掉该错误。本题不包含 mask 或全屏蔽行。",
+            "en": "Add one finite c to every block in a row, keeping shifted scores finite. The final m becomes m+c, while l and u stay unchanged: output is invariant and LSE increases by c. For a differentiable shared row offset, output has derivative zero and LSE derivative one. This direction can expose an accidentally detached LSE path that output-only comparisons miss. The exercise does not include masking or all-masked rows."
+          }
+        }
       ]
     },
     {
@@ -1942,6 +2014,30 @@
           "hint": {
             "zh": "令 r=V=0、next_V=2、gamma=0.9：终止与截断应分别得到 0 和 1.8。改变下一 episode 的奖励不应影响结束点之前的 A；T=N=1 也不压缩轴。",
             "en": "With zero r and V, next_V=2 and gamma=.9, termination gives zero and truncation 1.8. Changing the next episode cannot affect earlier A; T=N=1 still keeps both axes."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "rollout-split-carry",
+          "question": {
+            "zh": "一段未结束的 rollout 切成两段，分别调用本题函数再拼接，为什么未必等于整段计算？",
+            "en": "Why can splitting an unfinished rollout into two calls and concatenating their outputs differ from one full GAE call?"
+          },
+          "hint": {
+            "zh": "本题每次调用都从 A_T=0 开始。若切点没有 terminated/truncated，左段末步原本还应加上 gamma*lambda*A_右段首步；独立调用丢掉了这项及其向前传播。末状态 next_values 只负责 TD 残差中的 bootstrap，不能代替未来残差的 carry。只有相应 carry 为零、gamma*lambda 为零或切点确实结束等情形才相同；现有接口没有传入 carry 的参数。",
+            "en": "Each call starts with A_T=0. At a split without termination or truncation, the last left-hand step should also receive gamma*lambda times the first right-hand advantage. Separate calls discard that contribution and its propagation backward. The final next_values supplies the residual’s value bootstrap, not the future-residual carry. Equality requires that carry or gamma*lambda to vanish, an actual ending, or another cancellation. The current interface has no incoming-carry parameter."
+          }
+        },
+        {
+          "id": "explicit-next-value-consistency",
+          "question": {
+            "zh": "lambda=1 时，为什么“中间价值项会抵消”还依赖显式 next_values 与下一行 values 一致？",
+            "en": "At lambda one, why does telescoping also require explicit next_values to agree with the following values row?"
+          },
+          "hint": {
+            "zh": "取两步、无结束标记，记 g=gamma、n_t=next_values[t]。递推给出 returns[0]=r0+g*r1+g²*n1+g*(n0-V1)。只有 n0=V1 时，多余项才消失。接口逐步接收 next_values，不能无条件换成滚动后的 values；自动重置后的新 episode 观测也不能冒充截断前真实末状态。先检查时间对齐，再讨论 Monte Carlo 端点。",
+            "en": "For two steps with no ending, write g=gamma and n_t=next_values[t]. The recurrence yields returns[0]=r0+g*r1+g²*n1+g*(n0-V1). The extra term disappears when n0=V1. Because next_values is supplied per step, replacing it blindly with shifted values changes the contract. An auto-reset observation also cannot replace the true final state at truncation. Check temporal alignment before invoking the Monte Carlo endpoint."
           }
         }
       ]
@@ -1985,6 +2081,30 @@
           "hint": {
             "zh": "固定 max_len，改变另一条零 advantage 回答的长度，目标回答梯度应不变。logp 保留梯度，旧/参考分数和 advantage 固定；三个诊断按有效 token 平均并 detach，全空时为零。",
             "en": "Hold max_len fixed and vary another zero-advantage response length: target gradients must stay unchanged. Keep logp gradients, freeze old/reference scores and advantages; detach valid-token diagnostics and return zeros when empty."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "uneven-microbatch-aggregation",
+          "question": {
+            "zh": "固定同一个 max_len 后，两个大小不同的 microbatch 怎样合并 loss？三个诊断量也按回答数加权吗？",
+            "en": "With one fixed max_len, how should unequal microbatches combine losses? Do diagnostics use the same response-count weights?"
+          },
+          "hint": {
+            "zh": "先在原有完整奖励组上准备好 advantage，再只切分 loss 输入。若回答数为 N1、N2，合并 loss 为 (N1*L1+N2*L2)/(N1+N2)，不能简单平均两个 loss；梯度累加也应使用这些权重。诊断量则按各块有效 token 数加权，全空块的权重为零。所有块必须使用同一固定生成上限，且不在切分后重算被切断的奖励组。",
+            "en": "Prepare advantages on the original complete reward groups, then partition only the loss inputs. For N1 and N2 responses, the combined loss is (N1*L1+N2*L2)/(N1+N2), rather than an equal mean of microbatch losses; use those weights for gradient accumulation too. Combine diagnostics by valid-token counts, giving an empty block zero weight. Every block must share the same fixed generation limit, without recomputing reward groups cut by the partition."
+          }
+        },
+        {
+          "id": "reward-scale-versus-kl",
+          "question": {
+            "zh": "只中心化奖励时，把奖励乘正数 a，却保持 beta 不变，会怎样改变策略项与 KL 的相对权重？",
+            "en": "With centered-only rewards, how does multiplying rewards by a positive a while holding beta fixed change the policy/KL balance?"
+          },
+          "hint": {
+            "zh": "advantage 和截断策略项都乘 a，参考分数与 KL 项本身不变，因此总 loss 通常不是原 loss 的 a 倍，a>1 时奖励相对 KL 的作用增强，0<a<1 时则减弱。若同时令 beta 乘 a，且固定分数、mask 与分母，总 loss 及 logp 梯度才整体乘 a；这仍不等于任意优化器的一步参数更新都严格乘 a。本题保留 KL 的教学默认值，别与原文零 KL 配置混用。",
+            "en": "Centered advantages and the clipped policy term scale by a; fixed reference scores and the KL term itself do not. The total loss therefore generally does not scale uniformly, so reward becomes stronger relative to KL for a>1 and weaker for 0<a<1. Scaling beta by a as well makes loss and logp gradients scale by a for fixed scores, mask, and denominator. That does not imply every optimizer’s parameter update scales identically. Keep this exercise’s retained-KL convention separate from the paper’s zero-KL setting."
           }
         }
       ]
