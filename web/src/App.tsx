@@ -79,6 +79,7 @@ import "./community.css";
 
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
+const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -564,6 +565,7 @@ function Workspace() {
           <div className="nav-actions">
             <AppLink className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</AppLink>
             <RepositoryLink />
+            <GroupChat route={id} />
             <OnlinePresence />
             <CommunitySubmissions count={totalSubmissions} />
             {hostedAppAvailable && <InboxBell />}
