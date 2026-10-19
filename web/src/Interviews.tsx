@@ -76,7 +76,8 @@ export default function Interviews({route,problems,papers,catalogError,onRetryCa
  const filterActor=JSON.stringify([user?.id,!!accountLoading]),filterLease=useRef({actor:filterActor,scope});filterLease.current={actor:filterActor,scope};
  function canChangeFilter(){const current=readInterviewRoute(appLocation.hash);return filterLease.current.actor===filterActor&&filterLease.current.scope===scope&&validRoute&&!!current&&interviewHref(current)===scope;}
  // Local ordering and practice filters keep pending input within the same evidence scope.
- const searchScope=filters.view==='reports'?params.toString():summaryParams.toString();
+ const searchParams=new URLSearchParams(params);for(const key of ['sort','limit','offset'])searchParams.delete(key);
+ const searchScope=filters.view==='reports'?searchParams.toString():summaryParams.toString();
  const record=currentReadingReturn();
  const sourceReturn=filters.view==='questions'&&record&&record.owner===readingOwner&&record.href===scope&&record.phase==='returning'&&record.concept?{id:record.id,concept:record.concept}:undefined;
  const [readySourceKey,setReadySourceKey]=useState('');

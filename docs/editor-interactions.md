@@ -1,6 +1,6 @@
 # Editor and shared control interactions
 
-The editor opens with the filename and a single action disclosure. Find, replace,
+The filename is part of the Code tab. A single action disclosure shares the same row beside the workspace tabs; there is no separate file toolbar. Find, replace,
 function navigation, line navigation and keyboard help open on demand. Font size,
 copy, reset and download live in the action disclosure. Native disclosure, field
 and select semantics preserve Tab, Enter, Escape and platform keyboard behavior.
