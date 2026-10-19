@@ -6,6 +6,7 @@ import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
 import {interviewCatalog,type InterviewSummary} from './interviewModels';
 import InterviewCompanySources from './InterviewCompanySources';
+import InterviewConceptFavorite from './InterviewConceptFavorite';
 import InterviewSourcePreview from './InterviewSourcePreview';
 import {interviewSourceHref} from './interviewSourcePreviewModel';
 import {rolePreparationPaths} from './interviewPreparation';
@@ -135,7 +136,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
      {evidence&&(latest!==undefined||evidenceOrder==='recent')&&<p className="interview-ranking-latest"><Clock3 size={13} aria-hidden="true"/>{latest!==undefined?<>{t('最新关联分享','Latest linked report')} <time dateTime={new Date(latest).toISOString()}>{new Date(latest).toISOString().slice(0,10)}</time></>:t('分享日期暂不可用','Publication date unavailable')}</p>}
      {evidence?<InterviewCompanySources companies={evidence.companies} problemId={id} name={name} filters={filters}/>:problem&&<p className="interview-curated-goal">{locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal}</p>}
     </div>
-    <div className="interview-ranking-actions">{!evidence&&<small className="interview-curated-label">{t('编辑推荐','Curated practice')}</small>}{problem?<><AppLink className="button subtle" href={practice(problem)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}<ArrowRight size={13}/></AppLink><InterviewGroupToggle problem={problem} name={name} group={group}/></>:<small>{t('练习暂不可用','Practice unavailable')}</small>}</div>
+    <div className="interview-ranking-actions" role="group" aria-label={t(`${name}的练习操作`,`Practice actions for ${name}`)}>{!evidence&&<small className="interview-curated-label">{t('编辑推荐','Curated practice')}</small>}{problem?<><AppLink className="button subtle" href={practice(problem)}>{state==='done'?t('复习','Review'):state==='started'?t('继续练习','Resume practice'):state==='todo'?t('开始练习','Start practice'):t('打开练习','Open practice')}<ArrowRight size={13}/></AppLink>{index<shown.length&&<InterviewConceptFavorite problemId={problem.id} problemName={name} returnTo={scope} owner={owner}/>}<InterviewGroupToggle problem={problem} name={name} group={group}/></>:<small>{t('练习暂不可用','Practice unavailable')}</small>}</div>
     {evidence&&<InterviewSourcePreview concept={id} name={name} reports={evidence.reports} contributors={evidence.contributors} sourceHref={sources} returnTo={scope} owner={owner} accountLoading={accountLoading} contextAvailable={contextAvailable} returnId={activeReturn?.concept===id?activeReturn.id:undefined} onReturnReady={onSourceReturnReady} onReturnPending={onSourceReturnPending} onReturnCancel={onSourceReturnCancel}/>}
     {problem&&<PreparationGuide problemId={problem.id} practiceHref={practice(problem)}/>}
    </article>;

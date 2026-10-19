@@ -64,6 +64,7 @@ const mocks = {
   './useBrowserJudge': `export const useBrowserJudge=()=>globalThis.__paperleetWorkspaceActionTest.browser;`,
   './useQueuedJudge': `export function useQueuedJudge(owner,ready,onReport){const f=globalThis.__paperleetWorkspaceActionTest;f.onServerReport=onReport;return f.judge;}`,
   './useBrowserLearning': `export const useBrowserLearning=()=>globalThis.__paperleetWorkspaceActionTest.learning;`,
+  './BrowserLearningNotice': `import React from 'react';import {BrowserLearningNotice as Actual} from '/src/BrowserLearningNotice.tsx';export function BrowserLearningNotice(props){const f=globalThis.__paperleetWorkspaceActionTest;f.noticeLoads=(f.noticeLoads||0)+1;if(f.failLearningNotice)throw Error('Optional learning notice failed');if(f.holdLearningNotice)throw f.holdLearningNotice;return React.createElement(Actual,props);}`,
   './catalogIndex': `export const loadCatalogIndex=async()=>globalThis.__paperleetWorkspaceActionTest.catalog||({problems:[globalThis.__paperleetWorkspaceActionTest.problem],papers:[],categories:[]});`,
   './ProblemStats': `export const useProblemStats=()=>({stats:{},totalSubmissions:0,refresh:()=>{},loading:false});export const getProblemStats=()=>({});export const ProblemStats=()=>null;`,
   './PaperViews': `export const PaperLibrary=()=>null;export const paperModules=()=>[];`,
@@ -395,6 +396,20 @@ try {
   await settle(()=>!action('Run tests').disabled);
   await click(action('Run tests'));await click(action('Stop'));
   await settle(()=>find('.run-recovery'));
+
+  // Optional learning notices load only when relevant; failed rendering cannot discard code.
+  const beforeNoticeCode=editor.value,beforeNoticeMounts=calls.editorMounts;let progressRetries=0,releaseNotice;
+  assert.equal(fixture.noticeLoads,undefined,'Empty learning state never loads its optional notice');
+  await change(()=>{fixture.learning.failed=true;fixture.failLearningNotice=true;fixture.learning.retry=()=>{progressRetries++;};});
+  await settle(()=>find('.browser-learning-notice-recovery button'));
+  const retryNotice=find('.browser-learning-notice-recovery button');assert.equal(retryNotice.textContent,'Retry progress notice');assert.equal(progressRetries,0);
+  fixture.failLearningNotice=false;fixture.holdLearningNotice=new Promise(resolve=>releaseNotice=resolve);
+  await click(retryNotice);editor.focus();await change(()=>{fixture.holdLearningNotice=undefined;releaseNotice();});
+  await settle(()=>find('.browser-learning-notice [role=alert]'));
+  assert(document.activeElement===editor,'A late optional notice cannot claim focus from newer code');
+  await click(find('.browser-learning-notice button'));assert.equal(progressRetries,1,'The real notice retries saving progress only on its explicit action');
+  await change(()=>{fixture.learning.failed=false;});assert(!find('.browser-learning-notice'));assert.equal(editor.value,beforeNoticeCode);assert(find('#problem-editor-panel textarea')===editor);assert.equal(calls.editorMounts,beforeNoticeMounts);
+  console.log('PASS optional learning notice: absent when irrelevant, independent failure/retry, deferred completion yields to newer code focus, explicit saving retry and unchanged editor/source across recovery');
 
   await change(()=>{fixture.account.user=undefined;fixture.practice.owner='anonymous';});
   assert.equal(find('.run-recovery'),null,'A new workspace owner cannot inherit the previous owner’s stopped state or retry action');

@@ -15,7 +15,7 @@ function visit(key) {
   for (const dependency of manifest[key].imports || []) visit(dependency);
 }
 visit('index.html');
-for (const key of ['src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
+for (const key of ['src/BrowserLearningNotice.tsx', 'src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
   // Rollup can use generated keys when deferred pages also share static imports.
   const sharedPage=key==='src/Community.tsx'?'Community':key==='src/DraftCenter.tsx'?'DraftCenter':undefined;
   const candidates=manifest[key]?[[key,manifest[key]]]:sharedPage?Object.entries(manifest).filter(([,entry])=>entry.name===sharedPage&&entry.isDynamicEntry):[];
@@ -85,10 +85,12 @@ for(const name of ['LibraryPagination','LibraryCollections','LibraryResultContro
  const entry='src/'+name+'.tsx';
  assert(manifest[entry]?.isDynamicEntry&&!initial.has(entry), `${name} must remain deferred independently of the first usable library list`);
 }
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('interview-concept-save-retry')), 'Interview concept bookmark controls must stay deferred with interview preparation');
 const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 0);
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-concept-favorite')), 'Interview bookmark action layout must not grow initial styles');
 for(const selector of ['.problem-interview-reference','.admin-workspace','.admin-review-inbox','.community-tag-picker','.moderation-layout','.moderation-return','.post-report-dialog','.report-history-card','.moderation-comparison']){
   assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(selector)), 'Report interfaces must stay out of initial styles');
   assert(Object.values(manifest).some(entry=>(entry.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes(selector))), 'Report interfaces must ship their deferred styles');
