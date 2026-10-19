@@ -2,6 +2,12 @@ import type {InterviewSummary} from './interviewModels';
 import type {Problem} from './types';
 export type EvidenceOrder='contributors'|'recent'|'difficulty'|'duration';
 export function isEvidenceOrder(value:unknown):value is EvidenceOrder{return value==='contributors'||value==='recent'||value==='difficulty'||value==='duration';}
+export type CuratedOrder='curriculum'|'difficulty'|'duration';
+export function isCuratedOrder(value:unknown):value is CuratedOrder{return value==='curriculum'||value==='difficulty'||value==='duration';}
+const curatedKey='paperleet.interview.curated-order.v1';
+let curatedMemory:CuratedOrder='curriculum';
+export function readCuratedOrder():CuratedOrder{try{const value=sessionStorage.getItem(curatedKey);return isCuratedOrder(value)?value:curatedMemory;}catch{return curatedMemory;}}
+export function keepCuratedOrder(value:CuratedOrder){if(!isCuratedOrder(value))return;curatedMemory=value;try{sessionStorage.setItem(curatedKey,value);}catch{/* Keep the local reading preference available. */}}
 const key='paperleet.interview.question-order.v1';
 let memory:EvidenceOrder='contributors';
 export function readEvidenceOrder():EvidenceOrder{try{const value=sessionStorage.getItem(key);return isEvidenceOrder(value)?value:memory;}catch{return memory;}}
@@ -24,9 +30,12 @@ export function latestQuestionPublication(row:InterviewSummary['questions'][numb
 /** Practice ordering changes presentation only; source counts and contributor ties stay intact. */
 export function orderInterviewEvidence(rows:InterviewSummary['questions'],order:EvidenceOrder,problems?:ReadonlyMap<string,Pick<Problem,'difficulty'|'estimated_minutes'>>){
  if(order==='contributors')return rows;
- if(order==='difficulty'||order==='duration'){
-  const value=(id:string)=>{const problem=problems?.get(id);if(order==='difficulty')return problem?.difficulty==='E'?0:problem?.difficulty==='M'?1:problem?.difficulty==='H'?2:undefined;const minutes=problem?.estimated_minutes;return typeof minutes==='number'&&Number.isFinite(minutes)&&minutes>0?minutes:undefined;};
-  return rows.map((row,index)=>({row,index,value:value(row.problem_id)})).sort((a,b)=>a.value===undefined?b.value===undefined?a.index-b.index:1:b.value===undefined?-1:a.value-b.value||a.index-b.index).map(value=>value.row);
- }
+ if(order==='difficulty'||order==='duration')return orderPracticeConcepts(rows,order,row=>row.problem_id,problems);
  return rows.map((row,index)=>({row,index,stamp:latestQuestionPublication(row)})).sort((a,b)=>a.stamp===undefined?b.stamp===undefined?a.index-b.index:1:b.stamp===undefined?-1:b.stamp-a.stamp||a.index-b.index).map(value=>value.row);
+}
+
+/** Source-neutral practice ordering preserves the supplied order for ties and unknown values. */
+export function orderPracticeConcepts<T>(rows:readonly T[],order:'difficulty'|'duration',id:(row:T)=>string,problems?:ReadonlyMap<string,Pick<Problem,'difficulty'|'estimated_minutes'>>):T[]{
+ const value=(row:T)=>{const problem=problems?.get(id(row));if(order==='difficulty')return problem?.difficulty==='E'?0:problem?.difficulty==='M'?1:problem?.difficulty==='H'?2:undefined;const minutes=problem?.estimated_minutes;return typeof minutes==='number'&&Number.isFinite(minutes)&&minutes>0?minutes:undefined;};
+ return rows.map((row,index)=>({row,index,value:value(row)})).sort((a,b)=>a.value===undefined?b.value===undefined?a.index-b.index:1:b.value===undefined?-1:a.value-b.value||a.index-b.index).map(value=>value.row);
 }

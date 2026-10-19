@@ -18,7 +18,8 @@ source-return request and resets the visible batch to six while retaining
 previously mounted guide, hint and source-preview state. Filtering, source
 counts, practice grades, private code and drafts are not modified or refetched.
 Hidden/inert or retired controls cannot update the preference. Curated fallback
-lists retain their curriculum order and do not expose report-order controls.
+lists start in curriculum order and provide independent practice-order choices;
+see [curated practice ordering](curated-practice-order.md).
 
 Actual React/JSDOM tests check both planning orders, exact cohorts, source ties,
 invalid metadata, unknown-last placement, native locale/storage/remount behavior,
