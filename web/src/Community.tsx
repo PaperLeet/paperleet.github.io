@@ -7,6 +7,8 @@ import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import CommunityTagPicker,{TaxonomyStatus} from './CommunityTagPicker';
 import PostTags from './PostTags';
 import CommunityTagBrowser,{CommunityTagContext} from './CommunityTagBrowser';
+import CommunityTopicBrowser from './CommunityTopicBrowser';
+import {communityTopicKindHref} from './communityTopicScope';
 import {initialCommunityTag} from './communityTagBrowsing';
 import {unavailableCommunityTags} from './communityTagSelection';
 import './community-taxonomy.css';
@@ -142,11 +144,12 @@ const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
 export const COMMUNITY_FEED_TIMEOUT = 20_000;
 type FeedFailure = {requestKey:string;kind:'timeout'}|{requestKey:string;kind:'request';message:string};
-function TopicContext({ topic, discussion = false, solutions=false,practiceReturnTo }: {
+function TopicContext({ topic, discussion = false, solutions=false,practiceReturnTo,browseFrom }: {
   topic: ProblemTopic;
   discussion?: boolean;
   solutions?:boolean;
   practiceReturnTo?:string;
+  browseFrom?:string;
 }) {
   const { t, locale } = useI18n();
   return (
@@ -161,7 +164,7 @@ function TopicContext({ topic, discussion = false, solutions=false,practiceRetur
         {discussion && (
           <AppLink href={solutions?solutionsHref(topic.id):topicHref(topic.id)}>{solutions?t("查看本题题解","All module solutions"):t("查看题目讨论", "All module discussions")}</AppLink>
         )}
-        <AppLink href={solutions?topicHref(topic.id):solutionsHref(topic.id)}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</AppLink>
+        <AppLink href={browseFrom&&communityTopicKindHref(browseFrom,!solutions)||(solutions?topicHref(topic.id):solutionsHref(topic.id))}>{solutions?t("同题讨论","Module discussions"):t("同题题解","Module solutions")}</AppLink>
         {!topic.retired && (
           <AppLink className="button subtle" data-reading-link={practiceReturnTo?"practice":undefined} data-reading-practice={practiceReturnTo?topic.id:undefined} href={practiceReturnTo?withLibraryContext(topic.id,practiceReturnTo):practiceHref(topic.id)}>
             <Code2 size={15} />{t("返回练习", "Back to practice")}
@@ -790,6 +793,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </button>}
             </div>
             <div className="community-feed-controls">
+              {!embedded&&<CommunityTopicBrowser key={returnTo} from={returnTo} topics={topics} loading={catalogLoading} error={catalogError} reload={reloadCatalog}/>}
               <TaxonomyStatus/><CommunityTagBrowser value={tag} onChange={tag=>choose({tag})}/>
               <CommunitySearch applied={search} onApply={query=>choose({search:query})} label={solutions?t('搜索题解','Search solutions'):undefined} placeholder={solutions?t('搜索题解…','Search solutions…'):undefined}/>
               <CommunityFeedPeriod days={days} available={periodAvailable} pending={accountLoading} onChange={days=>choose({days})}/>
@@ -812,7 +816,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                   {t("重新加载题目信息", "Reload module details")}
                 </button>
               </div>
-            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} />
+            ) : <TopicContext topic={topic || { id: topicId, title: topicId, retired: true }} solutions={solutions} browseFrom={returnTo} />
           )}
           {writing.expanded && user && (
             <Composer key={draftScope} returnTo={returnTo} solution={solutions} practiceCode={practiceCode} topics={topics} category={category} initialTag={tagsAvailable&&taxonomy.ready?initialCommunityTag(taxonomy.data.tags,tag):undefined} topic={topic} owner={user.id} scope={draftScope} papersAvailable={capabilities?.community_papers === true} onDraftChange={setDraftAvailable} panelProps={writing.panelProps} onClose={writing.close} onBackgroundPublish={embedded?post=>{writing.dismiss();setDraftAvailable(!!readPostDraft(tabDraftStorage(),user.id,draftScope));setPublishedPost(post.id);setRetry(value=>value+1);}:undefined}/>
