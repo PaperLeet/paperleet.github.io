@@ -56,3 +56,22 @@
 .library-pagination-compact .library-page-buttons{flex-wrap:wrap;justify-content:center;max-width:100%}
 @media(max-width:700px){.library-pagination-compact{justify-content:flex-start;max-width:100%}}
 @media(max-width:380px){.library-pagination-compact{width:100%;justify-content:space-between;gap:10px}.library-pagination-compact .library-page-size{flex:1 1 100%}}
+
+/* One-page results retain sizing without an inactive navigation strip. */
+.library-pagination[data-single-page=true]{gap:10px 18px}
+.library-pagination[data-single-page=true] .library-page-options{flex:0 1 auto}
+.library-pagination-compact .library-page-buttons{padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--surface2);gap:4px}
+.library-pagination-compact .library-page-arrow{border-color:transparent;background:transparent;border-radius:8px}
+.library-pagination-compact .library-page-arrow:hover:not(:disabled){background:var(--surface);border-color:var(--line)}
+.library-pagination-compact .library-quick-jump input{border-color:transparent;background:var(--surface);box-shadow:0 1px 2px #00000008}
+.library-pagination-compact .library-quick-jump input[aria-invalid=true]{border-color:var(--red,var(--chart-5))}
+.library-pagination-compact .library-quick-jump input:focus-visible{border-color:var(--accent)}
+.library-pagination-compact .library-quick-jump input[aria-invalid=true]:focus-visible{border-color:var(--red,var(--chart-5))}
+.library-page-range{overflow-wrap:anywhere}
+.library-page-size select{font-variant-numeric:tabular-nums}
+.library-pagination:not(.library-pagination-compact) .library-page-buttons{padding:4px;border:1px solid var(--line);border-radius:11px;background:var(--surface2)}
+.library-pagination:not(.library-pagination-compact) .library-page-arrow{background:var(--surface);border-color:transparent}
+@media(max-width:700px){.library-pagination[data-single-page=true] .library-page-range{flex:1 1 auto;text-align:start}.library-pagination[data-single-page=true] .library-page-options{padding-top:0;border-top:0;justify-content:flex-end}}
+@container library-pages (max-width:700px){.library-pagination[data-single-page=true] .library-page-range{flex:1 1 auto;text-align:start}.library-pagination[data-single-page=true] .library-page-options{padding-top:0;border-top:0;justify-content:flex-end}}
+@media(forced-colors:active){.library-pagination .library-page-buttons{border-color:ButtonText}.library-pagination button[aria-current=page]{outline:2px solid Highlight;outline-offset:-3px}.library-pagination .library-quick-jump input[aria-invalid=true]{border-color:LinkText}}
+.library-pagination .page-jump input[aria-invalid=true]:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--red,var(--chart-5)) 20%,transparent)}
