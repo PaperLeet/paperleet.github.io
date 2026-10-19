@@ -133,7 +133,7 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea):not(.cm-textfield){box-sizing:border-box;max-width:100%;border-radius:var(--control-radius);color:var(--text);font-family:var(--font-sans);transition:border-color .15s,box-shadow .15s}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select){min-height:44px;padding:8px 11px;line-height:1.5}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) select:not([multiple]):not([size]){appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238b9099' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:31px;cursor:pointer}
-.paper-library .select-wrap select{background-image:none;padding-right:4px}.paper-library .select-wrap:focus-within{outline:none}
+.paper-library .select-wrap select{background-image:none;padding-right:30px}.paper-library .select-wrap:focus-within{outline:none}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) :is(input,select,textarea):disabled{cursor:not-allowed;opacity:.6}
 :where(.button,.text-button,.icon-button){border-radius:var(--control-radius)}.button{min-height:44px}.button:disabled,.text-button:disabled,.icon-button:disabled{cursor:not-allowed;box-shadow:none;transform:none;text-decoration:none}
 :where(button,summary)[aria-busy=true]{cursor:progress}
@@ -143,3 +143,13 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 @media(prefers-reduced-motion:no-preference){:is(.workspace-layout-popover,.editor-tool-actions){animation:control-surface-enter .14s ease-out}@keyframes control-surface-enter{from{opacity:0}to{opacity:1}}}
 @media(pointer:coarse){:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select),.button{min-height:44px}}
 @media(prefers-reduced-motion:reduce){:where(input,select,textarea,button,summary){transition:none!important}}
+
+/* Reserve the chevron lane even when a localized option is long. */
+.paper-library .library-sort select{padding-inline-end:32px}
+.paper-library .library-toolbar .select-wrap>svg{inset-inline-end:11px;top:50%;transform:translateY(-50%)}
+.paper-library .paper-categories button{min-height:44px;border-radius:9px}
+.paper-library .paper-categories button:hover:not([aria-pressed=true]){background:var(--surface2);border-color:var(--text-secondary)}
+.paper-library .active-filters button{min-height:44px;border-radius:var(--control-radius);padding-inline:12px}
+.paper-library .library-heading>.text-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 10px;border:1px solid transparent;border-radius:var(--control-radius)}
+.paper-library .library-heading>.text-button:hover{background:var(--surface2);border-color:var(--line);text-decoration:none}
+@media(forced-colors:active){.paper-library .paper-categories button[aria-pressed=true]{outline:2px solid Highlight;outline-offset:-3px}}

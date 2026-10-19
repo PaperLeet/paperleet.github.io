@@ -32,3 +32,12 @@ fields have hover feedback, and a focused row action keeps
 its parent row highlighted. These additions are covered by the library component
 regression check; actual browser layout and native keyboard behavior still need
 visual verification.
+
+The compact pager above the list also exposes the same 20/50/100 page-size
+selector as the footer. It retains the visible cohort and updates both controls
+through the existing route state. Its controls wrap instead of extending beyond
+narrow layouts. Topic and sorting fields reserve space for their chevrons, and
+category chips, active filters and library header links share 44-pixel targets.
+The component regression covers synchronized sizes, cohort retention, locale
+continuity and inactive top-pager guards. Styles have source review only; no
+physical browser layout verification is claimed for this refinement.

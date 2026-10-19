@@ -21,7 +21,7 @@
 .library-pagination .page-jump input{width:72px;font-variant-numeric:tabular-nums}
 .library-pagination .library-page-arrow-label{white-space:nowrap;font-size:var(--type-small);font-weight:550}
 .library-pagination .page-jump button{font-weight:550}
-.library-pagination-compact{flex:none;justify-content:center;gap:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;margin:0 0 0 auto}
+.library-pagination-compact{flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end;gap:10px 16px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;margin:0 0 0 auto}
 .library-pagination-compact .library-page-buttons{gap:6px;align-items:flex-start}
 .library-pagination-compact .library-page-arrow{flex:none}
 .library-pagination .library-quick-jump{flex-basis:auto;max-width:240px;gap:6px;justify-content:center;align-items:center}
@@ -46,3 +46,10 @@
 @container library-pages (max-width:520px){.library-page-options .page-jump{padding-inline-start:0;border-inline-start:0}}
 @media(max-width:520px){.library-page-options .page-jump{padding-inline-start:0;border-inline-start:0}}
 @media(prefers-reduced-motion:reduce){.library-page-buttons button{transition:none}}
+
+/* Top and bottom pagers expose the same page-size control. */
+.library-pagination-compact .library-page-size{gap:8px;font-size:var(--type-small)}
+.library-pagination-compact .library-page-size select{min-width:78px;font-variant-numeric:tabular-nums;padding-right:30px}
+.library-pagination-compact .library-page-buttons{flex-wrap:wrap;justify-content:center;max-width:100%}
+@media(max-width:700px){.library-pagination-compact{justify-content:flex-start;max-width:100%}}
+@media(max-width:380px){.library-pagination-compact{width:100%;justify-content:space-between;gap:10px}.library-pagination-compact .library-page-size{flex:1 1 100%}}
