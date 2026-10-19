@@ -188,6 +188,7 @@ try {
   }), "started", "Resetting a failed attempt to its starter does not make it untouched");
   console.log("PASS bilingual module searches, paper searches, difficulty conjunction, and pristine-starter status");
   const rowIds = (html) => [...html.matchAll(/href="#\/papers\/([^?\"]+)(?:\?[^\"]*)?"/g)].map((match) => match[1]);
+  const {default:LibraryCollections}=await server.ssrLoadModule('/src/LibraryCollections.tsx');
   const {libraryReturnHref} = await server.ssrLoadModule('/src/libraryNavigation.ts');
   const headingText = (html, className = "library-heading") => html.match(new RegExp(`<header\\b[^>]*class="${className}"[^>]*>([\\s\\S]*?)<\\/header>`))[1]
     // Inactive translations reserve layout space but are not readable headings.
@@ -212,7 +213,8 @@ try {
     const saved = {[inside.id]: acceptedFixture(inside), [outside.id]: acceptedFixture(outside)};
     const html = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved, collectionId: list.id}));
     const allHtml = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved}));
-    assert(allHtml.includes(`class="collection-card collection-${list.id}" href="#/collections/${list.id}"`),
+    const cardsHtml=renderToString(React.createElement(LibraryCollections,{...libraryProps,saved,progressReady:true}));
+    assert(cardsHtml.includes(`class="collection-card collection-${list.id}" href="#/collections/${list.id}"`),
       `${list.id}: the homepage card must expose its canonical collection route`);
     assert(!html.includes('featured-collections') && html.includes('collection-page-header'),
       `${list.id}: a collection opens its own page without the homepage collection rail`);
@@ -254,7 +256,9 @@ try {
   assert(/class="random-problem"[^>]*disabled/.test(loadingHtml), "Wait for account progress before drawing");
   const readyHtml = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved: {}}));
   assert(!/class="random-problem"[^>]*disabled/.test(readyHtml), "Untouched modules should enable random selection");
-  assert.equal([...readyHtml.matchAll(/class="collection-card /g)].length, paperCollections.length);
+  const readyCards=renderToString(React.createElement(LibraryCollections,{...libraryProps,saved:{},progressReady:true}));
+  assert.equal([...readyCards.matchAll(/class="collection-card /g)].length, paperCollections.length);
+  assert(readyHtml.includes('class="library-collections-placeholder"')||readyHtml.includes('class="featured-collections"'),'Core search and the first page remain usable independently of optional collection discovery');
   assert(!readyHtml.includes("Study lists") && !readyHtml.includes("library-sidebar"));
   console.log("PASS featured collection membership, ordering, selection, routing, random availability, and scoped progress");
   const maintained = catalog.problems.filter((p) => !p.id.startsWith("community/"));

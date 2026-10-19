@@ -9,9 +9,11 @@ const Details=deferredFeature(()=>import('./BrowserRunProgressDetails'),['',''],
   failure:(props,retry)=><ProgressFallback progress={props.progress} retry={retry}/>,
 });
 
+export function BrowserRunProgressBody({progress}:{progress:BrowserProgress}){return <Details progress={progress}/>;}
+
 /** The stop control stays mounted while optional detail rendering loads or retries. */
 export function BrowserRunProgress({progress,onStop}:{progress:BrowserProgress;onStop:()=>void}){
-  return <BrowserRunProgressFrame onStop={onStop}><Details progress={progress}/></BrowserRunProgressFrame>;
+  return <BrowserRunProgressFrame onStop={onStop}><BrowserRunProgressBody progress={progress}/></BrowserRunProgressFrame>;
 }
 function ProgressFallback({progress,retry}:{progress:BrowserProgress;retry?:()=>void}){
   const {t}=useI18n(),hasCount=progress.completed!==undefined&&progress.total!==undefined;
