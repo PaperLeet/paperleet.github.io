@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Thirty bilingual follow-up questions extend fifteen maintained study guides:
+Forty bilingual follow-up questions extend twenty maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -19,6 +19,12 @@ Thirty bilingual follow-up questions extend fifteen maintained study guides:
 | rl/grpo | Reward units with fixed epsilon; empty response groups versus token diagnostics | README sample std plus epsilon and distinct response/token denominators |
 | rl/dr_grpo | Unequal microbatch aggregation; reward scale versus retained KL | README fixed N*max_len denominator, token diagnostics and centered-only advantages |
 | architecture/flash_attention | Disjoint-state merge; row shifts change LSE but preserve output | README online unnormalized states, final u/l and m+log(l), retained LSE gradients |
+
+| foundations/next_token_loss | Vocabulary permutation with inverse target mapping; row-wise shift and zero-sum logit gradients | README shifted NLL, stable vocabulary normalization and batch scope |
+| foundations/sft_loss_mask | Prompt context versus direct logit gradients; first-answer predecessor counterexample | README target-only response/attention gates and one internal shift |
+| foundations/gradient_accumulation | Hierarchical mean/count merging; optimizer-update boundary | README local token means, fixed supplied gradients and pure merge scope |
+| foundations/gradient_clipping | Parameter partition invariance; clipping/weighted-merge noncommutation | README global L2 norm, shared epsilon scale and no mutation |
+| foundations/top_p_sampling | Nested prefixes and renormalization; top-k pretruncation counterexample | README full-vocabulary shortest prefix, temperature/tie rules and final normalization |
 
 
 These are editorial discussions based on the repository exercise statements.
@@ -41,7 +47,7 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all thirty questions, malformed/duplicate/oversized and legacy content shapes,
+all forty questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
@@ -78,3 +84,20 @@ stated interfaces, including its retained-KL teaching variant and zero incoming
 GAE carry, rather than claims of matching every paper implementation. No
 training run, GPU performance, true interview frequency or optimizer-scale
 invariance is inferred from these discussions.
+
+The training-foundations expansion adds ten editorial discussions in five guides.
+The published parent retains all 89 identities, all 267 core prompts and the prior
+30 follow-ups. Review records both README-language hashes and compares every
+parsed parent field, allowing only the ten explicitly named follow-ups. The
+three-microbatch, three-token and top-k/top-p examples are hand-derived from the
+local contracts; they are not new execution tests, interview reports, optimizer
+benchmarks or claims about full-model training equivalence.
+
+Background references were checked against [causal language modeling](https://huggingface.co/docs/transformers/main/en/tasks/language_modeling),
+[assistant-only SFT loss](https://huggingface.co/docs/trl/main/en/sft_trainer#train-on-assistant-messages-only),
+[PyTorch accumulation](https://docs.pytorch.org/docs/2.14/notes/amp_examples.html#gradient-accumulation),
+[global norm clipping](https://docs.pytorch.org/docs/2.14/generated/torch.nn.utils.clip_grad_norm_.html),
+and the [nucleus-sampling paper](https://arxiv.org/html/1904.09751v2#S3.SS1).
+PaperLeet's pure-function/valid-token interfaces and explicit shortest-prefix
+boundary remain authoritative; these are not literal reproductions of trainer,
+in-place optimizer utility or released sampler implementations.
