@@ -191,7 +191,7 @@ function Workspace() {
   }
   const catalogPageNavigation=useRef<string>(undefined);
   function changeCatalogView(href:string,paging=false){
-    if(!readLibraryRoute(href)&&!readPaperRegistryRoute(href))return;
+    if(!readLibraryRoute(href)&&!readPaperRegistryRoute(href)&&!readFavoriteRoute(href))return;
     if(paging){
       catalogPageNavigation.current=decodeProblemHash(href);
       try{appLocation.hash=href;return;}catch{catalogPageNavigation.current=undefined;}
@@ -363,7 +363,7 @@ function Workspace() {
     void loadCatalog();
     let previous=getId();
     const h = () => {
-      const next=getId(),before=routePath(previous),after=routePath(next),sameProfile=sameProfilePage(previous,next),listFilters=before===after&&(after==='interviews'||after==='community'||!!topicIdFromRoute(after)),paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
+      const next=getId(),before=routePath(previous),after=routePath(next),sameProfile=sameProfilePage(previous,next),listFilters=before===after&&(after==='interviews'||after==='community'||!!topicIdFromRoute(after)||after==='favorites'&&readFavoriteRoute(previous)?.list===readFavoriteRoute(next)?.list),paging=catalogPageNavigation.current===next;catalogPageNavigation.current=undefined;previous=next;setId(next);
       if(sameProfile||paging||listFilters)return;
       setTab("description");
       setRightTab("code");
@@ -593,11 +593,7 @@ function Workspace() {
         <SubmissionResultPage runId={submissionResultId} problems={problems}
           nextProblemFor={entry => nextPractice(entry, papers.find(paper => paper.id === entry.paper_id)?.module_ids || [], problems, learningSaved)} />
       ) : path === 'favorites' ? (
-        <ProblemFavoritesPage key={user?.id||'guest'} route={id} onFilters={href=>{
-          if(!readFavoriteRoute(href))return;
-          try{window.history.replaceState(window.history.state,'',publicHref(href));}catch{/* Explicit links keep the selected filters when history writes are unavailable. */}
-          setId(decodeProblemHash(href));
-        }} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
+        <ProblemFavoritesPage key={user?.id||'guest'} route={id} onFilters={changeCatalogView} problems={problems} saved={learningSaved} progressReady={progressReady} catalogReady={problems.length>0} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()}/>
       ) : achievementsPage ? (
         <Achievements problems={problems} papers={papers} saved={learningSaved} ready={progressReady && problems.length > 0} returnTo={achievementsReturn} onRetry={() => { void loadCatalog(); practice.retry(); learning.retry(); void refreshHealth(); }} error={loadError || practice.error || (!health && healthError ? t('暂时无法读取工作区，请重试连接。','The workspace is unavailable. Try connecting again.') : undefined)} workspaceName={user ? t(`${user.display_name} 的学习工作区`,`${user.display_name}’s learning workspace`) : t('当前练习工作区','Current practice workspace')} />
       ) : settingsPage ? (

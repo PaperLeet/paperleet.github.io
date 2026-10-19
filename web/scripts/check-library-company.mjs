@@ -83,7 +83,8 @@ const mocks = {
     export {ModuleNavigator} from '/src/ModuleNavigator.tsx';export {default as InterviewPracticeNextStep} from '/src/InterviewPracticeNextStep.tsx';
     export {default as PaperRegistry} from '/src/PaperRegistry.tsx';
     export const ProblemFavoriteButton=props=>React.createElement('button',{'data-test-favorite':props.problemId,'data-return-to':props.returnTo},'Save fixture problem');
-    export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
+    import {ProblemFavoritesPage as ActualFavorites} from '/src/ProblemFavorites.tsx';
+    export const ProblemFavoritesPage=props=>globalThis.__paperleetWorkspaceActionTest.realFavoritesPage?React.createElement(ActualFavorites,props):React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
     export const InboxBell=()=>null,Messages=()=>null;
     export {default as SubmissionCompletionNotice} from '/src/SubmissionCompletionNotice.tsx';
     export const Achievements=props=>React.createElement('a',{'data-test-achievement-return':true,href:props.returnTo},'Back to where you left off');
@@ -172,6 +173,7 @@ try{
  const {checkExerciseOrdering}=await import('./fixtures/exercise-ordering.mjs');await checkExerciseOrdering({fixture,catalog,nav,route,wait,click,field,editor,decodeProblemHash});
  const {checkExerciseCompanySources}=await import('./fixtures/exercise-company-sources.mjs');await checkExerciseCompanySources({fixture,catalog,nav,route,wait,click,summary});
  const {checkExerciseFavorites}=await import('./fixtures/exercise-favorites.mjs');await checkExerciseFavorites({fixture,catalog,nav,route,wait,click,notify,editor,summary});
+ const {checkFavoritePagination}=await import('./fixtures/favorite-pagination.mjs');await checkFavoritePagination({fixture,catalog,nav,route,wait,click,notify,editor,summary});
  const {checkInterviewFilterRecovery}=await import('./fixtures/interview-filter-recovery.mjs');await checkInterviewFilterRecovery({fixture,catalog,nav:await server.ssrLoadModule('/src/interviewNavigation.ts'),route,wait,click,field,notify,summary});
  const {checkCommunityPageRecovery}=await import('./fixtures/community-page-recovery.mjs');await checkCommunityPageRecovery({fixture,catalog,nav:await server.ssrLoadModule('/src/communityNavigation.ts'),route,wait,click,field,notify,http:process.env.PAPERLEET_COMMUNITY_PAGE_HTTP?{...JSON.parse(process.env.PAPERLEET_COMMUNITY_PAGE_HTTP),fetch:originals.get('fetch').value}:undefined});
  if(process.env.PAPERLEET_LIBRARY_COMPANY_HTTP){

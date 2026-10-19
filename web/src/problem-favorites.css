@@ -49,3 +49,15 @@
 .problem-favorite-button[aria-disabled=true]{color:var(--muted);cursor:default;background:var(--surface);border-color:var(--line)}
 .problem-favorite-button[aria-disabled=true]:hover{color:var(--muted);border-color:var(--line);background:var(--surface)}
 .favorite-problem-main{overflow-wrap:anywhere}
+
+.favorites-result-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 18px;margin:18px 0 12px;min-width:0}
+.favorites-result-summary{flex:1 1 200px;min-width:0;margin:0;color:var(--muted);font-size:var(--type-small);line-height:1.7;font-variant-numeric:tabular-nums;scroll-margin-top:100px}
+.favorites-result-summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.favorites-list{scroll-margin-top:100px}.favorites-retained-note{margin:0 0 12px;color:var(--muted);font-size:var(--type-small);line-height:1.7}
+.favorite-pages-fallback{display:flex;align-items:center;justify-content:center;gap:16px;padding:12px;color:var(--muted);font-size:var(--type-small);font-variant-numeric:tabular-nums}.favorite-pages-fallback button,.favorite-pages-retry{min-height:44px;padding:8px 12px}
+.favorites-page-recovery>div{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 16px}.favorites-page-recovery .text-button{min-height:44px;padding:8px 12px}.favorites-empty>.button+.button{margin-left:10px}
+.problem-favorites-page .library-pagination-compact{margin:0}.problem-favorites-page .library-pagination:not(.library-pagination-compact){margin-top:18px}.problem-favorites-page .library-page-options{min-width:0}
+@media(max-width:520px){.favorites-result-summary{flex-basis:100%}.favorites-result-bar>.library-pagination-compact{margin-left:auto}.favorites-empty>.button+.button{margin-left:0;margin-top:10px}}
+
+.problem-favorites-page .favorites-toolbar :is(label,select,.icon-button){min-height:44px}.favorites-toolbar .icon-button{min-width:44px}.favorites-toolbar label:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}.favorites-toolbar input:focus{outline:none}.favorites-toolbar select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.favorite-problem-row .problem-favorite-button{min-height:44px;min-width:44px}.favorite-problem-row:focus-within{background:var(--surface2)}.favorite-problem-main>a:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+@media(hover:hover){.favorite-problem-row:hover{background:var(--surface2)}}
