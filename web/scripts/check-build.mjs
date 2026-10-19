@@ -245,8 +245,10 @@ assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-code-manual')), 'Community code reading styles must remain deferred');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('community-code-manual')), 'Deferred community Markdown must include the manual code-copy recovery');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('KaTeX_Main-Regular')), 'Math font styles must load with rich text rather than the homepage');
-assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'Python navigation styles must stay deferred with the editor');
-assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'The enhanced editor must include its navigation layout');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-editor-palette')), 'Python navigation styles must stay deferred with the editor');
+assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-editor-palette')), 'The enhanced editor must include its navigation layout');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.cm-paperleet-search')), 'Editor search styles must remain deferred');
+assert((manifest['src/PythonEditor.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.cm-paperleet-search')), 'Deferred editor must ship its find and replace layout');
 for (const marker of ['community-tag-browser','Tag filtering is unavailable','community-selected-tags','admin-taxonomy-toolbar']) {
   assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Community management and tag interfaces must remain deferred');
   assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes(marker)), 'Deferred community views must include their management and tag interfaces');

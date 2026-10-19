@@ -1,6 +1,6 @@
-import {useRef,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
-import {Check,Copy,X} from 'lucide-react';
+import {Check,Copy,X,Search,Replace,Code2,CornerDownRight,Keyboard} from 'lucide-react';
 import {useI18n} from './i18n';
 import {ResetCodeButton} from './deferredPages';
 import {editorFontSizes} from './editorPreferences';
@@ -13,7 +13,30 @@ export type EditorToolsProps=ResetProps&{font:number;onFont:(font:number)=>void;
 export default function EditorTools(props:EditorToolsProps){
   const {t}=useI18n(),{font,onFont,canUseCode,...reset}=props;
   const source=props.saved.code??props.problem.starter;
+  const actions=useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    const menu=actions.current?.closest<HTMLDetailsElement>('details.editor-actions');if(!menu)return;
+    const outside=(event:PointerEvent)=>{if(menu.open&&!menu.contains(event.target as Node)&&!menu.querySelector('dialog[open]'))menu.open=false;};
+    const escape=(event:globalThis.KeyboardEvent)=>{if(!menu.open||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||menu.querySelector('dialog[open]'))return;event.preventDefault();event.stopPropagation();menu.open=false;menu.querySelector('summary')?.focus();};
+    document.addEventListener('pointerdown',outside);menu.addEventListener('keydown',escape);
+    return()=>{document.removeEventListener('pointerdown',outside);menu.removeEventListener('keydown',escape);};
+  },[]);
+  function command(name:string){
+    const menu=actions.current?.closest<HTMLDetailsElement>('details.editor-actions'),editor=actions.current?.closest('.editor-code-panel')?.querySelector('.python-editor');
+    if(!editor)return;
+    if(menu)menu.open=false;
+    editor.dispatchEvent(new CustomEvent('paperleet:editor-command',{detail:name}));
+  }
   return <>
+    <div ref={actions} className="editor-tool-actions">
+      {[
+        {name:'find',label:t('查找','Find'),keys:'Ctrl / ⌘ F',icon:Search},
+        {name:'replace',label:t('查找和替换','Find and replace'),keys:'Ctrl H / ⌘ ⌥ F',icon:Replace},
+        {name:'symbols',label:t('跳转到函数或类','Go to function or class'),keys:'Ctrl / ⌘ Shift O',icon:Code2},
+        {name:'line',label:t('跳转到行','Go to line'),keys:'Ctrl G',icon:CornerDownRight},
+        {name:'shortcuts',label:t('键盘快捷键','Keyboard shortcuts'),keys:'F1',icon:Keyboard},
+      ].map(action=><button type="button" disabled={!props.ready} key={action.name} onClick={()=>command(action.name)}><action.icon size={14}/><span>{action.label}</span><kbd>{action.keys}</kbd></button>)}
+    </div>
     <label className="editor-font-size"><span aria-hidden="true">Aa</span><select className="editor-font-size-select" value={font} title={t('代码字号','Code font size')} aria-label={t('代码字号','Code font size')} onChange={event=>{
       const size=Number(event.target.value);if(!editorFontSizes.includes(size))return;
       onFont(size);try{localStorage.setItem('paperleet.editor.fontSize',String(size));}catch{/* This session keeps the selected size. */}
@@ -26,7 +49,7 @@ function SourceCopy({source,ready,canUseCode}:{source:string;ready:boolean;canUs
   const {t}=useI18n(),{status,value,copy}=useClipboardCopy(),[dismissed,setDismissed]=useState(false);
   const root=useRef<HTMLSpanElement>(null),button=useRef<HTMLButtonElement>(null);
   const manual=status==='failed'&&value!==undefined&&!dismissed;
-  function close(){setDismissed(true);if(ready&&canUseCode())button.current?.focus({preventScroll:true});}
+  function close(){setDismissed(true);if(ready&&canUseCode()){const menu=button.current?.closest<HTMLDetailsElement>('details.editor-actions');(menu&&!menu.open?menu.querySelector<HTMLElement>('summary'):button.current)?.focus({preventScroll:true});}}
   function escape(event:KeyboardEvent){
     if(!manual||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;
     event.preventDefault();event.stopPropagation();close();

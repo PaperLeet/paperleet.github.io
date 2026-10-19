@@ -133,3 +133,15 @@
 @media (prefers-reduced-motion:reduce) {
   .workspace .pane-tabs > button, .workspace .pane-tabs > a, .workspace .split-handle-grip { transition:none; }
 }
+
+/* Keep the file header quiet; less frequent actions live in one disclosure. */
+.editor-actions{position:relative;margin-left:auto;color:var(--text);font:var(--type-small)/1.5 var(--font-sans)}
+.editor-actions>summary{display:flex;align-items:center;justify-content:center;list-style:none;width:34px;height:30px;border:1px solid transparent;border-radius:6px;color:var(--text-secondary);font-size:21px;font-weight:700;letter-spacing:2px;cursor:pointer;user-select:none}
+.editor-actions>summary::-webkit-details-marker{display:none}.editor-actions>summary:hover,.editor-actions[open]>summary{background:var(--surface2);border-color:var(--line);color:var(--text)}
+.editor-actions-panel{position:absolute;top:calc(100% + 7px);right:0;z-index:30;width:320px;max-width:calc(100vw - 32px);padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:9px;box-shadow:0 6px 24px #0003}
+.editor-actions:not([open])>.editor-actions-panel{display:none}.editor-tool-actions{padding-bottom:5px;margin-bottom:5px;border-bottom:1px solid var(--line)}
+.editor-tool-actions>button,.workspace .editor-actions-panel>.icon-button,.workspace .editor-actions-panel>.editor-source-copy>button{display:flex;align-items:center;justify-content:flex-start;gap:9px;width:100%;min-height:34px;height:auto;padding:7px 9px;border-radius:5px;font:12px/1.5 var(--font-sans);text-align:left;color:var(--text-secondary)}
+.editor-tool-actions>button:hover:not(:disabled),.workspace .editor-actions-panel>.icon-button:hover:not(:disabled),.workspace .editor-actions-panel>.editor-source-copy>button:hover:not([aria-disabled=true]){background:var(--surface2);color:var(--text)}
+.editor-tool-actions>button>span{flex:1}.editor-tool-actions kbd{font:9px/1.5 var(--font-mono);color:var(--muted);white-space:nowrap}.workspace .editor-actions-panel>.editor-source-copy{display:block}.editor-actions-panel>.editor-source-copy>button:after,.editor-actions-panel>.icon-button:after{content:attr(aria-label)}
+.workspace .editor-actions-panel>.editor-font-size{display:flex;justify-content:space-between;border:0;padding:7px 9px;font-size:12px}.workspace .editor-actions-panel .editor-font-size-select{min-height:30px;border:1px solid var(--line);border-radius:5px;background:var(--surface2);min-width:80px;padding:4px 8px}
+@media(pointer:coarse){.editor-actions>summary{width:44px;height:40px}.editor-tool-actions>button,.workspace .editor-actions-panel>.icon-button,.workspace .editor-actions-panel>.editor-source-copy>button{min-height:44px}}

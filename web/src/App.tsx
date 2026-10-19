@@ -1028,7 +1028,9 @@ function Workspace() {
                       <WorkspacePanelIcon name="file" size={13} />
                       solution.py
                     </span>
-                    <div>
+                    <details className="editor-actions">
+                      <summary aria-label={t('编辑器操作','Editor actions')} title={t('编辑器操作','Editor actions')}>···</summary>
+                      <div className="editor-actions-panel">
                       <EditorTools owner={practice.owner} problem={problem} saved={current} ready={practice.ready}
                         busy={practice.pending||practice.saving||running} conflict={!!practice.conflicts[problem.id]} failed={!!practice.error} signedIn={!!user}
                         font={font} onFont={setFont} canUseCode={()=>practice.ready&&practice.owns(practice.owner)&&[problem.id,String(problem.number)].includes(routePath(getId()))}
@@ -1044,7 +1046,8 @@ function Workspace() {
                       >
                         <WorkspacePanelIcon name="download" size={14}/>
                       </button>
-                    </div>
+                      </div>
+                    </details>
                   </div>
                   <div className="editor-copy-recovery"/>
                   <div className="code-editor">
