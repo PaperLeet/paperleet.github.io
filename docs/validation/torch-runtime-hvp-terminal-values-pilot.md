@@ -60,3 +60,24 @@ native/real-WASM logs, failure controls, all timing samples and profile dumps.
 Replay requires external Python/NumPy/Torch/Node/Pyodide dependencies and path
 adaptation. Full native SDK test sources are identified by Git/source hashes;
 the archive's WASM contract copy contains the 89 browser-compatible suites.
+
+## Further isolated evidence
+
+Experiment 391 repeats the same 14-flow pilot in one actual Node/Pyodide process.
+All baseline/candidate outputs match exactly before timing. Norm B/A0 medians
+are 0.864–0.896 (about 10–14% lower); non-norm controls are 1.002–1.004. All
+14 A/A medians remain within 5%. This is still one-process exploratory evidence,
+not repeated WASM or Chrome performance qualification. Original attempt 390
+failed before measurements because execution globals lacked `__file__`; 391
+fixes that bridge field without changing workloads, candidates or thresholds.
+
+Experiments 394/395 run the unchanged 4,480-case norm-HVP boundary corpus on
+NumPy 2.5.4 and 1.26.4. Each matches all 4,480 cases against both preserved
+independent Torch 2.6 and 2.14 observations, including the 320 older composition
+controls. All 4,480 select the Tensor three-reverse path; no missing rule or
+context leak is observed. These are comparisons with frozen native references,
+not fresh native runs. The expanded raw corpus has not yet been rerun on the
+new candidate in WASM; the previously retained phase discrepancy is not fixed
+by this evidence. Sources, exact comparers/references, path observations and
+raw outputs are retained in the
+[data-follow-up archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz).

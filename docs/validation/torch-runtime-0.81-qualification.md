@@ -168,3 +168,31 @@ main unchanged. Both transport attempts, audits, exact grants, the corrected
 [main-sync archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-sync-harness.tar.gz): 86 verified files,
 3,744,761 bytes, SHA-256 `ee6299ffe7f736ed623447f9bbb51134dfcd16560192464cdb80e86b658fe27d`.
 [Machine-readable reconciliation](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-sync.json).
+
+## Append-only study-data follow-up
+
+Main subsequently advanced to `9104986dfd91734d7a7097e86685a6b2727f842f`.
+Only the guide JSON, its existing check and its documentation change. All 89
+module identities, 267 core prompts, previous 50 follow-ups and root metadata
+are preserved; seven guides gain two follow-ups each (64 total). Experiment
+396 records that parsed-object proof. No production UI, backend, problem, judge
+or Worker code changes.
+
+At `daa6c4d90f152e857c1d0f4a627f85debe25a2f3`, experiment 398 passes both current
+data checks, both complete build profiles, Pages assets/retention/generated
+Worker checks and the actual Chrome Worker. The full 204-command source-code
+qualification remains experiment 385; this is not a claim of a fresh full 204
+on the data-only delta. Canonical 0.81 resources, installed metadata and export
+identities remain unchanged. An early launch (397) started before preparation
+finished and failed before any gate; its original error is retained. Fresh
+398 waits for the prepared frozen plan and passes all gates unchanged.
+
+The 388 upload reached a terminal ordinary ref-lock rejection after 590 seconds
+because main had advanced; no new content was overwritten. A subsequent
+read-only Git negotiation acknowledges the already received `de22a49f` commit.
+Future attempts can use standard `push.negotiate=true` through the same native
+wrapper and release guards, reusing objects without a force push.
+[Data-follow-up evidence](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup.json)
+and [raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz): 245 verified files
+(151 unique payloads, tar hard links for identical bytes),
+2,562,527 bytes, SHA-256 `cf6a15fa23532a2ebec0eee55c73f00ac91638fb9a18494cd9ac5072bc39f519`.

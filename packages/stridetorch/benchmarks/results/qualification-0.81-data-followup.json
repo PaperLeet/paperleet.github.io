@@ -1,0 +1,83 @@
+{
+  "status": "passed_append_only_current_main_data_followup",
+  "version": "0.81.0",
+  "qualified_head": "daa6c4d90f152e857c1d0f4a627f85debe25a2f3",
+  "incoming_main": "9104986dfd91734d7a7097e86685a6b2727f842f",
+  "data_proof": {
+    "status": "verified_append_only_data_delta",
+    "incoming_main": "9104986dfd91734d7a7097e86685a6b2727f842f",
+    "base_main": "3aa2c298f4d82192c7c6191d8319d659acadabca",
+    "paths": [
+      "docs/validation/study-followups.md",
+      "web/scripts/check-study-followups.mjs",
+      "web/src/data/preparation-guides.json"
+    ],
+    "modules": 89,
+    "core_prompts_preserved": 267,
+    "prior_followups_preserved": 50,
+    "new_followups": 64,
+    "added": [
+      {
+        "id": "retrieval/bpr",
+        "added": 2
+      },
+      {
+        "id": "retrieval/sasrec",
+        "added": 2
+      },
+      {
+        "id": "retrieval/lightgcn",
+        "added": 2
+      },
+      {
+        "id": "retrieval/late_interaction",
+        "added": 2
+      },
+      {
+        "id": "retrieval/semantic_ids",
+        "added": 2
+      },
+      {
+        "id": "retrieval/generative_retrieval",
+        "added": 2
+      },
+      {
+        "id": "representation/graphsage_mean",
+        "added": 2
+      }
+    ],
+    "old_source_sha256": "131bbeac741aee3b54f78aa6f5dd4bffed27aa6be951b71de7c7fb6113d3ca7d",
+    "new_source_sha256": "3d18e37f9084893d39f797c9d2fd2ac164a19e3f7aaa8b24cdd6495d66bf1b68",
+    "frontend_production_code_unchanged": true,
+    "backend_judge_worker_unchanged": true,
+    "source_grant_for_inflight_upload": "Frozen de22 commit already packed; remote advanced, allow ordinary transfer to reach terminal without new concurrent push; reconcile append-only data separately."
+  },
+  "full_frontend_baseline": {
+    "stage": 385,
+    "commands": 204
+  },
+  "fresh_data_commands": 2,
+  "both_current_builds_passed": true,
+  "current_actual_chrome_worker_passed": true,
+  "application_result_sha256": "8db528edfa8d8ebf0b014d577a85fbad9688d921e503ffa0974d34dae8276e42",
+  "archive": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz",
+    "files": 245,
+    "unique_payloads": 151,
+    "bytes": 2562527,
+    "sha256": "cf6a15fa23532a2ebec0eee55c73f00ac91638fb9a18494cd9ac5072bc39f519",
+    "verified_all_payloads": true
+  },
+  "previous_push": {
+    "stage": 388,
+    "seconds": 590.4811112500029,
+    "terminal": "ordinaryrefCASrejectionafterremoteadvanced;nooverwrite",
+    "server_acknowledged_existing_commit": "de22a49f54167f1f0eb8f01601769f2f5657571b"
+  },
+  "retained_early_launch_failure": 397,
+  "main_adopted": false,
+  "ci_triggered": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active"
+}
