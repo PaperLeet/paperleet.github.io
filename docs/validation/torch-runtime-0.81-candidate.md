@@ -1,5 +1,9 @@
 # StrideTorch 0.81 candidate: implementation and initial distribution checks
 
+Historical candidate-stage record. The subsequent
+[0.81 qualification](torch-runtime-0.81-qualification.md) completes the local
+application/export/Worker gates described as pending below.
+
 The local 0.81 candidate integrates the packed-row optimization selected in the
 [repeated WASM qualification](torch-runtime-matmul-packed-rows-qualification.md).
 It is **not yet adopted on main or published**. Current PaperLeet application,

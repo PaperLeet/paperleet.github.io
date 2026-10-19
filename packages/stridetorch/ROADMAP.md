@@ -894,3 +894,22 @@ source-commit deployment was superseded and is not claimed as published.
   remain required before considering a production GPU backend.
 - See the [0.80 evidence and limits](../../docs/validation/torch-runtime-0.80-qualification.md).
   Independent-library readiness and broader core API coverage remain active.
+
+
+## Version 0.81 local qualification
+
+- Pack eligible 2D WASM matrix reduction rows while preserving existing range,
+  dtype and shape guards, native CPU routing, batched paths and C-order results.
+- Retain 27 full forward/selected-gradient/owned-copy flows in three fresh Node
+  and three fresh Chrome processes. All 162 A/A controls pass; no per-process
+  flow exceeds the predefined 10% regression threshold. Measured dense/strided
+  gains are scoped to those workloads, with all raw samples retained.
+- Report individual-kernel temporary memory separately from full-call snapshot
+  peaks. Native NumPy and actual WASM copy-owner checks release observed arrays.
+- Validate actual public/private distributions and the installed 0.81 SDK on
+  NumPy 2.5.4 and 1.26.4, then current PaperLeet CPU, native references, real WASM
+  catalog budgets, exported assets, frontend builds and the real nested Worker.
+- Keep known norm/sine precision differences and remaining norm-HVP costs
+  visible. GPU tensor storage/autograd, broader core APIs and independent-library
+  readiness remain active work. See the
+  [0.81 record](../../docs/validation/torch-runtime-0.81-qualification.md).

@@ -6,14 +6,13 @@ reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
 existing browser adapter. Core API fixes and performance improvements are
 developed here and checked against independent native PyTorch results.
 
-The working **0.81 candidate** packs eligible 2D WASM matrix reduction rows.
-Repeated Node/Chrome measurements and numerical/memory checks are recorded in
-the [candidate qualification](../../docs/validation/torch-runtime-matmul-packed-rows-qualification.md).
-Final distribution and current PaperLeet application integration are in progress;
-this version has not been published or adopted on main.
-The [0.81 candidate record](../../docs/validation/torch-runtime-0.81-candidate.md)
-tracks actual distribution and installed-SDK checks separately from the remaining
-application and browser export gates.
+Version **0.81** packs contiguous reduction rows for eligible 2D WASM matrix
+products. Representative complete forward/gradient flows improve while native
+CPU BLAS routing and public APIs retain their existing behavior. The
+[0.81 qualification record](../../docs/validation/torch-runtime-0.81-qualification.md)
+records measured scope, temporary-copy memory costs, installed-package checks
+and local PaperLeet application/browser verification. WebGPU remains an
+experimental developer prototype; it is not an enabled torch backend.
 
 ```sh
 python -m pip install ./packages/stridetorch
