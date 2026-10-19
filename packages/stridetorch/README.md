@@ -6,6 +6,15 @@ reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
 existing browser adapter. Core API fixes and performance improvements are
 developed here and checked against independent native PyTorch results.
 
+The working **0.81 candidate** packs eligible 2D WASM matrix reduction rows.
+Repeated Node/Chrome measurements and numerical/memory checks are recorded in
+the [candidate qualification](../../docs/validation/torch-runtime-matmul-packed-rows-qualification.md).
+Final distribution and current PaperLeet application integration are in progress;
+this version has not been published or adopted on main.
+The [0.81 candidate record](../../docs/validation/torch-runtime-0.81-candidate.md)
+tracks actual distribution and installed-SDK checks separately from the remaining
+application and browser export gates.
+
 ```sh
 python -m pip install ./packages/stridetorch
 stridetorch train.py --epochs 10

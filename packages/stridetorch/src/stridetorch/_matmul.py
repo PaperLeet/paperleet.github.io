@@ -32,10 +32,13 @@ def product(a, b):
         if np.min(magnitude, where=magnitude != 0, initial=upper) < lower:
             return a @ b
         del magnitude
-    # Let einsum choose its fast traversal. Passing order='C' disables that
-    # traversal on WASM even for C-order results. Normalize only the output
-    # so transposed/strided inputs still preserve matmul's C-order contract.
-    return np.ascontiguousarray(np.einsum('ik,kj->ij', a, b, optimize=False))
+    # Contiguous reduction rows let WASM use the fast dot traversal. Packing
+    # may add two temporary operand copies; none survive this contraction.
+    # Passing order='C' to einsum disables its fast traversal on WASM, so
+    # normalize only the result to retain matmul's C-order output contract.
+    return np.ascontiguousarray(np.einsum(
+        'ik,jk->ij', np.ascontiguousarray(a), np.ascontiguousarray(b.T),
+        optimize=False))
 
 
 def _unique_values(value, batch_only=False):
