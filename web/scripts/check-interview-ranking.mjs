@@ -5,7 +5,7 @@ import {createServer} from 'vite';
 import {readFileSync} from 'node:fs';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{url:'http://paperleet.test/'});
 const reveals=[];dom.window.HTMLElement.prototype.scrollIntoView=function(options){reveals.push({node:this,options});};
-const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__rankingFixture:undefined};
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__rankingFixture:{account:{user:null,loading:false,capabilities:{}},request:async()=>{throw Error('Unexpected ranking request');}}};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
 localStorage.setItem('paperleet.locale','en');

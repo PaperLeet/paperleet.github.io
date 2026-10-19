@@ -64,11 +64,11 @@ import { useBrowserLearning } from './useBrowserLearning';
 import { browserLearningView } from './browserLearning';
 import {submissionCompletion,resultPanelVisible,type SubmissionCompletion} from './submissionCompletion';
 import {SubmissionCompletionNotice} from './deferredPages';
-import { BrowserLearningNotice } from './BrowserLearningNotice';
 import { type EditorFocusRequest, type SourceLocation } from './sourceLocation';
 import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libraryHref, libraryReturnHref, readLibraryRoute, routePath, withLibraryContext } from './libraryNavigation';
 import "./community.css";
 
+const BrowserLearningNotice=deferredFeature<Parameters<typeof import('./BrowserLearningNotice').BrowserLearningNotice>[0]>(()=>import('./BrowserLearningNotice').then(module=>({default:module.BrowserLearningNotice})),['学习进度提示','learning progress notice'],{loading:()=>null,failure:(_props,retry)=><span className="browser-learning-notice-recovery"><FeatureRetry retry={retry} label={['重试学习进度提示','Retry progress notice']}/></span>});
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
 const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
@@ -247,7 +247,7 @@ function Workspace() {
   const learningView = browserLearningView(practice.owner,problems,saved,learning.records);
   const learningSaved = learningView.saved;
   const notesUnlocked = !!problem && status(problem,learningSaved[problem.id]) === 'done';
-  const learningNotice = hosted && <BrowserLearningNotice count={learningView.localPasses} failed={learning.failed} saving={learning.saving} onRetry={learning.retry} />;
+  const learningNotice = hosted && (learningView.localPasses>0||learning.failed) && <BrowserLearningNotice count={learningView.localPasses} failed={learning.failed} saving={learning.saving} onRetry={learning.retry} />;
   const progressReady = practice.ready && !practice.loading && learning.ready;
   const practiceReturn = libraryView ? libraryHref(libraryView.collectionId, libraryView.filters) : libraryReturn;
   const scopeView=libraryView||returningLibrary;

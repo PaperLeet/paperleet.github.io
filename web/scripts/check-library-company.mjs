@@ -174,6 +174,7 @@ try{
  const {checkExerciseCompanySources}=await import('./fixtures/exercise-company-sources.mjs');await checkExerciseCompanySources({fixture,catalog,nav,route,wait,click,summary});
  const {checkExerciseFavorites}=await import('./fixtures/exercise-favorites.mjs');await checkExerciseFavorites({fixture,catalog,nav,route,wait,click,notify,editor,summary});
  const {checkFavoritePagination}=await import('./fixtures/favorite-pagination.mjs');await checkFavoritePagination({fixture,catalog,nav,route,wait,click,notify,editor,summary});
+ const {checkConceptFavorites}=await import('./fixtures/concept-favorites.mjs');await checkConceptFavorites({fixture,catalog,nav,route,wait,click,notify,editor,summary});
  const {checkInterviewFilterRecovery}=await import('./fixtures/interview-filter-recovery.mjs');await checkInterviewFilterRecovery({fixture,catalog,nav:await server.ssrLoadModule('/src/interviewNavigation.ts'),route,wait,click,field,notify,summary});
  const {checkCommunityPageRecovery}=await import('./fixtures/community-page-recovery.mjs');await checkCommunityPageRecovery({fixture,catalog,nav:await server.ssrLoadModule('/src/communityNavigation.ts'),route,wait,click,field,notify,http:process.env.PAPERLEET_COMMUNITY_PAGE_HTTP?{...JSON.parse(process.env.PAPERLEET_COMMUNITY_PAGE_HTTP),fetch:originals.get('fetch').value}:undefined});
  if(process.env.PAPERLEET_LIBRARY_COMPANY_HTTP){
