@@ -66,6 +66,7 @@ try {
   assert.equal(localStorage.getItem('paperleet.locale'),'en');
   assert.equal(find('.account-menu-panel').getAttribute('aria-label'),'Personal menu');
   const savedLink=find('.account-menu-links a[href*="saved=1"]');assert(savedLink&&savedLink.textContent.includes('Saved interviews'));assert.equal(savedLink.getAttribute('href'),'#/interviews?saved=1&days=all');const navigated=new Promise(resolve=>window.addEventListener('hashchange',resolve,{once:true}));await click(savedLink);await act(async()=>navigated);assert(!find('.account-menu-panel'),'The saved-reading shortcut closes the account panel');await click(find('.account-menu-trigger'));
+  for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{shiftKey:true},{repeat:true},{isComposing:true},{keyCode:229}]){const event=new dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true,...extra});await act(async()=>find('.account-menu-panel').dispatchEvent(event));assert(!event.defaultPrevented);assert(find('.account-menu-panel'),'Modified and IME Escape keep preferences open');}
   await click(button('Dark'));
   assert.equal(button('Dark').getAttribute('aria-pressed'),'true');
   assert(find('.account-menu-panel'),'Changing preferences keeps the panel open');

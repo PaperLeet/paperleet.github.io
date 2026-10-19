@@ -19,7 +19,7 @@ export default function RelatedModuleSearch({value,onChange,label,disabled=false
    onKeyDown={event=>{
     const ime=composing.current||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229;
     if(event.key==='Enter'){event.stopPropagation();if(!ime)event.preventDefault();return;}
-    if(event.key==='Escape'&&!ime&&value){event.preventDefault();event.stopPropagation();clear();}
+    if(event.key==='Escape'&&!ime&&!event.repeat&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&value){event.preventDefault();event.stopPropagation();clear();}
    }}/>
   {!!value&&<button type="button" disabled={disabled} aria-label={t('清空题目搜索','Clear module search')} onClick={clear}><X size={16} aria-hidden="true"/></button>}
  </div>;

@@ -566,7 +566,7 @@ function Workspace() {
           </div>
         </div>
       </header>
-      {backupOpen && <WorkspaceBackup key={practice.owner} owner={practice.owner} problems={problems} saved={saved} backups={practice.backups} conflicts={practice.conflicts}
+      {backupOpen && <WorkspaceBackup key={`backup:${practice.owner}`} owner={practice.owner} problems={problems} saved={saved} backups={practice.backups} conflicts={practice.conflicts}
         recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {
           if (!editorRecoveryReason && practice.owns(practice.owner)) location.reload();
         }}}

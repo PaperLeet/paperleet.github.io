@@ -3,4 +3,6 @@
 .custom-cases label{display:grid;gap:6px;margin:12px 0;font-size:var(--type-small)}
 .custom-cases textarea,.custom-cases select{width:100%;box-sizing:border-box;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
 .custom-cases textarea{font-family:var(--font-mono,monospace);resize:vertical}.custom-cases pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto;font-size:12px}
-.custom-case-actions{display:flex;gap:10px;margin:12px 0}.custom-cases :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.custom-case-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.custom-cases :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.custom-cases .custom-case-error{color:var(--red,var(--chart-5));padding:10px 12px;border-left:2px solid currentColor;background:var(--surface);border-radius:6px}.custom-cases textarea[aria-invalid=true],.custom-cases select[aria-invalid=true]{border-color:var(--red,var(--chart-5))}.custom-cases textarea{min-height:64px;line-height:1.7}

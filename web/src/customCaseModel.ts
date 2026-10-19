@@ -1,12 +1,18 @@
 export type CustomCase = {function: string; args: unknown[]; kwargs: Record<string,unknown>; expected?: unknown};
 export type CustomCaseResult = {ok: boolean; output?: unknown; matches?: boolean; stdout: string; error?: string};
+export type CustomCaseField = 'function'|'args'|'kwargs'|'expected';
+export class CustomCaseInputError extends Error {
+  constructor(public field:CustomCaseField,public reason:'function'|'size'|'json'|'array'|'object') {super(reason);}
+}
 export function parseCustomCase(name:string,args:string,kwargs:string,expected:string,allowed:string[]):CustomCase {
-  if(!allowed.includes(name)||!/^\w+$/.test(name))throw Error('Choose a function from this module.');
-  if(new TextEncoder().encode(args+kwargs+expected).length>32768)throw Error('Custom input must be at most 32 KB.');
-  const positional:unknown=JSON.parse(args),keywords:unknown=JSON.parse(kwargs);
-  if(!Array.isArray(positional))throw Error('Positional arguments must be a JSON array.');
-  if(!keywords||typeof keywords!=='object'||Array.isArray(keywords))throw Error('Keyword arguments must be a JSON object.');
-  return {function:name,args:positional,kwargs:keywords as Record<string,unknown>,...(expected.trim()?{expected:JSON.parse(expected)}:{})};
+  if(!allowed.includes(name)||!/^\w+$/.test(name))throw new CustomCaseInputError('function','function');
+  if(new TextEncoder().encode(args+kwargs+expected).length>32768)throw new CustomCaseInputError('args','size');
+  function parse(value:string,field:CustomCaseField):unknown {try{return JSON.parse(value);}catch{throw new CustomCaseInputError(field,'json');}}
+  const positional=parse(args,'args');
+  if(!Array.isArray(positional))throw new CustomCaseInputError('args','array');
+  const keywords=parse(kwargs,'kwargs');
+  if(!keywords||typeof keywords!=='object'||Array.isArray(keywords))throw new CustomCaseInputError('kwargs','object');
+  return {function:name,args:positional,kwargs:keywords as Record<string,unknown>,...(expected.trim()?{expected:parse(expected,'expected')}:{})};
 }
 export function readCustomResult(value:unknown):CustomCaseResult|undefined {
   if(!value||typeof value!=='object')return;

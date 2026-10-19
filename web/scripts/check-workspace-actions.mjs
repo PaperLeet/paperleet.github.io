@@ -17,6 +17,7 @@ globalThis.ResizeObserver = class { observe() {} disconnect() {} };
 globalThis.fetch = async url => { throw Error(`Unexpected network request: ${url}`); };
 window.matchMedia = () => ({matches:false,addEventListener(){},removeEventListener(){}});
 window.scrollTo = () => {};
+window.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};window.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};
 window.HTMLElement.prototype.scrollTo = function(x,y) { this.scrollLeft=x;this.scrollTop=y; };
 window.HTMLElement.prototype.scrollIntoView = () => {};
 Object.defineProperties(window.HTMLElement.prototype,{clientWidth:{get:()=>1200},clientHeight:{get:()=>700}});
@@ -55,10 +56,10 @@ fixture.practice.update=fixture.practice.update.bind(fixture.practice);
 fixture.browser.run=fixture.browser.run.bind(fixture.browser);
 globalThis.__paperleetWorkspaceActionTest = fixture;
 const mocks = {
-  './social': `import {useSyncExternalStore} from 'react';
+  './social': `import React,{useSyncExternalStore} from 'react';
     export {profileHref} from '/src/social.tsx';
     export const AccountProvider=({children})=>children;
-    export const AccountNav=()=>null;
+    export const AccountNav=props=>React.createElement('button',{'data-test-open-backup':true,onClick:props.onBackup},'Open backup');
     export function useAccount(){const f=globalThis.__paperleetWorkspaceActionTest;useSyncExternalStore(f.subscribe,f.snapshot,f.snapshot);return f.account;}`,
   './PracticeWorkspace': `export const usePracticeWorkspace=()=>globalThis.__paperleetWorkspaceActionTest.practice;`,
   './useBrowserJudge': `export const useBrowserJudge=()=>globalThis.__paperleetWorkspaceActionTest.browser;`,
@@ -79,6 +80,7 @@ const mocks = {
     export const ProblemFavoritesPage=props=>React.createElement('section',{'data-test-favorites':props.route},React.createElement('button',{'data-test-favorite-filters':true,onClick:()=>props.onFilters('#/favorites?q=LoRA&state=todo')},'Change favorite filters'));
     export const StudyListPracticeNavigation=props=>React.createElement('nav',{'data-test-study-current':props.problemId,'data-test-study-return':props.returnTo,'data-test-study-catalog':props.problems.map(p=>p.id).join(',')});
     export const InboxBell=()=>null,Messages=()=>null;
+    export {default as WorkspaceBackup} from '/src/WorkspaceBackup.tsx';
     export {default as SubmissionCompletionNotice} from '/src/SubmissionCompletionNotice.tsx';
     export const Achievements=props=>React.createElement('a',{'data-test-achievement-return':true,href:props.returnTo},'Back to where you left off');
     export {default as ResizableSplit} from '/src/ResizableSplit.tsx';
@@ -89,7 +91,7 @@ const mocks = {
     export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);const focused=!focusRequest.claimFocus||focusRequest.claimFocus();if(focused)document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest,focused);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content})=>React.createElement('article',null,content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
-    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','WorkspaceBackup','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
+    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
 };
 mocks['/src/ReportView.tsx']=mocks['./ReportView'];
 const server = await createServer({
@@ -130,6 +132,11 @@ try {
   assert.equal(find('.editor-split'),null,'The editor no longer reserves a second result pane');
   assert.equal(find('.results-pane-toggle'),null);
   assert(!action('Run tests').disabled&&!action('Submit').disabled);
+  await click(find('[data-test-open-backup]'));await settle(()=>find('.workspace-backup-dialog'));const backupDialog=find('.workspace-backup-dialog');
+  for(let i=0;i<5;i++){await change(()=>{fixture.account.health={...fixture.account.health};});assert.equal(document.querySelectorAll('.workspace-backup-dialog').length,1,'Account/health refresh cannot duplicate a backup dialog');assert.equal(find('.workspace-backup-dialog'),backupDialog,'Background updates retain the same dialog and its input');}
+  await click(backupDialog.querySelector('button'));assert.equal(document.querySelectorAll('.workspace-backup-dialog').length,0,'Closing removes the complete dialog');
+  await click(find('[data-test-open-backup]'));await settle(()=>find('.workspace-backup-dialog'));assert.equal(document.querySelectorAll('.workspace-backup-dialog').length,1);await click(find('.workspace-backup-dialog button'));assert(!find('.workspace-backup-dialog'));
+  console.log('PASS actual App backup dialog: unique sibling keys, repeated health updates retain one instance, complete close and clean reopen');
 
   // Switching reading tabs must not remount the editor or lose its
   // unsent selection/scroll. The real Python editor has separate editor tests.
@@ -339,6 +346,8 @@ try {
   assertInline('Thrown submit errors stay on the current problem');
   await change(()=>{fixture.judge.submitError='';});
 
+  const custom=document.createElement('details');custom.className='custom-cases';const customInput=document.createElement('textarea');custom.append(customInput);document.querySelector('.app').append(custom);
+  for(const extra of [{ctrlKey:true},{metaKey:true}]){const event=new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true,...extra});await act(async()=>customInput.dispatchEvent(event));assert(!event.defaultPrevented);assert.equal(calls.runs.length,5,'Custom input never triggers the whole-module run shortcut');}custom.remove();
   const chord=new window.KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true});
   await act(async()=>editor.dispatchEvent(chord));
   assert(chord.defaultPrevented,'The editor run shortcut is still intercepted before inserting a newline');

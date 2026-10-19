@@ -13,3 +13,5 @@
 .python-editor :is(button,input):focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 @media(pointer:coarse){.editor-find-row button{min-width:32px;min-height:36px}.editor-find-row input{min-height:36px}.python-editor-palette [role=option],.editor-shortcut-actions>button{min-height:44px}}
 @media(max-width:500px){.python-editor .cm-panels-top:has(>.cm-paperleet-search){right:6px;max-width:calc(100% - 12px)}.python-editor .cm-paperleet-search{padding:6px}.editor-shortcut-list>div{flex-wrap:wrap;gap:2px}.editor-shortcut-list dd{margin-left:auto}}
+
+@media(prefers-reduced-motion:no-preference){.python-editor-palette,.cm-paperleet-search{animation:editor-surface-enter .14s ease-out}@keyframes editor-surface-enter{from{opacity:0}to{opacity:1}}}
